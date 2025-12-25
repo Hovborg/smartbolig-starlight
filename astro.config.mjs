@@ -196,6 +196,11 @@ export default defineConfig({
           collapsed: true,
           items: [
             {
+              label: "Om SmartBolig.net",
+              translations: { en: "About SmartBolig.net" },
+              link: "/om-os/",
+            },
+            {
               label: "Privatlivspolitik",
               translations: { en: "Privacy Policy" },
               link: "/juridisk/privatlivspolitik/",
@@ -204,6 +209,10 @@ export default defineConfig({
               label: "Cookiepolitik",
               translations: { en: "Cookie Policy" },
               link: "/juridisk/cookiepolitik/",
+            },
+            {
+              label: "Affiliate Disclosure",
+              link: "/juridisk/affiliate-disclosure/",
             },
           ],
         },

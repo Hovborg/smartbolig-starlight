@@ -1,0 +1,150 @@
+---
+// 404 page for SmartBolig.net
+---
+
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Side ikke fundet | SmartBolig.net</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e4e4e7;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+        .container {
+            text-align: center;
+            max-width: 600px;
+        }
+        .error-code {
+            font-size: 8rem;
+            font-weight: bold;
+            color: #818cf8;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #f4f4f5;
+        }
+        p {
+            font-size: 1.1rem;
+            color: #a1a1aa;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+        .links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            justify-content: center;
+            margin-bottom: 2rem;
+        }
+        a {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            background: #818cf8;
+            color: white;
+            text-decoration: none;
+            border-radius: 0.5rem;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+        a:hover {
+            background: #6366f1;
+        }
+        a.secondary {
+            background: transparent;
+            border: 1px solid #52525b;
+            color: #e4e4e7;
+        }
+        a.secondary:hover {
+            border-color: #818cf8;
+            color: #818cf8;
+        }
+        .emoji {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        .popular {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid #27272a;
+        }
+        .popular h2 {
+            font-size: 1rem;
+            color: #71717a;
+            margin-bottom: 1rem;
+            font-weight: normal;
+        }
+        .popular-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        .popular-links a {
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            background: #27272a;
+        }
+        .popular-links a:hover {
+            background: #3f3f46;
+        }
+        .lang-switch {
+            margin-top: 2rem;
+            font-size: 0.9rem;
+            color: #71717a;
+        }
+        .lang-switch a {
+            background: transparent;
+            padding: 0.25rem 0.5rem;
+            color: #a1a1aa;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="emoji">🏠</div>
+        <div class="error-code">404</div>
+        <h1>Siden blev ikke fundet</h1>
+        <p>
+            Beklager! Den side du leder efter eksisterer ikke, er blevet flyttet, 
+            eller er midlertidigt utilgængelig.
+        </p>
+        
+        <div class="links">
+            <a href="/da/">🏠 Gå til forsiden</a>
+            <a href="/da/home-assistant/" class="secondary">Home Assistant</a>
+            <a href="/da/esp32/" class="secondary">ESP32</a>
+        </div>
+        
+        <div class="popular">
+            <h2>Populære guides:</h2>
+            <div class="popular-links">
+                <a href="/da/home-assistant/kom-godt-i-gang/">Kom godt i gang</a>
+                <a href="/da/home-assistant/zigbee2mqtt/">Zigbee2MQTT</a>
+                <a href="/da/esp32/temperatur-sensor/">Temperatur sensor</a>
+                <a href="/da/home-assistant/foerste-automation/">Din første automation</a>
+            </div>
+        </div>
+        
+        <div class="lang-switch">
+            <a href="/en/">🇬🇧 English version</a>
+        </div>
+    </div>
+</body>
+</html>
