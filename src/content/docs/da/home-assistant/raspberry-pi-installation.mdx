@@ -1,0 +1,100 @@
+---
+title: Home Assistant på Raspberry Pi
+description: Komplet guide til installation af Home Assistant på Raspberry Pi 4 eller 5. Fra SD-kort til fungerende smart home hub.
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, FileTree, Badge } from '@astrojs/starlight/components';
+
+Raspberry Pi er nok den mest populære måde at køre Home Assistant på. Billigt, støjsvagt og bruger næsten ingen strøm.
+
+## Hvad skal du bruge?
+
+**Hardware:**
+- Raspberry Pi 4 (4GB) eller Pi 5 <Badge text="Anbefalet" variant="success" />
+- SD-kort på minimum 32GB (SanDisk Extreme eller Samsung EVO)
+- Strømforsyning - brug den officielle
+- Ethernet kabel (mere stabilt end WiFi)
+
+**Valgfrit men anbefalet:**
+- SSD via USB (holder længere end SD-kort)
+- Køleplade eller blæser til Pi'en
+
+<Aside type="caution" title="SD-kort holder ikke evigt">
+SD-kort dør. Det er ikke et spørgsmål om "hvis" men "hvornår". Har du mulighed for det, så kør med en SSD fra starten.
+</Aside>
+
+## Installation trin for trin
+
+<Steps>
+1. **Download Home Assistant OS**
+   
+   Gå til [home-assistant.io/installation](https://www.home-assistant.io/installation/raspberrypi) og download image-filen:
+   - `haos_rpi4-64` for Raspberry Pi 4
+   - `haos_rpi5-64` for Raspberry Pi 5
+
+2. **Flash SD-kortet**
+   
+   Download [Balena Etcher](https://www.balena.io/etcher/) og:
+   - Sæt SD-kortet i din computer
+   - Åbn Etcher
+   - Vælg den downloadede `.img.xz` fil
+   - Vælg dit SD-kort
+   - Klik "Flash!"
+
+3. **Første opstart**
+   
+   Sæt SD-kortet i din Pi og tilslut:
+   - Ethernet kabel
+   - Strøm (tilslut sidst)
+   
+   Første opstart tager 10-20 minutter.
+
+4. **Åbn Home Assistant**
+   
+   Gå til `http://homeassistant.local:8123` i din browser.
+</Steps>
+
+<Aside type="note" title="Kan ikke finde homeassistant.local?">
+Prøv at finde IP-adressen på din router og brug `http://192.168.1.XXX:8123` i stedet.
+</Aside>
+
+## Første opsætning
+
+<Steps>
+1. **Opret din konto** - Vælg et stærkt password
+2. **Navngiv dit hjem** - F.eks. "Mit Smart Hjem"  
+3. **Vælg lokation** - For solop/nedgang og vejr
+4. **Opdager enheder** - Home Assistant finder automatisk enheder
+</Steps>
+
+## Tips fra virkeligheden
+
+### Backup, backup, backup
+
+Gå til **Indstillinger** → **System** → **Backups** og lav en backup. Gem backups på et andet sted end din Pi.
+
+### Overvej en SSD
+
+En SSD via USB3 porten giver:
+- Hurtigere boot og dashboard
+- Meget længere levetid
+- Direkte boot på Pi 4 og Pi 5
+
+## Problemer?
+
+| Problem | Løsning |
+|---------|---------|
+| Kan ikke finde homeassistant.local | Brug IP-adresse i stedet |
+| "Preparing Home Assistant" længe | Vent 20-30 min, genstart ikke |
+| Pi'en bliver varm | Monter køleplade, check temp i HA |
+
+## Næste skridt
+
+<CardGrid>
+  <Card title="Din første automation" icon="rocket">
+    [Lav automationer →](/da/home-assistant/foerste-automation/)
+  </Card>
+  <Card title="Zigbee2MQTT" icon="setting">
+    [Tilføj Zigbee enheder →](/da/home-assistant/zigbee2mqtt/)
+  </Card>
+</CardGrid>

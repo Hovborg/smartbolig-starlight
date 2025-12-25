@@ -1,0 +1,75 @@
+---
+title: ESP32 & ESPHome
+description: Byg dine egne smart home enheder med ESP32 og ESPHome. Sensorer, kontakter og automationer du selv har lavet.
+---
+
+import { Card, CardGrid, LinkCard, Aside } from '@astrojs/starlight/components';
+
+ESP32 er en lille mikrocontroller der koster under 50 kroner og kan forbindes til dit WiFi. Med ESPHome kan du lave dine egne sensorer, kontakter og displays.
+
+## Hvorfor ESP32?
+
+<CardGrid>
+  <Card title="💰 Billigt" icon="rocket">
+    Boards koster 30-80 kr. Sensorer under 20 kr.
+  </Card>
+  <Card title="🔧 Fleksibelt" icon="setting">
+    Hundredvis af sensorer og moduler passer til.
+  </Card>
+  <Card title="🏠 Lokalt" icon="approve-check">
+    Ingen cloud, ingen abonnementer, fuld kontrol.
+  </Card>
+  <Card title="🎓 Lærerigt" icon="document">
+    Du lærer og får præcis hvad du har brug for.
+  </Card>
+</CardGrid>
+
+## Guides
+
+<CardGrid>
+  <LinkCard 
+    title="Kom godt i gang" 
+    description="Installer ESPHome og flash din første ESP32"
+    href="/da/esp32/kom-godt-i-gang/"
+  />
+  <LinkCard 
+    title="Temperatur sensor" 
+    description="DHT22 temperatur og fugtighed sensor"
+    href="/da/esp32/temperatur-sensor/"
+  />
+  <LinkCard 
+    title="Bevægelsessensor" 
+    description="PIR sensor til bevægelsesdetektering"
+    href="/da/esp32/bevaegelsessensor/"
+  />
+  <LinkCard 
+    title="LED strip kontrol" 
+    description="Adresserbar LED strip med WLED eller ESPHome"
+    href="/da/esp32/led-strip/"
+  />
+</CardGrid>
+
+## Populære projekter
+
+| Projekt | Sværhedsgrad | Pris ca. |
+|---------|--------------|----------|
+| Temperatur/fugtighed sensor | ⭐ Let | 60 kr |
+| Bevægelsessensor | ⭐ Let | 80 kr |
+| LED strip controller | ⭐⭐ Medium | 150 kr |
+| Display med sensorer | ⭐⭐ Medium | 200 kr |
+| Egen smart kontakt | ⭐⭐⭐ Svær | 100 kr |
+
+## Hvad skal du bruge?
+
+<Aside type="tip" title="Startpakke">
+- **ESP32 board** (ESP32-WROOM-32 eller ESP32-C3)
+- **USB-kabel** (micro-USB eller USB-C)
+- **Computer med Home Assistant**
+</Aside>
+
+**Senere:**
+- Breadboard til prototyper
+- Jumper wires
+- Diverse sensorer (DHT22, PIR, osv.)
+
+Jeg køber det meste på AliExpress (2-3 uger levering, billigst) eller danske webshops for hurtig levering.

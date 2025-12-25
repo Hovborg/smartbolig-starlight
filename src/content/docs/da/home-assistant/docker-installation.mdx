@@ -1,0 +1,142 @@
+---
+title: Home Assistant i Docker
+description: Kør Home Assistant Container med Docker Compose. Perfekt til dem der vil have fuld kontrol over deres setup.
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, FileTree } from '@astrojs/starlight/components';
+
+Docker er en fleksibel måde at køre Home Assistant på. Du får fuld kontrol og kan køre andre tjenester på samme maskine.
+
+## Hvornår vælge Docker?
+
+Docker giver mening hvis du:
+- Allerede har en server kørende
+- Vil køre andre tjenester (Plex, Nextcloud, osv.)
+- Kan lide at have styr på tingene selv
+
+<Aside type="tip">
+Vil du bare have noget der virker uden bøvl? Så er [Raspberry Pi med Home Assistant OS](/da/home-assistant/raspberry-pi-installation/) nok et bedre valg.
+</Aside>
+
+## Forudsætninger
+
+<Tabs>
+  <TabItem label="Ubuntu/Debian">
+    ```bash
+    # Installer Docker
+    curl -fsSL https://get.docker.com | sh
+
+    # Tilføj din bruger til docker gruppen
+    sudo usermod -aG docker $USER
+
+    # Log ud og ind igen
+    newgrp docker
+
+    # Verificer
+    docker --version
+    ```
+  </TabItem>
+  <TabItem label="Check installation">
+    ```bash
+    docker compose version
+    ```
+  </TabItem>
+</Tabs>
+
+## Mappestruktur
+
+```bash
+mkdir -p ~/docker/homeassistant/config
+cd ~/docker/homeassistant
+```
+
+<FileTree>
+- docker/
+  - homeassistant/
+    - config/ (alle HA filer)
+    - **docker-compose.yml**
+</FileTree>
+
+## Docker Compose fil
+
+```yaml title="docker-compose.yml"
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    volumes:
+      - ./config:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    network_mode: host
+```
+
+<Aside type="note" title="network_mode: host">
+Home Assistant scanner dit netværk for enheder. Med `host` networking får den fuld adgang - ellers virker auto-discovery ikke.
+</Aside>
+
+## Start Home Assistant
+
+```bash
+docker compose up -d
+```
+
+Åbn derefter `http://DIN-SERVER-IP:8123`
+
+## Nyttige kommandoer
+
+```bash
+# Se logs
+docker compose logs -f homeassistant
+
+# Genstart
+docker compose restart homeassistant
+
+# Opdater til nyeste version
+docker compose pull && docker compose up -d
+```
+
+## USB-enheder (Zigbee stick osv.)
+
+Find din enhed:
+
+```bash
+ls -la /dev/serial/by-id/
+```
+
+Tilføj til docker-compose.yml:
+
+```yaml title="docker-compose.yml" ins={8-9}
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    volumes:
+      - ./config:/config
+      - /etc/localtime:/etc/localtime:ro
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0
+    restart: unless-stopped
+    network_mode: host
+```
+
+## Begrænsninger
+
+| Feature | Docker Container | Home Assistant OS |
+|---------|-----------------|-------------------|
+| Add-ons | ❌ Nej | ✅ Ja |
+| Supervisor | ❌ Nej | ✅ Ja |
+| Auto-backup | ❌ Manuel | ✅ Ja |
+| Fleksibilitet | ✅ Høj | ⚠️ Begrænset |
+
+## Næste skridt
+
+<CardGrid>
+  <Card title="Zigbee2MQTT" icon="setting">
+    [Kør Zigbee2MQTT som container →](/da/home-assistant/zigbee2mqtt/)
+  </Card>
+  <Card title="Første automation" icon="rocket">
+    [Lav din første automation →](/da/home-assistant/foerste-automation/)
+  </Card>
+</CardGrid>

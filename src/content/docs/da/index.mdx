@@ -1,0 +1,78 @@
+---
+title: Velkommen til SmartBolig.net
+description: Danmarks mest komplette guide til smart home. Lær Home Assistant, ESP32 og automatisering med letforståelige tutorials på dansk.
+template: splash
+hero:
+  tagline: Din danske ressource til alt inden for smart home teknologi. Dybdegående guides, tutorials og anmeldelser til at bygge det perfekte intelligente hjem.
+  image:
+    file: ../../../assets/logo-dark.svg
+  actions:
+    - text: Kom i gang
+      link: /da/home-assistant/kom-godt-i-gang/
+      icon: right-arrow
+      variant: primary
+    - text: Se alle guides
+      link: /da/home-assistant/
+      variant: secondary
+---
+
+import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+## 🎯 Kom godt i gang
+
+<CardGrid stagger>
+  <Card title="🔵 Home Assistant" icon="setting">
+    Den ultimative smart home platform. Open source, privatlivsfokuseret og utrolig kraftfuld.
+    
+    [Kom i gang med Home Assistant →](/da/home-assistant/)
+  </Card>
+  <Card title="⚡ ESP32 & ESPHome" icon="rocket">
+    Byg dine egne sensorer og enheder. Billigt, fleksibelt og fuldt integrerbart.
+    
+    [Udforsk ESP32 projekter →](/da/esp32/)
+  </Card>
+  <Card title="🤖 Automationer" icon="puzzle">
+    Lad dit hjem arbejde for dig. Fra simple til avancerede automationer.
+    
+    [Se automation guides →](/da/automationer/)
+  </Card>
+  <Card title="🛡️ Sikkerhed" icon="approve-check">
+    Smart home betyder også ansvar. Sikre dit netværk og beskyt dine data.
+    
+    [Læs om sikkerhed →](/da/sikkerhed/)
+  </Card>
+</CardGrid>
+
+## 📚 Populære Guides
+
+<CardGrid>
+  <LinkCard 
+    title="Home Assistant Installation" 
+    description="Komplet guide til Raspberry Pi og Docker"
+    href="/da/home-assistant/raspberry-pi-installation/"
+  />
+  <LinkCard 
+    title="Zigbee2MQTT" 
+    description="Zigbee netværk fra bunden"
+    href="/da/home-assistant/zigbee2mqtt/"
+  />
+  <LinkCard 
+    title="Første ESP32 Sensor" 
+    description="DIY temperatur/fugtighed sensor"
+    href="/da/esp32/temperatur-sensor/"
+  />
+  <LinkCard 
+    title="LED Strip Kontrol" 
+    description="Adresserbar LED strip med ESP32"
+    href="/da/esp32/led-strip/"
+  />
+</CardGrid>
+
+## 💡 Hvorfor SmartBolig.net?
+
+| Feature | Beskrivelse |
+|---------|-------------|
+| ✅ **100% dansk** | Alt indhold på dit modersmål |
+| ✅ **Praktisk fokus** | Trin-for-trin guides du kan følge |
+| ✅ **Open source** | Vi anbefaler løsninger du har kontrol over |
+| ✅ **Kode til kopiering** | Alle eksempler klar til at kopiere |

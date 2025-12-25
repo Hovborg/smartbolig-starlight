@@ -1,0 +1,122 @@
+---
+title: Kom godt i gang med ESP32
+description: Din første ESP32 med ESPHome. Fra udpakning til fungerende sensor i Home Assistant.
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
+
+ESP32 er en mikrocontroller - en lille computer der kan måle ting, styre ting, og snakke med dit WiFi. Sammen med ESPHome bliver det nemt at lave dine egne smart home enheder.
+
+## Hvad er ESPHome?
+
+ESPHome er software der kører på din ESP32. Du beskriver hvad den skal gøre i en simpel YAML-fil, og ESPHome klarer resten. Ingen Arduino IDE, ingen C++.
+
+ESPHome integrerer direkte med Home Assistant. Dine sensorer dukker bare op.
+
+## Dit første board
+
+| Board | Pris ca. | Anbefalet til |
+|-------|----------|---------------|
+| **ESP32-WROOM-32 DevKit** | 40-50 kr | Begyndere (start her) |
+| ESP32-C3 Super Mini | 25 kr | Små projekter |
+| ESP32-S3 | 60 kr | Displays, mere RAM |
+
+<Aside type="tip">
+Start med en **WROOM-32 DevKit**. Den er bred nok til at se hvad du laver, og alle guides bruger den.
+</Aside>
+
+## Installer ESPHome
+
+<Steps>
+1. Gå til **Indstillinger** → **Add-ons** → **Add-on butik**
+2. Søg efter "ESPHome" og klik **Installer**
+3. Start add-on'en
+4. Slå "Vis i sidebar" til
+</Steps>
+
+## Opret din første enhed
+
+<Steps>
+1. **Tilslut ESP32** via USB til din computer (ikke HA serveren endnu)
+
+2. **Åbn ESPHome** fra sidebaren og klik **+ New Device**
+
+3. **Navngiv enheden** f.eks. "test-sensor"
+
+4. **Vælg board:** ESP32 Dev Module
+
+5. **Tilføj WiFi credentials** under **Secrets**:
+   ```yaml
+   wifi_ssid: "dit-wifi-navn"
+   wifi_password: "dit-wifi-password"
+   ```
+
+6. **Flash via USB:** Klik **Install** → **Plug into this computer**
+</Steps>
+
+## Grundlæggende konfiguration
+
+```yaml title="test-sensor.yaml"
+esphome:
+  name: test-sensor
+  friendly_name: Test Sensor
+
+esp32:
+  board: esp32dev
+
+logger:
+
+api:
+  encryption:
+    key: "din-autogenererede-nøgle"
+
+ota:
+  - platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+captive_portal:
+```
+
+## Tilføj til Home Assistant
+
+<Steps>
+1. Gå til **Indstillinger** → **Enheder og tjenester**
+2. Home Assistant finder automatisk din ESP32
+3. Klik **Konfigurer** og indtast encryption key
+</Steps>
+
+## Tilføj en simpel sensor
+
+```yaml title="WiFi signalstyrke sensor"
+sensor:
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: 60s
+```
+
+Klik **Install** → **Wirelessly** for at opdatere trådløst.
+
+## Tilføj en LED
+
+```yaml title="Styr indbygget LED"
+light:
+  - platform: status_led
+    name: "Status LED"
+    pin: GPIO2
+```
+
+Nu kan du tænde/slukke LED'en fra Home Assistant!
+
+## Næste skridt
+
+<CardGrid>
+  <Card title="Temperatur sensor" icon="rocket">
+    [Tilføj DHT22 sensor →](/da/esp32/temperatur-sensor/)
+  </Card>
+  <Card title="LED strip" icon="setting">
+    [Styr adresserbare LEDs →](/da/esp32/led-strip/)
+  </Card>
+</CardGrid>

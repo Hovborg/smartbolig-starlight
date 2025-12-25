@@ -1,0 +1,55 @@
+---
+title: Bevægelsessensor med ESP32
+description: Byg en bevægelsessensor med ESP32 og PIR sensor til dine automationer.
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+PIR sensorer er perfekte til at detektere bevægelse. Billige, pålidelige og nemme at sætte op.
+
+## Komponenter
+
+| Del | Pris ca. |
+|-----|----------|
+| ESP32 board | 40 kr |
+| HC-SR501 PIR sensor | 15 kr |
+| Jumper wires | 10 kr |
+| **Total** | **65 kr** |
+
+## Tilslutning
+
+```
+HC-SR501    ESP32
+--------    ------
+VCC    -->  5V (eller VIN)
+GND    -->  GND
+OUT    -->  GPIO5
+```
+
+## ESPHome konfiguration
+
+```yaml title="bevaegelse-sensor.yaml"
+binary_sensor:
+  - platform: gpio
+    pin: GPIO5
+    name: "Stue Bevægelse"
+    device_class: motion
+```
+
+<Aside type="tip" title="Juster følsomhed">
+HC-SR501 har to små skruer til at justere følsomhed og timeout. Eksperimenter for at finde de rigtige indstillinger.
+</Aside>
+
+## Brug i automationer
+
+```yaml title="Tænd lys ved bevægelse"
+automation:
+  - alias: "Tænd lys ved bevægelse"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.stue_bevaegelse
+        to: "on"
+    action:
+      - service: light.turn_on
+        entity_id: light.stue
+```

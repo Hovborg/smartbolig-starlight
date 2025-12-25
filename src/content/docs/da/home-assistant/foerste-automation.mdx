@@ -1,0 +1,139 @@
+---
+title: Din første automation
+description: Lav din første Home Assistant automation fra bunden. Tænd lyset automatisk når du kommer hjem.
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
+
+Nu begynder det sjove. Automationer er grunden til at vi gider alt det her. At lyset tænder når du kommer hjem. At varmen skruer ned når du går.
+
+## Sådan virker automationer
+
+Alle automationer har tre dele:
+
+| Del | Beskrivelse | Eksempel |
+|-----|-------------|----------|
+| **Trigger** | Hvad starter automationen? | Solnedgang, bevægelse, tid |
+| **Betingelser** | Skal noget tjekkes først? | Er det mørkt? Er nogen hjemme? |
+| **Handling** | Hvad skal der ske? | Tænd lys, send besked |
+
+Tænk på det som: "Når X sker, og hvis Y er sandt, så gør Z."
+
+## Eksempel: Lys ved solnedgang
+
+<Tabs>
+  <TabItem label="Via UI">
+    <Steps>
+    1. Gå til **Indstillinger** → **Automatiseringer og scener**
+    2. Klik **Opret automatisering** → **Opret ny automatisering**
+    3. **Trigger:** Klik "Tilføj trigger" → "Sol" → "Solnedgang"
+    4. **Handling:** Klik "Tilføj handling" → "Enhed" → Find din lampe → "Tænd"
+    5. Gem med navnet "Tænd stuelys ved solnedgang"
+    </Steps>
+  </TabItem>
+  <TabItem label="YAML">
+    ```yaml title="automations.yaml"
+    alias: Tænd stuelys ved solnedgang
+    description: Tænder automatisk lyset når solen går ned
+    trigger:
+      - platform: sun
+        event: sunset
+        offset: "00:00:00"
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.stue_loft
+    mode: single
+    ```
+  </TabItem>
+</Tabs>
+
+## Eksempel: Lys ved bevægelse (nat)
+
+```yaml title="Gang lys om natten"
+alias: Lys i gang ved bevægelse (nat)
+trigger:
+  - platform: state
+    entity_id: binary_sensor.gang_bevaegelse
+    to: "on"
+condition:
+  - condition: time
+    after: "22:00:00"
+    before: "07:00:00"
+action:
+  - service: light.turn_on
+    target:
+      entity_id: light.gang
+    data:
+      brightness_pct: 20
+  - delay:
+      minutes: 2
+  - service: light.turn_off
+    target:
+      entity_id: light.gang
+mode: restart
+```
+
+<Aside type="tip" title="mode: restart">
+Hvis du bevæger dig igen inden de 2 minutter, starter timeren forfra. Ellers ville lyset slukke mens du stadig er i gangen.
+</Aside>
+
+## Eksempel: Vaskemaskine færdig
+
+Kræver smart stikkontakt med strømmåling:
+
+```yaml title="Vaskemaskine notifikation"
+alias: Vaskemaskine færdig
+trigger:
+  - platform: numeric_state
+    entity_id: sensor.vaskemaskine_stromforbrug
+    below: 5
+    for:
+      minutes: 3
+condition:
+  - condition: numeric_state
+    entity_id: sensor.vaskemaskine_stromforbrug
+    above: 0.5
+action:
+  - service: notify.mobile_app_min_telefon
+    data:
+      title: "Vaskemaskine"
+      message: "Vasketøjet er færdigt!"
+```
+
+## Tips til gode automationer
+
+<CardGrid>
+  <Card title="Start simpelt" icon="rocket">
+    Min første automation var at tænde lyset. Først da det virkede, tilføjede jeg betingelser.
+  </Card>
+  <Card title="Test grundigt" icon="approve-check">
+    Brug "Kør" knappen til at teste handlingerne inden du venter på triggeren.
+  </Card>
+  <Card title="Beskrivende navne" icon="document">
+    "Tænd udendørslys ved solnedgang" er bedre end "Automation 1"
+  </Card>
+  <Card title="Overvej edge cases" icon="warning">
+    Hvad hvis strømmen går? Hvad hvis nogen allerede har tændt lyset?
+  </Card>
+</CardGrid>
+
+## Debugging
+
+<Aside type="note" title="Noget virker ikke?">
+1. **Entity ID** - Stavefejl er hyppigste årsag
+2. **Logs** - Indstillinger → System → Logs
+3. **Spor** - Under automationen kan du se seneste kørsler
+4. **Udviklerværktøjer → Tilstande** - Se alle entiteters tilstand
+</Aside>
+
+## Næste skridt
+
+<CardGrid>
+  <Card title="Zigbee sensorer" icon="setting">
+    [Tilføj sensorer med Zigbee2MQTT →](/da/home-assistant/zigbee2mqtt/)
+  </Card>
+  <Card title="ESP32 sensorer" icon="rocket">
+    [Byg dine egne sensorer →](/da/esp32/)
+  </Card>
+</CardGrid>

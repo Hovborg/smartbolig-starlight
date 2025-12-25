@@ -1,0 +1,47 @@
+---
+title: Sikkerhed
+description: Sikre dit smart home netværk og beskyt dine data.
+---
+
+import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
+
+Smart home betyder også ansvar. Her lærer du at sikre dit netværk og beskytte dine data.
+
+<Aside type="caution" title="Sikkerhed først">
+Et usikkert smart home kan give hackere adgang til dit netværk og dine data. Tag sikkerhed alvorligt.
+</Aside>
+
+## Grundlæggende sikkerhed
+
+<CardGrid>
+  <Card title="🔐 Netværkssikkerhed" icon="approve-check">
+    Segmentér dit netværk og hold IoT enheder isoleret.
+  </Card>
+  <Card title="🔑 Adgangskontrol" icon="setting">
+    Stærke passwords og to-faktor autentificering.
+  </Card>
+  <Card title="🔄 Opdateringer" icon="rocket">
+    Hold alt opdateret - firmware, software, alt.
+  </Card>
+  <Card title="☁️ Cloud vs Lokal" icon="document">
+    Hvorfor lokale løsninger ofte er mere sikre.
+  </Card>
+</CardGrid>
+
+## Anbefalinger
+
+| Anbefaling | Vigtighed |
+|------------|-----------|
+| Brug stærke, unikke passwords | ⭐⭐⭐ Kritisk |
+| Aktiver to-faktor på Home Assistant | ⭐⭐⭐ Kritisk |
+| Segmentér IoT på separat VLAN | ⭐⭐ Anbefalet |
+| Undgå cloud-afhængige enheder | ⭐⭐ Anbefalet |
+| Hold firmware opdateret | ⭐⭐⭐ Kritisk |
+
+## Hvorfor lokalt?
+
+Home Assistant og ESPHome kører lokalt. Det betyder:
+
+- **Ingen cloud** - Dine data forlader ikke dit hjem
+- **Ingen abonnementer** - Virker selv hvis producenten lukker
+- **Fuld kontrol** - Du bestemmer hvad der sker med dine data

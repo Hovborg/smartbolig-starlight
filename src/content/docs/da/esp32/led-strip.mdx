@@ -1,0 +1,79 @@
+---
+title: LED strip med ESP32
+description: Styr adresserbare LED strips med ESP32 og ESPHome. RGB effekter og Home Assistant integration.
+---
+
+import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Adresserbare LED strips giver fantastiske lys-effekter og er nemme at integrere med Home Assistant.
+
+## Komponenter
+
+| Del | Pris ca. |
+|-----|----------|
+| ESP32 board | 40 kr |
+| WS2812B LED strip (1m, 60 LEDs) | 50 kr |
+| 5V strømforsyning | 40 kr |
+| **Total** | **130 kr** |
+
+<Aside type="caution" title="Strømforsyning">
+LED strips bruger MEGET strøm. 60 LEDs på fuld hvid bruger ca. 3A. Brug en ordentlig 5V strømforsyning, ikke USB.
+</Aside>
+
+## Tilslutning
+
+```
+LED Strip    ESP32
+---------    ------
++5V      --> Ekstern 5V strømforsyning (+)
+GND      --> GND (forbind ESP32 GND også!)
+DIN      --> GPIO16
+```
+
+## ESPHome konfiguration
+
+<Tabs>
+  <TabItem label="Simpel">
+    ```yaml title="led-strip.yaml"
+    light:
+      - platform: neopixelbus
+        type: GRB
+        variant: WS2812
+        pin: GPIO16
+        num_leds: 60
+        name: "LED Strip"
+    ```
+  </TabItem>
+  <TabItem label="Med effekter">
+    ```yaml title="led-strip.yaml"
+    light:
+      - platform: neopixelbus
+        type: GRB
+        variant: WS2812
+        pin: GPIO16
+        num_leds: 60
+        name: "LED Strip"
+        effects:
+          - rainbow:
+              name: "Rainbow"
+              speed: 10
+          - pulse:
+              name: "Pulse"
+          - strobe:
+              name: "Strobe"
+    ```
+  </TabItem>
+</Tabs>
+
+## Alternativ: WLED
+
+WLED er et populært alternativ til ESPHome til LED strips:
+
+- Flere effekter (100+)
+- Webapp til kontrol
+- Synkronisering mellem strips
+- Musikreaktion
+
+<Aside type="tip">
+WLED integrerer også med Home Assistant. Perfekt til komplekse lys-setups.
+</Aside>

@@ -1,0 +1,68 @@
+---
+title: Temperatur sensor med ESP32
+description: Byg en temperatur og fugtighed sensor med ESP32 og DHT22.
+---
+
+import { Steps, Aside, Card, CardGrid } from '@astrojs/starlight/components';
+
+En temperatur/fugtighed sensor er det perfekte første projekt. Billigt, nemt og utrolig nyttigt.
+
+## Komponenter
+
+| Del | Pris ca. |
+|-----|----------|
+| ESP32 board | 40 kr |
+| DHT22 sensor | 20 kr |
+| Jumper wires | 10 kr |
+| **Total** | **70 kr** |
+
+## Tilslutning
+
+```
+DHT22      ESP32
+------     ------
+VCC   -->  3.3V
+GND   -->  GND
+DATA  -->  GPIO4
+```
+
+<Aside type="caution">
+DHT22 kører på 3.3V. Brug IKKE 5V - det kan ødelægge sensoren.
+</Aside>
+
+## ESPHome konfiguration
+
+```yaml title="temperatur-sensor.yaml"
+sensor:
+  - platform: dht
+    pin: GPIO4
+    temperature:
+      name: "Stue Temperatur"
+    humidity:
+      name: "Stue Fugtighed"
+    update_interval: 60s
+    model: DHT22
+```
+
+<Steps>
+1. Tilføj koden til din ESPHome enhed
+2. Klik **Install** → **Wirelessly**
+3. Sensoren dukker op i Home Assistant
+</Steps>
+
+## Tips
+
+- **Placering:** Undgå direkte sollys og varmekilder
+- **Opdateringsinterval:** 60s er fint, hurtigere slider batteriet
+- **Kalibrering:** DHT22 kan være lidt upræcis - sammenlign med et godt termometer
+
+## Næste skridt
+
+<CardGrid>
+  <Card title="Bevægelsessensor" icon="rocket">
+    [Tilføj PIR sensor →](/da/esp32/bevaegelsessensor/)
+  </Card>
+  <Card title="LED strip" icon="setting">
+    [Styr RGB LEDs →](/da/esp32/led-strip/)
+  </Card>
+</CardGrid>

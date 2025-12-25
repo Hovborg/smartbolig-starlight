@@ -1,0 +1,167 @@
+---
+title: Kom godt i gang med Home Assistant
+description: Komplet guide til at installere og opsætte Home Assistant på Raspberry Pi eller Docker
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
+
+Home Assistant er verdens mest populære open source smart home platform. I denne guide lærer du at installere og konfigurere din første Home Assistant installation.
+
+## Hvad er Home Assistant?
+
+Home Assistant er en **gratis, open source** platform der samler alle dine smart home enheder i én app. Du kan:
+
+- Styre 2000+ forskellige mærker og enheder
+- Lave avancerede automationer
+- Holde dine data lokalt (ingen cloud!)
+- Tilpasse alt efter dine behov
+
+## Installations muligheder
+
+Du har flere muligheder for at køre Home Assistant:
+
+| Metode | Sværhedsgrad | Anbefalet til |
+|--------|--------------|---------------|
+| Home Assistant OS | ⭐ Let | Begyndere, dedikeret hardware |
+| Docker | ⭐⭐ Medium | Erfarne brugere, eksisterende server |
+| Core | ⭐⭐⭐ Avanceret | Python udviklere |
+
+## Installation med Docker
+
+Hvis du allerede har en server kørende, er Docker den nemmeste måde at komme i gang på.
+
+### Forudsætninger
+
+<Steps>
+1. **Installer Docker** på din server (Ubuntu/Debian):
+
+   ```bash
+   # Opdater pakkelisten
+   sudo apt update && sudo apt upgrade -y
+
+   # Installer Docker
+   curl -fsSL https://get.docker.com | sh
+
+   # Tilføj din bruger til docker gruppen
+   sudo usermod -aG docker $USER
+   ```
+
+2. **Log ud og ind igen**, eller kør:
+
+   ```bash
+   newgrp docker
+   ```
+
+3. **Verificér installationen**:
+
+   ```bash
+   docker --version
+   ```
+</Steps>
+
+### Start Home Assistant
+
+<Tabs>
+  <TabItem label="Docker Run">
+    ```bash
+    # Opret config mappe
+    mkdir -p ~/homeassistant
+
+    # Start Home Assistant
+    docker run -d \
+      --name homeassistant \
+      --privileged \
+      --restart=unless-stopped \
+      -e TZ=Europe/Copenhagen \
+      -v ~/homeassistant:/config \
+      -v /run/dbus:/run/dbus:ro \
+      --network=host \
+      ghcr.io/home-assistant/home-assistant:stable
+    ```
+  </TabItem>
+  <TabItem label="Docker Compose (anbefalet)">
+    Opret en `docker-compose.yml` fil:
+
+    ```yaml title="docker-compose.yml"
+    version: '3.8'
+    services:
+      homeassistant:
+        container_name: homeassistant
+        image: ghcr.io/home-assistant/home-assistant:stable
+        volumes:
+          - ./config:/config
+          - /etc/localtime:/etc/localtime:ro
+          - /run/dbus:/run/dbus:ro
+        restart: unless-stopped
+        privileged: true
+        network_mode: host
+        environment:
+          - TZ=Europe/Copenhagen
+    ```
+
+    Start med:
+
+    ```bash
+    docker compose up -d
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="Docker Compose anbefales">
+For nemmere vedligeholdelse anbefaler vi at bruge Docker Compose. Det gør opdateringer og backup meget lettere.
+</Aside>
+
+## Første opsætning
+
+Efter installation, åbn en browser og gå til:
+
+```
+http://DIN-IP:8123
+```
+
+<Steps>
+1. **Opret en bruger** - Din admin konto
+2. **Navngiv dit hjem** - F.eks. "Mit Smart Hjem"
+3. **Vælg lokation** - For solop/nedgang og vejr
+4. **Opdager enheder** - Home Assistant finder automatisk enheder på dit netværk
+</Steps>
+
+## Eksempel: Din første automation
+
+Her er en simpel automation der tænder lys ved solnedgang:
+
+```yaml title="automations.yaml"
+automation:
+  - alias: "Tænd lys ved solnedgang"
+    description: "Tænder stuelyset når solen går ned"
+    trigger:
+      - platform: sun
+        event: sunset
+        offset: "-00:30:00"  # 30 min før solnedgang
+    condition:
+      - condition: state
+        entity_id: binary_sensor.someone_home
+        state: "on"
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.stue
+        data:
+          brightness_pct: 80
+          color_temp: 350  # Varm hvid
+```
+
+<Aside type="caution" title="YAML syntaks">
+Home Assistant bruger YAML til konfiguration. Indrykning er **kritisk** - brug altid 2 mellemrum (ikke tabs).
+</Aside>
+
+## Næste skridt
+
+<CardGrid>
+  <Card title="Raspberry Pi Installation" icon="rocket">
+    [Installer Home Assistant OS på Raspberry Pi →](/da/home-assistant/raspberry-pi-installation/)
+  </Card>
+  <Card title="Zigbee2MQTT" icon="setting">
+    [Opsæt Zigbee netværk →](/da/home-assistant/zigbee2mqtt/)
+  </Card>
+</CardGrid>
