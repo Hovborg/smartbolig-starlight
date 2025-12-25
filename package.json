@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@astrojs/cloudflare": "^12.6.12",
+    "@astrojs/rss": "^4.0.14",
     "@astrojs/starlight": "^0.37.1",
     "@tailwindcss/vite": "^4.1.18",
     "astro": "^5.6.1",

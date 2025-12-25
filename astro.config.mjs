@@ -323,6 +323,41 @@ export default defineConfig({
             type: "text/javascript",
           },
         },
+        // Google Analytics 4 (via Cookiebot consent)
+        {
+          tag: "script",
+          attrs: {
+            async: true,
+            src: "https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX",
+            "data-cookieconsent": "statistics",
+          },
+        },
+        {
+          tag: "script",
+          attrs: {
+            "data-cookieconsent": "statistics",
+          },
+          content: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-XXXXXXXXXX');`,
+        },
+        // RSS Feed auto-discovery
+        {
+          tag: "link",
+          attrs: {
+            rel: "alternate",
+            type: "application/rss+xml",
+            title: "SmartBolig.net RSS (Dansk)",
+            href: "https://smartbolig.net/rss.xml",
+          },
+        },
+        {
+          tag: "link",
+          attrs: {
+            rel: "alternate",
+            type: "application/rss+xml",
+            title: "SmartBolig.net RSS (English)",
+            href: "https://smartbolig.net/en/rss.xml",
+          },
+        },
         // Ezoic
         {
           tag: "script",

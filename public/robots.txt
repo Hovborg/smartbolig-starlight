@@ -1,0 +1,29 @@
+# robots.txt for smartbolig.net
+
+User-agent: *
+Allow: /
+
+# Sitemap locations
+Sitemap: https://smartbolig.net/sitemap-index.xml
+
+# RSS Feeds
+# Danish: https://smartbolig.net/rss.xml
+# English: https://smartbolig.net/en/rss.xml
+
+# Disallow internal/admin paths
+Disallow: /api/
+Disallow: /_astro/
+Disallow: /pagefind/
+
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Google specific
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+
+# Bing specific
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
