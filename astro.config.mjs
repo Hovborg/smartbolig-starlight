@@ -189,6 +189,24 @@ export default defineConfig({
           translations: { en: "Security" },
           autogenerate: { directory: "sikkerhed" },
         },
+        // ===== JURIDISK =====
+        {
+          label: "Juridisk",
+          translations: { en: "Legal" },
+          collapsed: true,
+          items: [
+            {
+              label: "Privatlivspolitik",
+              translations: { en: "Privacy Policy" },
+              link: "/juridisk/privatlivspolitik/",
+            },
+            {
+              label: "Cookiepolitik",
+              translations: { en: "Cookie Policy" },
+              link: "/juridisk/cookiepolitik/",
+            },
+          ],
+        },
       ],
       // Table of contents
       tableOfContents: { minHeadingLevel: 2, maxHeadingLevel: 3 },
