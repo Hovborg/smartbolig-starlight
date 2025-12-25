@@ -1,0 +1,235 @@
+---
+title: Home Assistant OS on Proxmox
+description: Complete guide to installing Home Assistant OS in a VM on Proxmox VE. The recommended method for advanced users.
+sidebar:
+  badge:
+    text: Advanced
+    variant: caution
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Advanced" variant="caution" /> <Badge text="30 min" variant="note" /> <Badge text="Free" variant="success" />
+
+Proxmox is a fantastic platform to run Home Assistant OS. You get full VM isolation, snapshots, backup, and the ability to run other services on the same hardware.
+
+## 🤔 Why Proxmox?
+
+| Feature | Proxmox VM | Raspberry Pi | Docker |
+|---------|------------|--------------|--------|
+| Snapshots | ✅ One click | ❌ No | ❌ No |
+| Live backup | ✅ Yes | ⚠️ Manual | ⚠️ Manual |
+| Hardware passthrough | ✅ USB, PCIe | ✅ Direct | ⚠️ Limited |
+| Resource scaling | ✅ Easy | ❌ Fixed hardware | ✅ Yes |
+| Other VMs/containers | ✅ Unlimited | ❌ No | ✅ Yes |
+| Add-ons support | ✅ Full | ✅ Full | ❌ Separate |
+
+<Aside type="tip" title="Recommended for">
+- Those who already have a Proxmox server
+- Those who want to run Home Assistant alongside other services
+- Those who want enterprise-grade backup and restore
+</Aside>
+
+## 📋 Prerequisites
+
+- ✅ Proxmox VE 8.x or newer installed
+- ✅ At least 2 CPU cores available
+- ✅ At least 4 GB RAM available
+- ✅ At least 32 GB storage (SSD recommended)
+- ✅ Access to Proxmox shell (SSH or web console)
+
+## 🚀 Method 1: Community Helper Script (Recommended)
+
+The easiest method uses the official community script from [community-scripts.github.io/ProxmoxVE](https://community-scripts.github.io/ProxmoxVE/).
+
+<Steps>
+1. **Log into Proxmox shell**
+   
+   SSH to your Proxmox server or use Shell in web interface:
+   ```bash
+   ssh root@YOUR-PROXMOX-IP
+   ```
+
+2. **Run installation script**
+   
+   ```bash
+   bash -c "$(wget -qLO - https://github.com/community-scripts/ProxmoxVE/raw/main/vm/haos-vm.sh)"
+   ```
+
+3. **Follow installation wizard**
+   
+   The script will ask about:
+   - **VM ID**: Choose an available number (e.g., `100`)
+   - **Machine Type**: Choose `q35` (modern, better performance)
+   - **BIOS**: Choose `OVMF (UEFI)` - required for HAOS
+   - **Disk size**: Minimum `32GB`, recommended `64GB+`
+   - **CPU cores**: Minimum `2`, recommended `4`
+   - **RAM**: Minimum `4096MB`, recommended `4096-8192MB`
+   - **Bridge**: Your network bridge (typically `vmbr0`)
+   - **MAC address**: Accept auto-generated
+   - **VLAN**: Leave empty unless you use VLAN
+   - **Start after creation**: `Yes`
+
+4. **Wait for installation**
+   
+   The script downloads HAOS image and creates the VM. This takes 2-5 minutes.
+
+5. **Find IP address**
+   
+   When VM is started, find IP via:
+   ```bash
+   # In Proxmox shell
+   qm guest cmd VMID network-get-interfaces
+   ```
+   Or check your router's DHCP list.
+</Steps>
+
+## 🔧 Method 2: Manual Installation
+
+If you prefer full control, you can install manually.
+
+### Download HAOS image
+
+<Steps>
+1. **Find latest version**
+   
+   Go to [Home Assistant OS releases](https://github.com/home-assistant/operating-system/releases) and find the latest `qcow2` file for KVM/Proxmox.
+
+2. **Download to Proxmox**
+   
+   ```bash
+   # SSH to Proxmox
+   cd /var/lib/vz/template/iso/
+   
+   # Download latest HAOS (replace VERSION with current)
+   wget https://github.com/home-assistant/operating-system/releases/download/VERSION/haos_ova-VERSION.qcow2.xz
+   
+   # Extract
+   xz -d haos_ova-VERSION.qcow2.xz
+   ```
+</Steps>
+
+### Create VM manually
+
+<Steps>
+1. **Create VM without disk**
+   
+   ```bash
+   # Replace VMID with your desired ID (e.g., 100)
+   qm create VMID \
+     --name haos \
+     --memory 4096 \
+     --cores 2 \
+     --cpu host \
+     --bios ovmf \
+     --machine q35 \
+     --net0 virtio,bridge=vmbr0 \
+     --ostype l26 \
+     --agent 1 \
+     --onboot 1
+   ```
+
+2. **Add EFI disk**
+   
+   ```bash
+   qm set VMID --efidisk0 local-lvm:1,efitype=4m
+   ```
+
+3. **Import HAOS disk**
+   
+   ```bash
+   # Import qcow2 to VM
+   qm importdisk VMID /var/lib/vz/template/iso/haos_ova-VERSION.qcow2 local-lvm
+   
+   # Attach disk to VM
+   qm set VMID --scsi0 local-lvm:vm-VMID-disk-1,cache=writethrough,discard=on,ssd=1
+   
+   # Set boot order
+   qm set VMID --boot order=scsi0
+   ```
+
+4. **Start VM**
+   
+   ```bash
+   qm start VMID
+   ```
+</Steps>
+
+## ⚙️ Recommended VM Settings
+
+| Setting | Value | Explanation |
+|---------|-------|-------------|
+| **Machine** | `q35` | Modern chipset, better USB/PCIe |
+| **BIOS** | `OVMF (UEFI)` | Required for HAOS |
+| **CPU Type** | `host` | Full CPU support |
+| **CPU Cores** | `2-4` | 2 minimum, 4 recommended |
+| **RAM** | `4096-8192 MB` | 4GB minimum |
+| **SCSI Controller** | `VirtIO SCSI` | Best disk performance |
+| **Disk Cache** | `Write through` | Safe, good performance |
+| **Network** | `VirtIO` | Best network performance |
+| **QEMU Agent** | `Enabled` | Snapshots, IP display |
+
+## 🔌 USB Passthrough (Zigbee/Z-Wave)
+
+To use USB devices (Zigbee coordinator, Z-Wave stick) in Home Assistant:
+
+<Steps>
+1. **Find USB device ID**
+   
+   ```bash
+   # On Proxmox host
+   lsusb
+   ```
+
+2. **Add to VM**
+   
+   ```bash
+   # Format: vendor:product (from lsusb output)
+   qm set VMID --usb0 host=1a86:55d4
+   ```
+
+3. **Restart VM**
+   
+   ```bash
+   qm reboot VMID
+   ```
+</Steps>
+
+## 📸 Backup and Snapshots
+
+### Snapshots (fast)
+
+Perfect before updates or experiments:
+
+```bash
+# Create snapshot
+qm snapshot VMID pre-upgrade --vmstate 1
+
+# Restore snapshot
+qm rollback VMID pre-upgrade
+
+# Delete snapshot
+qm delsnapshot VMID pre-upgrade
+```
+
+<Aside type="danger" title="Before updates">
+ALWAYS take a snapshot before major updates:
+```bash
+qm snapshot VMID pre-upgrade-$(date +%Y%m%d) --vmstate 1
+```
+</Aside>
+
+## 🚀 Next Steps
+
+<CardGrid>
+  <Card title="⚡ First automation" icon="rocket">
+    Create your first automation in Home Assistant.
+    
+    [Create automations →](/en/home-assistant/first-automation/)
+  </Card>
+  <Card title="📡 Zigbee2MQTT" icon="setting">
+    Add Zigbee devices with USB passthrough.
+    
+    [Set up Zigbee →](/en/home-assistant/zigbee2mqtt/)
+  </Card>
+</CardGrid>

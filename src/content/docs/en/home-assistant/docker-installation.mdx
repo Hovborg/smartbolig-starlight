@@ -1,0 +1,219 @@
+---
+title: Home Assistant in Docker
+description: Run Home Assistant Container with Docker Compose. Perfect for existing servers.
+sidebar:
+  badge:
+    text: Advanced
+    variant: caution
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Medium" variant="caution" /> <Badge text="20 min" variant="note" /> <Badge text="Free" variant="success" />
+
+Docker is the flexible way to run Home Assistant. Perfect if you already have a server or NAS running.
+
+## 🤔 Is Docker the Right Choice?
+
+### ✅ Choose Docker if you:
+
+- Have an existing server/NAS
+- Want to run other services (Plex, Nextcloud, etc.)
+- Prefer manual control
+- Already know Docker
+
+### ❌ Choose Home Assistant OS if you:
+
+- Are new to Home Assistant
+- Want everything to "just work"
+- Need Add-ons (Zigbee2MQTT, Node-RED, etc.)
+
+<Aside type="tip">
+New to Home Assistant? Start with [Raspberry Pi installation](/en/home-assistant/raspberry-pi-installation/) - it's much easier.
+</Aside>
+
+## 📋 Prerequisites
+
+- ✅ Linux server (Ubuntu, Debian, or similar)
+- ✅ Docker installed
+- ✅ Basic terminal knowledge
+
+## ⚙️ Install Docker
+
+<Tabs>
+  <TabItem label="Ubuntu/Debian">
+    ```bash
+    # Update package list
+    sudo apt update && sudo apt upgrade -y
+
+    # Install Docker with official script
+    curl -fsSL https://get.docker.com | sh
+
+    # Add your user to docker group
+    sudo usermod -aG docker $USER
+
+    # Log out and in again (or run):
+    newgrp docker
+
+    # Verify installation
+    docker --version
+    docker compose version
+    ```
+  </TabItem>
+  <TabItem label="Synology NAS">
+    1. Open **Package Center**
+    2. Search for **"Container Manager"** (formerly Docker)
+    3. Click **Install**
+    4. Continue with Docker Compose method below
+  </TabItem>
+</Tabs>
+
+## 📁 Create Folder Structure
+
+```bash
+# Create folders
+mkdir -p ~/docker/homeassistant/config
+cd ~/docker/homeassistant
+```
+
+Your structure:
+```
+~/docker/
+└── homeassistant/
+    ├── config/          ← All HA files stored here
+    └── docker-compose.yml
+```
+
+## 📝 Docker Compose File
+
+Create the file `docker-compose.yml`:
+
+```yaml title="docker-compose.yml"
+services:
+  homeassistant:
+    container_name: homeassistant
+    image: ghcr.io/home-assistant/home-assistant:stable
+    volumes:
+      - ./config:/config
+      - /etc/localtime:/etc/localtime:ro
+      - /run/dbus:/run/dbus:ro
+    restart: unless-stopped
+    privileged: true
+    network_mode: host
+    environment:
+      - TZ=Europe/London
+```
+
+<Aside type="note" title="Why network_mode: host?">
+Home Assistant scans your network for devices (mDNS, SSDP). With `host` networking, auto-discovery works. Without it, HA won't find your devices automatically.
+</Aside>
+
+## 🚀 Start Home Assistant
+
+```bash
+# Start in background
+docker compose up -d
+
+# Follow logs (Ctrl+C to stop)
+docker compose logs -f homeassistant
+```
+
+Then open: `http://YOUR-SERVER-IP:8123`
+
+<Aside type="tip">
+First startup takes 2-5 minutes. You'll see "Preparing Home Assistant" until it's ready.
+</Aside>
+
+## 🔧 Useful Commands
+
+```bash
+# See status
+docker compose ps
+
+# See logs
+docker compose logs -f homeassistant
+
+# Restart
+docker compose restart homeassistant
+
+# Stop
+docker compose down
+
+# Update to latest version
+docker compose pull
+docker compose up -d
+
+# See resource usage
+docker stats homeassistant
+```
+
+## 🔌 USB Devices (Zigbee Stick)
+
+If you have a Zigbee USB stick or similar:
+
+<Steps>
+1. **Find your device:**
+   ```bash
+   ls -la /dev/serial/by-id/
+   ```
+
+2. **Add to docker-compose.yml:**
+   ```yaml title="docker-compose.yml" {10-11}
+   services:
+     homeassistant:
+       container_name: homeassistant
+       image: ghcr.io/home-assistant/home-assistant:stable
+       volumes:
+         - ./config:/config
+         - /etc/localtime:/etc/localtime:ro
+       restart: unless-stopped
+       network_mode: host
+       devices:
+         - /dev/ttyACM0:/dev/ttyACM0
+   ```
+
+3. **Restart container:**
+   ```bash
+   docker compose down && docker compose up -d
+   ```
+</Steps>
+
+## ⚠️ Limitations vs Home Assistant OS
+
+| Feature | Docker Container | Home Assistant OS |
+|---------|------------------|-------------------|
+| Add-ons (Z2M, Node-RED) | ❌ Run separately | ✅ Integrated |
+| Supervisor | ❌ No | ✅ Yes |
+| Auto-backup | ❌ Manual | ✅ Yes |
+| Updates | Manual (`pull`) | ✅ One click |
+| Flexibility | ⭐⭐⭐ | ⭐⭐ |
+
+## 💾 Backup
+
+Docker Container has no automatic backup. Do it manually:
+
+```bash
+# Stop HA first (optional, but safer)
+docker compose stop homeassistant
+
+# Backup config folder
+tar -czvf homeassistant-backup-$(date +%Y%m%d).tar.gz config/
+
+# Start HA again
+docker compose start homeassistant
+```
+
+## 🚀 Next Steps
+
+<CardGrid>
+  <Card title="📡 Zigbee2MQTT" icon="setting">
+    Run Zigbee2MQTT as Docker container alongside HA.
+    
+    [Set up Zigbee2MQTT →](/en/home-assistant/zigbee2mqtt/)
+  </Card>
+  <Card title="⚡ First automation" icon="rocket">
+    Create your first automation in Home Assistant.
+    
+    [Create automations →](/en/home-assistant/first-automation/)
+  </Card>
+</CardGrid>

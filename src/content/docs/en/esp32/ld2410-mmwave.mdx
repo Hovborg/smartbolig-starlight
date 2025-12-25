@@ -1,0 +1,343 @@
+---
+title: LD2410 mmWave Presence Sensor with ESPHome
+description: Build your own reliable presence sensor with LD2410 mmWave radar and ESP32. Detects even stationary people.
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Medium" variant="caution" /> <Badge text="45 min" variant="note" />
+
+LD2410 is a mmWave radar sensor that can detect human presence - even when you're sitting completely still. Perfect for bathroom, office or other rooms where PIR sensors fail.
+
+## 🤔 Why mmWave over PIR?
+
+| Feature | PIR Sensor | mmWave (LD2410) |
+|---------|------------|-----------------|
+| **Movement** | ✅ Yes | ✅ Yes |
+| **Stationary person** | ❌ No | ✅ Yes (detects breathing) |
+| **Through glass/plastic** | ❌ No | ✅ Yes |
+| **Distance measurement** | ❌ No | ✅ Yes |
+| **False positives** | Many | Few (with tuning) |
+| **Price** | ~$3 | ~$7 |
+
+<Aside type="tip" title="Perfect for bathroom">
+PIR sensors turn off the light while you're sitting on the toilet. mmWave detects your breathing and keeps the light on!
+</Aside>
+
+## 📦 What You Need
+
+### Hardware
+
+| Component | Model | Price |
+|-----------|-------|-------|
+| **mmWave sensor** | HiLink LD2410C (recommended) | $5-8 |
+| **Microcontroller** | ESP32 or ESP8266 (D1 Mini) | $4-7 |
+| **Wires** | Dupont jumper wires | $2 |
+| **USB cable** | Micro USB for power | $3 |
+| **Enclosure** | 3D printed or bought | $0-7 |
+| **Total** | | **~$15-30** |
+
+### LD2410 Versions
+
+| Model | Pins | Bluetooth | Recommendation |
+|-------|------|-----------|----------------|
+| **LD2410** | 1.25mm (needs adapter) | No | ⚠️ Hard to solder |
+| **LD2410B** | 1.25mm (needs adapter) | Yes | ⚠️ Hard to solder |
+| **LD2410C** | 2.54mm standard | Yes | ✅ **Recommended** |
+
+<Aside type="caution" title="Choose LD2410C!">
+LD2410C has standard 2.54mm pins that fit directly to Dupont wires. Other versions require special adapters or soldering.
+</Aside>
+
+## ⚡ Wiring Diagram
+
+### ESP32 to LD2410C
+
+```
+ESP32           LD2410C
+─────           ───────
+3.3V    ───────  VCC
+GND     ───────  GND  
+GPIO16  ───────  TX (RX on ESP)
+GPIO17  ───────  RX (TX on ESP)
+```
+
+### ESP8266 (D1 Mini) to LD2410C
+
+```
+D1 Mini         LD2410C
+───────         ───────
+3.3V    ───────  VCC
+GND     ───────  GND
+D7 (RX) ───────  TX
+D8 (TX) ───────  RX
+```
+
+<Aside type="caution" title="RX and TX cross!">
+Remember that RX on ESP connects to TX on LD2410 and vice versa. That's how serial communication works.
+</Aside>
+
+## 🔧 ESPHome Configuration
+
+### Basic Setup
+
+```yaml
+substitutions:
+  device_name: "ld2410-bathroom"
+  friendly_name: "Bathroom Presence"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32dev
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+logger:
+  baud_rate: 0  # Important! Disable serial logging
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  platform: esphome
+  password: !secret ota_password
+
+# UART for LD2410
+uart:
+  id: ld2410_uart
+  tx_pin: GPIO17
+  rx_pin: GPIO16
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+
+# LD2410 sensor
+ld2410:
+  id: ld2410_sensor
+  uart_id: ld2410_uart
+```
+
+### Binary Sensors (Presence)
+
+```yaml
+binary_sensor:
+  - platform: ld2410
+    has_target:
+      name: "${friendly_name} Presence"
+      device_class: occupancy
+    
+    has_moving_target:
+      name: "${friendly_name} Movement"
+      device_class: motion
+    
+    has_still_target:
+      name: "${friendly_name} Stationary"
+      device_class: occupancy
+```
+
+### Distance Sensors
+
+```yaml
+sensor:
+  - platform: ld2410
+    moving_distance:
+      name: "${friendly_name} Moving Distance"
+      unit_of_measurement: "cm"
+    
+    still_distance:
+      name: "${friendly_name} Still Distance"
+      unit_of_measurement: "cm"
+    
+    detection_distance:
+      name: "${friendly_name} Detection Distance"
+      unit_of_measurement: "cm"
+    
+    moving_energy:
+      name: "${friendly_name} Moving Energy"
+    
+    still_energy:
+      name: "${friendly_name} Still Energy"
+```
+
+## 📊 Complete Configuration
+
+Here's the complete configuration ready to copy-paste:
+
+```yaml
+substitutions:
+  device_name: "bathroom-presence"
+  friendly_name: "Bathroom"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32dev
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  
+  ap:
+    ssid: "${device_name}-AP"
+    password: "12345678"
+
+captive_portal:
+
+logger:
+  baud_rate: 0
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  platform: esphome
+  password: !secret ota_password
+
+uart:
+  id: ld2410_uart
+  tx_pin: GPIO17
+  rx_pin: GPIO16
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+
+ld2410:
+  id: ld2410_sensor
+  uart_id: ld2410_uart
+  timeout: 5s
+  max_move_distance: 3m
+  max_still_distance: 2.25m
+
+binary_sensor:
+  - platform: ld2410
+    has_target:
+      name: "${friendly_name} Presence"
+      device_class: occupancy
+    has_moving_target:
+      name: "${friendly_name} Movement"
+      device_class: motion
+    has_still_target:
+      name: "${friendly_name} Stationary"
+      device_class: occupancy
+
+sensor:
+  - platform: ld2410
+    detection_distance:
+      name: "${friendly_name} Distance"
+    moving_energy:
+      name: "${friendly_name} Moving Energy"
+      internal: true
+    still_energy:
+      name: "${friendly_name} Still Energy"
+      internal: true
+
+  - platform: wifi_signal
+    name: "${friendly_name} WiFi Signal"
+    update_interval: 60s
+
+switch:
+  - platform: ld2410
+    engineering_mode:
+      name: "${friendly_name} Engineering Mode"
+      internal: true
+
+button:
+  - platform: restart
+    name: "${friendly_name} Restart"
+```
+
+## 🎯 Calibration
+
+### Step 1: Enable Engineering Mode
+
+<Steps>
+1. In Home Assistant, find your LD2410 device
+2. Enable the **Engineering Mode** switch
+3. Now you can see energy values for each gate
+</Steps>
+
+### Step 2: Adjust Thresholds
+
+**Rule of thumb:**
+- **Move threshold**: Set 10-20 above what you see when room is empty
+- **Still threshold**: Set 5-10 above baseline
+- **Lower = more sensitive** (more false positives)
+- **Higher = less sensitive** (might miss presence)
+
+## 🤖 Automations
+
+### Bathroom Light Automation
+
+```yaml
+automation:
+  - alias: "Bathroom light ON on presence"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bathroom_presence
+        to: "on"
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.bathroom
+
+  - alias: "Bathroom light OFF when empty"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bathroom_presence
+        to: "off"
+        for:
+          seconds: 30
+    action:
+      - service: light.turn_off
+        target:
+          entity_id: light.bathroom
+```
+
+## 🔧 Troubleshooting
+
+<Aside type="tip" title="No data from sensor?">
+1. Check that `baud_rate: 256000` is set correctly
+2. Check that `logger: baud_rate: 0` is set (frees UART)
+3. Verify RX/TX are crossed correctly
+4. Try swapping RX and TX pins
+</Aside>
+
+<Aside type="tip" title="Too many false positives?">
+- Avoid pointing sensor at windows (movement outside)
+- Avoid metal/mirrors that reflect signal
+- Raise threshold values
+- Reduce max_distance to room size
+</Aside>
+
+## 📐 Placement Tips
+
+| Placement | Recommendation |
+|-----------|----------------|
+| **Height** | 1.5-2m above floor |
+| **Angle** | Point downward 15-30° |
+| **Avoid** | Directly at windows/doors |
+| **Range** | Max 6m effective range |
+
+## 🚀 Next Steps
+
+<CardGrid>
+  <Card title="🏠 Better Thermostat" icon="setting">
+    Combine presence with intelligent heating control.
+    
+    [Set up Better Thermostat →](/en/home-assistant/better-thermostat/)
+  </Card>
+  <Card title="⚡ Automations" icon="rocket">
+    Create more automations based on presence.
+    
+    [Your first automation →](/en/home-assistant/first-automation/)
+  </Card>
+</CardGrid>

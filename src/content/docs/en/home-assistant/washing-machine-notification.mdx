@@ -1,0 +1,255 @@
+---
+title: Washing Machine Done Notification
+description: Get notified when the washing machine is done via power monitoring. Avoid musty clothes with smart monitoring in Home Assistant.
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Easy" variant="success" /> <Badge text="20 min" variant="note" />
+
+Never forget the laundry again! This guide shows how to get a notification on your phone (or via speaker) when the washing machine is done - based on power consumption.
+
+## 🤔 How Does It Work?
+
+Washing machines use a lot of power during washing (500-2000W) and almost none when finished (0-5W). By measuring power consumption we can detect:
+
+| State | Power Usage | Description |
+|-------|-------------|-------------|
+| **Off** | 0W | Machine is off |
+| **Standby** | 1-5W | On but not active |
+| **Running** | 100-2000W | Active wash/spin |
+| **Done** | 1-5W (after high) | Was high, now low = done! |
+
+<Aside type="tip" title="Simple principle">
+When power consumption drops from high (over 10W) to low (under 5W) for more than 3 minutes = washing machine is done!
+</Aside>
+
+## 📦 What You Need
+
+| Component | Examples | Price |
+|-----------|----------|-------|
+| **Smart plug with power monitoring** | Shelly Plug S, NOUS A1T, TP-Link KP115 | $20-35 |
+
+<Aside type="caution" title="Important: Capacity!">
+Washing machines can draw up to **2500W**. Make sure your smart plug is rated for at least **16A / 3680W**!
+</Aside>
+
+### Recommended Smart Plugs
+
+| Model | Max W | Protocol | Recommendation |
+|-------|-------|----------|----------------|
+| **Shelly Plug S** | 2500W | WiFi | ✅ Local, reliable |
+| **NOUS A1T** | 3680W | Zigbee | ✅ Good price, Zigbee |
+| **TP-Link KP115** | 1800W | WiFi | ⚠️ Maybe too low capacity |
+
+## 🔧 Setup
+
+### Step 1: Connect Smart Plug
+
+<Steps>
+1. Plug smart plug into outlet
+2. Connect washing machine to smart plug
+3. Add plug to Home Assistant
+4. Verify you have a **power sensor** (W)
+</Steps>
+
+### Step 2: Find Your Values
+
+Run a wash and observe power consumption in Home Assistant.
+
+**Typical values:**
+```
+Standby:        ~2W
+Filling:        ~50W
+Washing:        ~200-500W
+Spinning:       ~300-600W
+Done:           ~2W
+```
+
+### Step 3: Create Helper (Optional but Recommended)
+
+<Steps>
+1. Go to **Settings** → **Devices & services** → **Helpers**
+2. Click **Create helper** → **Dropdown**
+3. **Name**: "Washing Machine Status"
+4. **Options**: `off`, `running`, `done`, `emptied`
+</Steps>
+
+## 🤖 Automation: Basic Notification
+
+### Simple Version (Recommended Start)
+
+```yaml
+automation:
+  - alias: "Washing machine done notification"
+    description: "Send message when washing machine is done"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.washing_machine_power
+        below: 5
+        for:
+          minutes: 3
+    condition:
+      - condition: state
+        entity_id: input_select.washing_machine_status
+        state: "running"
+    action:
+      - service: notify.mobile_app_your_phone
+        data:
+          title: "🧺 Washing Machine"
+          message: "The laundry is done!"
+          data:
+            tag: "washing_machine"
+```
+
+### Better Version with Status Tracking
+
+```yaml
+automation:
+  # When machine starts
+  - alias: "Washing Machine: Started"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.washing_machine_power
+        above: 10
+        for:
+          minutes: 1
+    action:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.washing_machine_status
+        data:
+          option: "running"
+
+  # When machine is done
+  - alias: "Washing Machine: Done"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.washing_machine_power
+        below: 5
+        for:
+          minutes: 3
+    condition:
+      - condition: state
+        entity_id: input_select.washing_machine_status
+        state: "running"
+    action:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.washing_machine_status
+        data:
+          option: "done"
+      - service: notify.mobile_app_your_phone
+        data:
+          title: "🧺 Washing Machine"
+          message: "The laundry is done! Remember to empty the machine."
+          data:
+            tag: "washing_machine"
+            persistent: true
+            actions:
+              - action: "WASHING_EMPTIED"
+                title: "✓ Emptied"
+```
+
+## 📢 Advanced: Repeated Reminders
+
+If you (like most people) ignore the first notification:
+
+```yaml
+automation:
+  - alias: "Washing Machine: Repeat reminder"
+    trigger:
+      - platform: time_pattern
+        minutes: "/15"  # Every 15 minutes
+    condition:
+      - condition: state
+        entity_id: input_select.washing_machine_status
+        state: "done"
+    action:
+      - service: notify.mobile_app_your_phone
+        data:
+          title: "🧺 Washing Machine - REMINDER"
+          message: "The laundry is still waiting!"
+          data:
+            tag: "washing_machine"
+```
+
+## 🔊 TTS Announcement (Google Home / Sonos)
+
+```yaml
+automation:
+  - alias: "Washing Machine: TTS announcement"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.washing_machine_power
+        below: 5
+        for:
+          minutes: 3
+    condition:
+      - condition: state
+        entity_id: input_select.washing_machine_status
+        state: "running"
+    action:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.washing_machine_status
+        data:
+          option: "done"
+      - service: tts.google_translate_say
+        target:
+          entity_id: media_player.living_room_speaker
+        data:
+          message: "The washing machine is done. Remember to empty it."
+```
+
+## 📊 Dashboard Card
+
+```yaml
+type: entities
+title: Washing Machine
+entities:
+  - entity: input_select.washing_machine_status
+    name: Status
+  - entity: sensor.washing_machine_power
+    name: Power Usage
+  - entity: sensor.washing_machine_energy_today
+    name: Usage Today
+```
+
+## 🔧 Troubleshooting
+
+<Aside type="tip" title="Notification comes too early?">
+Washing machines can pause during wash. Increase `for` time to 5-10 minutes.
+</Aside>
+
+<Aside type="tip" title="Notification doesn't come?">
+1. Check that power sensor updates (may be delayed)
+2. Verify trigger value (5W) matches your machine
+3. Check condition - maybe status isn't "running"
+</Aside>
+
+## 🔄 Also Works For
+
+Same principle can be used for:
+
+| Appliance | Start threshold | End threshold |
+|-----------|-----------------|---------------|
+| **Dryer** | Over 50W | Under 10W |
+| **Dishwasher** | Over 10W | Under 5W |
+| **Oven** | Over 100W | Under 10W |
+| **3D printer** | Over 50W | Under 10W |
+
+## 🚀 Next Steps
+
+<CardGrid>
+  <Card title="📊 Energy Dashboard" icon="seti:config">
+    Monitor consumption on all appliances.
+    
+    [Set up Energy Dashboard →](/en/home-assistant/)
+  </Card>
+  <Card title="⚡ Automations" icon="rocket">
+    Learn more about Home Assistant automations.
+    
+    [Your first automation →](/en/home-assistant/first-automation/)
+  </Card>
+</CardGrid>

@@ -1,0 +1,239 @@
+---
+title: Home Assistant on Raspberry Pi
+description: Complete guide to installing Home Assistant OS on Raspberry Pi 4 or 5.
+sidebar:
+  badge:
+    text: Recommended
+    variant: tip
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Easy" variant="success" /> <Badge text="30 min" variant="note" /> <Badge text="~$80" variant="caution" />
+
+Raspberry Pi is the most popular way to run Home Assistant. Cheap, silent, and uses only 5-10W of power.
+
+## 📋 Prerequisites
+
+- ✅ Raspberry Pi 4 (2GB+) or Pi 5
+- ✅ Computer to flash SD card
+- ✅ Network with internet access
+
+## 🛒 Hardware
+
+| Part | Description | Price |
+|------|-------------|-------|
+| Raspberry Pi 4 (4GB) | Recommended model | ~$55 |
+| Power supply | Official 15W USB-C | ~$15 |
+| SD card 32GB+ | Samsung EVO or SanDisk | ~$10 |
+| Ethernet cable | Cat5e/Cat6 | ~$5 |
+| **Total** | | **~$85** |
+
+### Optional (but recommended)
+
+| Part | Why | Price |
+|------|-----|-------|
+| SSD + USB adapter | Faster, lasts longer | ~$30 |
+| Heatsink/fan | Keeps Pi cool | ~$10 |
+| Case | Protection and aesthetics | ~$15 |
+
+<Aside type="caution" title="⚠️ SD cards don't last forever">
+SD cards die after 1-3 years with Home Assistant. Use SSD from the start if possible, or always have a backup ready.
+</Aside>
+
+## 📥 Download and Flash
+
+<Steps>
+1. **Download Raspberry Pi Imager**
+   
+   Get it from [raspberrypi.com/software](https://www.raspberrypi.com/software/)
+
+2. **Insert SD card into computer**
+
+3. **Open Raspberry Pi Imager**
+
+4. **Choose operating system:**
+   - Click **"Choose OS"**
+   - Scroll down to **"Other specific-purpose OS"**
+   - Select **"Home assistants and home automation"**
+   - Select **"Home Assistant"**
+   - Select **"Home Assistant OS X.X (RPi 4/5)"**
+
+5. **Select your SD card:**
+   - Click **"Choose Storage"**
+   - Select your SD card (be careful - choose the right one!)
+
+6. **Flash:**
+   - Click **"Write"**
+   - Confirm data will be erased
+   - Wait 5-10 minutes
+</Steps>
+
+<Aside type="tip">
+You do NOT need to configure WiFi or SSH in Imager. Home Assistant OS handles everything itself.
+</Aside>
+
+## 🔌 Hardware Setup
+
+<Steps>
+1. **Insert SD card into Raspberry Pi**
+   
+   The card slot is on the bottom of the board.
+
+2. **Connect Ethernet cable**
+   
+   Direct to your router for most stable connection.
+
+3. **Connect power (last!)**
+   
+   Use the official power supply. Cheap chargers can cause problems.
+</Steps>
+
+<Aside type="note">
+First boot takes **10-20 minutes**. Do NOT turn off power while waiting!
+</Aside>
+
+## 🌐 Open Home Assistant
+
+<Tabs>
+  <TabItem label="Automatic (easiest)">
+    Open your browser and go to:
+    
+    ```
+    http://homeassistant.local:8123
+    ```
+  </TabItem>
+  <TabItem label="Via IP address">
+    If `homeassistant.local` doesn't work:
+    
+    1. Find Pi's IP in your router (often under "DHCP clients" or "Connected devices")
+    2. Open: `http://192.168.X.XXX:8123`
+  </TabItem>
+</Tabs>
+
+You'll first see **"Preparing Home Assistant"** - wait 10-20 minutes.
+
+## ⚙️ First Setup
+
+<Steps>
+1. **Create your account**
+   
+   - Choose a username
+   - Use a **strong password** (save it in a password manager!)
+
+2. **Name your home**
+   
+   E.g., "My Home" or your address.
+
+3. **Set location**
+   
+   Used for sunrise/sunset, weather, and timezone.
+
+4. **Choose what to share**
+   
+   Anonymous statistics - completely voluntary.
+
+5. **Discovered devices**
+   
+   Home Assistant automatically finds devices on your network. Click "Finish" for now.
+</Steps>
+
+🎉 **Congratulations!** Home Assistant is now running.
+
+## 🛡️ Important First Steps
+
+### 1. Create backup
+
+<Steps>
+1. Go to **Settings** → **System** → **Backups**
+2. Click **"Create backup"**
+3. Download the backup file to your computer
+</Steps>
+
+<Aside type="danger">
+NEVER store backups only on the SD card. If the card dies, you lose everything!
+</Aside>
+
+### 2. Update Home Assistant
+
+<Steps>
+1. Go to **Settings** → **System** → **Updates**
+2. Update everything available
+3. Restart if necessary
+</Steps>
+
+### 3. Install useful add-ons
+
+Go to **Settings** → **Add-ons** → **Add-on store**:
+
+| Add-on | What it does |
+|--------|--------------|
+| **File Editor** | Edit config files in browser |
+| **Terminal & SSH** | Command line access |
+| **Samba share** | Access files from Windows/Mac |
+
+## 🔧 Troubleshooting
+
+<Aside type="tip" title="homeassistant.local doesn't work?">
+**Try these things:**
+1. Wait 5 more minutes and try again
+2. Find IP in your router and use `http://IP:8123`
+3. Try a different browser
+4. Check that Pi has green light (power) and blinking light (activity)
+</Aside>
+
+<Aside type="tip" title="'Preparing Home Assistant' takes forever?">
+**Normal time:** 10-20 minutes on first boot.
+
+**If it takes longer:**
+- Wait up to 30 minutes
+- Check that Pi has internet (ethernet cable connected?)
+- Try restarting by unplugging and replugging power
+</Aside>
+
+<Aside type="tip" title="Pi is getting very hot?">
+Raspberry Pi 4/5 can reach 70-80°C under load.
+
+**Solution:**
+- Mount heatsink (passive cooling)
+- Use case with fan (active cooling)
+- Check temperature in HA under **Settings** → **System** → **Hardware**
+</Aside>
+
+## 💾 Upgrade to SSD (recommended)
+
+SD cards are the #1 cause of Home Assistant problems. An SSD costs ~$30 and lasts many years.
+
+### What you need
+
+- USB 3.0 to SATA adapter or SSD enclosure
+- 2.5" SATA SSD (120GB is plenty)
+
+### How to do it
+
+<Steps>
+1. Flash Home Assistant OS to SSD (same method as SD card)
+2. Turn off Pi
+3. Remove SD card
+4. Connect SSD via USB 3.0 port (blue port)
+5. Turn on Pi
+</Steps>
+
+<Aside type="note">
+Raspberry Pi 4 and 5 can boot directly from USB. No SD card needed!
+</Aside>
+
+## 🚀 Next Steps
+
+<CardGrid>
+  <Card title="⚡ Your first automation" icon="rocket">
+    Learn to create automations that make your home smart.
+    
+    [Create automations →](/en/home-assistant/first-automation/)
+  </Card>
+  <Card title="📡 Zigbee2MQTT" icon="setting">
+    Add IKEA, Aqara and other Zigbee devices.
+    
+    [Set up Zigbee →](/en/home-assistant/zigbee2mqtt/)
+  </Card>
+</CardGrid>

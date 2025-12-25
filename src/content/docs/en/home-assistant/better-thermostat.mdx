@@ -1,0 +1,233 @@
+---
+title: Better Thermostat - Intelligent Heating Control
+description: Complete guide to Better Thermostat in Home Assistant. Save energy with smart calibration, window detection and external temperature sensor.
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Medium" variant="caution" /> <Badge text="30 min" variant="note" />
+
+Better Thermostat is a HACS integration that makes your "dumb" radiator thermostats smart. It uses an external temperature sensor, window sensors and weather data to optimize heating and save energy.
+
+## 🤔 Why Better Thermostat?
+
+Radiator thermostats (TRV) measure temperature directly at the radiator - which is typically 2-5°C warmer than the rest of the room. Better Thermostat solves this:
+
+| Problem | Better Thermostat Solution |
+|---------|---------------------------|
+| **Wrong temperature** | Uses external sensor for real room temperature |
+| **Open window = waste** | Automatic stop on open window |
+| **Manual adjustment** | Presets: Eco, Comfort, Away, Boost |
+| **Multiple radiators** | Group TRVs in same room |
+| **Calibration** | Automatic offset calibration |
+
+<Aside type="tip" title="Energy savings">
+By using an external sensor and window detection, you can typically save 15-25% on heating bills!
+</Aside>
+
+## 📦 What You Need
+
+| Component | Examples | Required? |
+|-----------|----------|-----------|
+| **Radiator thermostat (TRV)** | Shelly TRV, TRÅDFRI, Sonoff TRVZB, Aqara | ✅ Yes |
+| **Temperature sensor** | Shelly Wall Display, Aqara, IKEA Vindstyrka | ✅ Recommended |
+| **Window sensor** | Aqara, Sonoff, Shelly | ⭐ Optional |
+| **Home Assistant** | With HACS installed | ✅ Yes |
+
+## 🔧 Installation
+
+### Step 1: Install via HACS
+
+<Steps>
+1. Open **HACS** in Home Assistant
+2. Click **Integrations**
+3. Search for **Better Thermostat**
+4. Click **Download** and restart Home Assistant
+</Steps>
+
+### Step 2: Add Better Thermostat
+
+<Steps>
+1. Go to **Settings** → **Devices & services**
+2. Click **Add integration**
+3. Search **Better Thermostat**
+4. Follow the setup wizard
+</Steps>
+
+## ⚙️ Configuration
+
+### Basic Setup
+
+When creating you need to specify:
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| **Name** | Name of thermostat | "Living Room Better" |
+| **Thermostat** | Your existing TRV | `climate.shelly_trv_living_room` |
+| **Temperature Sensor** | External room sensor | `sensor.living_room_temperature` |
+| **Window Sensor** | Window sensor (optional) | `binary_sensor.window_living_room` |
+
+## 🎯 Presets and Schedules
+
+### Standard Presets
+
+| Preset | Default Temp | Usage |
+|--------|--------------|-------|
+| **None** | 20°C | Default |
+| **Eco** | 19°C | Energy saving |
+| **Comfort** | 21°C | Home and active |
+| **Boost** | 24°C | Quick heating |
+| **Away** | 16°C | Not home |
+| **Sleep** | 18°C | Night |
+
+## 🤖 Automations
+
+### Switch Preset Based on Presence
+
+```yaml
+automation:
+  - alias: "Heating: Away when no one home"
+    trigger:
+      - platform: state
+        entity_id: group.people_home
+        to: "not_home"
+        for:
+          minutes: 30
+    action:
+      - service: climate.set_preset_mode
+        target:
+          entity_id: 
+            - climate.living_room_heating
+            - climate.bedroom_heating
+        data:
+          preset_mode: away
+
+  - alias: "Heating: Comfort when home"
+    trigger:
+      - platform: state
+        entity_id: group.people_home
+        to: "home"
+    action:
+      - service: climate.set_preset_mode
+        target:
+          entity_id: 
+            - climate.living_room_heating
+            - climate.bedroom_heating
+        data:
+          preset_mode: comfort
+```
+
+### Night Mode
+
+```yaml
+automation:
+  - alias: "Heating: Sleep at night"
+    trigger:
+      - platform: time
+        at: "22:30:00"
+    action:
+      - service: climate.set_preset_mode
+        target:
+          entity_id: 
+            - climate.living_room_heating
+            - climate.bedroom_heating
+        data:
+          preset_mode: sleep
+
+  - alias: "Heating: Comfort in morning"
+    trigger:
+      - platform: time
+        at: "06:30:00"
+    condition:
+      - condition: state
+        entity_id: group.people_home
+        state: "home"
+    action:
+      - service: climate.set_preset_mode
+        target:
+          entity_id: 
+            - climate.living_room_heating
+            - climate.bedroom_heating
+        data:
+          preset_mode: comfort
+```
+
+## 🪟 Window Detection
+
+Better Thermostat can automatically stop heating when a window opens:
+
+### With Physical Sensor
+
+```yaml
+window_sensor: binary_sensor.window_living_room
+window_delay: 30  # Wait 30 sec before reacting
+```
+
+### Without Sensor (Temperature-based)
+
+Better Thermostat can detect open windows via sudden temperature drop:
+
+```yaml
+window_detection_method: temperature_drop
+window_detection_threshold: 0.5  # °C drop over short time
+```
+
+## 📱 Dashboard Card
+
+### Better Thermostat UI Card
+
+Install the matching UI card to see extra info:
+
+<Steps>
+1. Open **HACS** → **Frontend**
+2. Search **Better Thermostat UI Card**
+3. Install and restart browser
+</Steps>
+
+```yaml
+type: custom:better-thermostat-ui-card
+entity: climate.living_room_heating
+eco_temperature: 19
+disable_window: false
+```
+
+## 🔧 Calibration
+
+Better Thermostat automatically calibrates your TRV based on the difference between the TRV's built-in sensor and your external sensor.
+
+### How It Works
+
+1. TRV measures 24°C (at radiator)
+2. External sensor measures 21°C (in room)
+3. Better Thermostat calculates offset: -3°C
+4. Sends calibration to TRV
+
+## 🔧 Troubleshooting
+
+<Aside type="tip" title="TRV not responding?">
+1. Check that TRV is online in Home Assistant
+2. Verify that Better Thermostat uses correct entity
+3. Check that TRV supports temperature calibration
+4. Restart Better Thermostat integration
+</Aside>
+
+<Aside type="tip" title="Temperature jumping?">
+- Reduce update frequency on external sensor
+- Enable "smooth temperature" in Options
+- Check sensor isn't affected by sun/draft
+</Aside>
+
+## 📈 Next Steps
+
+<CardGrid>
+  <Card title="🌡️ Shelly Wall Display" icon="sun">
+    Perfect temperature sensor for Better Thermostat.
+    
+    [Set up Wall Display →](/en/home-assistant/shelly-wall-display/)
+  </Card>
+  <Card title="📊 LD2410 mmWave" icon="seti:config">
+    Combine presence with heating control.
+    
+    [Build presence sensor →](/en/esp32/ld2410-mmwave/)
+  </Card>
+</CardGrid>

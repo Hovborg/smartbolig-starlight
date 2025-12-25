@@ -1,0 +1,227 @@
+---
+title: Zigbee2MQTT Setup
+description: Get started with Zigbee2MQTT. One USB dongle for all your Zigbee devices from IKEA, Aqara, Philips and many more.
+sidebar:
+  badge:
+    text: Popular
+    variant: tip
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Medium" variant="caution" /> <Badge text="30 min" variant="note" /> <Badge text="~$25" variant="caution" />
+
+Zigbee is fantastic for smart home - low power consumption, mesh networking, and devices that last years on one battery. Zigbee2MQTT gives you one USB dongle for **all** Zigbee devices - IKEA, Aqara, Sonoff, Philips Hue, everything.
+
+## 🤔 Why Zigbee2MQTT?
+
+| Feature | Zigbee2MQTT | Manufacturer Hub (IKEA/Hue) |
+|---------|-------------|--------------------------|
+| Price | ~$25 (one time) | $40-70 per hub |
+| Devices | 2800+ from all brands | Only own brand |
+| Local | ✅ 100% local | ⚠️ Often cloud |
+| Open | ✅ Open source | ❌ Closed |
+
+## 🛒 What Do You Need?
+
+### Zigbee USB Coordinator
+
+| Model | Price | Recommendation |
+|-------|-------|------------|
+| **Sonoff Zigbee 3.0 USB Dongle Plus** | $20-25 | ⭐ Best value |
+| SLZB-06 (Ethernet) | $50 | Best for range |
+| Conbee II | $45 | Good, but pricier |
+
+<Aside type="tip" title="USB extension cable">
+ALWAYS use a USB extension cable (1-2m). WiFi and Zigbee interfere - distance helps!
+</Aside>
+
+## ⚙️ Installation
+
+<Tabs>
+  <TabItem label="Home Assistant OS">
+    <Steps>
+    1. **Install Mosquitto MQTT broker**
+       
+       Go to **Settings** → **Add-ons** → **Add-on store**
+       
+       Search **"Mosquitto broker"** → **Install** → **Start**
+
+    2. **Create MQTT user**
+       
+       **Settings** → **People** → **Users** → **Add user**
+       
+       - Username: `mqtt`
+       - Password: (choose something secure)
+       - Administrator: ❌ No
+
+    3. **Add Zigbee2MQTT repository**
+       
+       **Settings** → **Add-ons** → **Add-on store** → **⋮** (three dots) → **Repositories**
+       
+       Add:
+       ```
+       https://github.com/zigbee2mqtt/hassio-zigbee2mqtt
+       ```
+
+    4. **Install Zigbee2MQTT**
+       
+       Search **"Zigbee2MQTT"** → **Install** (use edge version for latest features)
+
+    5. **Find your USB dongle**
+       
+       **Settings** → **System** → **Hardware** → **All Hardware**
+       
+       Find the path like:
+       ```
+       /dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus-if00-port0
+       ```
+
+    6. **Configure Zigbee2MQTT**
+       
+       Click Zigbee2MQTT add-on → **Configuration**:
+       ```yaml
+       serial:
+         port: /dev/serial/by-id/usb-Silicon_Labs_Sonoff...
+       mqtt:
+         server: mqtt://core-mosquitto
+         user: mqtt
+         password: your-mqtt-password
+       frontend:
+         port: 8485
+       ```
+
+    7. **Start and open**
+       
+       Click **Start** and open: `http://homeassistant.local:8485`
+    </Steps>
+  </TabItem>
+  <TabItem label="Docker">
+    ```yaml title="docker-compose.yml"
+    services:
+      mosquitto:
+        container_name: mosquitto
+        image: eclipse-mosquitto
+        volumes:
+          - ./mosquitto/config:/mosquitto/config
+          - ./mosquitto/data:/mosquitto/data
+        ports:
+          - "1883:1883"
+        restart: unless-stopped
+
+      zigbee2mqtt:
+        container_name: zigbee2mqtt
+        image: koenkk/zigbee2mqtt
+        volumes:
+          - ./zigbee2mqtt/data:/app/data
+          - /run/udev:/run/udev:ro
+        devices:
+          - /dev/ttyUSB0:/dev/ttyUSB0
+        ports:
+          - "8080:8080"
+        environment:
+          - TZ=Europe/London
+        restart: unless-stopped
+    ```
+  </TabItem>
+</Tabs>
+
+## 📡 Add Devices
+
+<Steps>
+1. Open Zigbee2MQTT web interface
+
+2. Click **"Permit join (All)"** at top
+
+3. Pair the device (see table below)
+
+4. Device appears - give it a descriptive name
+
+5. Click **"Disable join"** when finished
+</Steps>
+
+### Pairing Instructions
+
+| Device | How to pair |
+|--------|-------------|
+| **Aqara sensors** | Hold button 5 sec until LED blinks |
+| **IKEA bulb** | Turn on/off 6 times quickly |
+| **IKEA remote** | Hold pairing button 10 sec near battery |
+| **Sonoff switch** | Hold button 5 sec |
+| **Philips Hue** | Turn on/off 5 times (or use Hue Bluetooth app) |
+
+<Aside type="note">
+Device must be close to coordinator during pairing (~2m). Afterwards you can move it.
+</Aside>
+
+## 🌐 Mesh Network Tips
+
+Zigbee is a mesh network. Powered devices (routers) amplify the signal.
+
+### Routers vs End Devices
+
+| Type | Description | Examples |
+|------|-------------|----------|
+| **Coordinator** | Your USB dongle | Sonoff Dongle |
+| **Router** | Amplifies signal | Bulbs, smart plugs |
+| **End device** | Only receives | Sensors (battery) |
+
+<Aside type="tip" title="Pro tip: Smart bulbs as repeaters">
+Place smart bulbs/plugs strategically in your home. They act as repeaters and extend your network!
+</Aside>
+
+### WiFi Interference
+
+Zigbee and WiFi both use 2.4 GHz. Avoid problems:
+
+- Set WiFi to channel **1** or **11**
+- Let Zigbee2MQTT choose channel automatically (default 11)
+- Use USB extension cable for coordinator
+
+## 🔧 Troubleshooting
+
+<Aside type="tip" title="Device won't pair?">
+1. Is "Permit join" enabled?
+2. Reset the device (see manual)
+3. Move closer to coordinator
+4. Check coordinator isn't too close to WiFi router
+</Aside>
+
+<Aside type="tip" title="Device drops from network?">
+1. Poor signal - add more routers (smart bulbs/plugs)
+2. Check battery on sensors
+3. Try re-pairing the device
+</Aside>
+
+## 🛒 Recommended Devices
+
+### Sensors
+
+| Device | Price | Comment |
+|--------|-------|---------|
+| Aqara door/window | $10 | Super reliable, small |
+| Aqara temperature | $12 | Battery lasts 2+ years |
+| Aqara motion | $15 | Fast response |
+
+### Switches & Bulbs
+
+| Device | Price | Comment |
+|--------|-------|---------|
+| IKEA TRETAKT | $10 | Cheap smart plug |
+| Sonoff ZBMINI | $12 | Fits behind light switch |
+| IKEA TRÅDFRI bulb | $10 | Good light, works as router |
+
+## 🚀 Next Steps
+
+<CardGrid>
+  <Card title="⚡ Automations" icon="rocket">
+    Use your new sensors for smart automations.
+    
+    [Create automations →](/en/home-assistant/first-automation/)
+  </Card>
+  <Card title="🔧 ESP32 projects" icon="setting">
+    Build your own WiFi sensors with ESP32.
+    
+    [ESP32 guides →](/en/esp32/)
+  </Card>
+</CardGrid>

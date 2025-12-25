@@ -1,0 +1,206 @@
+---
+title: Your First Automation
+description: Create your first Home Assistant automation from scratch. Turn on lights automatically when you come home.
+sidebar:
+  badge:
+    text: Essential
+    variant: tip
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Easy" variant="success" /> <Badge text="15 min" variant="note" />
+
+Now the fun begins! Automations are why we bother with all this. Lights turning on when you come home. Heating turning down when you leave.
+
+## 🧠 How Automations Work
+
+All automations have three parts:
+
+| Part | Description | Example |
+|------|-------------|---------|
+| **Trigger** | What starts it | Sun sets, motion detected |
+| **Condition** | Optional check | Only if home, only at night |
+| **Action** | What happens | Turn on light, send notification |
+
+**Think of it as:** "When X happens, and if Y is true, then do Z."
+
+## 🌅 Example 1: Light at Sunset
+
+The classic first automation!
+
+<Tabs>
+  <TabItem label="📱 Via UI (easiest)">
+    <Steps>
+    1. Go to **Settings** → **Automations & scenes**
+    
+    2. Click **Create automation** → **Create new automation**
+    
+    3. **Trigger:** 
+       - Click **"Add trigger"**
+       - Select **"Sun"**
+       - Select **"Sunset"**
+    
+    4. **Action:**
+       - Click **"Add action"**
+       - Select **"Device"**
+       - Find your lamp
+       - Select **"Turn on"**
+    
+    5. **Save** with name "Turn on living room light at sunset"
+    </Steps>
+  </TabItem>
+  <TabItem label="📝 YAML">
+    ```yaml title="automations.yaml"
+    - alias: "Turn on living room light at sunset"
+      description: "Automatically turns on light when sun sets"
+      trigger:
+        - platform: sun
+          event: sunset
+          offset: "-00:30:00"  # 30 min BEFORE sunset
+      action:
+        - service: light.turn_on
+          target:
+            entity_id: light.living_room_ceiling
+          data:
+            brightness_pct: 80
+      mode: single
+    ```
+  </TabItem>
+</Tabs>
+
+## 🚶 Example 2: Light on Motion (Night Only)
+
+```yaml title="automations.yaml"
+- alias: "Hallway light on motion (night)"
+  description: "Turns on dim light in hallway at night"
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.hallway_motion
+      to: "on"
+  condition:
+    - condition: time
+      after: "22:00:00"
+      before: "07:00:00"
+  action:
+    - service: light.turn_on
+      target:
+        entity_id: light.hallway
+      data:
+        brightness_pct: 20  # Dim light at night
+    - delay:
+        minutes: 2
+    - service: light.turn_off
+      target:
+        entity_id: light.hallway
+  mode: restart  # Restarts timer on new motion
+```
+
+<Aside type="tip" title="What does mode: restart do?">
+If you move again within the 2 minutes, the timer restarts. Otherwise the light would turn off while you're still in the hallway!
+</Aside>
+
+## 🧺 Example 3: Washing Machine Done
+
+Requires smart plug with power monitoring (e.g., IKEA TRETAKT or Sonoff S31):
+
+```yaml title="automations.yaml"
+- alias: "Washing machine done"
+  description: "Sends notification when laundry is finished"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.washing_machine_power
+      below: 5  # Watts
+      for:
+        minutes: 3  # Must be low for 3 min
+  condition:
+    - condition: numeric_state
+      entity_id: sensor.washing_machine_power
+      above: 0.5  # Ensures it has been running
+  action:
+    - service: notify.mobile_app_my_phone
+      data:
+        title: "🧺 Washing Machine"
+        message: "The laundry is done!"
+  mode: single
+```
+
+## 🌡️ Example 4: Temperature Warning
+
+```yaml title="automations.yaml"
+- alias: "Low temperature warning"
+  description: "Warns if it gets too cold"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.living_room_temperature
+      below: 18
+      for:
+        minutes: 10
+  action:
+    - service: notify.mobile_app_my_phone
+      data:
+        title: "🥶 Cold in living room"
+        message: "Temperature has dropped to {{ states('sensor.living_room_temperature') }}°C"
+  mode: single
+```
+
+## 💡 Tips for Good Automations
+
+<CardGrid>
+  <Card title="🎯 Start simple" icon="rocket">
+    Do one thing at a time. Only add conditions when the basics work.
+  </Card>
+  <Card title="🧪 Test thoroughly" icon="approve-check">
+    Use the **"Run"** button to test actions without waiting for trigger.
+  </Card>
+  <Card title="📝 Good names" icon="document">
+    "Turn on outdoor light at sunset" is better than "Automation 1".
+  </Card>
+  <Card title="🤔 Think edge cases" icon="warning">
+    What if power goes out? What if someone already turned on the light?
+  </Card>
+</CardGrid>
+
+## 🔧 Debugging
+
+<Aside type="tip" title="Automation not working?">
+**Check these things:**
+
+1. **Entity ID** - Typos are the most common error!
+   - Find correct ID under **Developer Tools** → **States**
+
+2. **Logs** - See error messages
+   - **Settings** → **System** → **Logs**
+
+3. **Traces** - See recent runs
+   - Click automation → **Traces** (at bottom)
+
+4. **Test trigger manually**
+   - **Developer Tools** → **States** → Change entity state
+</Aside>
+
+## 📚 Useful Trigger Types
+
+| Trigger | When | Example |
+|---------|------|---------|
+| `state` | Entity changes state | Motion, door opens |
+| `numeric_state` | Value above/below | Temperature, power usage |
+| `sun` | Sunrise/sunset | Light automation |
+| `time` | Specific time | Morning routine |
+| `zone` | Person arrives/leaves | Home/away |
+| `device` | Device-specific | Button pressed |
+
+## 🚀 Next Steps
+
+<CardGrid>
+  <Card title="📡 Zigbee sensors" icon="setting">
+    Add Aqara, IKEA and other Zigbee sensors.
+    
+    [Set up Zigbee2MQTT →](/en/home-assistant/zigbee2mqtt/)
+  </Card>
+  <Card title="🔧 ESP32 sensors" icon="rocket">
+    Build your own sensors with ESP32.
+    
+    [ESP32 guides →](/en/esp32/)
+  </Card>
+</CardGrid>

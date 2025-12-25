@@ -1,0 +1,273 @@
+---
+title: LED Strip with ESP32
+description: Control addressable LED strips with ESP32 and ESPHome. RGB effects and Home Assistant integration.
+sidebar:
+  badge:
+    text: Fun
+    variant: note
+---
+
+import { Steps, Aside, Card, CardGrid, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Medium" variant="caution" /> <Badge text="45 min" variant="note" /> <Badge text="$20" variant="caution" />
+
+Addressable LED strips enable fantastic light effects. Each LED can be controlled individually with millions of colors!
+
+## 📋 Prerequisites
+
+- ✅ [ESP32 set up with ESPHome](/en/esp32/)
+- ✅ Soldering iron (or strips with connectors)
+- ✅ 5V power supply (at least 3A)
+
+## 🛒 Components
+
+| Part | Description | Price |
+|------|-------------|-------|
+| ESP32 DevKit | WiFi microcontroller | $5 |
+| WS2812B LED strip | 1m, 60 LEDs/m | $8 |
+| 5V power supply | At least 3A | $7 |
+| Wires | For power + signal | $2 |
+| **Total** | | **~$22** |
+
+<Aside type="caution" title="⚡ Power supply is important!">
+LED strips use A LOT of power:
+- 60 LEDs full white = ~3.6A
+- 144 LEDs full white = ~8.6A
+
+**Don't use USB** - it can max deliver 0.5-1A. Buy a dedicated 5V power supply.
+</Aside>
+
+## 🎨 LED Strip Types
+
+| Type | Colors | Recommended |
+|------|--------|-------------|
+| **WS2812B** | RGB (16M colors) | ⭐ Good for most |
+| **SK6812** | RGBW (with true white) | ⭐⭐ Better white |
+| **WS2811** | RGB (12V version) | Long strips |
+
+## 🔌 Wiring
+
+<Steps>
+1. **5V** from power supply → LED strip **+5V**
+   
+   <Aside type="danger">
+   Do NOT connect 5V to ESP32! It gets power from USB.
+   </Aside>
+
+2. **GND** from power supply → LED strip **GND** AND ESP32 **GND**
+   
+   <Aside type="caution">
+   Common GND is **critical**! Without it the data signal won't work.
+   </Aside>
+
+3. **GPIO16** from ESP32 → LED strip **DIN** (Data In)
+</Steps>
+
+## ⚙️ ESPHome Configuration
+
+<Tabs>
+  <TabItem label="Simple">
+    ```yaml title="led-strip.yaml"
+    esphome:
+      name: led-strip
+      friendly_name: LED Strip
+
+    esp32:
+      board: esp32dev
+
+    logger:
+    api:
+      encryption:
+        key: "your-key"
+    ota:
+      platform: esphome
+
+    wifi:
+      ssid: "your-wifi"
+      password: "your-password"
+
+    # LED Strip
+    light:
+      - platform: neopixelbus
+        type: GRB
+        variant: WS2812
+        pin: GPIO16
+        num_leds: 60
+        name: "LED Strip"
+    ```
+  </TabItem>
+  <TabItem label="With effects">
+    ```yaml title="led-strip.yaml"
+    esphome:
+      name: led-strip
+      friendly_name: LED Strip
+
+    esp32:
+      board: esp32dev
+
+    logger:
+    api:
+      encryption:
+        key: "your-key"
+    ota:
+      platform: esphome
+
+    wifi:
+      ssid: "your-wifi"
+      password: "your-password"
+
+    # LED Strip with effects
+    light:
+      - platform: neopixelbus
+        type: GRB
+        variant: WS2812
+        pin: GPIO16
+        num_leds: 60
+        name: "LED Strip"
+        effects:
+          - rainbow:
+              name: "Rainbow"
+              speed: 10
+              width: 50
+          - pulse:
+              name: "Pulse"
+              min_brightness: 20%
+              max_brightness: 100%
+          - color_wipe:
+              name: "Color Sweep"
+          - strobe:
+              name: "Strobe"
+              colors:
+                - state: true
+                  duration: 50ms
+                - state: false
+                  duration: 50ms
+    ```
+  </TabItem>
+  <TabItem label="RGBW (SK6812)">
+    ```yaml title="led-strip-rgbw.yaml"
+    light:
+      - platform: neopixelbus
+        type: GRBW
+        variant: SK6812
+        pin: GPIO16
+        num_leds: 60
+        name: "LED Strip RGBW"
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip" title="Color order (GRB/RGB)">
+If colors are wrong (e.g., red shows green), try changing `type:` from `GRB` to `RGB` or `BRG`.
+</Aside>
+
+## 📤 Upload and Test
+
+<Steps>
+1. Click **INSTALL** → **Wirelessly**
+
+2. Go to **Home Assistant** → **Overview**
+
+3. Find your LED strip and turn it on
+
+4. Try changing color and selecting effects
+</Steps>
+
+## 🎛️ Dashboard Card
+
+### Simple Light Card
+
+```yaml title="Lovelace"
+type: light
+entity: light.led_strip
+name: LED Strip
+```
+
+## 🤖 Automation Ideas
+
+### Turn on at Sunset
+
+```yaml title="automations.yaml"
+automation:
+  - alias: "Ambient light at sunset"
+    trigger:
+      - platform: sun
+        event: sunset
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.led_strip
+        data:
+          brightness_pct: 50
+          rgb_color: [255, 180, 100]  # Warm white
+```
+
+### Red on Alarm
+
+```yaml title="automations.yaml"
+automation:
+  - alias: "Red alarm"
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.home
+        to: "triggered"
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.led_strip
+        data:
+          effect: "Strobe"
+          rgb_color: [255, 0, 0]
+```
+
+## 🔄 Alternative: WLED
+
+WLED is firmware with 100+ effects and web app:
+
+| Feature | ESPHome | WLED |
+|---------|---------|------|
+| Effects | ~10 | 100+ |
+| Web UI | No | Yes |
+| Music sync | No | Yes |
+| HA integration | Perfect | Good |
+| Setup | YAML | Web |
+
+<Aside type="tip">
+Want WLED? Flash it via [install.wled.me](https://install.wled.me) directly in browser!
+</Aside>
+
+## 🔧 Troubleshooting
+
+<Aside type="tip" title="LEDs not lighting up?">
+- Check that GND is connected between ESP32 and power supply
+- Check that power supply is on
+- Try only first 10 LEDs (reduce `num_leds`)
+- Check that DIN (not DOUT) is connected
+</Aside>
+
+<Aside type="tip" title="Wrong colors?">
+- Change `type:` between `GRB`, `RGB`, `BRG`
+- WS2812B is typically GRB
+- SK6812 can be GRBW or RGBW
+</Aside>
+
+<Aside type="tip" title="Flickering or random colors?">
+- Common GND missing - connect ESP32 GND to power supply GND
+- Bad signal - try shorter cable to DIN
+- Strip too long - inject 5V in middle of strip
+</Aside>
+
+## 🚀 Next Steps
+
+<CardGrid>
+  <Card title="🚶 Motion Sensor" icon="rocket">
+    Turn on LED strip on motion.
+    
+    [Build motion sensor →](/en/esp32/motion-sensor/)
+  </Card>
+  <Card title="🤖 Automations" icon="setting">
+    Advanced automations in Home Assistant.
+    
+    [Learn automations →](/en/home-assistant/first-automation/)
+  </Card>
+</CardGrid>

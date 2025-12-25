@@ -1,0 +1,230 @@
+---
+title: Motion Sensor with ESP32
+description: Build a motion sensor with ESP32 and PIR sensor for automatic light control.
+sidebar:
+  badge:
+    text: Easy
+    variant: success
+---
+
+import { Steps, Aside, Card, CardGrid, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Easy" variant="success" /> <Badge text="20 min" variant="note" /> <Badge text="$8" variant="caution" />
+
+PIR sensors are perfect for detecting motion. Turn on lights automatically, get notified when someone comes home, or build a simple alarm system.
+
+## 📋 Prerequisites
+
+- ✅ [ESP32 set up with ESPHome](/en/esp32/)
+- ✅ Home Assistant running
+
+## 🛒 Components
+
+| Part | Description | Price |
+|------|-------------|-------|
+| ESP32 DevKit | WiFi microcontroller | $5 |
+| HC-SR501 PIR | Motion sensor | $2 |
+| Jumper wires | 3 pcs male-female | $1 |
+| **Total** | | **~$8** |
+
+<Aside type="note" title="What is PIR?">
+**P**assive **I**nfra**R**ed - the sensor detects infrared radiation (heat) from humans and animals. It uses no power to "send" - it just listens.
+</Aside>
+
+## 🔌 Wiring
+
+<Steps>
+1. **Red (VCC)** → ESP32 **5V** or **VIN** pin
+
+2. **Yellow (OUT/Signal)** → ESP32 **GPIO5**
+
+3. **Black (GND)** → ESP32 **GND**
+</Steps>
+
+<Aside type="tip">
+HC-SR501 runs on 5V, but the output signal is 3.3V compatible, so it's safe to connect to ESP32.
+</Aside>
+
+## ⚙️ ESPHome Configuration
+
+```yaml title="hallway-sensor.yaml"
+esphome:
+  name: hallway-sensor
+  friendly_name: Hallway Sensor
+
+esp32:
+  board: esp32dev
+
+logger:
+api:
+  encryption:
+    key: "your-key"
+ota:
+  platform: esphome
+
+# PIR Motion Sensor
+binary_sensor:
+  - platform: gpio
+    pin: GPIO5
+    name: "Hallway Motion"
+    device_class: motion
+    filters:
+      - delayed_off: 10s  # Keep "on" for 10 sec after motion
+
+# Optional: Status LED
+light:
+  - platform: status_led
+    name: "Status LED"
+    pin: GPIO2
+
+wifi:
+  ssid: "your-wifi"
+  password: "your-password"
+```
+
+<Aside type="tip" title="delayed_off filter">
+`delayed_off: 10s` keeps the sensor "on" for 10 seconds after last motion. This prevents lights from flickering on/off.
+</Aside>
+
+## 📤 Upload and Test
+
+<Steps>
+1. Click **INSTALL** → **Wirelessly** (or USB first time)
+
+2. Go to **Home Assistant** → **Developer Tools** → **States**
+
+3. Search for `binary_sensor.hallway_motion`
+
+4. Walk past the sensor - status changes to **on**
+</Steps>
+
+## 🔧 Adjust PIR Sensor
+
+HC-SR501 has two small screws you can adjust:
+
+```
+┌─────────────────────────┐
+│                         │
+│   [Time]     [Sens]     │
+│     ↑          ↑        │
+│   Duration  Sensitivity │
+│                         │
+└─────────────────────────┘
+```
+
+| Screw | Counter-clockwise | Clockwise |
+|-------|-------------------|-----------|
+| **Time** | Shorter "on" time (~3s) | Longer "on" time (~5min) |
+| **Sensitivity** | Shorter range (~3m) | Longer range (~7m) |
+
+<Aside type="caution" title="Warm-up time">
+PIR sensor uses ~60 seconds to calibrate when powered on. During this period it may give false alarms.
+</Aside>
+
+## 🤖 Automation: Turn on Light on Motion
+
+### Simple Automation
+
+```yaml title="automations.yaml"
+automation:
+  - alias: "Turn on hallway light on motion"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.hallway_motion
+        to: "on"
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.hallway
+```
+
+### Advanced: Only at Night
+
+```yaml title="automations.yaml"
+automation:
+  - alias: "Turn on hallway light at night"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.hallway_motion
+        to: "on"
+    condition:
+      - condition: sun
+        after: sunset
+        before: sunrise
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.hallway
+        data:
+          brightness_pct: 50
+      - delay: "00:02:00"
+      - service: light.turn_off
+        target:
+          entity_id: light.hallway
+```
+
+### Smart: With Timeout and Dimming
+
+```yaml title="automations.yaml"
+automation:
+  - alias: "Smart hallway light"
+    mode: restart  # Restart timer on new motion
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.hallway_motion
+        to: "on"
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.hallway
+        data:
+          brightness_pct: "{{ 30 if is_state('sun.sun', 'below_horizon') else 80 }}"
+      - wait_for_trigger:
+          - platform: state
+            entity_id: binary_sensor.hallway_motion
+            to: "off"
+            for: "00:02:00"
+      - service: light.turn_off
+        target:
+          entity_id: light.hallway
+```
+
+## 🔧 Troubleshooting
+
+<Aside type="tip" title="Sensor triggers all the time?">
+- Avoid pointing sensor at windows (sunlight)
+- Avoid heat sources (radiators, computers)
+- Reduce sensitivity with Sensitivity screw
+- Check for moving objects (curtains, pets)
+</Aside>
+
+<Aside type="tip" title="Sensor doesn't respond?">
+- Check that VCC is 5V (not 3.3V)
+- Wait 60 sec after startup (calibration)
+- Check that OUT wire is in GPIO5
+- Test with `delayed_off` filter removed
+</Aside>
+
+## 💡 Project Ideas
+
+| Project | Description |
+|---------|-------------|
+| **Automatic light** | Turn on lights in hallway on motion |
+| **Security alarm** | Send notification when away |
+| **Activity log** | Track when rooms are used |
+| **Smart heating** | Heat only used rooms |
+
+## 🚀 Next Steps
+
+<CardGrid>
+  <Card title="🌡️ Temperature sensor" icon="rocket">
+    Combine with temperature for complete room sensor.
+    
+    [Build temperature sensor →](/en/esp32/temperature-sensor/)
+  </Card>
+  <Card title="💡 LED Strip" icon="setting">
+    Turn on LED strip on motion for ambient light.
+    
+    [Build LED strip →](/en/esp32/led-strip/)
+  </Card>
+</CardGrid>
