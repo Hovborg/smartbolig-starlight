@@ -223,6 +223,91 @@ export default defineConfig({
       pagefind: true,
       // Head tags for SEO and monetization
       head: [
+        // Schema.org Organization
+        {
+          tag: "script",
+          attrs: {
+            type: "application/ld+json",
+          },
+          content: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "SmartBolig.net",
+            "url": "https://smartbolig.net",
+            "logo": "https://smartbolig.net/images/og-image.png",
+            "description": "Dansk smart home ressourcecenter med guides til Home Assistant, ESP32, Zigbee og mere.",
+            "sameAs": ["https://github.com/Hovborg/smartbolig-starlight"]
+          }),
+        },
+        // Schema.org WebSite with SearchAction
+        {
+          tag: "script",
+          attrs: {
+            type: "application/ld+json",
+          },
+          content: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            "name": "SmartBolig.net",
+            "url": "https://smartbolig.net",
+            "inLanguage": ["da", "en"],
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://smartbolig.net/da/?search={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          }),
+        },
+        // Open Graph / Social sharing
+        {
+          tag: "meta",
+          attrs: {
+            property: "og:type",
+            content: "website",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            property: "og:site_name",
+            content: "SmartBolig.net",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            property: "og:image",
+            content: "https://smartbolig.net/images/og-image.png",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            property: "og:image:width",
+            content: "1200",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            property: "og:image:height",
+            content: "630",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            name: "twitter:card",
+            content: "summary_large_image",
+          },
+        },
+        {
+          tag: "meta",
+          attrs: {
+            name: "twitter:image",
+            content: "https://smartbolig.net/images/og-image.png",
+          },
+        },
         // Cookiebot
         {
           tag: "script",
