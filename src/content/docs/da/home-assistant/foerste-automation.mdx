@@ -1,139 +1,202 @@
 ---
 title: Din første automation
 description: Lav din første Home Assistant automation fra bunden. Tænd lyset automatisk når du kommer hjem.
+sidebar:
+  badge:
+    text: Essentiel
+    variant: tip
 ---
 
-import { Steps, Aside, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
 
-Nu begynder det sjove. Automationer er grunden til at vi gider alt det her. At lyset tænder når du kommer hjem. At varmen skruer ned når du går.
+<Badge text="Let" variant="success" /> <Badge text="15 min" variant="note" />
 
-## Sådan virker automationer
+Nu begynder det sjove! Automationer er grunden til at vi gider alt det her. At lyset tænder når du kommer hjem. At varmen skruer ned når du går.
+
+## 🧠 Sådan virker automationer
 
 Alle automationer har tre dele:
 
-| Del | Beskrivelse | Eksempel |
-|-----|-------------|----------|
-| **Trigger** | Hvad starter automationen? | Solnedgang, bevægelse, tid |
-| **Betingelser** | Skal noget tjekkes først? | Er det mørkt? Er nogen hjemme? |
-| **Handling** | Hvad skal der ske? | Tænd lys, send besked |
+![Automation koncept diagram](/images/guides/foerste-automation/concept.svg)
 
-Tænk på det som: "Når X sker, og hvis Y er sandt, så gør Z."
+**Tænk på det som:** "Når X sker, og hvis Y er sandt, så gør Z."
 
-## Eksempel: Lys ved solnedgang
+## 🌅 Eksempel 1: Lys ved solnedgang
+
+Den klassiske første automation!
 
 <Tabs>
-  <TabItem label="Via UI">
+  <TabItem label="📱 Via UI (nemmest)">
     <Steps>
     1. Gå til **Indstillinger** → **Automatiseringer og scener**
+    
     2. Klik **Opret automatisering** → **Opret ny automatisering**
-    3. **Trigger:** Klik "Tilføj trigger" → "Sol" → "Solnedgang"
-    4. **Handling:** Klik "Tilføj handling" → "Enhed" → Find din lampe → "Tænd"
-    5. Gem med navnet "Tænd stuelys ved solnedgang"
+    
+    3. **Trigger:** 
+       - Klik **"Tilføj trigger"**
+       - Vælg **"Sol"**
+       - Vælg **"Solnedgang"**
+    
+    4. **Handling:**
+       - Klik **"Tilføj handling"**
+       - Vælg **"Enhed"**
+       - Find din lampe
+       - Vælg **"Tænd"**
+    
+    5. **Gem** med navnet "Tænd stuelys ved solnedgang"
     </Steps>
   </TabItem>
-  <TabItem label="YAML">
+  <TabItem label="📝 YAML">
     ```yaml title="automations.yaml"
-    alias: Tænd stuelys ved solnedgang
-    description: Tænder automatisk lyset når solen går ned
-    trigger:
-      - platform: sun
-        event: sunset
-        offset: "00:00:00"
-    action:
-      - service: light.turn_on
-        target:
-          entity_id: light.stue_loft
-    mode: single
+    - alias: "Tænd stuelys ved solnedgang"
+      description: "Tænder automatisk lyset når solen går ned"
+      trigger:
+        - platform: sun
+          event: sunset
+          offset: "-00:30:00"  # 30 min FØR solnedgang
+      action:
+        - service: light.turn_on
+          target:
+            entity_id: light.stue_loft
+          data:
+            brightness_pct: 80
+      mode: single
     ```
   </TabItem>
 </Tabs>
 
-## Eksempel: Lys ved bevægelse (nat)
+## 🚶 Eksempel 2: Lys ved bevægelse (kun om natten)
 
-```yaml title="Gang lys om natten"
-alias: Lys i gang ved bevægelse (nat)
-trigger:
-  - platform: state
-    entity_id: binary_sensor.gang_bevaegelse
-    to: "on"
-condition:
-  - condition: time
-    after: "22:00:00"
-    before: "07:00:00"
-action:
-  - service: light.turn_on
-    target:
-      entity_id: light.gang
-    data:
-      brightness_pct: 20
-  - delay:
-      minutes: 2
-  - service: light.turn_off
-    target:
-      entity_id: light.gang
-mode: restart
+```yaml title="automations.yaml"
+- alias: "Gang lys ved bevægelse (nat)"
+  description: "Tænder svagt lys i gangen om natten"
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.gang_bevaegelse
+      to: "on"
+  condition:
+    - condition: time
+      after: "22:00:00"
+      before: "07:00:00"
+  action:
+    - service: light.turn_on
+      target:
+        entity_id: light.gang
+      data:
+        brightness_pct: 20  # Svagt lys om natten
+    - delay:
+        minutes: 2
+    - service: light.turn_off
+      target:
+        entity_id: light.gang
+  mode: restart  # Genstarter timer ved ny bevægelse
 ```
 
-<Aside type="tip" title="mode: restart">
-Hvis du bevæger dig igen inden de 2 minutter, starter timeren forfra. Ellers ville lyset slukke mens du stadig er i gangen.
+<Aside type="tip" title="Hvad gør mode: restart?">
+Hvis du bevæger dig igen inden de 2 minutter, starter timeren forfra. Ellers ville lyset slukke mens du stadig er i gangen!
 </Aside>
 
-## Eksempel: Vaskemaskine færdig
+## 🧺 Eksempel 3: Vaskemaskine færdig
 
-Kræver smart stikkontakt med strømmåling:
+Kræver smart stikkontakt med strømmåling (f.eks. IKEA TRETAKT eller Sonoff S31):
 
-```yaml title="Vaskemaskine notifikation"
-alias: Vaskemaskine færdig
-trigger:
-  - platform: numeric_state
-    entity_id: sensor.vaskemaskine_stromforbrug
-    below: 5
-    for:
-      minutes: 3
-condition:
-  - condition: numeric_state
-    entity_id: sensor.vaskemaskine_stromforbrug
-    above: 0.5
-action:
-  - service: notify.mobile_app_min_telefon
-    data:
-      title: "Vaskemaskine"
-      message: "Vasketøjet er færdigt!"
+```yaml title="automations.yaml"
+- alias: "Vaskemaskine færdig"
+  description: "Sender besked når vasketøjet er færdigt"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.vaskemaskine_stromforbrug
+      below: 5  # Watt
+      for:
+        minutes: 3  # Skal være lav i 3 min
+  condition:
+    - condition: numeric_state
+      entity_id: sensor.vaskemaskine_stromforbrug
+      above: 0.5  # Sikrer at den har kørt
+  action:
+    - service: notify.mobile_app_min_telefon
+      data:
+        title: "🧺 Vaskemaskine"
+        message: "Vasketøjet er færdigt!"
+  mode: single
 ```
 
-## Tips til gode automationer
+## 🌡️ Eksempel 4: Temperatur advarsel
+
+```yaml title="automations.yaml"
+- alias: "Lav temperatur advarsel"
+  description: "Advarer hvis det bliver for koldt"
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.stue_temperatur
+      below: 18
+      for:
+        minutes: 10
+  action:
+    - service: notify.mobile_app_min_telefon
+      data:
+        title: "🥶 Koldt i stuen"
+        message: "Temperaturen er faldet til {{ states('sensor.stue_temperatur') }}°C"
+  mode: single
+```
+
+## 💡 Tips til gode automationer
 
 <CardGrid>
-  <Card title="Start simpelt" icon="rocket">
-    Min første automation var at tænde lyset. Først da det virkede, tilføjede jeg betingelser.
+  <Card title="🎯 Start simpelt" icon="rocket">
+    Lav én ting ad gangen. Tilføj først betingelser når det basale virker.
   </Card>
-  <Card title="Test grundigt" icon="approve-check">
-    Brug "Kør" knappen til at teste handlingerne inden du venter på triggeren.
+  <Card title="🧪 Test grundigt" icon="approve-check">
+    Brug **"Kør"** knappen til at teste handlingerne uden at vente på triggeren.
   </Card>
-  <Card title="Beskrivende navne" icon="document">
-    "Tænd udendørslys ved solnedgang" er bedre end "Automation 1"
+  <Card title="📝 Gode navne" icon="document">
+    "Tænd udendørslys ved solnedgang" er bedre end "Automation 1".
   </Card>
-  <Card title="Overvej edge cases" icon="warning">
+  <Card title="🤔 Tænk edge cases" icon="warning">
     Hvad hvis strømmen går? Hvad hvis nogen allerede har tændt lyset?
   </Card>
 </CardGrid>
 
-## Debugging
+## 🔧 Debugging
 
-<Aside type="note" title="Noget virker ikke?">
-1. **Entity ID** - Stavefejl er hyppigste årsag
-2. **Logs** - Indstillinger → System → Logs
-3. **Spor** - Under automationen kan du se seneste kørsler
-4. **Udviklerværktøjer → Tilstande** - Se alle entiteters tilstand
+<Aside type="tip" title="Automation virker ikke?">
+**Tjek disse ting:**
+
+1. **Entity ID** - Stavefejl er den hyppigste fejl!
+   - Find korrekt ID under **Udviklerværktøjer** → **Tilstande**
+
+2. **Logs** - Se fejlbeskeder
+   - **Indstillinger** → **System** → **Logs**
+
+3. **Sporing** - Se seneste kørsler
+   - Klik på automationen → **Spor** (nederst)
+
+4. **Test trigger manuelt**
+   - **Udviklerværktøjer** → **Tilstande** → Ændr entity tilstand
 </Aside>
 
-## Næste skridt
+## 📚 Nyttige trigger-typer
+
+| Trigger | Hvornår | Eksempel |
+|---------|---------|----------|
+| `state` | Entity ændrer tilstand | Bevægelse, dør åbner |
+| `numeric_state` | Værdi over/under | Temperatur, strømforbrug |
+| `sun` | Solopgang/nedgang | Lys automation |
+| `time` | Bestemt klokkeslæt | Morgenrutine |
+| `zone` | Person ankommer/forlader | Hjemme/væk |
+| `device` | Enhedsspecifik | Knap trykkes |
+
+## 🚀 Næste skridt
 
 <CardGrid>
-  <Card title="Zigbee sensorer" icon="setting">
-    [Tilføj sensorer med Zigbee2MQTT →](/da/home-assistant/zigbee2mqtt/)
+  <Card title="📡 Zigbee sensorer" icon="setting">
+    Tilføj Aqara, IKEA og andre Zigbee sensorer.
+    
+    [Opsæt Zigbee2MQTT →](/da/home-assistant/zigbee2mqtt/)
   </Card>
-  <Card title="ESP32 sensorer" icon="rocket">
-    [Byg dine egne sensorer →](/da/esp32/)
+  <Card title="🔧 ESP32 sensorer" icon="rocket">
+    Byg dine egne sensorer med ESP32.
+    
+    [ESP32 guides →](/da/esp32/)
   </Card>
 </CardGrid>

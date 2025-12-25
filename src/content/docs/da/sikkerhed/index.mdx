@@ -1,47 +1,159 @@
 ---
 title: Sikkerhed
-description: Sikre dit smart home netværk og beskyt dine data.
+description: Sikre dit smart home netværk og beskyt dine data. Best practices og guides.
+sidebar:
+  badge:
+    text: Vigtigt
+    variant: danger
 ---
 
-import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
+import { Card, CardGrid, Aside, Badge } from '@astrojs/starlight/components';
 
-Smart home betyder også ansvar. Her lærer du at sikre dit netværk og beskytte dine data.
+<Badge text="Kritisk" variant="danger" /> <Badge text="Alle niveauer" variant="note" />
 
-<Aside type="caution" title="Sikkerhed først">
-Et usikkert smart home kan give hackere adgang til dit netværk og dine data. Tag sikkerhed alvorligt.
+Smart home betyder også ansvar. Et usikkert setup kan give hackere adgang til dit netværk, dine kameraer og dine data. Tag sikkerhed alvorligt fra starten.
+
+<Aside type="danger" title="⚠️ Sikkerhed er ikke valgfrit">
+Usikre smart home enheder er blandt de mest hackede enheder på internettet. Mange enheder har standard passwords, ingen opdateringer, og usikker kommunikation.
 </Aside>
 
-## Grundlæggende sikkerhed
+## 🔒 Grundlæggende sikkerhed
+
+### ⭐⭐⭐ Kritisk (gør dette først!)
+
+| Handling | Hvorfor | Hvordan |
+|----------|---------|---------|
+| **Stærke passwords** | Svage passwords = nem adgang | Brug password manager, 16+ tegn |
+| **To-faktor på HA** | Ekstra beskyttelse | Indstillinger → Brugere → 2FA |
+| **Opdater alt** | Sikkerhedshuller lukkes | Tjek opdateringer ugentligt |
+| **Skift standard passwords** | Alle kender dem | Router, kameraer, alt! |
+
+### ⭐⭐ Anbefalet
+
+| Handling | Hvorfor | Hvordan |
+|----------|---------|---------|
+| **Separat IoT netværk** | Isolerer enheder | VLAN eller gæste-WiFi |
+| **Lokal DNS (Pi-hole)** | Blokerer tracking | Kør Pi-hole eller AdGuard |
+| **VPN til fjernadgang** | Sikker adgang udefra | WireGuard, Tailscale |
+| **Undgå cloud-enheder** | Mindre angrebsflade | Vælg lokale alternativer |
+
+### ⭐ Avanceret
+
+| Handling | Hvorfor | Hvordan |
+|----------|---------|---------|
+| **Firewall regler** | Kontrollér trafik | pfSense, OPNsense |
+| **IDS/IPS** | Opdager angreb | Suricata, Snort |
+| **Log analyse** | Opdager misbrug | Graylog, Grafana |
+
+## 🏠 Hvorfor lokalt?
+
+Home Assistant og ESPHome kører **lokalt** på dit netværk. Det er en STOR sikkerhedsfordel:
+
+| Lokalt | Cloud |
+|--------|-------|
+| ✅ Data forbliver hjemme | ❌ Data sendes til servere |
+| ✅ Virker uden internet | ❌ Afhængig af internet |
+| ✅ Ingen månedlig betaling | ❌ Ofte abonnement |
+| ✅ Du har fuld kontrol | ❌ Producent kan lukke |
+| ✅ Hurtigere respons | ❌ Forsinkelse via cloud |
+
+<Aside type="tip" title="Lokal først">
+Vælg altid lokale løsninger når det er muligt. Zigbee, Z-Wave og WiFi-enheder med lokal API (Tasmota, ESPHome) er bedre end cloud-afhængige enheder.
+</Aside>
+
+## 🌐 Netværkssegmentering
+
+Hold IoT-enheder på et separat netværk:
+
+```
+┌─────────────────────────────────────────────────────┐
+│                     ROUTER                          │
+└─────────────────────────────────────────────────────┘
+        │                    │                  │
+   ┌────┴────┐         ┌────┴────┐        ┌────┴────┐
+   │  VLAN 1 │         │  VLAN 2 │        │  VLAN 3 │
+   │ Primært │         │   IoT   │        │  Gæst   │
+   │         │         │         │        │         │
+   │ PC      │         │ Sensorer│        │ Gæster  │
+   │ Telefon │   ──►   │ Kameraer│        │         │
+   │ HA      │         │ Pærer   │        │         │
+   └─────────┘         └─────────┘        └─────────┘
+```
+
+<Aside type="note" title="Simpel løsning">
+Har du ikke VLAN-support? Brug dit routers **gæste-netværk** til IoT-enheder. Det giver basal isolation.
+</Aside>
+
+## 🔐 Password best practices
+
+### Gode passwords
+
+```
+❌ Dårligt:   password123
+❌ Dårligt:   MinHund2024
+❌ Dårligt:   qwerty
+✅ Godt:      korrekt-hest-batteri-hæfteklamme
+✅ Godt:      Xk9#mP2$vL8@nQ4&
+```
+
+### Brug password manager
+
+| Manager | Pris | Kommentar |
+|---------|------|-----------|
+| **Bitwarden** | Gratis | ⭐ Anbefalet, open source |
+| 1Password | 3$/md | Poleret, familiedeling |
+| KeePass | Gratis | Offline, fuld kontrol |
+
+## 🌍 Sikker fjernadgang
+
+Vil du tilgå Home Assistant udefra? Gør det sikkert:
+
+| Metode | Sikkerhed | Sværhedsgrad |
+|--------|-----------|--------------|
+| **Nabu Casa** | ⭐⭐⭐⭐⭐ | Let |
+| **Tailscale VPN** | ⭐⭐⭐⭐⭐ | Let |
+| **WireGuard VPN** | ⭐⭐⭐⭐⭐ | Medium |
+| Reverse proxy + cert | ⭐⭐⭐⭐ | Svær |
+| Port forwarding | ⭐ | **UNDGÅ!** |
+
+<Aside type="danger" title="Aldrig port forward!">
+Port forwarding af Home Assistant direkte til internettet er **ekstremt farligt**. Brug VPN eller Nabu Casa i stedet.
+</Aside>
+
+## 📋 Sikkerhedstjekliste
+
+### Ved installation
+
+- [ ] Skift alle standard passwords
+- [ ] Opdater firmware på alle enheder
+- [ ] Aktiver to-faktor på Home Assistant
+- [ ] Brug HTTPS (automatisk med Nabu Casa)
+
+### Månedligt
+
+- [ ] Tjek for opdateringer
+- [ ] Gennemgå aktive brugere
+- [ ] Tjek logs for mærkeligheder
+- [ ] Backup af konfiguration
+
+### Ved nye enheder
+
+- [ ] Undersøg producentens sikkerhedspraksis
+- [ ] Foretruk enheder uden cloud
+- [ ] Opdater firmware før brug
+- [ ] Placer på IoT-netværk
+
+## 🚀 Næste skridt
 
 <CardGrid>
-  <Card title="🔐 Netværkssikkerhed" icon="approve-check">
-    Segmentér dit netværk og hold IoT enheder isoleret.
+  <Card title="🏠 Home Assistant" icon="setting">
+    Kom i gang med lokal smart home platform.
+    
+    [Home Assistant →](/da/home-assistant/)
   </Card>
-  <Card title="🔑 Adgangskontrol" icon="setting">
-    Stærke passwords og to-faktor autentificering.
-  </Card>
-  <Card title="🔄 Opdateringer" icon="rocket">
-    Hold alt opdateret - firmware, software, alt.
-  </Card>
-  <Card title="☁️ Cloud vs Lokal" icon="document">
-    Hvorfor lokale løsninger ofte er mere sikre.
+  <Card title="🔧 ESP32" icon="rocket">
+    Byg 100% lokale sensorer selv.
+    
+    [ESP32 guides →](/da/esp32/)
   </Card>
 </CardGrid>
-
-## Anbefalinger
-
-| Anbefaling | Vigtighed |
-|------------|-----------|
-| Brug stærke, unikke passwords | ⭐⭐⭐ Kritisk |
-| Aktiver to-faktor på Home Assistant | ⭐⭐⭐ Kritisk |
-| Segmentér IoT på separat VLAN | ⭐⭐ Anbefalet |
-| Undgå cloud-afhængige enheder | ⭐⭐ Anbefalet |
-| Hold firmware opdateret | ⭐⭐⭐ Kritisk |
-
-## Hvorfor lokalt?
-
-Home Assistant og ESPHome kører lokalt. Det betyder:
-
-- **Ingen cloud** - Dine data forlader ikke dit hjem
-- **Ingen abonnementer** - Virker selv hvis producenten lukker
-- **Fuld kontrol** - Du bestemmer hvad der sker med dine data

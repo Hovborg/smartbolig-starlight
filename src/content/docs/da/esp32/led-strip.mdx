@@ -1,40 +1,96 @@
 ---
-title: LED strip med ESP32
+title: LED Strip med ESP32
 description: Styr adresserbare LED strips med ESP32 og ESPHome. RGB effekter og Home Assistant integration.
+sidebar:
+  badge:
+    text: Sjovt
+    variant: note
 ---
 
-import { Steps, Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+import { Steps, Aside, Card, CardGrid, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
 
-Adresserbare LED strips giver fantastiske lys-effekter og er nemme at integrere med Home Assistant.
+<Badge text="Medium" variant="caution" /> <Badge text="45 min" variant="note" /> <Badge text="150 kr" variant="caution" />
 
-## Komponenter
+Adresserbare LED strips giver fantastiske lys-effekter. Hver LED kan styres individuelt med millioner af farver!
 
-| Del | Pris ca. |
-|-----|----------|
-| ESP32 board | 40 kr |
-| WS2812B LED strip (1m, 60 LEDs) | 50 kr |
-| 5V strømforsyning | 40 kr |
-| **Total** | **130 kr** |
+## 📋 Forudsætninger
 
-<Aside type="caution" title="Strømforsyning">
-LED strips bruger MEGET strøm. 60 LEDs på fuld hvid bruger ca. 3A. Brug en ordentlig 5V strømforsyning, ikke USB.
+- ✅ [ESP32 sat op med ESPHome](/da/esp32/kom-godt-i-gang/)
+- ✅ Loddekolbe (eller strips med stik)
+- ✅ 5V strømforsyning (mindst 3A)
+
+## 🛒 Komponenter
+
+| Del | Beskrivelse | Pris ca. |
+|-----|-------------|----------|
+| ESP32 DevKit | WiFi mikrocontroller | 45 kr |
+| WS2812B LED strip | 1m, 60 LEDs/m | 60 kr |
+| 5V strømforsyning | Mindst 3A | 50 kr |
+| Ledninger | Til strøm + signal | 10 kr |
+| **Total** | | **~165 kr** |
+
+<Aside type="caution" title="⚡ Strømforsyning er vigtig!">
+LED strips bruger MEGET strøm:
+- 60 LEDs fuld hvid = ~3.6A
+- 144 LEDs fuld hvid = ~8.6A
+
+**Brug IKKE USB** - det kan max levere 0.5-1A. Køb en dedikeret 5V strømforsyning.
 </Aside>
 
-## Tilslutning
+## 🎨 LED Strip typer
 
-```
-LED Strip    ESP32
----------    ------
-+5V      --> Ekstern 5V strømforsyning (+)
-GND      --> GND (forbind ESP32 GND også!)
-DIN      --> GPIO16
-```
+| Type | Farver | Anbefalet |
+|------|--------|-----------|
+| **WS2812B** | RGB (16M farver) | ⭐ God til de fleste |
+| **SK6812** | RGBW (med ægte hvid) | ⭐⭐ Bedre hvid |
+| **WS2811** | RGB (12V version) | Lange strips |
 
-## ESPHome konfiguration
+## 🔌 Tilslutning
+
+### Wiring diagram
+
+![LED Strip til ESP32 wiring diagram](/images/guides/led-strip/wiring.svg)
+
+<Steps>
+1. **5V** fra strømforsyning → LED strip **+5V**
+   
+   <Aside type="danger">
+   Forbind IKKE 5V til ESP32! Den får strøm fra USB.
+   </Aside>
+
+2. **GND** fra strømforsyning → LED strip **GND** OG ESP32 **GND**
+   
+   <Aside type="caution">
+   Fælles GND er **kritisk**! Uden det virker data-signalet ikke.
+   </Aside>
+
+3. **GPIO16** fra ESP32 → LED strip **DIN** (Data In)
+</Steps>
+
+## ⚙️ ESPHome Konfiguration
 
 <Tabs>
   <TabItem label="Simpel">
     ```yaml title="led-strip.yaml"
+    esphome:
+      name: led-strip
+      friendly_name: LED Strip
+
+    esp32:
+      board: esp32dev
+
+    logger:
+    api:
+      encryption:
+        key: "din-nøgle"
+    ota:
+      platform: esphome
+
+    wifi:
+      ssid: "dit-wifi"
+      password: "din-kode"
+
+    # LED Strip
     light:
       - platform: neopixelbus
         type: GRB
@@ -45,7 +101,26 @@ DIN      --> GPIO16
     ```
   </TabItem>
   <TabItem label="Med effekter">
-    ```yaml title="led-strip.yaml"
+    ```yaml title="led-strip.yaml" {20-40}
+    esphome:
+      name: led-strip
+      friendly_name: LED Strip
+
+    esp32:
+      board: esp32dev
+
+    logger:
+    api:
+      encryption:
+        key: "din-nøgle"
+    ota:
+      platform: esphome
+
+    wifi:
+      ssid: "dit-wifi"
+      password: "din-kode"
+
+    # LED Strip med effekter
     light:
       - platform: neopixelbus
         type: GRB
@@ -55,25 +130,163 @@ DIN      --> GPIO16
         name: "LED Strip"
         effects:
           - rainbow:
-              name: "Rainbow"
+              name: "Regnbue"
               speed: 10
+              width: 50
           - pulse:
-              name: "Pulse"
+              name: "Puls"
+              min_brightness: 20%
+              max_brightness: 100%
+          - color_wipe:
+              name: "Farve Sweep"
           - strobe:
               name: "Strobe"
+              colors:
+                - state: true
+                  duration: 50ms
+                - state: false
+                  duration: 50ms
+    ```
+  </TabItem>
+  <TabItem label="RGBW (SK6812)">
+    ```yaml title="led-strip-rgbw.yaml"
+    light:
+      - platform: neopixelbus
+        type: GRBW
+        variant: SK6812
+        pin: GPIO16
+        num_leds: 60
+        name: "LED Strip RGBW"
     ```
   </TabItem>
 </Tabs>
 
-## Alternativ: WLED
+<Aside type="tip" title="Farverækkefølge (GRB/RGB)">
+Hvis farverne er forkerte (f.eks. rød viser grøn), prøv at ændre `type:` fra `GRB` til `RGB` eller `BRG`.
+</Aside>
 
-WLED er et populært alternativ til ESPHome til LED strips:
+## 📤 Upload og Test
 
-- Flere effekter (100+)
-- Webapp til kontrol
-- Synkronisering mellem strips
-- Musikreaktion
+<Steps>
+1. Klik **INSTALL** → **Wirelessly**
+
+2. Gå til **Home Assistant** → **Oversigt**
+
+3. Find din LED strip og tænd den
+
+4. Prøv at ændre farve og vælg effekter
+</Steps>
+
+## 🎛️ Dashboard Kort
+
+### Simpelt lys-kort
+
+```yaml title="Lovelace"
+type: light
+entity: light.led_strip
+name: LED Strip
+```
+
+### Med effekt-vælger
+
+```yaml title="Lovelace"
+type: vertical-stack
+cards:
+  - type: light
+    entity: light.led_strip
+  - type: entities
+    entities:
+      - entity: light.led_strip
+        type: custom:slider-entity-row
+        attribute: brightness
+      - entity: select.led_strip_effect
+```
+
+## 🤖 Automation idéer
+
+### Tænd ved solnedgang
+
+```yaml title="automations.yaml"
+automation:
+  - alias: "Ambient lys ved solnedgang"
+    trigger:
+      - platform: sun
+        event: sunset
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.led_strip
+        data:
+          brightness_pct: 50
+          rgb_color: [255, 180, 100]  # Varm hvid
+```
+
+### Rød ved alarm
+
+```yaml title="automations.yaml"
+automation:
+  - alias: "Rød alarm"
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.home
+        to: "triggered"
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.led_strip
+        data:
+          effect: "Strobe"
+          rgb_color: [255, 0, 0]
+```
+
+## 🔄 Alternativ: WLED
+
+WLED er firmware med 100+ effekter og webapp:
+
+| Feature | ESPHome | WLED |
+|---------|---------|------|
+| Effekter | ~10 | 100+ |
+| Web UI | Nej | Ja |
+| Musik sync | Nej | Ja |
+| HA integration | Perfekt | God |
+| Opsætning | YAML | Web |
 
 <Aside type="tip">
-WLED integrerer også med Home Assistant. Perfekt til komplekse lys-setups.
+Vil du have WLED? Flash det via [install.wled.me](https://install.wled.me) direkte i browseren!
 </Aside>
+
+## 🔧 Fejlfinding
+
+<Aside type="tip" title="LEDs lyser ikke?">
+- Tjek at GND er forbundet mellem ESP32 og strømforsyning
+- Tjek at strømforsyning er tændt
+- Prøv kun de første 10 LEDs (reducer `num_leds`)
+- Tjek at DIN (ikke DOUT) er forbundet
+</Aside>
+
+<Aside type="tip" title="Forkerte farver?">
+- Ændre `type:` mellem `GRB`, `RGB`, `BRG`
+- WS2812B er typisk GRB
+- SK6812 kan være GRBW eller RGBW
+</Aside>
+
+<Aside type="tip" title="Flimren eller random farver?">
+- Fælles GND mangler - forbind ESP32 GND til strømforsyning GND
+- Dårligt signal - prøv kortere kabel til DIN
+- For lang strip - injicer 5V i midten af strippen
+</Aside>
+
+## 🚀 Næste skridt
+
+<CardGrid>
+  <Card title="🚶 Bevægelsessensor" icon="rocket">
+    Tænd LED strip ved bevægelse.
+    
+    [Byg bevægelsessensor →](/da/esp32/bevaegelsessensor/)
+  </Card>
+  <Card title="🤖 Automationer" icon="setting">
+    Avancerede automationer i Home Assistant.
+    
+    [Lær automationer →](/da/home-assistant/foerste-automation/)
+  </Card>
+</CardGrid>

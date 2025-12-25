@@ -1,11 +1,17 @@
 ---
 title: ESP32 & ESPHome
 description: Byg dine egne smart home enheder med ESP32 og ESPHome. Sensorer, kontakter og automationer du selv har lavet.
+sidebar:
+  badge:
+    text: Populær
+    variant: tip
 ---
 
-import { Card, CardGrid, LinkCard, Aside } from '@astrojs/starlight/components';
+import { Card, CardGrid, LinkCard, Aside, Badge } from "@astrojs/starlight/components";
 
-ESP32 er en lille mikrocontroller der koster under 50 kroner og kan forbindes til dit WiFi. Med ESPHome kan du lave dine egne sensorer, kontakter og displays.
+<Badge text="Begyndervenlig" variant="success" /> <Badge text="Fra 40 kr" variant="note" />
+
+ESP32 er en lille mikrocontroller der koster under 50 kroner og kan forbindes til dit WiFi. Med ESPHome kan du lave dine egne sensorer, kontakter og displays - helt uden programmering.
 
 ## Hvorfor ESP32?
 
@@ -24,52 +30,72 @@ ESP32 er en lille mikrocontroller der koster under 50 kroner og kan forbindes ti
   </Card>
 </CardGrid>
 
-## Guides
+## 🚀 Start her
 
 <CardGrid>
-  <LinkCard 
-    title="Kom godt i gang" 
+  <LinkCard
+    title="📘 Kom godt i gang"
     description="Installer ESPHome og flash din første ESP32"
     href="/da/esp32/kom-godt-i-gang/"
   />
-  <LinkCard 
-    title="Temperatur sensor" 
+</CardGrid>
+
+## 🔥 Populære projekter
+
+<CardGrid>
+  <LinkCard
+    title="📡 LD2410 mmWave Presence"
+    description="Detektér stillestående personer med radar"
+    href="/da/esp32/ld2410-mmwave/"
+  />
+  <LinkCard
+    title="🌡️ Temperatur sensor"
     description="DHT22 temperatur og fugtighed sensor"
     href="/da/esp32/temperatur-sensor/"
   />
-  <LinkCard 
-    title="Bevægelsessensor" 
+  <LinkCard
+    title="🚶 Bevægelsessensor"
     description="PIR sensor til bevægelsesdetektering"
     href="/da/esp32/bevaegelsessensor/"
   />
-  <LinkCard 
-    title="LED strip kontrol" 
-    description="Adresserbar LED strip med WLED eller ESPHome"
+  <LinkCard
+    title="💡 LED strip kontrol"
+    description="Adresserbar LED strip med ESPHome"
     href="/da/esp32/led-strip/"
   />
 </CardGrid>
 
-## Populære projekter
+## 📊 Projektoversigt
 
-| Projekt | Sværhedsgrad | Pris ca. |
-|---------|--------------|----------|
-| Temperatur/fugtighed sensor | ⭐ Let | 60 kr |
-| Bevægelsessensor | ⭐ Let | 80 kr |
-| LED strip controller | ⭐⭐ Medium | 150 kr |
-| Display med sensorer | ⭐⭐ Medium | 200 kr |
-| Egen smart kontakt | ⭐⭐⭐ Svær | 100 kr |
+| Projekt | Sværhedsgrad | Tid | Pris ca. |
+|---------|--------------|-----|----------|
+| [LD2410 mmWave Presence](/da/esp32/ld2410-mmwave/) | ⭐⭐ Medium | 45 min | 100 kr |
+| [Temperatur sensor](/da/esp32/temperatur-sensor/) | ⭐ Let | 30 min | 60 kr |
+| [Bevægelsessensor](/da/esp32/bevaegelsessensor/) | ⭐ Let | 30 min | 80 kr |
+| [LED strip](/da/esp32/led-strip/) | ⭐⭐ Medium | 45 min | 150 kr |
 
-## Hvad skal du bruge?
-
-<Aside type="tip" title="Startpakke">
-- **ESP32 board** (ESP32-WROOM-32 eller ESP32-C3)
-- **USB-kabel** (micro-USB eller USB-C)
-- **Computer med Home Assistant**
+<Aside type="tip" title="Anbefalet første projekt">
+**LD2410 mmWave** er perfekt til badeværelset - den detekterer dig selv når du sidder helt stille, så lyset ikke slukker mens du er på toilettet!
 </Aside>
 
-**Senere:**
-- Breadboard til prototyper
-- Jumper wires
-- Diverse sensorer (DHT22, PIR, osv.)
+## 🛒 Hvad skal du bruge?
 
-Jeg køber det meste på AliExpress (2-3 uger levering, billigst) eller danske webshops for hurtig levering.
+<Aside type="tip" title="Startpakke (~100 kr)">
+- **ESP32-WROOM-32 DevKit** - Anbefalet til begyndere
+- **USB-kabel** (micro-USB eller USB-C)
+- **Home Assistant** kørende på din server
+</Aside>
+
+### Anbefalede boards
+
+| Board | Pris | Bedst til |
+|-------|------|-----------|
+| ESP32-WROOM-32 DevKit | 40-50 kr | Begyndere |
+| ESP32-C3 Super Mini | 25 kr | Små projekter |
+| ESP32-S3 | 60 kr | Displays, kamera |
+| D1 Mini (ESP8266) | 25 kr | Simple sensorer |
+
+<Aside type="note" title="Hvor køber jeg?">
+- **Hurtigt:** Proshop, av-cables.dk, elektronik-lavpris.dk
+- **Billigt:** AliExpress (2-3 ugers levering)
+</Aside>

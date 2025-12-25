@@ -1,0 +1,85 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 350">
+  <defs>
+    <linearGradient id="piGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#22c55e"/>
+      <stop offset="100%" style="stop-color:#15803d"/>
+    </linearGradient>
+    <linearGradient id="haGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4"/>
+      <stop offset="100%" style="stop-color:#0891b2"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="600" height="350" fill="#0f0f1a"/>
+  
+  <!-- Title -->
+  <text x="300" y="30" text-anchor="middle" fill="#f1f5f9" font-family="system-ui" font-size="18" font-weight="bold">Raspberry Pi Setup</text>
+  
+  <!-- Raspberry Pi Board -->
+  <rect x="150" y="60" width="300" height="180" rx="12" fill="url(#piGrad)" stroke="#4ade80" stroke-width="3"/>
+  
+  <!-- Pi label -->
+  <text x="300" y="95" text-anchor="middle" fill="#fff" font-family="system-ui" font-size="16" font-weight="bold">🍓 Raspberry Pi 4/5</text>
+  
+  <!-- Components on Pi -->
+  <!-- CPU -->
+  <rect x="180" y="115" width="60" height="40" rx="4" fill="#166534" stroke="#22c55e" stroke-width="1"/>
+  <text x="210" y="140" text-anchor="middle" fill="#bbf7d0" font-family="system-ui" font-size="10">CPU</text>
+  
+  <!-- RAM -->
+  <rect x="260" y="115" width="60" height="40" rx="4" fill="#166534" stroke="#22c55e" stroke-width="1"/>
+  <text x="290" y="140" text-anchor="middle" fill="#bbf7d0" font-family="system-ui" font-size="10">4GB RAM</text>
+  
+  <!-- USB ports -->
+  <rect x="350" y="115" width="80" height="18" rx="3" fill="#1e293b" stroke="#475569"/>
+  <text x="390" y="128" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="9">USB 3.0</text>
+  <rect x="350" y="137" width="80" height="18" rx="3" fill="#1e293b" stroke="#475569"/>
+  <text x="390" y="150" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="9">USB 2.0</text>
+  
+  <!-- Ethernet -->
+  <rect x="180" y="170" width="70" height="25" rx="4" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+  <text x="215" y="187" text-anchor="middle" fill="#60a5fa" font-family="system-ui" font-size="10">Ethernet</text>
+  
+  <!-- Power -->
+  <rect x="270" y="170" width="60" height="25" rx="4" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+  <text x="300" y="187" text-anchor="middle" fill="#fca5a5" font-family="system-ui" font-size="10">USB-C</text>
+  
+  <!-- SD Card slot -->
+  <rect x="350" y="170" width="80" height="25" rx="4" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+  <text x="390" y="187" text-anchor="middle" fill="#fcd34d" font-family="system-ui" font-size="10">SD Kort</text>
+  
+  <!-- Home Assistant OS layer -->
+  <rect x="170" y="205" width="260" height="25" rx="4" fill="url(#haGrad)" stroke="#22d3ee" stroke-width="1"/>
+  <text x="300" y="222" text-anchor="middle" fill="#fff" font-family="system-ui" font-size="11" font-weight="bold">🏠 Home Assistant OS</text>
+  
+  <!-- External connections -->
+  <!-- Router -->
+  <rect x="30" y="150" width="90" height="50" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+  <text x="75" y="175" text-anchor="middle" fill="#60a5fa" font-family="system-ui" font-size="11">🌐 Router</text>
+  <text x="75" y="190" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="9">Internet</text>
+  <line x1="120" y1="175" x2="180" y2="182" stroke="#3b82f6" stroke-width="2"/>
+  
+  <!-- Power supply -->
+  <rect x="30" y="260" width="90" height="50" rx="8" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+  <text x="75" y="285" text-anchor="middle" fill="#fca5a5" font-family="system-ui" font-size="11">⚡ 15W PSU</text>
+  <text x="75" y="300" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="9">USB-C 5V/3A</text>
+  <path d="M 120 285 Q 140 285 140 220 L 140 195 L 180 195" stroke="#ef4444" stroke-width="2" fill="none"/>
+  
+  <!-- Zigbee USB -->
+  <rect x="480" y="100" width="90" height="50" rx="8" fill="#1e293b" stroke="#a855f7" stroke-width="2"/>
+  <text x="525" y="125" text-anchor="middle" fill="#c084fc" font-family="system-ui" font-size="11">📡 Zigbee</text>
+  <text x="525" y="140" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="9">USB Dongle</text>
+  <line x1="480" y1="125" x2="430" y2="125" stroke="#a855f7" stroke-width="2"/>
+  
+  <!-- SSD (optional) -->
+  <rect x="480" y="180" width="90" height="50" rx="8" fill="#1e293b" stroke="#22c55e" stroke-width="2" stroke-dasharray="4,2"/>
+  <text x="525" y="205" text-anchor="middle" fill="#4ade80" font-family="system-ui" font-size="11">💾 SSD</text>
+  <text x="525" y="220" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="9">(anbefalet)</text>
+  <line x1="480" y1="205" x2="430" y2="145" stroke="#22c55e" stroke-width="2" stroke-dasharray="4,2"/>
+  
+  <!-- Access info -->
+  <rect x="150" y="270" width="300" height="60" rx="8" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="300" y="295" text-anchor="middle" fill="#e2e8f0" font-family="system-ui" font-size="12" font-weight="bold">🌐 Åbn i browser:</text>
+  <text x="300" y="315" text-anchor="middle" fill="#06b6d4" font-family="monospace" font-size="14">http://homeassistant.local:8123</text>
+</svg>

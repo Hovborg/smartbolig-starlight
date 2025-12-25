@@ -1,60 +1,96 @@
 ---
 title: Kom godt i gang med ESP32
 description: Din første ESP32 med ESPHome. Fra udpakning til fungerende sensor i Home Assistant.
+sidebar:
+  badge:
+    text: Start her
+    variant: success
 ---
 
-import { Steps, Aside, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Let" variant="success" /> <Badge text="20 min" variant="note" /> <Badge text="50 kr" variant="caution" />
 
 ESP32 er en mikrocontroller - en lille computer der kan måle ting, styre ting, og snakke med dit WiFi. Sammen med ESPHome bliver det nemt at lave dine egne smart home enheder.
 
-## Hvad er ESPHome?
+![ESP32 + ESPHome + Home Assistant](/images/guides/kom-godt-i-gang-esp32/overview.svg)
 
-ESPHome er software der kører på din ESP32. Du beskriver hvad den skal gøre i en simpel YAML-fil, og ESPHome klarer resten. Ingen Arduino IDE, ingen C++.
+## 📋 Forudsætninger
 
-ESPHome integrerer direkte med Home Assistant. Dine sensorer dukker bare op.
+Før du starter, skal du have:
 
-## Dit første board
+- ✅ [Home Assistant kørende](/da/home-assistant/)
+- ✅ En computer med USB-port
+- ✅ Chrome eller Edge browser (til USB flash)
 
-| Board | Pris ca. | Anbefalet til |
-|-------|----------|---------------|
-| **ESP32-WROOM-32 DevKit** | 40-50 kr | Begyndere (start her) |
+## 🤔 Hvad er ESPHome?
+
+ESPHome er software der kører på din ESP32. Du beskriver hvad den skal gøre i en simpel YAML-fil, og ESPHome klarer resten.
+
+**Fordele:**
+- Ingen Arduino IDE eller C++ programmering
+- Direkte integration med Home Assistant
+- Trådløse opdateringer (OTA)
+
+## 🛒 Vælg dit board
+
+| Board | Pris | Anbefalet til |
+|-------|------|---------------|
+| **ESP32-WROOM-32 DevKit** | 40-50 kr | ⭐ Begyndere (start her) |
 | ESP32-C3 Super Mini | 25 kr | Små projekter |
 | ESP32-S3 | 60 kr | Displays, mere RAM |
 
 <Aside type="tip">
-Start med en **WROOM-32 DevKit**. Den er bred nok til at se hvad du laver, og alle guides bruger den.
+Start med en **WROOM-32 DevKit**. Den er bred nok til at se hvad du laver, og alle vores guides bruger den.
 </Aside>
 
-## Installer ESPHome
+### ESP32 Pinout oversigt
+
+![ESP32 DevKit pinout diagram](/images/guides/kom-godt-i-gang-esp32/pinout.svg)
+
+## ⚙️ Installer ESPHome Add-on
 
 <Steps>
-1. Gå til **Indstillinger** → **Add-ons** → **Add-on butik**
-2. Søg efter "ESPHome" og klik **Installer**
-3. Start add-on'en
-4. Slå "Vis i sidebar" til
+1. **Åbn Home Assistant** og gå til **Indstillinger** → **Add-ons**
+
+2. Klik **Add-on Butik** (nederst til højre)
+
+3. Søg efter **"ESPHome"** og klik på den
+
+4. Klik **Installer** og vent (1-2 minutter)
+
+5. Slå **"Start ved opstart"** og **"Vis i sidebar"** til
+
+6. Klik **Start**
 </Steps>
 
-## Opret din første enhed
+<Aside type="note">
+ESPHome ikonet vises nu i din sidebar til venstre.
+</Aside>
+
+## 🔌 Opret din første enhed
 
 <Steps>
-1. **Tilslut ESP32** via USB til din computer (ikke HA serveren endnu)
+1. **Åbn ESPHome** fra sidebaren
 
-2. **Åbn ESPHome** fra sidebaren og klik **+ New Device**
+2. Klik **+ NEW DEVICE**
 
-3. **Navngiv enheden** f.eks. "test-sensor"
+3. Klik **Continue** (ignorer browser-flash for nu)
 
-4. **Vælg board:** ESP32 Dev Module
+4. **Navngiv enheden** - f.eks. `test-sensor`
+   
+   <Aside type="caution">
+   Brug kun små bogstaver, tal og bindestreger. Ingen mellemrum eller æøå.
+   </Aside>
 
-5. **Tilføj WiFi credentials** under **Secrets**:
-   ```yaml
-   wifi_ssid: "dit-wifi-navn"
-   wifi_password: "dit-wifi-password"
-   ```
+5. Vælg **ESP32** som device type
 
-6. **Flash via USB:** Klik **Install** → **Plug into this computer**
+6. Klik **Skip** (vi flasher manuelt bagefter)
 </Steps>
 
-## Grundlæggende konfiguration
+## 📝 Konfigurer enheden
+
+Klik på **EDIT** på din nye enhed og erstat indholdet med:
 
 ```yaml title="test-sensor.yaml"
 esphome:
@@ -64,59 +100,136 @@ esphome:
 esp32:
   board: esp32dev
 
+# Logging til fejlfinding
 logger:
 
+# Home Assistant API
 api:
   encryption:
-    key: "din-autogenererede-nøgle"
+    key: "DIN-AUTO-GENEREREDE-NØGLE"
 
+# Trådløse opdateringer
 ota:
-  - platform: esphome
+  platform: esphome
 
+# WiFi forbindelse
 wifi:
-  ssid: !secret wifi_ssid
-  password: !secret wifi_password
+  ssid: "DIT-WIFI-NAVN"
+  password: "DIN-WIFI-KODE"
 
+# Fallback hotspot hvis WiFi fejler
 captive_portal:
-```
 
-## Tilføj til Home Assistant
-
-<Steps>
-1. Gå til **Indstillinger** → **Enheder og tjenester**
-2. Home Assistant finder automatisk din ESP32
-3. Klik **Konfigurer** og indtast encryption key
-</Steps>
-
-## Tilføj en simpel sensor
-
-```yaml title="WiFi signalstyrke sensor"
+# Simpel test sensor - WiFi signalstyrke
 sensor:
   - platform: wifi_signal
     name: "WiFi Signal"
     update_interval: 60s
 ```
 
-Klik **Install** → **Wirelessly** for at opdatere trådløst.
+<Aside type="tip">
+Erstat `DIT-WIFI-NAVN` og `DIN-WIFI-KODE` med dine rigtige WiFi oplysninger.
+</Aside>
 
-## Tilføj en LED
+## 📤 Flash til ESP32
 
-```yaml title="Styr indbygget LED"
-light:
-  - platform: status_led
-    name: "Status LED"
-    pin: GPIO2
-```
+<Tabs>
+  <TabItem label="🌐 Web (nemmest)">
+    <Steps>
+    1. Tilslut ESP32 til computeren med USB-kabel
+    
+    2. Klik **INSTALL** → **Plug into this computer**
+    
+    3. Vælg **"Serial"** i popup-vinduet
+    
+    4. Vælg den korrekte COM-port (typisk den eneste der vises)
+    
+    5. Vent på upload (~2 minutter)
+    
+    6. Du ser "INFO Successfully uploaded" når det er færdigt
+    </Steps>
+    
+    <Aside type="caution">
+    Virker kun i **Chrome** eller **Edge**. Firefox understøtter ikke Web Serial.
+    </Aside>
+  </TabItem>
+  <TabItem label="💻 ESPHome CLI">
+    Hvis web-flash ikke virker:
+    
+    ```bash
+    # Installer ESPHome CLI
+    pip install esphome
+    
+    # Flash via USB
+    esphome run test-sensor.yaml
+    ```
+  </TabItem>
+</Tabs>
 
-Nu kan du tænde/slukke LED'en fra Home Assistant!
+## ✅ Tilføj til Home Assistant
 
-## Næste skridt
+<Steps>
+1. Gå til **Indstillinger** → **Enheder og tjenester**
+
+2. Home Assistant finder automatisk din ESP32 under **"Opdaget"**
+
+3. Klik **Konfigurer**
+
+4. Indtast din encryption key (fra YAML filen)
+
+5. Klik **Send** → **Afslut**
+</Steps>
+
+Din ESP32 er nu forbundet! 🎉
+
+## 🧪 Test det virker
+
+<Steps>
+1. Gå til **Udviklerværktøjer** → **Tilstande**
+
+2. Søg efter `sensor.test_sensor_wifi_signal`
+
+3. Du bør se en værdi som `-45 dBm`
+</Steps>
+
+<Aside type="tip" title="WiFi signalstyrke">
+- **-30 til -50 dBm:** Fremragende
+- **-50 til -70 dBm:** Godt
+- **-70 til -80 dBm:** Svagt
+- **Under -80 dBm:** Ustabilt
+</Aside>
+
+## 🔧 Fejlfinding
+
+<Aside type="tip" title="ESP32 findes ikke?">
+- Prøv et andet USB-kabel (nogle er kun til opladning)
+- Prøv en anden USB-port
+- Installer CH340 driver: [Windows](https://sparks.gogo.co.nz/ch340.html) / [Mac](https://github.com/adrianmihalko/ch340g-ch34g-ch34x-mac-os-x-driver)
+</Aside>
+
+<Aside type="tip" title="WiFi forbinder ikke?">
+- Dobbelttjek SSID og password (store/små bogstaver)
+- ESP32 understøtter kun 2.4 GHz WiFi, ikke 5 GHz
+- Prøv at være tættere på routeren
+</Aside>
+
+<Aside type="tip" title="Home Assistant finder ikke enheden?">
+- Tjek at ESP32 og HA er på samme netværk
+- Genstart ESPHome add-on
+- Tjek ESPHome logs for fejl
+</Aside>
+
+## 🚀 Næste skridt
 
 <CardGrid>
-  <Card title="Temperatur sensor" icon="rocket">
-    [Tilføj DHT22 sensor →](/da/esp32/temperatur-sensor/)
+  <Card title="🌡️ Temperatur sensor" icon="rocket">
+    Tilføj en DHT22 og mål temperatur/fugtighed.
+    
+    [Byg temperatur sensor →](/da/esp32/temperatur-sensor/)
   </Card>
-  <Card title="LED strip" icon="setting">
-    [Styr adresserbare LEDs →](/da/esp32/led-strip/)
+  <Card title="🚶 Bevægelsessensor" icon="setting">
+    Tilføj en PIR sensor til bevægelsesdetektering.
+    
+    [Byg bevægelsessensor →](/da/esp32/bevaegelsessensor/)
   </Card>
 </CardGrid>

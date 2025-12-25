@@ -1,100 +1,243 @@
 ---
 title: Home Assistant på Raspberry Pi
-description: Komplet guide til installation af Home Assistant på Raspberry Pi 4 eller 5. Fra SD-kort til fungerende smart home hub.
+description: Komplet guide til installation af Home Assistant OS på Raspberry Pi 4 eller 5.
+sidebar:
+  badge:
+    text: Anbefalet
+    variant: tip
 ---
 
-import { Steps, Aside, Tabs, TabItem, Card, CardGrid, FileTree, Badge } from '@astrojs/starlight/components';
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
 
-Raspberry Pi er nok den mest populære måde at køre Home Assistant på. Billigt, støjsvagt og bruger næsten ingen strøm.
+<Badge text="Let" variant="success" /> <Badge text="30 min" variant="note" /> <Badge text="~650 kr" variant="caution" />
 
-## Hvad skal du bruge?
+Raspberry Pi er den mest populære måde at køre Home Assistant på. Billigt, støjsvagt og bruger kun 5-10W strøm.
 
-**Hardware:**
-- Raspberry Pi 4 (4GB) eller Pi 5 <Badge text="Anbefalet" variant="success" />
-- SD-kort på minimum 32GB (SanDisk Extreme eller Samsung EVO)
-- Strømforsyning - brug den officielle
-- Ethernet kabel (mere stabilt end WiFi)
+![Raspberry Pi setup diagram](/images/guides/raspberry-pi/setup.svg)
 
-**Valgfrit men anbefalet:**
-- SSD via USB (holder længere end SD-kort)
-- Køleplade eller blæser til Pi'en
+## 📋 Forudsætninger
 
-<Aside type="caution" title="SD-kort holder ikke evigt">
-SD-kort dør. Det er ikke et spørgsmål om "hvis" men "hvornår". Har du mulighed for det, så kør med en SSD fra starten.
+- ✅ Raspberry Pi 4 (2GB+) eller Pi 5
+- ✅ Computer til at flashe SD-kort
+- ✅ Netværk med internet
+
+## 🛒 Hardware
+
+| Del | Beskrivelse | Pris ca. |
+|-----|-------------|----------|
+| Raspberry Pi 4 (4GB) | Anbefalet model | 450 kr |
+| Strømforsyning | Official 15W USB-C | 100 kr |
+| SD-kort 32GB+ | Samsung EVO eller SanDisk | 80 kr |
+| Ethernetkabel | Cat5e/Cat6 | 30 kr |
+| **Total** | | **~660 kr** |
+
+### Valgfrit (men anbefalet)
+
+| Del | Hvorfor | Pris ca. |
+|-----|---------|----------|
+| SSD + USB adapter | Hurtigere, holder længere | 200 kr |
+| Køleplade/blæser | Holder Pi'en kølig | 50 kr |
+| Case | Beskyttelse og æstetik | 100 kr |
+
+<Aside type="caution" title="⚠️ SD-kort holder ikke evigt">
+SD-kort dør efter 1-3 år med Home Assistant. Brug SSD fra starten hvis muligt, eller hav altid en backup klar.
 </Aside>
 
-## Installation trin for trin
+## 📥 Download og Flash
 
 <Steps>
-1. **Download Home Assistant OS**
+1. **Download Raspberry Pi Imager**
    
-   Gå til [home-assistant.io/installation](https://www.home-assistant.io/installation/raspberrypi) og download image-filen:
-   - `haos_rpi4-64` for Raspberry Pi 4
-   - `haos_rpi5-64` for Raspberry Pi 5
+   Hent fra [raspberrypi.com/software](https://www.raspberrypi.com/software/)
 
-2. **Flash SD-kortet**
-   
-   Download [Balena Etcher](https://www.balena.io/etcher/) og:
-   - Sæt SD-kortet i din computer
-   - Åbn Etcher
-   - Vælg den downloadede `.img.xz` fil
-   - Vælg dit SD-kort
-   - Klik "Flash!"
+2. **Sæt SD-kort i computeren**
 
-3. **Første opstart**
-   
-   Sæt SD-kortet i din Pi og tilslut:
-   - Ethernet kabel
-   - Strøm (tilslut sidst)
-   
-   Første opstart tager 10-20 minutter.
+3. **Åbn Raspberry Pi Imager**
 
-4. **Åbn Home Assistant**
-   
-   Gå til `http://homeassistant.local:8123` i din browser.
+4. **Vælg operativsystem:**
+   - Klik **"Choose OS"**
+   - Scroll ned til **"Other specific-purpose OS"**
+   - Vælg **"Home assistants and home automation"**
+   - Vælg **"Home Assistant"**
+   - Vælg **"Home Assistant OS X.X (RPi 4/5)"**
+
+5. **Vælg dit SD-kort:**
+   - Klik **"Choose Storage"**
+   - Vælg dit SD-kort (pas på - vælg den rigtige!)
+
+6. **Flash:**
+   - Klik **"Write"**
+   - Bekræft at data slettes
+   - Vent 5-10 minutter
 </Steps>
 
-<Aside type="note" title="Kan ikke finde homeassistant.local?">
-Prøv at finde IP-adressen på din router og brug `http://192.168.1.XXX:8123` i stedet.
+<Aside type="tip">
+Du behøver IKKE konfigurere WiFi eller SSH i Imager. Home Assistant OS håndterer alt selv.
 </Aside>
 
-## Første opsætning
+## 🔌 Hardware Setup
+
+![Raspberry Pi setup diagram](/images/guides/raspberry-pi/setup.svg)
 
 <Steps>
-1. **Opret din konto** - Vælg et stærkt password
-2. **Navngiv dit hjem** - F.eks. "Mit Smart Hjem"  
-3. **Vælg lokation** - For solop/nedgang og vejr
-4. **Opdager enheder** - Home Assistant finder automatisk enheder
+1. **Sæt SD-kortet i Raspberry Pi**
+   
+   Kortslotten er på undersiden af boardet.
+
+2. **Tilslut Ethernet kabel**
+   
+   Direkte til din router for mest stabil forbindelse.
+
+3. **Tilslut strøm (sidst!)**
+   
+   Brug den officielle strømforsyning. Billige opladere kan give problemer.
 </Steps>
 
-## Tips fra virkeligheden
+<Aside type="note">
+Første opstart tager **10-20 minutter**. Sluk IKKE for strømmen mens du venter!
+</Aside>
 
-### Backup, backup, backup
+## 🌐 Åbn Home Assistant
 
-Gå til **Indstillinger** → **System** → **Backups** og lav en backup. Gem backups på et andet sted end din Pi.
+<Tabs>
+  <TabItem label="Automatisk (nemmest)">
+    Åbn din browser og gå til:
+    
+    ```
+    http://homeassistant.local:8123
+    ```
+  </TabItem>
+  <TabItem label="Via IP-adresse">
+    Hvis `homeassistant.local` ikke virker:
+    
+    1. Find Pi'ens IP i din router (ofte under "DHCP clients" eller "Connected devices")
+    2. Åbn: `http://192.168.X.XXX:8123`
+  </TabItem>
+</Tabs>
 
-### Overvej en SSD
+Du ser først **"Preparing Home Assistant"** - vent 10-20 minutter.
 
-En SSD via USB3 porten giver:
-- Hurtigere boot og dashboard
-- Meget længere levetid
-- Direkte boot på Pi 4 og Pi 5
+## ⚙️ Første Opsætning
 
-## Problemer?
+<Steps>
+1. **Opret din konto**
+   
+   - Vælg et brugernavn
+   - Brug et **stærkt password** (gem det i password manager!)
 
-| Problem | Løsning |
-|---------|---------|
-| Kan ikke finde homeassistant.local | Brug IP-adresse i stedet |
-| "Preparing Home Assistant" længe | Vent 20-30 min, genstart ikke |
-| Pi'en bliver varm | Monter køleplade, check temp i HA |
+2. **Navngiv dit hjem**
+   
+   F.eks. "Mit Hjem" eller din adresse.
 
-## Næste skridt
+3. **Angiv lokation**
+   
+   Bruges til solopgang/nedgang, vejr og tidszone.
+
+4. **Vælg hvad du vil dele**
+   
+   Anonyme statistikker - helt frivilligt.
+
+5. **Opdagede enheder**
+   
+   Home Assistant finder automatisk enheder på dit netværk. Klik "Finish" for nu.
+</Steps>
+
+🎉 **Tillykke!** Home Assistant kører nu.
+
+## 🛡️ Vigtige første trin
+
+### 1. Lav backup
+
+<Steps>
+1. Gå til **Indstillinger** → **System** → **Backups**
+2. Klik **"Opret backup"**
+3. Download backup-filen til din computer
+</Steps>
+
+<Aside type="danger">
+Gem ALDRIG kun backups på SD-kortet. Hvis kortet dør, mister du alt!
+</Aside>
+
+### 2. Opdater Home Assistant
+
+<Steps>
+1. Gå til **Indstillinger** → **System** → **Opdateringer**
+2. Opdater alt der er tilgængeligt
+3. Genstart hvis nødvendigt
+</Steps>
+
+### 3. Installer nyttige add-ons
+
+Gå til **Indstillinger** → **Add-ons** → **Add-on butik**:
+
+| Add-on | Hvad gør den |
+|--------|--------------|
+| **File Editor** | Rediger config-filer i browseren |
+| **Terminal & SSH** | Kommandolinje-adgang |
+| **Samba share** | Adgang til filer fra Windows/Mac |
+
+## 🔧 Fejlfinding
+
+<Aside type="tip" title="homeassistant.local virker ikke?">
+**Prøv disse ting:**
+1. Vent 5 minutter mere og prøv igen
+2. Find IP i din router og brug `http://IP:8123`
+3. Prøv en anden browser
+4. Tjek at Pi'en har grønt lys (strøm) og blinkende lys (aktivitet)
+</Aside>
+
+<Aside type="tip" title="'Preparing Home Assistant' tager evigt?">
+**Normal tid:** 10-20 minutter på første boot.
+
+**Hvis det tager længere:**
+- Vent op til 30 minutter
+- Tjek at Pi'en har internet (ethernet kabel sat i?)
+- Prøv at genstarte ved at tage strømmen og sætte den i igen
+</Aside>
+
+<Aside type="tip" title="Pi'en bliver meget varm?">
+Raspberry Pi 4/5 kan blive 70-80°C under belastning.
+
+**Løsning:**
+- Monter køleplade (passiv køling)
+- Brug case med blæser (aktiv køling)
+- Tjek temperatur i HA under **Indstillinger** → **System** → **Hardware**
+</Aside>
+
+## 💾 Opgrader til SSD (anbefalet)
+
+SD-kort er den #1 årsag til Home Assistant problemer. En SSD koster ~200 kr og holder i mange år.
+
+### Hvad du skal bruge
+
+- USB 3.0 til SATA adapter eller SSD enclosure
+- 2.5" SATA SSD (120GB er rigeligt)
+
+### Sådan gør du
+
+<Steps>
+1. Flash Home Assistant OS til SSD'en (samme metode som SD-kort)
+2. Sluk Pi'en
+3. Fjern SD-kortet
+4. Tilslut SSD via USB 3.0 port (blå port)
+5. Tænd Pi'en
+</Steps>
+
+<Aside type="note">
+Raspberry Pi 4 og 5 kan boote direkte fra USB. Ingen SD-kort nødvendigt!
+</Aside>
+
+## 🚀 Næste skridt
 
 <CardGrid>
-  <Card title="Din første automation" icon="rocket">
+  <Card title="⚡ Din første automation" icon="rocket">
+    Lær at lave automationer der gør dit hjem smart.
+    
     [Lav automationer →](/da/home-assistant/foerste-automation/)
   </Card>
-  <Card title="Zigbee2MQTT" icon="setting">
-    [Tilføj Zigbee enheder →](/da/home-assistant/zigbee2mqtt/)
+  <Card title="📡 Zigbee2MQTT" icon="setting">
+    Tilføj IKEA, Aqara og andre Zigbee enheder.
+    
+    [Opsæt Zigbee →](/da/home-assistant/zigbee2mqtt/)
   </Card>
 </CardGrid>

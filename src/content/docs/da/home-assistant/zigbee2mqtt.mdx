@@ -1,133 +1,235 @@
 ---
 title: Zigbee2MQTT opsætning
-description: Kom i gang med Zigbee2MQTT og slip fri af producenternes begrænsninger. Brug én hub til alle dine Zigbee-enheder.
+description: Kom i gang med Zigbee2MQTT. Én USB-dongle til alle dine Zigbee-enheder fra IKEA, Aqara, Philips og mange flere.
+sidebar:
+  badge:
+    text: Populær
+    variant: tip
 ---
 
 import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
 
-Zigbee er fantastisk. Lavt strømforbrug, mesh-netværk, og enheder der bare virker. Zigbee2MQTT giver dig én USB-dongle til alle enheder - Aqara, IKEA, Sonoff, Philips Hue, alt sammen.
+<Badge text="Medium" variant="caution" /> <Badge text="30 min" variant="note" /> <Badge text="~200 kr" variant="caution" />
 
-## Hvad skal du bruge?
+Zigbee er fantastisk til smart home - lavt strømforbrug, mesh-netværk, og enheder der holder i årevis på ét batteri. Zigbee2MQTT giver dig én USB-dongle til **alle** Zigbee enheder - IKEA, Aqara, Sonoff, Philips Hue, alt sammen.
 
-**Zigbee USB-dongle:** <Badge text="Anbefalet" variant="success" />
-- Sonoff Zigbee 3.0 USB Dongle Plus (150-200 kr)
-- SLZB-06 (Ethernet-baseret, dyrere men stabil)
+## 🤔 Hvorfor Zigbee2MQTT?
 
-**MQTT Broker:**
-- Mosquitto (standard, gratis)
+| Feature | Zigbee2MQTT | Producent-hub (IKEA/Hue) |
+|---------|-------------|--------------------------|
+| Pris | ~200 kr (én gang) | 300-500 kr per hub |
+| Enheder | 2800+ fra alle mærker | Kun eget mærke |
+| Lokal | ✅ 100% lokal | ⚠️ Ofte cloud |
+| Åben | ✅ Open source | ❌ Lukket |
 
-## Installation
+## 🛒 Hvad skal du bruge?
+
+### Zigbee USB-koordinator
+
+| Model | Pris | Anbefaling |
+|-------|------|------------|
+| **Sonoff Zigbee 3.0 USB Dongle Plus** | 150-200 kr | ⭐ Bedste pris/kvalitet |
+| SLZB-06 (Ethernet) | 400 kr | Bedst til rækkevidde |
+| Conbee II | 350 kr | God, men dyrere |
+
+<Aside type="tip" title="USB-forlænger">
+Brug ALTID en USB-forlænger (1-2m). WiFi og Zigbee interfererer - afstand hjælper!
+</Aside>
+
+## ⚙️ Installation
+
+<Tabs>
+  <TabItem label="Home Assistant OS">
+    <Steps>
+    1. **Installer Mosquitto MQTT broker**
+       
+       Gå til **Indstillinger** → **Add-ons** → **Add-on butik**
+       
+       Søg **"Mosquitto broker"** → **Installer** → **Start**
+
+    2. **Opret MQTT bruger**
+       
+       **Indstillinger** → **Personer** → **Brugere** → **Tilføj bruger**
+       
+       - Brugernavn: `mqtt`
+       - Password: (vælg noget sikkert)
+       - Administrator: ❌ Nej
+
+    3. **Tilføj Zigbee2MQTT repository**
+       
+       **Indstillinger** → **Add-ons** → **Add-on butik** → **⋮** (tre prikker) → **Repositories**
+       
+       Tilføj:
+       ```
+       https://github.com/zigbee2mqtt/hassio-zigbee2mqtt
+       ```
+
+    4. **Installer Zigbee2MQTT**
+       
+       Søg **"Zigbee2MQTT"** → **Installer** (brug edge-versionen for nyeste features)
+
+    5. **Find din USB-dongle**
+       
+       **Indstillinger** → **System** → **Hardware** → **All Hardware**
+       
+       Find stien der ligner:
+       ```
+       /dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus-if00-port0
+       ```
+
+    6. **Konfigurer Zigbee2MQTT**
+       
+       Klik på Zigbee2MQTT add-on → **Konfiguration**:
+       ```yaml
+       serial:
+         port: /dev/serial/by-id/usb-Silicon_Labs_Sonoff...
+       mqtt:
+         server: mqtt://core-mosquitto
+         user: mqtt
+         password: dit-mqtt-password
+       frontend:
+         port: 8485
+       ```
+
+    7. **Start og åbn**
+       
+       Klik **Start** og åbn: `http://homeassistant.local:8485`
+    </Steps>
+  </TabItem>
+  <TabItem label="Docker">
+    ```yaml title="docker-compose.yml"
+    services:
+      mosquitto:
+        container_name: mosquitto
+        image: eclipse-mosquitto
+        volumes:
+          - ./mosquitto/config:/mosquitto/config
+          - ./mosquitto/data:/mosquitto/data
+        ports:
+          - "1883:1883"
+        restart: unless-stopped
+
+      zigbee2mqtt:
+        container_name: zigbee2mqtt
+        image: koenkk/zigbee2mqtt
+        volumes:
+          - ./zigbee2mqtt/data:/app/data
+          - /run/udev:/run/udev:ro
+        devices:
+          - /dev/ttyUSB0:/dev/ttyUSB0
+        ports:
+          - "8080:8080"
+        environment:
+          - TZ=Europe/Copenhagen
+        restart: unless-stopped
+    ```
+  </TabItem>
+</Tabs>
+
+## 📡 Tilføj enheder
+
+<Steps>
+1. Åbn Zigbee2MQTT web-interface
+
+2. Klik **"Permit join (All)"** øverst
+
+3. Par enheden (se tabel nedenfor)
+
+4. Enheden dukker op - giv den et beskrivende navn
+
+5. Klik **"Disable join"** når du er færdig
+</Steps>
+
+### Parringsinstruktioner
+
+| Enhed | Sådan parrer du |
+|-------|-----------------|
+| **Aqara sensorer** | Hold knap 5 sek indtil LED blinker |
+| **IKEA pære** | Tænd/sluk 6 gange hurtigt |
+| **IKEA fjernbetjening** | Hold parknap 10 sek ved batteriet |
+| **Sonoff kontakt** | Hold knap 5 sek |
+| **Philips Hue** | Tænd/sluk 5 gange (eller brug Hue Bluetooth app) |
 
 <Aside type="note">
-Denne guide er til Home Assistant OS. Bruger du Docker? Kør Zigbee2MQTT som separat container.
+Enheden skal være tæt på koordinatoren ved parring (~2m). Bagefter kan du flytte den.
 </Aside>
 
-<Steps>
-1. **Installer Mosquitto broker**
-   
-   Gå til **Indstillinger** → **Add-ons** → **Add-on butik** → Søg "Mosquitto broker" → **Installer** og **Start**
+## 🌐 Mesh-netværk tips
 
-2. **Opret MQTT bruger**
-   
-   **Indstillinger** → **Personer** → **Brugere** → Opret ny:
-   - Brugernavn: `mqtt`
-   - Password: (vælg noget sikkert)
-   - Kun lokal adgang: ✅
+![Zigbee mesh netværk diagram](/images/guides/zigbee2mqtt/mesh-network.svg)
 
-3. **Installer Zigbee2MQTT**
-   
-   Add-on butik → Tre prikker → **Repositories** → Tilføj:
-   ```
-   https://github.com/zigbee2mqtt/hassio-zigbee2mqtt
-   ```
-   Søg "Zigbee2MQTT" og installer.
+Zigbee er et mesh-netværk. Enheder med strøm (routere) forstærker signalet.
 
-4. **Find din dongle**
-   
-   **Indstillinger** → **System** → **Hardware** → **All Hardware**
-   
-   Led efter noget som:
-   ```
-   /dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus-if00-port0
-   ```
+### Routere vs End devices
 
-5. **Konfigurer Zigbee2MQTT**
-   
-   ```yaml title="Zigbee2MQTT konfiguration"
-   serial:
-     port: /dev/serial/by-id/usb-Silicon_Labs_Sonoff...
-   mqtt:
-     server: mqtt://core-mosquitto
-     user: mqtt
-     password: dit-mqtt-password
-   frontend:
-     port: 8485
-   ```
+| Type | Beskrivelse | Eksempler |
+|------|-------------|-----------|
+| **Koordinator** | Din USB-dongle | Sonoff Dongle |
+| **Router** | Forstærker signal | Pærer, stikkontakter |
+| **End device** | Kun modtager | Sensorer (på batteri) |
 
-6. **Start Zigbee2MQTT**
-   
-   Åbn web-interface på `http://homeassistant.local:8485`
-</Steps>
-
-## Tilføj enheder
-
-<Steps>
-1. Klik **Permit join** i Zigbee2MQTT interfacet
-2. Par enheden (se tabel nedenfor)
-3. Giv enheden et fornuftigt navn
-</Steps>
-
-| Enhed | Parringsmetode |
-|-------|----------------|
-| Aqara sensor | Hold knap 5 sek til LED blinker |
-| IKEA pære | Tænd/sluk 6 gange hurtigt |
-| Sonoff kontakt | Hold knap 5 sekunder |
-
-## Netværkstips
-
-<Aside type="tip" title="Placering af koordinator">
-- Minimum 1 meter fra router/WiFi
-- Ikke bag metal eller beton
-- USB-forlænger kan hjælpe med rækkevidde
+<Aside type="tip" title="Pro tip: Smarte pærer som repeatere">
+Placer smarte pærer/stikkontakter strategisk i hjemmet. De fungerer som repeatere og udvider dit netværk!
 </Aside>
 
-### Mesh-netværk
+### WiFi interferens
 
-Zigbee er mesh - enheder sender gennem hinanden. Men kun enheder med strøm (routere) gør det. **Placer smarte stikkontakter og pærer strategisk** - de forstærker signalet.
+Zigbee og WiFi bruger begge 2.4 GHz. Undgå problemer:
 
-### Zigbee vs WiFi
+- Sæt WiFi på kanal **1** eller **11**
+- Lad Zigbee2MQTT vælge kanal automatisk (default 11)
+- Brug USB-forlænger til koordinatoren
 
-Begge bruger 2.4 GHz. Tommelfingerregel: Sæt WiFi på kanal 1 eller 6, lad Zigbee2MQTT vælge automatisk.
+## 🔧 Fejlfinding
 
-## Populære enheder
+<Aside type="tip" title="Enhed parrer ikke?">
+1. Er "Permit join" aktiveret?
+2. Nulstil enheden (se manual)
+3. Flyt tættere på koordinatoren
+4. Tjek at koordinatoren ikke er for tæt på WiFi router
+</Aside>
 
-**Sensorer:**
-- Aqara dør/vindue sensor - billig og pålidelig
-- Aqara temperatur/fugtighed - batteriet holder evigt
+<Aside type="tip" title="Enhed falder fra netværket?">
+1. Dårligt signal - tilføj flere routere (smarte pærer/stikkontakter)
+2. Tjek batteri på sensorer
+3. Prøv at gen-parre enheden
+</Aside>
 
-**Kontakter:**
-- Sonoff ZBMINI - passer bag kontakten
-- IKEA TRETAKT - billig smart stikkontakt
+<Aside type="tip" title="Zigbee2MQTT starter ikke?">
+1. Tjek at USB-stien er korrekt
+2. Tjek MQTT brugernavn/password
+3. Se logs i add-on for fejlbeskeder
+</Aside>
 
-**Pærer:**
-- IKEA TRÅDFRI - godt lys, fin pris
-- Philips Hue - virker uden Hue hub
+## 🛒 Anbefalede enheder
 
-## Fejlfinding
+### Sensorer
 
-| Problem | Løsning |
-|---------|---------|
-| Enhed parrer ikke | Er "Permit join" aktiveret? Nulstil enheden |
-| Enhed falder fra | Dårlig signal, tilføj flere routere |
-| Z2M starter ikke | Check port-sti og MQTT login |
+| Enhed | Pris | Kommentar |
+|-------|------|-----------|
+| Aqara dør/vindue | 80 kr | Super pålidelig, lille |
+| Aqara temperatur | 100 kr | Batteri holder 2+ år |
+| Aqara bevægelse | 120 kr | Hurtig respons |
 
-## Næste skridt
+### Kontakter & pærer
+
+| Enhed | Pris | Kommentar |
+|-------|------|-----------|
+| IKEA TRETAKT | 80 kr | Billig smart stikkontakt |
+| Sonoff ZBMINI | 100 kr | Passer bag lyskontakt |
+| IKEA TRÅDFRI pære | 80 kr | Godt lys, fungerer som router |
+
+## 🚀 Næste skridt
 
 <CardGrid>
-  <Card title="Første automation" icon="rocket">
-    [Lav automationer med sensorer →](/da/home-assistant/foerste-automation/)
+  <Card title="⚡ Automationer" icon="rocket">
+    Brug dine nye sensorer til smarte automationer.
+    
+    [Lav automationer →](/da/home-assistant/foerste-automation/)
   </Card>
-  <Card title="ESP32 projekter" icon="setting">
-    [Byg dine egne sensorer →](/da/esp32/)
+  <Card title="🔧 ESP32 projekter" icon="setting">
+    Byg dine egne WiFi-sensorer med ESP32.
+    
+    [ESP32 guides →](/da/esp32/)
   </Card>
 </CardGrid>

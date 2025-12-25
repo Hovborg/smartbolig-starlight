@@ -1,0 +1,184 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 380">
+  <!-- Background -->
+  <rect width="800" height="380" fill="#0f0f1a"/>
+  
+  <!-- Title -->
+  <text x="400" y="28" text-anchor="middle" fill="#ffffff" font-family="system-ui, sans-serif" font-size="18" font-weight="bold">Vaskemaskine Notifikation - Sådan virker det</text>
+  
+  <!-- Power graph simulation -->
+  <g transform="translate(50, 50)">
+    <rect x="0" y="0" width="350" height="150" rx="8" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+    <text x="175" y="20" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="system-ui">Strømforbrug under en vask</text>
+    
+    <!-- Y-axis -->
+    <line x1="40" y1="35" x2="40" y2="130" stroke="#475569" stroke-width="1"/>
+    <text x="35" y="45" text-anchor="end" fill="#64748b" font-size="8" font-family="system-ui">2000W</text>
+    <text x="35" y="90" text-anchor="end" fill="#64748b" font-size="8" font-family="system-ui">1000W</text>
+    <text x="35" y="130" text-anchor="end" fill="#64748b" font-size="8" font-family="system-ui">0W</text>
+    
+    <!-- X-axis -->
+    <line x1="40" y1="130" x2="330" y2="130" stroke="#475569" stroke-width="1"/>
+    <text x="70" y="143" fill="#64748b" font-size="8" font-family="system-ui">Start</text>
+    <text x="140" y="143" fill="#64748b" font-size="8" font-family="system-ui">Vask</text>
+    <text x="210" y="143" fill="#64748b" font-size="8" font-family="system-ui">Centrifuge</text>
+    <text x="290" y="143" fill="#64748b" font-size="8" font-family="system-ui">Færdig</text>
+    
+    <!-- Power curve -->
+    <path d="M 50 125 
+             L 60 70 L 80 80 L 100 65 L 120 90 L 140 75 
+             L 160 120 
+             L 180 85 L 200 95 L 220 50 L 240 45 L 260 55
+             L 280 125 L 330 125" 
+          stroke="#3b82f6" stroke-width="2" fill="none"/>
+    
+    <!-- Threshold line -->
+    <line x1="40" y1="122" x2="330" y2="122" stroke="#22c55e" stroke-width="1" stroke-dasharray="4"/>
+    <text x="335" y="125" fill="#22c55e" font-size="8" font-family="system-ui">5W</text>
+    
+    <!-- Annotations -->
+    <circle cx="280" cy="125" r="8" fill="none" stroke="#22c55e" stroke-width="2"/>
+    <text x="280" y="115" text-anchor="middle" fill="#22c55e" font-size="9" font-family="system-ui">Trigger!</text>
+  </g>
+  
+  <!-- Flow diagram -->
+  <g transform="translate(430, 50)">
+    <rect x="0" y="0" width="320" height="150" rx="8" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+    <text x="160" y="20" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="system-ui">Automations flow</text>
+    
+    <!-- States -->
+    <g transform="translate(20, 40)">
+      <rect x="0" y="0" width="60" height="30" rx="5" fill="#475569"/>
+      <text x="30" y="20" text-anchor="middle" fill="#fff" font-size="9" font-family="system-ui">Slukket</text>
+    </g>
+    
+    <path d="M 80 55 L 100 55" stroke="#64748b" stroke-width="2" marker-end="url(#arrow3)"/>
+    
+    <g transform="translate(100, 40)">
+      <rect x="0" y="0" width="60" height="30" rx="5" fill="#3b82f6"/>
+      <text x="30" y="20" text-anchor="middle" fill="#fff" font-size="9" font-family="system-ui">Kører</text>
+    </g>
+    
+    <path d="M 160 55 L 180 55" stroke="#64748b" stroke-width="2" marker-end="url(#arrow3)"/>
+    
+    <g transform="translate(180, 40)">
+      <rect x="0" y="0" width="60" height="30" rx="5" fill="#22c55e"/>
+      <text x="30" y="20" text-anchor="middle" fill="#fff" font-size="9" font-family="system-ui">Færdig</text>
+    </g>
+    
+    <path d="M 240 55 L 260 55" stroke="#64748b" stroke-width="2" marker-end="url(#arrow3)"/>
+    
+    <g transform="translate(260, 40)">
+      <rect x="0" y="0" width="50" height="30" rx="5" fill="#8b5cf6"/>
+      <text x="25" y="20" text-anchor="middle" fill="#fff" font-size="9" font-family="system-ui">Tømt</text>
+    </g>
+    
+    <!-- Triggers -->
+    <text x="90" y="95" text-anchor="middle" fill="#64748b" font-size="8" font-family="system-ui">>10W</text>
+    <text x="90" y="105" text-anchor="middle" fill="#64748b" font-size="8" font-family="system-ui">1 min</text>
+    
+    <text x="170" y="95" text-anchor="middle" fill="#64748b" font-size="8" font-family="system-ui"><5W</text>
+    <text x="170" y="105" text-anchor="middle" fill="#64748b" font-size="8" font-family="system-ui">3 min</text>
+    
+    <text x="250" y="95" text-anchor="middle" fill="#64748b" font-size="8" font-family="system-ui">Dør</text>
+    <text x="250" y="105" text-anchor="middle" fill="#64748b" font-size="8" font-family="system-ui">åbnet</text>
+    
+    <!-- Notification icon -->
+    <g transform="translate(130, 115)">
+      <rect x="0" y="0" width="110" height="28" rx="5" fill="#0f172a" stroke="#22c55e" stroke-width="1"/>
+      <text x="55" y="12" text-anchor="middle" fill="#22c55e" font-size="16" font-family="system-ui">📱</text>
+      <text x="55" y="24" text-anchor="middle" fill="#22c55e" font-size="8" font-family="system-ui">Notifikation!</text>
+    </g>
+  </g>
+  
+  <!-- Hardware section -->
+  <g transform="translate(50, 220)">
+    <text x="350" y="0" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="system-ui">Hardware Setup</text>
+    
+    <!-- Wall outlet -->
+    <g transform="translate(30, 25)">
+      <rect x="0" y="0" width="50" height="70" rx="5" fill="#374151"/>
+      <circle cx="15" cy="25" r="6" fill="#1f2937"/>
+      <circle cx="35" cy="25" r="6" fill="#1f2937"/>
+      <circle cx="25" cy="50" r="8" fill="#1f2937"/>
+      <text x="25" y="85" text-anchor="middle" fill="#94a3b8" font-size="9" font-family="system-ui">Stikkontakt</text>
+    </g>
+    
+    <!-- Arrow -->
+    <path d="M 90 60 L 120 60" stroke="#64748b" stroke-width="2" marker-end="url(#arrow3)"/>
+    
+    <!-- Smart plug -->
+    <g transform="translate(130, 20)">
+      <rect x="0" y="0" width="70" height="80" rx="8" fill="#3b82f6"/>
+      <rect x="10" y="10" width="50" height="35" rx="3" fill="#1e293b"/>
+      <text x="35" y="32" text-anchor="middle" fill="#22c55e" font-size="10" font-weight="bold" font-family="system-ui">145W</text>
+      <circle cx="35" cy="60" r="8" fill="#22c55e"/>
+      <text x="35" y="105" text-anchor="middle" fill="#94a3b8" font-size="9" font-family="system-ui">Smart Plug</text>
+      <text x="35" y="117" text-anchor="middle" fill="#64748b" font-size="8" font-family="system-ui">(m/ strømmåler)</text>
+    </g>
+    
+    <!-- Arrow -->
+    <path d="M 210 60 L 240 60" stroke="#64748b" stroke-width="2" marker-end="url(#arrow3)"/>
+    
+    <!-- Washing machine -->
+    <g transform="translate(250, 10)">
+      <rect x="0" y="0" width="90" height="100" rx="8" fill="#475569"/>
+      <circle cx="45" cy="55" r="30" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+      <circle cx="45" cy="55" r="20" fill="#0f172a"/>
+      <!-- Door handle -->
+      <rect x="78" y="45" width="8" height="20" rx="2" fill="#94a3b8"/>
+      <!-- Controls -->
+      <rect x="10" y="10" width="30" height="10" rx="2" fill="#0f172a"/>
+      <circle cx="70" cy="15" r="5" fill="#64748b"/>
+      <text x="45" y="125" text-anchor="middle" fill="#94a3b8" font-size="9" font-family="system-ui">Vaskemaskine</text>
+    </g>
+    
+    <!-- WiFi to HA -->
+    <g transform="translate(380, 30)">
+      <path d="M 0 40 Q 40 40 40 0" stroke="#3b82f6" stroke-width="2" fill="none" stroke-dasharray="4"/>
+      <text x="20" y="60" text-anchor="middle" fill="#3b82f6" font-size="20" font-family="system-ui">📶</text>
+    </g>
+    
+    <!-- Home Assistant -->
+    <g transform="translate(440, 20)">
+      <rect x="0" y="0" width="100" height="80" rx="10" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+      <text x="50" y="35" text-anchor="middle" fill="#3b82f6" font-size="24" font-family="system-ui">🏠</text>
+      <text x="50" y="55" text-anchor="middle" fill="#fff" font-size="10" font-family="system-ui">Home</text>
+      <text x="50" y="68" text-anchor="middle" fill="#fff" font-size="10" font-family="system-ui">Assistant</text>
+      <text x="50" y="100" text-anchor="middle" fill="#94a3b8" font-size="9" font-family="system-ui">Automation</text>
+    </g>
+    
+    <!-- Arrow to phone -->
+    <path d="M 550 60 L 580 60" stroke="#64748b" stroke-width="2" marker-end="url(#arrow3)"/>
+    
+    <!-- Phone notification -->
+    <g transform="translate(590, 15)">
+      <rect x="0" y="0" width="60" height="90" rx="8" fill="#1f2937" stroke="#475569" stroke-width="1"/>
+      <!-- Screen -->
+      <rect x="5" y="10" width="50" height="70" rx="3" fill="#0f172a"/>
+      <!-- Notification -->
+      <rect x="8" y="25" width="44" height="35" rx="3" fill="#22c55e"/>
+      <text x="30" y="38" text-anchor="middle" fill="#fff" font-size="7" font-family="system-ui">🧺 Vask færdig!</text>
+      <text x="30" y="50" text-anchor="middle" fill="#fff" font-size="6" font-family="system-ui">Tøjet venter...</text>
+      <text x="30" y="115" text-anchor="middle" fill="#94a3b8" font-size="9" font-family="system-ui">📱 Din telefon</text>
+    </g>
+    
+    <!-- Optional door sensor -->
+    <g transform="translate(290, 110)">
+      <rect x="0" y="0" width="80" height="25" rx="4" fill="#0f172a" stroke="#8b5cf6" stroke-width="1" stroke-dasharray="3"/>
+      <text x="40" y="16" text-anchor="middle" fill="#8b5cf6" font-size="8" font-family="system-ui">🚪 Dørsensor (opt.)</text>
+    </g>
+  </g>
+  
+  <!-- Arrow marker -->
+  <defs>
+    <marker id="arrow3" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
+    </marker>
+  </defs>
+  
+  <!-- Bottom tips -->
+  <g transform="translate(50, 355)">
+    <text x="0" y="0" fill="#f59e0b" font-size="10" font-family="system-ui">💡 Tip: Brug en smart plug rated til 16A for vaskemaskiner</text>
+    <text x="400" y="0" fill="#22c55e" font-size="10" font-family="system-ui">✓ Virker også for opvaskemaskine og tørretumbler</text>
+  </g>
+</svg>

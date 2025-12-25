@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="800" viewBox="0 0 1600 800" role="img" aria-labelledby="title desc">
+  <title id="title">SmartBolig hero illustration</title>
+  <desc id="desc">Abstrakt smart home illustration med gradient baggrund, kort og bølger</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="50%" stop-color="#161b22"/>
+      <stop offset="100%" stop-color="#1a2332"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1f2a3a"/>
+      <stop offset="100%" stop-color="#141a24"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="800" fill="url(#bg)"/>
+  <g fill="none" stroke="#30363d" opacity="0.4">
+    <path d="M0 520 C400 460 600 620 900 560 C1200 500 1350 640 1600 560" stroke-width="32"/>
+    <path d="M0 600 C420 540 700 700 980 640 C1260 580 1420 720 1600 660" stroke-width="16"/>
+  </g>
+  <g transform="translate(200 180)" fill="url(#card)" stroke="#2d3543" stroke-width="2">
+    <rect x="0" y="0" width="520" height="320" rx="28"/>
+    <rect x="40" y="60" width="200" height="22" rx="10" fill="#58a6ff" opacity="0.7"/>
+    <rect x="40" y="110" width="360" height="18" rx="9" fill="#8b949e" opacity="0.7"/>
+    <rect x="40" y="150" width="300" height="18" rx="9" fill="#8b949e" opacity="0.5"/>
+    <rect x="40" y="190" width="240" height="18" rx="9" fill="#8b949e" opacity="0.4"/>
+    <rect x="40" y="240" width="160" height="18" rx="9" fill="#3fb950" opacity="0.7"/>
+  </g>
+  <g transform="translate(820 260)" fill="url(#card)" stroke="#2d3543" stroke-width="2">
+    <rect x="0" y="0" width="440" height="260" rx="24"/>
+    <rect x="40" y="50" width="280" height="20" rx="10" fill="#58a6ff" opacity="0.7"/>
+    <rect x="40" y="90" width="320" height="16" rx="8" fill="#8b949e" opacity="0.6"/>
+    <rect x="40" y="130" width="240" height="16" rx="8" fill="#8b949e" opacity="0.5"/>
+    <rect x="40" y="170" width="200" height="16" rx="8" fill="#3fb950" opacity="0.7"/>
+  </g>
+  <circle cx="1320" cy="180" r="70" fill="#238636" opacity="0.35"/>
+  <circle cx="220" cy="640" r="90" fill="#58a6ff" opacity="0.25"/>
+</svg>

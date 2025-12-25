@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 350">
+  <defs>
+    <linearGradient id="esp32Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+    <linearGradient id="ledGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#ef4444"/>
+      <stop offset="33%" style="stop-color:#22c55e"/>
+      <stop offset="66%" style="stop-color:#3b82f6"/>
+      <stop offset="100%" style="stop-color:#a855f7"/>
+    </linearGradient>
+    <linearGradient id="psuGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1f2937"/>
+      <stop offset="100%" style="stop-color:#111827"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="700" height="350" fill="#0f0f1a"/>
+  
+  <!-- Power Supply -->
+  <rect x="30" y="30" width="120" height="100" rx="8" fill="url(#psuGrad)" stroke="#6b7280" stroke-width="2"/>
+  <text x="90" y="55" text-anchor="middle" fill="#9ca3af" font-family="system-ui" font-size="11" font-weight="bold">5V PSU</text>
+  <text x="90" y="72" text-anchor="middle" fill="#6b7280" font-family="system-ui" font-size="10">Min 3A</text>
+  
+  <!-- PSU outputs -->
+  <rect x="45" y="90" width="35" height="18" rx="3" fill="#1e293b"/>
+  <text x="62" y="103" text-anchor="middle" fill="#ef4444" font-family="monospace" font-size="10">+5V</text>
+  
+  <rect x="90" y="90" width="35" height="18" rx="3" fill="#1e293b"/>
+  <text x="108" y="103" text-anchor="middle" fill="#64748b" font-family="monospace" font-size="10">GND</text>
+  
+  <!-- ESP32 Board -->
+  <rect x="250" y="30" width="160" height="130" rx="10" fill="url(#esp32Grad)" stroke="#3b82f6" stroke-width="2"/>
+  <text x="330" y="55" text-anchor="middle" fill="#60a5fa" font-family="system-ui" font-size="14" font-weight="bold">ESP32</text>
+  
+  <!-- ESP32 Pins -->
+  <rect x="265" y="75" width="55" height="22" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="292" y="90" text-anchor="middle" fill="#f59e0b" font-family="monospace" font-size="10">GPIO16</text>
+  
+  <rect x="265" y="105" width="55" height="22" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="292" y="120" text-anchor="middle" fill="#64748b" font-family="monospace" font-size="10">GND</text>
+  
+  <text x="340" y="145" fill="#94a3b8" font-family="system-ui" font-size="9">(USB strøm)</text>
+  
+  <!-- LED Strip -->
+  <rect x="450" y="50" width="220" height="80" rx="8" fill="#1a1a2e" stroke="url(#ledGrad)" stroke-width="3"/>
+  <text x="560" y="75" text-anchor="middle" fill="#f1f5f9" font-family="system-ui" font-size="14" font-weight="bold">WS2812B LED Strip</text>
+  
+  <!-- LED dots -->
+  <circle cx="480" cy="100" r="8" fill="#ef4444"/>
+  <circle cx="510" cy="100" r="8" fill="#f59e0b"/>
+  <circle cx="540" cy="100" r="8" fill="#22c55e"/>
+  <circle cx="570" cy="100" r="8" fill="#06b6d4"/>
+  <circle cx="600" cy="100" r="8" fill="#3b82f6"/>
+  <circle cx="630" cy="100" r="8" fill="#a855f7"/>
+  
+  <!-- LED Strip Pins -->
+  <rect x="465" y="140" width="40" height="20" rx="3" fill="#1e293b"/>
+  <text x="485" y="154" text-anchor="middle" fill="#ef4444" font-family="monospace" font-size="9">+5V</text>
+  
+  <rect x="515" y="140" width="40" height="20" rx="3" fill="#1e293b"/>
+  <text x="535" y="154" text-anchor="middle" fill="#22c55e" font-family="monospace" font-size="9">DIN</text>
+  
+  <rect x="565" y="140" width="40" height="20" rx="3" fill="#1e293b"/>
+  <text x="585" y="154" text-anchor="middle" fill="#64748b" font-family="monospace" font-size="9">GND</text>
+  
+  <!-- Wires -->
+  <!-- 5V from PSU to LED Strip -->
+  <path d="M 62 108 L 62 200 L 485 200 L 485 160" stroke="#ef4444" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <circle cx="62" cy="108" r="4" fill="#ef4444"/>
+  <circle cx="485" cy="160" r="4" fill="#ef4444"/>
+  
+  <!-- GND from PSU - splits to both ESP32 and LED -->
+  <path d="M 108 108 L 108 230 L 585 230 L 585 160" stroke="#64748b" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <path d="M 108 230 L 265 230 L 265 127" stroke="#64748b" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <circle cx="108" cy="108" r="4" fill="#64748b"/>
+  <circle cx="585" cy="160" r="4" fill="#64748b"/>
+  <circle cx="265" cy="127" r="4" fill="#64748b"/>
+  
+  <!-- Junction point -->
+  <circle cx="108" cy="230" r="6" fill="#64748b" stroke="#94a3b8" stroke-width="2"/>
+  
+  <!-- Data wire from ESP32 to LED -->
+  <path d="M 320 86 L 400 86 L 400 150 L 535 150 L 535 140" stroke="#22c55e" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <circle cx="320" cy="86" r="4" fill="#22c55e"/>
+  <circle cx="535" cy="140" r="4" fill="#22c55e"/>
+  
+  <!-- Warning boxes -->
+  <rect x="30" y="260" width="300" height="80" rx="8" fill="#7f1d1d" opacity="0.3" stroke="#ef4444" stroke-width="1"/>
+  <text x="180" y="285" text-anchor="middle" fill="#fca5a5" font-family="system-ui" font-size="12" font-weight="bold">⚠️ VIGTIGT</text>
+  <text x="180" y="305" text-anchor="middle" fill="#fca5a5" font-family="system-ui" font-size="11">• Forbind IKKE 5V til ESP32!</text>
+  <text x="180" y="322" text-anchor="middle" fill="#fca5a5" font-family="system-ui" font-size="11">• GND SKAL være fælles (kritisk!)</text>
+  
+  <!-- Legend box -->
+  <rect x="370" y="260" width="300" height="80" rx="8" fill="#1e293b" opacity="0.8"/>
+  <text x="520" y="283" text-anchor="middle" fill="#e2e8f0" font-family="system-ui" font-size="12" font-weight="bold">Ledninger</text>
+  
+  <circle cx="400" cy="305" r="5" fill="#ef4444"/>
+  <text x="415" y="310" fill="#a1a1aa" font-family="system-ui" font-size="11">5V (kun til LED!)</text>
+  
+  <circle cx="400" cy="325" r="5" fill="#22c55e"/>
+  <text x="415" y="330" fill="#a1a1aa" font-family="system-ui" font-size="11">Data (GPIO16)</text>
+  
+  <circle cx="545" cy="305" r="5" fill="#64748b"/>
+  <text x="560" y="310" fill="#a1a1aa" font-family="system-ui" font-size="11">GND (fælles!)</text>
+</svg>

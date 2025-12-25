@@ -1,63 +1,94 @@
 ---
 title: Home Assistant i Docker
-description: Kør Home Assistant Container med Docker Compose. Perfekt til dem der vil have fuld kontrol over deres setup.
+description: Kør Home Assistant Container med Docker Compose. Perfekt til eksisterende servere.
+sidebar:
+  badge:
+    text: Avanceret
+    variant: caution
 ---
 
-import { Steps, Aside, Tabs, TabItem, Card, CardGrid, FileTree } from '@astrojs/starlight/components';
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
 
-Docker er en fleksibel måde at køre Home Assistant på. Du får fuld kontrol og kan køre andre tjenester på samme maskine.
+<Badge text="Medium" variant="caution" /> <Badge text="20 min" variant="note" /> <Badge text="Gratis" variant="success" />
 
-## Hvornår vælge Docker?
+Docker er den fleksible måde at køre Home Assistant på. Perfekt hvis du allerede har en server eller NAS kørende.
 
-Docker giver mening hvis du:
-- Allerede har en server kørende
+![Docker arkitektur diagram](/images/guides/docker-installation/architecture.svg)
+
+## 🤔 Er Docker det rigtige valg?
+
+### ✅ Vælg Docker hvis du:
+
+- Har en eksisterende server/NAS
 - Vil køre andre tjenester (Plex, Nextcloud, osv.)
-- Kan lide at have styr på tingene selv
+- Foretrækker manuel kontrol
+- Kender Docker i forvejen
+
+### ❌ Vælg Home Assistant OS hvis du:
+
+- Er ny til Home Assistant
+- Vil have alt til at "bare virke"
+- Har brug for Add-ons (Zigbee2MQTT, Node-RED, osv.)
 
 <Aside type="tip">
-Vil du bare have noget der virker uden bøvl? Så er [Raspberry Pi med Home Assistant OS](/da/home-assistant/raspberry-pi-installation/) nok et bedre valg.
+Ny til Home Assistant? Start med [Raspberry Pi installation](/da/home-assistant/raspberry-pi-installation/) - det er meget nemmere.
 </Aside>
 
-## Forudsætninger
+## 📋 Forudsætninger
+
+- ✅ Linux server (Ubuntu, Debian, eller lignende)
+- ✅ Docker installeret
+- ✅ Grundlæggende terminal-kendskab
+
+## ⚙️ Installer Docker
 
 <Tabs>
   <TabItem label="Ubuntu/Debian">
     ```bash
-    # Installer Docker
+    # Opdater pakkeliste
+    sudo apt update && sudo apt upgrade -y
+
+    # Installer Docker med officielt script
     curl -fsSL https://get.docker.com | sh
 
     # Tilføj din bruger til docker gruppen
     sudo usermod -aG docker $USER
 
-    # Log ud og ind igen
+    # Log ud og ind igen (eller kør):
     newgrp docker
 
-    # Verificer
+    # Verificer installation
     docker --version
-    ```
-  </TabItem>
-  <TabItem label="Check installation">
-    ```bash
     docker compose version
     ```
   </TabItem>
+  <TabItem label="Synology NAS">
+    1. Åbn **Package Center**
+    2. Søg efter **"Container Manager"** (tidligere Docker)
+    3. Klik **Install**
+    4. Fortsæt med Docker Compose metoden nedenfor
+  </TabItem>
 </Tabs>
 
-## Mappestruktur
+## 📁 Opret mappestruktur
 
 ```bash
+# Opret mapper
 mkdir -p ~/docker/homeassistant/config
 cd ~/docker/homeassistant
 ```
 
-<FileTree>
-- docker/
-  - homeassistant/
-    - config/ (alle HA filer)
-    - **docker-compose.yml**
-</FileTree>
+Din struktur:
+```
+~/docker/
+└── homeassistant/
+    ├── config/          ← Her gemmes alle HA filer
+    └── docker-compose.yml
+```
 
-## Docker Compose fil
+## 📝 Docker Compose fil
+
+Opret filen `docker-compose.yml`:
 
 ```yaml title="docker-compose.yml"
 services:
@@ -69,74 +100,159 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /run/dbus:/run/dbus:ro
     restart: unless-stopped
+    privileged: true
     network_mode: host
+    environment:
+      - TZ=Europe/Copenhagen
 ```
 
-<Aside type="note" title="network_mode: host">
-Home Assistant scanner dit netværk for enheder. Med `host` networking får den fuld adgang - ellers virker auto-discovery ikke.
+<Aside type="note" title="Hvorfor network_mode: host?">
+Home Assistant scanner dit netværk for enheder (mDNS, SSDP). Med `host` networking virker auto-discovery. Uden det finder HA ikke dine enheder automatisk.
 </Aside>
 
-## Start Home Assistant
+## 🚀 Start Home Assistant
 
 ```bash
+# Start i baggrunden
 docker compose up -d
+
+# Følg logs (Ctrl+C for at stoppe)
+docker compose logs -f homeassistant
 ```
 
-Åbn derefter `http://DIN-SERVER-IP:8123`
+Åbn derefter: `http://DIN-SERVER-IP:8123`
 
-## Nyttige kommandoer
+<Aside type="tip">
+Første opstart tager 2-5 minutter. Du ser "Preparing Home Assistant" indtil det er klar.
+</Aside>
+
+## 🔧 Nyttige kommandoer
 
 ```bash
+# Se status
+docker compose ps
+
 # Se logs
 docker compose logs -f homeassistant
 
 # Genstart
 docker compose restart homeassistant
 
+# Stop
+docker compose down
+
 # Opdater til nyeste version
-docker compose pull && docker compose up -d
+docker compose pull
+docker compose up -d
+
+# Se ressourceforbrug
+docker stats homeassistant
 ```
 
-## USB-enheder (Zigbee stick osv.)
+## 🔌 USB-enheder (Zigbee stick)
 
-Find din enhed:
+Hvis du har en Zigbee USB stick eller lignende:
 
-```bash
-ls -la /dev/serial/by-id/
-```
+<Steps>
+1. **Find din enhed:**
+   ```bash
+   ls -la /dev/serial/by-id/
+   ```
+   
+   Eksempel output:
+   ```
+   usb-Texas_Instruments_TI_CC2531_USB_CDC-if00 -> ../../ttyACM0
+   ```
 
-Tilføj til docker-compose.yml:
+2. **Tilføj til docker-compose.yml:**
+   ```yaml title="docker-compose.yml" {10-11}
+   services:
+     homeassistant:
+       container_name: homeassistant
+       image: ghcr.io/home-assistant/home-assistant:stable
+       volumes:
+         - ./config:/config
+         - /etc/localtime:/etc/localtime:ro
+       restart: unless-stopped
+       network_mode: host
+       devices:
+         - /dev/ttyACM0:/dev/ttyACM0
+   ```
 
-```yaml title="docker-compose.yml" ins={8-9}
-services:
-  homeassistant:
-    container_name: homeassistant
-    image: ghcr.io/home-assistant/home-assistant:stable
-    volumes:
-      - ./config:/config
-      - /etc/localtime:/etc/localtime:ro
-    devices:
-      - /dev/ttyUSB0:/dev/ttyUSB0
-    restart: unless-stopped
-    network_mode: host
-```
+3. **Genstart containeren:**
+   ```bash
+   docker compose down && docker compose up -d
+   ```
+</Steps>
 
-## Begrænsninger
+## ⚠️ Begrænsninger vs Home Assistant OS
 
 | Feature | Docker Container | Home Assistant OS |
-|---------|-----------------|-------------------|
-| Add-ons | ❌ Nej | ✅ Ja |
+|---------|------------------|-------------------|
+| Add-ons (Z2M, Node-RED) | ❌ Kør separat | ✅ Integreret |
 | Supervisor | ❌ Nej | ✅ Ja |
 | Auto-backup | ❌ Manuel | ✅ Ja |
-| Fleksibilitet | ✅ Høj | ⚠️ Begrænset |
+| Opdateringer | Manuel (`pull`) | ✅ Et klik |
+| Fleksibilitet | ⭐⭐⭐ | ⭐⭐ |
 
-## Næste skridt
+<Aside type="tip" title="Vil du have Add-ons?">
+Du kan køre Zigbee2MQTT, Node-RED osv. som separate Docker containers. Se vores [Zigbee2MQTT guide](/da/home-assistant/zigbee2mqtt/).
+</Aside>
+
+## 💾 Backup
+
+Docker Container har ikke automatisk backup. Lav det manuelt:
+
+```bash
+# Stop HA først (valgfrit, men sikrere)
+docker compose stop homeassistant
+
+# Backup config mappen
+tar -czvf homeassistant-backup-$(date +%Y%m%d).tar.gz config/
+
+# Start HA igen
+docker compose start homeassistant
+```
+
+<Aside type="caution">
+Gem backups på en ANDEN disk/server. Hvis serveren dør, mister du alt!
+</Aside>
+
+## 🔧 Fejlfinding
+
+<Aside type="tip" title="Container starter ikke?">
+```bash
+# Se logs for fejl
+docker compose logs homeassistant
+
+# Tjek at port 8123 ikke er i brug
+sudo netstat -tulpn | grep 8123
+```
+</Aside>
+
+<Aside type="tip" title="Kan ikke finde enheder automatisk?">
+- Tjek at `network_mode: host` er sat
+- Genstart containeren efter ændringer
+- Nogle enheder kræver mDNS - tjek at avahi-daemon kører på host
+</Aside>
+
+<Aside type="tip" title="USB enhed virker ikke?">
+- Tjek at device path er korrekt: `ls -la /dev/ttyUSB*` eller `/dev/ttyACM*`
+- Tilføj din bruger til dialout gruppen: `sudo usermod -aG dialout $USER`
+- Brug `privileged: true` i docker-compose hvis intet andet virker
+</Aside>
+
+## 🚀 Næste skridt
 
 <CardGrid>
-  <Card title="Zigbee2MQTT" icon="setting">
-    [Kør Zigbee2MQTT som container →](/da/home-assistant/zigbee2mqtt/)
+  <Card title="📡 Zigbee2MQTT" icon="setting">
+    Kør Zigbee2MQTT som Docker container sammen med HA.
+    
+    [Opsæt Zigbee2MQTT →](/da/home-assistant/zigbee2mqtt/)
   </Card>
-  <Card title="Første automation" icon="rocket">
-    [Lav din første automation →](/da/home-assistant/foerste-automation/)
+  <Card title="⚡ Første automation" icon="rocket">
+    Lav din første automation i Home Assistant.
+    
+    [Lav automationer →](/da/home-assistant/foerste-automation/)
   </Card>
 </CardGrid>

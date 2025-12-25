@@ -1,55 +1,240 @@
 ---
 title: Bevægelsessensor med ESP32
-description: Byg en bevægelsessensor med ESP32 og PIR sensor til dine automationer.
+description: Byg en bevægelsessensor med ESP32 og PIR sensor til automatisk lysstyring.
+sidebar:
+  badge:
+    text: Let
+    variant: success
 ---
 
-import { Steps, Aside } from '@astrojs/starlight/components';
+import { Steps, Aside, Card, CardGrid, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
 
-PIR sensorer er perfekte til at detektere bevægelse. Billige, pålidelige og nemme at sætte op.
+<Badge text="Let" variant="success" /> <Badge text="20 min" variant="note" /> <Badge text="65 kr" variant="caution" />
 
-## Komponenter
+PIR sensorer er perfekte til at detektere bevægelse. Tænd lys automatisk, få besked når nogen kommer hjem, eller byg et simpelt alarmsystem.
 
-| Del | Pris ca. |
-|-----|----------|
-| ESP32 board | 40 kr |
-| HC-SR501 PIR sensor | 15 kr |
-| Jumper wires | 10 kr |
-| **Total** | **65 kr** |
+## 📋 Forudsætninger
 
-## Tilslutning
+- ✅ [ESP32 sat op med ESPHome](/da/esp32/kom-godt-i-gang/)
+- ✅ Home Assistant kørende
 
-```
-HC-SR501    ESP32
---------    ------
-VCC    -->  5V (eller VIN)
-GND    -->  GND
-OUT    -->  GPIO5
-```
+## 🛒 Komponenter
 
-## ESPHome konfiguration
+| Del | Beskrivelse | Pris ca. |
+|-----|-------------|----------|
+| ESP32 DevKit | WiFi mikrocontroller | 45 kr |
+| HC-SR501 PIR | Bevægelsessensor | 15 kr |
+| Jumper wires | 3 stk han-hun | 5 kr |
+| **Total** | | **~65 kr** |
 
-```yaml title="bevaegelse-sensor.yaml"
+<Aside type="note" title="Hvad er PIR?">
+**P**assive **I**nfra**R**ed - sensoren registrerer infrarød stråling (varme) fra mennesker og dyr. Den bruger ingen strøm til at "sende" - den lytter bare.
+</Aside>
+
+## 🔌 Tilslutning
+
+### Wiring diagram
+
+![PIR sensor til ESP32 wiring diagram](/images/guides/bevaegelsessensor/wiring.svg)
+
+<Steps>
+1. **Rød (VCC)** → ESP32 **5V** eller **VIN** pin
+
+2. **Gul (OUT/Signal)** → ESP32 **GPIO5**
+
+3. **Sort (GND)** → ESP32 **GND**
+</Steps>
+
+<Aside type="tip">
+HC-SR501 kører på 5V, men output-signalet er 3.3V kompatibelt, så det er sikkert at forbinde til ESP32.
+</Aside>
+
+## ⚙️ ESPHome Konfiguration
+
+```yaml title="entre-sensor.yaml" {15-25}
+esphome:
+  name: entre-sensor
+  friendly_name: Entré Sensor
+
+esp32:
+  board: esp32dev
+
+logger:
+api:
+  encryption:
+    key: "din-nøgle"
+ota:
+  platform: esphome
+
+# PIR Bevægelsessensor
 binary_sensor:
   - platform: gpio
     pin: GPIO5
-    name: "Stue Bevægelse"
+    name: "Entré Bevægelse"
     device_class: motion
+    filters:
+      - delayed_off: 10s  # Hold "on" i 10 sek efter bevægelse
+
+# Valgfrit: Status LED
+light:
+  - platform: status_led
+    name: "Status LED"
+    pin: GPIO2
+
+wifi:
+  ssid: "dit-wifi"
+  password: "din-kode"
 ```
 
-<Aside type="tip" title="Juster følsomhed">
-HC-SR501 har to små skruer til at justere følsomhed og timeout. Eksperimenter for at finde de rigtige indstillinger.
+<Aside type="tip" title="delayed_off filter">
+`delayed_off: 10s` holder sensoren "on" i 10 sekunder efter sidste bevægelse. Dette forhindrer at lys flimrer tænd/sluk.
 </Aside>
 
-## Brug i automationer
+## 📤 Upload og Test
 
-```yaml title="Tænd lys ved bevægelse"
+<Steps>
+1. Klik **INSTALL** → **Wirelessly** (eller USB første gang)
+
+2. Gå til **Home Assistant** → **Udviklerværktøjer** → **Tilstande**
+
+3. Søg efter `binary_sensor.entre_bevaegelse`
+
+4. Gå forbi sensoren - status skifter til **on**
+</Steps>
+
+## 🔧 Justér PIR Sensoren
+
+HC-SR501 har to små skruer du kan justere:
+
+```
+┌─────────────────────────┐
+│                         │
+│   [Time]     [Sens]     │
+│     ↑          ↑        │
+│   Varighed  Følsomhed   │
+│                         │
+└─────────────────────────┘
+```
+
+| Skrue | Mod uret | Med uret |
+|-------|----------|----------|
+| **Time** | Kortere "on" tid (~3s) | Længere "on" tid (~5min) |
+| **Sensitivity** | Kortere rækkevidde (~3m) | Længere rækkevidde (~7m) |
+
+<Aside type="caution" title="Opvarmningstid">
+PIR sensoren bruger ~60 sekunder på at kalibrere når den tændes. I denne periode kan den give falske alarmer.
+</Aside>
+
+## 🤖 Automation: Tænd lys ved bevægelse
+
+### Simpel automation
+
+```yaml title="automations.yaml"
 automation:
-  - alias: "Tænd lys ved bevægelse"
+  - alias: "Tænd entré lys ved bevægelse"
     trigger:
       - platform: state
-        entity_id: binary_sensor.stue_bevaegelse
+        entity_id: binary_sensor.entre_bevaegelse
         to: "on"
     action:
       - service: light.turn_on
-        entity_id: light.stue
+        target:
+          entity_id: light.entre
 ```
+
+### Avanceret: Kun om natten
+
+```yaml title="automations.yaml"
+automation:
+  - alias: "Tænd entré lys om natten"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.entre_bevaegelse
+        to: "on"
+    condition:
+      - condition: sun
+        after: sunset
+        before: sunrise
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.entre
+        data:
+          brightness_pct: 50
+      - delay: "00:02:00"
+      - service: light.turn_off
+        target:
+          entity_id: light.entre
+```
+
+### Smart: Med timeout og dimning
+
+```yaml title="automations.yaml"
+automation:
+  - alias: "Smart entre lys"
+    mode: restart  # Genstart timer ved ny bevægelse
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.entre_bevaegelse
+        to: "on"
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.entre
+        data:
+          brightness_pct: "{{ 30 if is_state('sun.sun', 'below_horizon') else 80 }}"
+      - wait_for_trigger:
+          - platform: state
+            entity_id: binary_sensor.entre_bevaegelse
+            to: "off"
+            for: "00:02:00"
+      - service: light.turn_off
+        target:
+          entity_id: light.entre
+```
+
+## 🔧 Fejlfinding
+
+<Aside type="tip" title="Sensoren trigger hele tiden?">
+- Undgå at pege sensoren mod vinduer (sollys)
+- Undgå varmekilder (radiatorer, computere)
+- Reducer følsomheden med Sensitivity-skruen
+- Tjek for bevægelige objekter (gardiner, kæledyr)
+</Aside>
+
+<Aside type="tip" title="Sensoren reagerer ikke?">
+- Tjek at VCC er 5V (ikke 3.3V)
+- Vent 60 sek efter opstart (kalibrering)
+- Tjek at OUT-ledningen sidder i GPIO5
+- Test med `delayed_off` filter fjernet
+</Aside>
+
+<Aside type="tip" title="For kort rækkevidde?">
+- Skru Sensitivity-skruen med uret
+- HC-SR501 har maks ~7m rækkevidde
+- Overvej at tilføje flere sensorer
+</Aside>
+
+## 💡 Projekt-idéer
+
+| Projekt | Beskrivelse |
+|---------|-------------|
+| **Automatisk lys** | Tænd lys i gang/entré ved bevægelse |
+| **Sikkerheds-alarm** | Send notifikation når du er væk |
+| **Aktivitets-log** | Track hvornår rum bruges |
+| **Smart varme** | Tænd varme kun i brugte rum |
+
+## 🚀 Næste skridt
+
+<CardGrid>
+  <Card title="🌡️ Temperatur sensor" icon="rocket">
+    Kombiner med temperatur for komplet rum-sensor.
+    
+    [Byg temperatur sensor →](/da/esp32/temperatur-sensor/)
+  </Card>
+  <Card title="💡 LED Strip" icon="setting">
+    Tænd LED strip ved bevægelse for ambient lys.
+    
+    [Byg LED strip →](/da/esp32/led-strip/)
+  </Card>
+</CardGrid>

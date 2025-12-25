@@ -1,0 +1,186 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480">
+  <!-- Background -->
+  <rect width="800" height="480" fill="#0f0f1a"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" fill="#ffffff" font-family="system-ui, sans-serif" font-size="18" font-weight="bold">Better Thermostat - Intelligent Varmestyring</text>
+  
+  <!-- Problem Section (Left) -->
+  <g transform="translate(30, 55)">
+    <rect x="0" y="0" width="350" height="180" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+    <text x="175" y="25" text-anchor="middle" fill="#ef4444" font-size="14" font-weight="bold" font-family="system-ui">❌ Uden Better Thermostat</text>
+    
+    <!-- Room illustration -->
+    <rect x="20" y="45" width="150" height="110" rx="5" fill="#0f172a" stroke="#374151" stroke-width="1"/>
+    <text x="95" y="65" text-anchor="middle" fill="#64748b" font-size="10" font-family="system-ui">Stue</text>
+    
+    <!-- Radiator with TRV -->
+    <rect x="35" y="120" width="50" height="25" rx="2" fill="#374151"/>
+    <rect x="50" y="110" width="20" height="15" rx="2" fill="#ef4444"/>
+    <text x="60" y="103" text-anchor="middle" fill="#ef4444" font-size="8" font-family="system-ui">24°C</text>
+    
+    <!-- Person in room -->
+    <circle cx="120" cy="100" r="10" fill="#64748b"/>
+    <line x1="120" y1="110" x2="120" y2="135" stroke="#64748b" stroke-width="2"/>
+    
+    <!-- Temperature bubble at person -->
+    <circle cx="145" cy="90" r="15" fill="#3b82f6" opacity="0.3"/>
+    <text x="145" y="94" text-anchor="middle" fill="#3b82f6" font-size="9" font-weight="bold" font-family="system-ui">21°C</text>
+    
+    <!-- Problem explanation -->
+    <g transform="translate(180, 50)">
+      <text x="0" y="0" fill="#ef4444" font-size="10" font-weight="bold" font-family="system-ui">Problemer:</text>
+      <text x="0" y="18" fill="#94a3b8" font-size="9" font-family="system-ui">• TRV måler 24°C (ved radiator)</text>
+      <text x="0" y="33" fill="#94a3b8" font-size="9" font-family="system-ui">• Rummet er kun 21°C</text>
+      <text x="0" y="48" fill="#94a3b8" font-size="9" font-family="system-ui">• TRV tror målet er nået</text>
+      <text x="0" y="63" fill="#94a3b8" font-size="9" font-family="system-ui">• Stopper varmen for tidligt!</text>
+      <text x="0" y="85" fill="#f59e0b" font-size="9" font-family="system-ui">→ Koldt rum + spildt energi</text>
+    </g>
+    
+    <!-- Arrow showing wrong temp -->
+    <path d="M 70 108 L 70 80 L 95 80" stroke="#ef4444" stroke-width="1.5" fill="none" stroke-dasharray="3,2"/>
+    <text x="82" y="75" fill="#ef4444" font-size="8" font-family="system-ui">+3°C fejl</text>
+  </g>
+  
+  <!-- Solution Section (Right) -->
+  <g transform="translate(420, 55)">
+    <rect x="0" y="0" width="350" height="180" rx="10" fill="#1e293b" stroke="#22c55e" stroke-width="2"/>
+    <text x="175" y="25" text-anchor="middle" fill="#22c55e" font-size="14" font-weight="bold" font-family="system-ui">✓ Med Better Thermostat</text>
+    
+    <!-- Room illustration -->
+    <rect x="20" y="45" width="150" height="110" rx="5" fill="#0f172a" stroke="#374151" stroke-width="1"/>
+    <text x="95" y="65" text-anchor="middle" fill="#64748b" font-size="10" font-family="system-ui">Stue</text>
+    
+    <!-- Radiator with TRV (calibrated) -->
+    <rect x="35" y="120" width="50" height="25" rx="2" fill="#374151"/>
+    <rect x="50" y="110" width="20" height="15" rx="2" fill="#22c55e"/>
+    <text x="60" y="103" text-anchor="middle" fill="#22c55e" font-size="8" font-family="system-ui">21°C*</text>
+    
+    <!-- External sensor -->
+    <rect x="115" y="75" width="30" height="20" rx="3" fill="#3b82f6"/>
+    <text x="130" y="88" text-anchor="middle" fill="#fff" font-size="7" font-family="system-ui">21°C</text>
+    <text x="130" y="105" text-anchor="middle" fill="#3b82f6" font-size="7" font-family="system-ui">Sensor</text>
+    
+    <!-- Person in room (comfortable) -->
+    <circle cx="80" cy="100" r="10" fill="#22c55e"/>
+    <line x1="80" y1="110" x2="80" y2="135" stroke="#22c55e" stroke-width="2"/>
+    
+    <!-- Solution explanation -->
+    <g transform="translate(180, 50)">
+      <text x="0" y="0" fill="#22c55e" font-size="10" font-weight="bold" font-family="system-ui">Løsning:</text>
+      <text x="0" y="18" fill="#94a3b8" font-size="9" font-family="system-ui">• Ekstern sensor måler 21°C</text>
+      <text x="0" y="33" fill="#94a3b8" font-size="9" font-family="system-ui">• Better Thermostat kalibrerer</text>
+      <text x="0" y="48" fill="#94a3b8" font-size="9" font-family="system-ui">• TRV får korrekt offset (-3°C)</text>
+      <text x="0" y="63" fill="#94a3b8" font-size="9" font-family="system-ui">• Varmer til rummet er 21°C</text>
+      <text x="0" y="85" fill="#22c55e" font-size="9" font-family="system-ui">→ Behageligt rum + sparede kr!</text>
+    </g>
+    
+    <!-- Calibration arrow -->
+    <path d="M 130 95 C 130 100 90 105 70 105" stroke="#3b82f6" stroke-width="1.5" fill="none" marker-end="url(#arrowBlue)"/>
+  </g>
+  
+  <!-- Arrow marker -->
+  <defs>
+    <marker id="arrowBlue" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <polygon points="0 0, 6 3, 0 6" fill="#3b82f6"/>
+    </marker>
+  </defs>
+  
+  <!-- Features Section -->
+  <g transform="translate(30, 250)">
+    <text x="370" y="0" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="system-ui">Better Thermostat Features</text>
+    
+    <!-- Feature 1: External Sensor -->
+    <g transform="translate(0, 20)">
+      <rect x="0" y="0" width="175" height="85" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="1"/>
+      <text x="87" y="22" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="bold" font-family="system-ui">🌡️ Ekstern Sensor</text>
+      <text x="10" y="42" fill="#94a3b8" font-size="9" font-family="system-ui">Bruger reel rumtemperatur</text>
+      <text x="10" y="56" fill="#94a3b8" font-size="9" font-family="system-ui">fra sensor væk fra radiator</text>
+      <text x="10" y="75" fill="#22c55e" font-size="9" font-family="system-ui">→ Præcis temperatur</text>
+    </g>
+    
+    <!-- Feature 2: Window Detection -->
+    <g transform="translate(185, 20)">
+      <rect x="0" y="0" width="175" height="85" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="1"/>
+      <text x="87" y="22" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="bold" font-family="system-ui">🪟 Vindues-detektion</text>
+      <text x="10" y="42" fill="#94a3b8" font-size="9" font-family="system-ui">Stopper varme automatisk</text>
+      <text x="10" y="56" fill="#94a3b8" font-size="9" font-family="system-ui">når vindue åbnes</text>
+      <text x="10" y="75" fill="#22c55e" font-size="9" font-family="system-ui">→ Ingen spildt energi</text>
+    </g>
+    
+    <!-- Feature 3: Presets -->
+    <g transform="translate(370, 20)">
+      <rect x="0" y="0" width="175" height="85" rx="8" fill="#1e293b" stroke="#a855f7" stroke-width="1"/>
+      <text x="87" y="22" text-anchor="middle" fill="#a855f7" font-size="11" font-weight="bold" font-family="system-ui">⚙️ Presets</text>
+      <text x="10" y="42" fill="#94a3b8" font-size="9" font-family="system-ui">Eco, Comfort, Away, Boost</text>
+      <text x="10" y="56" fill="#94a3b8" font-size="9" font-family="system-ui">Sleep, Home + tilpassede</text>
+      <text x="10" y="75" fill="#22c55e" font-size="9" font-family="system-ui">→ Automatisk styring</text>
+    </g>
+    
+    <!-- Feature 4: Grouping -->
+    <g transform="translate(555, 20)">
+      <rect x="0" y="0" width="175" height="85" rx="8" fill="#1e293b" stroke="#22c55e" stroke-width="1"/>
+      <text x="87" y="22" text-anchor="middle" fill="#22c55e" font-size="11" font-weight="bold" font-family="system-ui">🏠 Gruppering</text>
+      <text x="10" y="42" fill="#94a3b8" font-size="9" font-family="system-ui">Flere TRV'er som én</text>
+      <text x="10" y="56" fill="#94a3b8" font-size="9" font-family="system-ui">termostat pr. rum</text>
+      <text x="10" y="75" fill="#22c55e" font-size="9" font-family="system-ui">→ Simpel styring</text>
+    </g>
+  </g>
+  
+  <!-- Setup Flow -->
+  <g transform="translate(30, 370)">
+    <text x="370" y="0" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="system-ui">Opsætning i 4 trin</text>
+    
+    <!-- Step 1 -->
+    <g transform="translate(0, 20)">
+      <circle cx="25" cy="30" r="20" fill="#3b82f6"/>
+      <text x="25" y="35" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold" font-family="system-ui">1</text>
+      <text x="55" y="25" fill="#fff" font-size="10" font-weight="bold" font-family="system-ui">HACS</text>
+      <text x="55" y="40" fill="#94a3b8" font-size="9" font-family="system-ui">Installer integration</text>
+    </g>
+    
+    <!-- Arrow -->
+    <path d="M 160 50 L 190 50" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#arrowGray)"/>
+    
+    <!-- Step 2 -->
+    <g transform="translate(200, 20)">
+      <circle cx="25" cy="30" r="20" fill="#3b82f6"/>
+      <text x="25" y="35" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold" font-family="system-ui">2</text>
+      <text x="55" y="25" fill="#fff" font-size="10" font-weight="bold" font-family="system-ui">Vælg TRV</text>
+      <text x="55" y="40" fill="#94a3b8" font-size="9" font-family="system-ui">Din radiator-termostat</text>
+    </g>
+    
+    <!-- Arrow -->
+    <path d="M 360 50 L 390 50" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#arrowGray)"/>
+    
+    <!-- Step 3 -->
+    <g transform="translate(400, 20)">
+      <circle cx="25" cy="30" r="20" fill="#3b82f6"/>
+      <text x="25" y="35" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold" font-family="system-ui">3</text>
+      <text x="55" y="25" fill="#fff" font-size="10" font-weight="bold" font-family="system-ui">Tilføj sensor</text>
+      <text x="55" y="40" fill="#94a3b8" font-size="9" font-family="system-ui">Ekstern temp sensor</text>
+    </g>
+    
+    <!-- Arrow -->
+    <path d="M 560 50 L 590 50" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#arrowGray)"/>
+    
+    <!-- Step 4 -->
+    <g transform="translate(600, 20)">
+      <circle cx="25" cy="30" r="20" fill="#22c55e"/>
+      <text x="25" y="35" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold" font-family="system-ui">4</text>
+      <text x="55" y="25" fill="#22c55e" font-size="10" font-weight="bold" font-family="system-ui">Færdig!</text>
+      <text x="55" y="40" fill="#94a3b8" font-size="9" font-family="system-ui">Automatisk kalibrering</text>
+    </g>
+  </g>
+  
+  <defs>
+    <marker id="arrowGray" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <polygon points="0 0, 6 3, 0 6" fill="#64748b"/>
+    </marker>
+  </defs>
+  
+  <!-- Bottom savings note -->
+  <g transform="translate(30, 455)">
+    <text x="370" y="0" text-anchor="middle" fill="#22c55e" font-size="11" font-family="system-ui">💰 Typisk besparelse: 15-25% på varmeregningen med ekstern sensor + vindues-detektion</text>
+  </g>
+</svg>

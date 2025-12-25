@@ -1,0 +1,414 @@
+---
+title: Better Thermostat - Intelligent Varmestyring
+description: Komplet guide til Better Thermostat i Home Assistant. Spar energi med smart kalibrering, vinduesdetektion og ekstern temperatursensor.
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Medium" variant="caution" /> <Badge text="30 min" variant="note" />
+
+Better Thermostat er en HACS integration der gør dine "dumme" radiator-termostater smarte. Den bruger en ekstern temperatursensor, vinduessensorer og vejrdata til at optimere varmen og spare energi.
+
+## 🤔 Hvorfor Better Thermostat?
+
+![Better Thermostat oversigt](/images/guides/better-thermostat/overview.svg)
+
+Radiator-termostater (TRV) måler temperaturen direkte ved radiatoren - som typisk er 2-5°C varmere end resten af rummet. Better Thermostat løser dette:
+
+| Problem | Better Thermostat Løsning |
+|---------|---------------------------|
+| **Forkert temperatur** | Bruger ekstern sensor til reel rumtemperatur |
+| **Åbent vindue = spild** | Automatisk stop ved åbent vindue |
+| **Manuel justering** | Presets: Eco, Comfort, Away, Boost |
+| **Flere radiatorer** | Gruppér TRV'er i samme rum |
+| **Kalibrering** | Automatisk offset-kalibrering |
+
+<Aside type="tip" title="Energibesparelse">
+Ved at bruge en ekstern sensor og vinduesdetektion kan du typisk spare 15-25% på varmeregningen!
+</Aside>
+
+## 📦 Hvad du skal bruge
+
+### Hardware (du har sandsynligvis allerede)
+
+| Komponent | Eksempler | Nødvendig? |
+|-----------|-----------|------------|
+| **Radiator termostat (TRV)** | Shelly TRV, TRÅDFRI, Sonoff TRVZB, Aqara | ✅ Ja |
+| **Temperatursensor** | Shelly Wall Display, Aqara, IKEA Vindstyrka | ✅ Anbefalet |
+| **Vinduessensor** | Aqara, Sonoff, Shelly | ⭐ Valgfri |
+| **Home Assistant** | Med HACS installeret | ✅ Ja |
+
+### Fra dit setup
+
+Baseret på din Home Assistant har du allerede:
+- **Shelly TRV** radiator-termostater i stuen
+- **Shelly Wall Display** med temperatursensor
+- Flere temperatursensorer rundt i huset
+
+## 🔧 Installation
+
+### Trin 1: Installer via HACS
+
+<Steps>
+1. Åbn **HACS** i Home Assistant
+2. Klik på **Integrations**
+3. Søg efter **Better Thermostat**
+4. Klik **Download** og genstart Home Assistant
+</Steps>
+
+### Trin 2: Tilføj Better Thermostat
+
+<Steps>
+1. Gå til **Indstillinger** → **Enheder og tjenester**
+2. Klik **Tilføj integration**
+3. Søg **Better Thermostat**
+4. Følg opsætningsguiden
+</Steps>
+
+## ⚙️ Konfiguration
+
+### Basis opsætning
+
+Ved oprettelse skal du angive:
+
+| Felt | Beskrivelse | Eksempel |
+|------|-------------|----------|
+| **Navn** | Navn på termostaten | "Stue Better" |
+| **Thermostat** | Din eksisterende TRV | `climate.shelly_trv_stue` |
+| **Temperature Sensor** | Ekstern rumtemperatursensor | `sensor.shelly_wall_display_temperature` |
+| **Window Sensor** | Vinduessensor (valgfri) | `binary_sensor.vindue_stue` |
+
+### Avancerede indstillinger
+
+```yaml
+# Disse kan justeres via UI efter oprettelse:
+
+# Temperatur offsets
+outdoor_sensor: sensor.openweathermap_temperature
+window_open_timeout: 30  # sekunder før reaktion på åbent vindue
+
+# Presets (standard værdier)
+eco_temp: 19
+comfort_temp: 21
+boost_temp: 24
+away_temp: 16
+sleep_temp: 18
+```
+
+## 📊 Eksempel: Stue med 2 radiatorer
+
+Her er et komplet eksempel fra dit setup med stuen der har 2 Shelly TRV'er:
+
+### Trin 1: Opret Better Thermostat for rum
+
+<Steps>
+1. **Tilføj integration** → Better Thermostat
+2. **Navn**: "Stue Varme"
+3. **Thermostat**: Vælg begge TRV'er (gruppering)
+   - `climate.shelly_trv_stue_1`
+   - `climate.shelly_trv_stue_2`
+4. **Temperature Sensor**: `sensor.shelly_wall_display_temperature`
+5. **Window Sensor**: `binary_sensor.vindue_stue` (hvis du har en)
+</Steps>
+
+### Trin 2: Verificer entiteter
+
+Efter oprettelse får du:
+
+```yaml
+# Ny climate entitet
+climate.stue_varme:
+  current_temperature: 21.5°C  # Fra Wall Display
+  target_temperature: 21°C
+  preset_mode: comfort
+  
+# Attributter
+hvac_action: heating
+window_open: false
+```
+
+## 🎯 Presets og Schedules
+
+### Standard Presets
+
+| Preset | Default Temp | Anvendelse |
+|--------|--------------|------------|
+| **None** | 20°C | Standard |
+| **Eco** | 19°C | Energibesparelse |
+| **Comfort** | 21°C | Hjemme og aktiv |
+| **Boost** | 24°C | Hurtig opvarmning |
+| **Away** | 16°C | Ikke hjemme |
+| **Sleep** | 18°C | Nat |
+
+### Justér preset temperaturer
+
+```yaml
+# Via automation eller service call
+service: climate.set_temperature
+target:
+  entity_id: climate.stue_varme
+data:
+  temperature: 22
+```
+
+## 🤖 Automationer
+
+### Skift preset baseret på tilstedeværelse
+
+```yaml
+automation:
+  - alias: "Varme: Away når ingen hjemme"
+    trigger:
+      - platform: state
+        entity_id: group.personer_hjemme
+        to: "not_home"
+        for:
+          minutes: 30
+    action:
+      - service: climate.set_preset_mode
+        target:
+          entity_id: 
+            - climate.stue_varme
+            - climate.sovevaerelse_varme
+            - climate.kontor_varme
+        data:
+          preset_mode: away
+
+  - alias: "Varme: Comfort når hjemme"
+    trigger:
+      - platform: state
+        entity_id: group.personer_hjemme
+        to: "home"
+    action:
+      - service: climate.set_preset_mode
+        target:
+          entity_id: 
+            - climate.stue_varme
+            - climate.sovevaerelse_varme
+        data:
+          preset_mode: comfort
+```
+
+### Nat-tilstand
+
+```yaml
+automation:
+  - alias: "Varme: Sleep om natten"
+    trigger:
+      - platform: time
+        at: "22:30:00"
+    action:
+      - service: climate.set_preset_mode
+        target:
+          entity_id: 
+            - climate.stue_varme
+            - climate.sovevaerelse_varme
+        data:
+          preset_mode: sleep
+
+  - alias: "Varme: Comfort om morgenen"
+    trigger:
+      - platform: time
+        at: "06:30:00"
+    condition:
+      - condition: state
+        entity_id: group.personer_hjemme
+        state: "home"
+    action:
+      - service: climate.set_preset_mode
+        target:
+          entity_id: 
+            - climate.stue_varme
+            - climate.sovevaerelse_varme
+        data:
+          preset_mode: comfort
+```
+
+### Boost ved tilstedeværelse i kontor
+
+```yaml
+automation:
+  - alias: "Kontor: Boost ved tilstedeværelse"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.kontor_tilstedevaerelse
+        to: "on"
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.kontor_temperature
+        below: 20
+    action:
+      - service: climate.set_preset_mode
+        target:
+          entity_id: climate.kontor_varme
+        data:
+          preset_mode: boost
+      # Skift til comfort efter 30 min
+      - delay:
+          minutes: 30
+      - service: climate.set_preset_mode
+        target:
+          entity_id: climate.kontor_varme
+        data:
+          preset_mode: comfort
+```
+
+## 🪟 Vindues-detektion
+
+Better Thermostat kan automatisk stoppe opvarmning når et vindue åbnes:
+
+### Med fysisk sensor
+
+```yaml
+# Konfigureres ved oprettelse eller via Options
+window_sensor: binary_sensor.vindue_stue
+window_delay: 30  # Vent 30 sek før reaktion
+```
+
+### Uden sensor (temperatur-baseret)
+
+Better Thermostat kan detektere åbne vinduer via pludseligt temperaturfald:
+
+```yaml
+# Aktiveres i Options
+window_detection_method: temperature_drop
+window_detection_threshold: 0.5  # °C fald over kort tid
+```
+
+## 📱 Dashboard Card
+
+### Better Thermostat UI Card
+
+Installer det matchende UI card for at se ekstra info:
+
+<Steps>
+1. Åbn **HACS** → **Frontend**
+2. Søg **Better Thermostat UI Card**
+3. Installer og genstart browser
+</Steps>
+
+```yaml
+# Lovelace card konfiguration
+type: custom:better-thermostat-ui-card
+entity: climate.stue_varme
+eco_temperature: 19
+disable_window: false
+disable_summer: false
+```
+
+### Standard Thermostat Card
+
+```yaml
+type: thermostat
+entity: climate.stue_varme
+features:
+  - type: climate-preset-modes
+    preset_modes:
+      - eco
+      - comfort
+      - boost
+      - away
+      - sleep
+```
+
+## 🔧 Kalibrering
+
+Better Thermostat kalibrerer automatisk din TRV baseret på forskellen mellem TRV'ens indbyggede sensor og din eksterne sensor.
+
+### Sådan virker det
+
+1. TRV måler 24°C (ved radiatoren)
+2. Ekstern sensor måler 21°C (i rummet)
+3. Better Thermostat beregner offset: -3°C
+4. Sender kalibrering til TRV
+
+### Manuel kalibrering
+
+```yaml
+# Tving genkalibrering via service
+service: better_thermostat.calibrate
+target:
+  entity_id: climate.stue_varme
+```
+
+## 📊 Energi-overvågning
+
+Kombiner med Energy dashboard:
+
+```yaml
+# Tilføj til configuration.yaml
+template:
+  - sensor:
+      - name: "Stue Varme Status"
+        state: >
+          {% if is_state_attr('climate.stue_varme', 'hvac_action', 'heating') %}
+            Varmer
+          {% else %}
+            Idle
+          {% endif %}
+        
+      - name: "Daglig Varmetid Stue"
+        state: >
+          {{ states('sensor.stue_varme_heating_time') | float / 60 | round(1) }}
+        unit_of_measurement: "timer"
+```
+
+## 🔧 Fejlfinding
+
+<Aside type="tip" title="TRV reagerer ikke?">
+1. Tjek at TRV er online i Home Assistant
+2. Verificer at Better Thermostat bruger korrekt entity
+3. Tjek at TRV understøtter temperatur-kalibrering
+4. Genstart Better Thermostat integrationen
+</Aside>
+
+<Aside type="tip" title="Temperatur springer?">
+- Reducer opdateringsfrekvens på ekstern sensor
+- Aktiver "smooth temperature" i Options
+- Tjek at sensor ikke er påvirket af sol/træk
+</Aside>
+
+<Aside type="tip" title="Vindues-detektion virker ikke?">
+- Øg `window_delay` til 60 sekunder
+- Verificer at sensor entity er korrekt
+- Tjek at sensor rapporterer "on" når vindue er åbent
+</Aside>
+
+## 🚀 Avanceret: Flere rum
+
+### Anbefalet struktur
+
+```
+climate.stue_varme         → Shelly TRV x2 + Wall Display temp
+climate.sovevaerelse_varme → Shelly TRV + Aqara temp sensor
+climate.kontor_varme       → Shelly TRV + LD2410 temp (ESP32)
+climate.badevaerelse_varme → Shelly TRV + Wall Display temp
+```
+
+### Gruppér alle Better Thermostats
+
+```yaml
+# groups.yaml
+varme_alle_rum:
+  name: "Alle rum varme"
+  entities:
+    - climate.stue_varme
+    - climate.sovevaerelse_varme
+    - climate.kontor_varme
+    - climate.badevaerelse_varme
+```
+
+## 📈 Næste skridt
+
+<CardGrid>
+  <Card title="🌡️ Shelly Wall Display" icon="sun">
+    Perfekt temperatursensor til Better Thermostat.
+    
+    [Opsæt Wall Display →](/da/home-assistant/shelly-wall-display/)
+  </Card>
+  <Card title="📊 LD2410 mmWave" icon="seti:config">
+    Kombiner tilstedeværelse med varmestyring.
+    
+    [Byg presence sensor →](/da/esp32/ld2410-mmwave/)
+  </Card>
+</CardGrid>

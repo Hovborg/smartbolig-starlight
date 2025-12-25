@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 480">
+  <defs>
+    <linearGradient id="hwGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#374151"/>
+      <stop offset="100%" style="stop-color:#1f2937"/>
+    </linearGradient>
+    <linearGradient id="pveGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#f97316"/>
+      <stop offset="100%" style="stop-color:#ea580c"/>
+    </linearGradient>
+    <linearGradient id="haosGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#06b6d4"/>
+      <stop offset="100%" style="stop-color:#0891b2"/>
+    </linearGradient>
+    <linearGradient id="storageGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6"/>
+      <stop offset="100%" style="stop-color:#7c3aed"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="700" height="480" fill="#0f0f1a"/>
+  
+  <!-- Title -->
+  <text x="350" y="30" text-anchor="middle" fill="#f1f5f9" font-family="system-ui" font-size="20" font-weight="bold">Proxmox + Home Assistant OS Arkitektur</text>
+  
+  <!-- Hardware Layer -->
+  <rect x="30" y="380" width="640" height="80" rx="10" fill="url(#hwGrad)" stroke="#4b5563" stroke-width="2"/>
+  <text x="50" y="405" fill="#9ca3af" font-family="system-ui" font-size="12">🖥️ HARDWARE</text>
+  
+  <!-- Hardware components -->
+  <rect x="50" y="415" width="100" height="35" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="1"/>
+  <text x="100" y="437" text-anchor="middle" fill="#60a5fa" font-family="system-ui" font-size="11">💻 CPU</text>
+  
+  <rect x="165" y="415" width="100" height="35" rx="6" fill="#1e293b" stroke="#22c55e" stroke-width="1"/>
+  <text x="215" y="437" text-anchor="middle" fill="#4ade80" font-family="system-ui" font-size="11">🧠 RAM</text>
+  
+  <rect x="280" y="415" width="100" height="35" rx="6" fill="#1e293b" stroke="#a855f7" stroke-width="1"/>
+  <text x="330" y="437" text-anchor="middle" fill="#c084fc" font-family="system-ui" font-size="11">💾 SSD/NVMe</text>
+  
+  <rect x="395" y="415" width="100" height="35" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="1"/>
+  <text x="445" y="437" text-anchor="middle" fill="#fbbf24" font-family="system-ui" font-size="11">🔌 USB</text>
+  
+  <rect x="510" y="415" width="100" height="35" rx="6" fill="#1e293b" stroke="#06b6d4" stroke-width="1"/>
+  <text x="560" y="437" text-anchor="middle" fill="#22d3ee" font-family="system-ui" font-size="11">🌐 NIC</text>
+  
+  <!-- Proxmox VE Layer -->
+  <rect x="30" y="290" width="640" height="75" rx="10" fill="url(#pveGrad)" stroke="#fb923c" stroke-width="2"/>
+  <text x="350" y="320" text-anchor="middle" fill="#fff" font-family="system-ui" font-size="16" font-weight="bold">Proxmox VE 9.x</text>
+  <text x="350" y="340" text-anchor="middle" fill="#fed7aa" font-family="system-ui" font-size="12">Hypervisor • KVM/QEMU • LXC</text>
+  <text x="350" y="355" text-anchor="middle" fill="#fdba74" font-family="monospace" font-size="10">https://192.168.1.201:8006</text>
+  
+  <!-- Arrow from HW to PVE -->
+  <line x1="350" y1="380" x2="350" y2="365" stroke="#6b7280" stroke-width="2"/>
+  
+  <!-- VM Container area -->
+  <rect x="50" y="60" width="400" height="210" rx="12" fill="#1e293b" stroke="#475569" stroke-width="2" stroke-dasharray="5,3"/>
+  <text x="70" y="85" fill="#94a3b8" font-family="system-ui" font-size="11">VM 100</text>
+  
+  <!-- Home Assistant OS VM -->
+  <rect x="70" y="100" width="360" height="150" rx="10" fill="url(#haosGrad)" stroke="#22d3ee" stroke-width="2"/>
+  
+  <!-- HAOS Header -->
+  <rect x="70" y="100" width="360" height="35" rx="10" fill="#0e7490"/>
+  <text x="250" y="123" text-anchor="middle" fill="#fff" font-family="system-ui" font-size="14" font-weight="bold">🏠 Home Assistant OS</text>
+  
+  <!-- HAOS Components -->
+  <rect x="90" y="145" width="100" height="40" rx="6" fill="#155e75"/>
+  <text x="140" y="163" text-anchor="middle" fill="#67e8f9" font-family="system-ui" font-size="10">Supervisor</text>
+  <text x="140" y="178" text-anchor="middle" fill="#a5f3fc" font-family="system-ui" font-size="9">Add-ons</text>
+  
+  <rect x="200" y="145" width="100" height="40" rx="6" fill="#155e75"/>
+  <text x="250" y="163" text-anchor="middle" fill="#67e8f9" font-family="system-ui" font-size="10">Core</text>
+  <text x="250" y="178" text-anchor="middle" fill="#a5f3fc" font-family="system-ui" font-size="9">Automationer</text>
+  
+  <rect x="310" y="145" width="100" height="40" rx="6" fill="#155e75"/>
+  <text x="360" y="163" text-anchor="middle" fill="#67e8f9" font-family="system-ui" font-size="10">Frontend</text>
+  <text x="360" y="178" text-anchor="middle" fill="#a5f3fc" font-family="system-ui" font-size="9">Dashboard</text>
+  
+  <!-- VM Resources -->
+  <rect x="90" y="195" width="320" height="40" rx="6" fill="#0c4a6e"/>
+  <text x="250" y="212" text-anchor="middle" fill="#7dd3fc" font-family="system-ui" font-size="10">4 CPU • 4GB RAM • 32GB Disk</text>
+  <text x="250" y="227" text-anchor="middle" fill="#38bdf8" font-family="monospace" font-size="9">http://192.168.1.x:8123</text>
+  
+  <!-- Arrow from PVE to VM -->
+  <line x1="250" y1="290" x2="250" y2="260" stroke="#fb923c" stroke-width="2"/>
+  <polygon points="245,265 250,255 255,265" fill="#fb923c"/>
+  
+  <!-- Storage panel -->
+  <rect x="480" y="60" width="190" height="100" rx="10" fill="url(#storageGrad)" stroke="#a78bfa" stroke-width="2"/>
+  <text x="575" y="85" text-anchor="middle" fill="#fff" font-family="system-ui" font-size="12" font-weight="bold">💾 Storage</text>
+  
+  <rect x="495" y="95" width="160" height="25" rx="4" fill="#6d28d9"/>
+  <text x="575" y="112" text-anchor="middle" fill="#e9d5ff" font-family="system-ui" font-size="10">local-lvm (LVM-thin)</text>
+  
+  <rect x="495" y="125" width="160" height="25" rx="4" fill="#6d28d9"/>
+  <text x="575" y="142" text-anchor="middle" fill="#e9d5ff" font-family="system-ui" font-size="10">800GB tilgængelig</text>
+  
+  <!-- Arrow from storage to VM -->
+  <line x1="480" y1="130" x2="430" y2="130" stroke="#a78bfa" stroke-width="2" stroke-dasharray="4,2"/>
+  
+  <!-- USB Passthrough panel -->
+  <rect x="480" y="175" width="190" height="95" rx="10" fill="#1e293b" stroke="#fbbf24" stroke-width="2"/>
+  <text x="575" y="200" text-anchor="middle" fill="#fcd34d" font-family="system-ui" font-size="12" font-weight="bold">🔌 USB Passthrough</text>
+  
+  <rect x="495" y="210" width="160" height="50" rx="6" fill="#292524" stroke="#78716c"/>
+  <text x="575" y="230" text-anchor="middle" fill="#fbbf24" font-family="system-ui" font-size="11">📡 Zigbee Dongle</text>
+  <text x="575" y="248" text-anchor="middle" fill="#a8a29e" font-family="monospace" font-size="9">1a86:55d4 (Sonoff)</text>
+  
+  <!-- Arrow from USB to VM -->
+  <path d="M 480 230 Q 450 230 450 200 L 430 200" stroke="#fbbf24" stroke-width="2" stroke-dasharray="4,2" fill="none"/>
+  
+  <!-- Network panel -->
+  <rect x="480" y="280" width="190" height="70" rx="8" fill="#1e293b" stroke="#06b6d4" stroke-width="1"/>
+  <text x="575" y="305" text-anchor="middle" fill="#22d3ee" font-family="system-ui" font-size="11" font-weight="bold">🌐 Netværk</text>
+  <text x="575" y="325" text-anchor="middle" fill="#67e8f9" font-family="system-ui" font-size="10">vmbr0 (Bridge)</text>
+  <text x="575" y="342" text-anchor="middle" fill="#94a3b8" font-family="monospace" font-size="9">192.168.1.0/24</text>
+  
+  <!-- Features callouts -->
+  <rect x="50" y="280" width="85" height="55" rx="6" fill="#1e293b" stroke="#22c55e" stroke-width="1"/>
+  <text x="92" y="300" text-anchor="middle" fill="#4ade80" font-family="system-ui" font-size="18">📸</text>
+  <text x="92" y="315" text-anchor="middle" fill="#86efac" font-family="system-ui" font-size="9">Snapshots</text>
+  <text x="92" y="328" text-anchor="middle" fill="#6b7280" font-family="system-ui" font-size="8">1-klik backup</text>
+  
+  <rect x="145" y="280" width="85" height="55" rx="6" fill="#1e293b" stroke="#3b82f6" stroke-width="1"/>
+  <text x="187" y="300" text-anchor="middle" fill="#60a5fa" font-family="system-ui" font-size="18">💾</text>
+  <text x="187" y="315" text-anchor="middle" fill="#93c5fd" font-family="system-ui" font-size="9">Backup</text>
+  <text x="187" y="328" text-anchor="middle" fill="#6b7280" font-family="system-ui" font-size="8">Scheduleret</text>
+  
+  <rect x="240" y="280" width="85" height="55" rx="6" fill="#1e293b" stroke="#f59e0b" stroke-width="1"/>
+  <text x="282" y="300" text-anchor="middle" fill="#fbbf24" font-family="system-ui" font-size="18">⚡</text>
+  <text x="282" y="315" text-anchor="middle" fill="#fde68a" font-family="system-ui" font-size="9">Live Migrate</text>
+  <text x="282" y="328" text-anchor="middle" fill="#6b7280" font-family="system-ui" font-size="8">Cluster</text>
+  
+  <rect x="335" y="280" width="85" height="55" rx="6" fill="#1e293b" stroke="#ec4899" stroke-width="1"/>
+  <text x="377" y="300" text-anchor="middle" fill="#f472b6" font-family="system-ui" font-size="18">📊</text>
+  <text x="377" y="315" text-anchor="middle" fill="#fbcfe8" font-family="system-ui" font-size="9">Monitoring</text>
+  <text x="377" y="328" text-anchor="middle" fill="#6b7280" font-family="system-ui" font-size="8">Ressourcer</text>
+</svg>

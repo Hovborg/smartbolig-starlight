@@ -1,0 +1,417 @@
+---
+title: Vaskemaskine Færdig Notifikation
+description: Få besked når vaskemaskinen er færdig via strømmåling. Undgå mugne klæder med smart overvågning i Home Assistant.
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Let" variant="success" /> <Badge text="20 min" variant="note" />
+
+Glem aldrig mere vasketøjet! Denne guide viser hvordan du får besked på telefonen (eller via højtaler) når vaskemaskinen er færdig - baseret på strømforbrug.
+
+## 🤔 Hvordan virker det?
+
+![Vaskemaskine automation oversigt](/images/guides/vaskemaskine-notification/overview.svg)
+
+Vaskemaskiner bruger meget strøm under vask (500-2000W) og næsten ingen når færdig (0-5W). Ved at måle strømforbruget kan vi detektere:
+
+| Tilstand | Strømforbrug | Beskrivelse |
+|----------|--------------|-------------|
+| **Slukket** | 0W | Maskinen er slukket |
+| **Standby** | 1-5W | Tændt men ikke aktiv |
+| **Kører** | 100-2000W | Aktiv vask/centrifugering |
+| **Færdig** | 1-5W (efter høj) | Var høj, nu lav = færdig! |
+
+<Aside type="tip" title="Simpelt princip">
+Når strømforbruget falder fra høj (over 10W) til lav (under 5W) i mere end 3 minutter = vaskemaskinen er færdig!
+</Aside>
+
+## 📦 Hvad du skal bruge
+
+| Komponent | Eksempler | Pris ca. |
+|-----------|-----------|----------|
+| **Smart stik med strømmåling** | Shelly Plug S, NOUS A1T, Frient, TP-Link KP115 | 150-250 kr |
+
+<Aside type="caution" title="Vigtigt: Kapacitet!">
+Vaskemaskiner kan trække op til **2500W**. Sørg for at dit smart stik er rated til mindst **16A / 3680W**!
+</Aside>
+
+### Anbefalede smart stik
+
+| Model | Max W | Protokol | Anbefaling |
+|-------|-------|----------|------------|
+| **Shelly Plug S** | 2500W | WiFi | ✅ Lokal, pålidelig |
+| **NOUS A1T** | 3680W | Zigbee | ✅ God pris, Zigbee |
+| **Frient Smart Plug Mini** | 2300W | Zigbee | ✅ Kompakt |
+| **TP-Link KP115** | 1800W | WiFi | ⚠️ Måske for lav kapacitet |
+
+## 🔧 Opsætning
+
+### Trin 1: Tilslut smart stik
+
+<Steps>
+1. Sæt smart stikket i stikkontakten
+2. Tilslut vaskemaskinen til smart stikket
+3. Tilføj stikket til Home Assistant
+4. Verificer at du har en **power sensor** (W)
+</Steps>
+
+### Trin 2: Find dine værdier
+
+Kør en vask og observer strømforbruget i Home Assistant:
+
+<Steps>
+1. Gå til **Developer Tools** → **States**
+2. Find din power sensor (f.eks. `sensor.vaskemaskine_power`)
+3. Observer værdierne under vask:
+   - Standby: typisk 1-3W
+   - Under vask: 100-2000W
+   - Færdig: falder til 1-3W
+</Steps>
+
+**Typiske værdier:**
+```
+Standby:        ~2W
+Fyldning:       ~50W
+Vask:           ~200-500W
+Centrifugering: ~300-600W
+Færdig:         ~2W
+```
+
+### Trin 3: Opret Helper (valgfri men anbefalet)
+
+For at tracke maskinens status:
+
+<Steps>
+1. Gå til **Indstillinger** → **Enheder og tjenester** → **Hjælpere**
+2. Klik **Opret hjælper** → **Dropdown**
+3. **Navn**: "Vaskemaskine Status"
+4. **Tilstande**: `slukket`, `kører`, `færdig`, `tømt`
+</Steps>
+
+## 🤖 Automation: Basis notifikation
+
+### Simpel version (anbefalet start)
+
+```yaml
+automation:
+  - alias: "Vaskemaskine færdig notifikation"
+    description: "Send besked når vaskemaskinen er færdig"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.vaskemaskine_power
+        below: 5
+        for:
+          minutes: 3
+    condition:
+      # Kun hvis den har kørt (ikke ved opstart)
+      - condition: numeric_state
+        entity_id: sensor.vaskemaskine_power
+        above: 10
+        # Har været over 10W inden for de sidste 30 min
+    action:
+      - service: notify.mobile_app_din_telefon
+        data:
+          title: "🧺 Vaskemaskine"
+          message: "Vasketøjet er færdigt!"
+          data:
+            tag: "vaskemaskine"
+            # Android specifikt
+            channel: "vaskemaskine"
+            importance: high
+```
+
+### Bedre version med status tracking
+
+```yaml
+automation:
+  # Når maskinen starter
+  - alias: "Vaskemaskine: Startet"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.vaskemaskine_power
+        above: 10
+        for:
+          minutes: 1
+    action:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.vaskemaskine_status
+        data:
+          option: "kører"
+
+  # Når maskinen er færdig
+  - alias: "Vaskemaskine: Færdig"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.vaskemaskine_power
+        below: 5
+        for:
+          minutes: 3
+    condition:
+      - condition: state
+        entity_id: input_select.vaskemaskine_status
+        state: "kører"
+    action:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.vaskemaskine_status
+        data:
+          option: "færdig"
+      # Send notifikation
+      - service: notify.mobile_app_din_telefon
+        data:
+          title: "🧺 Vaskemaskine"
+          message: "Vasketøjet er færdigt! Husk at tømme maskinen."
+          data:
+            tag: "vaskemaskine"
+            persistent: true
+            actions:
+              - action: "VASKEMASKINE_TOMT"
+                title: "✓ Tømt"
+```
+
+## 📢 Avanceret: Gentagne påmindelser
+
+Hvis du (som de fleste) ignorerer den første notifikation:
+
+```yaml
+automation:
+  - alias: "Vaskemaskine: Gentag påmindelse"
+    trigger:
+      - platform: time_pattern
+        minutes: "/15"  # Hvert 15. minut
+    condition:
+      - condition: state
+        entity_id: input_select.vaskemaskine_status
+        state: "færdig"
+    action:
+      - service: notify.mobile_app_din_telefon
+        data:
+          title: "🧺 Vaskemaskine - PÅMINDELSE"
+          message: "Vasketøjet venter stadig!"
+          data:
+            tag: "vaskemaskine"
+```
+
+## 🔊 TTS Annoncering (Google Home / Sonos)
+
+```yaml
+automation:
+  - alias: "Vaskemaskine: TTS annoncering"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.vaskemaskine_power
+        below: 5
+        for:
+          minutes: 3
+    condition:
+      - condition: state
+        entity_id: input_select.vaskemaskine_status
+        state: "kører"
+    action:
+      # Opdater status
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.vaskemaskine_status
+        data:
+          option: "færdig"
+      # TTS på Google Home
+      - service: tts.google_translate_say
+        target:
+          entity_id: media_player.stue_speaker
+        data:
+          message: "Vaskemaskinen er færdig. Husk at tømme den."
+          language: "da"
+```
+
+## 💡 Visuel indikator (LED strip)
+
+Skift farve på en LED strip ved bryggers:
+
+```yaml
+automation:
+  - alias: "Vaskemaskine: LED grøn når færdig"
+    trigger:
+      - platform: state
+        entity_id: input_select.vaskemaskine_status
+        to: "færdig"
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.bryggers_led
+        data:
+          color_name: green
+          brightness_pct: 50
+
+  - alias: "Vaskemaskine: LED normal når tømt"
+    trigger:
+      - platform: state
+        entity_id: input_select.vaskemaskine_status
+        to: "tømt"
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.bryggers_led
+        data:
+          color_temp: 350  # Varm hvid
+          brightness_pct: 100
+```
+
+## 🚪 Tømt detektion (med dørsensor)
+
+Hvis du har en dørsensor på vaskemaskinen:
+
+```yaml
+automation:
+  - alias: "Vaskemaskine: Tømt når låge åbnes"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.vaskemaskine_laage
+        to: "on"  # Låge åbnet
+    condition:
+      - condition: state
+        entity_id: input_select.vaskemaskine_status
+        state: "færdig"
+    action:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.vaskemaskine_status
+        data:
+          option: "tømt"
+      # Fjern notifikation
+      - service: notify.mobile_app_din_telefon
+        data:
+          message: "clear_notification"
+          data:
+            tag: "vaskemaskine"
+```
+
+## 📊 Dashboard Card
+
+```yaml
+type: entities
+title: Vaskemaskine
+entities:
+  - entity: input_select.vaskemaskine_status
+    name: Status
+  - entity: sensor.vaskemaskine_power
+    name: Strømforbrug
+  - entity: sensor.vaskemaskine_energy_today
+    name: Forbrug i dag
+```
+
+## 📋 Komplet eksempel (copy-paste)
+
+Her er alt samlet i én fil:
+
+```yaml
+# Tilføj til configuration.yaml eller separat fil
+
+# Helpers
+input_select:
+  vaskemaskine_status:
+    name: Vaskemaskine Status
+    options:
+      - slukket
+      - kører
+      - færdig
+      - tømt
+    initial: slukket
+
+# Automations
+automation:
+  - alias: "Vaskemaskine: Startet"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.vaskemaskine_power
+        above: 10
+        for:
+          minutes: 1
+    action:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.vaskemaskine_status
+        data:
+          option: "kører"
+
+  - alias: "Vaskemaskine: Færdig"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.vaskemaskine_power
+        below: 5
+        for:
+          minutes: 3
+    condition:
+      - condition: state
+        entity_id: input_select.vaskemaskine_status
+        state: "kører"
+    action:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.vaskemaskine_status
+        data:
+          option: "færdig"
+      - service: notify.mobile_app_din_telefon
+        data:
+          title: "🧺 Vaskemaskine"
+          message: "Vasketøjet er færdigt!"
+          data:
+            tag: "vaskemaskine"
+
+  - alias: "Vaskemaskine: Reset ved lav strøm"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.vaskemaskine_power
+        below: 1
+        for:
+          hours: 1
+    action:
+      - service: input_select.select_option
+        target:
+          entity_id: input_select.vaskemaskine_status
+        data:
+          option: "slukket"
+```
+
+## 🔧 Fejlfinding
+
+<Aside type="tip" title="Notifikation kommer for tidligt?">
+Vaskemaskiner kan pause under vask. Øg `for` tiden til 5-10 minutter.
+</Aside>
+
+<Aside type="tip" title="Notifikation kommer ikke?">
+1. Tjek at power sensoren opdaterer (kan være forsinket)
+2. Verificer at trigger-værdien (5W) passer til din maskine
+3. Tjek condition - måske status ikke er "kører"
+</Aside>
+
+<Aside type="tip" title="For mange notifikationer?">
+Tilføj en `for` periode på triggeren og brug `tag` for at erstatte gamle notifikationer.
+</Aside>
+
+## 🔄 Virker også til
+
+Samme princip kan bruges til:
+
+| Apparat | Start threshold | Slut threshold |
+|---------|-----------------|----------------|
+| **Tørretumbler** | Over 50W | Under 10W |
+| **Opvaskemaskine** | Over 10W | Under 5W |
+| **Ovn** | Over 100W | Under 10W |
+| **3D printer** | Over 50W | Under 10W |
+
+## 🚀 Næste skridt
+
+<CardGrid>
+  <Card title="📊 Energi Dashboard" icon="seti:config">
+    Overvåg forbrug på alle apparater.
+    
+    [Opsæt Energy Dashboard →](/da/home-assistant/)
+  </Card>
+  <Card title="⚡ Automationer" icon="rocket">
+    Lær mere om Home Assistant automationer.
+    
+    [Din første automation →](/da/home-assistant/foerste-automation/)
+  </Card>
+</CardGrid>

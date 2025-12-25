@@ -1,0 +1,389 @@
+---
+title: Home Assistant OS på Proxmox
+description: Komplet guide til installation af Home Assistant OS i en VM på Proxmox VE. Den anbefalede metode for avancerede brugere.
+sidebar:
+  badge:
+    text: Avanceret
+    variant: caution
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Avanceret" variant="caution" /> <Badge text="30 min" variant="note" /> <Badge text="Gratis" variant="success" />
+
+Proxmox er en fantastisk platform til at køre Home Assistant OS. Du får fuld VM-isolation, snapshots, backup og mulighed for at køre andre services på samme hardware.
+
+![Proxmox + Home Assistant arkitektur](/images/guides/proxmox-installation/architecture.svg)
+
+## 🤔 Hvorfor Proxmox?
+
+| Feature | Proxmox VM | Raspberry Pi | Docker |
+|---------|------------|--------------|--------|
+| Snapshots | ✅ Et klik | ❌ Nej | ❌ Nej |
+| Live backup | ✅ Ja | ⚠️ Manuelt | ⚠️ Manuelt |
+| Hardware passthrough | ✅ USB, PCIe | ✅ Direkte | ⚠️ Begrænset |
+| Ressource skalering | ✅ Nemt | ❌ Fast hardware | ✅ Ja |
+| Andre VMs/containers | ✅ Ubegrænset | ❌ Nej | ✅ Ja |
+| Add-ons support | ✅ Fuld | ✅ Fuld | ❌ Separat |
+
+<Aside type="tip" title="Anbefalet til">
+- Dem der allerede har en Proxmox server
+- Dem der vil køre Home Assistant sammen med andre services
+- Dem der ønsker enterprise-grade backup og restore
+</Aside>
+
+## 📋 Forudsætninger
+
+- ✅ Proxmox VE 8.x eller nyere installeret
+- ✅ Mindst 2 CPU kerner ledige
+- ✅ Mindst 4 GB RAM ledigt
+- ✅ Mindst 32 GB storage (SSD anbefales)
+- ✅ Adgang til Proxmox shell (SSH eller web console)
+
+## 🚀 Metode 1: Community Helper Script (Anbefalet)
+
+Den nemmeste metode bruger det officielle community script fra [community-scripts.github.io/ProxmoxVE](https://community-scripts.github.io/ProxmoxVE/).
+
+<Steps>
+1. **Log ind på Proxmox shell**
+   
+   SSH til din Proxmox server eller brug Shell i web-interfacet:
+   ```bash
+   ssh root@DIN-PROXMOX-IP
+   ```
+
+2. **Kør installationsscriptet**
+   
+   ```bash
+   bash -c "$(wget -qLO - https://github.com/community-scripts/ProxmoxVE/raw/main/vm/haos-vm.sh)"
+   ```
+
+3. **Følg installationsguiden**
+   
+   Scriptet vil spørge om:
+   - **VM ID**: Vælg et ledigt nummer (f.eks. `100`)
+   - **Machine Type**: Vælg `q35` (moderne, bedre performance)
+   - **BIOS**: Vælg `OVMF (UEFI)` - påkrævet for HAOS
+   - **Disk størrelse**: Minimum `32GB`, anbefalet `64GB+`
+   - **CPU kerner**: Minimum `2`, anbefalet `4`
+   - **RAM**: Minimum `4096MB`, anbefalet `4096-8192MB`
+   - **Bridge**: Dit netværksbridge (typisk `vmbr0`)
+   - **MAC adresse**: Accepter auto-genereret
+   - **VLAN**: Lad være tom medmindre du bruger VLAN
+   - **Start efter oprettelse**: `Yes`
+
+4. **Vent på installation**
+   
+   Scriptet downloader HAOS image og opretter VM'en. Dette tager 2-5 minutter.
+
+5. **Find IP-adressen**
+   
+   Når VM'en er startet, find IP via:
+   ```bash
+   # I Proxmox shell
+   qm guest cmd VMID network-get-interfaces
+   ```
+   Eller tjek din router's DHCP-liste.
+</Steps>
+
+<Aside type="note" title="Script features">
+Scriptet konfigurerer automatisk:
+- UEFI boot med EFI disk
+- VirtIO SCSI controller (bedste performance)
+- CPU type `host` (fuld CPU feature support)
+- QEMU Guest Agent
+- Optimal disk cache settings
+</Aside>
+
+## 🔧 Metode 2: Manuel installation
+
+Hvis du foretrækker fuld kontrol, kan du installere manuelt.
+
+### Download HAOS image
+
+<Steps>
+1. **Find seneste version**
+   
+   Gå til [Home Assistant OS releases](https://github.com/home-assistant/operating-system/releases) og find den seneste `qcow2` fil for KVM/Proxmox.
+
+2. **Download til Proxmox**
+   
+   ```bash
+   # SSH til Proxmox
+   cd /var/lib/vz/template/iso/
+   
+   # Download seneste HAOS (erstat VERSION med aktuel)
+   wget https://github.com/home-assistant/operating-system/releases/download/VERSION/haos_ova-VERSION.qcow2.xz
+   
+   # Udpak
+   xz -d haos_ova-VERSION.qcow2.xz
+   ```
+</Steps>
+
+### Opret VM manuelt
+
+<Steps>
+1. **Opret VM uden disk**
+   
+   ```bash
+   # Erstat VMID med dit ønskede ID (f.eks. 100)
+   qm create VMID \
+     --name haos \
+     --memory 4096 \
+     --cores 2 \
+     --cpu host \
+     --bios ovmf \
+     --machine q35 \
+     --net0 virtio,bridge=vmbr0 \
+     --ostype l26 \
+     --agent 1 \
+     --onboot 1
+   ```
+
+2. **Tilføj EFI disk**
+   
+   ```bash
+   qm set VMID --efidisk0 local-lvm:1,efitype=4m
+   ```
+
+3. **Importér HAOS disk**
+   
+   ```bash
+   # Importér qcow2 til VM
+   qm importdisk VMID /var/lib/vz/template/iso/haos_ova-VERSION.qcow2 local-lvm
+   
+   # Tilknyt disk til VM
+   qm set VMID --scsi0 local-lvm:vm-VMID-disk-1,cache=writethrough,discard=on,ssd=1
+   
+   # Sæt boot order
+   qm set VMID --boot order=scsi0
+   ```
+
+4. **Start VM**
+   
+   ```bash
+   qm start VMID
+   ```
+</Steps>
+
+## ⚙️ Anbefalede VM-indstillinger
+
+### Optimal konfiguration
+
+| Indstilling | Værdi | Forklaring |
+|-------------|-------|------------|
+| **Machine** | `q35` | Moderne chipset, bedre USB/PCIe |
+| **BIOS** | `OVMF (UEFI)` | Påkrævet for HAOS |
+| **CPU Type** | `host` | Fuld CPU support |
+| **CPU Cores** | `2-4` | 2 minimum, 4 anbefalet |
+| **RAM** | `4096-8192 MB` | 4GB minimum |
+| **SCSI Controller** | `VirtIO SCSI` | Bedste disk performance |
+| **Disk Cache** | `Write through` | Sikker, god performance |
+| **Network** | `VirtIO` | Bedste netværks performance |
+| **QEMU Agent** | `Enabled` | Snapshots, IP visning |
+
+### Eksempel konfigurationsfil
+
+```ini title="/etc/pve/qemu-server/VMID.conf"
+agent: 1
+bios: ovmf
+boot: order=scsi0
+cores: 4
+cpu: host
+efidisk0: local-lvm:vm-VMID-disk-0,efitype=4m,size=4M
+machine: q35
+memory: 4096
+name: haos
+net0: virtio=XX:XX:XX:XX:XX:XX,bridge=vmbr0
+onboot: 1
+ostype: l26
+scsi0: local-lvm:vm-VMID-disk-1,cache=writethrough,discard=on,size=32G,ssd=1
+scsihw: virtio-scsi-pci
+```
+
+## 🔌 USB Passthrough (Zigbee/Z-Wave)
+
+For at bruge USB-enheder (Zigbee coordinator, Z-Wave stick) i Home Assistant:
+
+<Steps>
+1. **Find USB device ID**
+   
+   ```bash
+   # På Proxmox host
+   lsusb
+   ```
+   
+   Output eksempel:
+   ```
+   Bus 002 Device 003: ID 1a86:55d4 QinHeng Electronics SONOFF Zigbee 3.0 USB Dongle Plus V2
+   ```
+
+2. **Tilføj til VM**
+   
+   ```bash
+   # Format: vendor:product (fra lsusb output)
+   qm set VMID --usb0 host=1a86:55d4
+   ```
+   
+   Eller via web-interface:
+   - Vælg VM → **Hardware** → **Add** → **USB Device**
+   - Vælg **Use USB Vendor/Device ID**
+   - Vælg din enhed fra listen
+
+3. **Genstart VM**
+   
+   ```bash
+   qm reboot VMID
+   ```
+</Steps>
+
+<Aside type="caution" title="USB Passthrough tip">
+Brug **Vendor/Device ID** i stedet for **USB Port**. Så virker det selvom du sætter USB-enheden i en anden port.
+</Aside>
+
+## 💾 Udvid disk størrelse
+
+Hvis du løber tør for plads:
+
+<Steps>
+1. **Udvid i Proxmox**
+   
+   Via CLI:
+   ```bash
+   qm resize VMID scsi0 +50G
+   ```
+   
+   Eller via web-interface:
+   - VM → **Hardware** → Vælg disk → **Resize**
+
+2. **Udvid i Home Assistant**
+   
+   HAOS udvider automatisk ved næste genstart, eller:
+   - **Settings** → **System** → **Storage** → **Resize**
+</Steps>
+
+## 📸 Backup og Snapshots
+
+### Snapshots (hurtige)
+
+Perfekt før opdateringer eller eksperimenter:
+
+```bash
+# Opret snapshot
+qm snapshot VMID pre-upgrade --vmstate 1
+
+# Gendan snapshot
+qm rollback VMID pre-upgrade
+
+# Slet snapshot
+qm delsnapshot VMID pre-upgrade
+```
+
+<Aside type="tip" title="Snapshot best practice">
+Tag altid et snapshot FØR større Home Assistant opdateringer. Navngiv det beskrivende, f.eks. `pre-2024.12-upgrade`.
+</Aside>
+
+### Backup (fulde)
+
+For disaster recovery:
+
+```bash
+# Manuel backup
+vzdump VMID --compress zstd --storage local --mode snapshot
+
+# Se backups
+ls /var/lib/vz/dump/
+```
+
+Eller sæt automatisk backup op via **Datacenter** → **Backup** i web-interfacet.
+
+## 🌐 Første opsætning
+
+<Steps>
+1. **Åbn Home Assistant**
+   
+   Gå til `http://HAOS-IP:8123` i din browser.
+   
+   <Aside type="note">
+   Første opstart tager 5-20 minutter. Du ser "Preparing Home Assistant" indtil det er klar.
+   </Aside>
+
+2. **Opret bruger**
+   
+   - Vælg brugernavn og stærkt password
+   - Gem password i en password manager!
+
+3. **Konfigurer hjem**
+   
+   - Navngiv dit hjem
+   - Angiv lokation (til solopgang/nedgang)
+   - Vælg tidszone
+
+4. **Opdater alt**
+   
+   Gå til **Settings** → **System** → **Updates** og installer alle opdateringer.
+</Steps>
+
+## 🔧 Fejlfinding
+
+<Aside type="tip" title="VM starter ikke?">
+**Tjek disse ting:**
+1. Er BIOS sat til `OVMF (UEFI)`? HAOS kræver UEFI.
+2. Er boot order korrekt? Skal være `scsi0` eller `virtio0`.
+3. Har du nok RAM? Minimum 2GB, anbefalet 4GB.
+4. Tjek Proxmox logs: `journalctl -u pve-manager`
+</Aside>
+
+<Aside type="tip" title="Ingen netværk?">
+**Prøv disse løsninger:**
+1. Tjek at bridge er korrekt (typisk `vmbr0`)
+2. Tjek VLAN settings matcher dit netværk
+3. Prøv at genstarte VM
+4. Tjek firewall regler på Proxmox
+</Aside>
+
+<Aside type="tip" title="USB enhed virker ikke?">
+**Tjek:**
+1. Er USB passthrough tilføjet korrekt?
+2. Genstart VM efter tilføjelse af USB
+3. Tjek `dmesg` i Proxmox for USB fejl
+4. Prøv en anden USB port på host
+</Aside>
+
+<Aside type="tip" title="Langsom performance?">
+**Optimeringer:**
+1. Brug `cache=writethrough` på disk
+2. Brug `cpu: host` i stedet for `kvm64`
+3. Aktiver `discard=on,ssd=1` på disk
+4. Øg RAM til 4-8GB
+</Aside>
+
+## 🔄 Opdatering af HAOS
+
+Home Assistant opdateres via web-interfacet:
+
+1. **Settings** → **System** → **Updates**
+2. Klik **Update** på tilgængelige opdateringer
+3. Vent på genstart
+
+<Aside type="danger" title="Før opdatering">
+Tag ALTID et snapshot før større opdateringer:
+```bash
+qm snapshot VMID pre-upgrade-$(date +%Y%m%d) --vmstate 1
+```
+</Aside>
+
+## 🚀 Næste skridt
+
+<CardGrid>
+  <Card title="⚡ Første automation" icon="rocket">
+    Lav din første automation i Home Assistant.
+    
+    [Lav automationer →](/da/home-assistant/foerste-automation/)
+  </Card>
+  <Card title="📡 Zigbee2MQTT" icon="setting">
+    Tilføj Zigbee enheder med USB passthrough.
+    
+    [Opsæt Zigbee →](/da/home-assistant/zigbee2mqtt/)
+  </Card>
+</CardGrid>

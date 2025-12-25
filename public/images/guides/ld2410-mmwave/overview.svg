@@ -1,0 +1,191 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="radarGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#3b82f6;stop-opacity:0.8"/>
+      <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#3b82f6;stop-opacity:0"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="450" fill="#0f0f1a"/>
+  
+  <!-- Title -->
+  <text x="400" y="30" text-anchor="middle" fill="#ffffff" font-family="system-ui, sans-serif" font-size="18" font-weight="bold">LD2410 mmWave vs PIR - Tilstedeværelsesdetektion</text>
+  
+  <!-- PIR Section -->
+  <g transform="translate(50, 60)">
+    <rect x="0" y="0" width="320" height="170" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+    <text x="160" y="25" text-anchor="middle" fill="#ef4444" font-size="14" font-weight="bold" font-family="system-ui">❌ PIR Sensor (traditionel)</text>
+    
+    <!-- PIR sensor icon -->
+    <rect x="20" y="50" width="40" height="30" rx="5" fill="#374151"/>
+    <circle cx="40" cy="65" r="8" fill="#ef4444"/>
+    
+    <!-- Detection cone PIR -->
+    <path d="M 60 65 L 150 40 L 150 90 Z" fill="#ef4444" opacity="0.2"/>
+    
+    <!-- Person moving (detected) -->
+    <g transform="translate(120, 45)">
+      <circle cx="15" cy="10" r="8" fill="#22c55e"/>
+      <line x1="15" y1="18" x2="15" y2="40" stroke="#22c55e" stroke-width="3"/>
+      <line x1="15" y1="25" x2="5" y2="35" stroke="#22c55e" stroke-width="3"/>
+      <line x1="15" y1="25" x2="25" y2="35" stroke="#22c55e" stroke-width="3"/>
+      <line x1="15" y1="40" x2="5" y2="55" stroke="#22c55e" stroke-width="3"/>
+      <line x1="15" y1="40" x2="25" y2="55" stroke="#22c55e" stroke-width="3"/>
+      <!-- Movement arrows -->
+      <path d="M 35 30 L 45 30 M 42 25 L 48 30 L 42 35" stroke="#22c55e" stroke-width="2" fill="none"/>
+    </g>
+    <text x="160" y="115" text-anchor="middle" fill="#22c55e" font-size="10" font-family="system-ui">✓ Bevægelse detekteret</text>
+    
+    <!-- Person sitting (not detected) -->
+    <g transform="translate(220, 45)">
+      <circle cx="15" cy="10" r="8" fill="#ef4444"/>
+      <line x1="15" y1="18" x2="15" y2="35" stroke="#ef4444" stroke-width="3"/>
+      <line x1="15" y1="25" x2="5" y2="30" stroke="#ef4444" stroke-width="3"/>
+      <line x1="15" y1="25" x2="25" y2="30" stroke="#ef4444" stroke-width="3"/>
+      <line x1="15" y1="35" x2="5" y2="50" stroke="#ef4444" stroke-width="3"/>
+      <line x1="15" y1="35" x2="35" y2="50" stroke="#ef4444" stroke-width="3"/>
+      <!-- Sitting on chair -->
+      <rect x="0" y="50" width="40" height="5" fill="#64748b"/>
+    </g>
+    <text x="255" y="115" text-anchor="middle" fill="#ef4444" font-size="10" font-family="system-ui">✗ Stillestående IKKE detekteret</text>
+    
+    <text x="160" y="145" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="system-ui">Detekterer kun infrarød bevægelse</text>
+    <text x="160" y="160" text-anchor="middle" fill="#64748b" font-size="10" font-family="system-ui">→ Lyset slukker når du sidder stille!</text>
+  </g>
+  
+  <!-- mmWave Section -->
+  <g transform="translate(430, 60)">
+    <rect x="0" y="0" width="320" height="170" rx="10" fill="#1e293b" stroke="#22c55e" stroke-width="2"/>
+    <text x="160" y="25" text-anchor="middle" fill="#22c55e" font-size="14" font-weight="bold" font-family="system-ui">✓ mmWave LD2410 (radar)</text>
+    
+    <!-- mmWave sensor icon -->
+    <rect x="20" y="50" width="40" height="25" rx="3" fill="#374151"/>
+    <rect x="25" y="55" width="30" height="15" rx="2" fill="#3b82f6"/>
+    
+    <!-- Radar waves -->
+    <path d="M 60 62 Q 100 62 100 45" stroke="#3b82f6" stroke-width="2" fill="none" opacity="0.3"/>
+    <path d="M 60 62 Q 120 62 120 40" stroke="#3b82f6" stroke-width="2" fill="none" opacity="0.5"/>
+    <path d="M 60 62 Q 140 62 140 35" stroke="#3b82f6" stroke-width="2" fill="none" opacity="0.7"/>
+    <path d="M 60 62 Q 100 62 100 80" stroke="#3b82f6" stroke-width="2" fill="none" opacity="0.3"/>
+    <path d="M 60 62 Q 120 62 120 85" stroke="#3b82f6" stroke-width="2" fill="none" opacity="0.5"/>
+    <path d="M 60 62 Q 140 62 140 90" stroke="#3b82f6" stroke-width="2" fill="none" opacity="0.7"/>
+    
+    <!-- Person moving (detected) -->
+    <g transform="translate(120, 45)">
+      <circle cx="15" cy="10" r="8" fill="#22c55e"/>
+      <line x1="15" y1="18" x2="15" y2="40" stroke="#22c55e" stroke-width="3"/>
+      <line x1="15" y1="25" x2="5" y2="35" stroke="#22c55e" stroke-width="3"/>
+      <line x1="15" y1="25" x2="25" y2="35" stroke="#22c55e" stroke-width="3"/>
+      <line x1="15" y1="40" x2="5" y2="55" stroke="#22c55e" stroke-width="3"/>
+      <line x1="15" y1="40" x2="25" y2="55" stroke="#22c55e" stroke-width="3"/>
+    </g>
+    <text x="155" y="115" text-anchor="middle" fill="#22c55e" font-size="10" font-family="system-ui">✓ Bevægelse</text>
+    
+    <!-- Person sitting (ALSO detected) -->
+    <g transform="translate(220, 45)">
+      <circle cx="15" cy="10" r="8" fill="#22c55e"/>
+      <line x1="15" y1="18" x2="15" y2="35" stroke="#22c55e" stroke-width="3"/>
+      <line x1="15" y1="25" x2="5" y2="30" stroke="#22c55e" stroke-width="3"/>
+      <line x1="15" y1="25" x2="25" y2="30" stroke="#22c55e" stroke-width="3"/>
+      <line x1="15" y1="35" x2="5" y2="50" stroke="#22c55e" stroke-width="3"/>
+      <line x1="15" y1="35" x2="35" y2="50" stroke="#22c55e" stroke-width="3"/>
+      <rect x="0" y="50" width="40" height="5" fill="#64748b"/>
+      <!-- Breathing waves -->
+      <ellipse cx="15" cy="28" rx="12" ry="6" stroke="#22c55e" stroke-width="1" fill="none" opacity="0.5"/>
+      <ellipse cx="15" cy="28" rx="18" ry="9" stroke="#22c55e" stroke-width="1" fill="none" opacity="0.3"/>
+    </g>
+    <text x="255" y="115" text-anchor="middle" fill="#22c55e" font-size="10" font-family="system-ui">✓ Stillestående</text>
+    
+    <text x="160" y="145" text-anchor="middle" fill="#94a3b8" font-size="11" font-family="system-ui">Detekterer mikrobevægelser (vejrtrækning)</text>
+    <text x="160" y="160" text-anchor="middle" fill="#22c55e" font-size="10" font-family="system-ui">→ Lyset forbliver tændt!</text>
+  </g>
+  
+  <!-- Wiring Diagram -->
+  <g transform="translate(50, 250)">
+    <text x="160" y="0" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="system-ui">Ledningsdiagram: ESP32 → LD2410C</text>
+    
+    <!-- ESP32 -->
+    <rect x="20" y="20" width="120" height="140" rx="5" fill="#1e293b" stroke="#64748b" stroke-width="2"/>
+    <text x="80" y="45" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold" font-family="system-ui">ESP32</text>
+    
+    <!-- ESP32 pins -->
+    <rect x="130" y="55" width="10" height="15" fill="#ef4444"/>
+    <text x="125" y="67" text-anchor="end" fill="#ef4444" font-size="9" font-family="system-ui">3.3V</text>
+    
+    <rect x="130" y="80" width="10" height="15" fill="#64748b"/>
+    <text x="125" y="92" text-anchor="end" fill="#64748b" font-size="9" font-family="system-ui">GND</text>
+    
+    <rect x="130" y="105" width="10" height="15" fill="#22c55e"/>
+    <text x="125" y="117" text-anchor="end" fill="#22c55e" font-size="9" font-family="system-ui">GPIO16</text>
+    
+    <rect x="130" y="130" width="10" height="15" fill="#3b82f6"/>
+    <text x="125" y="142" text-anchor="end" fill="#3b82f6" font-size="9" font-family="system-ui">GPIO17</text>
+    
+    <!-- LD2410C -->
+    <rect x="220" y="40" width="80" height="100" rx="5" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+    <text x="260" y="65" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="bold" font-family="system-ui">LD2410C</text>
+    <rect x="240" y="75" width="40" height="20" rx="2" fill="#0f172a"/>
+    
+    <!-- LD2410 pins -->
+    <rect x="210" y="55" width="10" height="15" fill="#ef4444"/>
+    <text x="225" y="67" fill="#ef4444" font-size="9" font-family="system-ui">VCC</text>
+    
+    <rect x="210" y="80" width="10" height="15" fill="#64748b"/>
+    <text x="225" y="92" fill="#64748b" font-size="9" font-family="system-ui">GND</text>
+    
+    <rect x="210" y="105" width="10" height="15" fill="#3b82f6"/>
+    <text x="225" y="117" fill="#3b82f6" font-size="9" font-family="system-ui">TX</text>
+    
+    <rect x="210" y="130" width="10" height="15" fill="#22c55e"/>
+    <text x="225" y="142" fill="#22c55e" font-size="9" font-family="system-ui">RX</text>
+    
+    <!-- Wires -->
+    <line x1="140" y1="62" x2="210" y2="62" stroke="#ef4444" stroke-width="2"/>
+    <line x1="140" y1="87" x2="210" y2="87" stroke="#64748b" stroke-width="2"/>
+    <line x1="140" y1="112" x2="180" y2="112" stroke="#22c55e" stroke-width="2"/>
+    <line x1="180" y1="112" x2="180" y2="137" stroke="#22c55e" stroke-width="2"/>
+    <line x1="180" y1="137" x2="210" y2="137" stroke="#22c55e" stroke-width="2"/>
+    <line x1="140" y1="137" x2="170" y2="137" stroke="#3b82f6" stroke-width="2"/>
+    <line x1="170" y1="137" x2="170" y2="112" stroke="#3b82f6" stroke-width="2"/>
+    <line x1="170" y1="112" x2="210" y2="112" stroke="#3b82f6" stroke-width="2"/>
+    
+    <!-- Cross note -->
+    <text x="190" y="175" text-anchor="middle" fill="#f59e0b" font-size="10" font-family="system-ui">⚠️ RX/TX krydses!</text>
+  </g>
+  
+  <!-- Features -->
+  <g transform="translate(400, 250)">
+    <text x="175" y="0" text-anchor="middle" fill="#ffffff" font-size="14" font-weight="bold" font-family="system-ui">LD2410 Features</text>
+    
+    <g transform="translate(0, 20)">
+      <rect x="0" y="0" width="170" height="70" rx="5" fill="#1e293b" stroke="#22c55e" stroke-width="1"/>
+      <text x="85" y="20" text-anchor="middle" fill="#22c55e" font-size="11" font-weight="bold" font-family="system-ui">📡 Detektion</text>
+      <text x="10" y="38" fill="#94a3b8" font-size="9" font-family="system-ui">• Bevægelse: op til 6m</text>
+      <text x="10" y="52" fill="#94a3b8" font-size="9" font-family="system-ui">• Stillestående: op til 4m</text>
+      <text x="10" y="66" fill="#94a3b8" font-size="9" font-family="system-ui">• Gate-baseret afstand</text>
+    </g>
+    
+    <g transform="translate(180, 20)">
+      <rect x="0" y="0" width="170" height="70" rx="5" fill="#1e293b" stroke="#3b82f6" stroke-width="1"/>
+      <text x="85" y="20" text-anchor="middle" fill="#3b82f6" font-size="11" font-weight="bold" font-family="system-ui">⚙️ Konfigurerbar</text>
+      <text x="10" y="38" fill="#94a3b8" font-size="9" font-family="system-ui">• 9 afstandszoner (gates)</text>
+      <text x="10" y="52" fill="#94a3b8" font-size="9" font-family="system-ui">• Justerbar følsomhed</text>
+      <text x="10" y="66" fill="#94a3b8" font-size="9" font-family="system-ui">• Timeout indstilling</text>
+    </g>
+    
+    <g transform="translate(90, 100)">
+      <rect x="0" y="0" width="170" height="70" rx="5" fill="#1e293b" stroke="#f59e0b" stroke-width="1"/>
+      <text x="85" y="20" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="bold" font-family="system-ui">💡 Anvendelser</text>
+      <text x="10" y="38" fill="#94a3b8" font-size="9" font-family="system-ui">• Badeværelse/toilet</text>
+      <text x="10" y="52" fill="#94a3b8" font-size="9" font-family="system-ui">• Kontor/arbejdsplads</text>
+      <text x="10" y="66" fill="#94a3b8" font-size="9" font-family="system-ui">• Soveværelse</text>
+    </g>
+  </g>
+  
+  <!-- Price comparison -->
+  <g transform="translate(50, 410)">
+    <text x="375" y="0" text-anchor="middle" fill="#64748b" font-size="11" font-family="system-ui">DIY Pris: ESP32 (~40 kr) + LD2410C (~50 kr) = ~90 kr total | Kommercielle sensorer: 300-800 kr</text>
+  </g>
+</svg>

@@ -1,57 +1,130 @@
 ---
 title: Home Assistant
-description: Alt om Home Assistant - installation, konfiguration, automationer og integrationer
+description: Alt om Home Assistant - installation, konfiguration, automationer og integrationer.
+sidebar:
+  badge:
+    text: Essentiel
+    variant: tip
 ---
 
-import { Card, CardGrid, LinkCard, Steps, Aside } from '@astrojs/starlight/components';
+import { Card, CardGrid, LinkCard, Aside, Badge } from '@astrojs/starlight/components';
 
-Home Assistant er den ultimative smart home platform. Open source, privatlivsfokuseret og med support for over 2000 integrationer.
+<Badge text="Gratis" variant="success" /> <Badge text="Open Source" variant="note" /> <Badge text="2000+ integrationer" variant="caution" />
 
-<Aside type="tip">
-Home Assistant er gratis og kan køre på alt fra en Raspberry Pi til en kraftig server.
-</Aside>
+Home Assistant er verdens mest populære open source smart home platform. Saml alle dine enheder i én app - helt uden cloud.
 
-## 🚀 Kom i gang
+## 🤔 Hvorfor Home Assistant?
+
+<CardGrid>
+  <Card title="🔒 Privatliv" icon="approve-check">
+    Dine data forbliver lokale. Ingen cloud, ingen sporing.
+  </Card>
+  <Card title="🔌 2000+ integrationer" icon="setting">
+    Fra IKEA til Sonos - alt virker sammen.
+  </Card>
+  <Card title="🤖 Kraftige automationer" icon="rocket">
+    Hvis X så Y. Så simpelt - eller komplekst du vil.
+  </Card>
+  <Card title="💰 Gratis" icon="document">
+    Open source og gratis for evigt. Ingen abonnementer.
+  </Card>
+</CardGrid>
+
+## 🚀 Start her
 
 <CardGrid>
   <LinkCard 
-    title="Kom godt i gang" 
+    title="📘 Kom godt i gang" 
     description="Komplet introduktion til Home Assistant"
     href="/da/home-assistant/kom-godt-i-gang/"
   />
+</CardGrid>
+
+## 💿 Installation
+
+Vælg den metode der passer til dig:
+
+<CardGrid>
   <LinkCard 
-    title="Raspberry Pi Installation" 
-    description="Installer Home Assistant OS på Raspberry Pi"
+    title="🍓 Raspberry Pi" 
+    description="Den klassiske metode - perfekt for begyndere"
     href="/da/home-assistant/raspberry-pi-installation/"
   />
   <LinkCard 
-    title="Docker Installation" 
-    description="Kør Home Assistant i Docker container"
+    title="🖥️ Proxmox VM" 
+    description="Til hjemmeservere med snapshots og backup"
+    href="/da/home-assistant/proxmox-installation/"
+  />
+  <LinkCard 
+    title="🐳 Docker" 
+    description="For erfarne brugere med eksisterende server"
     href="/da/home-assistant/docker-installation/"
   />
 </CardGrid>
 
-## 🤖 Automationer & Integrationer
+### Hvilken metode skal jeg vælge?
+
+| Metode | Bedst til | Sværhedsgrad | Add-ons |
+|--------|-----------|--------------|---------|
+| **Raspberry Pi** | Begyndere, dedikeret enhed | ⭐ Let | ✅ Ja |
+| **Proxmox VM** | Hjemmeserver, homelab | ⭐⭐ Medium | ✅ Ja |
+| **Docker** | NAS, eksisterende server | ⭐⭐⭐ Avanceret | ❌ Nej |
+
+<Aside type="tip" title="Ikke sikker?">
+- **Helt ny?** → Raspberry Pi
+- **Har Proxmox server?** → Proxmox VM
+- **Har NAS/Docker?** → Docker
+</Aside>
+
+## 🔥 Populære integrationer
 
 <CardGrid>
   <LinkCard 
-    title="Din første automation" 
-    description="Lær at lave simple automationer"
-    href="/da/home-assistant/foerste-automation/"
+    title="📺 Shelly Wall Display" 
+    description="Touchskærm med dashboards, sensorer og relæ"
+    href="/da/home-assistant/shelly-wall-display/"
   />
   <LinkCard 
-    title="Zigbee2MQTT" 
-    description="Open source Zigbee gateway integration"
+    title="🌡️ Better Thermostat" 
+    description="Intelligent varmestyring med ekstern sensor"
+    href="/da/home-assistant/better-thermostat/"
+  />
+  <LinkCard 
+    title="📡 Zigbee2MQTT" 
+    description="Åben Zigbee gateway til alle enheder"
     href="/da/home-assistant/zigbee2mqtt/"
   />
 </CardGrid>
 
-## 📚 Hvad kan du lære?
+## 🤖 Automationer
 
-| Emne | Beskrivelse |
-|------|-------------|
-| **Installation** | Flere måder at installere på forskellige platforme |
-| **Konfiguration** | YAML syntax, secrets, backup |
-| **Automationer** | Triggers, conditions, actions |
-| **Dashboard** | Custom UI med kort og grafer |
-| **Integrationer** | 2000+ enheder og services |
+<CardGrid>
+  <LinkCard 
+    title="⚡ Din første automation" 
+    description="Lær at lave simple automationer"
+    href="/da/home-assistant/foerste-automation/"
+  />
+  <LinkCard 
+    title="🧺 Vaskemaskine notifikation" 
+    description="Få besked når vasken er færdig"
+    href="/da/home-assistant/vaskemaskine-notification/"
+  />
+</CardGrid>
+
+## 📚 Alle Home Assistant guides
+
+| Guide | Beskrivelse | Sværhedsgrad |
+|-------|-------------|--------------|
+| [Kom godt i gang](/da/home-assistant/kom-godt-i-gang/) | Introduktion og overblik | ⭐ Begynder |
+| [Raspberry Pi installation](/da/home-assistant/raspberry-pi-installation/) | HAOS på Raspberry Pi | ⭐ Let |
+| [Proxmox installation](/da/home-assistant/proxmox-installation/) | HAOS i VM med snapshots | ⭐⭐ Medium |
+| [Docker installation](/da/home-assistant/docker-installation/) | Container på eksisterende server | ⭐⭐⭐ Avanceret |
+| [Din første automation](/da/home-assistant/foerste-automation/) | Trigger, condition, action | ⭐ Let |
+| [Zigbee2MQTT](/da/home-assistant/zigbee2mqtt/) | Åben Zigbee coordinator | ⭐⭐ Medium |
+| [Shelly Wall Display](/da/home-assistant/shelly-wall-display/) | Touchskærm med HA dashboard | ⭐⭐ Medium |
+| [Better Thermostat](/da/home-assistant/better-thermostat/) | Intelligent varmestyring | ⭐⭐ Medium |
+| [Vaskemaskine notifikation](/da/home-assistant/vaskemaskine-notification/) | Få besked via strømmåling | ⭐ Let |
+
+<Aside type="tip" title="Ny til Home Assistant?">
+Start med [Kom godt i gang](/da/home-assistant/kom-godt-i-gang/) guiden - den giver dig et komplet overblik over dine muligheder.
+</Aside>

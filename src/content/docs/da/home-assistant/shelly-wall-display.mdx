@@ -1,0 +1,397 @@
+---
+title: Shelly Wall Display som Smart Home Panel
+description: Komplet guide til opsætning af Shelly Wall Display med Home Assistant. Vis dashboards, styr enheder og brug de indbyggede sensorer.
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Medium" variant="caution" /> <Badge text="30 min" variant="note" />
+
+Shelly Wall Display er en 4" touchskærm med indbyggede sensorer og relæ. Den kan vise Home Assistant dashboards direkte på skærmen - perfekt som kontrolpanel i køkken, entre eller soveværelse.
+
+## 🤔 Hvad er Shelly Wall Display?
+
+![Shelly Wall Display oversigt](/images/guides/shelly-wall-display/overview.svg)
+
+Shelly Wall Display er en alt-i-én løsning der kombinerer:
+
+| Funktion | Specifikation |
+|----------|---------------|
+| **Skærm** | 4" IPS touchscreen (480x480) |
+| **Sensorer** | Temperatur, fugtighed, lysstyrke (LUX) |
+| **Relæ** | 5A indbygget switch |
+| **Forbindelse** | WiFi 2.4GHz |
+| **Strøm** | 110-230V AC (kræver neutral) |
+| **Montering** | Standard EU indmuringsdåse |
+
+<Aside type="tip" title="Hvorfor Shelly Wall Display?">
+- **Native HA support** - Vis dashboards direkte på skærmen
+- **Ingen hub** - Forbinder direkte til dit WiFi
+- **Indbyggede sensorer** - Temperatur/fugt til automationer
+- **5A relæ** - Kan styre lys direkte
+</Aside>
+
+## 📦 Hvad du skal bruge
+
+- Shelly Wall Display (~700-900 kr)
+- Standard EU indmuringsdåse (dyb model anbefales)
+- Strømforsyning med **neutral leder**
+- Home Assistant installation
+
+<Aside type="caution" title="Kræver neutral!">
+Shelly Wall Display kræver både fase (L), neutral (N) og jord. Ældre installationer uden neutral i kontakten virker IKKE.
+</Aside>
+
+## ⚡ Installation
+
+### Trin 1: Fysisk montering
+
+<Steps>
+1. **Sluk for strømmen** på grupppen i eltavlen
+2. **Verificer** med spændingstester at der ikke er strøm
+3. **Tilslut ledninger:**
+   - L (brun/sort) → L terminal
+   - N (blå) → N terminal
+   - Jord (gul/grøn) → ⏚ terminal
+   - Evt. switch wire → SW terminal (til det indbyggede relæ)
+4. **Montér displayet** i indmuringsdåsen
+5. **Tænd for strømmen**
+</Steps>
+
+### Trin 2: WiFi opsætning
+
+<Steps>
+1. Displayet starter i AP mode ved første opstart
+2. Forbind til WiFi-netværket **ShellyWallDisplay-XXXX** fra din telefon
+3. Åbn **192.168.33.1** i browseren
+4. Vælg dit hjemmenetværk og indtast password
+5. Displayet genstarter og forbinder til dit WiFi
+</Steps>
+
+### Trin 3: Tilføj til Home Assistant
+
+Home Assistant finder automatisk Shelly enheder:
+
+<Steps>
+1. Gå til **Indstillinger** → **Enheder og tjenester**
+2. Shelly Wall Display skulle være under **Opdaget**
+3. Klik **Konfigurer** og følg guiden
+4. Enheden tilføjes med alle sensorer
+</Steps>
+
+<Aside type="note">
+Hvis enheden ikke opdages automatisk, klik **Tilføj integration** → søg **Shelly** → indtast IP-adressen.
+</Aside>
+
+## 📊 Enheder i Home Assistant
+
+Efter tilføjelse får du disse entiteter:
+
+| Entitet | Type | Beskrivelse |
+|---------|------|-------------|
+| `climate.shelly_wall_display` | Termostat | Indbygget termostat funktion |
+| `sensor.shelly_wall_display_temperature` | Sensor | Rumtemperatur |
+| `sensor.shelly_wall_display_humidity` | Sensor | Luftfugtighed |
+| `switch.shelly_wall_display` | Switch | 5A relæet |
+
+**Eksempel fra dit setup:**
+```yaml
+# Entiteter fra din Shelly Wall Display
+climate.shelly_wall_display:
+  current_temperature: 22°C
+  target_temperature: 21°C
+  
+sensor.shelly_wall_display_humidity: 50%
+sensor.shelly_wall_display_temperature: 22°C
+```
+
+## 📱 Vis Home Assistant Dashboard på skærmen
+
+Dette er den virkelig smarte funktion - du kan vise et HA dashboard direkte på Wall Display!
+
+### Trin 1: Opdater firmware
+
+<Steps>
+1. Find displayets IP-adresse (f.eks. via din router eller HA)
+2. Åbn **http://[IP-ADRESSE]** i en browser
+3. Gå til **Settings** → **Firmware**
+4. Opdater til mindst **version 2.3.0** eller nyere
+</Steps>
+
+### Trin 2: Aktiver Home Assistant integration
+
+<Steps>
+1. På selve Wall Display, gå til **Settings** → **Network**
+2. Tryk på **Home Assistant**
+3. Du bliver bedt om at opdatere - tryk **Yes**
+4. Vent et par minutter (det er en stor opdatering)
+5. Gå tilbage til **Settings** → **Network** → **Home Assistant**
+6. Vælg din Home Assistant server fra listen
+7. Tryk **Save**
+</Steps>
+
+### Trin 3: Opret et dedikeret dashboard
+
+Lav et simpelt dashboard optimeret til den lille skærm:
+
+```yaml
+# /config/dashboards/wall-display.yaml
+title: Wall Display
+views:
+  - title: Hjem
+    type: panel
+    cards:
+      - type: vertical-stack
+        cards:
+          # Temperatur og fugt
+          - type: horizontal-stack
+            cards:
+              - type: entity
+                entity: sensor.shelly_wall_display_temperature
+                name: Temp
+              - type: entity
+                entity: sensor.shelly_wall_display_humidity
+                name: Fugt
+          
+          # Hurtige knapper
+          - type: horizontal-stack
+            cards:
+              - type: button
+                entity: light.stue
+                name: Stue
+                tap_action:
+                  action: toggle
+              - type: button
+                entity: light.kokken
+                name: Køkken
+                tap_action:
+                  action: toggle
+          
+          # Termostat
+          - type: thermostat
+            entity: climate.shelly_wall_display
+```
+
+### Trin 4: Kiosk mode (anbefalet)
+
+Kiosk Mode er en HACS-integration der skjuler Home Assistants navigation bar, sidebar og andre UI-elementer. Dette giver et rent, fuldskærms dashboard - perfekt til væg-monterede displays.
+
+**Hvad Kiosk Mode kan skjule:**
+- Header (top-baren med navigation)
+- Sidebar (venstre menu)
+- Søgeikon, notifikationer, brugermenu
+- Overflow-menu (de tre prikker)
+
+#### Installation via HACS
+
+<Steps>
+1. Åbn **HACS** i Home Assistant
+2. Gå til **Frontend** sektionen
+3. Klik **+ Udforsk og download repositories**
+4. Søg efter **Kiosk Mode** og installer
+5. **Genstart Home Assistant**
+6. Ryd browser cache eller hard refresh (Ctrl+Shift+R)
+</Steps>
+
+<Aside type="note" title="GitHub repository">
+Kiosk Mode vedligeholdes aktivt på GitHub: [NemesisRE/kiosk-mode](https://github.com/NemesisRE/kiosk-mode)
+
+Her finder du fuld dokumentation for alle indstillinger.
+</Aside>
+
+#### Metode 1: URL parameter (simpel)
+
+Tilføj `?kiosk` til din dashboard URL:
+
+<Steps>
+1. På Wall Display, gå til **Settings** → **Network** → **Home Assistant**
+2. Rediger URL'en til dit dashboard og tilføj `?kiosk`:
+   ```
+   http://192.168.1.190:8123/dashboard-wall-display?kiosk
+   ```
+3. Gem indstillingerne
+</Steps>
+
+**Andre URL parametre:**
+- `?hide_header` - Skjul kun header
+- `?hide_sidebar` - Skjul kun sidebar
+- `?kiosk&cache` - Gem indstillingen i browser cache
+
+#### Metode 2: YAML konfiguration (avanceret)
+
+For mere kontrol, konfigurer Kiosk Mode i dit dashboard YAML:
+
+```yaml
+kiosk_mode:
+  kiosk: true  # Skjuler både header og sidebar
+
+# Eller mere granuleret:
+kiosk_mode:
+  hide_header: true
+  hide_sidebar: true
+  hide_overflow: true
+
+views:
+  - title: Wall Display
+    # ... dine cards
+```
+
+<Aside type="tip" title="Bruger-specifik kiosk mode">
+Du kan opsætte kiosk mode kun for bestemte brugere - praktisk hvis du har en dedikeret "display" bruger:
+
+```yaml
+kiosk_mode:
+  user_settings:
+    - users:
+        - "Wall Display"
+      kiosk: true
+```
+</Aside>
+
+## 🌡️ Brug sensorer i automationer
+
+### Eksempel: Tænd ventilation ved høj fugtighed
+
+```yaml
+automation:
+  - alias: "Tænd ventilation ved høj fugtighed"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.shelly_wall_display_humidity
+        above: 65
+        for:
+          minutes: 5
+    action:
+      - service: switch.turn_on
+        entity_id: switch.ventilation
+    
+  - alias: "Sluk ventilation ved normal fugtighed"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.shelly_wall_display_humidity
+        below: 55
+        for:
+          minutes: 10
+    action:
+      - service: switch.turn_off
+        entity_id: switch.ventilation
+```
+
+### Eksempel: Natbelysning baseret på lysniveau
+
+```yaml
+automation:
+  - alias: "Dæmpet lys om aftenen"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.shelly_wall_display_illuminance
+        below: 50
+    condition:
+      - condition: time
+        after: "18:00:00"
+        before: "23:00:00"
+    action:
+      - service: light.turn_on
+        entity_id: light.stue_accent
+        data:
+          brightness_pct: 30
+```
+
+## 🔧 Brug det indbyggede relæ
+
+Wall Display har et 5A relæ der kan styre lys eller andre enheder:
+
+```yaml
+# Eksempel: Tænd/sluk loft-lys via relæet
+switch:
+  - platform: template
+    switches:
+      loft_lys_kokken:
+        friendly_name: "Loft Lys Køkken"
+        value_template: "{{ is_state('switch.shelly_wall_display', 'on') }}"
+        turn_on:
+          service: switch.turn_on
+          entity_id: switch.shelly_wall_display
+        turn_off:
+          service: switch.turn_off
+          entity_id: switch.shelly_wall_display
+```
+
+## ⚙️ Avanceret: Termostat med Better Thermostat
+
+Kombiner Wall Display med Better Thermostat for intelligent varmestyring:
+
+```yaml
+# Se vores separate guide om Better Thermostat
+climate:
+  - platform: better_thermostat
+    name: "Køkken Better"
+    thermostat: climate.radiator_termostat_kokken
+    temperature_sensor: sensor.shelly_wall_display_temperature
+    window_sensors:
+      - binary_sensor.vindue_kokken
+```
+
+## 📐 Optimal dashboard design
+
+Tips til at lave dashboards der virker godt på 480x480 skærmen:
+
+| Anbefaling | Hvorfor |
+|------------|---------|
+| **Brug store knapper** | Nemmere at ramme med fingeren |
+| **Max 6-8 elementer** | Skærmen er lille |
+| **Undgå scroll** | Virker dårligt på device |
+| **Brug ikoner** | Mere intuitivt end tekst |
+| **Høj kontrast** | Bedre læsbarhed |
+
+**Anbefalet card layout:**
+```yaml
+type: grid
+columns: 2
+cards:
+  - type: button
+    entity: light.stue
+    icon: mdi:sofa
+    icon_height: 50px
+  - type: button
+    entity: light.kokken
+    icon: mdi:silverware-fork-knife
+    icon_height: 50px
+  # ... max 6 knapper
+```
+
+## 🔧 Fejlfinding
+
+<Aside type="tip" title="Skærmen viser ikke HA dashboard?">
+1. Tjek firmware er mindst 2.3.0
+2. Verificer at HA URL er korrekt (inkl. port 8123)
+3. Sørg for at Wall Display og HA er på samme netværk/VLAN
+4. Prøv at genstarte displayet
+</Aside>
+
+<Aside type="tip" title="Sensorer viser forkerte værdier?">
+- Temperatur kan være 1-2°C højere pga. varme fra skærmen
+- Placer ikke displayet i direkte sollys
+- Vent 30 min efter installation før aflæsning
+</Aside>
+
+<Aside type="tip" title="Dashboard loader langsomt?">
+- Hold dashboardet simpelt (få elementer)
+- Undgå komplekse kort som `map` eller `history-graph`
+- Brug `button` kort frem for `entities` kort
+</Aside>
+
+## 🚀 Næste skridt
+
+<CardGrid>
+  <Card title="🌡️ Better Thermostat" icon="setting">
+    Kombiner med intelligent varmestyring.
+    
+    [Opsæt Better Thermostat →](/da/home-assistant/better-thermostat/)
+  </Card>
+  <Card title="⚡ Automationer" icon="rocket">
+    Lav automationer baseret på sensordata.
+    
+    [Din første automation →](/da/home-assistant/foerste-automation/)
+  </Card>
+</CardGrid>

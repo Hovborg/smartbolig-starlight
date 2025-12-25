@@ -1,36 +1,130 @@
 ---
 title: Produkter
-description: Anmeldelser og anbefalinger af smart home produkter.
+description: Anmeldelser og anbefalinger af smart home produkter testet i danske hjem.
+sidebar:
+  badge:
+    text: Anbefalinger
+    variant: tip
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid, Aside, Badge } from '@astrojs/starlight/components';
 
-Anmeldelser og anbefalinger af smart home produkter testet i virkelige danske hjem.
+<Badge text="Testet" variant="success" /> <Badge text="Danske priser" variant="note" />
 
-## Kategorier
+Anmeldelser og anbefalinger af smart home produkter testet i virkelige danske hjem. Vi fokuserer på produkter der virker **lokalt** med Home Assistant.
+
+<Aside type="tip" title="Lokalt først">
+Vi anbefaler produkter der virker **uden cloud** når det er muligt. Det giver bedre privatliv, hurtigere respons, og virker selv hvis producenten lukker.
+</Aside>
+
+## ⭐ Top anbefalinger
+
+### Zigbee koordinator (USB-dongle)
+
+| Produkt | Pris | Vurdering | Kommentar |
+|---------|------|-----------|-----------|
+| **Sonoff Zigbee 3.0 USB Dongle Plus** | 150-200 kr | ⭐⭐⭐⭐⭐ | Bedste pris/kvalitet |
+| SLZB-06 (Ethernet) | 400 kr | ⭐⭐⭐⭐⭐ | Bedst til rækkevidde |
+| Conbee II | 350 kr | ⭐⭐⭐⭐ | Populær, god software |
+
+### Temperatur & fugtighed sensorer
+
+| Produkt | Pris | Batteri | Kommentar |
+|---------|------|---------|-----------|
+| **Aqara WSDCGQ11LM** | 100 kr | 2+ år | ⭐ Bedste valg |
+| Sonoff SNZB-02 | 70 kr | 1 år | Billigere alternativ |
+| IKEA VINDSTYRKA | 150 kr | USB | Med luftkvalitet |
+
+### Dør/vindue sensorer
+
+| Produkt | Pris | Størrelse | Kommentar |
+|---------|------|-----------|-----------|
+| **Aqara MCCGQ11LM** | 80 kr | Lille | ⭐ Bedste valg |
+| Sonoff SNZB-04 | 60 kr | Mellem | Billigere |
+| IKEA PARASOLL | 100 kr | Stor | Nemt at få fat i |
+
+### Bevægelsessensorer
+
+| Produkt | Pris | Respons | Kommentar |
+|---------|------|---------|-----------|
+| **Aqara P1** | 150 kr | Hurtig | ⭐ Bedste valg, justerbar |
+| Aqara RTCGQ11LM | 120 kr | OK | Klassiker |
+| IKEA TRÅDFRI | 100 kr | Langsom | Billig, men træg |
+
+### Smart stikkontakter
+
+| Produkt | Pris | Strømmåling | Kommentar |
+|---------|------|-------------|-----------|
+| **IKEA TRETAKT** | 80 kr | Nej | ⭐ Nemt at få |
+| Sonoff S31 Lite ZB | 100 kr | Ja | Med strømmåling |
+| BlitzWolf SHP-15 | 120 kr | Ja | WiFi, Tasmota |
+
+### Smart pærer
+
+| Produkt | Pris | Type | Kommentar |
+|---------|------|------|-----------|
+| **IKEA TRÅDFRI** | 80-150 kr | Zigbee | ⭐ God pris, fungerer som router |
+| Philips Hue | 150-300 kr | Zigbee | Premium kvalitet |
+| LIFX | 300 kr | WiFi | Ingen hub, men cloud |
+
+## 🔌 Protokol sammenligning
+
+| Protokol | Fordele | Ulemper |
+|----------|---------|---------|
+| **Zigbee** | Mesh, lavt strømforbrug, mange enheder | Kræver koordinator |
+| **WiFi** | Ingen hub, høj hastighed | Belaster router, højere strømforbrug |
+| **Z-Wave** | Meget stabilt, lang rækkevidde | Dyrt, færre enheder |
+| **Bluetooth** | Billigt, simpelt | Kort rækkevidde, ingen mesh |
+| **Thread/Matter** | Fremtiden, åben standard | Nyt, få enheder endnu |
+
+<Aside type="tip" title="Vores anbefaling">
+Start med **Zigbee** - det er billigt, stabilt, og har flest kompatible enheder. En Sonoff dongle + nogle Aqara sensorer er en fantastisk start!
+</Aside>
+
+## 🛒 Hvor køber jeg?
+
+### Hurtigt (1-5 dage)
+
+| Butik | Kommentar |
+|-------|-----------|
+| [Proshop.dk](https://proshop.dk) | Godt udvalg, fair priser |
+| [av-cables.dk](https://av-cables.dk) | Zigbee koordinatorer |
+| [elektronik-lavpris.dk](https://elektronik-lavpris.dk) | ESP32, komponenter |
+| [IKEA](https://ikea.dk) | TRÅDFRI produkter |
+
+### Billigt (2-4 uger)
+
+| Butik | Kommentar |
+|-------|-----------|
+| [AliExpress](https://aliexpress.com) | Billigst, lang ventetid |
+| [Amazon.de](https://amazon.de) | Ofte billigere end DK, 3-5 dage |
+
+<Aside type="note" title="Told og moms">
+Ved køb fra Kina/UK kan der komme told og moms oveni. Fra EU (inkl. Amazon.de) er der ingen ekstra afgifter.
+</Aside>
+
+## 🔧 DIY komponenter
+
+Se vores [ESP32 guides](/da/esp32/) for at bygge dine egne sensorer!
+
+| Komponent | Pris | Brug til |
+|-----------|------|----------|
+| ESP32 DevKit | 40-50 kr | Basis for alle projekter |
+| DHT22 sensor | 20-30 kr | Temperatur & fugtighed |
+| HC-SR501 PIR | 15 kr | Bevægelsessensor |
+| WS2812B LED strip | 50-100 kr | Adresserbart lys |
+
+## 🚀 Kom i gang
 
 <CardGrid>
-  <Card title="Zigbee enheder" icon="rocket">
-    Sensorer, kontakter og pærer til Zigbee netværk.
+  <Card title="📡 Zigbee2MQTT" icon="setting">
+    Opsæt din Zigbee koordinator og tilføj enheder.
+    
+    [Opsæt Zigbee →](/da/home-assistant/zigbee2mqtt/)
   </Card>
-  <Card title="WiFi enheder" icon="setting">
-    Smart home produkter med WiFi forbindelse.
-  </Card>
-  <Card title="Hubs & Controllers" icon="approve-check">
-    Centrale enheder til dit smart home.
-  </Card>
-  <Card title="DIY komponenter" icon="document">
-    ESP32, sensorer og komponenter til egne projekter.
+  <Card title="🔧 ESP32" icon="rocket">
+    Byg dine egne sensorer fra bunden.
+    
+    [ESP32 guides →](/da/esp32/)
   </Card>
 </CardGrid>
-
-## Anbefalede produkter
-
-| Kategori | Anbefaling | Pris ca. |
-|----------|------------|----------|
-| Zigbee dongle | Sonoff Zigbee 3.0 USB Dongle Plus | 150 kr |
-| Temperatursensor | Aqara Temperature & Humidity | 100 kr |
-| Smart stik | IKEA TRETAKT | 80 kr |
-| Bevægelsessensor | Aqara Motion Sensor | 120 kr |
-
-*Priserne er vejledende og kan variere.*

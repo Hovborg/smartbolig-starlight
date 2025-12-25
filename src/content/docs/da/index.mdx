@@ -5,74 +5,153 @@ template: splash
 hero:
   tagline: Din danske ressource til alt inden for smart home teknologi. Dybdegående guides, tutorials og anmeldelser til at bygge det perfekte intelligente hjem.
   image:
-    file: ../../../assets/logo-dark.svg
+    html: "<picture><img src='/images/hero/front.svg' alt='SmartBolig abstrakt smart home illustration' style='width:480px;max-width:100%;height:auto;display:block;'></picture>"
   actions:
     - text: Kom i gang
       link: /da/home-assistant/kom-godt-i-gang/
-      icon: right-arrow
       variant: primary
     - text: Se alle guides
       link: /da/home-assistant/
       variant: secondary
 ---
 
-import { Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
 
-## 🎯 Kom godt i gang
+## 🚀 Dine kerneområder
 
 <CardGrid stagger>
-  <Card title="🔵 Home Assistant" icon="setting">
-    Den ultimative smart home platform. Open source, privatlivsfokuseret og utrolig kraftfuld.
-    
-    [Kom i gang med Home Assistant →](/da/home-assistant/)
+  <Card title="Home Assistant" icon="setting">
+    Opsætning, backup, dashboards og integrationer der virker i praksis. [Gå til
+    Home Assistant →](/da/home-assistant/)
   </Card>
-  <Card title="⚡ ESP32 & ESPHome" icon="rocket">
-    Byg dine egne sensorer og enheder. Billigt, fleksibelt og fuldt integrerbart.
-    
-    [Udforsk ESP32 projekter →](/da/esp32/)
+  <Card title="ESP32 & ESPHome" icon="rocket">
+    Byg dine egne sensorer og kontakter med ESPHome-konfigurationer du kan
+    kopiere. [Se ESP32 guides →](/da/esp32/)
   </Card>
-  <Card title="🤖 Automationer" icon="puzzle">
-    Lad dit hjem arbejde for dig. Fra simple til avancerede automationer.
-    
-    [Se automation guides →](/da/automationer/)
+  <Card title="Automationer" icon="puzzle">
+    Fra simple lysregler til avancerede flows med betingelser og scener. [Se
+    automationer →](/da/automationer/)
   </Card>
-  <Card title="🛡️ Sikkerhed" icon="approve-check">
-    Smart home betyder også ansvar. Sikre dit netværk og beskyt dine data.
-    
-    [Læs om sikkerhed →](/da/sikkerhed/)
+  <Card title="Zigbee & MQTT" icon="plug">
+    Stabil radio med Zigbee2MQTT, broker-valg og pairing-strategier. [Byg dit
+    netværk →](/da/home-assistant/zigbee2mqtt/)
+  </Card>
+  <Card title="Sikkerhed" icon="approve-check">
+    Hærd dit netværk, 2FA og secrets-håndtering så data bliver hjemme. [Læs
+    sikkerhed →](/da/sikkerhed/)
+  </Card>
+  <Card title="Hardware & produkter" icon="device">
+    Anbefalinger til hubbe, sensorer og strøm-måling der spiller med HA. [Se
+    produkter →](/da/produkter/)
   </Card>
 </CardGrid>
 
-## 📚 Populære Guides
+## 💿 Installation - Vælg din platform
 
 <CardGrid>
-  <LinkCard 
-    title="Home Assistant Installation" 
-    description="Komplet guide til Raspberry Pi og Docker"
+  <LinkCard
+    title="🍓 Raspberry Pi"
+    description="Den klassiske metode - perfekt for begyndere"
     href="/da/home-assistant/raspberry-pi-installation/"
   />
-  <LinkCard 
-    title="Zigbee2MQTT" 
-    description="Zigbee netværk fra bunden"
+  <LinkCard
+    title="🖥️ Proxmox VM"
+    description="Hjemmeserver med snapshots og enterprise backup"
+    href="/da/home-assistant/proxmox-installation/"
+  />
+  <LinkCard
+    title="🐳 Docker"
+    description="For NAS og eksisterende servere"
+    href="/da/home-assistant/docker-installation/"
+  />
+</CardGrid>
+
+## 🔥 Nye guides
+
+<CardGrid>
+  <LinkCard
+    title="📺 Shelly Wall Display"
+    description="Touchskærm med HA dashboards, sensorer og relæ"
+    href="/da/home-assistant/shelly-wall-display/"
+  />
+  <LinkCard
+    title="📡 LD2410 mmWave Presence"
+    description="Detektér stillestående personer med radar"
+    href="/da/esp32/ld2410-mmwave/"
+  />
+  <LinkCard
+    title="🌡️ Better Thermostat"
+    description="Intelligent varmestyring med ekstern sensor"
+    href="/da/home-assistant/better-thermostat/"
+  />
+  <LinkCard
+    title="🧺 Vaskemaskine Notifikation"
+    description="Få besked når vasken er færdig"
+    href="/da/home-assistant/vaskemaskine-notification/"
+  />
+</CardGrid>
+
+## 📚 Populære guides
+
+<CardGrid>
+  <LinkCard
+    title="Kom godt i gang"
+    description="Komplet introduktion til Home Assistant"
+    href="/da/home-assistant/kom-godt-i-gang/"
+  />
+  <LinkCard
+    title="Første automation"
+    description="Lav en simpel tidsbaseret automation med UI"
+    href="/da/home-assistant/foerste-automation/"
+  />
+  <LinkCard
+    title="Zigbee2MQTT"
+    description="Par enheder og byg et stabilt mesh netværk"
     href="/da/home-assistant/zigbee2mqtt/"
   />
-  <LinkCard 
-    title="Første ESP32 Sensor" 
-    description="DIY temperatur/fugtighed sensor"
+  <LinkCard
+    title="Temperatur sensor (ESP32)"
+    description="ESPHome-konfiguration klar til DHT22"
     href="/da/esp32/temperatur-sensor/"
   />
-  <LinkCard 
-    title="LED Strip Kontrol" 
-    description="Adresserbar LED strip med ESP32"
+  <LinkCard
+    title="Bevægelsessensor (ESP32)"
+    description="PIR sensor til automatisk lysstyring"
+    href="/da/esp32/bevaegelsessensor/"
+  />
+  <LinkCard
+    title="LED strip kontrol"
+    description="Adresserbar LED strip med ESPHome"
     href="/da/esp32/led-strip/"
   />
 </CardGrid>
 
-## 💡 Hvorfor SmartBolig.net?
+## 🧭 Kom hurtigt i gang
 
-| Feature | Beskrivelse |
-|---------|-------------|
-| ✅ **100% dansk** | Alt indhold på dit modersmål |
-| ✅ **Praktisk fokus** | Trin-for-trin guides du kan følge |
-| ✅ **Open source** | Vi anbefaler løsninger du har kontrol over |
-| ✅ **Kode til kopiering** | Alle eksempler klar til at kopiere |
+<Aside type="note" title="Anbefalet rækkefølge">
+  <ol>
+    <li>
+      <strong>Vælg platform</strong>: Raspberry Pi (nemt), Proxmox (avanceret), eller Docker (eksisterende server).
+    </li>
+    <li>
+      <strong>Tilføj Zigbee</strong>: Zigbee2MQTT til sensorer og kontakter fra IKEA, Aqara m.fl.
+    </li>
+    <li>
+      <strong>Byg egne enheder</strong>: ESP32 med ESPHome til temperatur, bevægelse, LED strips.
+    </li>
+    <li>
+      <strong>Automatiser</strong>: Start med simple automationer og udvid efterhånden.
+    </li>
+  </ol>
+</Aside>
+
+## ✅ Drift & hjælp
+
+<Aside type="tip" title="Status">
+  Alle guides er testet på rigtige opsætninger. Finder du en fejl eller mangler et
+  emne, så send en mail – så retter vi det.
+</Aside>
+
+- Brug **søgefeltet** i toppen til hurtigt at finde guides.
+- Hver kategoriside samler relaterede guides og anbefalinger.
+- **Kopiér kodeblokke** direkte – de er klar til brug.

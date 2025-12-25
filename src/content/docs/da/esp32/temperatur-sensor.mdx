@@ -1,68 +1,232 @@
 ---
 title: Temperatur sensor med ESP32
-description: Byg en temperatur og fugtighed sensor med ESP32 og DHT22.
+description: Byg en præcis temperatur og fugtighed sensor med ESP32 og DHT22. Komplet guide.
+sidebar:
+  badge:
+    text: Populær
+    variant: tip
 ---
 
-import { Steps, Aside, Card, CardGrid } from '@astrojs/starlight/components';
+import { Steps, Aside, Card, CardGrid, Tabs, TabItem, Badge } from '@astrojs/starlight/components';
 
-En temperatur/fugtighed sensor er det perfekte første projekt. Billigt, nemt og utrolig nyttigt.
+<Badge text="Let" variant="success" /> <Badge text="30 min" variant="note" /> <Badge text="70 kr" variant="caution" />
 
-## Komponenter
+En temperatur/fugtighed sensor er det **perfekte første projekt**. Billigt, nemt og utrolig nyttigt til at overvåge dit hjem.
 
-| Del | Pris ca. |
-|-----|----------|
-| ESP32 board | 40 kr |
-| DHT22 sensor | 20 kr |
-| Jumper wires | 10 kr |
-| **Total** | **70 kr** |
+## 📋 Forudsætninger
 
-## Tilslutning
+Før du starter:
 
-```
-DHT22      ESP32
-------     ------
-VCC   -->  3.3V
-GND   -->  GND
-DATA  -->  GPIO4
-```
+- ✅ [ESP32 sat op med ESPHome](/da/esp32/kom-godt-i-gang/)
+- ✅ Home Assistant kørende
 
-<Aside type="caution">
-DHT22 kører på 3.3V. Brug IKKE 5V - det kan ødelægge sensoren.
+<Aside type="note">
+Ny til ESP32? Start med vores [Kom godt i gang guide](/da/esp32/kom-godt-i-gang/) først.
 </Aside>
 
-## ESPHome konfiguration
+## 🛒 Komponenter
 
-```yaml title="temperatur-sensor.yaml"
+| Del | Beskrivelse | Pris ca. |
+|-----|-------------|----------|
+| ESP32 DevKit | WiFi mikrocontroller | 45 kr |
+| DHT22 sensor | Temperatur + fugtighed | 25 kr |
+| Jumper wires | 3 stk han-hun | 10 kr |
+| **Total** | | **~70 kr** |
+
+<Aside type="tip" title="DHT22 vs DHT11">
+- **DHT22:** ±0.5°C præcision, 0-100% fugtighed - **anbefalet**
+- **DHT11:** ±2°C præcision, 20-80% fugtighed - billigere men upræcis
+</Aside>
+
+## 🔌 Tilslutning
+
+### Wiring diagram
+
+![DHT22 til ESP32 wiring diagram](/images/guides/temperatur-sensor/wiring.svg)
+
+### Trin-for-trin
+
+<Steps>
+1. **Rød ledning (VCC/+)** → ESP32 **3.3V** pin
+
+2. **Gul/hvid ledning (DATA/OUT)** → ESP32 **GPIO4** pin
+
+3. **Sort ledning (GND/-)** → ESP32 **GND** pin
+</Steps>
+
+<Aside type="danger" title="⚠️ Brug kun 3.3V!">
+DHT22 kører på 3.3V. Brug **IKKE 5V** - det kan ødelægge sensoren permanent!
+</Aside>
+
+## ⚙️ ESPHome Konfiguration
+
+Åbn din enhed i ESPHome og tilføj denne sensor-konfiguration:
+
+```yaml title="stue-sensor.yaml" {15-24}
+esphome:
+  name: stue-sensor
+  friendly_name: Stue Sensor
+
+esp32:
+  board: esp32dev
+
+logger:
+api:
+  encryption:
+    key: "din-nøgle-her"
+ota:
+  platform: esphome
+
+# DHT22 Sensor
 sensor:
   - platform: dht
     pin: GPIO4
+    model: DHT22
     temperature:
       name: "Stue Temperatur"
+      filters:
+        - offset: 0.0  # Juster hvis nødvendigt
     humidity:
       name: "Stue Fugtighed"
     update_interval: 60s
-    model: DHT22
+
+wifi:
+  ssid: "dit-wifi"
+  password: "din-kode"
 ```
 
+<Aside type="tip" title="Kalibrering">
+Hvis temperaturen viser forkert, juster `offset` værdien. F.eks. `offset: -1.5` trækker 1.5°C fra målingen.
+</Aside>
+
+## 📤 Upload til ESP32
+
+<Tabs>
+  <TabItem label="Trådløst (hvis allerede flashet)">
+    <Steps>
+    1. Klik **INSTALL** i ESPHome
+    2. Vælg **Wirelessly**
+    3. Vent ~1 minut
+    </Steps>
+  </TabItem>
+  <TabItem label="USB (første gang)">
+    <Steps>
+    1. Tilslut ESP32 med USB
+    2. Klik **INSTALL** → **Plug into this computer**
+    3. Vælg COM-port
+    4. Vent ~2 minutter
+    </Steps>
+  </TabItem>
+</Tabs>
+
+## ✅ Verificer i Home Assistant
+
 <Steps>
-1. Tilføj koden til din ESPHome enhed
-2. Klik **Install** → **Wirelessly**
-3. Sensoren dukker op i Home Assistant
+1. Gå til **Indstillinger** → **Enheder og tjenester**
+
+2. Find din ESP32 enhed og klik på den
+
+3. Du bør se to nye sensorer:
+   - `sensor.stue_temperatur`
+   - `sensor.stue_fugtighed`
+
+4. Klik på en sensor for at se graf over tid
 </Steps>
 
-## Tips
+## 📊 Tilføj til Dashboard
 
-- **Placering:** Undgå direkte sollys og varmekilder
-- **Opdateringsinterval:** 60s er fint, hurtigere slider batteriet
-- **Kalibrering:** DHT22 kan være lidt upræcis - sammenlign med et godt termometer
+### Simpelt sensor-kort
 
-## Næste skridt
+```yaml title="Lovelace kort"
+type: sensor
+entity: sensor.stue_temperatur
+name: Stue
+icon: mdi:thermometer
+graph: line
+hours_to_show: 24
+```
+
+### Kombineret temperatur/fugtighed
+
+```yaml title="Lovelace kort"
+type: glance
+entities:
+  - entity: sensor.stue_temperatur
+    name: Temperatur
+  - entity: sensor.stue_fugtighed
+    name: Fugtighed
+title: Stue Klima
+```
+
+## 🔧 Fejlfinding
+
+<Aside type="tip" title="Sensor viser 'Unavailable'?">
+**Tjek disse ting:**
+1. Er ledningerne sat rigtigt i? (VCC→3.3V, ikke 5V!)
+2. Er GPIO-pin korrekt i konfigurationen?
+3. Prøv en anden GPIO pin (f.eks. GPIO5)
+4. Tjek ESPHome logs for fejlbeskeder
+</Aside>
+
+<Aside type="tip" title="Temperatur virker forkert?">
+**Mulige årsager:**
+- DHT22 har ±0.5°C tolerance fra fabrikken
+- Sensor placeret for tæt på ESP32 (selv-opvarmning)
+- Direkte sollys eller nær varmekilde
+
+**Løsning:**
+- Brug `offset` filter til kalibrering
+- Flyt sensor væk fra ESP32 med længere ledninger
+- Sammenlign med et kendt termometer
+</Aside>
+
+<Aside type="tip" title="Fugtighed virker forkert?">
+DHT22 fugtighed er ofte 5-10% off. Kalibrér med:
+```yaml
+humidity:
+  name: "Stue Fugtighed"
+  filters:
+    - offset: -5.0  # Træk 5% fra
+```
+</Aside>
+
+## 💡 Tips til præcise målinger
+
+| Tip | Forklaring |
+|-----|------------|
+| **Placering** | Undgå direkte sollys, radiatorer og vinduer |
+| **Højde** | Placer i ~1.5m højde for rum-temperatur |
+| **Luftcirkulation** | Ikke i hjørner eller bag møbler |
+| **Opdateringsinterval** | 60s er fint - hurtigere slider sensoren |
+
+## 🚀 Næste skridt
 
 <CardGrid>
-  <Card title="Bevægelsessensor" icon="rocket">
-    [Tilføj PIR sensor →](/da/esp32/bevaegelsessensor/)
+  <Card title="🚶 Bevægelsessensor" icon="rocket">
+    Tilføj en PIR sensor til at detektere bevægelse.
+    
+    [Byg bevægelsessensor →](/da/esp32/bevaegelsessensor/)
   </Card>
-  <Card title="LED strip" icon="setting">
-    [Styr RGB LEDs →](/da/esp32/led-strip/)
+  <Card title="💡 LED Strip" icon="setting">
+    Styr adresserbare RGB LEDs baseret på temperatur.
+    
+    [Byg LED strip →](/da/esp32/led-strip/)
   </Card>
 </CardGrid>
+
+## 🤖 Automation idéer
+
+```yaml title="Eksempel: Advar ved høj fugtighed"
+automation:
+  - alias: "Høj fugtighed alarm"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.stue_fugtighed
+        above: 70
+        for: "00:30:00"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "⚠️ Høj fugtighed"
+          message: "Fugtigheden i stuen er {{ states('sensor.stue_fugtighed') }}%"
+```

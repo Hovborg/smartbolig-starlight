@@ -1,167 +1,179 @@
 ---
 title: Kom godt i gang med Home Assistant
-description: Komplet guide til at installere og opsætte Home Assistant på Raspberry Pi eller Docker
+description: Komplet introduktion til Home Assistant. Lær hvad det er, og hvordan du kommer i gang.
+sidebar:
+  badge:
+    text: Start her
+    variant: success
 ---
 
-import { Steps, Aside, Tabs, TabItem, Card, CardGrid } from '@astrojs/starlight/components';
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
 
-Home Assistant er verdens mest populære open source smart home platform. I denne guide lærer du at installere og konfigurere din første Home Assistant installation.
+<Badge text="Begynder" variant="success" /> <Badge text="15 min læsning" variant="note" />
 
-## Hvad er Home Assistant?
+Home Assistant er verdens mest populære open source smart home platform. I denne guide får du et komplet overblik over hvad Home Assistant er, og hvordan du kommer i gang.
 
-Home Assistant er en **gratis, open source** platform der samler alle dine smart home enheder i én app. Du kan:
+## 🤔 Hvad er Home Assistant?
 
-- Styre 2000+ forskellige mærker og enheder
-- Lave avancerede automationer
-- Holde dine data lokalt (ingen cloud!)
-- Tilpasse alt efter dine behov
+![Home Assistant oversigt](/images/guides/kom-godt-i-gang-ha/overview.svg)
 
-## Installations muligheder
+Home Assistant er **gratis software** der samler alle dine smart home enheder i én app. Tænk på det som "hjernen" i dit smarte hjem.
 
-Du har flere muligheder for at køre Home Assistant:
+### Hvad kan det?
 
-| Metode | Sværhedsgrad | Anbefalet til |
-|--------|--------------|---------------|
-| Home Assistant OS | ⭐ Let | Begyndere, dedikeret hardware |
-| Docker | ⭐⭐ Medium | Erfarne brugere, eksisterende server |
-| Core | ⭐⭐⭐ Avanceret | Python udviklere |
+- 🔌 **Styre 2000+ enheder** - IKEA, Philips Hue, Sonos, og mange flere
+- 🤖 **Lave automationer** - "Tænd lys når solen går ned"
+- 📊 **Vise data** - Grafer over strømforbrug, temperatur, osv.
+- 🔒 **Holde data lokalt** - Ingen cloud, ingen sporing
 
-## Installation med Docker
+## 💻 Hvad har du brug for?
 
-Hvis du allerede har en server kørende, er Docker den nemmeste måde at komme i gang på.
+Du kan køre Home Assistant på mange forskellige måder. Her er de tre mest populære:
 
-### Forudsætninger
+| Platform | Pris ca. | Sværhedsgrad | Bedst til |
+|----------|----------|--------------|-----------|
+| **Raspberry Pi** | ~650 kr | Let | Begyndere |
+| **Proxmox VM** | Gratis* | Medium | Eksisterende server |
+| **Docker** | Gratis* | Avanceret | Erfarne brugere |
 
-<Steps>
-1. **Installer Docker** på din server (Ubuntu/Debian):
+*Kræver eksisterende hardware
 
-   ```bash
-   # Opdater pakkelisten
-   sudo apt update && sudo apt upgrade -y
+## 🚀 Vælg din installationsmetode
 
-   # Installer Docker
-   curl -fsSL https://get.docker.com | sh
+### 1. Raspberry Pi (anbefalet for begyndere)
 
-   # Tilføj din bruger til docker gruppen
-   sudo usermod -aG docker $USER
-   ```
+**Hvad:** Home Assistant OS på en dedikeret Raspberry Pi.
 
-2. **Log ud og ind igen**, eller kør:
+| Fordele | Ulemper |
+|---------|---------|
+| ✅ Alt virker out-of-the-box | ❌ Kræver dedikeret hardware |
+| ✅ Nem opdatering med ét klik | ❌ Mindre kraftfuld end PC |
+| ✅ Fuld add-on support | ❌ SD-kort kan slides |
+| ✅ Lav strømforbrug (~5W) | |
 
-   ```bash
-   newgrp docker
-   ```
+**Hardware du skal bruge:**
 
-3. **Verificér installationen**:
+| Del | Pris ca. |
+|-----|----------|
+| Raspberry Pi 4/5 (4GB) | 450 kr |
+| Official strømforsyning | 100 kr |
+| SD-kort 32GB+ eller SSD | 100 kr |
+| **Total** | **~650 kr** |
 
-   ```bash
-   docker --version
-   ```
-</Steps>
+<Card title="🍓 Installer på Raspberry Pi" icon="rocket">
+  Den klassiske metode - perfekt til begyndere.
+  
+  [Følg Raspberry Pi guiden →](/da/home-assistant/raspberry-pi-installation/)
+</Card>
 
-### Start Home Assistant
+---
 
-<Tabs>
-  <TabItem label="Docker Run">
-    ```bash
-    # Opret config mappe
-    mkdir -p ~/homeassistant
+### 2. Proxmox VM (anbefalet for hjemmeservere)
 
-    # Start Home Assistant
-    docker run -d \
-      --name homeassistant \
-      --privileged \
-      --restart=unless-stopped \
-      -e TZ=Europe/Copenhagen \
-      -v ~/homeassistant:/config \
-      -v /run/dbus:/run/dbus:ro \
-      --network=host \
-      ghcr.io/home-assistant/home-assistant:stable
-    ```
-  </TabItem>
-  <TabItem label="Docker Compose (anbefalet)">
-    Opret en `docker-compose.yml` fil:
+**Hvad:** Home Assistant OS i en virtuel maskine på Proxmox VE.
 
-    ```yaml title="docker-compose.yml"
-    version: '3.8'
-    services:
-      homeassistant:
-        container_name: homeassistant
-        image: ghcr.io/home-assistant/home-assistant:stable
-        volumes:
-          - ./config:/config
-          - /etc/localtime:/etc/localtime:ro
-          - /run/dbus:/run/dbus:ro
-        restart: unless-stopped
-        privileged: true
-        network_mode: host
-        environment:
-          - TZ=Europe/Copenhagen
-    ```
+| Fordele | Ulemper |
+|---------|---------|
+| ✅ Snapshots - rul tilbage med ét klik | ❌ Kræver Proxmox kendskab |
+| ✅ Fuld add-on support | ❌ USB passthrough kan være tricky |
+| ✅ Kør andre VMs/containers samtidig | |
+| ✅ Enterprise backup og restore | |
+| ✅ Nem skalering af ressourcer | |
 
-    Start med:
+**Krav:**
+- Proxmox VE 8.x+ installeret
+- 2+ CPU kerner ledige
+- 4+ GB RAM ledigt
+- 32+ GB storage
 
-    ```bash
-    docker compose up -d
-    ```
-  </TabItem>
-</Tabs>
+<Card title="🖥️ Installer på Proxmox" icon="server">
+  Perfekt hvis du har en hjemmeserver med Proxmox.
+  
+  [Følg Proxmox guiden →](/da/home-assistant/proxmox-installation/)
+</Card>
 
-<Aside type="tip" title="Docker Compose anbefales">
-For nemmere vedligeholdelse anbefaler vi at bruge Docker Compose. Det gør opdateringer og backup meget lettere.
+---
+
+### 3. Docker Container (for erfarne)
+
+**Hvad:** Home Assistant Container på eksisterende Linux server eller NAS.
+
+| Fordele | Ulemper |
+|---------|---------|
+| ✅ Kører sammen med anden software | ❌ Ingen Supervisor/Add-ons |
+| ✅ Fuld kontrol over systemet | ❌ Kræver Docker kendskab |
+| ✅ Lavt ressourceforbrug | ❌ Manuel opsætning af MQTT osv. |
+| ✅ Perfekt til NAS (Synology, QNAP) | |
+
+<Card title="🐳 Installer med Docker" icon="setting">
+  For dig der allerede kører Docker.
+  
+  [Følg Docker guiden →](/da/home-assistant/docker-installation/)
+</Card>
+
+---
+
+## 📊 Sammenligning af installationsmetoder
+
+| Feature | Raspberry Pi | Proxmox VM | Docker |
+|---------|-------------|------------|--------|
+| **Sværhedsgrad** | ⭐ Let | ⭐⭐ Medium | ⭐⭐⭐ Avanceret |
+| **Supervisor/Add-ons** | ✅ Fuld | ✅ Fuld | ❌ Nej |
+| **Snapshots** | ❌ Nej | ✅ Ja | ❌ Nej |
+| **Ressourceforbrug** | Lavt | Medium | Lavt |
+| **Opdateringer** | Auto | Auto | Manuel |
+| **Backup** | Via HA | Via Proxmox | Manuel |
+| **Andre services** | ❌ Nej | ✅ Ja | ✅ Ja |
+| **USB enheder** | ✅ Direkte | ⚠️ Passthrough | ⚠️ Mount |
+
+<Aside type="tip" title="Ikke sikker på hvad du skal vælge?">
+- **Helt ny til smart home?** → Raspberry Pi
+- **Har du en Proxmox server?** → Proxmox VM
+- **Har du en NAS eller Docker server?** → Docker
+- **Vil du bare prøve det?** → Raspberry Pi
 </Aside>
 
-## Første opsætning
-
-Efter installation, åbn en browser og gå til:
-
-```
-http://DIN-IP:8123
-```
-
-<Steps>
-1. **Opret en bruger** - Din admin konto
-2. **Navngiv dit hjem** - F.eks. "Mit Smart Hjem"
-3. **Vælg lokation** - For solop/nedgang og vejr
-4. **Opdager enheder** - Home Assistant finder automatisk enheder på dit netværk
-</Steps>
-
-## Eksempel: Din første automation
-
-Her er en simpel automation der tænder lys ved solnedgang:
-
-```yaml title="automations.yaml"
-automation:
-  - alias: "Tænd lys ved solnedgang"
-    description: "Tænder stuelyset når solen går ned"
-    trigger:
-      - platform: sun
-        event: sunset
-        offset: "-00:30:00"  # 30 min før solnedgang
-    condition:
-      - condition: state
-        entity_id: binary_sensor.someone_home
-        state: "on"
-    action:
-      - service: light.turn_on
-        target:
-          entity_id: light.stue
-        data:
-          brightness_pct: 80
-          color_temp: 350  # Varm hvid
-```
-
-<Aside type="caution" title="YAML syntaks">
-Home Assistant bruger YAML til konfiguration. Indrykning er **kritisk** - brug altid 2 mellemrum (ikke tabs).
-</Aside>
-
-## Næste skridt
+## 🎯 Næste skridt
 
 <CardGrid>
-  <Card title="Raspberry Pi Installation" icon="rocket">
-    [Installer Home Assistant OS på Raspberry Pi →](/da/home-assistant/raspberry-pi-installation/)
+  <Card title="🍓 Raspberry Pi" icon="rocket">
+    Den klassiske metode for begyndere.
+    
+    [Raspberry Pi guide →](/da/home-assistant/raspberry-pi-installation/)
   </Card>
-  <Card title="Zigbee2MQTT" icon="setting">
-    [Opsæt Zigbee netværk →](/da/home-assistant/zigbee2mqtt/)
+  <Card title="🖥️ Proxmox VM" icon="server">
+    For eksisterende hjemmeservere.
+    
+    [Proxmox guide →](/da/home-assistant/proxmox-installation/)
+  </Card>
+  <Card title="🐳 Docker" icon="setting">
+    For erfarne brugere med Docker.
+    
+    [Docker guide →](/da/home-assistant/docker-installation/)
   </Card>
 </CardGrid>
+
+## ❓ FAQ
+
+<Aside type="tip" title="Koster Home Assistant noget?">
+**Nej!** Home Assistant er 100% gratis og open source. Der er en valgfri cloud-service (Nabu Casa) til fjernadgang for ~50 kr/md, men den er ikke nødvendig.
+</Aside>
+
+<Aside type="tip" title="Kan jeg styre mine enheder når jeg ikke er hjemme?">
+Ja, men det kræver ekstra opsætning:
+1. **Nabu Casa** (nemmest, ~50 kr/md)
+2. **VPN** til dit hjemmenetværk
+3. **Cloudflare Tunnel** (gratis, kræver opsætning)
+</Aside>
+
+<Aside type="tip" title="Virker mine IKEA/Philips/Sonos enheder?">
+Ja! Home Assistant har integrationer til 2000+ mærker. Tjek [integrations listen](https://www.home-assistant.io/integrations/) for dit specifikke mærke.
+</Aside>
+
+<Aside type="tip" title="Skal jeg kunne programmere?">
+**Nej!** De fleste ting kan gøres via brugerfladen. YAML bruges til avanceret konfiguration, men det er nemt at lære.
+</Aside>
+
+<Aside type="tip" title="Kan jeg skifte platform senere?">
+Ja! Home Assistant har backup/restore funktionalitet. Du kan nemt flytte fra Raspberry Pi til Proxmox eller omvendt ved at gendanne en backup.
+</Aside>

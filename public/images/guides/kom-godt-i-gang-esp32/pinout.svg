@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 350">
+  <defs>
+    <linearGradient id="boardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+    <linearGradient id="chipGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0f172a"/>
+      <stop offset="100%" style="stop-color:#020617"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="600" height="350" fill="#0f0f1a"/>
+  
+  <!-- Title -->
+  <text x="300" y="30" text-anchor="middle" fill="#f1f5f9" font-family="system-ui" font-size="18" font-weight="bold">ESP32 DevKit V1 Pinout</text>
+  
+  <!-- ESP32 Board -->
+  <rect x="150" y="50" width="300" height="250" rx="8" fill="url(#boardGrad)" stroke="#3b82f6" stroke-width="3"/>
+  
+  <!-- ESP32 Chip -->
+  <rect x="220" y="100" width="80" height="80" rx="4" fill="url(#chipGrad)" stroke="#475569" stroke-width="2"/>
+  <text x="260" y="145" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="10" font-weight="bold">ESP32</text>
+  
+  <!-- Antenna -->
+  <rect x="235" y="60" width="50" height="30" rx="3" fill="#1e293b" stroke="#64748b" stroke-width="1"/>
+  <text x="260" y="80" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="8">WiFi</text>
+  
+  <!-- USB Port -->
+  <rect x="240" y="260" width="40" height="20" rx="3" fill="#1e293b" stroke="#a855f7" stroke-width="2"/>
+  <text x="260" y="274" text-anchor="middle" fill="#c084fc" font-family="system-ui" font-size="8">USB</text>
+  
+  <!-- Left pins -->
+  <g fill="#22c55e" font-family="monospace" font-size="9">
+    <!-- Power pins -->
+    <rect x="155" y="70" width="40" height="16" rx="2" fill="#1e293b" stroke="#ef4444"/>
+    <text x="175" y="82" text-anchor="middle" fill="#f87171">3.3V</text>
+    
+    <rect x="155" y="90" width="40" height="16" rx="2" fill="#1e293b" stroke="#64748b"/>
+    <text x="175" y="102" text-anchor="middle" fill="#94a3b8">GND</text>
+    
+    <!-- GPIO pins -->
+    <rect x="155" y="115" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
+    <text x="175" y="127" text-anchor="middle" fill="#4ade80">GPIO4</text>
+    
+    <rect x="155" y="135" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
+    <text x="175" y="147" text-anchor="middle" fill="#4ade80">GPIO5</text>
+    
+    <rect x="155" y="155" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
+    <text x="175" y="167" text-anchor="middle" fill="#4ade80">GPIO16</text>
+    
+    <rect x="155" y="175" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
+    <text x="175" y="187" text-anchor="middle" fill="#4ade80">GPIO17</text>
+    
+    <rect x="155" y="195" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
+    <text x="175" y="207" text-anchor="middle" fill="#4ade80">GPIO18</text>
+    
+    <rect x="155" y="215" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
+    <text x="175" y="227" text-anchor="middle" fill="#4ade80">GPIO19</text>
+    
+    <rect x="155" y="235" width="40" height="16" rx="2" fill="#1e293b" stroke="#64748b"/>
+    <text x="175" y="247" text-anchor="middle" fill="#94a3b8">GND</text>
+  </g>
+  
+  <!-- Right pins -->
+  <g font-family="monospace" font-size="9">
+    <rect x="405" y="70" width="40" height="16" rx="2" fill="#1e293b" stroke="#f59e0b"/>
+    <text x="425" y="82" text-anchor="middle" fill="#fbbf24">5V/VIN</text>
+    
+    <rect x="405" y="90" width="40" height="16" rx="2" fill="#1e293b" stroke="#64748b"/>
+    <text x="425" y="102" text-anchor="middle" fill="#94a3b8">GND</text>
+    
+    <rect x="405" y="115" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
+    <text x="425" y="127" text-anchor="middle" fill="#4ade80">GPIO21</text>
+    
+    <rect x="405" y="135" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
+    <text x="425" y="147" text-anchor="middle" fill="#4ade80">GPIO22</text>
+    
+    <rect x="405" y="155" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
+    <text x="425" y="167" text-anchor="middle" fill="#4ade80">GPIO23</text>
+    
+    <rect x="405" y="175" width="40" height="16" rx="2" fill="#1e293b" stroke="#3b82f6"/>
+    <text x="425" y="187" text-anchor="middle" fill="#60a5fa">GPIO2</text>
+    
+    <rect x="405" y="195" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
+    <text x="425" y="207" text-anchor="middle" fill="#4ade80">GPIO25</text>
+    
+    <rect x="405" y="215" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
+    <text x="425" y="227" text-anchor="middle" fill="#4ade80">GPIO26</text>
+    
+    <rect x="405" y="235" width="40" height="16" rx="2" fill="#1e293b" stroke="#64748b"/>
+    <text x="425" y="247" text-anchor="middle" fill="#94a3b8">GND</text>
+  </g>
+  
+  <!-- Built-in LED indicator -->
+  <circle cx="340" cy="175" r="6" fill="#3b82f6" opacity="0.8"/>
+  <text x="340" y="165" text-anchor="middle" fill="#60a5fa" font-family="system-ui" font-size="8">LED</text>
+  
+  <!-- Legend -->
+  <rect x="50" y="310" width="500" height="30" rx="6" fill="#1e293b" opacity="0.9"/>
+  
+  <rect x="70" y="318" width="12" height="12" rx="2" fill="#1e293b" stroke="#ef4444"/>
+  <text x="90" y="328" fill="#f87171" font-family="system-ui" font-size="10">3.3V</text>
+  
+  <rect x="140" y="318" width="12" height="12" rx="2" fill="#1e293b" stroke="#f59e0b"/>
+  <text x="160" y="328" fill="#fbbf24" font-family="system-ui" font-size="10">5V</text>
+  
+  <rect x="200" y="318" width="12" height="12" rx="2" fill="#1e293b" stroke="#64748b"/>
+  <text x="220" y="328" fill="#94a3b8" font-family="system-ui" font-size="10">GND</text>
+  
+  <rect x="270" y="318" width="12" height="12" rx="2" fill="#1e293b" stroke="#22c55e"/>
+  <text x="290" y="328" fill="#4ade80" font-family="system-ui" font-size="10">GPIO (Input/Output)</text>
+  
+  <rect x="420" y="318" width="12" height="12" rx="2" fill="#1e293b" stroke="#3b82f6"/>
+  <text x="440" y="328" fill="#60a5fa" font-family="system-ui" font-size="10">GPIO2 (LED)</text>
+</svg>

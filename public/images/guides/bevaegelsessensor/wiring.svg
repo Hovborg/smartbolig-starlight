@@ -1,0 +1,84 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300">
+  <defs>
+    <linearGradient id="esp32Grad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+    <linearGradient id="pirGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#2d1f3d"/>
+      <stop offset="100%" style="stop-color:#1a1225"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="600" height="300" fill="#0f0f1a"/>
+  
+  <!-- ESP32 Board -->
+  <rect x="350" y="50" width="200" height="200" rx="10" fill="url(#esp32Grad)" stroke="#3b82f6" stroke-width="2"/>
+  <text x="450" y="85" text-anchor="middle" fill="#60a5fa" font-family="system-ui" font-size="16" font-weight="bold">ESP32 DevKit</text>
+  
+  <!-- ESP32 Pins -->
+  <rect x="360" y="110" width="60" height="25" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="390" y="127" text-anchor="middle" fill="#ef4444" font-family="monospace" font-size="12">5V/VIN</text>
+  
+  <rect x="360" y="145" width="60" height="25" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="390" y="162" text-anchor="middle" fill="#f59e0b" font-family="monospace" font-size="12">GPIO5</text>
+  
+  <rect x="360" y="180" width="60" height="25" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
+  <text x="390" y="197" text-anchor="middle" fill="#64748b" font-family="monospace" font-size="12">GND</text>
+  
+  <!-- PIR Sensor -->
+  <rect x="50" y="60" width="140" height="180" rx="10" fill="url(#pirGrad)" stroke="#a855f7" stroke-width="2"/>
+  <text x="120" y="90" text-anchor="middle" fill="#c084fc" font-family="system-ui" font-size="14" font-weight="bold">HC-SR501</text>
+  <text x="120" y="108" text-anchor="middle" fill="#9333ea" font-family="system-ui" font-size="12">PIR Sensor</text>
+  
+  <!-- PIR Dome -->
+  <ellipse cx="120" cy="145" rx="35" ry="25" fill="#1e1e2e" stroke="#7c3aed" stroke-width="2"/>
+  <ellipse cx="120" cy="145" rx="20" ry="15" fill="#2d2d4a" stroke="#8b5cf6" stroke-width="1"/>
+  
+  <!-- PIR Pins -->
+  <rect x="65" y="185" width="35" height="18" rx="3" fill="#1e293b"/>
+  <text x="82" y="198" text-anchor="middle" fill="#ef4444" font-family="monospace" font-size="9">VCC</text>
+  
+  <rect x="103" y="185" width="35" height="18" rx="3" fill="#1e293b"/>
+  <text x="120" y="198" text-anchor="middle" fill="#f59e0b" font-family="monospace" font-size="9">OUT</text>
+  
+  <rect x="140" y="185" width="35" height="18" rx="3" fill="#1e293b"/>
+  <text x="158" y="198" text-anchor="middle" fill="#64748b" font-family="monospace" font-size="9">GND</text>
+  
+  <!-- Adjustment pots -->
+  <circle cx="85" cy="220" r="8" fill="#374151" stroke="#6b7280" stroke-width="1"/>
+  <text x="85" y="238" text-anchor="middle" fill="#9ca3af" font-family="system-ui" font-size="8">Time</text>
+  
+  <circle cx="155" cy="220" r="8" fill="#374151" stroke="#6b7280" stroke-width="1"/>
+  <text x="155" y="238" text-anchor="middle" fill="#9ca3af" font-family="system-ui" font-size="8">Sens</text>
+  
+  <!-- Wires -->
+  <!-- VCC Wire (Red) -->
+  <path d="M 82 185 Q 220 120 360 122" stroke="#ef4444" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <circle cx="82" cy="185" r="4" fill="#ef4444"/>
+  <circle cx="360" cy="122" r="4" fill="#ef4444"/>
+  
+  <!-- OUT Wire (Yellow) -->
+  <path d="M 120 185 Q 240 157 360 157" stroke="#f59e0b" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <circle cx="120" cy="185" r="4" fill="#f59e0b"/>
+  <circle cx="360" cy="157" r="4" fill="#f59e0b"/>
+  
+  <!-- GND Wire (Black) -->
+  <path d="M 158 185 Q 260 192 360 192" stroke="#64748b" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <circle cx="158" cy="185" r="4" fill="#64748b"/>
+  <circle cx="360" cy="192" r="4" fill="#64748b"/>
+  
+  <!-- Legend -->
+  <rect x="50" y="255" width="500" height="35" rx="6" fill="#1e293b" opacity="0.8"/>
+  <circle cx="80" cy="273" r="6" fill="#ef4444"/>
+  <text x="95" y="278" fill="#a1a1aa" font-family="system-ui" font-size="12">5V (Rød)</text>
+  
+  <circle cx="190" cy="273" r="6" fill="#f59e0b"/>
+  <text x="205" y="278" fill="#a1a1aa" font-family="system-ui" font-size="12">Signal (Gul)</text>
+  
+  <circle cx="320" cy="273" r="6" fill="#64748b"/>
+  <text x="335" y="278" fill="#a1a1aa" font-family="system-ui" font-size="12">GND (Sort)</text>
+  
+  <text x="480" y="278" fill="#22c55e" font-family="system-ui" font-size="11" font-weight="bold">✓ 5V OK her</text>
+</svg>

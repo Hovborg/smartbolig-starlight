@@ -1,0 +1,459 @@
+---
+title: LD2410 mmWave Presence Sensor med ESPHome
+description: Byg din egen pålidelige tilstedeværelsessensor med LD2410 mmWave radar og ESP32. Detekterer selv stillestående personer.
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Medium" variant="caution" /> <Badge text="45 min" variant="note" />
+
+LD2410 er en mmWave radar sensor der kan detektere menneskelig tilstedeværelse - selv når du sidder helt stille. Perfekt til badeværelse, kontor eller andre rum hvor PIR sensorer fejler.
+
+## 🤔 Hvorfor mmWave frem for PIR?
+
+![LD2410 mmWave oversigt](/images/guides/ld2410-mmwave/overview.svg)
+
+| Feature | PIR Sensor | mmWave (LD2410) |
+|---------|------------|-----------------|
+| **Bevægelse** | ✅ Ja | ✅ Ja |
+| **Stillestående person** | ❌ Nej | ✅ Ja (detekterer vejrtrækning) |
+| **Gennem glas/plastik** | ❌ Nej | ✅ Ja |
+| **Afstandsmåling** | ❌ Nej | ✅ Ja |
+| **Falske positiver** | Mange | Få (med tuning) |
+| **Pris** | ~20 kr | ~50 kr |
+
+<Aside type="tip" title="Perfekt til badeværelset">
+PIR sensorer slukker lyset mens du sidder på toilettet. mmWave detekterer din vejrtrækning og holder lyset tændt!
+</Aside>
+
+## 📦 Hvad du skal bruge
+
+### Hardware
+
+| Komponent | Model | Pris ca. |
+|-----------|-------|----------|
+| **mmWave sensor** | HiLink LD2410C (anbefalet) | 40-60 kr |
+| **Microcontroller** | ESP32 eller ESP8266 (D1 Mini) | 30-50 kr |
+| **Ledninger** | Dupont jumper wires | 10 kr |
+| **USB kabel** | Micro USB til strøm | 20 kr |
+| **Kabinet** | 3D printet eller købt | 0-50 kr |
+| **Total** | | **~100-200 kr** |
+
+### LD2410 versioner
+
+| Model | Pins | Bluetooth | Anbefaling |
+|-------|------|-----------|------------|
+| **LD2410** | 1.25mm (kræver adapter) | Nej | ⚠️ Svær at lodde |
+| **LD2410B** | 1.25mm (kræver adapter) | Ja | ⚠️ Svær at lodde |
+| **LD2410C** | 2.54mm standard | Ja | ✅ **Anbefalet** |
+
+<Aside type="caution" title="Vælg LD2410C!">
+LD2410C har standard 2.54mm pins som passer direkte til Dupont ledninger. De andre versioner kræver specielle adaptere eller lodning.
+</Aside>
+
+## ⚡ Ledningsdiagram
+
+### ESP32 til LD2410C
+
+```
+ESP32           LD2410C
+─────           ───────
+3.3V    ───────  VCC
+GND     ───────  GND  
+GPIO16  ───────  TX (RX på ESP)
+GPIO17  ───────  RX (TX på ESP)
+```
+
+### ESP8266 (D1 Mini) til LD2410C
+
+```
+D1 Mini         LD2410C
+───────         ───────
+3.3V    ───────  VCC
+GND     ───────  GND
+D7 (RX) ───────  TX
+D8 (TX) ───────  RX
+```
+
+<Aside type="caution" title="RX og TX krydses!">
+Husk at RX på ESP forbindes til TX på LD2410 og omvendt. Det er sådan seriel kommunikation virker.
+</Aside>
+
+## 🔧 ESPHome Konfiguration
+
+### Basis opsætning
+
+```yaml
+# ld2410-presence.yaml
+substitutions:
+  device_name: "ld2410-toilet"
+  friendly_name: "Toilet Presence"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32dev
+  # Eller for D1 Mini ESP8266:
+  # esp8266:
+  #   board: d1_mini
+
+# WiFi
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+# Enable logging
+logger:
+  baud_rate: 0  # Vigtigt! Disable serial logging
+
+# Home Assistant API
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  platform: esphome
+  password: !secret ota_password
+
+# UART til LD2410
+uart:
+  id: ld2410_uart
+  tx_pin: GPIO17  # Eller D8 for D1 Mini
+  rx_pin: GPIO16  # Eller D7 for D1 Mini
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+
+# LD2410 sensor
+ld2410:
+  id: ld2410_sensor
+  uart_id: ld2410_uart
+```
+
+### Binary Sensors (Tilstedeværelse)
+
+```yaml
+binary_sensor:
+  # Hovedsensor - er der nogen i rummet?
+  - platform: ld2410
+    has_target:
+      name: "${friendly_name} Tilstedeværelse"
+      device_class: occupancy
+    
+    has_moving_target:
+      name: "${friendly_name} Bevægelse"
+      device_class: motion
+    
+    has_still_target:
+      name: "${friendly_name} Stillestående"
+      device_class: occupancy
+```
+
+### Afstandssensorer
+
+```yaml
+sensor:
+  # Afstand til mål
+  - platform: ld2410
+    moving_distance:
+      name: "${friendly_name} Bevægende Afstand"
+      unit_of_measurement: "cm"
+    
+    still_distance:
+      name: "${friendly_name} Stillestående Afstand"
+      unit_of_measurement: "cm"
+    
+    detection_distance:
+      name: "${friendly_name} Detektionsafstand"
+      unit_of_measurement: "cm"
+    
+    # Energi-niveauer (til tuning)
+    moving_energy:
+      name: "${friendly_name} Bevægende Energi"
+    
+    still_energy:
+      name: "${friendly_name} Stillestående Energi"
+```
+
+### Tuning via Home Assistant
+
+```yaml
+# Gate thresholds (justerbar via HA)
+number:
+  - platform: ld2410
+    timeout:
+      name: "${friendly_name} Timeout"
+    
+    max_move_distance_gate:
+      name: "${friendly_name} Max Bevægelsesafstand"
+    
+    max_still_distance_gate:
+      name: "${friendly_name} Max Stillestående Afstand"
+    
+    # Gate 0-8 thresholds
+    g0_move_threshold:
+      name: "${friendly_name} G0 Bevægelse Threshold"
+    g0_still_threshold:
+      name: "${friendly_name} G0 Still Threshold"
+    # ... gentag for g1-g8
+
+# Engineering mode switch
+switch:
+  - platform: ld2410
+    engineering_mode:
+      name: "${friendly_name} Engineering Mode"
+    bluetooth:
+      name: "${friendly_name} Bluetooth"
+```
+
+## 📊 Komplet konfiguration (copy-paste klar)
+
+Her er den komplette konfiguration jeg bruger i mit toilet:
+
+```yaml
+# toilet-presence.yaml - Komplet LD2410 opsætning
+substitutions:
+  device_name: "d1-mini-toilet"
+  friendly_name: "Toilet"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+esp8266:
+  board: d1_mini
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  
+  ap:
+    ssid: "${device_name}-AP"
+    password: "12345678"
+
+captive_portal:
+
+logger:
+  baud_rate: 0
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  platform: esphome
+  password: !secret ota_password
+
+# UART
+uart:
+  id: ld2410_uart
+  tx_pin: D8
+  rx_pin: D7
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+
+# LD2410
+ld2410:
+  id: ld2410_sensor
+  uart_id: ld2410_uart
+  # Optimerede indstillinger til toilet
+  timeout: 5s
+  max_move_distance: 3m
+  max_still_distance: 2.25m
+  # Gate thresholds (0 = tættest, 8 = længst væk)
+  g0_move_threshold: 50
+  g0_still_threshold: 20
+  g1_move_threshold: 50
+  g1_still_threshold: 20
+  g2_move_threshold: 40
+  g2_still_threshold: 20
+  g3_move_threshold: 40
+  g3_still_threshold: 30
+  g4_move_threshold: 40
+  g4_still_threshold: 40
+  g5_move_threshold: 40
+  g5_still_threshold: 40
+  g6_move_threshold: 30
+  g6_still_threshold: 40
+  g7_move_threshold: 30
+  g7_still_threshold: 40
+  g8_move_threshold: 30
+  g8_still_threshold: 40
+
+binary_sensor:
+  - platform: ld2410
+    has_target:
+      name: "${friendly_name} Tilstedeværelse"
+      id: presence
+      device_class: occupancy
+    has_moving_target:
+      name: "${friendly_name} Bevægelse"
+      device_class: motion
+    has_still_target:
+      name: "${friendly_name} Stillestående"
+      device_class: occupancy
+
+sensor:
+  - platform: ld2410
+    detection_distance:
+      name: "${friendly_name} Afstand"
+    moving_energy:
+      name: "${friendly_name} Bevægelse Energi"
+      internal: true
+    still_energy:
+      name: "${friendly_name} Still Energi"
+      internal: true
+
+  # WiFi signal
+  - platform: wifi_signal
+    name: "${friendly_name} WiFi Signal"
+    update_interval: 60s
+
+switch:
+  - platform: ld2410
+    engineering_mode:
+      name: "${friendly_name} Engineering Mode"
+      internal: true
+
+button:
+  - platform: restart
+    name: "${friendly_name} Genstart"
+```
+
+## 🎯 Kalibrering
+
+### Trin 1: Aktiver Engineering Mode
+
+<Steps>
+1. I Home Assistant, find din LD2410 enhed
+2. Aktiver **Engineering Mode** switchen
+3. Nu kan du se energi-værdier for hver gate
+</Steps>
+
+### Trin 2: Observér energi-niveauer
+
+```yaml
+# Hvad gatene betyder:
+# Gate 0: 0 - 0.75m fra sensor
+# Gate 1: 0.75 - 1.5m
+# Gate 2: 1.5 - 2.25m
+# Gate 3: 2.25 - 3m
+# ... osv op til Gate 8
+```
+
+### Trin 3: Justér thresholds
+
+**Tommelfingerregel:**
+- **Move threshold**: Sæt 10-20 over det du ser når rummet er tomt
+- **Still threshold**: Sæt 5-10 over baseline
+- **Lavere = mere følsom** (flere false positives)
+- **Højere = mindre følsom** (kan misse tilstedeværelse)
+
+<Aside type="tip" title="Start konservativt">
+Start med høje thresholds (40-50) og sænk gradvist indtil sensoren detekterer pålideligt uden false positives.
+</Aside>
+
+## 🤖 Automationer
+
+### Toilet lys automation
+
+```yaml
+automation:
+  - alias: "Toilet lys ON ved tilstedeværelse"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.toilet_tilstedevaerelse
+        to: "on"
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.toilet
+        data:
+          brightness_pct: 100
+
+  - alias: "Toilet lys OFF når tom"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.toilet_tilstedevaerelse
+        to: "off"
+        for:
+          seconds: 30  # Vent 30 sek efter sidste detektion
+    action:
+      - service: light.turn_off
+        target:
+          entity_id: light.toilet
+```
+
+### Kombiner med fugtighed (ventilator)
+
+```yaml
+automation:
+  - alias: "Ventilator ON ved tilstedeværelse + høj fugt"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.toilet_humidity
+        above: 70
+    condition:
+      - condition: state
+        entity_id: binary_sensor.toilet_tilstedevaerelse
+        state: "on"
+    action:
+      - service: fan.turn_on
+        target:
+          entity_id: fan.toilet_ventilator
+```
+
+## 🔧 Fejlfinding
+
+<Aside type="tip" title="Ingen data fra sensor?">
+1. Tjek at `baud_rate: 256000` er sat korrekt
+2. Tjek at `logger: baud_rate: 0` er sat (frigør UART)
+3. Verificer RX/TX er krydset korrekt
+4. Prøv at bytte RX og TX pins
+</Aside>
+
+<Aside type="tip" title="For mange false positives?">
+- Undgå at pege sensoren mod vinduer (bevægelse udenfor)
+- Undgå metal/spejle der reflekterer signalet
+- Hæv threshold værdierne
+- Reducer max_distance til rummets størrelse
+</Aside>
+
+<Aside type="tip" title="Detekterer ikke stillestående person?">
+- Sænk still_threshold værdier
+- Tjek at sensoren peger mod personen (ikke parallelt)
+- Aktiver engineering mode og observer still_energy
+</Aside>
+
+<Aside type="tip" title="Sensor resetter konstant?">
+- ESP8266 kan have strømproblemer - prøv ESP32
+- Brug en god USB strømforsyning (5V 1A minimum)
+- Tilføj en 100µF kondensator på VCC/GND
+</Aside>
+
+## 📐 Placering tips
+
+| Placering | Anbefaling |
+|-----------|------------|
+| **Højde** | 1.5-2m over gulv |
+| **Vinkel** | Peg nedad i 15-30° vinkel |
+| **Undgå** | Direkte mod vinduer/døre |
+| **Afstand** | Max 6m effektiv rækkevidde |
+
+## 🚀 Næste skridt
+
+<CardGrid>
+  <Card title="🏠 Better Thermostat" icon="setting">
+    Kombiner tilstedeværelse med intelligent varmestyring.
+    
+    [Opsæt Better Thermostat →](/da/home-assistant/better-thermostat/)
+  </Card>
+  <Card title="⚡ Automationer" icon="rocket">
+    Lav flere automationer baseret på tilstedeværelse.
+    
+    [Din første automation →](/da/home-assistant/foerste-automation/)
+  </Card>
+</CardGrid>

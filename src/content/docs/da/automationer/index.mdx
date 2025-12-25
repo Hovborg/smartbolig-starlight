@@ -1,41 +1,116 @@
 ---
 title: Automationer
 description: Avancerede automationer til dit smart home med Home Assistant.
+sidebar:
+  badge:
+    text: Guides
+    variant: note
 ---
 
-import { Card, CardGrid, Aside } from '@astrojs/starlight/components';
+import { Card, CardGrid, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
 
-Automationer er kernen i et smart home. Her finder du guides til at bygge komplekse automationer.
+<Badge text="Alle niveauer" variant="note" />
 
-<Aside type="note">
-Start med [din første automation](/da/home-assistant/foerste-automation/) hvis du er ny.
+Automationer er kernen i et smart home. Her finder du guides til at bygge alt fra simple lys-automationer til komplekse flows.
+
+<Aside type="tip" title="Ny til automationer?">
+Start med [Din første automation](/da/home-assistant/foerste-automation/) - den gennemgår det hele fra bunden.
 </Aside>
 
-## Kommende guides
+## 🚀 Start her
 
 <CardGrid>
-  <Card title="Tilstedeværelse" icon="rocket">
-    Automationer baseret på om nogen er hjemme.
-  </Card>
-  <Card title="Lys scener" icon="setting">
-    Kombinér flere lys i scener til forskellige situationer.
-  </Card>
-  <Card title="Klimastyring" icon="approve-check">
-    Automatisk varme og køling baseret på sensorer.
-  </Card>
-  <Card title="Notifikationer" icon="document">
-    Send beskeder til din telefon ved vigtige events.
-  </Card>
+  <LinkCard 
+    title="⚡ Din første automation" 
+    description="Lær grundprincipperne og lav din første automation"
+    href="/da/home-assistant/foerste-automation/"
+  />
 </CardGrid>
 
-## Grundprincipper
+## 🧠 Sådan virker automationer
 
 Alle automationer har tre dele:
 
-| Del | Beskrivelse |
-|-----|-------------|
-| **Trigger** | Hvad starter automationen |
-| **Condition** | Hvad skal være sandt |
-| **Action** | Hvad der sker |
+```
+TRIGGER  →  BETINGELSE  →  HANDLING
+(Hvornår?)   (Hvis?)       (Hvad?)
+```
 
-Se [din første automation](/da/home-assistant/foerste-automation/) for eksempler.
+| Del | Beskrivelse | Eksempler |
+|-----|-------------|-----------|
+| **Trigger** | Hvad starter automationen | Solnedgang, bevægelse, tid, temperatur |
+| **Betingelse** | Hvad skal være sandt | Er nogen hjemme? Er det mørkt? |
+| **Handling** | Hvad der sker | Tænd lys, send besked, start musik |
+
+## 📚 Automation idéer
+
+### 🏠 Daglig brug
+
+| Automation | Trigger | Handling |
+|------------|---------|----------|
+| Lys ved solnedgang | Sol går ned | Tænd stuelys |
+| Godmorgen rutine | Kl. 07:00 på hverdage | Tænd lys, start kaffe |
+| Velkomst hjem | Person ankommer | Tænd lys, lås op |
+| Godnat | Kl. 23:00 | Sluk alt, lås døre |
+
+### 🔔 Notifikationer
+
+| Automation | Trigger | Handling |
+|------------|---------|----------|
+| Vaskemaskine færdig | Strømforbrug < 5W | Push besked |
+| Dør glemt åben | Dør åben > 10 min | Push besked |
+| Lav temperatur | Temp < 18°C | Push besked |
+
+### 💡 Avanceret
+
+| Automation | Trigger | Handling |
+|------------|---------|----------|
+| Adaptivt lys | Tid på dagen | Juster farvetemperatur |
+| Ferie tilstand | Ingen hjemme 24h+ | Simuler tilstedeværelse |
+| Energi overvågning | Høj effekt | Log og advar |
+
+## 🔧 Nyttige værktøjer
+
+### Hjælpere (Helpers)
+
+Gå til **Indstillinger** → **Enheder** → **Hjælpere** for at oprette:
+
+| Hjælper | Brug til |
+|---------|----------|
+| **Input Boolean** | Ferie tilstand, gæste tilstand |
+| **Input Number** | Temperatur grænser, timer |
+| **Input Select** | Hus tilstand (hjemme/væk/sover) |
+| **Timer** | Countdown til handlinger |
+
+### Scener
+
+Kombinér flere handlinger:
+
+```yaml title="scenes.yaml"
+- name: "Hygge aften"
+  entities:
+    light.stue:
+      state: on
+      brightness_pct: 40
+      color_temp: 400
+    light.tv_baggrund:
+      state: on
+      rgb_color: [255, 100, 50]
+    media_player.stue:
+      state: playing
+```
+
+## 🚀 Næste skridt
+
+<CardGrid>
+  <Card title="📡 Flere sensorer" icon="setting">
+    Jo flere sensorer, jo smartere automationer.
+    
+    [Zigbee2MQTT →](/da/home-assistant/zigbee2mqtt/)
+  </Card>
+  <Card title="🔧 DIY sensorer" icon="rocket">
+    Byg præcis de sensorer du har brug for.
+    
+    [ESP32 guides →](/da/esp32/)
+  </Card>
+</CardGrid>

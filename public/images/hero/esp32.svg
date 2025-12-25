@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="720" viewBox="0 0 1600 720" role="img" aria-labelledby="title desc">
+  <title id="title">ESP32 netværk illustration</title>
+  <desc id="desc">Abstrakt illustration af ESP32 noder der taler sammen via WiFi</desc>
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#1a2332"/>
+    </linearGradient>
+    <linearGradient id="chip" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#1f2a3a"/>
+      <stop offset="100%" stop-color="#141a24"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="720" fill="url(#bg)"/>
+  <g stroke="#30363d" stroke-width="2" opacity="0.5">
+    <path d="M260 340 C420 240 760 260 920 360 C1080 460 1340 460 1420 360" fill="none"/>
+    <path d="M260 420 C500 320 780 320 1040 420 C1200 480 1380 500 1460 460" fill="none"/>
+  </g>
+  <g fill="url(#chip)" stroke="#2d3543" stroke-width="2" transform="translate(280 260)">
+    <rect x="0" y="0" width="220" height="200" rx="18"/>
+    <rect x="20" y="30" width="180" height="24" rx="12" fill="#58a6ff" opacity="0.7"/>
+    <rect x="20" y="80" width="140" height="16" rx="8" fill="#8b949e" opacity="0.6"/>
+    <rect x="20" y="120" width="110" height="16" rx="8" fill="#3fb950" opacity="0.7"/>
+  </g>
+  <g fill="url(#chip)" stroke="#2d3543" stroke-width="2" transform="translate(1180 220)">
+    <rect x="0" y="0" width="200" height="180" rx="16"/>
+    <rect x="18" y="30" width="160" height="18" rx="9" fill="#58a6ff" opacity="0.7"/>
+    <rect x="18" y="70" width="120" height="14" rx="7" fill="#8b949e" opacity="0.6"/>
+    <rect x="18" y="110" width="100" height="14" rx="7" fill="#3fb950" opacity="0.7"/>
+  </g>
+  <g fill="#58a6ff" opacity="0.9">
+    <circle cx="520" cy="520" r="12"/>
+    <circle cx="820" cy="460" r="14"/>
+    <circle cx="1040" cy="520" r="12"/>
+    <circle cx="720" cy="320" r="10"/>
+    <circle cx="960" cy="300" r="10"/>
+  </g>
+  <g stroke="#58a6ff" stroke-width="3" opacity="0.75" fill="none">
+    <path d="M500 500 Q820 340 1160 300"/>
+    <path d="M520 520 Q820 520 1040 520"/>
+    <path d="M720 320 Q820 380 960 300"/>
+  </g>
+</svg>
