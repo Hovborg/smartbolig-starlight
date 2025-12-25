@@ -13,8 +13,8 @@ export default defineConfig({
       title: "SmartBolig.net",
       // Logo configuration
       logo: {
-        light: "./src/assets/logo-new.png",
-        dark: "./src/assets/logo-new.png",
+        light: "./src/assets/logo-header.png",
+        dark: "./src/assets/logo-header.png",
         replacesTitle: true,
         alt: "SmartBolig logo",
       },
