@@ -1,42 +1,157 @@
 ---
 title: Welcome to SmartBolig.net
-description: Your Danish resource for smart home technology. In-depth guides, tutorials and reviews.
+description: The most complete guide to smart home. Learn Home Assistant, ESP32 and automation with easy-to-follow tutorials.
 template: splash
 hero:
-  tagline: Your resource for smart home technology. In-depth guides, tutorials and reviews to build the perfect intelligent home.
+  tagline: Your resource for everything smart home technology. In-depth guides, tutorials and reviews to build the perfect intelligent home.
+  image:
+    html: "<picture><img src='/images/hero/front.png' alt='SmartBolig smart home illustration' style='width:900px;max-width:130%;height:auto;display:block;transform:scale(1.1);'></picture>"
   actions:
     - text: Get Started
-      link: /en/home-assistant/
-      icon: right-arrow
+      link: /en/home-assistant/getting-started/
       variant: primary
     - text: Browse Guides
-      link: /da/
+      link: /en/home-assistant/
       variant: secondary
 ---
 
-import { Card, CardGrid } from '@astrojs/starlight/components';
+import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
 
-## 🎯 Get Started
+## 🚀 Core Areas
 
 <CardGrid stagger>
-  <Card title="🔵 Home Assistant" icon="setting">
-    The ultimate smart home platform. Open source, privacy-focused and incredibly powerful.
+  <Card title="Home Assistant" icon="setting">
+    Setup, backup, dashboards and integrations that work in practice. [Go to
+    Home Assistant →](/en/home-assistant/)
   </Card>
-  <Card title="⚡ ESP32 & ESPHome" icon="rocket">
-    Build your own sensors and devices. Cheap, flexible and fully integrable.
+  <Card title="ESP32 & ESPHome" icon="rocket">
+    Build your own sensors and switches with copy-ready ESPHome configurations.
+    [See ESP32 guides →](/en/esp32/)
   </Card>
-  <Card title="🤖 Automations" icon="puzzle">
-    Let your home work for you. From simple to advanced automations.
+  <Card title="Automations" icon="puzzle">
+    From simple light rules to advanced flows with conditions and scenes. [See
+    automations →](/en/automations/)
   </Card>
-  <Card title="🛡️ Security" icon="approve-check">
-    Smart home also means responsibility. Secure your network and protect your data.
+  <Card title="Zigbee & MQTT" icon="plug">
+    Stable radio with Zigbee2MQTT, broker selection and pairing strategies.
+    [Build your network →](/en/home-assistant/zigbee2mqtt/)
+  </Card>
+  <Card title="Security" icon="approve-check">
+    Harden your network, 2FA and secrets management to keep data at home. [Read
+    security →](/en/security/)
+  </Card>
+  <Card title="Hardware & Products" icon="device">
+    Recommendations for hubs, sensors and power monitoring that work with HA.
+    [See products →](/en/products/)
   </Card>
 </CardGrid>
 
-## 💡 Why SmartBolig.net?
+## 💿 Installation - Choose Your Platform
 
-| Feature | Description |
-|---------|-------------|
-| ✅ **Practical focus** | Step-by-step guides you can follow |
-| ✅ **Open source** | We recommend solutions you control |
-| ✅ **Copy-ready code** | All examples ready to copy |
+<CardGrid>
+  <LinkCard
+    title="🍓 Raspberry Pi"
+    description="The classic method - perfect for beginners"
+    href="/en/home-assistant/raspberry-pi-installation/"
+  />
+  <LinkCard
+    title="🖥️ Proxmox VM"
+    description="Home server with snapshots and enterprise backup"
+    href="/en/home-assistant/proxmox-installation/"
+  />
+  <LinkCard
+    title="🐳 Docker"
+    description="For NAS and existing servers"
+    href="/en/home-assistant/docker-installation/"
+  />
+</CardGrid>
+
+## 🔥 New Guides
+
+<CardGrid>
+  <LinkCard
+    title="📺 Shelly Wall Display"
+    description="Touchscreen with HA dashboards, sensors and relay"
+    href="/en/home-assistant/shelly-wall-display/"
+  />
+  <LinkCard
+    title="📡 LD2410 mmWave Presence"
+    description="Detect stationary people with radar"
+    href="/en/esp32/ld2410-mmwave/"
+  />
+  <LinkCard
+    title="🌡️ Better Thermostat"
+    description="Intelligent heating control with external sensor"
+    href="/en/home-assistant/better-thermostat/"
+  />
+  <LinkCard
+    title="🧺 Washing Machine Notification"
+    description="Get notified when the laundry is done"
+    href="/en/home-assistant/washing-machine-notification/"
+  />
+</CardGrid>
+
+## 📚 Popular Guides
+
+<CardGrid>
+  <LinkCard
+    title="Getting Started"
+    description="Complete introduction to Home Assistant"
+    href="/en/home-assistant/getting-started/"
+  />
+  <LinkCard
+    title="First Automation"
+    description="Create a simple time-based automation with UI"
+    href="/en/home-assistant/first-automation/"
+  />
+  <LinkCard
+    title="Zigbee2MQTT"
+    description="Pair devices and build a stable mesh network"
+    href="/en/home-assistant/zigbee2mqtt/"
+  />
+  <LinkCard
+    title="Temperature Sensor (ESP32)"
+    description="ESPHome configuration ready for DHT22"
+    href="/en/esp32/temperature-sensor/"
+  />
+  <LinkCard
+    title="Motion Sensor (ESP32)"
+    description="PIR sensor for automatic light control"
+    href="/en/esp32/motion-sensor/"
+  />
+  <LinkCard
+    title="LED Strip Control"
+    description="Addressable LED strip with ESPHome"
+    href="/en/esp32/led-strip/"
+  />
+</CardGrid>
+
+## 🧭 Quick Start Path
+
+<Aside type="note" title="Recommended order">
+  <ol>
+    <li>
+      <strong>Choose platform</strong>: Raspberry Pi (easy), Proxmox (advanced), or Docker (existing server).
+    </li>
+    <li>
+      <strong>Add Zigbee</strong>: Zigbee2MQTT for sensors and switches from IKEA, Aqara etc.
+    </li>
+    <li>
+      <strong>Build your own devices</strong>: ESP32 with ESPHome for temperature, motion, LED strips.
+    </li>
+    <li>
+      <strong>Automate</strong>: Start with simple automations and expand gradually.
+    </li>
+  </ol>
+</Aside>
+
+## ✅ Help & Support
+
+<Aside type="tip" title="Status">
+  All guides are tested on real setups. If you find an error or miss a topic,
+  send an email – and we'll fix it.
+</Aside>
+
+- Use the **search field** at the top to quickly find guides.
+- Each category page collects related guides and recommendations.
+- **Copy code blocks** directly – they're ready to use.

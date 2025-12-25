@@ -1,0 +1,141 @@
+---
+title: Temperature Sensor (ESP32)
+description: Build a temperature and humidity sensor with ESP32 and DHT22. Complete ESPHome configuration.
+---
+
+# Temperature Sensor with ESP32
+
+Build a wireless temperature and humidity sensor using an ESP32 and DHT22 sensor. Fully integrated with Home Assistant.
+
+## What you need
+
+| Component | Price | Notes |
+|-----------|-------|-------|
+| ESP32 board | ~$5 | Any ESP32-WROOM |
+| DHT22 sensor | ~$3 | More accurate than DHT11 |
+| 10kΩ resistor | ~$0.01 | Pull-up resistor |
+| Jumper wires | ~$1 | For connections |
+| USB cable | - | For programming |
+
+**Total cost: ~$10**
+
+## Wiring
+
+```
+ESP32          DHT22
+─────          ─────
+3.3V    ───→   VCC (pin 1)
+GPIO4   ───→   DATA (pin 2)
+         └──[10kΩ]──→ 3.3V
+GND     ───→   GND (pin 4)
+```
+
+:::note
+The 10kΩ resistor between DATA and 3.3V is important for stable readings.
+:::
+
+## ESPHome Configuration
+
+```yaml
+esphome:
+  name: temperature-sensor
+  friendly_name: Temperature Sensor
+
+esp32:
+  board: esp32dev
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+api:
+  encryption:
+    key: !secret api_key
+
+ota:
+  platform: esphome
+
+logger:
+
+# DHT22 Sensor
+sensor:
+  - platform: dht
+    pin: GPIO4
+    model: DHT22
+    temperature:
+      name: "Temperature"
+      filters:
+        - offset: -0.5  # Calibration if needed
+    humidity:
+      name: "Humidity"
+    update_interval: 60s
+```
+
+## Step-by-step
+
+### 1. Prepare ESPHome
+
+1. Open ESPHome in Home Assistant
+2. Click **+ New Device**
+3. Name it `temperature-sensor`
+4. Select your ESP32 board type
+
+### 2. Add the configuration
+
+Replace the generated config with the YAML above.
+
+### 3. Flash the device
+
+1. Connect ESP32 via USB
+2. Click **Install → Plug into this computer**
+3. Select the COM port
+4. Wait for flashing to complete
+
+### 4. Verify in Home Assistant
+
+After flashing:
+1. Go to **Settings → Devices & Services**
+2. The device should appear automatically
+3. Click **Configure** to add it
+
+## Calibration
+
+DHT22 sensors can vary slightly. To calibrate:
+
+1. Compare with a known accurate thermometer
+2. Adjust the `offset` filter value
+3. Positive offset = increase readings
+4. Negative offset = decrease readings
+
+## Alternative: DS18B20
+
+For waterproof applications, use DS18B20:
+
+```yaml
+sensor:
+  - platform: dallas_temp
+    address: 0x1234567890ABCDEF
+    name: "Temperature"
+    update_interval: 60s
+
+one_wire:
+  - platform: gpio
+    pin: GPIO4
+```
+
+## Troubleshooting
+
+### No readings / NaN values
+- Check wiring connections
+- Verify the pull-up resistor
+- Try a different GPIO pin
+
+### Unstable readings
+- Add capacitor (100nF) near DHT22
+- Reduce update_interval
+- Check power supply quality
+
+### Device not connecting
+- Verify WiFi credentials
+- Check if ESP32 is within WiFi range
+- Look at ESPHome logs for errors

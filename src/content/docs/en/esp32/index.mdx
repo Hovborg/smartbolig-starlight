@@ -1,0 +1,97 @@
+---
+title: ESP32 & ESPHome
+description: Build your own smart home sensors and devices with ESP32 and ESPHome. Copy-ready configurations.
+---
+
+# ESP32 & ESPHome Guides
+
+Build your own smart home devices with the ESP32 microcontroller and ESPHome. Cheap, flexible, and fully integrated with Home Assistant.
+
+## Why ESP32 + ESPHome?
+
+| Advantage | Description |
+|-----------|-------------|
+| **Cheap** | ESP32 boards cost ~$5-15 |
+| **Wireless** | Built-in WiFi and Bluetooth |
+| **Easy** | ESPHome uses simple YAML config |
+| **Local** | Direct integration with Home Assistant |
+| **Flexible** | Thousands of supported sensors |
+
+## 🌡️ Sensors
+
+| Guide | Description |
+|-------|-------------|
+| [Temperature Sensor](/en/esp32/temperature-sensor/) | DHT22/DS18B20 temperature & humidity |
+| [Motion Sensor](/en/esp32/motion-sensor/) | PIR sensor for presence detection |
+| [LD2410 mmWave](/en/esp32/ld2410-mmwave/) | Radar-based presence detection |
+
+## 💡 Projects
+
+| Guide | Description |
+|-------|-------------|
+| [LED Strip Control](/en/esp32/led-strip/) | Addressable RGB LED strips |
+
+## Getting Started with ESPHome
+
+### 1. Install ESPHome in Home Assistant
+
+Go to **Settings → Add-ons → Add-on Store** and install **ESPHome**.
+
+### 2. Create your first device
+
+1. Open ESPHome dashboard
+2. Click **+ New Device**
+3. Choose your ESP32 board
+4. Flash via USB the first time
+
+### 3. Basic configuration
+
+```yaml
+esphome:
+  name: my-sensor
+  friendly_name: My Sensor
+
+esp32:
+  board: esp32dev
+
+wifi:
+  ssid: "YourWiFi"
+  password: "YourPassword"
+
+api:
+  encryption:
+    key: "your-api-key"
+
+ota:
+  platform: esphome
+```
+
+## Recommended Hardware
+
+### ESP32 Boards
+
+| Board | Price | Notes |
+|-------|-------|-------|
+| ESP32-WROOM-32 | ~$5 | Standard, reliable |
+| ESP32-C3 | ~$4 | Smaller, lower power |
+| ESP32-S3 | ~$8 | More GPIO, USB-C |
+
+### Useful Sensors
+
+| Sensor | Use | Price |
+|--------|-----|-------|
+| DHT22 | Temperature/humidity | ~$3 |
+| DS18B20 | Waterproof temperature | ~$2 |
+| PIR HC-SR501 | Motion detection | ~$1 |
+| LD2410 | mmWave presence | ~$5 |
+| BH1750 | Light level | ~$2 |
+
+## Tips
+
+:::tip[Start simple]
+Begin with a temperature sensor - it's the easiest project and teaches you the basics.
+:::
+
+:::caution[Power supply]
+Always use a quality 5V power supply. Many issues come from insufficient power.
+:::
