@@ -1,0 +1,100 @@
+---
+import type { Props } from "@astrojs/starlight/props";
+import Default from "@astrojs/starlight/components/Head.astro";
+
+// Get page data with fallbacks for 404 page
+const { entry } = Astro.props;
+const title = entry?.data?.title || "SmartBolig.net";
+const description = entry?.data?.description || "Dansk guide til smart home";
+const pageUrl = Astro.url.href;
+const siteUrl = "https://smartbolig.net";
+const logoUrl = `${siteUrl}/images/og-image.png`;
+
+// Determine language
+const lang = Astro.url.pathname.startsWith("/en/") ? "en" : "da";
+
+// Organization Schema (appears on all pages)
+const organizationSchema = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "@id": `${siteUrl}/#organization`,
+  name: "SmartBolig.net",
+  url: siteUrl,
+  logo: {
+    "@type": "ImageObject",
+    url: logoUrl,
+    width: 1200,
+    height: 630
+  },
+  description: lang === "da" 
+    ? "Dansk guide til smart home med Home Assistant, ESP32 og Zigbee"
+    : "Danish smart home guide with Home Assistant, ESP32 and Zigbee",
+  sameAs: [
+    "https://github.com/Hovborg/smartbolig-starlight"
+  ]
+};
+
+// WebSite Schema with SearchAction
+const websiteSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "@id": `${siteUrl}/#website`,
+  name: "SmartBolig.net",
+  url: siteUrl,
+  publisher: {
+    "@id": `${siteUrl}/#organization`
+  },
+  inLanguage: [lang === "da" ? "da-DK" : "en-US"],
+  potentialAction: {
+    "@type": "SearchAction",
+    target: {
+      "@type": "EntryPoint",
+      urlTemplate: `${siteUrl}/search?q={search_term_string}`
+    },
+    "query-input": "required name=search_term_string"
+  }
+};
+
+// TechArticle Schema for documentation pages (only if we have entry data)
+const techArticleSchema = entry?.data ? {
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "@id": pageUrl,
+  headline: title,
+  description: description,
+  url: pageUrl,
+  inLanguage: lang === "da" ? "da-DK" : "en-US",
+  isPartOf: {
+    "@id": `${siteUrl}/#website`
+  },
+  author: {
+    "@id": `${siteUrl}/#organization`
+  },
+  publisher: {
+    "@id": `${siteUrl}/#organization`
+  },
+  image: {
+    "@type": "ImageObject",
+    url: logoUrl
+  },
+  mainEntityOfPage: {
+    "@type": "WebPage",
+    "@id": pageUrl
+  }
+} : null;
+
+// Combine all schemas
+const graphItems = [organizationSchema, websiteSchema];
+if (techArticleSchema) {
+  graphItems.push(techArticleSchema);
+}
+
+const combinedSchema = {
+  "@context": "https://schema.org",
+  "@graph": graphItems
+};
+---
+
+<Default {...Astro.props} />
+
+<script type="application/ld+json" set:html={JSON.stringify(combinedSchema)} />

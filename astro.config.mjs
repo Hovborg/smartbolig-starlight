@@ -20,6 +20,10 @@ export default defineConfig({
       },
       // Galaxy theme plugin
       plugins: [starlightThemeGalaxy()],
+      // Custom components for Schema.org
+      components: {
+        Head: "./src/components/Head.astro",
+      },
       // Social links
       social: [
         {
