@@ -1,0 +1,334 @@
+---
+title: Zigbee Coordinators
+description: Complete guide to Zigbee coordinators - Sonoff, SLZB-06, Conbee, SkyConnect and more. Comparison of chips, range and prices for Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Choose the right Zigbee coordinator"
+  description="Guide to choosing the best Zigbee coordinator for your Home Assistant setup"
+  totalTime="PT10M"
+  steps={[
+    "Decide connection type: USB or Ethernet/PoE",
+    "Choose chip type: EFR32MG24 (newest) or CC2652P",
+    "Consider how many devices you plan to add",
+    "Check compatibility with ZHA or Zigbee2MQTT",
+    "Order and install"
+  ]}
+/>
+
+<Badge text="Home Assistant" variant="success" /> <Badge text="Zigbee2MQTT" variant="note" /> <Badge text="ZHA" variant="tip" />
+
+A Zigbee coordinator is **the heart of your Zigbee network**. It connects all your Zigbee devices (sensors, bulbs, switches) to Home Assistant. Your choice of coordinator affects range, stability, and the number of devices you can connect.
+
+<Aside type="tip" title="Our 2025 Recommendations">
+- **Budget**: Sonoff ZBDongle-E (~$15) - Best price/quality
+- **Best USB**: Sonoff Dongle Plus MG24 (~$35) - Latest chip
+- **Best PoE/LAN**: SLZB-06 series (~$45-65) - Flexible placement
+- **Premium**: Sonoff Dongle Max (~$55) - All-in-one solution
+</Aside>
+
+---
+
+## 🔌 Connection Types
+
+### USB Coordinators
+
+Connect directly to your Home Assistant server via USB.
+
+**Pros:**
+- Cheaper
+- Simple installation
+- No extra network configuration
+
+**Cons:**
+- Must be close to server
+- USB cable can cause interference
+- Limited placement flexibility
+
+### Ethernet/PoE Coordinators
+
+Connect via network cable - can be placed anywhere.
+
+**Pros:**
+- Free placement in your home
+- Better range (place centrally)
+- PoE = only one cable
+- Web dashboard for administration
+- VPN support for remote locations
+
+**Cons:**
+- More expensive
+- Requires PoE switch or injector
+- More complex setup
+
+---
+
+## 🧠 Chip Comparison
+
+| Chip | Manufacturer | Flash | RAM | Max devices | Thread | Note |
+|------|--------------|-------|-----|-------------|--------|------|
+| **EFR32MG24** | Silicon Labs | 1536KB | 256KB | 400+ | ✅ | ⭐ Newest, recommended |
+| **EFR32MG21** | Silicon Labs | 512KB | 64KB | 200+ | ✅ | Very popular, stable |
+| **CC2652P7** | Texas Instruments | 704KB | 144KB | 200+ | ❌ | Improved TI chip |
+| **CC2652P** | Texas Instruments | 352KB | 80KB | 200+ | ❌ | Classic, well-tested |
+| **CC2652R** | Texas Instruments | 352KB | 80KB | 200+ | ❌ | Without PA (shorter range) |
+
+<Aside type="note" title="What does this mean?">
+- **Flash/RAM**: More = better firmware support and more devices
+- **Thread**: Future protocol for Matter - nice to have
+- **PA (Power Amplifier)**: +20dBm = longer range
+</Aside>
+
+---
+
+## 📊 Complete Coordinator Overview
+
+### USB Coordinators
+
+| Product | Chip | Antenna | Thread | Price ~USD | Recommendation |
+|---------|------|---------|--------|------------|----------------|
+| **Sonoff ZBDongle-E** | EFR32MG21 | 3dBi external | ✅ | $15 | ⭐ Budget choice |
+| **Sonoff Dongle Plus MG24** | EFR32MG24 | 3-4.5dBi external | ✅ | $35 | ⭐ Best USB 2025 |
+| **Sonoff ZBDongle-P** | CC2652P | 3dBi external | ❌ | $20 | Good, older model |
+| **Home Assistant SkyConnect** | EFR32MG21 | Internal | ✅ | $31 | Official HA, compact |
+| **Home Assistant ZBT-2** | EFR32MG24 | 4.16dBi external | ✅ | $40 | Latest official |
+| **Conbee III** | EFR32MG21 | Internal | ✅ | $40 | Phoscon, good firmware |
+| **SLZB-07** | CC2652P | 3dBi external | ❌ | $35 | SMLight USB version |
+| **SLZB-07P7** | CC2652P7 | 3dBi external | ❌ | $38 | Improved chip |
+| **ZigStar UZG-01** | CC2652P7 | 5dBi external | ❌ | $48 | Enthusiast favorite |
+
+### Ethernet/PoE Coordinators
+
+| Product | Chip | Antenna | PoE | WiFi | Price ~USD | Recommendation |
+|---------|------|---------|-----|------|------------|----------------|
+| **SLZB-06** | CC2652P | 5dBi external | ✅ | ✅ | $48 | ⭐ Best value |
+| **SLZB-06M** | EFR32MG21 | 5dBi external | ✅ | ✅ | $55 | With Thread |
+| **SLZB-06MG24** | EFR32MG24 | 5dBi external | ✅ | ✅ | $62 | Latest SLZB |
+| **SLZB-06P10** | CC2674P10 | 5dBi external | ✅ | ✅ | $68 | Max capacity (400+) |
+| **Sonoff Dongle Max** | EFR32MG24 | 2x 5dBi | ✅ | ✅ | $55 | ⭐ All-in-one |
+| **Sonoff ZBBridge Pro** | CC2652P | Internal | ❌ | ✅ | $28 | Budget WiFi bridge |
+
+---
+
+## 🏆 Top Recommendations
+
+### 🥇 Budget: Sonoff ZBDongle-E
+
+**Price:** ~$15 | **Chip:** EFR32MG21
+
+The most popular Zigbee coordinator - and for good reason. Excellent price/quality ratio and works perfectly with both ZHA and Zigbee2MQTT.
+
+| Pros | Cons |
+|------|------|
+| ✅ Cheapest reliable option | ❌ Older chip (MG21) |
+| ✅ External antenna for good range | ❌ USB placement limits |
+| ✅ Thread support via firmware flash | ❌ No web dashboard |
+| ✅ Aluminum housing (cooling) | |
+| ✅ Very well documented | |
+
+**Buy:** [ITEAD](https://itead.cc), [AliExpress](https://aliexpress.com), [Amazon](https://amazon.com)
+
+---
+
+### 🥇 Best USB: Sonoff Dongle Plus MG24
+
+**Price:** ~$35 | **Chip:** EFR32MG24
+
+The latest generation from Sonoff with the more powerful MG24 chip. 100% more flash and 300% more RAM than ZBDongle-E.
+
+| Pros | Cons |
+|------|------|
+| ✅ Latest EFR32MG24 chip | ❌ More expensive than ZBDongle-E |
+| ✅ 4.5dBi optimized antenna | ❌ Still USB limited |
+| ✅ MultiPAN support (Zigbee + Thread) | |
+| ✅ USB extension cable included | |
+| ✅ Aluminum housing | |
+
+**Buy:** [Sonoff.tech](https://sonoff.tech), [Amazon](https://amazon.com)
+
+---
+
+### 🥇 Best PoE/LAN: SLZB-06 Series
+
+**Price:** $48-68 | **Chip:** Varies
+
+SMLight's SLZB-06 series is the most flexible solution. Ethernet, WiFi, PoE, USB - all in one device with web dashboard.
+
+| Model | Chip | Best for |
+|-------|------|----------|
+| SLZB-06 | CC2652P | Budget PoE |
+| SLZB-06M | EFR32MG21 | Thread support |
+| SLZB-06MG24 | EFR32MG24 | Latest features |
+| SLZB-06P10 | CC2674P10 | Large networks (400+) |
+
+| Pros | Cons |
+|------|------|
+| ✅ Place anywhere | ❌ Requires PoE switch/injector |
+| ✅ Web dashboard | ❌ More expensive than USB |
+| ✅ Native Home Assistant integration | |
+| ✅ WireGuard VPN for remote sites | |
+| ✅ OTA firmware updates | |
+| ✅ +25dB total gain | |
+
+**Buy:** [SMLight.tech](https://smlight.tech), [AliExpress](https://aliexpress.com)
+
+---
+
+### 🥇 Premium: Sonoff Dongle Max
+
+**Price:** ~$55 | **Chip:** EFR32MG24 + ESP32
+
+Sonoff's answer to SLZB-06 - PoE coordinator with dual antennas and web dashboard.
+
+| Pros | Cons |
+|------|------|
+| ✅ EFR32MG24 + ESP32 combo | ❌ New to market |
+| ✅ Dual 5dBi antennas (360° coverage) | ❌ Less community experience |
+| ✅ PoE, WiFi, USB, Ethernet | |
+| ✅ Web dashboard | |
+| ✅ Webhooks, MQTT, VPN | |
+
+**Buy:** [Sonoff.tech](https://sonoff.tech), [Amazon](https://amazon.com)
+
+---
+
+### 🏅 Official: Home Assistant ZBT-2
+
+**Price:** ~$40 | **Chip:** EFR32MG24
+
+The official Home Assistant coordinator from Nabu Casa. Supports Home Assistant development.
+
+| Pros | Cons |
+|------|------|
+| ✅ Official HA support | ❌ No PoE |
+| ✅ Latest MG24 chip | ❌ More expensive than Sonoff |
+| ✅ Optimized antenna (4.16dBi) | ❌ USB only |
+| ✅ Supports HA development | |
+
+**Buy:** [Home Assistant](https://www.home-assistant.io/), [Domadoo](https://domadoo.fr)
+
+---
+
+## 🔧 Software Compatibility
+
+| Coordinator | ZHA | Zigbee2MQTT | deCONZ | Note |
+|-------------|-----|-------------|--------|------|
+| Sonoff ZBDongle-E | ✅ | ✅ | ✅ | Full support |
+| Sonoff Dongle Plus MG24 | ✅ | ✅ | ✅ | Full support |
+| Sonoff Dongle Max | ✅ | ✅ | ⚠️ | New, test yourself |
+| SLZB-06 series | ✅ | ✅ | ✅ | Full support |
+| Home Assistant SkyConnect | ✅ | ✅ | ✅ | Optimized for ZHA |
+| Home Assistant ZBT-2 | ✅ | ✅ | ✅ | Optimized for ZHA |
+| Conbee III | ✅ | ✅ | ✅ | Best with deCONZ |
+| ZigStar UZG-01 | ✅ | ✅ | ✅ | Best with Z2M |
+
+<Aside type="tip" title="ZHA vs Zigbee2MQTT">
+- **ZHA**: Built into Home Assistant, easier setup, good for beginners
+- **Zigbee2MQTT**: More advanced, more devices supported, better debugging
+- Both work great - choose based on preference
+</Aside>
+
+---
+
+## 📶 Range Tips
+
+1. **Use USB extension cable** - Away from USB 3.0 interference
+2. **Place centrally** - PoE coordinators can be placed optimally
+3. **Router devices** - Zigbee bulbs and plugs extend the network
+4. **Avoid metal** - Don't place in metal enclosures
+5. **Height** - Higher placement = better range
+
+---
+
+## 🛒 Where to Buy?
+
+### Fast delivery (1-7 days)
+- **[Amazon.com](https://amazon.com)** - Large selection, Prime delivery
+- **[Amazon.de](https://amazon.de)** - EU, good for Europe
+- **[Domadoo.fr](https://domadoo.fr)** - EU, Home Assistant products
+
+### Direct from manufacturer (1-3 weeks)
+- **[ITEAD/Sonoff](https://itead.cc)** - Sonoff products
+- **[SMLight.tech](https://smlight.tech)** - SLZB-06 series
+- **[Phoscon](https://phoscon.de)** - Conbee products
+
+### Cheapest (2-4 weeks)
+- **[AliExpress](https://aliexpress.com)** - Lowest prices
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "How many devices can a coordinator handle?",
+    answer: "Most modern coordinators can handle 200+ devices directly. With router devices (bulbs, plugs) you can reach 500+ devices. For most homes, even budget coordinators are plenty."
+  },
+  {
+    question: "Should I choose ZHA or Zigbee2MQTT?",
+    answer: "For beginners: ZHA (built-in, easy). For advanced users: Zigbee2MQTT (more features, better debugging). Both work with all coordinators on this list."
+  },
+  {
+    question: "Can I upgrade my coordinator without re-pairing all devices?",
+    answer: "No, unfortunately. Changing coordinators requires re-pairing all devices. Consider this before choosing - better to buy a good coordinator from the start."
+  },
+  {
+    question: "What is Thread and Matter? Do I need it?",
+    answer: "Thread is a new protocol used by Matter (Apple's/Google's smart home standard). EFR32MG21/MG24 chips support it. It's 'nice to have' for the future, but not necessary now."
+  },
+  {
+    question: "USB 2.0 or USB 3.0 port?",
+    answer: "Always use USB 2.0 port or a USB extension cable. USB 3.0 ports can cause interference with the Zigbee 2.4GHz signal."
+  },
+  {
+    question: "PoE - what do I need?",
+    answer: "You need either a PoE switch (recommended) or a PoE injector. Most SLZB-06 and Dongle Max use 802.3af (15W) which is standard. A PoE injector costs about $15-20."
+  }
+]} />
+
+---
+
+## 🎯 Quick Decision Guide
+
+```
+Starting from scratch?
+├── Budget under $20?
+│   └── ➡️ Sonoff ZBDongle-E
+├── Want the best USB?
+│   └── ➡️ Sonoff Dongle Plus MG24
+├── Have PoE switch and want flexibility?
+│   └── ➡️ SLZB-06 or Sonoff Dongle Max
+├── Want to support Home Assistant?
+│   └── ➡️ Home Assistant ZBT-2
+└── Large house / many devices (200+)?
+    └── ➡️ SLZB-06P10 or SLZB-06MG24
+```
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Zigbee Sensors" icon="puzzle">
+    Find the best Zigbee sensors for your network.
+    
+    [See sensors →](/en/products/zigbee-sensors/)
+  </Card>
+  <Card title="Zigbee2MQTT Guide" icon="setting">
+    Set up Zigbee2MQTT with your new coordinator.
+    
+    [Setup →](/en/home-assistant/zigbee2mqtt/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*

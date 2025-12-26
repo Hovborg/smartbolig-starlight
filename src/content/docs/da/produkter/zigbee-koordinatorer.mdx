@@ -1,0 +1,335 @@
+---
+title: Zigbee Koordinatorer
+description: Komplet guide til Zigbee koordinatorer - Sonoff, SLZB-06, Conbee, SkyConnect og mere. Sammenligning af chips, rækkevidde og priser for Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Vælg den rigtige Zigbee koordinator"
+  description="Guide til at vælge den bedste Zigbee coordinator til dit Home Assistant setup"
+  totalTime="PT10M"
+  steps={[
+    "Beslut tilslutningstype: USB eller Ethernet/PoE",
+    "Vælg chiptype: EFR32MG24 (nyeste) eller CC2652P",
+    "Overvej antal enheder du planlægger",
+    "Tjek kompatibilitet med ZHA eller Zigbee2MQTT",
+    "Bestil og installer"
+  ]}
+/>
+
+<Badge text="Home Assistant" variant="success" /> <Badge text="Zigbee2MQTT" variant="note" /> <Badge text="ZHA" variant="tip" />
+
+En Zigbee koordinator er **hjertet i dit Zigbee netværk**. Den forbinder alle dine Zigbee enheder (sensorer, pærer, kontakter) til Home Assistant. Valget af koordinator påvirker rækkevidde, stabilitet og antal enheder du kan tilslutte.
+
+<Aside type="tip" title="Vores anbefaling 2025">
+- **Budget**: Sonoff ZBDongle-E (~120 kr) - Bedste pris/kvalitet
+- **Bedste USB**: Sonoff Dongle Plus MG24 (~250 kr) - Nyeste chip
+- **Bedste PoE/LAN**: SLZB-06 serie (~350-500 kr) - Fleksibel placering
+- **Premium**: Sonoff Dongle Max (~400 kr) - Alt-i-én løsning
+</Aside>
+
+---
+
+## 🔌 Tilslutningstyper
+
+### USB Koordinatorer
+
+Tilsluttes direkte til din Home Assistant server via USB.
+
+**Fordele:**
+- Billigere
+- Simpel installation
+- Ingen ekstra netværkskonfiguration
+
+**Ulemper:**
+- Skal være tæt på serveren
+- USB-kabel kan give interferens
+- Begrænset fleksibilitet i placering
+
+### Ethernet/PoE Koordinatorer
+
+Tilsluttes via netværkskabel - kan placeres hvor som helst.
+
+**Fordele:**
+- Fri placering i hjemmet
+- Bedre rækkevidde (placer centralt)
+- PoE = kun ét kabel
+- Web dashboard til administration
+- VPN support til remote lokationer
+
+**Ulemper:**
+- Dyrere
+- Kræver PoE switch eller injektor
+- Mere kompleks opsætning
+
+---
+
+## 🧠 Chip Sammenligning
+
+| Chip | Producent | Flash | RAM | Max enheder | Thread | Note |
+|------|-----------|-------|-----|-------------|--------|------|
+| **EFR32MG24** | Silicon Labs | 1536KB | 256KB | 400+ | ✅ | ⭐ Nyeste, anbefalet |
+| **EFR32MG21** | Silicon Labs | 512KB | 64KB | 200+ | ✅ | Meget populær, stabil |
+| **CC2652P7** | Texas Instruments | 704KB | 144KB | 200+ | ❌ | Forbedret TI chip |
+| **CC2652P** | Texas Instruments | 352KB | 80KB | 200+ | ❌ | Klassisk, velafprøvet |
+| **CC2652R** | Texas Instruments | 352KB | 80KB | 200+ | ❌ | Uden PA (kortere rækkevidde) |
+
+<Aside type="note" title="Hvad betyder dette?">
+- **Flash/RAM**: Mere = bedre firmware support og flere enheder
+- **Thread**: Fremtidens protokol til Matter - nice to have
+- **PA (Power Amplifier)**: +20dBm = længere rækkevidde
+</Aside>
+
+---
+
+## 📊 Komplet Koordinator Oversigt
+
+### USB Koordinatorer
+
+| Produkt | Chip | Antenne | Thread | Pris ca. | Anbefaling |
+|---------|------|---------|--------|----------|------------|
+| **Sonoff ZBDongle-E** | EFR32MG21 | 3dBi ekstern | ✅ | 120 kr | ⭐ Budget valg |
+| **Sonoff Dongle Plus MG24** | EFR32MG24 | 3-4.5dBi ekstern | ✅ | 250 kr | ⭐ Bedste USB 2025 |
+| **Sonoff ZBDongle-P** | CC2652P | 3dBi ekstern | ❌ | 150 kr | God, ældre model |
+| **Home Assistant SkyConnect** | EFR32MG21 | Intern | ✅ | 230 kr | Officiel HA, kompakt |
+| **Home Assistant ZBT-2** | EFR32MG24 | 4.16dBi ekstern | ✅ | 300 kr | Nyeste officielle |
+| **Conbee III** | EFR32MG21 | Intern | ✅ | 300 kr | Phoscon, god firmware |
+| **SLZB-07** | CC2652P | 3dBi ekstern | ❌ | 250 kr | SMLight USB version |
+| **SLZB-07P7** | CC2652P7 | 3dBi ekstern | ❌ | 280 kr | Forbedret chip |
+| **ZigStar UZG-01** | CC2652P7 | 5dBi ekstern | ❌ | 350 kr | Enthusiast favorit |
+
+### Ethernet/PoE Koordinatorer
+
+| Produkt | Chip | Antenne | PoE | WiFi | Pris ca. | Anbefaling |
+|---------|------|---------|-----|------|----------|------------|
+| **SLZB-06** | CC2652P | 5dBi ekstern | ✅ | ✅ | 350 kr | ⭐ Bedste værdi |
+| **SLZB-06M** | EFR32MG21 | 5dBi ekstern | ✅ | ✅ | 400 kr | Med Thread |
+| **SLZB-06MG24** | EFR32MG24 | 5dBi ekstern | ✅ | ✅ | 450 kr | Nyeste SLZB |
+| **SLZB-06P10** | CC2674P10 | 5dBi ekstern | ✅ | ✅ | 500 kr | Max kapacitet (400+) |
+| **Sonoff Dongle Max** | EFR32MG24 | 2x 5dBi | ✅ | ✅ | 400 kr | ⭐ Alt-i-én |
+| **Sonoff ZBBridge Pro** | CC2652P | Intern | ❌ | ✅ | 200 kr | Budget WiFi bridge |
+
+---
+
+## 🏆 Top Anbefalinger
+
+### 🥇 Budget: Sonoff ZBDongle-E
+
+**Pris:** ~120 kr | **Chip:** EFR32MG21
+
+Den mest populære Zigbee koordinator - og med god grund. Fremragende pris/kvalitet forhold og fungerer perfekt med både ZHA og Zigbee2MQTT.
+
+| Fordele | Ulemper |
+|---------|---------|
+| ✅ Billigste pålidelige option | ❌ Ældre chip (MG21) |
+| ✅ Ekstern antenne for god rækkevidde | ❌ USB placering begrænser |
+| ✅ Thread support via firmware flash | ❌ Ingen web dashboard |
+| ✅ Aluminium kabinet (køling) | |
+| ✅ Meget veldokumenteret | |
+
+**Køb:** [ITEAD](https://itead.cc), [AliExpress](https://aliexpress.com), [Amazon](https://amazon.de)
+
+---
+
+### 🥇 Bedste USB: Sonoff Dongle Plus MG24
+
+**Pris:** ~250 kr | **Chip:** EFR32MG24
+
+Den nyeste generation fra Sonoff med den kraftigere MG24 chip. 100% mere flash og 300% mere RAM end ZBDongle-E.
+
+| Fordele | Ulemper |
+|---------|---------|
+| ✅ Nyeste EFR32MG24 chip | ❌ Dyrere end ZBDongle-E |
+| ✅ 4.5dBi optimeret antenne | ❌ Stadig USB begrænset |
+| ✅ MultiPAN support (Zigbee + Thread) | |
+| ✅ USB forlængerkabel inkluderet | |
+| ✅ Aluminium kabinet | |
+
+**Køb:** [Sonoff.tech](https://sonoff.tech), [Amazon](https://amazon.de)
+
+---
+
+### 🥇 Bedste PoE/LAN: SLZB-06 Serien
+
+**Pris:** 350-500 kr | **Chip:** Varierer
+
+SMLight's SLZB-06 serie er den mest fleksible løsning. Ethernet, WiFi, PoE, USB - alt i én enhed med web dashboard.
+
+| Model | Chip | Bedst til |
+|-------|------|-----------|
+| SLZB-06 | CC2652P | Budget PoE |
+| SLZB-06M | EFR32MG21 | Thread support |
+| SLZB-06MG24 | EFR32MG24 | Nyeste features |
+| SLZB-06P10 | CC2674P10 | Store netværk (400+) |
+
+| Fordele | Ulemper |
+|---------|---------|
+| ✅ Placer hvor som helst | ❌ Kræver PoE switch/injektor |
+| ✅ Web dashboard | ❌ Dyrere end USB |
+| ✅ Native Home Assistant integration | |
+| ✅ WireGuard VPN til remote sites | |
+| ✅ OTA firmware opdatering | |
+| ✅ +25dB total gain | |
+
+**Køb:** [SMLight.tech](https://smlight.tech), [AliExpress](https://aliexpress.com)
+
+---
+
+### 🥇 Premium: Sonoff Dongle Max
+
+**Pris:** ~400 kr | **Chip:** EFR32MG24 + ESP32
+
+Sonoffs svar på SLZB-06 - PoE koordinator med dual antenner og web dashboard.
+
+| Fordele | Ulemper |
+|---------|---------|
+| ✅ EFR32MG24 + ESP32 combo | ❌ Ny på markedet |
+| ✅ Dual 5dBi antenner (360° dækning) | ❌ Mindre community erfaring |
+| ✅ PoE, WiFi, USB, Ethernet | |
+| ✅ Web dashboard | |
+| ✅ Webhooks, MQTT, VPN | |
+
+**Køb:** [Sonoff.tech](https://sonoff.tech), [Amazon](https://amazon.de)
+
+---
+
+### 🏅 Officiel: Home Assistant ZBT-2
+
+**Pris:** ~300 kr | **Chip:** EFR32MG24
+
+Den officielle Home Assistant koordinator fra Nabu Casa. Støtter udviklingen af Home Assistant.
+
+| Fordele | Ulemper |
+|---------|---------|
+| ✅ Officiel HA support | ❌ Ingen PoE |
+| ✅ Nyeste MG24 chip | ❌ Dyrere end Sonoff |
+| ✅ Optimeret antenne (4.16dBi) | ❌ Kun USB |
+| ✅ Støtter HA udvikling | |
+
+**Køb:** [Home Assistant](https://www.home-assistant.io/), [Domadoo](https://domadoo.fr)
+
+---
+
+## 🔧 Software Kompatibilitet
+
+| Koordinator | ZHA | Zigbee2MQTT | deCONZ | Note |
+|-------------|-----|-------------|--------|------|
+| Sonoff ZBDongle-E | ✅ | ✅ | ✅ | Fuld support |
+| Sonoff Dongle Plus MG24 | ✅ | ✅ | ✅ | Fuld support |
+| Sonoff Dongle Max | ✅ | ✅ | ⚠️ | Ny, test selv |
+| SLZB-06 serien | ✅ | ✅ | ✅ | Fuld support |
+| Home Assistant SkyConnect | ✅ | ✅ | ✅ | Optimeret til ZHA |
+| Home Assistant ZBT-2 | ✅ | ✅ | ✅ | Optimeret til ZHA |
+| Conbee III | ✅ | ✅ | ✅ | Bedst med deCONZ |
+| ZigStar UZG-01 | ✅ | ✅ | ✅ | Bedst med Z2M |
+
+<Aside type="tip" title="ZHA vs Zigbee2MQTT">
+- **ZHA**: Indbygget i Home Assistant, nemmere setup, god til begyndere
+- **Zigbee2MQTT**: Mere avanceret, flere enheder supporteret, bedre debugging
+- Begge virker fremragende - vælg efter præference
+</Aside>
+
+---
+
+## 📶 Rækkevidde Tips
+
+1. **Brug USB forlængerkabel** - Væk fra USB 3.0 interferens
+2. **Placer centralt** - PoE koordinatorer kan placeres optimalt
+3. **Router enheder** - Zigbee pærer og stikkontakter udvider netværket
+4. **Undgå metal** - Placer ikke i metalkasser
+5. **Højde** - Højere placering = bedre rækkevidde
+
+---
+
+## 🛒 Hvor Køber Jeg?
+
+### Hurtig levering (1-7 dage)
+- **[Amazon.de](https://amazon.de)** - Stort udvalg, Prime levering
+- **[Proshop.dk](https://proshop.dk)** - Dansk, udvalgte modeller
+- **[AV-Cables.dk](https://av-cables.dk)** - Specialist, god service
+- **[Domadoo.fr](https://domadoo.fr)** - EU, Home Assistant produkter
+
+### Direkte fra producent (1-3 uger)
+- **[ITEAD/Sonoff](https://itead.cc)** - Sonoff produkter
+- **[SMLight.tech](https://smlight.tech)** - SLZB-06 serien
+- **[Phoscon](https://phoscon.de)** - Conbee produkter
+
+### Billigst (2-4 uger)
+- **[AliExpress](https://aliexpress.com)** - Billigste priser
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Hvor mange enheder kan en koordinator håndtere?",
+    answer: "De fleste moderne koordinatorer kan håndtere 200+ enheder direkte. Med router-enheder (pærer, stikkontakter) kan du nå 500+ enheder. For de fleste hjem er selv budget koordinatorer rigeligt."
+  },
+  {
+    question: "Skal jeg vælge ZHA eller Zigbee2MQTT?",
+    answer: "For begyndere: ZHA (indbygget, nemt). For avancerede brugere: Zigbee2MQTT (flere features, bedre debugging). Begge fungerer med alle koordinatorer på denne liste."
+  },
+  {
+    question: "Kan jeg opgradere min koordinator uden at genparre alle enheder?",
+    answer: "Nej, desværre. Skift af koordinator kræver at du genparrer alle enheder. Overvej dette inden du vælger - køb hellere en god koordinator fra starten."
+  },
+  {
+    question: "Hvad er Thread og Matter? Har jeg brug for det?",
+    answer: "Thread er en ny protokol der bruges af Matter (Apples/Googles smart home standard). EFR32MG21/MG24 chips understøtter det. Det er 'nice to have' for fremtiden, men ikke nødvendigt nu."
+  },
+  {
+    question: "USB 2.0 eller USB 3.0 port?",
+    answer: "Brug altid USB 2.0 port eller et USB forlængerkabel. USB 3.0 porte kan give interferens med Zigbee 2.4GHz signalet."
+  },
+  {
+    question: "PoE - hvad har jeg brug for?",
+    answer: "Du skal bruge enten en PoE switch (anbefales) eller en PoE injektor. De fleste SLZB-06 og Dongle Max bruger 802.3af (15W) som er standard. En PoE injektor koster ca. 100-150 kr."
+  }
+]} />
+
+---
+
+## 🎯 Hurtig Beslutningsguide
+
+```
+Starter du helt fra bunden?
+├── Budget under 150 kr?
+│   └── ➡️ Sonoff ZBDongle-E
+├── Vil have det bedste USB?
+│   └── ➡️ Sonoff Dongle Plus MG24
+├── Har PoE switch og vil have fleksibilitet?
+│   └── ➡️ SLZB-06 eller Sonoff Dongle Max
+├── Vil støtte Home Assistant?
+│   └── ➡️ Home Assistant ZBT-2
+└── Har stort hus / mange enheder (200+)?
+    └── ➡️ SLZB-06P10 eller SLZB-06MG24
+```
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="Zigbee Sensorer" icon="puzzle">
+    Find de bedste Zigbee sensorer til dit netværk.
+    
+    [Se sensorer →](/da/produkter/zigbee-sensorer/)
+  </Card>
+  <Card title="Zigbee2MQTT Guide" icon="setting">
+    Opsæt Zigbee2MQTT med din nye koordinator.
+    
+    [Opsætning →](/da/home-assistant/zigbee2mqtt/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*
