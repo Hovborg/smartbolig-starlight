@@ -1,0 +1,613 @@
+---
+title: Smart Sundhed & Wellness
+description: Komplet guide til smart sundhedsudstyr - vægte, blodtryksmålere, søvntrackere, fitness ringe og Home Assistant integration.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Opsæt smart sundhedssporing"
+  description="Guide til smarte sundhedsenheder med Home Assistant"
+  totalTime="PT45M"
+  steps={[
+    "Vælg sundhedsenheder der passer dine mål",
+    "Opret konti og tilslut enheder",
+    "Konfigurer Home Assistant integrationer",
+    "Opsæt automationer baseret på sundhedsdata",
+    "Kombiner med andre smart home enheder"
+  ]}
+/>
+
+<Badge text="Sundhed" variant="success" /> <Badge text="Wellness" variant="note" /> <Badge text="Tracking" variant="tip" />
+
+Smart sundhedsudstyr giver dig **daglig indsigt i din krop** - fra vægt og blodtryk til søvnkvalitet og stressniveau. Kombiner med Home Assistant for at tilpasse dit hjem til dit helbred.
+
+<Aside type="tip" title="Top Anbefalinger 2025">
+- **Smart vægt**: Withings Body+ (~700 kr)
+- **Blodtryksmåler**: Withings BPM Connect (~1.000 kr)
+- **Søvntracker**: Oura Ring 4 (~3.500 kr)
+- **Fitness tracker**: Whoop 4.0 (~240 kr/år)
+- **Søvnlys**: Philips SmartSleep (~1.400 kr)
+</Aside>
+
+---
+
+## 🎯 Typer af Smart Sundhedsudstyr
+
+### Overblik
+
+| Type | Måler | HA Integration | Pris |
+|------|-------|----------------|------|
+| **Smart vægt** | Vægt, BMI, fedt%, muskelmasse | Native/HACS | 💰-💰💰 |
+| **Blodtryksmåler** | Systolisk/diastolisk, puls | Native | 💰💰 |
+| **Søvntracker** | Søvnfaser, HRV, iltmætning | HACS | 💰💰-💰💰💰 |
+| **Fitness ring** | Aktivitet, readiness, stress | HACS | 💰💰💰 |
+| **Søvnlys** | Lysintensitet, alarm | HACS | 💰💰 |
+
+---
+
+## ⚖️ Smarte Vægte
+
+### Withings Body+
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~700 kr / $100
+    
+    Withings Body+ er den **mest populære smart vægt**:
+    
+    - ✅ Vægt (±100g præcision)
+    - ✅ BMI beregning
+    - ✅ Kropsfedt %
+    - ✅ Muskelmasse
+    - ✅ Vandprocent
+    - ✅ Knoglemasse
+    - ✅ Op til 8 brugere (auto-genkendelse)
+    - ✅ WiFi + Bluetooth
+    - ✅ **Native Home Assistant integration**
+    
+    | Spec | Værdi |
+    |------|-------|
+    | Max vægt | 180 kg |
+    | Batteri | 18 måneder (AAA) |
+    | Display | LCD |
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Native Withings Integration
+    
+    ```yaml
+    # Indstillinger → Enheder → Withings
+    # Kræver Withings Developer konto
+    
+    # Entiteter der oprettes:
+    # - sensor.withings_weight_kg
+    # - sensor.withings_fat_mass_kg
+    # - sensor.withings_muscle_mass_kg
+    # - sensor.withings_bone_mass_kg
+    # - sensor.withings_body_water_kg
+    # - sensor.withings_fat_ratio_pct
+    
+    # Eksempel: Morgenvejning notifikation
+    automation:
+      - alias: "Vægt - Daglig opdatering"
+        trigger:
+          - platform: state
+            entity_id: sensor.withings_weight_kg
+        condition:
+          - condition: template
+            value_template: >
+              {{ trigger.from_state.state != trigger.to_state.state }}
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "⚖️ Vægt opdateret"
+              message: >
+                Vægt: {{ states('sensor.withings_weight_kg') }} kg
+                Fedt: {{ states('sensor.withings_fat_ratio_pct') }}%
+    ```
+    
+    ### Vægt Trend Automation
+    
+    ```yaml
+    automation:
+      - alias: "Vægt - Ugentlig trend"
+        trigger:
+          - platform: time
+            at: "08:00:00"
+        condition:
+          - condition: time
+            weekday:
+              - sun
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "📊 Ugentlig vægt-rapport"
+              message: >
+                Aktuel: {{ states('sensor.withings_weight_kg') }} kg
+                Ændring: {{ (states('sensor.withings_weight_kg') | float - 
+                  state_attr('sensor.withings_weight_kg', 'last_week') | float) | round(1) }} kg
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Amazon.de](https://amazon.de), [Withings.com](https://withings.com)
+
+---
+
+### Withings Body Scan
+
+**Pris:** ~3.000 kr / $400
+
+**Premium** smart vægt med EKG:
+
+- ✅ Alt fra Body+
+- ✅ 6-aflednings EKG
+- ✅ Segmenteret kropssammensætning
+- ✅ Nervesundhed (fodnervetilstand)
+- ✅ Vaskulær alder
+- ✅ Vejrstation integration
+
+---
+
+## 🩺 Blodtryksmålere
+
+### Withings BPM Connect
+
+**Pris:** ~1.000 kr / $130
+
+**FDA-godkendt** smart blodtryksmåler:
+
+- ✅ Systolisk & diastolisk tryk
+- ✅ Puls
+- ✅ Uregelmæssig hjerterytme detektion
+- ✅ WiFi sync til app
+- ✅ Op til 8 brugere
+- ✅ Native Home Assistant integration
+
+### Home Assistant
+
+```yaml
+# Via Withings integration
+# Entiteter:
+# - sensor.withings_systolic_blood_pressure_mmhg
+# - sensor.withings_diastolic_blood_pressure_mmhg
+# - sensor.withings_heart_pulse_bpm
+
+automation:
+  - alias: "Blodtryk - Højt advarsel"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.withings_systolic_blood_pressure_mmhg
+        above: 140
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "⚠️ Højt blodtryk registreret"
+          message: >
+            Systolisk: {{ states('sensor.withings_systolic_blood_pressure_mmhg') }} mmHg
+            Diastolisk: {{ states('sensor.withings_diastolic_blood_pressure_mmhg') }} mmHg
+            Overvej at kontakte læge hvis dette fortsætter.
+```
+
+---
+
+### Withings BPM Vision (2025)
+
+**Pris:** ~1.000 kr / $130
+
+**Nyeste model** med farvedisplay:
+
+- ✅ 2.8" farveskærm
+- ✅ Guidede målinger
+- ✅ Farvekodede resultater
+- ✅ WiFi + Bluetooth
+- ✅ 8 brugerprofiler
+- ✅ Op til 1 års batterilevetid
+
+---
+
+## 💍 Fitness Ringe & Trackere
+
+### Oura Ring 4
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~3.500 kr / $350 + 50 kr/måned abonnement
+    
+    **Verdens mest avancerede** smart ring:
+    
+    - ✅ Søvn tracking (alle faser)
+    - ✅ HRV (Heart Rate Variability)
+    - ✅ Readiness score
+    - ✅ Aktivitetssporing
+    - ✅ SpO2 (iltmætning)
+    - ✅ Kropstemperatur
+    - ✅ Stress/recovery
+    - ✅ 7 dages batterilevetid
+    
+    | Spec | Værdi |
+    |------|-------|
+    | Batteri | 7 dage |
+    | Vandtæt | 100m |
+    | Sensorer | PPG, temperatur, accelerometer |
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Oura HACS Integration
+    
+    ```yaml
+    # HACS → Integrations → Oura Ring
+    # Kræver Oura Personal Access Token
+    
+    # Entiteter:
+    # - sensor.oura_sleep_score
+    # - sensor.oura_readiness_score
+    # - sensor.oura_activity_score
+    # - sensor.oura_hrv_balance
+    # - sensor.oura_resting_heart_rate
+    # - sensor.oura_body_temperature
+    
+    # Eksempel: Readiness-baseret morgen
+    automation:
+      - alias: "Oura - Lav readiness alarm"
+        trigger:
+          - platform: numeric_state
+            entity_id: sensor.oura_readiness_score
+            below: 60
+        condition:
+          - condition: time
+            after: "06:00:00"
+            before: "09:00:00"
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "😴 Tag det roligt i dag"
+              message: >
+                Din readiness score er {{ states('sensor.oura_readiness_score') }}.
+                Overvej en rolig dag med fokus på restitution.
+          # Tænd beroligende lys
+          - service: light.turn_on
+            entity_id: light.bedroom
+            data:
+              brightness_pct: 30
+              color_temp: 500  # Varm tone
+    ```
+    
+    ### Søvn-baseret Smart Home
+    
+    ```yaml
+    automation:
+      - alias: "Søvn score - Justering af hjem"
+        trigger:
+          - platform: state
+            entity_id: sensor.oura_sleep_score
+        action:
+          - choose:
+              # God søvn → Energisk start
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.oura_sleep_score
+                    above: 85
+                action:
+                  - service: light.turn_on
+                    entity_id: light.kitchen
+                    data:
+                      brightness_pct: 100
+                      color_temp: 250
+              # Dårlig søvn → Blød start
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.oura_sleep_score
+                    below: 60
+                action:
+                  - service: light.turn_on
+                    entity_id: light.kitchen
+                    data:
+                      brightness_pct: 50
+                      color_temp: 400
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Ouraring.com](https://ouraring.com)
+
+---
+
+### Whoop 4.0
+
+**Pris:** ~240 kr/måned abonnement (ingen enhedskøb)
+
+**Hardcore fitness** tracking:
+
+- ✅ 24/7 HRV monitoring
+- ✅ Strain score (træningsbelastning)
+- ✅ Recovery score
+- ✅ Søvn performance
+- ✅ Respirationsfrekvens
+- ✅ Ingen skærm (kun app)
+- ✅ 5 dages batteri
+
+**Bedst til:** Seriøse atleter og trænere
+
+---
+
+## 🌙 Søvnhjælpemidler
+
+### Philips SmartSleep Wake-Up Light
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~1.400 kr / $180
+    
+    **Naturlig opvågning** med solskin-simulation:
+    
+    - ✅ 30-minutters solopgangs-simulation
+    - ✅ Solnedgangs-funktion til sengetid
+    - ✅ 20 lysstyrkeniveauer
+    - ✅ FM radio + naturlyde
+    - ✅ Temperatur/fugt sensorer
+    - ✅ Ambient light sensor
+    - ✅ WiFi connected
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### SmartSleep HACS Integration
+    
+    ```yaml
+    # HACS → Tilføj custom repository
+    # https://github.com/theneweinstein/somneo
+    
+    # Entiteter:
+    # - light.smartsleep_light
+    # - switch.smartsleep_alarm0
+    # - sensor.smartsleep_temperature
+    # - sensor.smartsleep_humidity
+    # - sensor.smartsleep_noise
+    # - sensor.smartsleep_luminance
+    
+    # Eksempel: Synkroniser alarm med kalender
+    automation:
+      - alias: "SmartSleep - Sæt alarm fra kalender"
+        trigger:
+          - platform: time
+            at: "22:00:00"
+        action:
+          - service: number.set_value
+            entity_id: number.smartsleep_alarm0_hours
+            data:
+              value: >
+                {{ state_attr('calendar.work', 'start_time').hour - 1 }}
+          - service: switch.turn_on
+            entity_id: switch.smartsleep_alarm0
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Amazon.de](https://amazon.de), [Philips.dk](https://philips.dk)
+
+---
+
+### Eight Sleep Pod 3
+
+**Pris:** ~20.000+ kr / $2,500+
+
+**Smart madras** med temperaturkontrol:
+
+- ✅ Aktiv køling/opvarmning (13-46°C)
+- ✅ Dual-zone (begge sider uafhængigt)
+- ✅ Søvn tracking
+- ✅ Smart alarm (vibration)
+- ✅ Auto-justering baseret på søvndata
+- ✅ **HACS integration tilgængelig**
+
+### Home Assistant
+
+```yaml
+# HACS → eight_sleep integration
+
+# Entiteter:
+# - climate.eight_sleep_left
+# - climate.eight_sleep_right
+# - sensor.eight_sleep_left_sleep_score
+# - binary_sensor.eight_sleep_left_presence
+
+automation:
+  - alias: "Eight Sleep - Forvarm seng"
+    trigger:
+      - platform: time
+        at: "21:30:00"
+    action:
+      - service: climate.set_temperature
+        entity_id: climate.eight_sleep_left
+        data:
+          temperature: 28  # Varm til at falde i søvn
+      - delay: "02:00:00"
+      - service: climate.set_temperature
+        entity_id: climate.eight_sleep_left
+        data:
+          temperature: 18  # Kølig til dyb søvn
+```
+
+---
+
+## 🏠 Smarte Automationer
+
+### Morgen Baseret på Søvndata
+
+```yaml
+automation:
+  - alias: "Morgen - Tilpas til søvnkvalitet"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bedroom_motion
+        to: "on"
+    condition:
+      - condition: time
+        after: "05:00:00"
+        before: "10:00:00"
+    action:
+      - choose:
+          # God søvn → Energisk morgen
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.oura_sleep_score
+                above: 80
+            sequence:
+              - service: light.turn_on
+                entity_id: light.bedroom
+                data:
+                  brightness_pct: 80
+                  color_temp: 250
+              - service: media_player.play_media
+                entity_id: media_player.bedroom_speaker
+                data:
+                  media_content_type: music
+                  media_content_id: "spotify:playlist:energisk_morgen"
+          # Dårlig søvn → Blid opvågning
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.oura_sleep_score
+                below: 60
+            sequence:
+              - service: light.turn_on
+                entity_id: light.bedroom
+                data:
+                  brightness_pct: 30
+                  color_temp: 450
+                  transition: 300  # 5 min langsom stigning
+```
+
+### Wellness Dashboard
+
+```yaml
+# Lovelace Card
+type: entities
+title: "🏥 Sundhedsoverblik"
+entities:
+  - entity: sensor.withings_weight_kg
+    name: Vægt
+    icon: mdi:scale
+  - entity: sensor.withings_fat_ratio_pct
+    name: Fedt %
+    icon: mdi:percent
+  - entity: sensor.oura_sleep_score
+    name: Søvn Score
+    icon: mdi:sleep
+  - entity: sensor.oura_readiness_score
+    name: Readiness
+    icon: mdi:battery-heart
+  - entity: sensor.withings_systolic_blood_pressure_mmhg
+    name: Blodtryk (sys)
+    icon: mdi:heart-pulse
+```
+
+### Stress-baseret Hjemkontrol
+
+```yaml
+automation:
+  - alias: "Stress - Aktiver wellness mode"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.oura_hrv_balance
+        below: -10  # Lav HRV = høj stress
+        for: "01:00:00"
+    action:
+      - service: scene.turn_on
+        entity_id: scene.relaxation
+      - service: notify.mobile_app
+        data:
+          title: "🧘 Wellness Mode Aktiveret"
+          message: >
+            Din HRV er lav. Hjemmet er sat til afslappende tilstand.
+            Overvej meditation eller en gåtur.
+```
+
+---
+
+## 🛒 Købs Strategi
+
+### Starter (~1.500 kr)
+- 1x Withings Body+ vægt (700 kr)
+- 1x Philips SmartSleep (basis) (800 kr)
+- **Total:** ~1.500 kr
+
+### Sundhedsfokuseret (~5.000 kr)
+- 1x Withings Body+ (700 kr)
+- 1x Withings BPM Connect (1.000 kr)
+- 1x Oura Ring 4 (3.500 kr)
+- **Total:** ~5.200 kr
+
+### Premium Wellness (~10.000+ kr)
+- 1x Withings Body Scan (3.000 kr)
+- 1x Withings BPM Vision (1.000 kr)
+- 1x Oura Ring 4 (3.500 kr)
+- 1x Philips SmartSleep (1.400 kr)
+- 1x Whoop 4.0 (1 år) (2.900 kr)
+- **Total:** ~11.800 kr
+
+---
+
+## 🛒 Hvor Køber Jeg?
+
+### Officielle Butikker
+- **[Withings.com](https://withings.com)** - Vægte & blodtryk
+- **[Ouraring.com](https://ouraring.com)** - Oura Ring
+- **[Whoop.com](https://whoop.com)** - Whoop tracker
+- **[Eightsleep.com](https://eightsleep.com)** - Smart madras
+
+### Danske Forhandlere
+- **[Amazon.de](https://amazon.de)** - Alt sundhedsudstyr
+- **[Elgiganten](https://elgiganten.dk)** - Philips produkter
+- **[Coolshop](https://coolshop.dk)** - Diverse fitness
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Er Oura Ring pengene værd?",
+    answer: "Ja, hvis du vil optimere søvn og recovery. Oura giver detaljerede indsigter i søvnfaser, HRV og readiness. Månedligt abonnement (50 kr) kræves for fuld funktionalitet."
+  },
+  {
+    question: "Withings vs andre smart vægte?",
+    answer: "Withings har den bedste Home Assistant integration og præcision. Alternativer som Eufy eller Xiaomi er billigere men har begrænset HA support."
+  },
+  {
+    question: "Virker Oura med Home Assistant?",
+    answer: "Ja! Via HACS custom integration. Du får søvn score, readiness, HRV, og mere som sensorer du kan bruge i automationer."
+  },
+  {
+    question: "Whoop vs Oura - hvad skal jeg vælge?",
+    answer: "Oura er bedst til søvn og daglig wellness. Whoop er bedre til seriøs træning med strain/recovery fokus. Oura er en ring, Whoop er et armbånd."
+  },
+  {
+    question: "Kan jeg automatisere mit hjem baseret på søvndata?",
+    answer: "Absolut! Med Oura eller Withings data i HA kan du justere lys, temperatur og musik baseret på din søvnkvalitet og readiness score."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="Smart Belysning" icon="sun">
+    Circadian belysning for bedre søvn.
+    
+    [Se guide →](/da/produkter/smart-belysning/)
+  </Card>
+  <Card title="Smart Klimastyring" icon="rocket">
+    Optimal temperatur til søvn.
+    
+    [Se guide →](/da/produkter/smart-klimastyring/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*

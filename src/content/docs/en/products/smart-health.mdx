@@ -1,0 +1,612 @@
+---
+title: Smart Health & Wellness
+description: Complete guide to smart health equipment - scales, blood pressure monitors, sleep trackers, fitness rings and Home Assistant integration.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Set up smart health tracking"
+  description="Guide to smart health devices with Home Assistant"
+  totalTime="PT45M"
+  steps={[
+    "Choose health devices that match your goals",
+    "Create accounts and connect devices",
+    "Configure Home Assistant integrations",
+    "Set up automations based on health data",
+    "Combine with other smart home devices"
+  ]}
+/>
+
+<Badge text="Health" variant="success" /> <Badge text="Wellness" variant="note" /> <Badge text="Tracking" variant="tip" />
+
+Smart health equipment gives you **daily insights into your body** - from weight and blood pressure to sleep quality and stress levels. Combine with Home Assistant to adapt your home to your health.
+
+<Aside type="tip" title="Top Recommendations 2025">
+- **Smart scale**: Withings Body+ (~$100)
+- **Blood pressure**: Withings BPM Connect (~$130)
+- **Sleep tracker**: Oura Ring 4 (~$350)
+- **Fitness tracker**: Whoop 4.0 (~$30/month)
+- **Sleep light**: Philips SmartSleep (~$180)
+</Aside>
+
+---
+
+## 🎯 Types of Smart Health Equipment
+
+### Overview
+
+| Type | Measures | HA Integration | Price |
+|------|----------|----------------|-------|
+| **Smart scale** | Weight, BMI, fat%, muscle mass | Native/HACS | 💰-💰💰 |
+| **Blood pressure** | Systolic/diastolic, pulse | Native | 💰💰 |
+| **Sleep tracker** | Sleep stages, HRV, SpO2 | HACS | 💰💰-💰💰💰 |
+| **Fitness ring** | Activity, readiness, stress | HACS | 💰💰💰 |
+| **Sleep light** | Light intensity, alarm | HACS | 💰💰 |
+
+---
+
+## ⚖️ Smart Scales
+
+### Withings Body+
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$100
+    
+    Withings Body+ is the **most popular smart scale**:
+    
+    - ✅ Weight (±100g precision)
+    - ✅ BMI calculation
+    - ✅ Body fat %
+    - ✅ Muscle mass
+    - ✅ Water percentage
+    - ✅ Bone mass
+    - ✅ Up to 8 users (auto-recognition)
+    - ✅ WiFi + Bluetooth
+    - ✅ **Native Home Assistant integration**
+    
+    | Spec | Value |
+    |------|-------|
+    | Max weight | 400 lbs |
+    | Battery | 18 months (AAA) |
+    | Display | LCD |
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Native Withings Integration
+    
+    ```yaml
+    # Settings → Devices → Withings
+    # Requires Withings Developer account
+    
+    # Entities created:
+    # - sensor.withings_weight_kg
+    # - sensor.withings_fat_mass_kg
+    # - sensor.withings_muscle_mass_kg
+    # - sensor.withings_bone_mass_kg
+    # - sensor.withings_body_water_kg
+    # - sensor.withings_fat_ratio_pct
+    
+    # Example: Morning weigh-in notification
+    automation:
+      - alias: "Weight - Daily update"
+        trigger:
+          - platform: state
+            entity_id: sensor.withings_weight_kg
+        condition:
+          - condition: template
+            value_template: >
+              {{ trigger.from_state.state != trigger.to_state.state }}
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "⚖️ Weight updated"
+              message: >
+                Weight: {{ states('sensor.withings_weight_kg') }} kg
+                Fat: {{ states('sensor.withings_fat_ratio_pct') }}%
+    ```
+    
+    ### Weight Trend Automation
+    
+    ```yaml
+    automation:
+      - alias: "Weight - Weekly trend"
+        trigger:
+          - platform: time
+            at: "08:00:00"
+        condition:
+          - condition: time
+            weekday:
+              - sun
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "📊 Weekly weight report"
+              message: >
+                Current: {{ states('sensor.withings_weight_kg') }} kg
+                Change: {{ (states('sensor.withings_weight_kg') | float - 
+                  state_attr('sensor.withings_weight_kg', 'last_week') | float) | round(1) }} kg
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Amazon](https://amazon.com), [Withings.com](https://withings.com)
+
+---
+
+### Withings Body Scan
+
+**Price:** ~$400
+
+**Premium** smart scale with ECG:
+
+- ✅ Everything from Body+
+- ✅ 6-lead ECG
+- ✅ Segmented body composition
+- ✅ Nerve health (foot nerve condition)
+- ✅ Vascular age
+- ✅ Weather station integration
+
+---
+
+## 🩺 Blood Pressure Monitors
+
+### Withings BPM Connect
+
+**Price:** ~$130
+
+**FDA-approved** smart blood pressure monitor:
+
+- ✅ Systolic & diastolic pressure
+- ✅ Pulse
+- ✅ Irregular heartbeat detection
+- ✅ WiFi sync to app
+- ✅ Up to 8 users
+- ✅ Native Home Assistant integration
+
+### Home Assistant
+
+```yaml
+# Via Withings integration
+# Entities:
+# - sensor.withings_systolic_blood_pressure_mmhg
+# - sensor.withings_diastolic_blood_pressure_mmhg
+# - sensor.withings_heart_pulse_bpm
+
+automation:
+  - alias: "Blood pressure - High warning"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.withings_systolic_blood_pressure_mmhg
+        above: 140
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "⚠️ High blood pressure detected"
+          message: >
+            Systolic: {{ states('sensor.withings_systolic_blood_pressure_mmhg') }} mmHg
+            Diastolic: {{ states('sensor.withings_diastolic_blood_pressure_mmhg') }} mmHg
+            Consider contacting your doctor if this continues.
+```
+
+---
+
+### Withings BPM Vision (2025)
+
+**Price:** ~$130
+
+**Latest model** with color display:
+
+- ✅ 2.8" color screen
+- ✅ Guided measurements
+- ✅ Color-coded results
+- ✅ WiFi + Bluetooth
+- ✅ 8 user profiles
+- ✅ Up to 1 year battery life
+
+---
+
+## 💍 Fitness Rings & Trackers
+
+### Oura Ring 4
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$350 + $6/month subscription
+    
+    **World's most advanced** smart ring:
+    
+    - ✅ Sleep tracking (all stages)
+    - ✅ HRV (Heart Rate Variability)
+    - ✅ Readiness score
+    - ✅ Activity tracking
+    - ✅ SpO2 (oxygen saturation)
+    - ✅ Body temperature
+    - ✅ Stress/recovery
+    - ✅ 7-day battery life
+    
+    | Spec | Value |
+    |------|-------|
+    | Battery | 7 days |
+    | Water resistant | 100m |
+    | Sensors | PPG, temperature, accelerometer |
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Oura HACS Integration
+    
+    ```yaml
+    # HACS → Integrations → Oura Ring
+    # Requires Oura Personal Access Token
+    
+    # Entities:
+    # - sensor.oura_sleep_score
+    # - sensor.oura_readiness_score
+    # - sensor.oura_activity_score
+    # - sensor.oura_hrv_balance
+    # - sensor.oura_resting_heart_rate
+    # - sensor.oura_body_temperature
+    
+    # Example: Readiness-based morning
+    automation:
+      - alias: "Oura - Low readiness alarm"
+        trigger:
+          - platform: numeric_state
+            entity_id: sensor.oura_readiness_score
+            below: 60
+        condition:
+          - condition: time
+            after: "06:00:00"
+            before: "09:00:00"
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "😴 Take it easy today"
+              message: >
+                Your readiness score is {{ states('sensor.oura_readiness_score') }}.
+                Consider a relaxed day focused on recovery.
+          # Turn on calming lights
+          - service: light.turn_on
+            entity_id: light.bedroom
+            data:
+              brightness_pct: 30
+              color_temp: 500  # Warm tone
+    ```
+    
+    ### Sleep-based Smart Home
+    
+    ```yaml
+    automation:
+      - alias: "Sleep score - Adjust home"
+        trigger:
+          - platform: state
+            entity_id: sensor.oura_sleep_score
+        action:
+          - choose:
+              # Good sleep → Energetic start
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.oura_sleep_score
+                    above: 85
+                action:
+                  - service: light.turn_on
+                    entity_id: light.kitchen
+                    data:
+                      brightness_pct: 100
+                      color_temp: 250
+              # Poor sleep → Gentle start
+              - conditions:
+                  - condition: numeric_state
+                    entity_id: sensor.oura_sleep_score
+                    below: 60
+                action:
+                  - service: light.turn_on
+                    entity_id: light.kitchen
+                    data:
+                      brightness_pct: 50
+                      color_temp: 400
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Ouraring.com](https://ouraring.com)
+
+---
+
+### Whoop 4.0
+
+**Price:** ~$30/month subscription (no device purchase)
+
+**Hardcore fitness** tracking:
+
+- ✅ 24/7 HRV monitoring
+- ✅ Strain score (training load)
+- ✅ Recovery score
+- ✅ Sleep performance
+- ✅ Respiratory rate
+- ✅ No screen (app only)
+- ✅ 5-day battery
+
+**Best for:** Serious athletes and trainers
+
+---
+
+## 🌙 Sleep Aids
+
+### Philips SmartSleep Wake-Up Light
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$180
+    
+    **Natural awakening** with sunrise simulation:
+    
+    - ✅ 30-minute sunrise simulation
+    - ✅ Sunset function for bedtime
+    - ✅ 20 brightness levels
+    - ✅ FM radio + nature sounds
+    - ✅ Temperature/humidity sensors
+    - ✅ Ambient light sensor
+    - ✅ WiFi connected
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### SmartSleep HACS Integration
+    
+    ```yaml
+    # HACS → Add custom repository
+    # https://github.com/theneweinstein/somneo
+    
+    # Entities:
+    # - light.smartsleep_light
+    # - switch.smartsleep_alarm0
+    # - sensor.smartsleep_temperature
+    # - sensor.smartsleep_humidity
+    # - sensor.smartsleep_noise
+    # - sensor.smartsleep_luminance
+    
+    # Example: Sync alarm with calendar
+    automation:
+      - alias: "SmartSleep - Set alarm from calendar"
+        trigger:
+          - platform: time
+            at: "22:00:00"
+        action:
+          - service: number.set_value
+            entity_id: number.smartsleep_alarm0_hours
+            data:
+              value: >
+                {{ state_attr('calendar.work', 'start_time').hour - 1 }}
+          - service: switch.turn_on
+            entity_id: switch.smartsleep_alarm0
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Amazon](https://amazon.com), [Philips.com](https://philips.com)
+
+---
+
+### Eight Sleep Pod 3
+
+**Price:** ~$2,500+
+
+**Smart mattress** with temperature control:
+
+- ✅ Active cooling/heating (55-115°F)
+- ✅ Dual-zone (both sides independent)
+- ✅ Sleep tracking
+- ✅ Smart alarm (vibration)
+- ✅ Auto-adjustment based on sleep data
+- ✅ **HACS integration available**
+
+### Home Assistant
+
+```yaml
+# HACS → eight_sleep integration
+
+# Entities:
+# - climate.eight_sleep_left
+# - climate.eight_sleep_right
+# - sensor.eight_sleep_left_sleep_score
+# - binary_sensor.eight_sleep_left_presence
+
+automation:
+  - alias: "Eight Sleep - Preheat bed"
+    trigger:
+      - platform: time
+        at: "21:30:00"
+    action:
+      - service: climate.set_temperature
+        entity_id: climate.eight_sleep_left
+        data:
+          temperature: 82  # Warm to fall asleep
+      - delay: "02:00:00"
+      - service: climate.set_temperature
+        entity_id: climate.eight_sleep_left
+        data:
+          temperature: 64  # Cool for deep sleep
+```
+
+---
+
+## 🏠 Smart Automations
+
+### Morning Based on Sleep Data
+
+```yaml
+automation:
+  - alias: "Morning - Adapt to sleep quality"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bedroom_motion
+        to: "on"
+    condition:
+      - condition: time
+        after: "05:00:00"
+        before: "10:00:00"
+    action:
+      - choose:
+          # Good sleep → Energetic morning
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.oura_sleep_score
+                above: 80
+            sequence:
+              - service: light.turn_on
+                entity_id: light.bedroom
+                data:
+                  brightness_pct: 80
+                  color_temp: 250
+              - service: media_player.play_media
+                entity_id: media_player.bedroom_speaker
+                data:
+                  media_content_type: music
+                  media_content_id: "spotify:playlist:energetic_morning"
+          # Poor sleep → Gentle awakening
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.oura_sleep_score
+                below: 60
+            sequence:
+              - service: light.turn_on
+                entity_id: light.bedroom
+                data:
+                  brightness_pct: 30
+                  color_temp: 450
+                  transition: 300  # 5 min slow rise
+```
+
+### Wellness Dashboard
+
+```yaml
+# Lovelace Card
+type: entities
+title: "🏥 Health Overview"
+entities:
+  - entity: sensor.withings_weight_kg
+    name: Weight
+    icon: mdi:scale
+  - entity: sensor.withings_fat_ratio_pct
+    name: Fat %
+    icon: mdi:percent
+  - entity: sensor.oura_sleep_score
+    name: Sleep Score
+    icon: mdi:sleep
+  - entity: sensor.oura_readiness_score
+    name: Readiness
+    icon: mdi:battery-heart
+  - entity: sensor.withings_systolic_blood_pressure_mmhg
+    name: Blood Pressure (sys)
+    icon: mdi:heart-pulse
+```
+
+### Stress-based Home Control
+
+```yaml
+automation:
+  - alias: "Stress - Activate wellness mode"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.oura_hrv_balance
+        below: -10  # Low HRV = high stress
+        for: "01:00:00"
+    action:
+      - service: scene.turn_on
+        entity_id: scene.relaxation
+      - service: notify.mobile_app
+        data:
+          title: "🧘 Wellness Mode Activated"
+          message: >
+            Your HRV is low. Home is set to relaxing mode.
+            Consider meditation or a walk.
+```
+
+---
+
+## 🛒 Buying Strategy
+
+### Starter (~$200)
+- 1x Withings Body+ scale ($100)
+- 1x Philips SmartSleep (basic) ($100)
+- **Total:** ~$200
+
+### Health-focused (~$700)
+- 1x Withings Body+ ($100)
+- 1x Withings BPM Connect ($130)
+- 1x Oura Ring 4 ($350)
+- **Total:** ~$580
+
+### Premium Wellness (~$1,500+)
+- 1x Withings Body Scan ($400)
+- 1x Withings BPM Vision ($130)
+- 1x Oura Ring 4 ($350)
+- 1x Philips SmartSleep ($180)
+- 1x Whoop 4.0 (1 year) ($360)
+- **Total:** ~$1,420
+
+---
+
+## 🛒 Where to Buy?
+
+### Official Stores
+- **[Withings.com](https://withings.com)** - Scales & blood pressure
+- **[Ouraring.com](https://ouraring.com)** - Oura Ring
+- **[Whoop.com](https://whoop.com)** - Whoop tracker
+- **[Eightsleep.com](https://eightsleep.com)** - Smart mattress
+
+### General Retailers
+- **[Amazon](https://amazon.com)** - All health equipment
+- **[Best Buy](https://bestbuy.com)** - Philips products
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Is Oura Ring worth the money?",
+    answer: "Yes, if you want to optimize sleep and recovery. Oura provides detailed insights into sleep stages, HRV and readiness. Monthly subscription ($6) required for full functionality."
+  },
+  {
+    question: "Withings vs other smart scales?",
+    answer: "Withings has the best Home Assistant integration and accuracy. Alternatives like Eufy or Xiaomi are cheaper but have limited HA support."
+  },
+  {
+    question: "Does Oura work with Home Assistant?",
+    answer: "Yes! Via HACS custom integration. You get sleep score, readiness, HRV, and more as sensors you can use in automations."
+  },
+  {
+    question: "Whoop vs Oura - what should I choose?",
+    answer: "Oura is best for sleep and daily wellness. Whoop is better for serious training with strain/recovery focus. Oura is a ring, Whoop is a wristband."
+  },
+  {
+    question: "Can I automate my home based on sleep data?",
+    answer: "Absolutely! With Oura or Withings data in HA you can adjust lights, temperature and music based on your sleep quality and readiness score."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Smart Lighting" icon="sun">
+    Circadian lighting for better sleep.
+    
+    [See guide →](/en/products/smart-lighting/)
+  </Card>
+  <Card title="Smart Climate" icon="rocket">
+    Optimal temperature for sleep.
+    
+    [See guide →](/en/products/smart-climate/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
