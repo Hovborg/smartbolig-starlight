@@ -1,0 +1,652 @@
+---
+title: Smart Vand & Lækage
+description: Komplet guide til smart vandovervågning - Flo by Moen, Phyn Plus, Zigbee lækagesensorer og automatisk vandafbrydelse med Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Opsæt smart vandovervågning"
+  description="Guide til lækagedetektering og automatisk vandafbrydelse med Home Assistant"
+  totalTime="PT45M"
+  steps={[
+    "Vælg lækagesensorer (Zigbee, WiFi eller Z-Wave)",
+    "Placer sensorer ved risikopunkter",
+    "Konfigurer Home Assistant integration",
+    "Opsæt smart vandventil (valgfrit)",
+    "Opret automationer og notifikationer"
+  ]}
+/>
+
+<Badge text="Vand" variant="tip" /> <Badge text="Sikkerhed" variant="caution" /> <Badge text="Automatisering" variant="success" />
+
+Vandskader er en af de mest kostbare skader i hjemmet. Med **smart vandovervågning** kan du opdage lækager tidligt og automatisk lukke for vandet før katastrofen sker.
+
+<Aside type="tip" title="Top Anbefalinger 2025">
+**Hele-hjem systemer (med automatisk afbrydelse):**
+- **Flo by Moen** - Native HA, flow + tryk + temp
+- **Phyn Plus** - AI lækagedetektering
+- **Flume 2** - Nem DIY installation (ingen afbrydelse)
+
+**Punkt-lækagesensorer:**
+- **Aqara Water Leak Sensor** - Zigbee, HomeKit, ~80 kr
+- **ThirdReality** - Zigbee, 120dB alarm, HA kompatibel
+- **Shelly Flood** - WiFi, direkte HA integration
+
+**Anbefaling:** Aqara sensorer + Aqara Valve Controller T1!
+</Aside>
+
+---
+
+## 🏠 Vandovervågning Oversigt
+
+### Produktsammenligning
+
+| System | HA Integration | Type | Auto-stop | Pris |
+|--------|---------------|------|-----------|------|
+| **Flo by Moen** | ✅ Native | Hele-hjem | ✅ Ja | 💰💰💰 |
+| **Phyn Plus** | ⚠️ IFTTT | Hele-hjem | ✅ Ja | 💰💰💰 |
+| **Flume 2** | ⚠️ HACS | Hele-hjem | ❌ Nej | 💰💰 |
+| **Aqara Sensor** | ✅ Z2M/ZHA | Punkt | ❌ Nej | 💰 |
+| **Aqara Valve T1** | ✅ Z2M/ZHA | Ventil | ✅ Ja | 💰💰 |
+| **Shelly Flood** | ✅ Native | Punkt | ❌ Nej | 💰 |
+
+---
+
+## 🌊 Flo by Moen (Native HA - Anbefalet)
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~$500 / ~3.700 kr (Smart Water Shutoff)
+    **Pris sensor:** ~$50 / ~370 kr (Smart Leak Detector)
+    
+    **Native Home Assistant integration:**
+    
+    - ✅ Vandflow rate (realtid)
+    - ✅ Vandtryk måling
+    - ✅ Temperatur overvågning
+    - ✅ Automatisk vandlukning
+    - ✅ Dagligt vandforbrug
+    - ✅ Mikro-lækage detektering
+    - ✅ Away/Home/Sleep modes
+    - ❌ Kræver VVS-installation
+    
+    <Aside type="note">
+    Flo by Moen kan detektere lækager så små som **én dråbe per minut** ved at analysere trykændringer i rørene.
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Native Integration
+    
+    ```yaml
+    # Indstillinger → Enheder → Tilføj Integration
+    # Søg "Flo"
+    
+    # Kræver:
+    # - Flo by Moen email
+    # - Flo by Moen password
+    
+    # Entiteter der oprettes:
+    # - switch.flo_valve (åbn/luk ventil)
+    # - sensor.flo_water_flow_rate
+    # - sensor.flo_water_pressure
+    # - sensor.flo_water_temperature
+    # - sensor.flo_daily_consumption
+    # - binary_sensor.flo_pending_alerts
+    ```
+    
+    ### Services
+    
+    ```yaml
+    # Tilgængelige services:
+    
+    # Kør sundhedstest
+    - service: flo.run_health_test
+      target:
+        entity_id: switch.flo_valve
+    
+    # Sæt til Away mode
+    - service: flo.set_away_mode
+      target:
+        entity_id: switch.flo_valve
+    
+    # Sæt til Home mode
+    - service: flo.set_home_mode
+      target:
+        entity_id: switch.flo_valve
+    
+    # Sæt til Sleep mode (pauser overvågning)
+    - service: flo.set_sleep_mode
+      target:
+        entity_id: switch.flo_valve
+    ```
+  </TabItem>
+  <TabItem label="Automationer">
+    ### Automatisk Vandlukning
+    
+    ```yaml
+    automation:
+      # Luk vand ved lækage
+      - alias: "Vand - Luk ved lækage"
+        trigger:
+          - platform: state
+            entity_id: 
+              - binary_sensor.aqara_water_leak_kokken
+              - binary_sensor.aqara_water_leak_bad
+              - binary_sensor.aqara_water_leak_vaskeri
+            to: "on"
+        action:
+          - service: switch.turn_off
+            entity_id: switch.flo_valve
+          - service: notify.mobile_app
+            data:
+              title: "🚰 VAND LUKKET!"
+              message: >
+                Lækage detekteret: {{ trigger.to_state.name }}
+                Vand er automatisk lukket.
+              data:
+                push:
+                  sound:
+                    name: "alarm.caf"
+                    critical: 1
+    
+      # Away mode når alle forlader
+      - alias: "Vand - Away Mode"
+        trigger:
+          - platform: state
+            entity_id: group.family
+            to: "not_home"
+            for: "00:30:00"
+        action:
+          - service: flo.set_away_mode
+            target:
+              entity_id: switch.flo_valve
+    
+      # Home mode ved hjemkomst
+      - alias: "Vand - Home Mode"
+        trigger:
+          - platform: state
+            entity_id: group.family
+            to: "home"
+        action:
+          - service: flo.set_home_mode
+            target:
+              entity_id: switch.flo_valve
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Moen.com](https://www.moen.com/flo), Amazon
+
+---
+
+## 💧 Phyn Plus
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~$600 / ~4.500 kr
+    
+    **AI-drevet lækagedetektering:**
+    
+    - ✅ 240 målinger per sekund
+    - ✅ Lærer dit hjem's vandmønster
+    - ✅ Detekterer utætheder før de bliver store
+    - ✅ Automatisk vandlukning
+    - ✅ Frostalarm
+    - ⚠️ Ingen native HA integration
+    - ⚠️ Kun IFTTT eller custom API
+    - ❌ Kræver VVS-installation
+    
+    <Aside type="caution" title="HA Integration">
+    Phyn har ingen officiel HA integration. Brug IFTTT eller third-party API calls for integration.
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### IFTTT Integration
+    
+    ```yaml
+    # Via IFTTT webhooks
+    
+    # IFTTT Applet:
+    # IF: Phyn detects leak
+    # THEN: Webhook to HA
+    
+    automation:
+      - alias: "Phyn Lækage via IFTTT"
+        trigger:
+          - platform: webhook
+            webhook_id: phyn_leak_detected
+        action:
+          - service: notify.all
+            data:
+              title: "🚰 Phyn: Lækage detekteret!"
+              message: "Phyn har detekteret en mulig lækage"
+    ```
+    
+    ### Custom REST Integration (Avanceret)
+    
+    ```yaml
+    # Phyn har uofficiel API
+    # Se: github.com/MizterB/homeassistant-phyn
+    
+    # HACS custom component kræves
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Phyn.com](https://www.phyn.com)
+
+---
+
+## 📡 Zigbee Lækagesensorer (Anbefalet DIY)
+
+<Tabs>
+  <TabItem label="Aqara Water Leak">
+    **Pris:** ~$20 / ~150 kr per sensor
+    
+    **Den mest populære Zigbee sensor:**
+    
+    - ✅ Zigbee 3.0
+    - ✅ IP67 vandtæt
+    - ✅ Detekterer 0.5mm vand
+    - ✅ CR2032 batteri (2+ år)
+    - ✅ Temperatur sensor
+    - ✅ HomeKit (via Aqara Hub)
+    - ⚠️ Virker med Z2M/ZHA (uofficielt)
+    
+    ### Zigbee2MQTT Setup
+    
+    ```yaml
+    # Par sensor:
+    # 1. Hold nede på toppen til blå LED blinker
+    # 2. Tillad parring i Z2M
+    
+    # Entiteter:
+    # - binary_sensor.aqara_water_leak_xxx
+    # - sensor.aqara_water_leak_xxx_temperature
+    # - sensor.aqara_water_leak_xxx_battery
+    ```
+    
+    **Køb:** Amazon, AliExpress
+  </TabItem>
+  <TabItem label="ThirdReality">
+    **Pris:** ~$25 / ~185 kr per sensor
+    
+    **Officielt Home Assistant kompatibel:**
+    
+    - ✅ Zigbee 3.0
+    - ✅ 120dB indbygget alarm
+    - ✅ Drypdetektering
+    - ✅ AAA batterier (nemmere udskiftning)
+    - ✅ Works with HA logo
+    - ✅ Virker med alle Zigbee hubs
+    
+    ```yaml
+    # Zigbee2MQTT device:
+    # Manufacturer: ThirdReality
+    # Model: 3RWS18BZ
+    
+    # Entiteter:
+    # - binary_sensor.thirdreality_water_leak
+    # - sensor.thirdreality_battery
+    ```
+    
+    **Køb:** Amazon
+  </TabItem>
+  <TabItem label="Aeotec/SmartThings">
+    **Pris:** ~$25 / ~185 kr per sensor
+    
+    **Premium Zigbee sensor:**
+    
+    - ✅ Zigbee 3.0
+    - ✅ Drypindikator (top)
+    - ✅ Bundsenor (gulv)
+    - ✅ Temperatur sensor
+    - ✅ LED og sirene alarm
+    - ✅ Solid build quality
+    
+    ```yaml
+    # SmartThings Water Leak Sensor (Aeotec)
+    # Virker med ZHA og Z2M
+    
+    # Entiteter:
+    # - binary_sensor.water_leak
+    # - sensor.temperature
+    # - sensor.battery
+    ```
+    
+    **Køb:** Amazon, SmartThings
+  </TabItem>
+</Tabs>
+
+---
+
+## 🔧 Smart Vandventiler
+
+<Tabs>
+  <TabItem label="Aqara Valve T1">
+    **Pris:** ~$60 / ~450 kr
+    
+    **Bedste Zigbee vandventil:**
+    
+    - ✅ Zigbee 3.0 + Matter
+    - ✅ Passer DN15/DN20/DN25 (½", ¾", 1")
+    - ✅ 4x AA batterier (2 år)
+    - ✅ Manuel backup ved strømsvigt
+    - ✅ Home Assistant, HomeKit, Alexa
+    - ✅ Nem DIY installation
+    - ❌ Kræver Aqara Hub
+    
+    ### Integration
+    
+    ```yaml
+    # Via Aqara Hub → HA integration
+    # Eller Zigbee2MQTT (eksperimentelt)
+    
+    # Entiteter:
+    # - switch.aqara_valve_t1
+    # - sensor.aqara_valve_t1_battery
+    
+    automation:
+      - alias: "Luk vand ved lækage"
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.water_leak
+            to: "on"
+        action:
+          - service: switch.turn_off
+            entity_id: switch.aqara_valve_t1
+    ```
+    
+    **Køb:** [Aqara.com](https://www.aqara.com), Amazon
+  </TabItem>
+  <TabItem label="Tuya/MOES Zigbee">
+    **Pris:** ~$40-60 / ~300-450 kr
+    
+    **Budget alternativ:**
+    
+    - ✅ Zigbee eller WiFi versioner
+    - ✅ Passer standard kugleventiler
+    - ✅ Timer og scheduling
+    - ✅ Tuya/Smart Life app
+    - ✅ Virker med Z2M
+    - ⚠️ Kræver neutral
+    
+    ```yaml
+    # Tuya Zigbee valve via Z2M
+    # Søg efter: TS0001 valve
+    
+    # Entiteter:
+    # - switch.tuya_valve
+    ```
+    
+    **Køb:** AliExpress, Amazon
+  </TabItem>
+  <TabItem label="SONOFF Zigbee">
+    **Pris:** ~$90 / ~670 kr
+    
+    **Smart havevanding med flow:**
+    
+    - ✅ Zigbee 3.0
+    - ✅ Flow rate sensor
+    - ✅ 180 dages historik
+    - ✅ Kapacitets- og tidsplanlægning
+    - ⚠️ Flow virker ikke i HA endnu
+    
+    ```yaml
+    # SONOFF SWV (Smart Water Valve)
+    # ZHA: Kun on/off eksponeret
+    # Z2M: On/off + flow (0 bug)
+    
+    # Venter på firmware opdatering
+    ```
+    
+    **Køb:** [ITEAD](https://itead.cc), Amazon
+  </TabItem>
+</Tabs>
+
+---
+
+## 📍 Placering Guide
+
+### Hvor skal du placere lækagesensorer?
+
+| Placering | Prioritet | Risiko |
+|-----------|-----------|--------|
+| Under opvaskemaskine | ⭐⭐⭐ Høj | Slange brud |
+| Under vaskemaskine | ⭐⭐⭐ Høj | Slange brud |
+| Under køkkenvask | ⭐⭐⭐ Høj | Utæt fitting |
+| Ved vandvarmer | ⭐⭐⭐ Høj | Tank lækage |
+| Under toilet | ⭐⭐ Medium | Kondensering, lækage |
+| Ved sump pumpe | ⭐⭐ Medium | Oversvømmelse |
+| Kælder/bryggers | ⭐⭐ Medium | Grundvand |
+| Ved køleskab | ⭐ Lavere | Ismaskine lækage |
+
+<Aside type="tip" title="Sensor Placering">
+Placer sensorer på **laveste punkt** hvor vand vil samle sig. Sensor kontakterne skal røre gulvet.
+</Aside>
+
+---
+
+## 🤖 Komplet Automation Suite
+
+```yaml
+automation:
+  # ===== LÆKAGE RESPONS =====
+  
+  # Kritisk lækage alarm
+  - alias: "Vand - Kritisk Lækage"
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.water_leak_kokken
+          - binary_sensor.water_leak_bad
+          - binary_sensor.water_leak_vaskeri
+          - binary_sensor.water_leak_kalder
+        to: "on"
+    action:
+      # Luk hovedventil
+      - service: switch.turn_off
+        entity_id: switch.water_main_valve
+      
+      # Kritisk notifikation
+      - service: notify.mobile_app
+        data:
+          title: "🚨 VANDLÆKAGE!"
+          message: >
+            {{ trigger.to_state.attributes.friendly_name }}
+            Vand er automatisk lukket!
+          data:
+            push:
+              sound:
+                name: "alarm.caf"
+                critical: 1
+                volume: 1.0
+            actions:
+              - action: "REOPEN_WATER"
+                title: "Åbn vand igen"
+      
+      # Tænd lys
+      - service: light.turn_on
+        entity_id: light.all_lights
+        data:
+          brightness_pct: 100
+      
+      # TTS alarm
+      - service: tts.speak
+        target:
+          entity_id: media_player.kitchen_speaker
+        data:
+          message: "Advarsel! Vandlækage detekteret. Vandet er lukket."
+
+  # Håndter genåbning
+  - alias: "Vand - Genåbn efter alarm"
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: "REOPEN_WATER"
+    condition:
+      # Kun hvis lækage er stoppet
+      - condition: state
+        entity_id: binary_sensor.water_leak_kokken
+        state: "off"
+    action:
+      - service: switch.turn_on
+        entity_id: switch.water_main_valve
+      - service: notify.mobile_app
+        data:
+          message: "✅ Vand genåbnet"
+
+  # ===== FOREBYGGELSE =====
+  
+  # Frost advarsel
+  - alias: "Vand - Frost Advarsel"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.water_pipe_temperature
+        below: 4
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "❄️ Frost Advarsel"
+          message: >
+            Vandtemperatur: {{ states('sensor.water_pipe_temperature') }}°C
+            Risiko for frosne rør!
+
+  # ===== VANDFORBRUG =====
+  
+  # Unormalt forbrug
+  - alias: "Vand - Unormalt Forbrug"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.flo_daily_consumption
+        above: 500  # liter
+    condition:
+      - condition: time
+        after: "23:00:00"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "💧 Højt vandforbrug"
+          message: >
+            Dagens forbrug: {{ states('sensor.flo_daily_consumption') }} liter
+            Dette er over normalen.
+```
+
+---
+
+## 📊 Dashboard
+
+```yaml
+type: vertical-stack
+cards:
+  # Vandstatus
+  - type: entities
+    title: "💧 Vandovervågning"
+    entities:
+      - entity: switch.flo_valve
+        name: "Hovedventil"
+      - entity: sensor.flo_water_flow_rate
+        name: "Flow rate"
+      - entity: sensor.flo_water_pressure
+        name: "Tryk"
+      - entity: sensor.flo_daily_consumption
+        name: "Dagens forbrug"
+
+  # Lækagesensorer
+  - type: glance
+    title: "🚰 Lækagesensorer"
+    entities:
+      - entity: binary_sensor.water_leak_kokken
+        name: "Køkken"
+      - entity: binary_sensor.water_leak_bad
+        name: "Bad"
+      - entity: binary_sensor.water_leak_vaskeri
+        name: "Vaskeri"
+      - entity: binary_sensor.water_leak_kalder
+        name: "Kælder"
+    state_color: true
+
+  # Forbrug graf
+  - type: history-graph
+    title: "Vandforbrug (7 dage)"
+    entities:
+      - entity: sensor.flo_daily_consumption
+    hours_to_show: 168
+```
+
+---
+
+## 🛒 Købs Strategi
+
+### Budget DIY (~500 kr)
+- Aqara Water Leak Sensor (4x) (~600 kr)
+- Zigbee coordinator (hvis ikke eksisterende)
+- **Total:** ~600-900 kr
+
+### Standard Smart (~1.500 kr)
+- Aqara Water Leak Sensor (4x) (~600 kr)
+- Aqara Valve Controller T1 (~450 kr)
+- Aqara Hub M2 (~400 kr)
+- **Total:** ~1.450 kr
+
+### Komplet Hele-hjem (~5.000 kr)
+- Flo by Moen Smart Water Shutoff (~3.700 kr)
+- Flo Smart Leak Detector (2x) (~750 kr)
+- VVS-installation (~500 kr)
+- **Total:** ~4.950 kr
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Kan jeg bruge Aqara sensorer uden Aqara Hub?",
+    answer: "Ja! Aqara sensorer virker med Zigbee2MQTT og ZHA via en Zigbee USB coordinator som SONOFF ZBDongle-E eller Conbee II. Dog er det 'uofficielt' og nogle funktioner kan mangle."
+  },
+  {
+    question: "Hvor mange lækagesensorer har jeg brug for?",
+    answer: "Som minimum: 1 ved vaskemaskine, 1 ved opvaskemaskine, 1 ved vandvarmer. Ideelt: også under køkkenvask, toilet, og i kælder. 4-6 sensorer dækker de fleste hjem."
+  },
+  {
+    question: "Kan jeg automatisk lukke for vandet uden Flo/Phyn?",
+    answer: "Ja! Kombiner Zigbee lækagesensorer med en Aqara Valve Controller T1 eller Tuya Zigbee vandventil. HA automation lukker ventilen når sensor udløses."
+  },
+  {
+    question: "Virker sensorer i våde områder som badeværelser?",
+    answer: "Aqara sensorer er IP67 rated og tåler fugt. Placer dem hvor vand samler sig ved lækage, ikke hvor der normalt er vand (f.eks. ikke i brusekabinen)."
+  },
+  {
+    question: "Hvad sker der ved strømsvigt?",
+    answer: "Aqara Valve Controller T1 kan betjenes manuelt. Flo by Moen holder ventilen i sidste position ved strømsvigt. Lækagesensorer er batteridrevne og fortsætter med at virke."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="Smart Alarm" icon="shield">
+    Beskyt hele dit hjem.
+    
+    [Se guide →](/da/produkter/smart-alarm/)
+  </Card>
+  <Card title="Energistyring" icon="rocket">
+    Overvåg forbrug og spar penge.
+    
+    [Se guide →](/da/produkter/energistyring/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*
