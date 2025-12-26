@@ -1,0 +1,526 @@
+---
+title: Zigbee2MQTT Advanced Guide
+description: Advanced Zigbee2MQTT guide - network optimization, groups, bindings, firmware updates and troubleshooting.
+sidebar:
+  badge:
+    text: Advanced
+    variant: caution
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+
+<Badge text="Zigbee" variant="tip" /> <Badge text="Z2M" variant="success" /> <Badge text="Advanced" variant="caution" />
+
+This guide covers **advanced Zigbee2MQTT techniques** - from network optimization and groups to firmware updates and troubleshooting. Perfect for getting the most out of your Zigbee network!
+
+<Aside type="tip" title="Prerequisites">
+This guide assumes you already have:
+- Zigbee2MQTT installed and running
+- At least one Zigbee coordinator
+- Basic experience with MQTT
+
+See [Zigbee2MQTT Installation](/en/home-assistant/zigbee2mqtt/) first if you're new.
+</Aside>
+
+---
+
+## 🔧 Coordinator Firmware
+
+### Why Update Firmware?
+
+- ✅ Better stability and performance
+- ✅ Support for newer Zigbee devices
+- ✅ Bug fixes
+- ✅ New features (e.g., Matter/Thread)
+
+<Aside type="caution" title="EZSP → Ember Migration">
+**Important:** EZSP driver is deprecated in Zigbee2MQTT. If you're using ZBDongle-E with old firmware, you need to upgrade to **Ember** firmware (v7.4+).
+
+You do **NOT** need to re-pair devices after firmware update!
+</Aside>
+
+### SONOFF ZBDongle-E (EFR32MG21)
+
+<Tabs>
+  <TabItem label="Web Flasher (Easiest)">
+    <Steps>
+    1. Download firmware from [GitHub](https://github.com/Nerivec/silabs-firmware-builder/releases)
+       - Recommended: `sonoff_zbdonglee_zigbee_ncp_8.0.2.0_115200_sw_flow.gbl`
+    
+    2. Go to [Silabs Web Flasher](https://darkxst.github.io/silabs-firmware-builder/)
+    
+    3. Click **CONNECT** and select your dongle
+    
+    4. Click **CHANGE FIRMWARE**
+    
+    5. Upload the firmware file
+    
+    6. Wait for flashing (about 1-2 minutes)
+    
+    7. Update Z2M configuration:
+       ```yaml
+       serial:
+         adapter: ember  # Change from ezsp to ember
+       ```
+    
+    8. Restart Zigbee2MQTT
+    </Steps>
+  </TabItem>
+  <TabItem label="SONOFF Web Flasher">
+    <Steps>
+    1. Go to [SONOFF Dongle Flasher](https://dongle.sonoff.tech/sonoff-dongle-flasher/)
+    
+    2. Select **Zigbee Coordinator** firmware
+    
+    3. Follow on-screen instructions
+    
+    4. Update Z2M to `adapter: ember`
+    </Steps>
+  </TabItem>
+</Tabs>
+
+### SONOFF ZBDongle-P (CC2652P)
+
+```bash
+# Download firmware
+wget https://github.com/Koenkk/Z-Stack-firmware/raw/master/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20240710.zip
+
+# Extract
+unzip CC1352P2_CC2652P_launchpad_coordinator_20240710.zip
+
+# Flash with cc2538-bsl
+python3 cc2538-bsl.py -e -v -w --bootloader-sonoff-usb \
+  CC1352P2_CC2652P_launchpad_coordinator_20240710.hex \
+  -p /dev/ttyUSB0
+```
+
+---
+
+## 🌐 Network Optimization
+
+### Mesh Network Basics
+
+| Device Type | Function | Examples |
+|-------------|----------|----------|
+| **Coordinator** | Network center | ZBDongle-E/P, Conbee II |
+| **Router** | Extends network | Bulbs, plugs (constant power) |
+| **End Device** | Sensors, battery-powered | Door sensors, thermometers |
+
+### Best Practices
+
+```yaml
+# configuration.yaml - Optimal settings
+advanced:
+  # Network key (generate unique)
+  network_key: GENERATE
+  
+  # Transmit power (max for better range)
+  transmit_power: 20
+  
+  # Channel (avoid WiFi overlap)
+  # Zigbee channel 11 = WiFi channel 1
+  # Zigbee channel 15 = WiFi channel 6
+  # Zigbee channel 20 = WiFi channel 11
+  # Zigbee channel 25 = Overlap-free
+  channel: 25
+  
+  # PAN ID (let Z2M generate)
+  pan_id: GENERATE
+  
+  # Increase for large networks
+  network_key_distribute: true
+```
+
+### Router Recommendations
+
+| Router | Quality | Price | Note |
+|--------|---------|-------|------|
+| **IKEA TRÅDFRI** | ⭐⭐⭐ | ~$12 | Cheap, stable |
+| **Philips Hue** | ⭐⭐⭐⭐⭐ | ~$25 | Excellent routing |
+| **SONOFF ZBDongle-E (Router)** | ⭐⭐⭐⭐ | ~$18 | Dedicated router |
+| **Aqara Smart Plug** | ⭐⭐⭐⭐ | ~$18 | Also measures power |
+| **SONOFF S26R2ZB** | ⭐⭐ | ~$12 | Variable quality |
+
+<Aside type="tip" title="Router Placement">
+Place routers strategically:
+- Center of the house
+- Between coordinator and end devices
+- Not behind metal or water (blocks signal)
+</Aside>
+
+### Network Map
+
+```bash
+# Generate network map via MQTT
+mosquitto_pub -t 'zigbee2mqtt/bridge/request/networkmap' \
+  -m '{"type": "raw", "routes": true}'
+```
+
+Visualize in Z2M Frontend under **Map** tab.
+
+---
+
+## 👥 Groups
+
+### Why Groups?
+
+- ✅ One command for many devices
+- ✅ Faster than individual commands
+- ✅ Synchronous response (all lights turn on simultaneously)
+- ✅ Reduces network traffic
+
+<Aside type="caution" title="Create Groups in Z2M">
+**Important:** ALWAYS create groups in Zigbee2MQTT - NOT in Home Assistant! Z2M groups use native Zigbee broadcast, HA groups send individual commands.
+</Aside>
+
+### Create Group
+
+<Tabs>
+  <TabItem label="Frontend (UI)">
+    <Steps>
+    1. Open Z2M Frontend
+    2. Go to **Groups** tab
+    3. Click **Add group**
+    4. Name the group (e.g., "Living Room Lights")
+    5. Add devices to the group
+    </Steps>
+  </TabItem>
+  <TabItem label="configuration.yaml">
+    ```yaml
+    groups:
+      '1':
+        friendly_name: living_room_lights
+        retain: false
+        transition: 1
+        optimistic: true
+        off_state: 'all_members_off'
+      
+      '2':
+        friendly_name: bedroom_lights
+        retain: false
+        transition: 2
+        optimistic: true
+      
+      '3':
+        friendly_name: all_lights
+        retain: false
+    ```
+  </TabItem>
+  <TabItem label="MQTT">
+    ```bash
+    # Create group
+    mosquitto_pub -t 'zigbee2mqtt/bridge/request/group/add' \
+      -m '{"friendly_name": "living_room_lights", "id": 1}'
+    
+    # Add device to group
+    mosquitto_pub -t 'zigbee2mqtt/bridge/request/group/members/add' \
+      -m '{"group": "living_room_lights", "device": "living_room_lamp_1"}'
+    
+    # Control group
+    mosquitto_pub -t 'zigbee2mqtt/living_room_lights/set' \
+      -m '{"state": "ON", "brightness": 200}'
+    ```
+  </TabItem>
+</Tabs>
+
+### Group Settings
+
+```yaml
+groups:
+  '1':
+    friendly_name: living_room_lights
+    
+    # Retain MQTT messages (false = faster)
+    retain: false
+    
+    # Transition time in seconds
+    transition: 1
+    
+    # Update state before confirmation
+    optimistic: true
+    
+    # When is the group OFF?
+    # all_members_off: When ALL devices are off
+    # last_member_state: When LAST device is off
+    off_state: 'all_members_off'
+```
+
+---
+
+## 🔗 Bindings
+
+### What are Bindings?
+
+**Bindings** connect devices directly - without going through the coordinator. Perfect for:
+- Switches that control lights directly
+- Switches that work even when Z2M is down
+- Ultra-fast response
+
+### Create Binding
+
+<Tabs>
+  <TabItem label="Frontend">
+    <Steps>
+    1. Go to device page for the **source** (e.g., switch)
+    2. Click **Bind** tab
+    3. Select **Destination** (e.g., lamp or group)
+    4. Select clusters to bind (On/Off, Level, etc.)
+    5. Click **Bind**
+    </Steps>
+  </TabItem>
+  <TabItem label="MQTT">
+    ```bash
+    # Bind switch to lamp
+    mosquitto_pub -t 'zigbee2mqtt/bridge/request/device/bind' \
+      -m '{
+        "from": "living_room_switch",
+        "to": "living_room_lamp",
+        "clusters": ["genOnOff", "genLevelCtrl"]
+      }'
+    
+    # Bind switch to group
+    mosquitto_pub -t 'zigbee2mqtt/bridge/request/device/bind' \
+      -m '{
+        "from": "living_room_switch",
+        "to": "living_room_lights",
+        "clusters": ["genOnOff"]
+      }'
+    
+    # Remove binding
+    mosquitto_pub -t 'zigbee2mqtt/bridge/request/device/unbind' \
+      -m '{
+        "from": "living_room_switch",
+        "to": "living_room_lamp"
+      }'
+    ```
+  </TabItem>
+</Tabs>
+
+### Cluster Types
+
+| Cluster | Function |
+|---------|----------|
+| `genOnOff` | On/off |
+| `genLevelCtrl` | Brightness |
+| `lightingColorCtrl` | Color/temperature |
+| `closuresWindowCovering` | Blinds/covers |
+
+---
+
+## 🔧 Advanced Configuration
+
+### Device-Specific Configuration
+
+```yaml
+devices:
+  '0x00158d0001234567':
+    friendly_name: living_room_sensor
+    
+    # Reduce noise
+    debounce: 1
+    
+    # Filter attributes
+    filtered_attributes:
+      - linkquality
+      - voltage
+    
+    # Retain MQTT messages
+    retain: true
+    
+    # Optimistic mode
+    optimistic: true
+    
+    # Device-specific settings
+    occupancy_timeout: 90
+    no_occupancy_since:
+      - 60
+      - 120
+      - 300
+```
+
+### Separate Config Files
+
+```yaml
+# configuration.yaml
+devices: devices.yaml
+groups: groups.yaml
+
+# devices.yaml
+'0x00158d0001234567':
+  friendly_name: living_room_sensor
+'0x00158d0001234568':
+  friendly_name: bedroom_sensor
+
+# groups.yaml  
+'1':
+  friendly_name: living_room_lights
+'2':
+  friendly_name: all_lights
+```
+
+### Advanced Settings
+
+```yaml
+advanced:
+  # Logging
+  log_level: info
+  log_output:
+    - console
+    - file
+  log_file: zigbee2mqtt_%TIMESTAMP%.log
+  log_rotation: true
+  
+  # Performance
+  cache_state: true
+  cache_state_persistent: true
+  cache_state_send_on_startup: true
+  
+  # Network
+  last_seen: 'ISO_8601'
+  elapsed: true
+  
+  # Security
+  permit_join: false
+  
+  # Home Assistant
+  homeassistant_legacy_entity_attributes: false
+  legacy_api: false
+  legacy_availability_payload: false
+```
+
+---
+
+## 🔍 Troubleshooting
+
+### Common Problems
+
+<Tabs>
+  <TabItem label="Device Won't Pair">
+    ```bash
+    # 1. Enable permit join on specific router
+    mosquitto_pub -t 'zigbee2mqtt/bridge/request/permit_join' \
+      -m '{"value": true, "device": "nearby_router"}'
+    
+    # 2. Factory reset the device (see manual)
+    
+    # 3. Move device closer to coordinator
+    
+    # 4. Check logs
+    tail -f /opt/zigbee2mqtt/data/log/*/log.log
+    ```
+  </TabItem>
+  <TabItem label="Device Drops Out">
+    ```yaml
+    # 1. Check LQI (Link Quality Indicator)
+    # Frontend → Device → About → LQI
+    # Below 50 = poor connection
+    
+    # 2. Add router between device and coordinator
+    
+    # 3. Check battery level
+    
+    # 4. Use availability feature
+    availability:
+      active:
+        timeout: 10
+      passive:
+        timeout: 1500
+    ```
+  </TabItem>
+  <TabItem label="Slow Response">
+    ```yaml
+    # 1. Use groups instead of individual commands
+    
+    # 2. Use bindings for direct control
+    
+    # 3. Avoid too many end devices on one router
+    # Max ~20 end devices per router
+    
+    # 4. Update coordinator firmware
+    
+    # 5. Check for WiFi interference
+    # Change Zigbee channel if needed
+    ```
+  </TabItem>
+</Tabs>
+
+### Re-pair All Devices
+
+```bash
+# WARNING: This deletes all devices!
+# Use only as last resort
+
+# 1. Stop Zigbee2MQTT
+sudo systemctl stop zigbee2mqtt
+
+# 2. Backup database
+cp /opt/zigbee2mqtt/data/database.db /opt/zigbee2mqtt/data/database.db.backup
+
+# 3. Delete database (DANGER!)
+rm /opt/zigbee2mqtt/data/database.db
+
+# 4. Start Zigbee2MQTT
+sudo systemctl start zigbee2mqtt
+
+# 5. Re-pair all devices
+```
+
+### Log Analysis
+
+```bash
+# Realtime logs
+journalctl -u zigbee2mqtt -f
+
+# Search for errors
+journalctl -u zigbee2mqtt | grep -i error
+
+# Z2M log level
+# In configuration.yaml:
+advanced:
+  log_level: debug  # warn, info, debug
+```
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Will I lose my devices when updating firmware?",
+    answer: "No! Firmware updates on the coordinator preserve all paired devices. You just need to update the adapter type in configuration (e.g., ezsp → ember)."
+  },
+  {
+    question: "What's the difference between groups in Z2M vs HA?",
+    answer: "Z2M groups use native Zigbee broadcast - one message to all devices. HA groups send individual commands to each device. Z2M groups are faster and more synchronous."
+  },
+  {
+    question: "Why isn't my binding working?",
+    answer: "Both devices must support the same clusters. Check the device page in Z2M to see supported clusters. Some cheap devices don't support binding."
+  },
+  {
+    question: "Which channel should I use?",
+    answer: "Channel 25 has the least WiFi overlap. Alternatively: channels 11, 15, or 20 depending on your WiFi channels. Avoid channel 25 if you have many Zigbee 3.0 devices requiring channel change."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Zigbee Sensors" icon="seti:arduino">
+    Recommended Zigbee sensors.
+    
+    [See guide →](/en/products/zigbee-sensors/)
+  </Card>
+  <Card title="Automations" icon="rocket">
+    Use Zigbee in automations.
+    
+    [See guide →](/en/home-assistant/first-automation/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*

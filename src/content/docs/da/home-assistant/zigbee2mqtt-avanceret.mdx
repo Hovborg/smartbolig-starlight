@@ -1,0 +1,526 @@
+---
+title: Zigbee2MQTT Avanceret Guide
+description: Avanceret Zigbee2MQTT guide - netværksoptimering, grupper, bindings, firmware opdatering og troubleshooting.
+sidebar:
+  badge:
+    text: Avanceret
+    variant: caution
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+
+<Badge text="Zigbee" variant="tip" /> <Badge text="Z2M" variant="success" /> <Badge text="Avanceret" variant="caution" />
+
+Denne guide dækker **avancerede Zigbee2MQTT teknikker** - fra netværksoptimering og grupper til firmware opdatering og troubleshooting. Perfekt til at få det meste ud af dit Zigbee netværk!
+
+<Aside type="tip" title="Forudsætninger">
+Denne guide antager du allerede har:
+- Zigbee2MQTT installeret og kørende
+- Mindst én Zigbee coordinator
+- Grundlæggende erfaring med MQTT
+
+Se [Zigbee2MQTT Installation](/da/home-assistant/zigbee2mqtt/) først hvis du er ny.
+</Aside>
+
+---
+
+## 🔧 Coordinator Firmware
+
+### Hvorfor Opdatere Firmware?
+
+- ✅ Bedre stabilitet og ydeevne
+- ✅ Support for nyere Zigbee enheder
+- ✅ Fejlrettelser
+- ✅ Nye funktioner (f.eks. Matter/Thread)
+
+<Aside type="caution" title="EZSP → Ember Migration">
+**Vigtigt:** EZSP driver er deprecated i Zigbee2MQTT. Hvis du bruger ZBDongle-E med gammel firmware, skal du opgradere til **Ember** firmware (v7.4+).
+
+Du behøver **IKKE** parre enheder igen efter firmware opdatering!
+</Aside>
+
+### SONOFF ZBDongle-E (EFR32MG21)
+
+<Tabs>
+  <TabItem label="Web Flasher (Nemmest)">
+    <Steps>
+    1. Download firmware fra [GitHub](https://github.com/Nerivec/silabs-firmware-builder/releases)
+       - Anbefalet: `sonoff_zbdonglee_zigbee_ncp_8.0.2.0_115200_sw_flow.gbl`
+    
+    2. Gå til [Silabs Web Flasher](https://darkxst.github.io/silabs-firmware-builder/)
+    
+    3. Klik **CONNECT** og vælg din dongle
+    
+    4. Klik **CHANGE FIRMWARE**
+    
+    5. Upload firmware filen
+    
+    6. Vent på flashing (ca. 1-2 minutter)
+    
+    7. Opdater Z2M konfiguration:
+       ```yaml
+       serial:
+         adapter: ember  # Skift fra ezsp til ember
+       ```
+    
+    8. Genstart Zigbee2MQTT
+    </Steps>
+  </TabItem>
+  <TabItem label="SONOFF Web Flasher">
+    <Steps>
+    1. Gå til [SONOFF Dongle Flasher](https://dongle.sonoff.tech/sonoff-dongle-flasher/)
+    
+    2. Vælg **Zigbee Coordinator** firmware
+    
+    3. Følg on-screen instruktioner
+    
+    4. Opdater Z2M til `adapter: ember`
+    </Steps>
+  </TabItem>
+</Tabs>
+
+### SONOFF ZBDongle-P (CC2652P)
+
+```bash
+# Download firmware
+wget https://github.com/Koenkk/Z-Stack-firmware/raw/master/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20240710.zip
+
+# Udpak
+unzip CC1352P2_CC2652P_launchpad_coordinator_20240710.zip
+
+# Flash med cc2538-bsl
+python3 cc2538-bsl.py -e -v -w --bootloader-sonoff-usb \
+  CC1352P2_CC2652P_launchpad_coordinator_20240710.hex \
+  -p /dev/ttyUSB0
+```
+
+---
+
+## 🌐 Netværksoptimering
+
+### Mesh Netværk Grundlæggende
+
+| Enhedstype | Funktion | Eksempler |
+|------------|----------|-----------|
+| **Coordinator** | Netværkets centrum | ZBDongle-E/P, Conbee II |
+| **Router** | Udvider netværket | Pærer, stikkontakter (konstant strøm) |
+| **End Device** | Sensorer, batteridrevne | Dørsensorer, termometre |
+
+### Bedste Praksis
+
+```yaml
+# configuration.yaml - Optimale indstillinger
+advanced:
+  # Netværksnøgle (generer en unik)
+  network_key: GENERATE
+  
+  # Transmit power (max for bedre rækkevidde)
+  transmit_power: 20
+  
+  # Kanal (undgå WiFi overlap)
+  # Zigbee kanal 11 = WiFi kanal 1
+  # Zigbee kanal 15 = WiFi kanal 6
+  # Zigbee kanal 20 = WiFi kanal 11
+  # Zigbee kanal 25 = Overlap-fri
+  channel: 25
+  
+  # PAN ID (lad Z2M generere)
+  pan_id: GENERATE
+  
+  # Øg for store netværk
+  network_key_distribute: true
+```
+
+### Routere Anbefalinger
+
+| Router | Kvalitet | Pris | Note |
+|--------|----------|------|------|
+| **IKEA TRÅDFRI** | ⭐⭐⭐ | ~100 kr | Billige, stabile |
+| **Philips Hue** | ⭐⭐⭐⭐⭐ | ~200 kr | Excellent routing |
+| **SONOFF ZBDongle-E (Router)** | ⭐⭐⭐⭐ | ~150 kr | Dedikeret router |
+| **Aqara Smart Plug** | ⭐⭐⭐⭐ | ~150 kr | Også måler strøm |
+| **SONOFF S26R2ZB** | ⭐⭐ | ~100 kr | Variabel kvalitet |
+
+<Aside type="tip" title="Router Placering">
+Placér routere strategisk:
+- Midt i huset
+- Mellem coordinator og end devices
+- Ikke bag metal eller vand (blokerer signal)
+</Aside>
+
+### Netværkskort
+
+```bash
+# Generer netværkskort via MQTT
+mosquitto_pub -t 'zigbee2mqtt/bridge/request/networkmap' \
+  -m '{"type": "raw", "routes": true}'
+```
+
+Visualisér i Z2M Frontend under **Map** tab.
+
+---
+
+## 👥 Grupper
+
+### Hvorfor Grupper?
+
+- ✅ Én kommando til mange enheder
+- ✅ Hurtigere end individuelle kommandoer
+- ✅ Synkron respons (alle lys tænder samtidig)
+- ✅ Reducerer netværkstrafik
+
+<Aside type="caution" title="Opret Grupper i Z2M">
+**Vigtigt:** Opret ALTID grupper i Zigbee2MQTT - IKKE i Home Assistant! Z2M grupper bruger native Zigbee broadcast, HA grupper sender individuelle kommandoer.
+</Aside>
+
+### Oprette Gruppe
+
+<Tabs>
+  <TabItem label="Frontend (UI)">
+    <Steps>
+    1. Åbn Z2M Frontend
+    2. Gå til **Groups** tab
+    3. Klik **Add group**
+    4. Navngiv gruppen (f.eks. "Stue Lys")
+    5. Tilføj enheder til gruppen
+    </Steps>
+  </TabItem>
+  <TabItem label="configuration.yaml">
+    ```yaml
+    groups:
+      '1':
+        friendly_name: stue_lys
+        retain: false
+        transition: 1
+        optimistic: true
+        off_state: 'all_members_off'
+      
+      '2':
+        friendly_name: sovevaerelse_lys
+        retain: false
+        transition: 2
+        optimistic: true
+      
+      '3':
+        friendly_name: alle_lys
+        retain: false
+    ```
+  </TabItem>
+  <TabItem label="MQTT">
+    ```bash
+    # Opret gruppe
+    mosquitto_pub -t 'zigbee2mqtt/bridge/request/group/add' \
+      -m '{"friendly_name": "stue_lys", "id": 1}'
+    
+    # Tilføj enhed til gruppe
+    mosquitto_pub -t 'zigbee2mqtt/bridge/request/group/members/add' \
+      -m '{"group": "stue_lys", "device": "stue_lampe_1"}'
+    
+    # Styr gruppe
+    mosquitto_pub -t 'zigbee2mqtt/stue_lys/set' \
+      -m '{"state": "ON", "brightness": 200}'
+    ```
+  </TabItem>
+</Tabs>
+
+### Gruppe Indstillinger
+
+```yaml
+groups:
+  '1':
+    friendly_name: stue_lys
+    
+    # Gem MQTT beskeder (false = hurtigere)
+    retain: false
+    
+    # Transition tid i sekunder
+    transition: 1
+    
+    # Opdater state før bekræftelse
+    optimistic: true
+    
+    # Hvornår er gruppen OFF?
+    # all_members_off: Når ALLE enheder er off
+    # last_member_state: Når SIDSTE enhed er off
+    off_state: 'all_members_off'
+```
+
+---
+
+## 🔗 Bindings
+
+### Hvad er Bindings?
+
+**Bindings** forbinder enheder direkte - uden at gå gennem coordinator. Perfekt til:
+- Kontakter der styrer lys direkte
+- Switches der virker selv når Z2M er nede
+- Ultra-hurtig respons
+
+### Oprette Binding
+
+<Tabs>
+  <TabItem label="Frontend">
+    <Steps>
+    1. Gå til device siden for **kilden** (f.eks. kontakt)
+    2. Klik **Bind** tab
+    3. Vælg **Destination** (f.eks. lampe eller gruppe)
+    4. Vælg clusters at binde (On/Off, Level, etc.)
+    5. Klik **Bind**
+    </Steps>
+  </TabItem>
+  <TabItem label="MQTT">
+    ```bash
+    # Bind kontakt til lampe
+    mosquitto_pub -t 'zigbee2mqtt/bridge/request/device/bind' \
+      -m '{
+        "from": "stue_kontakt",
+        "to": "stue_lampe",
+        "clusters": ["genOnOff", "genLevelCtrl"]
+      }'
+    
+    # Bind kontakt til gruppe
+    mosquitto_pub -t 'zigbee2mqtt/bridge/request/device/bind' \
+      -m '{
+        "from": "stue_kontakt",
+        "to": "stue_lys",
+        "clusters": ["genOnOff"]
+      }'
+    
+    # Fjern binding
+    mosquitto_pub -t 'zigbee2mqtt/bridge/request/device/unbind' \
+      -m '{
+        "from": "stue_kontakt",
+        "to": "stue_lampe"
+      }'
+    ```
+  </TabItem>
+</Tabs>
+
+### Cluster Typer
+
+| Cluster | Funktion |
+|---------|----------|
+| `genOnOff` | Tænd/sluk |
+| `genLevelCtrl` | Lysstyrke |
+| `lightingColorCtrl` | Farve/temperatur |
+| `closuresWindowCovering` | Gardiner |
+
+---
+
+## 🔧 Avanceret Konfiguration
+
+### Device-Specifik Konfiguration
+
+```yaml
+devices:
+  '0x00158d0001234567':
+    friendly_name: stue_sensor
+    
+    # Reducer støj
+    debounce: 1
+    
+    # Filtrer attributter
+    filtered_attributes:
+      - linkquality
+      - voltage
+    
+    # Retain MQTT beskeder
+    retain: true
+    
+    # Optimistic mode
+    optimistic: true
+    
+    # Device-specifik indstillinger
+    occupancy_timeout: 90
+    no_occupancy_since:
+      - 60
+      - 120
+      - 300
+```
+
+### Separate Config Filer
+
+```yaml
+# configuration.yaml
+devices: devices.yaml
+groups: groups.yaml
+
+# devices.yaml
+'0x00158d0001234567':
+  friendly_name: stue_sensor
+'0x00158d0001234568':
+  friendly_name: sovevaerelse_sensor
+
+# groups.yaml  
+'1':
+  friendly_name: stue_lys
+'2':
+  friendly_name: alle_lys
+```
+
+### Avancerede Indstillinger
+
+```yaml
+advanced:
+  # Logging
+  log_level: info
+  log_output:
+    - console
+    - file
+  log_file: zigbee2mqtt_%TIMESTAMP%.log
+  log_rotation: true
+  
+  # Ydeevne
+  cache_state: true
+  cache_state_persistent: true
+  cache_state_send_on_startup: true
+  
+  # Netværk
+  last_seen: 'ISO_8601'
+  elapsed: true
+  
+  # Sikkerhed
+  permit_join: false
+  
+  # Home Assistant
+  homeassistant_legacy_entity_attributes: false
+  legacy_api: false
+  legacy_availability_payload: false
+```
+
+---
+
+## 🔍 Troubleshooting
+
+### Almindelige Problemer
+
+<Tabs>
+  <TabItem label="Enhed Parrer Ikke">
+    ```bash
+    # 1. Aktiver permit join på specifik router
+    mosquitto_pub -t 'zigbee2mqtt/bridge/request/permit_join' \
+      -m '{"value": true, "device": "tæt_router"}'
+    
+    # 2. Factory reset enheden (se manual)
+    
+    # 3. Flyt enheden tættere på coordinator
+    
+    # 4. Tjek logs
+    tail -f /opt/zigbee2mqtt/data/log/*/log.log
+    ```
+  </TabItem>
+  <TabItem label="Enhed Falder Ud">
+    ```yaml
+    # 1. Tjek LQI (Link Quality Indicator)
+    # Frontend → Device → About → LQI
+    # Under 50 = dårlig forbindelse
+    
+    # 2. Tilføj router mellem enhed og coordinator
+    
+    # 3. Tjek batteriniveau
+    
+    # 4. Brug availability feature
+    availability:
+      active:
+        timeout: 10
+      passive:
+        timeout: 1500
+    ```
+  </TabItem>
+  <TabItem label="Langsom Respons">
+    ```yaml
+    # 1. Brug grupper i stedet for individuelle kommandoer
+    
+    # 2. Brug bindings for direkte kontrol
+    
+    # 3. Undgå for mange end devices på én router
+    # Max ~20 end devices per router
+    
+    # 4. Opdater coordinator firmware
+    
+    # 5. Tjek for WiFi interferens
+    # Skift Zigbee kanal hvis nødvendigt
+    ```
+  </TabItem>
+</Tabs>
+
+### Genpar Alle Enheder
+
+```bash
+# ADVARSEL: Dette sletter alle enheder!
+# Brug kun som sidste udvej
+
+# 1. Stop Zigbee2MQTT
+sudo systemctl stop zigbee2mqtt
+
+# 2. Backup database
+cp /opt/zigbee2mqtt/data/database.db /opt/zigbee2mqtt/data/database.db.backup
+
+# 3. Slet database (DANGER!)
+rm /opt/zigbee2mqtt/data/database.db
+
+# 4. Start Zigbee2MQTT
+sudo systemctl start zigbee2mqtt
+
+# 5. Par alle enheder igen
+```
+
+### Logs Analyse
+
+```bash
+# Realtime logs
+journalctl -u zigbee2mqtt -f
+
+# Søg efter fejl
+journalctl -u zigbee2mqtt | grep -i error
+
+# Z2M log niveau
+# I configuration.yaml:
+advanced:
+  log_level: debug  # warn, info, debug
+```
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Mister jeg mine enheder ved firmware opdatering?",
+    answer: "Nej! Firmware opdatering på coordinator bevarer alle parrede enheder. Du skal bare opdatere adapter type i konfigurationen (f.eks. ezsp → ember)."
+  },
+  {
+    question: "Hvad er forskellen på grupper i Z2M vs HA?",
+    answer: "Z2M grupper bruger native Zigbee broadcast - én besked til alle enheder. HA grupper sender individuelle kommandoer til hver enhed. Z2M grupper er hurtigere og mere synkrone."
+  },
+  {
+    question: "Hvorfor virker min binding ikke?",
+    answer: "Begge enheder skal understøtte de samme clusters. Tjek device-siden i Z2M for at se understøttede clusters. Nogle billige enheder understøtter ikke binding."
+  },
+  {
+    question: "Hvilken kanal skal jeg bruge?",
+    answer: "Kanal 25 har mindst WiFi overlap. Alternativt: kanal 11, 15 eller 20 afhængigt af dine WiFi kanaler. Undgå kanal 25 hvis du har mange Zigbee 3.0 enheder der kræver channel change."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="Zigbee Sensorer" icon="seti:arduino">
+    Anbefalede Zigbee sensorer.
+    
+    [Se guide →](/da/produkter/zigbee-sensorer/)
+  </Card>
+  <Card title="Automationer" icon="rocket">
+    Brug Zigbee i automationer.
+    
+    [Se guide →](/da/home-assistant/foerste-automation/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*
