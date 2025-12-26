@@ -1,0 +1,474 @@
+---
+title: Fejlfinding i Home Assistant
+description: Løs de mest almindelige problemer i Home Assistant med denne komplette fejlfindingsguide. Logs, diagnostik og løsninger.
+sidebar:
+  badge:
+    text: Hjælp
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+
+<Badge text="Troubleshooting" variant="caution" /> <Badge text="Debug" variant="tip" /> <Badge text="Logs" variant="note" />
+
+Noget virker ikke som det skal? Denne guide hjælper dig med at finde og løse de mest almindelige problemer i Home Assistant.
+
+---
+
+## 🔍 Generel Fejlfinding
+
+### Trin 1: Tjek Logs
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    FEJLFINDING WORKFLOW                     │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. TJEK LOGS        → Indstillinger → System → Logs       │
+│  2. IDENTIFICER      → Find fejlbeskeder (røde linjer)      │
+│  3. SØG ONLINE       → Google fejlbeskeden                  │
+│  4. COMMUNITY        → Home Assistant Forum/Discord         │
+│  5. GENSTART         → Ofte løser det simple problemer      │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Hvor Finder Jeg Logs?
+
+| Log Type | Lokation |
+|----------|----------|
+| **Core logs** | Indstillinger → System → Logs |
+| **Supervisor logs** | Indstillinger → System → Logs → Supervisor |
+| **Add-on logs** | Indstillinger → Add-ons → [Add-on] → Log |
+| **Full log file** | `/config/home-assistant.log` |
+
+### Aktiver Debug Logging
+
+```yaml
+# configuration.yaml
+logger:
+  default: info
+  logs:
+    # Aktiver debug for specifik komponent
+    homeassistant.components.zha: debug
+    homeassistant.components.mqtt: debug
+    # Eller en specifik integration
+    custom_components.hacs: debug
+```
+
+<Aside type="tip" title="Husk at slå debug fra">
+Debug logging genererer MEGET data og kan fylde din disk. Slå det fra igen når problemet er løst.
+</Aside>
+
+---
+
+## 🚫 Home Assistant Starter Ikke
+
+### Symptom: Blank skærm eller "Unable to connect"
+
+<Steps>
+1. **Vent 5-10 minutter** - Opstarten kan tage tid
+
+2. **Tjek om HA kører:**
+   ```bash
+   # SSH ind på din server
+   ha core info
+   ```
+
+3. **Se startup logs:**
+   ```bash
+   ha core logs
+   ```
+
+4. **Common fixes:**
+   - Tjek configuration.yaml for syntaksfejl
+   - Fjern nyligt tilføjede integrationer
+   - Boot i safe mode
+</Steps>
+
+### Boot i Safe Mode
+
+```bash
+# Via SSH eller terminal
+ha core restart --safe-mode
+```
+
+Safe mode starter HA uden custom integrations og add-ons.
+
+### Configuration Fejl
+
+```yaml
+# Valider configuration FØR genstart
+# Indstillinger → System → Udviklerværktøjer → YAML → Tjek konfiguration
+
+# Eller via kommandolinje:
+ha core check
+```
+
+---
+
+## 📡 Zigbee Problemer
+
+### Enhed Falder Ud af Netværket
+
+| Årsag | Løsning |
+|-------|---------|
+| **Svagt signal** | Tilføj flere routere (strømforsynede enheder) |
+| **Interferens** | Flyt coordinator væk fra USB 3.0 / WiFi router |
+| **Firmware** | Opdater coordinator firmware |
+| **Overfyldt kanal** | Skift Zigbee kanal (11, 15, 20, 25) |
+
+### Parring Fejler
+
+<Steps>
+1. **Sæt enheden i parringstilstand** (se manual)
+
+2. **Sørg for coordinator er klar:**
+   - Zigbee2MQTT: Permit Join aktiveret
+   - ZHA: Tilføj enhed aktiveret
+
+3. **Placer enheden TÆT på coordinator** under parring
+
+4. **Factory reset enheden** og prøv igen
+
+5. **Tjek at enheden er supporteret:**
+   - [Zigbee2MQTT Supported Devices](https://www.zigbee2mqtt.io/supported-devices/)
+   - [ZHA Device Support](https://zigpy.github.io/)
+</Steps>
+
+### USB Coordinator Forsvinder
+
+```bash
+# Find USB device
+ls -la /dev/serial/by-id/
+
+# Brug det permanente device navn i konfiguration:
+# /dev/serial/by-id/usb-Silicon_Labs_CP2102-xxxxx
+# IKKE /dev/ttyUSB0 (kan ændre sig)
+```
+
+---
+
+## 📶 WiFi Enheder
+
+### Shelly Vises Ikke
+
+| Tjek | Løsning |
+|------|---------|
+| **Samme netværk** | Enheden skal være på samme subnet |
+| **mDNS** | Aktiver mDNS på din router |
+| **IP adresse** | Find IP via router eller Shelly app |
+| **Firewall** | Tillad UDP port 5683 (CoAP) |
+
+### Tasmota/ESPHome Offline
+
+```yaml
+# Tjek WiFi signal styrke
+# Entity: sensor.enhed_wifi_signal
+
+# Hvis signal er svagt:
+# 1. Flyt enheden tættere på AP
+# 2. Tilføj WiFi repeater
+# 3. Skift til 2.4 GHz (bedre rækkevidde)
+```
+
+---
+
+## 🔄 Automationer Virker Ikke
+
+### Debugging Checklist
+
+<Steps>
+1. **Er automationen aktiveret?**
+   - Tjek toggle i Automations liste
+
+2. **Trigger korrekt?**
+   - Indstillinger → Automations → [Automation] → Spor
+   - Tjek "Sidste triggeret"
+
+3. **Conditions opfyldt?**
+   - Test hver condition individuelt
+   - Brug Developer Tools → States
+
+4. **Actions fejler?**
+   - Tjek logs for fejl
+   - Test action manuelt via Services
+</Steps>
+
+### Test Automation Manuelt
+
+```yaml
+# Developer Tools → Services
+service: automation.trigger
+target:
+  entity_id: automation.din_automation
+data:
+  skip_condition: true  # Spring conditions over
+```
+
+### Trace Automation
+
+<Steps>
+1. Gå til **Indstillinger → Automationer**
+
+2. Klik på automationen
+
+3. Klik **Spor** (trace ikon)
+
+4. Se præcis hvad der skete ved sidste kørsel:
+   - Hvilke triggers aktiverede
+   - Hvilke conditions var sande/falske
+   - Hvilke actions kørte/fejlede
+</Steps>
+
+---
+
+## 🗄️ Database Problemer
+
+### "Database is locked"
+
+```bash
+# Stop Home Assistant
+ha core stop
+
+# Vent 30 sekunder
+
+# Start igen
+ha core start
+```
+
+### Korrupt Database
+
+```bash
+# Backup først!
+cp /config/home-assistant_v2.db /config/home-assistant_v2.db.backup
+
+# Slet database (mister historik)
+rm /config/home-assistant_v2.db
+
+# Genstart - ny database oprettes automatisk
+ha core restart
+```
+
+### Database For Stor
+
+Se [Performance Guide](/da/home-assistant/performance/) for database optimering.
+
+---
+
+## 🔌 Integration Problemer
+
+### Integration Loader Ikke
+
+| Problem | Løsning |
+|---------|---------|
+| **Manglende dependencies** | Genstart HA, tjek logs |
+| **Inkompatibel version** | Opdater integration |
+| **Configuration fejl** | Tjek integration docs |
+| **Credentials udløbet** | Re-authenticate |
+
+### Re-authenticate Integration
+
+<Steps>
+1. Gå til **Indstillinger → Enheder & Tjenester**
+
+2. Find integrationen
+
+3. Klik **Konfigurer** eller **Re-authenticate**
+
+4. Følg OAuth flow igen
+</Steps>
+
+### HACS Integration Problemer
+
+```bash
+# Geninstaller HACS integration
+1. Fjern integration fra Enheder & Tjenester
+2. Slet mappe: /config/custom_components/[integration]
+3. Genstart HA
+4. Installer igen via HACS
+```
+
+---
+
+## 🖥️ UI Problemer
+
+### Dashboard Loader Ikke
+
+<Steps>
+1. **Ryd browser cache:**
+   - Chrome: Ctrl+Shift+Del
+   - Safari: Cmd+Alt+E
+
+2. **Hard refresh:**
+   - Windows: Ctrl+Shift+R
+   - Mac: Cmd+Shift+R
+
+3. **Prøv inkognito vindue**
+
+4. **Tjek at resources er loadet:**
+   - F12 → Console → Se efter røde fejl
+</Steps>
+
+### Custom Card Vises Ikke
+
+```yaml
+# Tjek at resource er tilføjet:
+# Indstillinger → Dashboards → Resources
+
+# Eller i configuration.yaml:
+lovelace:
+  mode: yaml
+  resources:
+    - url: /hacsfiles/button-card/button-card.js
+      type: module
+```
+
+---
+
+## 🔐 Login Problemer
+
+### Glemt Password
+
+```bash
+# Via kommandolinje
+ha auth reset --username DIT_BRUGERNAVN --password NYT_PASSWORD
+```
+
+### 2FA Mistet
+
+```bash
+# Fjern TOTP for bruger
+ha auth totp remove --username DIT_BRUGERNAVN
+```
+
+### Locked Out
+
+```yaml
+# Tilføj midlertidigt til configuration.yaml:
+homeassistant:
+  auth_providers:
+    - type: trusted_networks
+      trusted_networks:
+        - 192.168.1.0/24
+      allow_bypass_login: true
+    - type: homeassistant
+
+# Genstart, log ind, fjern igen
+```
+
+---
+
+## 🔧 Nyttige Kommandoer
+
+### SSH/Terminal Kommandoer
+
+```bash
+# Systeminfo
+ha info
+ha core info
+ha supervisor info
+
+# Logs
+ha core logs
+ha supervisor logs
+ha host logs
+
+# Genstart
+ha core restart
+ha supervisor restart
+ha host reboot
+
+# Opdatering
+ha core update
+ha supervisor update
+
+# Backup
+ha backups new
+ha backups list
+```
+
+### Developer Tools
+
+| Værktøj | Brug |
+|---------|------|
+| **States** | Se/ændre entity states |
+| **Services** | Test services manuelt |
+| **Template** | Test Jinja2 templates |
+| **Events** | Se/fire events |
+| **Statistics** | Fix statistik problemer |
+
+---
+
+## 📋 Fejlfinding Tjekliste
+
+### Før Du Spørger om Hjælp
+
+- [ ] Tjekket logs for fejlbeskeder
+- [ ] Søgt efter fejlen på Google
+- [ ] Tjekket Home Assistant dokumentation
+- [ ] Genstartet Home Assistant
+- [ ] Opdateret til seneste version
+- [ ] Testet i Safe Mode
+
+### Når Du Beder om Hjælp
+
+Inkluder altid:
+
+```markdown
+**Home Assistant version:** 2025.x.x
+**Installation type:** HAOS / Docker / Core
+**Hardware:** RPi4 / Intel NUC / VM
+**Problem:** Kort beskrivelse
+**Logs:**
+```
+[Relevante log linjer]
+```
+**Hvad har du prøvet:**
+- Liste over forsøgte løsninger
+```
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Hvorfor er min Home Assistant langsom?",
+    answer: "De mest almindelige årsager er: stor database (reducer purge_keep_days), for mange integrationer der poller, eller langsom storage (SD-kort). Se Performance guiden for løsninger."
+  },
+  {
+    question: "Hvordan finder jeg ud af hvad der er galt?",
+    answer: "Start altid med logs: Indstillinger → System → Logs. Kig efter røde fejllinjer. Kopier fejlbeskeden og søg på Google eller Home Assistant Community forum."
+  },
+  {
+    question: "Min automation kørte før, men stoppede pludselig?",
+    answer: "Tjek Automation trace for at se hvad der sker. Ofte er det en condition der ikke længere er opfyldt, en entity der har skiftet navn, eller en integration der er gået offline."
+  },
+  {
+    question: "Hvordan genstarter jeg uden at miste mine indstillinger?",
+    answer: "En normal genstart (Indstillinger → System → Genstart) bevarer alle indstillinger. Det er kun hvis du sletter configuration filer eller database at du mister data."
+  }
+]} />
+
+---
+
+## 📚 Flere Ressourcer
+
+<CardGrid>
+  <Card title="Community Forum" icon="comment">
+    Stil spørgsmål og få hjælp.
+    
+    [community.home-assistant.io](https://community.home-assistant.io/)
+  </Card>
+  <Card title="Discord" icon="discord">
+    Real-time chat support.
+    
+    [discord.gg/home-assistant](https://discord.gg/home-assistant)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*

@@ -1,0 +1,474 @@
+---
+title: Troubleshooting Home Assistant
+description: Solve the most common problems in Home Assistant with this complete troubleshooting guide. Logs, diagnostics and solutions.
+sidebar:
+  badge:
+    text: Help
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+
+<Badge text="Troubleshooting" variant="caution" /> <Badge text="Debug" variant="tip" /> <Badge text="Logs" variant="note" />
+
+Something not working as expected? This guide helps you find and solve the most common problems in Home Assistant.
+
+---
+
+## 🔍 General Troubleshooting
+
+### Step 1: Check Logs
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    TROUBLESHOOTING WORKFLOW                 │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  1. CHECK LOGS       → Settings → System → Logs            │
+│  2. IDENTIFY         → Find error messages (red lines)      │
+│  3. SEARCH ONLINE    → Google the error message             │
+│  4. COMMUNITY        → Home Assistant Forum/Discord         │
+│  5. RESTART          → Often solves simple problems         │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Where to Find Logs?
+
+| Log Type | Location |
+|----------|----------|
+| **Core logs** | Settings → System → Logs |
+| **Supervisor logs** | Settings → System → Logs → Supervisor |
+| **Add-on logs** | Settings → Add-ons → [Add-on] → Log |
+| **Full log file** | `/config/home-assistant.log` |
+
+### Enable Debug Logging
+
+```yaml
+# configuration.yaml
+logger:
+  default: info
+  logs:
+    # Enable debug for specific component
+    homeassistant.components.zha: debug
+    homeassistant.components.mqtt: debug
+    # Or a specific integration
+    custom_components.hacs: debug
+```
+
+<Aside type="tip" title="Remember to disable debug">
+Debug logging generates A LOT of data and can fill your disk. Turn it off again when the problem is solved.
+</Aside>
+
+---
+
+## 🚫 Home Assistant Won't Start
+
+### Symptom: Blank screen or "Unable to connect"
+
+<Steps>
+1. **Wait 5-10 minutes** - Startup can take time
+
+2. **Check if HA is running:**
+   ```bash
+   # SSH into your server
+   ha core info
+   ```
+
+3. **View startup logs:**
+   ```bash
+   ha core logs
+   ```
+
+4. **Common fixes:**
+   - Check configuration.yaml for syntax errors
+   - Remove recently added integrations
+   - Boot in safe mode
+</Steps>
+
+### Boot in Safe Mode
+
+```bash
+# Via SSH or terminal
+ha core restart --safe-mode
+```
+
+Safe mode starts HA without custom integrations and add-ons.
+
+### Configuration Errors
+
+```yaml
+# Validate configuration BEFORE restart
+# Settings → System → Developer Tools → YAML → Check Configuration
+
+# Or via command line:
+ha core check
+```
+
+---
+
+## 📡 Zigbee Problems
+
+### Device Falls Off Network
+
+| Cause | Solution |
+|-------|----------|
+| **Weak signal** | Add more routers (powered devices) |
+| **Interference** | Move coordinator away from USB 3.0 / WiFi router |
+| **Firmware** | Update coordinator firmware |
+| **Crowded channel** | Change Zigbee channel (11, 15, 20, 25) |
+
+### Pairing Fails
+
+<Steps>
+1. **Put device in pairing mode** (see manual)
+
+2. **Ensure coordinator is ready:**
+   - Zigbee2MQTT: Permit Join enabled
+   - ZHA: Add device enabled
+
+3. **Place device CLOSE to coordinator** during pairing
+
+4. **Factory reset device** and try again
+
+5. **Check device is supported:**
+   - [Zigbee2MQTT Supported Devices](https://www.zigbee2mqtt.io/supported-devices/)
+   - [ZHA Device Support](https://zigpy.github.io/)
+</Steps>
+
+### USB Coordinator Disappears
+
+```bash
+# Find USB device
+ls -la /dev/serial/by-id/
+
+# Use the permanent device name in configuration:
+# /dev/serial/by-id/usb-Silicon_Labs_CP2102-xxxxx
+# NOT /dev/ttyUSB0 (can change)
+```
+
+---
+
+## 📶 WiFi Devices
+
+### Shelly Not Showing
+
+| Check | Solution |
+|-------|----------|
+| **Same network** | Device must be on same subnet |
+| **mDNS** | Enable mDNS on your router |
+| **IP address** | Find IP via router or Shelly app |
+| **Firewall** | Allow UDP port 5683 (CoAP) |
+
+### Tasmota/ESPHome Offline
+
+```yaml
+# Check WiFi signal strength
+# Entity: sensor.device_wifi_signal
+
+# If signal is weak:
+# 1. Move device closer to AP
+# 2. Add WiFi repeater
+# 3. Switch to 2.4 GHz (better range)
+```
+
+---
+
+## 🔄 Automations Not Working
+
+### Debugging Checklist
+
+<Steps>
+1. **Is automation enabled?**
+   - Check toggle in Automations list
+
+2. **Trigger correct?**
+   - Settings → Automations → [Automation] → Trace
+   - Check "Last triggered"
+
+3. **Conditions met?**
+   - Test each condition individually
+   - Use Developer Tools → States
+
+4. **Actions failing?**
+   - Check logs for errors
+   - Test action manually via Services
+</Steps>
+
+### Test Automation Manually
+
+```yaml
+# Developer Tools → Services
+service: automation.trigger
+target:
+  entity_id: automation.your_automation
+data:
+  skip_condition: true  # Skip conditions
+```
+
+### Trace Automation
+
+<Steps>
+1. Go to **Settings → Automations**
+
+2. Click on the automation
+
+3. Click **Traces** (trace icon)
+
+4. See exactly what happened on last run:
+   - Which triggers activated
+   - Which conditions were true/false
+   - Which actions ran/failed
+</Steps>
+
+---
+
+## 🗄️ Database Problems
+
+### "Database is locked"
+
+```bash
+# Stop Home Assistant
+ha core stop
+
+# Wait 30 seconds
+
+# Start again
+ha core start
+```
+
+### Corrupt Database
+
+```bash
+# Backup first!
+cp /config/home-assistant_v2.db /config/home-assistant_v2.db.backup
+
+# Delete database (loses history)
+rm /config/home-assistant_v2.db
+
+# Restart - new database created automatically
+ha core restart
+```
+
+### Database Too Large
+
+See [Performance Guide](/en/home-assistant/performance/) for database optimization.
+
+---
+
+## 🔌 Integration Problems
+
+### Integration Won't Load
+
+| Problem | Solution |
+|---------|----------|
+| **Missing dependencies** | Restart HA, check logs |
+| **Incompatible version** | Update integration |
+| **Configuration error** | Check integration docs |
+| **Credentials expired** | Re-authenticate |
+
+### Re-authenticate Integration
+
+<Steps>
+1. Go to **Settings → Devices & Services**
+
+2. Find the integration
+
+3. Click **Configure** or **Re-authenticate**
+
+4. Follow OAuth flow again
+</Steps>
+
+### HACS Integration Problems
+
+```bash
+# Reinstall HACS integration
+1. Remove integration from Devices & Services
+2. Delete folder: /config/custom_components/[integration]
+3. Restart HA
+4. Install again via HACS
+```
+
+---
+
+## 🖥️ UI Problems
+
+### Dashboard Won't Load
+
+<Steps>
+1. **Clear browser cache:**
+   - Chrome: Ctrl+Shift+Del
+   - Safari: Cmd+Alt+E
+
+2. **Hard refresh:**
+   - Windows: Ctrl+Shift+R
+   - Mac: Cmd+Shift+R
+
+3. **Try incognito window**
+
+4. **Check resources loaded:**
+   - F12 → Console → Look for red errors
+</Steps>
+
+### Custom Card Not Showing
+
+```yaml
+# Check resource is added:
+# Settings → Dashboards → Resources
+
+# Or in configuration.yaml:
+lovelace:
+  mode: yaml
+  resources:
+    - url: /hacsfiles/button-card/button-card.js
+      type: module
+```
+
+---
+
+## 🔐 Login Problems
+
+### Forgot Password
+
+```bash
+# Via command line
+ha auth reset --username YOUR_USERNAME --password NEW_PASSWORD
+```
+
+### 2FA Lost
+
+```bash
+# Remove TOTP for user
+ha auth totp remove --username YOUR_USERNAME
+```
+
+### Locked Out
+
+```yaml
+# Add temporarily to configuration.yaml:
+homeassistant:
+  auth_providers:
+    - type: trusted_networks
+      trusted_networks:
+        - 192.168.1.0/24
+      allow_bypass_login: true
+    - type: homeassistant
+
+# Restart, log in, remove again
+```
+
+---
+
+## 🔧 Useful Commands
+
+### SSH/Terminal Commands
+
+```bash
+# System info
+ha info
+ha core info
+ha supervisor info
+
+# Logs
+ha core logs
+ha supervisor logs
+ha host logs
+
+# Restart
+ha core restart
+ha supervisor restart
+ha host reboot
+
+# Update
+ha core update
+ha supervisor update
+
+# Backup
+ha backups new
+ha backups list
+```
+
+### Developer Tools
+
+| Tool | Use |
+|------|-----|
+| **States** | View/change entity states |
+| **Services** | Test services manually |
+| **Template** | Test Jinja2 templates |
+| **Events** | View/fire events |
+| **Statistics** | Fix statistics problems |
+
+---
+
+## 📋 Troubleshooting Checklist
+
+### Before Asking for Help
+
+- [ ] Checked logs for error messages
+- [ ] Searched for the error on Google
+- [ ] Checked Home Assistant documentation
+- [ ] Restarted Home Assistant
+- [ ] Updated to latest version
+- [ ] Tested in Safe Mode
+
+### When Asking for Help
+
+Always include:
+
+```markdown
+**Home Assistant version:** 2025.x.x
+**Installation type:** HAOS / Docker / Core
+**Hardware:** RPi4 / Intel NUC / VM
+**Problem:** Short description
+**Logs:**
+```
+[Relevant log lines]
+```
+**What you've tried:**
+- List of attempted solutions
+```
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Why is my Home Assistant slow?",
+    answer: "The most common causes are: large database (reduce purge_keep_days), too many integrations polling, or slow storage (SD card). See the Performance guide for solutions."
+  },
+  {
+    question: "How do I find out what's wrong?",
+    answer: "Always start with logs: Settings → System → Logs. Look for red error lines. Copy the error message and search on Google or Home Assistant Community forum."
+  },
+  {
+    question: "My automation was working but suddenly stopped?",
+    answer: "Check Automation trace to see what's happening. Often it's a condition that's no longer met, an entity that changed name, or an integration that went offline."
+  },
+  {
+    question: "How do I restart without losing my settings?",
+    answer: "A normal restart (Settings → System → Restart) preserves all settings. You only lose data if you delete configuration files or the database."
+  }
+]} />
+
+---
+
+## 📚 More Resources
+
+<CardGrid>
+  <Card title="Community Forum" icon="comment">
+    Ask questions and get help.
+    
+    [community.home-assistant.io](https://community.home-assistant.io/)
+  </Card>
+  <Card title="Discord" icon="discord">
+    Real-time chat support.
+    
+    [discord.gg/home-assistant](https://discord.gg/home-assistant)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
