@@ -327,6 +327,19 @@ export default defineConfig({
       pagefind: true,
       // Head tags for SEO and monetization
       head: [
+        // Force dark mode as default for new visitors
+        {
+          tag: "script",
+          content: `
+            (function() {
+              const theme = localStorage.getItem('starlight-theme');
+              if (!theme) {
+                localStorage.setItem('starlight-theme', 'dark');
+                document.documentElement.dataset.theme = 'dark';
+              }
+            })();
+          `,
+        },
         // Schema.org Organization
         {
           tag: "script",
