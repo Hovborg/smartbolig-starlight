@@ -100,12 +100,38 @@ export default defineConfig({
                   link: "/home-assistant/zigbee2mqtt/",
                 },
                 {
+                  label: "Zigbee2MQTT Avanceret",
+                  translations: { en: "Zigbee2MQTT Advanced" },
+                  link: "/home-assistant/zigbee2mqtt-avanceret/",
+                },
+                {
                   label: "Shelly Wall Display",
                   link: "/home-assistant/shelly-wall-display/",
                 },
                 {
                   label: "Better Thermostat",
                   link: "/home-assistant/better-thermostat/",
+                },
+              ],
+            },
+            // Protokoller gruppe
+            {
+              label: "Protokoller",
+              translations: { en: "Protocols" },
+              collapsed: true,
+              items: [
+                {
+                  label: "Z-Wave",
+                  link: "/home-assistant/z-wave/",
+                },
+                {
+                  label: "Thread & Matter",
+                  link: "/home-assistant/thread-matter/",
+                },
+                {
+                  label: "WiFi Enheder",
+                  translations: { en: "WiFi Devices" },
+                  link: "/home-assistant/wifi-enheder/",
                 },
               ],
             },
@@ -124,6 +150,57 @@ export default defineConfig({
                   label: "Vaskemaskine notifikation",
                   translations: { en: "Washing Machine Notification" },
                   link: "/home-assistant/vaskemaskine-notification/",
+                },
+                {
+                  label: "Node-RED",
+                  link: "/home-assistant/node-red/",
+                },
+              ],
+            },
+            // Dashboard & UI
+            {
+              label: "Dashboard & UI",
+              translations: { en: "Dashboard & UI" },
+              collapsed: true,
+              items: [
+                {
+                  label: "Dashboard Design",
+                  link: "/home-assistant/dashboard-design/",
+                },
+              ],
+            },
+            // System & Vedligeholdelse
+            {
+              label: "System",
+              translations: { en: "System" },
+              collapsed: true,
+              items: [
+                {
+                  label: "Backup & Sikkerhed",
+                  translations: { en: "Backup & Security" },
+                  link: "/home-assistant/backup-sikkerhed/",
+                },
+                {
+                  label: "Performance",
+                  link: "/home-assistant/performance/",
+                },
+                {
+                  label: "Fejlfinding",
+                  translations: { en: "Troubleshooting" },
+                  link: "/home-assistant/fejlfinding/",
+                },
+              ],
+            },
+            // Reference
+            {
+              label: "Reference",
+              translations: { en: "Reference" },
+              collapsed: true,
+              items: [
+                {
+                  label: "Glossar",
+                  translations: { en: "Glossary" },
+                  link: "/home-assistant/glossar/",
                 },
               ],
             },
@@ -178,6 +255,19 @@ export default defineConfig({
                 },
               ],
             },
+            // Avanceret
+            {
+              label: "Avanceret",
+              translations: { en: "Advanced" },
+              collapsed: true,
+              items: [
+                {
+                  label: "ESPHome Avanceret",
+                  translations: { en: "ESPHome Advanced" },
+                  link: "/esp32/esphome-avanceret/",
+                },
+              ],
+            },
           ],
         },
         // ===== AUTOMATIONER (hovedkategori) =====
@@ -208,6 +298,11 @@ export default defineConfig({
               label: "Om SmartBolig.net",
               translations: { en: "About SmartBolig.net" },
               link: "/om-os/",
+            },
+            {
+              label: "Kontakt",
+              translations: { en: "Contact" },
+              link: "/kontakt/",
             },
             {
               label: "Privatlivspolitik",
