@@ -1,0 +1,693 @@
+---
+title: Smart Air Quality
+description: Complete guide to air quality monitoring - Airthings, Awair, AirGradient and DIY ESPHome CO2/PM2.5 sensors with Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Set Up Smart Air Quality Monitoring"
+  description="Guide to CO2, PM2.5, VOC and radon measurement with Home Assistant"
+  totalTime="PT60M"
+  steps={[
+    "Choose air quality sensor (commercial or DIY)",
+    "Install and configure sensor",
+    "Integrate with Home Assistant",
+    "Set up dashboard and visualization",
+    "Create automations for ventilation"
+  ]}
+/>
+
+<Badge text="Health" variant="tip" /> <Badge text="CO2" variant="caution" /> <Badge text="Automation" variant="success" />
+
+Poor indoor air quality can cause headaches, fatigue, concentration problems and long-term health issues. With **smart air quality monitoring** you can track CO2, particles and VOC - and automate ventilation.
+
+<Aside type="tip" title="Top Recommendations 2025">
+**Commercial sensors:**
+- **Airthings View Plus** - Radon + CO2 + PM2.5 + VOC (~$300)
+- **Airthings Wave Plus** - Radon + CO2 + VOC, BLE (~$230)
+- **Awair Element** - CO2 + PM2.5 + VOC, local API (~$200)
+
+**DIY / Open Source:**
+- **AirGradient ONE** - ESPHome, CO2 + PM2.5 (~$150)
+- **ESPHome DIY** - Build yourself from ~$60
+
+**Recommendation:** AirGradient ONE for best value with local control!
+</Aside>
+
+---
+
+## 🌬️ Air Quality Overview
+
+### What Should You Measure?
+
+| Parameter | Danger Level | Symptoms | Sensor |
+|-----------|--------------|----------|--------|
+| **CO2** | Over 1000 ppm | Headache, fatigue, poor concentration | SenseAir S8 |
+| **PM2.5** | Over 35 µg/m³ | Respiratory problems, allergies | Plantower PMS5003 |
+| **VOC** | Over 500 ppb | Headache, dizziness | SGP30, SGP41 |
+| **Radon** | Over 4 pCi/L | Lung cancer (long-term) | Airthings |
+| **Humidity** | Under 30% / Over 60% | Dry skin, mold | SHT30, DHT22 |
+
+### Product Comparison
+
+| Product | HA Integration | CO2 | PM2.5 | VOC | Radon | Price |
+|---------|---------------|-----|-------|-----|-------|-------|
+| **Airthings View Plus** | ✅ Cloud API | ✅ | ✅ | ✅ | ✅ | 💰💰💰 |
+| **Airthings Wave Plus** | ✅ BLE | ✅ | ❌ | ✅ | ✅ | 💰💰 |
+| **Awair Element** | ✅ Local API | ✅ | ✅ | ✅ | ❌ | 💰💰 |
+| **AirGradient ONE** | ✅ ESPHome | ✅ | ✅ | ✅ | ❌ | 💰💰 |
+| **ESPHome DIY** | ✅ Local | ✅ | ✅ | ⚠️ | ❌ | 💰 |
+
+---
+
+## 📊 Airthings (Native HA - 3,034 users)
+
+<Tabs>
+  <TabItem label="Overview">
+    **Airthings View Plus:** ~$300
+    **Airthings Wave Plus:** ~$230
+    **Airthings Wave Mini:** ~$100
+    
+    **Specialized in radon measurement:**
+    
+    - ✅ Only consumer sensor with radon
+    - ✅ CO2, VOC, temperature, humidity
+    - ✅ View Plus: also PM2.5
+    - ✅ Cloud API + BLE integration
+    - ✅ Battery: up to 2 years
+    - ⚠️ Cloud-dependent (API)
+    - ⚠️ BLE only for Wave series
+    
+    <Aside type="note">
+    **Radon** is a radioactive gas that seeps up from the ground. It's invisible and odorless, but is the second leading cause of lung cancer after smoking. Check your local radon levels!
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Cloud API Integration (View Plus + all)
+    
+    ```yaml
+    # Settings → Devices → Add Integration
+    # Search "Airthings"
+    
+    # Requires Airthings API credentials:
+    # 1. Go to dashboard.airthings.com
+    # 2. Integrations → API → Request API Client
+    # 3. Name: "Home Assistant"
+    # 4. Resource Scope: read:device:current_values
+    # 5. Access Type: Confidential
+    # 6. Enable: On
+    # 7. Copy ID and Secret to HA
+    
+    # Entities created:
+    # - sensor.airthings_co2
+    # - sensor.airthings_radon_short_term
+    # - sensor.airthings_radon_long_term
+    # - sensor.airthings_voc
+    # - sensor.airthings_pm25 (View Plus)
+    # - sensor.airthings_temperature
+    # - sensor.airthings_humidity
+    # - sensor.airthings_pressure
+    ```
+    
+    ### BLE Integration (Wave series - local!)
+    
+    ```yaml
+    # Requires Bluetooth in HA
+    # (USB dongle or ESP32 Bluetooth Proxy)
+    
+    # Settings → Devices → Add Integration
+    # Search "Airthings BLE"
+    
+    # Autodiscover finds Wave devices
+    # Serial number (last 6 digits) used for ID
+    
+    # Benefits of BLE:
+    # - No cloud dependency
+    # - Faster updates
+    # - Works offline
+    ```
+  </TabItem>
+  <TabItem label="Automations">
+    ### Ventilation Based on CO2
+    
+    ```yaml
+    automation:
+      # Warn on high CO2
+      - alias: "Air Quality - High CO2"
+        trigger:
+          - platform: numeric_state
+            entity_id: sensor.airthings_co2
+            above: 1000
+            for: "00:10:00"
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "🌬️ Open a window!"
+              message: >
+                CO2 level: {{ states('sensor.airthings_co2') }} ppm
+                The air is stuffy - time to ventilate.
+    
+      # Radon warning
+      - alias: "Air Quality - Radon Warning"
+        trigger:
+          - platform: numeric_state
+            entity_id: sensor.airthings_radon_short_term
+            above: 4  # pCi/L (US standard)
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "☢️ High Radon!"
+              message: >
+                Radon: {{ states('sensor.airthings_radon_short_term') }} pCi/L
+                Consider ventilation or radon mitigation.
+              data:
+                push:
+                  sound:
+                    name: "alarm.caf"
+    
+      # Automatic ventilation
+      - alias: "Air Quality - Start Ventilator"
+        trigger:
+          - platform: numeric_state
+            entity_id: sensor.airthings_co2
+            above: 800
+        action:
+          - service: fan.turn_on
+            entity_id: fan.ventilation
+          - service: notify.mobile_app
+            data:
+              message: "Ventilator started due to CO2"
+    
+      - alias: "Air Quality - Stop Ventilator"
+        trigger:
+          - platform: numeric_state
+            entity_id: sensor.airthings_co2
+            below: 600
+        action:
+          - service: fan.turn_off
+            entity_id: fan.ventilation
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Airthings.com](https://www.airthings.com), Amazon
+
+---
+
+## 🌿 Awair Element (Local API - 1,468 users)
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$200
+    
+    **Local API without cloud:**
+    
+    - ✅ CO2 (0-4000 ppm)
+    - ✅ PM2.5 particles
+    - ✅ VOC (total volatile organic compounds)
+    - ✅ Temperature and humidity
+    - ✅ Local API (no cloud required!)
+    - ✅ Beautiful display with score
+    - ❌ No radon
+    - ❌ Requires power (USB-C)
+    
+    <Aside type="tip" title="Local API">
+    Awair Element supports **local polling** every 30 seconds - no cloud dependency! Enable via Awair app → Device Settings → Enable Local API.
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Native Integration
+    
+    ```yaml
+    # Settings → Devices → Add Integration
+    # Search "Awair"
+    
+    # Two methods:
+    
+    # 1. LOCAL (recommended):
+    # - Enable Local API in Awair app
+    # - HA autodiscover finds device
+    # - Polling every 30 seconds
+    
+    # 2. CLOUD:
+    # - Requires Awair Developer token
+    # - developer.getawair.com
+    # - Up to 24 hours for approval
+    # - Polling every 5 minutes
+    
+    # Entities:
+    # - sensor.awair_element_co2
+    # - sensor.awair_element_pm25
+    # - sensor.awair_element_voc
+    # - sensor.awair_element_temperature
+    # - sensor.awair_element_humidity
+    # - sensor.awair_element_score
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Awair.com](https://www.getawair.com), Amazon
+
+---
+
+## 🔧 AirGradient ONE (ESPHome - Recommended DIY)
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$150 (assembled)
+    **DIY kit:** ~$95
+    
+    **Open source air quality monitor:**
+    
+    - ✅ CO2 (SenseAir S8 - NDIR)
+    - ✅ PM2.5/PM10 (Plantower PMS5003)
+    - ✅ VOC + NOx (Sensirion SGP41)
+    - ✅ Temperature and humidity
+    - ✅ ESPHome firmware (100% local)
+    - ✅ Color LED bar for quick status
+    - ✅ OLED display
+    - ❌ No radon
+    - ❌ Requires power (USB-C)
+    
+    <Aside type="tip" title="Why AirGradient?">
+    AirGradient uses **industrial sensors** (SenseAir, Sensirion, Plantower) that are tested and calibrated. ESPHome provides 100% local control without cloud.
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Native AirGradient Integration (new!)
+    
+    ```yaml
+    # Since June 2024 AirGradient has
+    # a native HA integration!
+    
+    # Settings → Devices → Add Integration
+    # Search "AirGradient"
+    
+    # Autodiscover finds devices on network
+    ```
+    
+    ### ESPHome (full control)
+    
+    ```yaml
+    # Alternative: Flash ESPHome firmware
+    # for 100% local control
+    
+    esphome:
+      name: airgradient-one
+      platform: ESP32
+      board: esp32-c3-devkitm-1
+    
+    wifi:
+      ssid: !secret wifi_ssid
+      password: !secret wifi_password
+    
+    api:
+      encryption:
+        key: !secret api_encryption_key
+    
+    # I2C for sensors
+    i2c:
+      sda: GPIO7
+      scl: GPIO6
+    
+    # UART for CO2 and PM
+    uart:
+      - id: uart_pm
+        rx_pin: GPIO20
+        tx_pin: GPIO21
+        baud_rate: 9600
+      - id: uart_co2
+        rx_pin: GPIO0
+        tx_pin: GPIO1
+        baud_rate: 9600
+    
+    sensor:
+      # CO2 - SenseAir S8
+      - platform: senseair
+        uart_id: uart_co2
+        co2:
+          name: "CO2"
+          id: co2
+        update_interval: 60s
+    
+      # PM2.5 - Plantower
+      - platform: pmsx003
+        type: PMSX003
+        uart_id: uart_pm
+        pm_2_5:
+          name: "PM2.5"
+          id: pm25
+        pm_10_0:
+          name: "PM10"
+    
+      # Temperature/Humidity
+      - platform: sht3xd
+        temperature:
+          name: "Temperature"
+        humidity:
+          name: "Humidity"
+        address: 0x44
+    
+      # VOC Index
+      - platform: sgp4x
+        voc:
+          name: "VOC Index"
+        nox:
+          name: "NOx Index"
+    ```
+  </TabItem>
+  <TabItem label="DIY Build">
+    ### Build Yourself (~$60-80)
+    
+    **Components:**
+    - ESP8266 D1 Mini (~$8)
+    - SenseAir S8 CO2 sensor (~$45)
+    - Plantower PMS5003 (~$20)
+    - SHT30 temp/humidity (~$4)
+    - 0.96" OLED display (~$5)
+    - 3D printed case (free file)
+    
+    **Total:** ~$82
+    
+    ```yaml
+    # Basic ESPHome config for DIY
+    esphome:
+      name: air-quality-diy
+    
+    esp8266:
+      board: d1_mini
+    
+    wifi:
+      ssid: !secret wifi_ssid
+      password: !secret wifi_password
+    
+    api:
+    
+    i2c:
+      sda: D2
+      scl: D1
+    
+    uart:
+      - rx_pin: D5
+        tx_pin: D6
+        baud_rate: 9600
+        id: uart_pm
+      - rx_pin: D7
+        tx_pin: D8
+        baud_rate: 9600
+        id: uart_co2
+    
+    sensor:
+      - platform: senseair
+        uart_id: uart_co2
+        co2:
+          name: "CO2"
+        update_interval: 60s
+    
+      - platform: pmsx003
+        type: PMSX003
+        uart_id: uart_pm
+        pm_2_5:
+          name: "PM2.5"
+    
+      - platform: sht3xd
+        temperature:
+          name: "Temperature"
+        humidity:
+          name: "Humidity"
+        address: 0x44
+    
+    display:
+      - platform: ssd1306_i2c
+        model: "SSD1306 128x64"
+        address: 0x3C
+        lambda: |-
+          it.printf(0, 0, id(font1), "CO2: %.0f ppm", id(co2).state);
+          it.printf(0, 16, id(font1), "PM2.5: %.0f", id(pm25).state);
+    ```
+    
+    **Resources:**
+    - [AirGradient DIY Guide](https://www.airgradient.com/open-airgradient/instructions/diy-pro-v37/)
+    - [Jeff Geerling's Build](https://www.jeffgeerling.com/blog/2021/airgradient-diy-air-quality-monitor-co2-pm25)
+    - [ESPHome Devices](https://devices.esphome.io/devices/airgradient-diy/)
+  </TabItem>
+</Tabs>
+
+**Buy:** [AirGradient.com](https://www.airgradient.com), DIY components from AliExpress
+
+---
+
+## 📈 CO2 Levels Guide
+
+| CO2 ppm | Status | Effect |
+|---------|--------|--------|
+| 400-600 | 🟢 Optimal | Fresh air, good concentration |
+| 600-800 | 🟡 Acceptable | Slightly reduced attention |
+| 800-1000 | 🟠 Moderate | Headache, fatigue begins |
+| 1000-1500 | 🔴 Poor | Clear fatigue, concentration issues |
+| 1500-2000 | 🟣 Very poor | Strong headache, dizziness |
+| >2000 | ⚫ Dangerous | Nausea, heart palpitations |
+
+<Aside type="caution" title="Bedroom">
+A closed bedroom with one person typically reaches **1500+ ppm CO2** after 6-8 hours. Keep the door open or use mechanical ventilation!
+</Aside>
+
+---
+
+## 🤖 Complete Automation Suite
+
+```yaml
+automation:
+  # ===== CO2 BASED VENTILATION =====
+  
+  # Smart ventilator control
+  - alias: "Air - Adaptive Ventilation"
+    trigger:
+      - platform: state
+        entity_id: sensor.airgradient_co2
+    action:
+      - choose:
+          # High CO2 - full speed
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.airgradient_co2
+                above: 1000
+            sequence:
+              - service: fan.set_percentage
+                entity_id: fan.ventilation
+                data:
+                  percentage: 100
+          # Moderate CO2 - medium
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.airgradient_co2
+                above: 800
+            sequence:
+              - service: fan.set_percentage
+                entity_id: fan.ventilation
+                data:
+                  percentage: 50
+          # Normal - turn off
+          - conditions:
+              - condition: numeric_state
+                entity_id: sensor.airgradient_co2
+                below: 600
+            sequence:
+              - service: fan.turn_off
+                entity_id: fan.ventilation
+
+  # ===== PM2.5 WARNINGS =====
+  
+  - alias: "Air - High PM2.5"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.airgradient_pm25
+        above: 35
+        for: "00:15:00"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "😷 Poor air quality"
+          message: >
+            PM2.5: {{ states('sensor.airgradient_pm25') }} µg/m³
+            Consider turning on air purifier.
+      - service: switch.turn_on
+        entity_id: switch.air_purifier
+
+  - alias: "Air - PM2.5 OK again"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.airgradient_pm25
+        below: 12
+        for: "00:30:00"
+    action:
+      - service: switch.turn_off
+        entity_id: switch.air_purifier
+
+  # ===== VOC MONITORING =====
+  
+  - alias: "Air - High VOC"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.airgradient_voc_index
+        above: 250
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🧪 High VOC"
+          message: >
+            VOC Index: {{ states('sensor.airgradient_voc_index') }}
+            Ventilate - possible chemicals in the air.
+
+  # ===== BEDROOM AUTOMATION =====
+  
+  - alias: "Air - Bedroom Night"
+    trigger:
+      - platform: time
+        at: "22:00:00"
+    action:
+      - service: fan.turn_on
+        entity_id: fan.bedroom_ventilation
+        data:
+          percentage: 30
+      - service: notify.mobile_app
+        data:
+          message: "Night ventilation started"
+
+  - alias: "Air - Bedroom Morning"
+    trigger:
+      - platform: time
+        at: "07:00:00"
+    action:
+      - if:
+          - condition: numeric_state
+            entity_id: sensor.bedroom_co2
+            above: 800
+        then:
+          - service: fan.set_percentage
+            entity_id: fan.bedroom_ventilation
+            data:
+              percentage: 100
+          - delay: "00:30:00"
+      - service: fan.turn_off
+        entity_id: fan.bedroom_ventilation
+```
+
+---
+
+## 📊 Dashboard
+
+```yaml
+type: vertical-stack
+cards:
+  # Air quality gauge
+  - type: gauge
+    entity: sensor.airgradient_co2
+    name: "CO2"
+    min: 400
+    max: 2000
+    severity:
+      green: 400
+      yellow: 800
+      red: 1000
+
+  # All measurements
+  - type: entities
+    title: "🌬️ Air Quality"
+    entities:
+      - entity: sensor.airgradient_co2
+        name: "CO2"
+        icon: mdi:molecule-co2
+      - entity: sensor.airgradient_pm25
+        name: "PM2.5"
+        icon: mdi:blur
+      - entity: sensor.airgradient_voc_index
+        name: "VOC Index"
+        icon: mdi:air-filter
+      - entity: sensor.airgradient_temperature
+        name: "Temperature"
+      - entity: sensor.airgradient_humidity
+        name: "Humidity"
+
+  # History
+  - type: history-graph
+    title: "CO2 (24 hours)"
+    entities:
+      - entity: sensor.airgradient_co2
+    hours_to_show: 24
+```
+
+---
+
+## 🛒 Buying Strategy
+
+### Budget DIY (~$60)
+- ESP8266 D1 Mini (~$8)
+- SenseAir S8 (~$45)
+- SHT30 (~$4)
+- **Total:** ~$57 (CO2 only)
+
+### Standard AirGradient (~$150)
+- AirGradient ONE kit (~$150)
+- Includes CO2, PM2.5, VOC, temp, humidity
+- **Total:** ~$150
+
+### Premium Airthings (~$300)
+- Airthings View Plus (~$300)
+- Includes everything + **Radon**
+- **Total:** ~$300
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Do I need radon measurement?",
+    answer: "Depends on your location. The EPA recommends testing homes in radon-prone areas. Airthings is the only consumer sensor with radon. Alternatively, you can order a professional test kit."
+  },
+  {
+    question: "How accurate are cheap CO2 sensors?",
+    answer: "SenseAir S8 (used in AirGradient) is an NDIR sensor with ±40ppm accuracy - that's industry standard. Cheap MQ-135 'CO2 sensors' actually measure VOC and are inaccurate. Avoid them."
+  },
+  {
+    question: "Why is my CO2 level high at night?",
+    answer: "A closed bedroom quickly accumulates CO2 from your breathing. One person exhales ~200 ml CO2 per minute. Keep the door open or use ventilation!"
+  },
+  {
+    question: "What's the difference between PM2.5 and PM10?",
+    answer: "PM2.5 are particles under 2.5 micrometers (most dangerous - penetrate deep into lungs). PM10 are under 10 micrometers. PM2.5 is the most important health measurement."
+  },
+  {
+    question: "Can I control my HRV with CO2?",
+    answer: "Yes! Many HRV/ERV systems (Zehnder, Broan, Panasonic) can be controlled via 0-10V signal or modbus. Use ESPHome to send signals based on CO2 level."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Smart Water" icon="rocket">
+    Protect against water damage.
+    
+    [See guide →](/en/products/smart-water/)
+  </Card>
+  <Card title="ESP32 Projects" icon="seti:arduino">
+    Build more sensors yourself.
+    
+    [See guide →](/en/esp32/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
