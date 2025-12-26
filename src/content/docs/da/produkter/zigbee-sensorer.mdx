@@ -1,0 +1,410 @@
+---
+title: Zigbee Sensorer
+description: Komplet guide til Zigbee sensorer - Aqara, Sonoff, IKEA. Bevægelse, dør/vindue, temperatur, tilstedeværelse og vandlæk sensorer til Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Vælg de rigtige Zigbee sensorer"
+  description="Guide til at vælge de bedste Zigbee sensorer til dit Home Assistant smart home"
+  totalTime="PT15M"
+  steps={[
+    "Identificer hvilke sensortyper du har brug for",
+    "Vælg mærke baseret på budget og kvalitet",
+    "Tjek kompatibilitet med din Zigbee koordinator",
+    "Bestil og par med Home Assistant",
+    "Opsæt automationer"
+  ]}
+/>
+
+<Badge text="Home Assistant" variant="success" /> <Badge text="Zigbee2MQTT" variant="note" /> <Badge text="ZHA" variant="tip" />
+
+Zigbee sensorer er **fundamentet for smart home automationer**. De registrerer bevægelse, temperatur, åbne døre og meget mere - og sender data til Home Assistant via dit Zigbee netværk. Med lang batterilevetid og lynhurtig respons er de ideelle til automationer.
+
+<Aside type="tip" title="Top Anbefalinger 2025">
+- **Bevægelse**: Aqara Motion Sensor P1 (~100 kr)
+- **Dør/Vindue**: Aqara Door Sensor (~80 kr) eller Sonoff SNZB-04P (~70 kr)
+- **Temperatur**: Sonoff SNZB-02P (~75 kr) - Bedste pris/kvalitet
+- **Tilstedeværelse**: Aqara FP300 (~350 kr) eller Sonoff SNZB-06P (~150 kr)
+- **Vandlæk**: Aqara Water Sensor (~120 kr)
+</Aside>
+
+---
+
+## 🏃 Bevægelsessensorer (PIR)
+
+PIR sensorer registrerer bevægelse via infrarød stråling. Perfekt til at tænde lys automatisk.
+
+### Sammenligning
+
+| Produkt | Detektionstid | Rækkevidde | Batteri | Pris ca. | Score |
+|---------|---------------|------------|---------|----------|-------|
+| **Aqara Motion P1** | 1-200 sek (justerbar) | 7m / 170° | CR2450, 5 år | 100 kr | ⭐⭐⭐⭐⭐ |
+| **Aqara Motion P2** | Justerbar | 7m / 170° | CR2450, 5 år | 130 kr | ⭐⭐⭐⭐⭐ |
+| **Sonoff SNZB-03P** | 60 sek fast | 6m / 110° | CR2450, 3 år | 80 kr | ⭐⭐⭐⭐ |
+| **IKEA VALLHORN** | 1-5 min | 5m / 120° | 2x AAA | 70 kr | ⭐⭐⭐⭐ |
+| **Sonoff SNZB-03** | 60 sek fast | 6m / 110° | CR2450, 3 år | 65 kr | ⭐⭐⭐ |
+
+### 🥇 Aqara Motion Sensor P1 - Bedste valg
+
+Den mest alsidige PIR sensor med **justerbar detektionstid fra 1 sekund til 200 sekunder**. Perfekt til lysautomationer hvor du vil have øjeblikkelig respons.
+
+**Fordele:**
+- ✅ Justerbar cooldown (1-200 sek) via Zigbee2MQTT
+- ✅ 170° detektionsvinkel
+- ✅ 5 års batterilevetid
+- ✅ Inkluderer 360° justerbar holder
+- ✅ Fungerer perfekt med Home Assistant
+
+**Ulemper:**
+- ❌ Dyrere end alternativer
+- ❌ Markedsføres til Aqara Hub (men virker fint med Z2M/ZHA)
+
+**Køb:** [Amazon](https://amazon.de), [AliExpress](https://aliexpress.com)
+
+### 💰 Budget: Sonoff SNZB-03P
+
+God budget option med 60 sekunders fast cooldown. Ny P-serie har bedre design og længere batterilevetid.
+
+**Køb:** [ITEAD](https://itead.cc), [AliExpress](https://aliexpress.com) - ca. 80 kr
+
+### 🏠 IKEA VALLHORN
+
+Billigste option fra et kendt mærke. Bruger genopladelige AAA batterier (IKEA LADDA anbefales). IP44 rating = kan bruges udendørs.
+
+**Køb:** [IKEA](https://ikea.dk) - 70 kr
+
+---
+
+## 🚪 Dør/Vindue Sensorer
+
+Kontaktsensorer der registrerer om døre og vinduer er åbne eller lukkede.
+
+### Sammenligning
+
+| Produkt | Afstand maks | Batteri | Sabotage-alarm | Pris ca. | Score |
+|---------|--------------|---------|----------------|----------|-------|
+| **Aqara Door/Window** | 22mm | CR1632, 2+ år | ❌ | 80 kr | ⭐⭐⭐⭐⭐ |
+| **Aqara Door Sensor T1** | 22mm | CR1632, 2+ år | ❌ | 90 kr | ⭐⭐⭐⭐⭐ |
+| **Aqara Door Sensor P2** | 22mm | CR2032, 2+ år | ✅ | 130 kr | ⭐⭐⭐⭐⭐ |
+| **Sonoff SNZB-04P** | 25mm+ | CR2477, 5 år | ✅ | 70 kr | ⭐⭐⭐⭐⭐ |
+| **IKEA PARASOLL** | Standard | 1x AAA | ❌ | 80 kr | ⭐⭐⭐ |
+| **Sonoff SNZB-04** | 15mm | CR2032, 2 år | ❌ | 55 kr | ⭐⭐⭐ |
+
+### 🥇 Aqara Door/Window Sensor - Klassikeren
+
+Den mest testede og pålidelige kontaktsensor. Lille formfaktor, lang batterilevetid og lynhurtig respons.
+
+**Fordele:**
+- ✅ Meget lille og diskret
+- ✅ 2+ års batterilevetid
+- ✅ Super hurtig respons (under 0.5 sek)
+- ✅ Velafprøvet og stabil
+
+**Køb:** [Amazon](https://amazon.de), [AliExpress](https://aliexpress.com) - ca. 80 kr
+
+### 🔋 Sonoff SNZB-04P - Bedste batterilevetid
+
+Den nye P-serie har **5 års batterilevetid** og indbygget sabotage-alarm.
+
+**Fordele:**
+- ✅ 5 års batteri (CR2477)
+- ✅ Tamper detection
+- ✅ Større afstand mellem sensor og magnet (25mm+)
+- ✅ Bedre build quality end tidligere generation
+
+**Køb:** [ITEAD](https://itead.cc), [AliExpress](https://aliexpress.com) - ca. 70 kr
+
+---
+
+## 🌡️ Temperatur & Luftfugtighed
+
+Måler temperatur og luftfugtighed - perfekt til klimastyring og overvågning.
+
+### Sammenligning
+
+| Produkt | Temp nøjagtighed | Fugt nøjagtighed | Display | Batteri | Pris ca. | Score |
+|---------|------------------|------------------|---------|---------|----------|-------|
+| **Sonoff SNZB-02P** | ±0.2°C | ±2% RH | ❌ | CR2477, 4 år | 75 kr | ⭐⭐⭐⭐⭐ |
+| **Aqara Temp/Hum T1** | ±0.3°C | ±3% RH | ❌ | CR2032, 2 år | 100 kr | ⭐⭐⭐⭐⭐ |
+| **Sonoff SNZB-02D** | ±0.5°C | ±5% RH | ✅ LCD | CR2450, 2 år | 95 kr | ⭐⭐⭐⭐ |
+| **IKEA VINDSTYRKA** | ±1°C | ±5% RH | ✅ E-ink | USB-C | 300 kr | ⭐⭐⭐⭐ |
+| **Sonoff SNZB-02** | ±0.5°C | ±5% RH | ❌ | CR2450, 2 år | 55 kr | ⭐⭐⭐ |
+
+### 🥇 Sonoff SNZB-02P - Bedste pris/kvalitet
+
+Schweizisk sensor med høj præcision og **4 års batterilevetid**.
+
+**Fordele:**
+- ✅ Høj nøjagtighed (±0.2°C, ±2% RH)
+- ✅ 4 års batteri
+- ✅ Opdaterer hver 5. sekund
+- ✅ Magnetisk montering
+- ✅ Flot rundt design
+
+**Køb:** [ITEAD](https://itead.cc), [AliExpress](https://aliexpress.com) - ca. 75 kr
+
+### 📊 IKEA VINDSTYRKA - Med luftkvalitet
+
+Ikke kun temp/fugt, men også **PM2.5 og tVOC måling**. Fantastisk til overvågning af indeklima.
+
+**Fordele:**
+- ✅ PM2.5 partikel måling
+- ✅ tVOC luftkvalitet
+- ✅ Flot E-ink display
+- ✅ USB-C strømforsyning
+
+**Ulemper:**
+- ❌ Kræver strøm (ikke batteri)
+- ❌ Blæser kan høres
+- ❌ Dyrere
+
+**Køb:** [IKEA](https://ikea.dk) - ca. 300 kr
+
+---
+
+## 👤 Tilstedeværelsessensorer (mmWave/Radar)
+
+Radar-baserede sensorer der kan registrere **stillestående personer** - ikke kun bevægelse.
+
+### Sammenligning
+
+| Produkt | Teknologi | Rækkevidde | Zoner | Strøm | Pris ca. | Score |
+|---------|-----------|------------|-------|-------|----------|-------|
+| **Aqara FP300** | mmWave | 6m | 24 afstande | Batteri | 350 kr | ⭐⭐⭐⭐⭐ |
+| **Aqara FP2** | mmWave | 8m | 30 zoner | USB-C | 500 kr | ⭐⭐⭐⭐⭐ |
+| **Aqara FP1E** | mmWave | 5m | AI learning | USB-C | 300 kr | ⭐⭐⭐⭐ |
+| **Sonoff SNZB-06P** | mmWave 5.8GHz | 4m | Ingen | USB-C | 150 kr | ⭐⭐⭐⭐ |
+
+### 🥇 Aqara FP300 - Bedste Zigbee tilstedeværelse
+
+Den **første battteri-drevne mmWave sensor** med Zigbee. Perfekt til badeværelser og kontorer.
+
+**Fordele:**
+- ✅ Batteri-drevet (kan placeres hvor som helst)
+- ✅ Temp, fugt og lys sensor inkluderet
+- ✅ 24 justerbare detektionsafstande
+- ✅ Zigbee mode med fuld konfiguration i Z2M
+
+**Ulemper:**
+- ❌ Kræver Zigbee firmware flash via Aqara app
+- ❌ Thread/Matter mode har begrænset funktionalitet
+
+**Køb:** [Amazon](https://amazon.de), [AliExpress](https://aliexpress.com) - ca. 350 kr
+
+### 💰 Budget: Sonoff SNZB-06P
+
+Billigste mmWave sensor på markedet. Simpel men effektiv.
+
+**Fordele:**
+- ✅ Meget billig
+- ✅ Virker fint til basale behov
+- ✅ 5.8GHz radar
+
+**Ulemper:**
+- ❌ Kræver USB strøm
+- ❌ Ingen justerbare zoner
+- ❌ Begrænset konfiguration
+
+**Køb:** [ITEAD](https://itead.cc), [AliExpress](https://aliexpress.com) - ca. 150 kr
+
+### 🏆 Premium: Aqara FP2
+
+Det ultimative valg med **30 konfigurerbare zoner** og multi-person tracking.
+
+**Køb:** [Amazon](https://amazon.de) - ca. 500 kr
+
+---
+
+## 💧 Vandlæk Sensorer
+
+Beskyt dit hjem mod vandskader med tidlig varsling.
+
+### Sammenligning
+
+| Produkt | Alarm | Batteri | Ekstra | Pris ca. | Score |
+|---------|-------|---------|--------|----------|-------|
+| **Aqara Water Leak** | Via HA | CR2032, 2 år | Temp sensor | 120 kr | ⭐⭐⭐⭐⭐ |
+| **Sonoff SNZB-05P** | Via HA | CR2477, 5 år | - | 80 kr | ⭐⭐⭐⭐ |
+| **IKEA BADRING** | 60dB lokal | 2x AAA | Indbygget sirene | 80 kr | ⭐⭐⭐⭐ |
+
+### 🥇 Aqara Water Leak Sensor
+
+Lille, pålidelig og har bonus temperatur sensor.
+
+**Køb:** [Amazon](https://amazon.de), [AliExpress](https://aliexpress.com) - ca. 120 kr
+
+### 🔊 IKEA BADRING
+
+Har **indbygget 60dB sirene** - alarmerer lokalt uden HA.
+
+**Køb:** [IKEA](https://ikea.dk) - ca. 80 kr
+
+---
+
+## 🔘 Andre Sensorer
+
+### Vibrationssensor - Aqara Vibration Sensor
+
+Registrerer vibrationer, tilt og drop. Perfekt til:
+- Vaskemaskine kører/færdig
+- Postkasse åbnet
+- Sikkerhed (vinduer/døre)
+
+**Pris:** ca. 120 kr
+
+### Trådløse Knapper
+
+| Produkt | Handlinger | Batteri | Pris ca. |
+|---------|------------|---------|----------|
+| **Aqara Mini Switch** | Single, double, long | CR2032 | 100 kr |
+| **Sonoff SNZB-01P** | Single, double, long | CR2477 | 70 kr |
+| **IKEA SOMRIG** | 2 knapper, flere handlinger | CR2032 | 80 kr |
+
+---
+
+## 📊 Mærke Sammenligning
+
+<Tabs>
+  <TabItem label="Aqara">
+    ### Aqara
+    
+    **Fordele:**
+    - ✅ Bedste build quality
+    - ✅ Flest features
+    - ✅ Meget pålidelig
+    - ✅ God Home Assistant support
+    
+    **Ulemper:**
+    - ❌ Dyrest
+    - ❌ Markedsføres til eget hub
+    - ❌ Nogle features kun via Aqara app
+    
+    **Bedst til:** Dem der vil have det bedste uanset pris
+  </TabItem>
+  <TabItem label="Sonoff">
+    ### Sonoff
+    
+    **Fordele:**
+    - ✅ Bedste pris/kvalitet
+    - ✅ God batterilevetid (P-serie)
+    - ✅ Åben for Home Assistant
+    - ✅ Ny P-serie er markant forbedret
+    
+    **Ulemper:**
+    - ❌ Ældre modeller har dårlig build quality
+    - ❌ Ikke så mange features som Aqara
+    
+    **Bedst til:** Budget-bevidste brugere
+  </TabItem>
+  <TabItem label="IKEA">
+    ### IKEA
+    
+    **Fordele:**
+    - ✅ Billigst
+    - ✅ Let at købe (fysiske butikker)
+    - ✅ Bruger AAA batterier (genopladelige)
+    - ✅ Fungerer med Home Assistant
+    
+    **Ulemper:**
+    - ❌ Kvalitetskontrol kan variere
+    - ❌ Nogle brugere rapporterer problemer
+    - ❌ Færre sensor-typer
+    
+    **Bedst til:** Begyndere og dem nær IKEA
+  </TabItem>
+</Tabs>
+
+---
+
+## 🛒 Købs Strategi
+
+### Starter Kit (~500 kr)
+- 2x Aqara Door/Window Sensor (160 kr)
+- 2x Sonoff SNZB-03P Motion (160 kr)
+- 2x Sonoff SNZB-02P Temp/Hum (150 kr)
+- **Total:** ~470 kr
+
+### Komplet Hus (~1500 kr)
+- 4x Aqara Door Sensor (320 kr)
+- 4x Sonoff SNZB-03P Motion (320 kr)
+- 4x Sonoff SNZB-02P Temp (300 kr)
+- 2x Aqara Water Leak (240 kr)
+- 1x Sonoff SNZB-06P Presence (150 kr)
+- 1x Aqara Vibration (120 kr)
+- **Total:** ~1450 kr
+
+---
+
+## 🛒 Hvor Køber Jeg?
+
+### Danmark/EU (1-7 dage)
+- **[IKEA.dk](https://ikea.dk)** - VALLHORN, PARASOLL, VINDSTYRKA, BADRING
+- **[Amazon.de](https://amazon.de)** - Aqara, Sonoff
+- **[Proshop.dk](https://proshop.dk)** - Udvalgte modeller
+
+### Direkte (1-3 uger)
+- **[ITEAD/Sonoff](https://itead.cc)** - Sonoff SNZB serie
+- **[Aqara Store](https://aqara.com)** - Officiel Aqara
+
+### Billigst (2-4 uger)
+- **[AliExpress](https://aliexpress.com)** - Alle mærker
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Hvad er forskellen på PIR og mmWave sensorer?",
+    answer: "PIR sensorer registrerer bevægelse via infrarød stråling - de kan ikke se stillestående personer. mmWave/radar sensorer kan registrere selv små bevægelser fra vejrtrækning og er perfekte til steder hvor du sidder stille (kontor, badeværelse, soveværelse)."
+  },
+  {
+    question: "Hvor lang batterilevetid kan jeg forvente?",
+    answer: "Aqara og Sonoff P-serie holder typisk 2-5 år afhængigt af brug. Sensorer der trigger ofte (bevægelse) bruger mere batteri end dør-sensorer. IKEA bruger AAA batterier som er nemme at udskifte."
+  },
+  {
+    question: "Virker sensorerne uden Aqara/IKEA hub?",
+    answer: "Ja! Alle Zigbee sensorer virker med enhver Zigbee koordinator (Sonoff dongle, SLZB-06, SkyConnect osv.) via ZHA eller Zigbee2MQTT i Home Assistant. Du behøver IKKE producentens hub."
+  },
+  {
+    question: "Hvilken sensor til lysautomation?",
+    answer: "Til områder med gennemgangstrafik (gang, trappe): Aqara Motion P1 med 1-5 sek cooldown. Til stuer/kontorer hvor du sidder stille: mmWave sensor (Aqara FP300 eller Sonoff SNZB-06P)."
+  },
+  {
+    question: "Kan jeg bruge batterisensorer udendørs?",
+    answer: "IKEA VALLHORN har IP44 rating og kan bruges udendørs under overdækning. Andre sensorer er kun til indendørs brug. For ægte udendørs brug, overvej kablede løsninger."
+  },
+  {
+    question: "Hvorfor viser min bevægelsessensor altid 'detected'?",
+    answer: "PIR sensorer har en cooldown periode (typisk 60 sek) hvor de ikke kan registrere ny bevægelse. Aqara P1 lader dig justere dette ned til 1 sekund via Zigbee2MQTT."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="Zigbee Koordinatorer" icon="rocket">
+    Du skal bruge en koordinator til dine sensorer.
+    
+    [Se koordinatorer →](/da/produkter/zigbee-koordinatorer/)
+  </Card>
+  <Card title="Automationer" icon="setting">
+    Opsæt automationer med dine nye sensorer.
+    
+    [Lær mere →](/da/home-assistant/automationer/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*

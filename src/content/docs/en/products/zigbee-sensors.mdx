@@ -1,0 +1,410 @@
+---
+title: Zigbee Sensors
+description: Complete guide to Zigbee sensors - Aqara, Sonoff, IKEA. Motion, door/window, temperature, presence and water leak sensors for Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Choose the right Zigbee sensors"
+  description="Guide to selecting the best Zigbee sensors for your Home Assistant smart home"
+  totalTime="PT15M"
+  steps={[
+    "Identify which sensor types you need",
+    "Choose brand based on budget and quality",
+    "Check compatibility with your Zigbee coordinator",
+    "Order and pair with Home Assistant",
+    "Set up automations"
+  ]}
+/>
+
+<Badge text="Home Assistant" variant="success" /> <Badge text="Zigbee2MQTT" variant="note" /> <Badge text="ZHA" variant="tip" />
+
+Zigbee sensors are **the foundation of smart home automations**. They detect motion, temperature, open doors and much more - sending data to Home Assistant via your Zigbee network. With long battery life and lightning-fast response, they're ideal for automations.
+
+<Aside type="tip" title="Top Recommendations 2025">
+- **Motion**: Aqara Motion Sensor P1 (~$15)
+- **Door/Window**: Aqara Door Sensor (~$12) or Sonoff SNZB-04P (~$10)
+- **Temperature**: Sonoff SNZB-02P (~$11) - Best value
+- **Presence**: Aqara FP300 (~$50) or Sonoff SNZB-06P (~$22)
+- **Water Leak**: Aqara Water Sensor (~$18)
+</Aside>
+
+---
+
+## 🏃 Motion Sensors (PIR)
+
+PIR sensors detect motion via infrared radiation. Perfect for turning lights on automatically.
+
+### Comparison
+
+| Product | Detection time | Range | Battery | Price ~USD | Score |
+|---------|----------------|-------|---------|------------|-------|
+| **Aqara Motion P1** | 1-200 sec (adjustable) | 7m / 170° | CR2450, 5 years | $15 | ⭐⭐⭐⭐⭐ |
+| **Aqara Motion P2** | Adjustable | 7m / 170° | CR2450, 5 years | $19 | ⭐⭐⭐⭐⭐ |
+| **Sonoff SNZB-03P** | 60 sec fixed | 6m / 110° | CR2450, 3 years | $12 | ⭐⭐⭐⭐ |
+| **IKEA VALLHORN** | 1-5 min | 5m / 120° | 2x AAA | $10 | ⭐⭐⭐⭐ |
+| **Sonoff SNZB-03** | 60 sec fixed | 6m / 110° | CR2450, 3 years | $9 | ⭐⭐⭐ |
+
+### 🥇 Aqara Motion Sensor P1 - Best Choice
+
+The most versatile PIR sensor with **adjustable detection time from 1 second to 200 seconds**. Perfect for lighting automations where you want immediate response.
+
+**Pros:**
+- ✅ Adjustable cooldown (1-200 sec) via Zigbee2MQTT
+- ✅ 170° detection angle
+- ✅ 5-year battery life
+- ✅ Includes 360° adjustable mount
+- ✅ Works perfectly with Home Assistant
+
+**Cons:**
+- ❌ More expensive than alternatives
+- ❌ Marketed for Aqara Hub (but works fine with Z2M/ZHA)
+
+**Buy:** [Amazon](https://amazon.com), [AliExpress](https://aliexpress.com)
+
+### 💰 Budget: Sonoff SNZB-03P
+
+Good budget option with 60-second fixed cooldown. The new P-series has better design and longer battery life.
+
+**Buy:** [ITEAD](https://itead.cc), [AliExpress](https://aliexpress.com) - ~$12
+
+### 🏠 IKEA VALLHORN
+
+Cheapest option from a known brand. Uses rechargeable AAA batteries (IKEA LADDA recommended). IP44 rating = can be used outdoors.
+
+**Buy:** [IKEA](https://ikea.com) - $10
+
+---
+
+## 🚪 Door/Window Sensors
+
+Contact sensors that detect whether doors and windows are open or closed.
+
+### Comparison
+
+| Product | Max gap | Battery | Tamper alert | Price ~USD | Score |
+|---------|---------|---------|--------------|------------|-------|
+| **Aqara Door/Window** | 22mm | CR1632, 2+ years | ❌ | $12 | ⭐⭐⭐⭐⭐ |
+| **Aqara Door Sensor T1** | 22mm | CR1632, 2+ years | ❌ | $13 | ⭐⭐⭐⭐⭐ |
+| **Aqara Door Sensor P2** | 22mm | CR2032, 2+ years | ✅ | $19 | ⭐⭐⭐⭐⭐ |
+| **Sonoff SNZB-04P** | 25mm+ | CR2477, 5 years | ✅ | $10 | ⭐⭐⭐⭐⭐ |
+| **IKEA PARASOLL** | Standard | 1x AAA | ❌ | $12 | ⭐⭐⭐ |
+| **Sonoff SNZB-04** | 15mm | CR2032, 2 years | ❌ | $8 | ⭐⭐⭐ |
+
+### 🥇 Aqara Door/Window Sensor - The Classic
+
+The most tested and reliable contact sensor. Small form factor, long battery life and lightning-fast response.
+
+**Pros:**
+- ✅ Very small and discreet
+- ✅ 2+ years battery life
+- ✅ Super fast response (under 0.5 sec)
+- ✅ Well-tested and stable
+
+**Buy:** [Amazon](https://amazon.com), [AliExpress](https://aliexpress.com) - ~$12
+
+### 🔋 Sonoff SNZB-04P - Best Battery Life
+
+The new P-series has **5-year battery life** and built-in tamper alert.
+
+**Pros:**
+- ✅ 5-year battery (CR2477)
+- ✅ Tamper detection
+- ✅ Larger gap between sensor and magnet (25mm+)
+- ✅ Better build quality than previous generation
+
+**Buy:** [ITEAD](https://itead.cc), [AliExpress](https://aliexpress.com) - ~$10
+
+---
+
+## 🌡️ Temperature & Humidity
+
+Measures temperature and humidity - perfect for climate control and monitoring.
+
+### Comparison
+
+| Product | Temp accuracy | Humidity accuracy | Display | Battery | Price ~USD | Score |
+|---------|---------------|-------------------|---------|---------|------------|-------|
+| **Sonoff SNZB-02P** | ±0.2°C | ±2% RH | ❌ | CR2477, 4 years | $11 | ⭐⭐⭐⭐⭐ |
+| **Aqara Temp/Hum T1** | ±0.3°C | ±3% RH | ❌ | CR2032, 2 years | $15 | ⭐⭐⭐⭐⭐ |
+| **Sonoff SNZB-02D** | ±0.5°C | ±5% RH | ✅ LCD | CR2450, 2 years | $14 | ⭐⭐⭐⭐ |
+| **IKEA VINDSTYRKA** | ±1°C | ±5% RH | ✅ E-ink | USB-C | $45 | ⭐⭐⭐⭐ |
+| **Sonoff SNZB-02** | ±0.5°C | ±5% RH | ❌ | CR2450, 2 years | $8 | ⭐⭐⭐ |
+
+### 🥇 Sonoff SNZB-02P - Best Value
+
+Swiss-made sensor with high precision and **4-year battery life**.
+
+**Pros:**
+- ✅ High accuracy (±0.2°C, ±2% RH)
+- ✅ 4-year battery
+- ✅ Updates every 5 seconds
+- ✅ Magnetic mounting
+- ✅ Nice round design
+
+**Buy:** [ITEAD](https://itead.cc), [AliExpress](https://aliexpress.com) - ~$11
+
+### 📊 IKEA VINDSTYRKA - With Air Quality
+
+Not just temp/humidity, but also **PM2.5 and tVOC measurement**. Fantastic for indoor climate monitoring.
+
+**Pros:**
+- ✅ PM2.5 particle measurement
+- ✅ tVOC air quality
+- ✅ Beautiful E-ink display
+- ✅ USB-C power
+
+**Cons:**
+- ❌ Requires power (not battery)
+- ❌ Fan can be heard
+- ❌ More expensive
+
+**Buy:** [IKEA](https://ikea.com) - ~$45
+
+---
+
+## 👤 Presence Sensors (mmWave/Radar)
+
+Radar-based sensors that can detect **stationary people** - not just motion.
+
+### Comparison
+
+| Product | Technology | Range | Zones | Power | Price ~USD | Score |
+|---------|------------|-------|-------|-------|------------|-------|
+| **Aqara FP300** | mmWave | 6m | 24 distances | Battery | $50 | ⭐⭐⭐⭐⭐ |
+| **Aqara FP2** | mmWave | 8m | 30 zones | USB-C | $72 | ⭐⭐⭐⭐⭐ |
+| **Aqara FP1E** | mmWave | 5m | AI learning | USB-C | $43 | ⭐⭐⭐⭐ |
+| **Sonoff SNZB-06P** | mmWave 5.8GHz | 4m | None | USB-C | $22 | ⭐⭐⭐⭐ |
+
+### 🥇 Aqara FP300 - Best Zigbee Presence
+
+The **first battery-powered mmWave sensor** with Zigbee. Perfect for bathrooms and offices.
+
+**Pros:**
+- ✅ Battery-powered (can be placed anywhere)
+- ✅ Temp, humidity and light sensor included
+- ✅ 24 adjustable detection distances
+- ✅ Zigbee mode with full configuration in Z2M
+
+**Cons:**
+- ❌ Requires Zigbee firmware flash via Aqara app
+- ❌ Thread/Matter mode has limited functionality
+
+**Buy:** [Amazon](https://amazon.com), [AliExpress](https://aliexpress.com) - ~$50
+
+### 💰 Budget: Sonoff SNZB-06P
+
+Cheapest mmWave sensor on the market. Simple but effective.
+
+**Pros:**
+- ✅ Very cheap
+- ✅ Works fine for basic needs
+- ✅ 5.8GHz radar
+
+**Cons:**
+- ❌ Requires USB power
+- ❌ No adjustable zones
+- ❌ Limited configuration
+
+**Buy:** [ITEAD](https://itead.cc), [AliExpress](https://aliexpress.com) - ~$22
+
+### 🏆 Premium: Aqara FP2
+
+The ultimate choice with **30 configurable zones** and multi-person tracking.
+
+**Buy:** [Amazon](https://amazon.com) - ~$72
+
+---
+
+## 💧 Water Leak Sensors
+
+Protect your home from water damage with early warning.
+
+### Comparison
+
+| Product | Alarm | Battery | Extra | Price ~USD | Score |
+|---------|-------|---------|-------|------------|-------|
+| **Aqara Water Leak** | Via HA | CR2032, 2 years | Temp sensor | $18 | ⭐⭐⭐⭐⭐ |
+| **Sonoff SNZB-05P** | Via HA | CR2477, 5 years | - | $12 | ⭐⭐⭐⭐ |
+| **IKEA BADRING** | 60dB local | 2x AAA | Built-in siren | $12 | ⭐⭐⭐⭐ |
+
+### 🥇 Aqara Water Leak Sensor
+
+Small, reliable and has bonus temperature sensor.
+
+**Buy:** [Amazon](https://amazon.com), [AliExpress](https://aliexpress.com) - ~$18
+
+### 🔊 IKEA BADRING
+
+Has **built-in 60dB siren** - alerts locally without HA.
+
+**Buy:** [IKEA](https://ikea.com) - ~$12
+
+---
+
+## 🔘 Other Sensors
+
+### Vibration Sensor - Aqara Vibration Sensor
+
+Detects vibrations, tilt and drop. Perfect for:
+- Washing machine running/finished
+- Mailbox opened
+- Security (windows/doors)
+
+**Price:** ~$18
+
+### Wireless Buttons
+
+| Product | Actions | Battery | Price ~USD |
+|---------|---------|---------|------------|
+| **Aqara Mini Switch** | Single, double, long | CR2032 | $15 |
+| **Sonoff SNZB-01P** | Single, double, long | CR2477 | $10 |
+| **IKEA SOMRIG** | 2 buttons, multiple actions | CR2032 | $12 |
+
+---
+
+## 📊 Brand Comparison
+
+<Tabs>
+  <TabItem label="Aqara">
+    ### Aqara
+    
+    **Pros:**
+    - ✅ Best build quality
+    - ✅ Most features
+    - ✅ Very reliable
+    - ✅ Good Home Assistant support
+    
+    **Cons:**
+    - ❌ Most expensive
+    - ❌ Marketed for own hub
+    - ❌ Some features only via Aqara app
+    
+    **Best for:** Those who want the best regardless of price
+  </TabItem>
+  <TabItem label="Sonoff">
+    ### Sonoff
+    
+    **Pros:**
+    - ✅ Best price/quality ratio
+    - ✅ Good battery life (P-series)
+    - ✅ Open for Home Assistant
+    - ✅ New P-series is significantly improved
+    
+    **Cons:**
+    - ❌ Older models have poor build quality
+    - ❌ Not as many features as Aqara
+    
+    **Best for:** Budget-conscious users
+  </TabItem>
+  <TabItem label="IKEA">
+    ### IKEA
+    
+    **Pros:**
+    - ✅ Cheapest
+    - ✅ Easy to buy (physical stores)
+    - ✅ Uses AAA batteries (rechargeable)
+    - ✅ Works with Home Assistant
+    
+    **Cons:**
+    - ❌ Quality control can vary
+    - ❌ Some users report issues
+    - ❌ Fewer sensor types
+    
+    **Best for:** Beginners and those near IKEA
+  </TabItem>
+</Tabs>
+
+---
+
+## 🛒 Buying Strategy
+
+### Starter Kit (~$70)
+- 2x Aqara Door/Window Sensor ($24)
+- 2x Sonoff SNZB-03P Motion ($24)
+- 2x Sonoff SNZB-02P Temp/Hum ($22)
+- **Total:** ~$70
+
+### Complete Home (~$200)
+- 4x Aqara Door Sensor ($48)
+- 4x Sonoff SNZB-03P Motion ($48)
+- 4x Sonoff SNZB-02P Temp ($44)
+- 2x Aqara Water Leak ($36)
+- 1x Sonoff SNZB-06P Presence ($22)
+- 1x Aqara Vibration ($18)
+- **Total:** ~$216
+
+---
+
+## 🛒 Where to Buy?
+
+### Fast delivery (1-7 days)
+- **[Amazon.com](https://amazon.com)** - Aqara, Sonoff
+- **[Amazon.de](https://amazon.de)** - EU delivery
+- **[IKEA](https://ikea.com)** - VALLHORN, PARASOLL, VINDSTYRKA, BADRING
+
+### Direct (1-3 weeks)
+- **[ITEAD/Sonoff](https://itead.cc)** - Sonoff SNZB series
+- **[Aqara Store](https://aqara.com)** - Official Aqara
+
+### Cheapest (2-4 weeks)
+- **[AliExpress](https://aliexpress.com)** - All brands
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "What's the difference between PIR and mmWave sensors?",
+    answer: "PIR sensors detect motion via infrared radiation - they cannot see stationary people. mmWave/radar sensors can detect even small movements from breathing and are perfect for places where you sit still (office, bathroom, bedroom)."
+  },
+  {
+    question: "How long battery life can I expect?",
+    answer: "Aqara and Sonoff P-series typically last 2-5 years depending on use. Sensors that trigger often (motion) use more battery than door sensors. IKEA uses AAA batteries which are easy to replace."
+  },
+  {
+    question: "Do the sensors work without Aqara/IKEA hub?",
+    answer: "Yes! All Zigbee sensors work with any Zigbee coordinator (Sonoff dongle, SLZB-06, SkyConnect etc.) via ZHA or Zigbee2MQTT in Home Assistant. You do NOT need the manufacturer's hub."
+  },
+  {
+    question: "Which sensor for light automation?",
+    answer: "For areas with walk-through traffic (hallway, stairs): Aqara Motion P1 with 1-5 sec cooldown. For living rooms/offices where you sit still: mmWave sensor (Aqara FP300 or Sonoff SNZB-06P)."
+  },
+  {
+    question: "Can I use battery sensors outdoors?",
+    answer: "IKEA VALLHORN has IP44 rating and can be used outdoors under cover. Other sensors are for indoor use only. For true outdoor use, consider wired solutions."
+  },
+  {
+    question: "Why does my motion sensor always show 'detected'?",
+    answer: "PIR sensors have a cooldown period (typically 60 sec) where they cannot detect new motion. Aqara P1 lets you adjust this down to 1 second via Zigbee2MQTT."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Zigbee Coordinators" icon="rocket">
+    You'll need a coordinator for your sensors.
+    
+    [See coordinators →](/en/products/zigbee-coordinators/)
+  </Card>
+  <Card title="Automations" icon="setting">
+    Set up automations with your new sensors.
+    
+    [Learn more →](/en/home-assistant/automations/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
