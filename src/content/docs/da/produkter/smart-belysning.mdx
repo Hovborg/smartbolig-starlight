@@ -1,0 +1,447 @@
+---
+title: Smart Belysning
+description: Komplet guide til smart belysning - Philips Hue, IKEA TRÅDFRI, Innr, LED strips. Zigbee pærer, dimmere og atmosfærelys til Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Vælg det rigtige smart belysningssystem"
+  description="Guide til at vælge smart belysning til Home Assistant"
+  totalTime="PT20M"
+  steps={[
+    "Beslut budget og behov (hvid vs farve)",
+    "Vælg protokol (Zigbee anbefales)",
+    "Vælg mærke (IKEA, Hue, Innr)",
+    "Installer pærer og tilføj til Home Assistant",
+    "Opsæt automationer og scener"
+  ]}
+/>
+
+<Badge text="Zigbee" variant="success" /> <Badge text="Home Assistant" variant="note" /> <Badge text="Automation" variant="tip" />
+
+Smart belysning er ofte det **første skridt ind i smart home**. Med smart pærer kan du styre lyset med stemmen, automatisere efter solopgang/nedgang, og skabe den perfekte atmosfære. Denne guide hjælper dig med at vælge det rigtige system.
+
+<Aside type="tip" title="Top Anbefalinger 2025">
+- **Budget**: IKEA TRÅDFRI - Bedste pris/kvalitet
+- **Premium**: Philips Hue - Mest modent økosystem
+- **Alternativ**: Innr - Hue-kompatibel til lavere pris
+- **LED strips**: WLED på ESP32 - DIY med fantastisk kontrol
+- **Dimmere**: Shelly Dimmer 2 - Behold eksisterende pærer
+</Aside>
+
+---
+
+## 🔑 Smart Pærer vs Smart Afbrydere
+
+### Hvad skal du vælge?
+
+| Smart Pærer | Smart Afbrydere/Dimmere |
+|-------------|-------------------------|
+| ✅ Farver og CCT (varm/kold hvid) | ✅ Behold dine eksisterende pærer |
+| ✅ Individuel kontrol per pære | ✅ Virker altid fysisk |
+| ✅ Nem installation | ✅ Billigere i længden |
+| ❌ Virker ikke hvis afbryder slukkes | ❌ Ingen farver |
+| ❌ Dyrere per lyspunkt | ❌ Kræver elektriker til installation |
+
+<Aside type="note" title="Vores Anbefaling">
+- **Stuer og soveværelser**: Smart pærer for stemning og farver
+- **Køkken, bad, entre**: Smart afbrydere/dimmere
+- **Udendørs**: Smart afbrydere (vejrbestandige pærer sjældne)
+</Aside>
+
+---
+
+## 🏆 Mærke Sammenligning
+
+### Oversigt
+
+| Mærke | Protokol | Pris | Kvalitet | HA Integration | Score |
+|-------|----------|------|----------|----------------|-------|
+| **IKEA TRÅDFRI** | Zigbee | 💰 | ⭐⭐⭐⭐ | ✅ Perfekt | ⭐⭐⭐⭐⭐ |
+| **Philips Hue** | Zigbee | 💰💰💰 | ⭐⭐⭐⭐⭐ | ✅ Perfekt | ⭐⭐⭐⭐⭐ |
+| **Innr** | Zigbee | 💰💰 | ⭐⭐⭐⭐ | ✅ Perfekt | ⭐⭐⭐⭐ |
+| **Lidl/Silvercrest** | Zigbee | 💰 | ⭐⭐⭐ | ✅ God | ⭐⭐⭐⭐ |
+| **LIFX** | WiFi | 💰💰💰 | ⭐⭐⭐⭐ | ⚠️ Cloud | ⭐⭐⭐ |
+| **Tuya/Smart Life** | WiFi | 💰 | ⭐⭐ | ⚠️ Cloud | ⭐⭐ |
+
+---
+
+## 💡 IKEA TRÅDFRI - Bedste Pris
+
+<Tabs>
+  <TabItem label="Oversigt">
+    ### Hvorfor IKEA?
+    
+    IKEA TRÅDFRI (nu "IKEA Home smart") er det **bedste valg for de fleste**:
+    
+    - ✅ **Billigste Zigbee pærer** på markedet
+    - ✅ Fungerer uden IKEA gateway med ZHA/Zigbee2MQTT
+    - ✅ God lyskvalitet og farvegengivelse
+    - ✅ 5 års garanti
+    - ✅ Nem at købe i IKEA
+    - ✅ Fungerer som Zigbee routere
+    
+    **Ulemper:**
+    - ❌ Færre farvevalg end Hue
+    - ❌ DIRIGERA gateway kræves for IKEA app
+    - ❌ Langsommere opdateringsfrekvens
+  </TabItem>
+  <TabItem label="Produkter">
+    ### IKEA Pærer (2025 Priser)
+    
+    | Produkt | Type | Fatning | Pris |
+    |---------|------|---------|------|
+    | **TRÅDFRI LED** | Varm hvid | E27 | 69 kr |
+    | **TRÅDFRI LED** | Varm hvid | E14 | 69 kr |
+    | **TRÅDFRI LED** | Varm hvid | GU10 | 69 kr |
+    | **TRÅDFRI LED** | CCT (hvid spektrum) | E27 | 99 kr |
+    | **TRÅDFRI LED** | Farve + hvid | E27 | 149 kr |
+    | **TRÅDFRI LED** | Farve + hvid | E14 | 149 kr |
+    
+    ### IKEA Tilbehør
+    
+    | Produkt | Funktion | Pris |
+    |---------|----------|------|
+    | **DIRIGERA** | Hub/Gateway | 499 kr |
+    | **TRÅDFRI Fjernbetjening** | On/off/dim | 79 kr |
+    | **STYRBAR** | 4-knaps fjernbetjening | 149 kr |
+    | **RODRET** | Dæmper til væg | 99 kr |
+  </TabItem>
+  <TabItem label="Installation">
+    ### Med Home Assistant (Anbefalet)
+    
+    Du behøver **IKKE** IKEA's DIRIGERA gateway. Brug i stedet:
+    
+    1. **Zigbee koordinator** (SkyConnect, Sonoff, ConBee)
+    2. **ZHA** eller **Zigbee2MQTT** integration
+    
+    **Tilføj pære:**
+    1. Skru pæren i og tænd
+    2. Gå til ZHA/Zigbee2MQTT → Tilføj enhed
+    3. Pæren parres automatisk (ny pære) eller reset først
+    
+    **Reset pære:**
+    - Tænd/sluk 6 gange hurtigt (ca. 1 sek intervals)
+    - Pæren blinker når den er reset
+    
+    ### Med DIRIGERA Gateway
+    
+    Hvis du vil bruge IKEA's egen app:
+    1. Tilslut DIRIGERA til router
+    2. Download IKEA Home smart app
+    3. Tilføj pærer via appen
+    4. Integrer med Home Assistant via DIRIGERA integration
+  </TabItem>
+</Tabs>
+
+---
+
+## 🌈 Philips Hue - Premium Valg
+
+<Tabs>
+  <TabItem label="Oversigt">
+    ### Hvorfor Hue?
+    
+    Philips Hue er **markedslederen** i smart belysning:
+    
+    - ✅ **Bedste farvegengivelse** og lyskvalitet
+    - ✅ Kæmpe produktsortiment
+    - ✅ Meget pålidelig
+    - ✅ Fungerer med mange andre systemer
+    - ✅ Hue Sync for film/gaming
+    - ✅ Matter support
+    
+    **Ulemper:**
+    - ❌ **Dyrt** - 2-3x prisen af IKEA
+    - ❌ Hue Bridge anbefales (ekstra omkostning)
+    - ❌ Nogle funktioner kræver Hue app
+  </TabItem>
+  <TabItem label="Produkter">
+    ### Hue Pærer (2025 Priser)
+    
+    | Produkt | Type | Fatning | Pris |
+    |---------|------|---------|------|
+    | **Hue White** | Varm hvid | E27 | 119 kr |
+    | **Hue White Ambiance** | CCT | E27 | 229 kr |
+    | **Hue White & Color** | RGBW | E27 | 399 kr |
+    | **Hue White** | Varm hvid | GU10 | 119 kr |
+    | **Hue White & Color** | RGBW | GU10 | 349 kr |
+    | **Hue Filament** | Vintage stil | E27 | 249 kr |
+    
+    ### Hue Tilbehør
+    
+    | Produkt | Funktion | Pris |
+    |---------|----------|------|
+    | **Hue Bridge** | Gateway | 499 kr |
+    | **Hue Dimmer Switch** | Fjernbetjening | 229 kr |
+    | **Hue Motion Sensor** | Bevægelsessensor | 349 kr |
+    | **Hue Play Bar** | Ambilight effekt | 599 kr |
+    | **Hue Gradient Strip** | Premium LED strip | 1499 kr |
+  </TabItem>
+  <TabItem label="Installation">
+    ### Med Hue Bridge (Anbefalet af Philips)
+    
+    1. Tilslut Hue Bridge til router
+    2. Download Philips Hue app
+    3. Tilføj pærer via appen
+    4. Integrer med Home Assistant via Hue integration
+    
+    **Fordele ved Bridge:**
+    - Alle Hue funktioner
+    - Firmware opdateringer
+    - Hue Sync, Entertainment areas
+    
+    ### Uden Hue Bridge (via ZHA/Z2M)
+    
+    Hue pærer fungerer med enhver Zigbee koordinator:
+    
+    1. Reset pære (tænd/sluk 5-6 gange)
+    2. Tilføj via ZHA/Zigbee2MQTT
+    3. Fuld kontrol i Home Assistant
+    
+    **Ulemper uden Bridge:**
+    - Ingen firmware opdateringer
+    - Ingen Hue Sync
+    - Ingen Entertainment areas
+  </TabItem>
+</Tabs>
+
+---
+
+## 💰 Innr - Hue Alternativ
+
+Innr laver **Hue-kompatible pærer til lavere pris**. Perfekt til at udvide et Hue system billigere.
+
+### Produkter
+
+| Produkt | Type | Kompatibel | Pris |
+|---------|------|------------|------|
+| **Innr E27 Color** | RGBW | Hue, ZHA, Z2M | 199 kr |
+| **Innr E27 White** | CCT | Hue, ZHA, Z2M | 129 kr |
+| **Innr GU10 Color** | RGBW | Hue, ZHA, Z2M | 179 kr |
+| **Innr Light Strip** | RGBW | Hue, ZHA, Z2M | 399 kr |
+
+<Aside type="tip" title="Innr med Hue Bridge">
+Innr pærer kan tilføjes til Philips Hue Bridge og styres via Hue appen. De understøtter dog ikke Hue Sync eller Entertainment.
+</Aside>
+
+---
+
+## 🎨 LED Strips
+
+### Sammenligning
+
+| Produkt | Protokol | Pris/meter | Kvalitet | HA Integration |
+|---------|----------|------------|----------|----------------|
+| **WLED (DIY)** | WiFi | ~30 kr | ⭐⭐⭐⭐⭐ | ✅ Native |
+| **Hue Gradient** | Zigbee | ~500 kr | ⭐⭐⭐⭐⭐ | ✅ Via Bridge |
+| **Hue Lightstrip Plus** | Zigbee | ~300 kr | ⭐⭐⭐⭐ | ✅ Via Bridge |
+| **IKEA MYRVARV** | Zigbee | ~100 kr | ⭐⭐⭐ | ✅ ZHA/Z2M |
+| **Innr Strip** | Zigbee | ~150 kr | ⭐⭐⭐⭐ | ✅ ZHA/Z2M |
+| **Govee** | WiFi/BT | ~80 kr | ⭐⭐⭐ | ⚠️ Cloud |
+
+### 🥇 WLED - Bedste DIY Løsning
+
+WLED er **open source firmware** til ESP32/ESP8266 der styrer addresserbare LED strips (WS2812B, SK6812, etc.).
+
+**Fordele:**
+- ✅ Fantastisk effekt bibliotek (100+ effekter)
+- ✅ Native Home Assistant integration
+- ✅ Segment kontrol
+- ✅ Sync mellem flere strips
+- ✅ Ekstremt billigt
+
+**Hvad du skal bruge:**
+- ESP32 eller ESP8266 (~30 kr)
+- WS2812B LED strip (~30-50 kr/meter)
+- 5V strømforsyning (2A per meter)
+
+**Køb:** [AliExpress](https://aliexpress.com) (søg "WS2812B 5V")
+
+---
+
+## 🔆 Smart Dimmere
+
+Hvis du vil beholde dine eksisterende pærer, er smart dimmere løsningen.
+
+### Sammenligning
+
+| Produkt | Protokol | Neutral | Pris | Score |
+|---------|----------|---------|------|-------|
+| **Shelly Dimmer 2** | WiFi | Nej | 250 kr | ⭐⭐⭐⭐⭐ |
+| **Shelly Plus Wall Dimmer** | WiFi | Ja | 350 kr | ⭐⭐⭐⭐⭐ |
+| **IKEA TRÅDFRI Driver** | Zigbee | - | 199 kr | ⭐⭐⭐⭐ |
+| **Hue Wall Switch** | Zigbee | - | 399 kr | ⭐⭐⭐⭐ |
+| **Sonoff D1** | WiFi | Nej | 150 kr | ⭐⭐⭐ |
+
+### 🥇 Shelly Dimmer 2
+
+**Pris:** ca. 250 kr
+
+Den mest populære WiFi dimmer for Home Assistant:
+
+- ✅ Ingen neutral ledning krævet
+- ✅ LED og gløde kompatibel
+- ✅ Lokal kontrol via MQTT/REST
+- ✅ Passer bag eksisterende afbryder
+- ✅ Min/max kalibrering
+
+**Køb:** [Shelly.com](https://shelly.com), [Amazon](https://amazon.de)
+
+---
+
+## 🏠 Home Assistant Automationer
+
+### Populære Belysnings-Automationer
+
+```yaml
+# Tænd lys ved bevægelse
+automation:
+  - alias: "Lys tændes ved bevægelse"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.gang_motion
+        to: "on"
+    condition:
+      - condition: sun
+        after: sunset
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.gang
+        data:
+          brightness_pct: 100
+
+# Gradvis dæmpning om aftenen
+  - alias: "Aftenbelysning"
+    trigger:
+      - platform: sun
+        event: sunset
+        offset: "+01:00:00"
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.stue
+        data:
+          color_temp_kelvin: 2700
+          brightness_pct: 50
+```
+
+### Adaptive Belysning
+
+Home Assistant har en **Adaptive Lighting** integration der automatisk justerer:
+- Farvetemperatur efter tid på dagen
+- Lysstyrke baseret på sollys
+- Gradvis wake-up og sleep modes
+
+**Installation:**
+1. HACS → Søg "Adaptive Lighting"
+2. Installer og genstart
+3. Konfigurer hvilke lys der skal styres
+
+---
+
+## 🛒 Købs Strategi
+
+### Budget Start (~500 kr)
+- 4x IKEA TRÅDFRI E27 hvid (280 kr)
+- 1x IKEA STYRBAR fjernbetjening (149 kr)
+- Brug eksisterende Zigbee koordinator
+- **Total:** ~430 kr
+
+### Mellem (~1.500 kr)
+- 6x IKEA TRÅDFRI E27 farve (900 kr)
+- 2x IKEA TRÅDFRI GU10 hvid (140 kr)
+- 1x Shelly Dimmer 2 (250 kr)
+- 1x WLED strip 3m DIY (200 kr)
+- **Total:** ~1.490 kr
+
+### Premium Hue (~4.000 kr)
+- 1x Hue Bridge (499 kr)
+- 4x Hue White & Color E27 (1.600 kr)
+- 2x Hue GU10 White (240 kr)
+- 2x Hue Dimmer Switch (460 kr)
+- 1x Hue Lightstrip Plus 2m (600 kr)
+- 1x Hue Motion Sensor (350 kr)
+- **Total:** ~3.750 kr
+
+---
+
+## 🛒 Hvor Køber Jeg?
+
+### IKEA
+- **[IKEA.dk](https://ikea.dk)** - Alle TRÅDFRI produkter
+- Fysiske IKEA varehuse
+
+### Philips Hue
+- **[Philips Hue Store](https://www.philips-hue.com/da-dk)** - Officiel
+- **[Elgiganten](https://elgiganten.dk)** - Ofte tilbud
+- **[Power](https://power.dk)** - God pris
+- **[Amazon.de](https://amazon.de)** - Billigere import
+
+### Innr
+- **[Amazon.de](https://amazon.de)** - Bedste udvalg
+- **[Proshop.dk](https://proshop.dk)** - Dansk
+
+### LED Strips (DIY)
+- **[AliExpress](https://aliexpress.com)** - WS2812B, ESP32
+- **[Electrokit.se](https://electrokit.se)** - Nordisk
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Kan jeg blande IKEA og Hue pærer?",
+    answer: "Ja! Alle Zigbee pærer fungerer sammen med ZHA eller Zigbee2MQTT i Home Assistant. Du kan endda tilføje IKEA pærer til en Philips Hue Bridge (dog med begrænsede funktioner)."
+  },
+  {
+    question: "Skal jeg have en hub til smart pærer?",
+    answer: "For Zigbee pærer: Ja, du skal bruge en Zigbee koordinator (fx SkyConnect). WiFi pærer behøver ingen hub, men anbefales ikke pga. cloud-afhængighed. Med Home Assistant kan du bruge én koordinator til alle Zigbee enheder."
+  },
+  {
+    question: "Hvad hvis nogen slukker på afbryderen?",
+    answer: "Smart pærer virker ikke hvis strømmen afbrydes. Løsninger: 1) Udskift med smart afbryder, 2) Brug fjernbetjeninger i stedet, 3) Monter låsedæksel over afbryder, 4) Hue har 'power-on behavior' til at gendanne sidste tilstand."
+  },
+  {
+    question: "CCT eller farve pærer?",
+    answer: "CCT (hvid spektrum) pærer kan skifte mellem varm og kold hvid - perfekt til funktionelt lys. Farve pærer kan alt inkl. RGB - gode til stemning og accent. De fleste vælger CCT til hovedbelysning og farve til accent."
+  },
+  {
+    question: "Holder smart pærer lige så længe som normale LED?",
+    answer: "Ja, de fleste smart LED pærer holder 15.000-25.000 timer ligesom normale LED. IKEA giver 5 års garanti, Philips Hue 2 år."
+  },
+  {
+    question: "Kan jeg bruge smart pærer udendørs?",
+    answer: "Kun pærer rated til udendørs brug (IP44+). De fleste smart pærer er kun til indendørs. Alternativt: Brug en udendørs armatur med smart afbryder/relæ."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="Zigbee Koordinatorer" icon="rocket">
+    Vælg den rigtige hub til dine pærer.
+    
+    [Se koordinatorer →](/da/produkter/zigbee-koordinatorer/)
+  </Card>
+  <Card title="Automationer" icon="setting">
+    Lav smarte lys-automationer.
+    
+    [Lær mere →](/da/home-assistant/automationer/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*

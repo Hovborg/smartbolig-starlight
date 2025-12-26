@@ -1,0 +1,445 @@
+---
+title: Smart Lighting
+description: Complete guide to smart lighting - Philips Hue, IKEA TRÅDFRI, Innr, LED strips. Zigbee bulbs, dimmers and ambient lighting for Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Choose the right smart lighting system"
+  description="Guide to choosing smart lighting for Home Assistant"
+  totalTime="PT20M"
+  steps={[
+    "Decide budget and needs (white vs color)",
+    "Choose protocol (Zigbee recommended)",
+    "Choose brand (IKEA, Hue, Innr)",
+    "Install bulbs and add to Home Assistant",
+    "Set up automations and scenes"
+  ]}
+/>
+
+<Badge text="Zigbee" variant="success" /> <Badge text="Home Assistant" variant="note" /> <Badge text="Automation" variant="tip" />
+
+Smart lighting is often the **first step into smart home**. With smart bulbs you can control lights with voice, automate by sunrise/sunset, and create the perfect atmosphere. This guide helps you choose the right system.
+
+<Aside type="tip" title="Top Recommendations 2025">
+- **Budget**: IKEA TRÅDFRI - Best price/quality
+- **Premium**: Philips Hue - Most mature ecosystem
+- **Alternative**: Innr - Hue-compatible at lower price
+- **LED strips**: WLED on ESP32 - DIY with amazing control
+- **Dimmers**: Shelly Dimmer 2 - Keep existing bulbs
+</Aside>
+
+---
+
+## 🔑 Smart Bulbs vs Smart Switches
+
+### What should you choose?
+
+| Smart Bulbs | Smart Switches/Dimmers |
+|-------------|------------------------|
+| ✅ Colors and CCT (warm/cool white) | ✅ Keep your existing bulbs |
+| ✅ Individual control per bulb | ✅ Always works physically |
+| ✅ Easy installation | ✅ Cheaper in the long run |
+| ❌ Doesn't work if switch is off | ❌ No colors |
+| ❌ More expensive per light point | ❌ Requires electrician for installation |
+
+<Aside type="note" title="Our Recommendation">
+- **Living rooms and bedrooms**: Smart bulbs for mood and colors
+- **Kitchen, bathroom, hallway**: Smart switches/dimmers
+- **Outdoor**: Smart switches (weatherproof bulbs are rare)
+</Aside>
+
+---
+
+## 🏆 Brand Comparison
+
+### Overview
+
+| Brand | Protocol | Price | Quality | HA Integration | Score |
+|-------|----------|-------|---------|----------------|-------|
+| **IKEA TRÅDFRI** | Zigbee | 💰 | ⭐⭐⭐⭐ | ✅ Perfect | ⭐⭐⭐⭐⭐ |
+| **Philips Hue** | Zigbee | 💰💰💰 | ⭐⭐⭐⭐⭐ | ✅ Perfect | ⭐⭐⭐⭐⭐ |
+| **Innr** | Zigbee | 💰💰 | ⭐⭐⭐⭐ | ✅ Perfect | ⭐⭐⭐⭐ |
+| **Lidl/Silvercrest** | Zigbee | 💰 | ⭐⭐⭐ | ✅ Good | ⭐⭐⭐⭐ |
+| **LIFX** | WiFi | 💰💰💰 | ⭐⭐⭐⭐ | ⚠️ Cloud | ⭐⭐⭐ |
+| **Tuya/Smart Life** | WiFi | 💰 | ⭐⭐ | ⚠️ Cloud | ⭐⭐ |
+
+---
+
+## 💡 IKEA TRÅDFRI - Best Price
+
+<Tabs>
+  <TabItem label="Overview">
+    ### Why IKEA?
+    
+    IKEA TRÅDFRI (now "IKEA Home smart") is the **best choice for most people**:
+    
+    - ✅ **Cheapest Zigbee bulbs** on the market
+    - ✅ Works without IKEA gateway with ZHA/Zigbee2MQTT
+    - ✅ Good light quality and color rendering
+    - ✅ 5-year warranty
+    - ✅ Easy to buy at IKEA
+    - ✅ Function as Zigbee routers
+    
+    **Disadvantages:**
+    - ❌ Fewer color options than Hue
+    - ❌ DIRIGERA gateway required for IKEA app
+    - ❌ Slower update frequency
+  </TabItem>
+  <TabItem label="Products">
+    ### IKEA Bulbs (2025 Prices)
+    
+    | Product | Type | Socket | Price |
+    |---------|------|--------|-------|
+    | **TRÅDFRI LED** | Warm white | E27/E26 | $10 |
+    | **TRÅDFRI LED** | Warm white | E14/E12 | $10 |
+    | **TRÅDFRI LED** | Warm white | GU10 | $10 |
+    | **TRÅDFRI LED** | CCT (white spectrum) | E27 | $14 |
+    | **TRÅDFRI LED** | Color + white | E27 | $21 |
+    | **TRÅDFRI LED** | Color + white | E14 | $21 |
+    
+    ### IKEA Accessories
+    
+    | Product | Function | Price |
+    |---------|----------|-------|
+    | **DIRIGERA** | Hub/Gateway | $70 |
+    | **TRÅDFRI Remote** | On/off/dim | $11 |
+    | **STYRBAR** | 4-button remote | $21 |
+    | **RODRET** | Wall dimmer | $14 |
+  </TabItem>
+  <TabItem label="Installation">
+    ### With Home Assistant (Recommended)
+    
+    You do **NOT** need IKEA's DIRIGERA gateway. Use instead:
+    
+    1. **Zigbee coordinator** (SkyConnect, Sonoff, ConBee)
+    2. **ZHA** or **Zigbee2MQTT** integration
+    
+    **Add bulb:**
+    1. Screw in bulb and turn on
+    2. Go to ZHA/Zigbee2MQTT → Add device
+    3. Bulb pairs automatically (new bulb) or reset first
+    
+    **Reset bulb:**
+    - Turn on/off 6 times quickly (about 1 sec intervals)
+    - Bulb blinks when reset
+    
+    ### With DIRIGERA Gateway
+    
+    If you want to use IKEA's own app:
+    1. Connect DIRIGERA to router
+    2. Download IKEA Home smart app
+    3. Add bulbs via the app
+    4. Integrate with Home Assistant via DIRIGERA integration
+  </TabItem>
+</Tabs>
+
+---
+
+## 🌈 Philips Hue - Premium Choice
+
+<Tabs>
+  <TabItem label="Overview">
+    ### Why Hue?
+    
+    Philips Hue is the **market leader** in smart lighting:
+    
+    - ✅ **Best color rendering** and light quality
+    - ✅ Huge product range
+    - ✅ Very reliable
+    - ✅ Works with many other systems
+    - ✅ Hue Sync for movies/gaming
+    - ✅ Matter support
+    
+    **Disadvantages:**
+    - ❌ **Expensive** - 2-3x the price of IKEA
+    - ❌ Hue Bridge recommended (extra cost)
+    - ❌ Some features require Hue app
+  </TabItem>
+  <TabItem label="Products">
+    ### Hue Bulbs (2025 Prices)
+    
+    | Product | Type | Socket | Price |
+    |---------|------|--------|-------|
+    | **Hue White** | Warm white | E27/E26 | $17 |
+    | **Hue White Ambiance** | CCT | E27/E26 | $32 |
+    | **Hue White & Color** | RGBW | E27/E26 | $55 |
+    | **Hue White** | Warm white | GU10 | $17 |
+    | **Hue White & Color** | RGBW | GU10 | $49 |
+    | **Hue Filament** | Vintage style | E27/E26 | $35 |
+    
+    ### Hue Accessories
+    
+    | Product | Function | Price |
+    |---------|----------|-------|
+    | **Hue Bridge** | Gateway | $60 |
+    | **Hue Dimmer Switch** | Remote control | $32 |
+    | **Hue Motion Sensor** | Motion sensor | $49 |
+    | **Hue Play Bar** | Ambilight effect | $84 |
+    | **Hue Gradient Strip** | Premium LED strip | $210 |
+  </TabItem>
+  <TabItem label="Installation">
+    ### With Hue Bridge (Recommended by Philips)
+    
+    1. Connect Hue Bridge to router
+    2. Download Philips Hue app
+    3. Add bulbs via the app
+    4. Integrate with Home Assistant via Hue integration
+    
+    **Benefits of Bridge:**
+    - All Hue features
+    - Firmware updates
+    - Hue Sync, Entertainment areas
+    
+    ### Without Hue Bridge (via ZHA/Z2M)
+    
+    Hue bulbs work with any Zigbee coordinator:
+    
+    1. Reset bulb (turn on/off 5-6 times)
+    2. Add via ZHA/Zigbee2MQTT
+    3. Full control in Home Assistant
+    
+    **Disadvantages without Bridge:**
+    - No firmware updates
+    - No Hue Sync
+    - No Entertainment areas
+  </TabItem>
+</Tabs>
+
+---
+
+## 💰 Innr - Hue Alternative
+
+Innr makes **Hue-compatible bulbs at lower price**. Perfect for expanding a Hue system cheaper.
+
+### Products
+
+| Product | Type | Compatible | Price |
+|---------|------|------------|-------|
+| **Innr E27 Color** | RGBW | Hue, ZHA, Z2M | $28 |
+| **Innr E27 White** | CCT | Hue, ZHA, Z2M | $18 |
+| **Innr GU10 Color** | RGBW | Hue, ZHA, Z2M | $25 |
+| **Innr Light Strip** | RGBW | Hue, ZHA, Z2M | $56 |
+
+<Aside type="tip" title="Innr with Hue Bridge">
+Innr bulbs can be added to Philips Hue Bridge and controlled via the Hue app. However, they don't support Hue Sync or Entertainment.
+</Aside>
+
+---
+
+## 🎨 LED Strips
+
+### Comparison
+
+| Product | Protocol | Price/meter | Quality | HA Integration |
+|---------|----------|-------------|---------|----------------|
+| **WLED (DIY)** | WiFi | ~$4 | ⭐⭐⭐⭐⭐ | ✅ Native |
+| **Hue Gradient** | Zigbee | ~$70 | ⭐⭐⭐⭐⭐ | ✅ Via Bridge |
+| **Hue Lightstrip Plus** | Zigbee | ~$42 | ⭐⭐⭐⭐ | ✅ Via Bridge |
+| **IKEA MYRVARV** | Zigbee | ~$14 | ⭐⭐⭐ | ✅ ZHA/Z2M |
+| **Innr Strip** | Zigbee | ~$21 | ⭐⭐⭐⭐ | ✅ ZHA/Z2M |
+| **Govee** | WiFi/BT | ~$11 | ⭐⭐⭐ | ⚠️ Cloud |
+
+### 🥇 WLED - Best DIY Solution
+
+WLED is **open source firmware** for ESP32/ESP8266 that controls addressable LED strips (WS2812B, SK6812, etc.).
+
+**Advantages:**
+- ✅ Amazing effect library (100+ effects)
+- ✅ Native Home Assistant integration
+- ✅ Segment control
+- ✅ Sync between multiple strips
+- ✅ Extremely cheap
+
+**What you need:**
+- ESP32 or ESP8266 (~$4)
+- WS2812B LED strip (~$4-7/meter)
+- 5V power supply (2A per meter)
+
+**Buy:** [AliExpress](https://aliexpress.com) (search "WS2812B 5V")
+
+---
+
+## 🔆 Smart Dimmers
+
+If you want to keep your existing bulbs, smart dimmers are the solution.
+
+### Comparison
+
+| Product | Protocol | Neutral | Price | Score |
+|---------|----------|---------|-------|-------|
+| **Shelly Dimmer 2** | WiFi | No | $35 | ⭐⭐⭐⭐⭐ |
+| **Shelly Plus Wall Dimmer** | WiFi | Yes | $49 | ⭐⭐⭐⭐⭐ |
+| **IKEA TRÅDFRI Driver** | Zigbee | - | $28 | ⭐⭐⭐⭐ |
+| **Hue Wall Switch** | Zigbee | - | $56 | ⭐⭐⭐⭐ |
+| **Sonoff D1** | WiFi | No | $21 | ⭐⭐⭐ |
+
+### 🥇 Shelly Dimmer 2
+
+**Price:** ~$35
+
+The most popular WiFi dimmer for Home Assistant:
+
+- ✅ No neutral wire required
+- ✅ LED and incandescent compatible
+- ✅ Local control via MQTT/REST
+- ✅ Fits behind existing switch
+- ✅ Min/max calibration
+
+**Buy:** [Shelly.com](https://shelly.com), [Amazon](https://amazon.com)
+
+---
+
+## 🏠 Home Assistant Automations
+
+### Popular Lighting Automations
+
+```yaml
+# Turn on light on motion
+automation:
+  - alias: "Light on motion"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.hallway_motion
+        to: "on"
+    condition:
+      - condition: sun
+        after: sunset
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.hallway
+        data:
+          brightness_pct: 100
+
+# Gradual dimming in evening
+  - alias: "Evening lighting"
+    trigger:
+      - platform: sun
+        event: sunset
+        offset: "+01:00:00"
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.living_room
+        data:
+          color_temp_kelvin: 2700
+          brightness_pct: 50
+```
+
+### Adaptive Lighting
+
+Home Assistant has an **Adaptive Lighting** integration that automatically adjusts:
+- Color temperature based on time of day
+- Brightness based on sunlight
+- Gradual wake-up and sleep modes
+
+**Installation:**
+1. HACS → Search "Adaptive Lighting"
+2. Install and restart
+3. Configure which lights to control
+
+---
+
+## 🛒 Buying Strategy
+
+### Budget Start (~$70)
+- 4x IKEA TRÅDFRI E27 white ($40)
+- 1x IKEA STYRBAR remote ($21)
+- Use existing Zigbee coordinator
+- **Total:** ~$61
+
+### Mid-range (~$210)
+- 6x IKEA TRÅDFRI E27 color ($126)
+- 2x IKEA TRÅDFRI GU10 white ($20)
+- 1x Shelly Dimmer 2 ($35)
+- 1x WLED strip 3m DIY ($28)
+- **Total:** ~$209
+
+### Premium Hue (~$560)
+- 1x Hue Bridge ($60)
+- 4x Hue White & Color E27 ($220)
+- 2x Hue GU10 White ($34)
+- 2x Hue Dimmer Switch ($64)
+- 1x Hue Lightstrip Plus 2m ($84)
+- 1x Hue Motion Sensor ($49)
+- **Total:** ~$511
+
+---
+
+## 🛒 Where to Buy?
+
+### IKEA
+- **[IKEA.com](https://ikea.com)** - All TRÅDFRI products
+- Physical IKEA stores
+
+### Philips Hue
+- **[Philips Hue Store](https://www.philips-hue.com)** - Official
+- **[Best Buy](https://bestbuy.com)** - Often on sale
+- **[Amazon](https://amazon.com)** - Good prices
+
+### Innr
+- **[Amazon](https://amazon.com)** - Best selection
+
+### LED Strips (DIY)
+- **[AliExpress](https://aliexpress.com)** - WS2812B, ESP32
+- **[Adafruit](https://adafruit.com)** - Quality components
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Can I mix IKEA and Hue bulbs?",
+    answer: "Yes! All Zigbee bulbs work together with ZHA or Zigbee2MQTT in Home Assistant. You can even add IKEA bulbs to a Philips Hue Bridge (though with limited features)."
+  },
+  {
+    question: "Do I need a hub for smart bulbs?",
+    answer: "For Zigbee bulbs: Yes, you need a Zigbee coordinator (e.g., SkyConnect). WiFi bulbs don't need a hub, but are not recommended due to cloud dependency. With Home Assistant you can use one coordinator for all Zigbee devices."
+  },
+  {
+    question: "What if someone turns off the switch?",
+    answer: "Smart bulbs don't work if power is cut. Solutions: 1) Replace with smart switch, 2) Use remotes instead, 3) Install switch guard, 4) Hue has 'power-on behavior' to restore last state."
+  },
+  {
+    question: "CCT or color bulbs?",
+    answer: "CCT (white spectrum) bulbs can switch between warm and cool white - perfect for functional lighting. Color bulbs can do everything including RGB - great for mood and accent. Most choose CCT for main lighting and color for accents."
+  },
+  {
+    question: "Do smart bulbs last as long as regular LED?",
+    answer: "Yes, most smart LED bulbs last 15,000-25,000 hours like regular LED. IKEA offers 5-year warranty, Philips Hue 2 years."
+  },
+  {
+    question: "Can I use smart bulbs outdoors?",
+    answer: "Only bulbs rated for outdoor use (IP44+). Most smart bulbs are indoor only. Alternative: Use an outdoor fixture with smart switch/relay."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Zigbee Coordinators" icon="rocket">
+    Choose the right hub for your bulbs.
+    
+    [See coordinators →](/en/products/zigbee-coordinators/)
+  </Card>
+  <Card title="Automations" icon="setting">
+    Create smart lighting automations.
+    
+    [Learn more →](/en/home-assistant/automations/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
