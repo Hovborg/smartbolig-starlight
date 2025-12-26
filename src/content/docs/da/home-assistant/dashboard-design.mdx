@@ -1,0 +1,551 @@
+---
+title: Dashboard Design i Home Assistant
+description: Byg smukke og funktionelle dashboards med Mushroom Cards, Sections og custom styling i Home Assistant.
+sidebar:
+  badge:
+    text: Design
+    variant: success
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+
+<Badge text="Lovelace" variant="success" /> <Badge text="Mushroom" variant="tip" /> <Badge text="Design" variant="note" />
+
+Et godt dashboard gør forskellen mellem et smart home du bruger dagligt og et du glemmer eksisterer. Denne guide hjælper dig med at bygge dashboards der er både **smukke og funktionelle**.
+
+---
+
+## 🎯 Dashboard Filosofi
+
+### Hvad gør et godt dashboard?
+
+| Princip | Beskrivelse |
+|---------|-------------|
+| **Overblik først** | Se husets status med ét blik |
+| **Handlinger med ét klik** | Ingen dybe menuer for daglige opgaver |
+| **Mobil-venlig** | Virker lige godt på telefon og tablet |
+| **Konsistent design** | Samme stil og farver overalt |
+| **Relevant information** | Vis kun det der betyder noget |
+
+### De Tre Dashboard-Typer
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    DASHBOARD TYPER                          │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  📱 MOBIL          🖥️ TABLET/VÆGTABLET    📊 ADMIN          │
+│  ─────────         ───────────────────    ─────────         │
+│  Quick actions     Overblik + kontrol     Alt i ét          │
+│  Kompakt layout    Room-baseret           Debugging         │
+│  Touch-optimeret   Ambient display        Grafer/statistik  │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 📐 Lovelace Basics
+
+### Views og Sections
+
+Home Assistant 2024+ introducerede **Sections** - en ny måde at organisere cards på:
+
+```yaml
+# Traditionel Grid Layout
+views:
+  - title: Hjem
+    type: masonry  # eller grid
+    cards:
+      - type: light
+        entity: light.stue
+
+# Ny Sections Layout (anbefalet)
+views:
+  - title: Hjem
+    type: sections
+    sections:
+      - title: Belysning
+        cards:
+          - type: light
+            entity: light.stue
+```
+
+<Aside type="tip" title="Sections fordele">
+- Drag-and-drop i UI editoren
+- Automatisk responsivt layout
+- Nemmere at organisere cards i grupper
+- Slider til at justere card-bredde
+</Aside>
+
+### Opret Nyt Dashboard
+
+<Steps>
+1. Gå til **Indstillinger → Dashboards**
+
+2. Klik **Tilføj Dashboard**
+
+3. Vælg et navn og ikon
+
+4. Vælg **Start med tomt dashboard**
+
+5. Klik på de tre prikker → **Rediger Dashboard**
+
+6. Vælg **Sections** som layout type
+</Steps>
+
+---
+
+## 🍄 Mushroom Cards
+
+Mushroom er den mest populære custom card-samling. Moderne design, fuld UI-editor support, og det ser bare godt ud.
+
+### Installation
+
+<Steps>
+1. Åbn **HACS → Frontend**
+
+2. Søg efter "Mushroom"
+
+3. Installer **Mushroom** og **Mushroom Themes**
+
+4. Genstart Home Assistant
+
+5. Ryd browser cache (Ctrl+Shift+R)
+</Steps>
+
+### Mushroom Card Typer
+
+| Card | Brug | Entity Type |
+|------|------|-------------|
+| **Entity Card** | Generel visning | Alle |
+| **Light Card** | Lys med slider | light.* |
+| **Switch Card** | Tænd/sluk | switch.*, input_boolean |
+| **Fan Card** | Ventilator | fan.* |
+| **Cover Card** | Gardiner/porte | cover.* |
+| **Climate Card** | Termostat | climate.* |
+| **Person Card** | Tilstedeværelse | person.* |
+| **Alarm Card** | Alarm panel | alarm_control_panel.* |
+| **Media Card** | Medieafspiller | media_player.* |
+| **Lock Card** | Låse | lock.* |
+| **Vacuum Card** | Robotstøvsuger | vacuum.* |
+| **Template Card** | Custom indhold | Alle |
+| **Chips Card** | Små status-badges | Alle |
+| **Title Card** | Sektionsoverskrift | - |
+
+### Eksempel: Stue Section
+
+```yaml
+type: sections
+sections:
+  - title: Stue
+    cards:
+      # Chips øverst for status
+      - type: custom:mushroom-chips-card
+        chips:
+          - type: entity
+            entity: sensor.stue_temperatur
+            icon: mdi:thermometer
+          - type: entity
+            entity: sensor.stue_luftfugtighed
+            icon: mdi:water-percent
+
+      # Lys med slider
+      - type: custom:mushroom-light-card
+        entity: light.stue_loft
+        name: Loftlys
+        show_brightness_control: true
+        show_color_control: true
+        use_light_color: true
+
+      # TV kontrol
+      - type: custom:mushroom-media-player-card
+        entity: media_player.stue_tv
+        use_media_info: true
+        show_volume_level: true
+        volume_controls:
+          - volume_buttons
+
+      # Termostat
+      - type: custom:mushroom-climate-card
+        entity: climate.stue
+        show_temperature_control: true
+        hvac_modes:
+          - heat
+          - "off"
+```
+
+### Mushroom Template Card
+
+Den mest fleksible card - lav præcis hvad du vil:
+
+```yaml
+type: custom:mushroom-template-card
+primary: "{{ states('sensor.stroemforbrug') }} W"
+secondary: >
+  {% if states('sensor.stroemforbrug')|float > 2000 %}
+    Højt forbrug!
+  {% else %}
+    Normalt
+  {% endif %}
+icon: mdi:flash
+icon_color: >
+  {% if states('sensor.stroemforbrug')|float > 2000 %}
+    red
+  {% elif states('sensor.stroemforbrug')|float > 1000 %}
+    orange
+  {% else %}
+    green
+  {% endif %}
+tap_action:
+  action: navigate
+  navigation_path: /lovelace/energi
+```
+
+---
+
+## 🎨 Design Tips
+
+### Farver og Konsistens
+
+Brug Mushroom Themes for ensartet look:
+
+```yaml
+# I configuration.yaml
+frontend:
+  themes: !include_dir_merge_named themes
+
+# Download themes via HACS:
+# - Mushroom Shadow (mørk)
+# - Mushroom Square (lys)
+```
+
+### Chip Cards til Status
+
+Små badges øverst på dashboard der viser vigtig info:
+
+```yaml
+type: custom:mushroom-chips-card
+chips:
+  # Hvem er hjemme
+  - type: template
+    icon: mdi:home
+    content: >
+      {{ states.person | selectattr('state', 'eq', 'home') | list | count }}
+    tap_action:
+      action: navigate
+      navigation_path: /lovelace/personer
+
+  # Antal lys tændt
+  - type: template
+    icon: mdi:lightbulb
+    content: >
+      {{ states.light | selectattr('state', 'eq', 'on') | list | count }}
+    icon_color: >
+      {% if states.light | selectattr('state', 'eq', 'on') | list | count > 0 %}
+        yellow
+      {% else %}
+        grey
+      {% endif %}
+
+  # Temperatur ude
+  - type: entity
+    entity: sensor.ude_temperatur
+    icon: mdi:thermometer
+
+  # Alarmpanel status
+  - type: entity
+    entity: alarm_control_panel.home
+    icon: mdi:shield-home
+```
+
+### Conditional Cards
+
+Vis cards baseret på tilstand:
+
+```yaml
+type: conditional
+conditions:
+  - entity: binary_sensor.motion_entré
+    state: "on"
+card:
+  type: custom:mushroom-entity-card
+  entity: binary_sensor.motion_entré
+  name: Bevægelse i entré!
+  icon_color: red
+```
+
+### Grid Layout for Rum
+
+Organiser cards i et pænt grid:
+
+```yaml
+type: grid
+columns: 2
+square: false
+cards:
+  - type: custom:mushroom-light-card
+    entity: light.stue
+    layout: vertical
+  - type: custom:mushroom-light-card
+    entity: light.koekken
+    layout: vertical
+  - type: custom:mushroom-light-card
+    entity: light.sovevaerelse
+    layout: vertical
+  - type: custom:mushroom-light-card
+    entity: light.badevarelse
+    layout: vertical
+```
+
+---
+
+## 📱 Mobil-Optimering
+
+### Touch-Venlige Cards
+
+```yaml
+# Større touch-area med layout: vertical
+type: custom:mushroom-entity-card
+entity: light.stue
+layout: vertical
+fill_container: true
+tap_action:
+  action: toggle
+hold_action:
+  action: more-info
+```
+
+### Separate Mobil Views
+
+```yaml
+views:
+  # Desktop/Tablet view
+  - title: Hjem
+    icon: mdi:home
+    path: home
+    visible:
+      - user: desktop_user
+    cards: [...]
+
+  # Mobil view
+  - title: Hjem Mobil
+    icon: mdi:cellphone
+    path: home-mobile
+    panel: true  # Fuld bredde
+    visible:
+      - user: mobil_user
+    cards: [...]
+```
+
+### Bottom Navigation
+
+For tablet på væggen - navigation i bunden:
+
+```yaml
+# Brug custom:layout-card eller
+# navbar integration fra HACS
+```
+
+---
+
+## 🛠️ Avancerede Cards
+
+### Mini Graph Card
+
+Til historik og grafer (installer via HACS):
+
+```yaml
+type: custom:mini-graph-card
+entities:
+  - sensor.stue_temperatur
+  - sensor.sovevaerelse_temperatur
+hours_to_show: 24
+points_per_hour: 2
+line_width: 2
+show:
+  labels: true
+  points: false
+  legend: true
+```
+
+### Button Card
+
+Ekstrem fleksibel button (HACS):
+
+```yaml
+type: custom:button-card
+entity: light.stue
+name: Stue
+icon: mdi:sofa
+show_state: true
+styles:
+  card:
+    - background-color: |
+        [[[
+          if (entity.state === 'on')
+            return 'rgba(255, 200, 100, 0.3)';
+          return 'rgba(50, 50, 50, 0.3)';
+        ]]]
+    - border-radius: 15px
+    - padding: 15px
+```
+
+### Swipe Card
+
+Swipe mellem flere cards:
+
+```yaml
+type: custom:swipe-card
+cards:
+  - type: custom:mushroom-light-card
+    entity: light.stue
+  - type: custom:mushroom-light-card
+    entity: light.koekken
+  - type: custom:mushroom-light-card
+    entity: light.sovevaerelse
+```
+
+---
+
+## 🎭 Themes
+
+### Installer Theme
+
+<Steps>
+1. Aktiver themes i configuration.yaml:
+   ```yaml
+   frontend:
+     themes: !include_dir_merge_named themes
+   ```
+
+2. Opret mappe: `config/themes/`
+
+3. Download theme fra HACS eller manuelt
+
+4. Genstart Home Assistant
+
+5. Vælg theme: **Profil → Theme**
+</Steps>
+
+### Populære Themes
+
+| Theme | Stil | Link |
+|-------|------|------|
+| **Mushroom Shadow** | Mørk, modern | HACS |
+| **Mushroom Square** | Lys, kantede corners | HACS |
+| **Catppuccin** | Pastel farver | HACS |
+| **iOS Theme** | Apple-inspireret | HACS |
+| **Noctis** | Mørk med accent | HACS |
+
+### Custom Background
+
+```yaml
+# I dit theme YAML:
+mushroom-shadow:
+  background-image: "center / cover no-repeat url('/local/backgrounds/dark-home.jpg')"
+  # Placér billede i: config/www/backgrounds/
+```
+
+---
+
+## 📋 Best Practices
+
+### Do's ✅
+
+| Praksis | Hvorfor |
+|---------|---------|
+| **Gruppér efter rum** | Intuitivt for alle brugere |
+| **Konsistente ikoner** | Nemmere at genkende |
+| **Begræns antal cards** | Overblik frem for alt |
+| **Test på mobil** | De fleste bruger telefon |
+| **Brug chips til status** | Hurtig info uden at fylde |
+
+### Don'ts ❌
+
+| Undgå | Hvorfor |
+|-------|---------|
+| **For mange views** | Svært at navigere |
+| **Inkonsistent styling** | Ser rodet ud |
+| **Små touch-targets** | Frustrerende på mobil |
+| **Alt på én side** | Information overload |
+| **Kompleks YAML uden backup** | Risiko for at miste arbejde |
+
+---
+
+## 🔧 Fejlfinding
+
+### Card Vises Ikke
+
+```yaml
+# Tjek:
+1. Er custom card installeret?
+2. Er browser cache ryddet? (Ctrl+Shift+R)
+3. Er resource tilføjet korrekt?
+4. Check browser console for fejl (F12)
+```
+
+### Theme Virker Ikke
+
+```yaml
+# Tjek:
+1. Er themes aktiveret i configuration.yaml?
+2. Er themes-mappe korrekt?
+3. Er HA genstartet efter ændring?
+4. Er theme valgt i profil?
+```
+
+### Langsomt Dashboard
+
+```yaml
+# Optimer:
+1. Reducer antal entities per view
+2. Brug picture-elements sparsomt
+3. Undgå for mange mini-graph-cards
+4. Overvej separate views for tunge grafer
+```
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Skal jeg bruge YAML eller UI editoren?",
+    answer: "Start med UI editoren - den er meget bedre nu. Skift til YAML når du har brug for avancerede features som templates eller card-mod styling."
+  },
+  {
+    question: "Hvordan laver jeg backup af mit dashboard?",
+    answer: "Gå til dashboard → tre prikker → Rå konfiguration editor. Kopier alt YAML og gem det i en fil. For automatisk backup, brug git til at versionere din config-mappe."
+  },
+  {
+    question: "Kan jeg have forskellige dashboards til forskellige brugere?",
+    answer: "Ja! Opret flere dashboards og sæt visibility per bruger. Du kan også lave et 'admin' dashboard kun synligt for dig."
+  },
+  {
+    question: "Hvorfor ser mit dashboard anderledes ud på mobil?",
+    answer: "Home Assistant tilpasser automatisk layout til skærmstørrelse. Brug 'panel: true' for fuld bredde på mobil, eller opret separate mobile views."
+  }
+]} />
+
+---
+
+## 📚 Næste Trin
+
+<CardGrid>
+  <Card title="Node-RED" icon="rocket">
+    Avancerede automationer.
+    
+    [Se guide →](/da/home-assistant/node-red/)
+  </Card>
+  <Card title="HACS" icon="puzzle">
+    Flere custom cards og integrationer.
+    
+    [Se guide →](/da/home-assistant/hacs/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*
