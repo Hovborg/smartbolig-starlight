@@ -1,0 +1,343 @@
+---
+title: Smart Home Glossar
+description: Komplet ordliste over smart home begreber, protokoller og teknologier. Fra A til Z - alt du behøver at vide.
+sidebar:
+  badge:
+    text: Reference
+    variant: tip
+---
+
+import { Card, CardGrid, Aside, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Glossar" variant="success" /> <Badge text="Reference" variant="tip" /> <Badge text="A-Z" variant="note" />
+
+En komplet ordliste over alle de begreber, forkortelser og teknologier du møder i smart home verdenen.
+
+---
+
+## A
+
+### Automation
+En regel der automatisk udfører handlinger baseret på triggers og conditions. F.eks. "Tænd lys når der detekteres bevægelse".
+
+### API (Application Programming Interface)
+Grænseflade der tillader software at kommunikere med hinanden. Home Assistant bruger API'er til at styre enheder.
+
+### Add-on
+Udvidelse til Home Assistant der kører i en separat container. Eksempler: Zigbee2MQTT, Node-RED, MariaDB.
+
+---
+
+## B
+
+### Binding
+I Zigbee: direkte forbindelse mellem to enheder uden hub. F.eks. en switch bundet til en pære.
+
+### Blueprint
+Foruddefineret automation-skabelon i Home Assistant der kan tilpasses med egne enheder.
+
+### Border Router
+Enhed der forbinder Thread-netværk til dit IP-netværk. Nødvendig for Matter-enheder på Thread.
+
+### Bridge
+Enhed der oversætter mellem forskellige protokoller. F.eks. Hue Bridge (Zigbee til WiFi).
+
+---
+
+## C
+
+### CoAP (Constrained Application Protocol)
+Letvægtsprotokol brugt af Shelly-enheder til lokal kommunikation.
+
+### Coordinator
+Den centrale enhed i et Zigbee-netværk. Styrer netværket og holder styr på alle enheder.
+
+### Condition
+Betingelse i en automation der skal være opfyldt før actions udføres. F.eks. "kun hvis solen er nede".
+
+### Custom Component
+Tredjeparts-integration til Home Assistant, ofte installeret via HACS.
+
+---
+
+## D
+
+### Dashboard
+Brugergrænseflade i Home Assistant der viser status og kontrolelementer. Også kaldet Lovelace.
+
+### Device Class
+Kategorisering af entities i Home Assistant. F.eks. "motion" for bevægelsessensorer.
+
+### Docker
+Containerteknologi der isolerer software. Home Assistant Container kører i Docker.
+
+### Domain
+Kategori af entities i Home Assistant. F.eks. `light`, `switch`, `sensor`, `climate`.
+
+---
+
+## E
+
+### End Device
+I Zigbee: batteridrevet enhed der kun kommunikerer med sin parent (router eller coordinator).
+
+### Entity
+Repræsentation af en enhed eller sensor i Home Assistant. Har et unikt ID som `sensor.stue_temperatur`.
+
+### ESPHome
+Firmware-platform til ESP32/ESP8266 der genererer YAML-baseret konfiguration.
+
+### Event
+Hændelse i Home Assistant der kan bruges som trigger. F.eks. "state_changed" eller "call_service".
+
+---
+
+## F
+
+### Firmware
+Software der kører på hardware-niveau i enheder. Kan ofte opdateres OTA.
+
+### Flow
+I Node-RED: samling af nodes der udgør en automation.
+
+---
+
+## G
+
+### GPIO (General Purpose Input/Output)
+Fysiske pins på mikrocontrollere (ESP32, Raspberry Pi) til at tilslutte sensorer og aktuatorer.
+
+### Group
+Samling af entities der kan styres som én. F.eks. alle lys i stuen.
+
+---
+
+## H
+
+### HACS (Home Assistant Community Store)
+Uofficiel integration-butik til Home Assistant med custom components og frontend-cards.
+
+### HAOS (Home Assistant Operating System)
+Dedikeret operativsystem optimeret til at køre Home Assistant.
+
+### Helper
+Virtuel entity i Home Assistant. F.eks. input_boolean, input_number, timer.
+
+### Hub
+Central enhed der forbinder og styrer smart home enheder. Home Assistant er en hub.
+
+---
+
+## I
+
+### Integration
+Komponent i Home Assistant der forbinder til eksterne tjenester eller enheder.
+
+### IoT (Internet of Things)
+Samlebetegnelse for internetforbundne enheder - grundlaget for smart home.
+
+---
+
+## J
+
+### Jinja2
+Template-sprog brugt i Home Assistant til dynamisk indhold og beregninger.
+
+### JSON (JavaScript Object Notation)
+Dataformat brugt til konfiguration og API-kommunikation.
+
+---
+
+## L
+
+### Lambda
+I ESPHome: C++ kode-blok til avanceret logik.
+
+### LAN (Local Area Network)
+Lokalt netværk i hjemmet. Mange smart home enheder kommunikerer kun på LAN.
+
+### Lovelace
+Home Assistants dashboard-system. Opkaldt efter Ada Lovelace.
+
+### LQI (Link Quality Indicator)
+Måling af signalkvalitet i Zigbee-netværk. Højere er bedre.
+
+---
+
+## M
+
+### Matter
+Ny smart home standard der sikrer interoperabilitet mellem producenter. Bruger Thread eller WiFi.
+
+### MQTT (Message Queuing Telemetry Transport)
+Letvægts messaging-protokol meget brugt i smart home. Zigbee2MQTT bruger MQTT.
+
+### Mesh Network
+Netværk hvor enheder videresender beskeder. Zigbee og Z-Wave bruger mesh.
+
+### mmWave
+Millimeterbølge-radar brugt i tilstedeværelsessensorer. Kan detektere stillestående personer.
+
+---
+
+## N
+
+### Node
+I Node-RED: byggeklods der udfører en funktion. Kan være trigger, condition eller action.
+
+### Node-RED
+Visuel programmeringsværktøj til automationer. Populært supplement til HA automationer.
+
+---
+
+## O
+
+### OTA (Over-The-Air)
+Trådløs firmwareopdatering. De fleste smart home enheder understøtter OTA.
+
+---
+
+## P
+
+### PIR (Passive Infrared)
+Teknologi i bevægelsessensorer der detekterer varmestråling fra kroppe.
+
+### Polling
+Teknik hvor systemet regelmæssigt spørger enheder om status. Modsat push.
+
+### Proxmox
+Virtualiseringsplatform populær til at køre Home Assistant som VM.
+
+### Push
+Når enheder selv sender statusopdateringer. Mere effektivt end polling.
+
+---
+
+## R
+
+### Recorder
+Home Assistant komponent der gemmer historik i database.
+
+### Router
+I Zigbee: strømforsynet enhed der videresender beskeder og udvider netværket.
+
+### RSSI (Received Signal Strength Indicator)
+Måling af WiFi eller Zigbee signalstyrke. Lavere (mindre negativt) er bedre.
+
+---
+
+## S
+
+### Scene
+Foruddefineret tilstand for flere enheder. F.eks. "Film" der dæmper lys og tænder TV.
+
+### Script
+Sekvens af actions i Home Assistant der kan kaldes som en service.
+
+### Service
+Funktion der kan kaldes i Home Assistant. F.eks. `light.turn_on`.
+
+### State
+Aktuel tilstand af en entity. F.eks. "on", "off", "25.5".
+
+### Supervisor
+Komponent i HAOS der styrer add-ons og systemfunktioner.
+
+---
+
+## T
+
+### Tasmota
+Open source firmware til ESP8266/ESP32 enheder. Populært alternativ til fabriksfirmware.
+
+### Template
+Dynamisk tekst i Home Assistant der bruger Jinja2 til beregninger.
+
+### Thread
+Lavenergi mesh-netværksprotokol. Bruges af Matter-enheder som alternativ til WiFi.
+
+### Trigger
+Hændelse der starter en automation. F.eks. bevægelse detekteret, tid nået, state ændret.
+
+---
+
+## U
+
+### UUID (Universally Unique Identifier)
+Unikt ID brugt til at identificere enheder og entities.
+
+---
+
+## V
+
+### VLAN (Virtual Local Area Network)
+Virtuelt adskilt netværk. Anbefales til at isolere IoT-enheder.
+
+### VM (Virtual Machine)
+Virtuel computer der kører på fysisk hardware. Proxmox kan køre HA i VM.
+
+---
+
+## W
+
+### Webhook
+URL der modtager data fra eksterne tjenester. Bruges til integrationer.
+
+### WebSocket
+Tovejs kommunikationsprotokol. Home Assistant frontend bruger WebSocket.
+
+---
+
+## Y
+
+### YAML (YAML Ain't Markup Language)
+Konfigurationsformat brugt i Home Assistant og ESPHome.
+
+---
+
+## Z
+
+### Z-Wave
+Trådløs protokol for smart home enheder. Konkurrent til Zigbee, kræver separat coordinator.
+
+### ZHA (Zigbee Home Automation)
+Native Zigbee-integration i Home Assistant.
+
+### Zigbee
+Trådløs mesh-protokol populær for sensorer og aktuatorer. Kræver coordinator.
+
+### Zigbee2MQTT
+Add-on der forbinder Zigbee-enheder til Home Assistant via MQTT.
+
+---
+
+## Protokol Sammenligning
+
+| Protokol | Mesh | Batteri | Rækkevidde | Pris |
+|----------|------|---------|------------|------|
+| **Zigbee** | ✅ | ✅ God | Medium | Lav |
+| **Z-Wave** | ✅ | ✅ God | God | Høj |
+| **Thread** | ✅ | ✅ God | Medium | Mellem |
+| **WiFi** | ❌ | ❌ Dårlig | God | Lav |
+| **Bluetooth** | ❌ | ✅ God | Kort | Lav |
+
+---
+
+## 📚 Se Også
+
+<CardGrid>
+  <Card title="Fejlfinding" icon="warning">
+    Løs problemer med denne guide.
+    
+    [Se guide →](/da/home-assistant/fejlfinding/)
+  </Card>
+  <Card title="Kom Godt i Gang" icon="rocket">
+    Start din smart home rejse.
+    
+    [Se guide →](/da/home-assistant/kom-godt-i-gang/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*

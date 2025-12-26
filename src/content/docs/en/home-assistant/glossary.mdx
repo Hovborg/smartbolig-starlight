@@ -1,0 +1,343 @@
+---
+title: Smart Home Glossary
+description: Complete dictionary of smart home terms, protocols and technologies. From A to Z - everything you need to know.
+sidebar:
+  badge:
+    text: Reference
+    variant: tip
+---
+
+import { Card, CardGrid, Aside, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Glossary" variant="success" /> <Badge text="Reference" variant="tip" /> <Badge text="A-Z" variant="note" />
+
+A complete dictionary of all the terms, abbreviations and technologies you'll encounter in the smart home world.
+
+---
+
+## A
+
+### Automation
+A rule that automatically performs actions based on triggers and conditions. E.g., "Turn on lights when motion is detected".
+
+### API (Application Programming Interface)
+Interface that allows software to communicate with each other. Home Assistant uses APIs to control devices.
+
+### Add-on
+Extension for Home Assistant that runs in a separate container. Examples: Zigbee2MQTT, Node-RED, MariaDB.
+
+---
+
+## B
+
+### Binding
+In Zigbee: direct connection between two devices without a hub. E.g., a switch bound to a bulb.
+
+### Blueprint
+Pre-defined automation template in Home Assistant that can be customized with your own devices.
+
+### Border Router
+Device that connects a Thread network to your IP network. Required for Matter devices on Thread.
+
+### Bridge
+Device that translates between different protocols. E.g., Hue Bridge (Zigbee to WiFi).
+
+---
+
+## C
+
+### CoAP (Constrained Application Protocol)
+Lightweight protocol used by Shelly devices for local communication.
+
+### Coordinator
+The central device in a Zigbee network. Manages the network and keeps track of all devices.
+
+### Condition
+Requirement in an automation that must be met before actions execute. E.g., "only if sun is down".
+
+### Custom Component
+Third-party integration for Home Assistant, often installed via HACS.
+
+---
+
+## D
+
+### Dashboard
+User interface in Home Assistant showing status and controls. Also called Lovelace.
+
+### Device Class
+Categorization of entities in Home Assistant. E.g., "motion" for motion sensors.
+
+### Docker
+Container technology that isolates software. Home Assistant Container runs in Docker.
+
+### Domain
+Category of entities in Home Assistant. E.g., `light`, `switch`, `sensor`, `climate`.
+
+---
+
+## E
+
+### End Device
+In Zigbee: battery-powered device that only communicates with its parent (router or coordinator).
+
+### Entity
+Representation of a device or sensor in Home Assistant. Has a unique ID like `sensor.living_room_temperature`.
+
+### ESPHome
+Firmware platform for ESP32/ESP8266 that generates YAML-based configuration.
+
+### Event
+Occurrence in Home Assistant that can be used as a trigger. E.g., "state_changed" or "call_service".
+
+---
+
+## F
+
+### Firmware
+Software running at hardware level in devices. Can often be updated OTA.
+
+### Flow
+In Node-RED: collection of nodes that form an automation.
+
+---
+
+## G
+
+### GPIO (General Purpose Input/Output)
+Physical pins on microcontrollers (ESP32, Raspberry Pi) for connecting sensors and actuators.
+
+### Group
+Collection of entities that can be controlled as one. E.g., all lights in the living room.
+
+---
+
+## H
+
+### HACS (Home Assistant Community Store)
+Unofficial integration store for Home Assistant with custom components and frontend cards.
+
+### HAOS (Home Assistant Operating System)
+Dedicated operating system optimized for running Home Assistant.
+
+### Helper
+Virtual entity in Home Assistant. E.g., input_boolean, input_number, timer.
+
+### Hub
+Central device that connects and controls smart home devices. Home Assistant is a hub.
+
+---
+
+## I
+
+### Integration
+Component in Home Assistant that connects to external services or devices.
+
+### IoT (Internet of Things)
+Collective term for internet-connected devices - the foundation of smart home.
+
+---
+
+## J
+
+### Jinja2
+Template language used in Home Assistant for dynamic content and calculations.
+
+### JSON (JavaScript Object Notation)
+Data format used for configuration and API communication.
+
+---
+
+## L
+
+### Lambda
+In ESPHome: C++ code block for advanced logic.
+
+### LAN (Local Area Network)
+Local network in the home. Many smart home devices only communicate on LAN.
+
+### Lovelace
+Home Assistant's dashboard system. Named after Ada Lovelace.
+
+### LQI (Link Quality Indicator)
+Measurement of signal quality in Zigbee networks. Higher is better.
+
+---
+
+## M
+
+### Matter
+New smart home standard ensuring interoperability between manufacturers. Uses Thread or WiFi.
+
+### MQTT (Message Queuing Telemetry Transport)
+Lightweight messaging protocol widely used in smart home. Zigbee2MQTT uses MQTT.
+
+### Mesh Network
+Network where devices relay messages. Zigbee and Z-Wave use mesh.
+
+### mmWave
+Millimeter wave radar used in presence sensors. Can detect stationary people.
+
+---
+
+## N
+
+### Node
+In Node-RED: building block that performs a function. Can be trigger, condition, or action.
+
+### Node-RED
+Visual programming tool for automations. Popular supplement to HA automations.
+
+---
+
+## O
+
+### OTA (Over-The-Air)
+Wireless firmware update. Most smart home devices support OTA.
+
+---
+
+## P
+
+### PIR (Passive Infrared)
+Technology in motion sensors that detects heat radiation from bodies.
+
+### Polling
+Technique where the system regularly queries devices for status. Opposite of push.
+
+### Proxmox
+Virtualization platform popular for running Home Assistant as a VM.
+
+### Push
+When devices send status updates themselves. More efficient than polling.
+
+---
+
+## R
+
+### Recorder
+Home Assistant component that stores history in a database.
+
+### Router
+In Zigbee: powered device that relays messages and extends the network.
+
+### RSSI (Received Signal Strength Indicator)
+Measurement of WiFi or Zigbee signal strength. Lower (less negative) is better.
+
+---
+
+## S
+
+### Scene
+Pre-defined state for multiple devices. E.g., "Movie" that dims lights and turns on TV.
+
+### Script
+Sequence of actions in Home Assistant that can be called as a service.
+
+### Service
+Function that can be called in Home Assistant. E.g., `light.turn_on`.
+
+### State
+Current condition of an entity. E.g., "on", "off", "25.5".
+
+### Supervisor
+Component in HAOS that manages add-ons and system functions.
+
+---
+
+## T
+
+### Tasmota
+Open source firmware for ESP8266/ESP32 devices. Popular alternative to factory firmware.
+
+### Template
+Dynamic text in Home Assistant using Jinja2 for calculations.
+
+### Thread
+Low-energy mesh network protocol. Used by Matter devices as alternative to WiFi.
+
+### Trigger
+Event that starts an automation. E.g., motion detected, time reached, state changed.
+
+---
+
+## U
+
+### UUID (Universally Unique Identifier)
+Unique ID used to identify devices and entities.
+
+---
+
+## V
+
+### VLAN (Virtual Local Area Network)
+Virtually separated network. Recommended for isolating IoT devices.
+
+### VM (Virtual Machine)
+Virtual computer running on physical hardware. Proxmox can run HA in a VM.
+
+---
+
+## W
+
+### Webhook
+URL that receives data from external services. Used for integrations.
+
+### WebSocket
+Two-way communication protocol. Home Assistant frontend uses WebSocket.
+
+---
+
+## Y
+
+### YAML (YAML Ain't Markup Language)
+Configuration format used in Home Assistant and ESPHome.
+
+---
+
+## Z
+
+### Z-Wave
+Wireless protocol for smart home devices. Competitor to Zigbee, requires separate coordinator.
+
+### ZHA (Zigbee Home Automation)
+Native Zigbee integration in Home Assistant.
+
+### Zigbee
+Wireless mesh protocol popular for sensors and actuators. Requires coordinator.
+
+### Zigbee2MQTT
+Add-on that connects Zigbee devices to Home Assistant via MQTT.
+
+---
+
+## Protocol Comparison
+
+| Protocol | Mesh | Battery | Range | Price |
+|----------|------|---------|-------|-------|
+| **Zigbee** | ✅ | ✅ Good | Medium | Low |
+| **Z-Wave** | ✅ | ✅ Good | Good | High |
+| **Thread** | ✅ | ✅ Good | Medium | Medium |
+| **WiFi** | ❌ | ❌ Poor | Good | Low |
+| **Bluetooth** | ❌ | ✅ Good | Short | Low |
+
+---
+
+## 📚 See Also
+
+<CardGrid>
+  <Card title="Troubleshooting" icon="warning">
+    Solve problems with this guide.
+    
+    [See guide →](/en/home-assistant/troubleshooting/)
+  </Card>
+  <Card title="Getting Started" icon="rocket">
+    Start your smart home journey.
+    
+    [See guide →](/en/home-assistant/getting-started/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
