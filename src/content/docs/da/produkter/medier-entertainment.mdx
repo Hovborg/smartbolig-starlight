@@ -1,0 +1,659 @@
+---
+title: Medier & Entertainment
+description: Komplet guide til smart medieafspilning - streaming enheder, Plex, Jellyfin, multi-rum lyd, og Home Assistant integration. Apple TV, Shield, Sonos.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Opsæt smart mediecenter"
+  description="Guide til streaming, medieservere og multi-rum lyd med Home Assistant"
+  totalTime="PT25M"
+  steps={[
+    "Vælg streaming enhed til dit TV",
+    "Opsæt medieserver (Plex/Jellyfin)",
+    "Konfigurer multi-rum lyd",
+    "Integrer med Home Assistant",
+    "Opret medieautomationer"
+  ]}
+/>
+
+<Badge text="Media" variant="success" /> <Badge text="Streaming" variant="note" /> <Badge text="Multiroom" variant="tip" />
+
+Smart entertainment handler om at **samle alle dine medier** - streaming, lokalt indhold, og musik - i ét system der integrerer med dit smarte hjem. Denne guide dækker streaming enheder, medieservere, og multi-rum lyd.
+
+<Aside type="tip" title="Top Anbefalinger 2025">
+- **Premium streaming**: Apple TV 4K (~1.200 kr)
+- **Power user**: NVIDIA Shield TV Pro (~1.500 kr)
+- **Bedste værdi**: Fire TV Stick 4K Max (~500 kr)
+- **Budget**: Chromecast med Google TV (~350 kr)
+- **Medieserver**: Jellyfin (gratis) eller Plex
+</Aside>
+
+---
+
+## 📺 Streaming Enheder
+
+### Sammenligning 2025
+
+| Enhed | 4K/HDR | Pris ca. | HA Integration | Bedst til |
+|-------|--------|----------|----------------|-----------|
+| **Apple TV 4K** | ✅ DV/HDR10+ | 1.200 kr | ⭐⭐⭐⭐ | Apple økosystem |
+| **NVIDIA Shield Pro** | ✅ DV/HDR10+ | 1.500 kr | ⭐⭐⭐⭐⭐ | Power users, Plex |
+| **Fire TV Stick 4K Max** | ✅ DV/HDR10+ | 500 kr | ⭐⭐⭐⭐ | Budget 4K |
+| **Chromecast Google TV** | ✅ DV/HDR10+ | 350 kr | ⭐⭐⭐⭐⭐ | Google økosystem |
+| **Roku Streaming Stick** | ✅ DV/HDR10+ | 400 kr | ⭐⭐⭐ | Simpel interface |
+
+---
+
+## 🥇 Apple TV 4K
+
+<Tabs>
+  <TabItem label="Oversigt">
+    ### Hvorfor Apple TV 4K?
+    
+    **Pris:** ~1.200 kr / $180
+    
+    Apple TV 4K er den **mest polerede** streaming oplevelse:
+    
+    - ✅ Bedste UI og performance
+    - ✅ Ingen reklamer i interface
+    - ✅ AirPlay til iPhone/Mac casting
+    - ✅ HomeKit hub funktion
+    - ✅ Apple Arcade gaming
+    - ✅ Siri stemme kontrol
+    - ✅ tvOS apps (Netflix, Disney+, osv.)
+    
+    **Ulemper:**
+    - ❌ Dyr
+    - ❌ Kræver Apple økosystem for bedste oplevelse
+    - ❌ Ingen Plex server funktion
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### HA Integration
+    
+    Apple TV integreres via **Apple TV integration**:
+    
+    ```yaml
+    # Autodiscovery - eller manuel tilføjelse
+    # Indstillinger → Enheder → Tilføj Integration → Apple TV
+    
+    # Entiteter:
+    # - media_player.apple_tv_stue
+    # - remote.apple_tv_stue
+    
+    # Eksempel automation
+    automation:
+      - alias: "Dæmp lys ved film"
+        trigger:
+          - platform: state
+            entity_id: media_player.apple_tv_stue
+            to: "playing"
+        condition:
+          - condition: template
+            value_template: "{{ state_attr('media_player.apple_tv_stue', 'media_content_type') == 'movie' }}"
+        action:
+          - service: light.turn_on
+            entity_id: light.stue
+            data:
+              brightness_pct: 10
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Apple.dk](https://apple.com/dk), [Elgiganten](https://elgiganten.dk), [Power](https://power.dk)
+
+---
+
+## 🥈 NVIDIA Shield TV Pro
+
+<Tabs>
+  <TabItem label="Oversigt">
+    ### Hvorfor Shield TV Pro?
+    
+    **Pris:** ~1.500 kr / $200
+    
+    Shield TV Pro er **power users favorit**:
+    
+    - ✅ Plex Media Server indbygget
+    - ✅ AI upscaling (HD → 4K)
+    - ✅ Dolby Vision + Atmos
+    - ✅ GeForce NOW cloud gaming
+    - ✅ Kodi support
+    - ✅ 2x USB 3.0 porte
+    - ✅ 16GB storage + 3GB RAM
+    - ✅ Android TV med alle apps
+    
+    **Ulemper:**
+    - ❌ Dyr
+    - ❌ Gammel hardware (2019)
+    - ❌ Ukendt hvornår næste generation kommer
+  </TabItem>
+  <TabItem label="Plex Server">
+    ### Shield som Plex Server
+    
+    Shield TV Pro kan køre **fuld Plex Media Server**:
+    
+    1. Installer Plex Media Server fra Play Store
+    2. Tilslut ekstern USB harddisk
+    3. Tilføj mediebiblioteker
+    4. Stream til alle enheder i hjemmet
+    
+    **Fordele vs. NAS:**
+    - Lavt strømforbrug (~15W)
+    - Altid tændt
+    - Hardware transcoding
+    - Simpelt setup
+    
+    **Begrænsninger:**
+    - Kun 2 USB porte
+    - Begrænset storage
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### HA Integration
+    
+    Shield integreres via **Android TV integration**:
+    
+    ```yaml
+    # Autodiscovery via Android TV
+    # Indstillinger → Enheder → Tilføj Integration → Android TV
+    
+    # Entiteter:
+    # - media_player.shield_tv
+    # - remote.shield_tv
+    
+    # Start Plex film
+    automation:
+      - alias: "Film aften"
+        trigger:
+          - platform: event
+            event_type: call_service
+            event_data:
+              domain: script
+              service: film_aften
+        action:
+          - service: media_player.select_source
+            target:
+              entity_id: media_player.shield_tv
+            data:
+              source: "Plex"
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Amazon.de](https://amazon.de), [Nvidia.com](https://nvidia.com)
+
+---
+
+## 💰 Budget: Fire TV Stick 4K Max
+
+**Pris:** ~500 kr / $70
+
+Den **bedste værdi** i 4K streaming:
+
+| Fordele | Ulemper |
+|---------|---------|
+| ✅ 4K HDR, Dolby Vision | ❌ Reklamer i interface |
+| ✅ Wi-Fi 6E support | ❌ Amazon-centreret UI |
+| ✅ Alexa indbygget | ❌ Ingen USB porte |
+| ✅ Sideloading muligt | ❌ Begrænset storage |
+| ✅ Kodi support | |
+| ✅ God Home Assistant integration | |
+
+### Home Assistant
+
+```yaml
+# Fire TV integreres via Android TV Debug Bridge
+# Kræver ADB debugging aktiveret på Fire TV
+
+# Indstillinger → Enheder → Tilføj Integration → Android TV
+
+# Entiteter:
+# - media_player.fire_tv_stue
+# - remote.fire_tv_stue
+```
+
+**Køb:** [Amazon.de](https://amazon.de), [Elgiganten](https://elgiganten.dk)
+
+---
+
+## 🎬 Medieservere
+
+### Plex vs Jellyfin vs Emby
+
+| Feature | Plex | Jellyfin | Emby |
+|---------|------|----------|------|
+| **Pris** | Freemium | 100% Gratis | Freemium |
+| **Open Source** | ❌ | ✅ | ❌ |
+| **Interface** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
+| **Metadata** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Hardware Transcoding** | Plex Pass | Gratis | Premiere |
+| **Live TV/DVR** | Plex Pass | Gratis | Premiere |
+| **Client Apps** | Alle platforme | De fleste | Alle platforme |
+| **Remote Streaming** | ✅ Let | ⚠️ Kræver setup | ✅ Let |
+
+---
+
+## 🆓 Jellyfin - Gratis & Open Source
+
+<Tabs>
+  <TabItem label="Oversigt">
+    ### Hvorfor Jellyfin?
+    
+    **Pris:** 100% Gratis
+    
+    Jellyfin er det **bedste gratis alternativ** til Plex:
+    
+    - ✅ Helt gratis - ingen premium tier
+    - ✅ Open source
+    - ✅ Ingen tracking
+    - ✅ Self-hosted (fuld kontrol)
+    - ✅ Hardware transcoding gratis
+    - ✅ Live TV og DVR
+    - ✅ Home Assistant integration
+    
+    **Ulemper:**
+    - ❌ Færre polerede client apps
+    - ❌ Remote access kræver mere opsætning
+    - ❌ Mindre automatisk metadata
+  </TabItem>
+  <TabItem label="Installation">
+    ### Docker Installation
+    
+    ```yaml
+    # docker-compose.yml
+    version: "3"
+    services:
+      jellyfin:
+        image: jellyfin/jellyfin
+        container_name: jellyfin
+        network_mode: host
+        volumes:
+          - /path/to/config:/config
+          - /path/to/cache:/cache
+          - /path/to/media:/media
+        restart: unless-stopped
+        # Hardware acceleration (Intel)
+        devices:
+          - /dev/dri:/dev/dri
+    ```
+    
+    ### Home Assistant Add-on
+    
+    Jellyfin findes også som **HACS Add-on** til nem installation.
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### HA Integration
+    
+    ```yaml
+    # Indstillinger → Enheder → Tilføj Integration → Jellyfin
+    
+    # Kræver:
+    # - Jellyfin server URL
+    # - API nøgle (Dashboard → API Keys)
+    
+    # Entiteter:
+    # - media_player.jellyfin_stue_tv
+    # - sensor.jellyfin_watching
+    
+    # Automation eksempel
+    automation:
+      - alias: "Pause Jellyfin ved dørklokke"
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.doorbell
+            to: "on"
+        condition:
+          - condition: state
+            entity_id: media_player.jellyfin_stue_tv
+            state: "playing"
+        action:
+          - service: media_player.media_pause
+            entity_id: media_player.jellyfin_stue_tv
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 📀 Plex - Mest Populære
+
+<Tabs>
+  <TabItem label="Oversigt">
+    ### Hvorfor Plex?
+    
+    **Pris:** Gratis / Plex Pass 400 kr/år
+    
+    Plex er den **mest populære** medieserver:
+    
+    - ✅ Bedste metadata og interface
+    - ✅ Client apps til alle platforme
+    - ✅ Let remote streaming
+    - ✅ Plex Discover (streaming guide)
+    - ✅ Stor community
+    
+    **Plex Pass features:**
+    - Hardware transcoding
+    - Live TV & DVR
+    - Offline sync
+    - Intro skip
+    
+    **Ulemper:**
+    - ❌ Bedste features kræver betaling
+    - ❌ Cloud-afhængig auth
+    - ❌ Tracking af visninger
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### HA Integration
+    
+    ```yaml
+    # Plex opdages automatisk
+    # Indstillinger → Enheder → Tilføj Integration → Plex
+    
+    # Entiteter per klient:
+    # - media_player.plex_stue_tv
+    # - media_player.plex_sovevaerelse
+    
+    # Sensor for hvad der afspilles
+    # - sensor.plex_watching
+    
+    # Automation: Film lys
+    automation:
+      - alias: "Bio-tilstand"
+        trigger:
+          - platform: state
+            entity_id: media_player.plex_stue_tv
+            to: "playing"
+            attribute: media_content_type
+        condition:
+          - condition: template
+            value_template: "{{ trigger.to_state.attributes.media_content_type == 'movie' }}"
+        action:
+          - service: scene.turn_on
+            entity_id: scene.bio_tilstand
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 🔊 Multi-rum Lyd
+
+### Systemer Sammenligning
+
+| System | Protokol | HA Integration | Pris/højttaler |
+|--------|----------|----------------|----------------|
+| **Sonos** | WiFi/AirPlay | ⭐⭐⭐⭐⭐ | 1.500+ kr |
+| **IKEA SYMFONISK** | Sonos/AirPlay | ⭐⭐⭐⭐⭐ | 999 kr |
+| **HomePod mini** | AirPlay | ⭐⭐⭐⭐ | 799 kr |
+| **Google Nest** | Chromecast | ⭐⭐⭐⭐ | 600+ kr |
+| **Amazon Echo** | Alexa | ⭐⭐⭐⭐ | 400+ kr |
+| **Chromecast Audio** | Chromecast | ⭐⭐⭐⭐ | Udgået |
+
+---
+
+## 🔈 Sonos - Premium Multi-rum
+
+<Tabs>
+  <TabItem label="Oversigt">
+    ### Hvorfor Sonos?
+    
+    Sonos er **standarden** for multi-rum lyd:
+    
+    - ✅ Fremragende lydkvalitet
+    - ✅ Robust multi-rum synkronisering
+    - ✅ Alle streaming tjenester
+    - ✅ AirPlay 2 support
+    - ✅ Nem opsætning
+    - ✅ Uovertruffen Home Assistant integration
+    
+    **Populære modeller:**
+    | Model | Type | Pris ca. |
+    |-------|------|----------|
+    | **Era 100** | Kompakt | 2.000 kr |
+    | **Era 300** | Spatial Audio | 3.500 kr |
+    | **Beam Gen 2** | Soundbar | 3.500 kr |
+    | **Arc** | Premium Soundbar | 7.500 kr |
+    | **Sub Mini** | Subwoofer | 3.500 kr |
+  </TabItem>
+  <TabItem label="IKEA SYMFONISK">
+    ### Budget Sonos: IKEA SYMFONISK
+    
+    IKEA SYMFONISK er **Sonos til halv pris**:
+    
+    | Model | Pris | Bedst til |
+    |-------|------|-----------|
+    | **Bookshelf** | 999 kr | Reol, skrivebord |
+    | **Picture Frame** | 1.299 kr | Væg dekoration |
+    | **Floor Lamp** | 1.799 kr | Stue hjørne |
+    | **Table Lamp** | 1.499 kr | Natbord |
+    
+    **Fuldt kompatibel** med Sonos app og alle Sonos funktioner!
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### HA Integration
+    
+    ```yaml
+    # Sonos opdages automatisk
+    # Indstillinger → Enheder → Tilføj Integration → Sonos
+    
+    # Entiteter per højttaler:
+    # - media_player.sonos_stue
+    # - media_player.sonos_koekken
+    # - media_player.sonos_sovevaerelse
+    
+    # Grupper højttalere
+    automation:
+      - alias: "Morgen musik hele huset"
+        trigger:
+          - platform: time
+            at: "07:00:00"
+        condition:
+          - condition: state
+            entity_id: binary_sensor.workday
+            state: "on"
+        action:
+          - service: sonos.join
+            data:
+              master: media_player.sonos_koekken
+              entity_id:
+                - media_player.sonos_stue
+                - media_player.sonos_badevaerelse
+          - service: media_player.play_media
+            target:
+              entity_id: media_player.sonos_koekken
+            data:
+              media_content_type: "music"
+              media_content_id: "spotify:playlist:37i9dQZF1DXcBWIGoYBM5M"
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 🏠 Medie Automationer
+
+### Basis: Lys ved afspilning
+
+```yaml
+automation:
+  - alias: "Dæmp lys ved TV afspilning"
+    trigger:
+      - platform: state
+        entity_id: media_player.stue_tv
+        to: "playing"
+    action:
+      - service: light.turn_on
+        entity_id: light.stue
+        data:
+          brightness_pct: 20
+          transition: 5
+
+  - alias: "Gendan lys ved pause/stop"
+    trigger:
+      - platform: state
+        entity_id: media_player.stue_tv
+        from: "playing"
+    action:
+      - service: light.turn_on
+        entity_id: light.stue
+        data:
+          brightness_pct: 80
+          transition: 3
+```
+
+### Avanceret: Bio Scene
+
+```yaml
+# scenes.yaml
+scene:
+  - name: Bio Tilstand
+    entities:
+      light.stue:
+        state: on
+        brightness_pct: 5
+        color_temp: 500
+      light.tv_baggrund:
+        state: on
+        brightness_pct: 30
+        rgb_color: [50, 50, 100]
+      cover.stue_gardiner:
+        state: closed
+
+automation:
+  - alias: "Aktiver bio ved film start"
+    trigger:
+      - platform: state
+        entity_id: media_player.plex_stue
+        to: "playing"
+    condition:
+      - condition: template
+        value_template: >
+          {{ state_attr('media_player.plex_stue', 'media_content_type') == 'movie' }}
+      - condition: sun
+        after: sunset
+    action:
+      - service: scene.turn_on
+        entity_id: scene.bio_tilstand
+```
+
+### TTS Announcements
+
+```yaml
+automation:
+  - alias: "Annoncering ved dørklokke"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.doorbell
+        to: "on"
+    action:
+      # Pause musik
+      - service: media_player.media_pause
+        entity_id: media_player.sonos_stue
+      # Annoncering
+      - service: tts.google_translate_say
+        entity_id: media_player.sonos_stue
+        data:
+          message: "Der er nogen ved døren"
+      # Vent og genoptag
+      - delay: "00:00:05"
+      - service: media_player.media_play
+        entity_id: media_player.sonos_stue
+```
+
+---
+
+## 🛒 Købs Strategi
+
+### Starter (~2.000 kr)
+- 1x Fire TV Stick 4K Max (500 kr)
+- 1x IKEA SYMFONISK Bookshelf (999 kr)
+- Jellyfin på eksisterende PC (gratis)
+- **Total:** ~1.500 kr
+
+### Mellem (~5.000 kr)
+- 1x Apple TV 4K (1.200 kr)
+- 2x IKEA SYMFONISK (2.000 kr)
+- 1x Sonos Beam Gen 2 (3.500 kr)
+- Plex Pass (400 kr/år)
+- **Total:** ~7.100 kr
+
+### Premium (~15.000 kr)
+- 1x NVIDIA Shield TV Pro (1.500 kr)
+- 1x Sonos Arc (7.500 kr)
+- 1x Sonos Sub Mini (3.500 kr)
+- 2x Sonos Era 100 (4.000 kr)
+- NAS til Plex/Jellyfin (3.000 kr)
+- **Total:** ~19.500 kr
+
+---
+
+## 🛒 Hvor Køber Jeg?
+
+### Streaming Enheder
+- **[Apple.dk](https://apple.dk)** - Apple TV
+- **[Amazon.de](https://amazon.de)** - Fire TV, Shield
+- **[Elgiganten](https://elgiganten.dk)** - Alt
+
+### Multi-rum Lyd
+- **[Sonos.com](https://sonos.com)** - Sonos produkter
+- **[IKEA.dk](https://ikea.dk)** - SYMFONISK
+- **[Hifiklubben](https://hifiklubben.dk)** - Premium lyd
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Plex eller Jellyfin - hvad skal jeg vælge?",
+    answer: "Plex er nemmere at sætte op og har bedre apps, men kræver betaling for de bedste features. Jellyfin er 100% gratis og open source, men kræver mere teknisk indsats. Start med Jellyfin hvis du er prisbevidst."
+  },
+  {
+    question: "Hvilken streaming enhed er bedst til Home Assistant?",
+    answer: "Chromecast med Google TV og NVIDIA Shield har den bedste integration. Apple TV fungerer også godt. Fire TV kræver ADB debug mode for fuld kontrol."
+  },
+  {
+    question: "Kan jeg bruge IKEA SYMFONISK med Sonos?",
+    answer: "Ja! SYMFONISK højttalere er fuldt kompatible med Sonos systemet og app. De kan grupperes med andre Sonos højttalere og fungerer identisk."
+  },
+  {
+    question: "Hvad er bedst til Plex server - Shield eller NAS?",
+    answer: "Shield er billigere og nemmere at sætte op, men begrænset storage. NAS (Synology/QNAP) giver mere plads og fleksibilitet, men koster mere. Shield er fint til biblioteker under 10TB."
+  },
+  {
+    question: "Kan jeg styre mit TV med Home Assistant?",
+    answer: "Ja! De fleste moderne TV'er (LG, Samsung, Sony) har native HA integrationer. Ældre TV'er kan styres via streaming enheden (Apple TV, Chromecast, Shield)."
+  },
+  {
+    question: "Hvordan får jeg lyd til at følge mig rundt i huset?",
+    answer: "Med Sonos eller lignende multi-rum system kan du gruppere højttalere. Kombiner med tilstedeværelsessensorer i Home Assistant for automatisk at flytte musik til det rum du er i."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="Tilstedeværelsessensorer" icon="eye">
+    Automatiser medie baseret på position.
+    
+    [Se guide →](/da/produkter/tilstedevaerelse/)
+  </Card>
+  <Card title="Smart Belysning" icon="sun">
+    Synkroniser lys med medier.
+    
+    [Se guide →](/da/produkter/smart-belysning/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*

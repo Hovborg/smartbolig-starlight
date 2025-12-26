@@ -1,0 +1,659 @@
+---
+title: Media & Entertainment
+description: Complete guide to smart media playback - streaming devices, Plex, Jellyfin, multi-room audio, and Home Assistant integration. Apple TV, Shield, Sonos.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Set up smart media center"
+  description="Guide to streaming, media servers and multi-room audio with Home Assistant"
+  totalTime="PT25M"
+  steps={[
+    "Choose streaming device for your TV",
+    "Set up media server (Plex/Jellyfin)",
+    "Configure multi-room audio",
+    "Integrate with Home Assistant",
+    "Create media automations"
+  ]}
+/>
+
+<Badge text="Media" variant="success" /> <Badge text="Streaming" variant="note" /> <Badge text="Multiroom" variant="tip" />
+
+Smart entertainment is about **unifying all your media** - streaming, local content, and music - into one system that integrates with your smart home. This guide covers streaming devices, media servers, and multi-room audio.
+
+<Aside type="tip" title="Top Recommendations 2025">
+- **Premium streaming**: Apple TV 4K (~$180)
+- **Power user**: NVIDIA Shield TV Pro (~$200)
+- **Best value**: Fire TV Stick 4K Max (~$70)
+- **Budget**: Chromecast with Google TV (~$50)
+- **Media server**: Jellyfin (free) or Plex
+</Aside>
+
+---
+
+## 📺 Streaming Devices
+
+### 2025 Comparison
+
+| Device | 4K/HDR | Price ~ | HA Integration | Best for |
+|--------|--------|---------|----------------|----------|
+| **Apple TV 4K** | ✅ DV/HDR10+ | $180 | ⭐⭐⭐⭐ | Apple ecosystem |
+| **NVIDIA Shield Pro** | ✅ DV/HDR10+ | $200 | ⭐⭐⭐⭐⭐ | Power users, Plex |
+| **Fire TV Stick 4K Max** | ✅ DV/HDR10+ | $70 | ⭐⭐⭐⭐ | Budget 4K |
+| **Chromecast Google TV** | ✅ DV/HDR10+ | $50 | ⭐⭐⭐⭐⭐ | Google ecosystem |
+| **Roku Streaming Stick** | ✅ DV/HDR10+ | $55 | ⭐⭐⭐ | Simple interface |
+
+---
+
+## 🥇 Apple TV 4K
+
+<Tabs>
+  <TabItem label="Overview">
+    ### Why Apple TV 4K?
+    
+    **Price:** ~$180
+    
+    Apple TV 4K is the **most polished** streaming experience:
+    
+    - ✅ Best UI and performance
+    - ✅ No ads in interface
+    - ✅ AirPlay for iPhone/Mac casting
+    - ✅ HomeKit hub function
+    - ✅ Apple Arcade gaming
+    - ✅ Siri voice control
+    - ✅ tvOS apps (Netflix, Disney+, etc.)
+    
+    **Disadvantages:**
+    - ❌ Expensive
+    - ❌ Requires Apple ecosystem for best experience
+    - ❌ No Plex server function
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### HA Integration
+    
+    Apple TV integrates via **Apple TV integration**:
+    
+    ```yaml
+    # Auto-discovery - or manual addition
+    # Settings → Devices → Add Integration → Apple TV
+    
+    # Entities:
+    # - media_player.apple_tv_living_room
+    # - remote.apple_tv_living_room
+    
+    # Example automation
+    automation:
+      - alias: "Dim lights during movie"
+        trigger:
+          - platform: state
+            entity_id: media_player.apple_tv_living_room
+            to: "playing"
+        condition:
+          - condition: template
+            value_template: "{{ state_attr('media_player.apple_tv_living_room', 'media_content_type') == 'movie' }}"
+        action:
+          - service: light.turn_on
+            entity_id: light.living_room
+            data:
+              brightness_pct: 10
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Apple.com](https://apple.com), [Amazon](https://amazon.com), [Best Buy](https://bestbuy.com)
+
+---
+
+## 🥈 NVIDIA Shield TV Pro
+
+<Tabs>
+  <TabItem label="Overview">
+    ### Why Shield TV Pro?
+    
+    **Price:** ~$200
+    
+    Shield TV Pro is the **power user's favorite**:
+    
+    - ✅ Built-in Plex Media Server
+    - ✅ AI upscaling (HD → 4K)
+    - ✅ Dolby Vision + Atmos
+    - ✅ GeForce NOW cloud gaming
+    - ✅ Kodi support
+    - ✅ 2x USB 3.0 ports
+    - ✅ 16GB storage + 3GB RAM
+    - ✅ Android TV with all apps
+    
+    **Disadvantages:**
+    - ❌ Expensive
+    - ❌ Old hardware (2019)
+    - ❌ Unknown when next generation comes
+  </TabItem>
+  <TabItem label="Plex Server">
+    ### Shield as Plex Server
+    
+    Shield TV Pro can run **full Plex Media Server**:
+    
+    1. Install Plex Media Server from Play Store
+    2. Connect external USB hard drive
+    3. Add media libraries
+    4. Stream to all devices in home
+    
+    **Advantages vs. NAS:**
+    - Low power consumption (~15W)
+    - Always on
+    - Hardware transcoding
+    - Simple setup
+    
+    **Limitations:**
+    - Only 2 USB ports
+    - Limited storage
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### HA Integration
+    
+    Shield integrates via **Android TV integration**:
+    
+    ```yaml
+    # Auto-discovery via Android TV
+    # Settings → Devices → Add Integration → Android TV
+    
+    # Entities:
+    # - media_player.shield_tv
+    # - remote.shield_tv
+    
+    # Start Plex movie
+    automation:
+      - alias: "Movie night"
+        trigger:
+          - platform: event
+            event_type: call_service
+            event_data:
+              domain: script
+              service: movie_night
+        action:
+          - service: media_player.select_source
+            target:
+              entity_id: media_player.shield_tv
+            data:
+              source: "Plex"
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Amazon](https://amazon.com), [Nvidia.com](https://nvidia.com)
+
+---
+
+## 💰 Budget: Fire TV Stick 4K Max
+
+**Price:** ~$70
+
+The **best value** in 4K streaming:
+
+| Pros | Cons |
+|------|------|
+| ✅ 4K HDR, Dolby Vision | ❌ Ads in interface |
+| ✅ Wi-Fi 6E support | ❌ Amazon-centric UI |
+| ✅ Alexa built-in | ❌ No USB ports |
+| ✅ Sideloading possible | ❌ Limited storage |
+| ✅ Kodi support | |
+| ✅ Good Home Assistant integration | |
+
+### Home Assistant
+
+```yaml
+# Fire TV integrates via Android TV Debug Bridge
+# Requires ADB debugging enabled on Fire TV
+
+# Settings → Devices → Add Integration → Android TV
+
+# Entities:
+# - media_player.fire_tv_living_room
+# - remote.fire_tv_living_room
+```
+
+**Buy:** [Amazon](https://amazon.com)
+
+---
+
+## 🎬 Media Servers
+
+### Plex vs Jellyfin vs Emby
+
+| Feature | Plex | Jellyfin | Emby |
+|---------|------|----------|------|
+| **Price** | Freemium | 100% Free | Freemium |
+| **Open Source** | ❌ | ✅ | ❌ |
+| **Interface** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
+| **Metadata** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Hardware Transcoding** | Plex Pass | Free | Premiere |
+| **Live TV/DVR** | Plex Pass | Free | Premiere |
+| **Client Apps** | All platforms | Most | All platforms |
+| **Remote Streaming** | ✅ Easy | ⚠️ Requires setup | ✅ Easy |
+
+---
+
+## 🆓 Jellyfin - Free & Open Source
+
+<Tabs>
+  <TabItem label="Overview">
+    ### Why Jellyfin?
+    
+    **Price:** 100% Free
+    
+    Jellyfin is the **best free alternative** to Plex:
+    
+    - ✅ Completely free - no premium tier
+    - ✅ Open source
+    - ✅ No tracking
+    - ✅ Self-hosted (full control)
+    - ✅ Hardware transcoding free
+    - ✅ Live TV and DVR
+    - ✅ Home Assistant integration
+    
+    **Disadvantages:**
+    - ❌ Fewer polished client apps
+    - ❌ Remote access requires more setup
+    - ❌ Less automatic metadata
+  </TabItem>
+  <TabItem label="Installation">
+    ### Docker Installation
+    
+    ```yaml
+    # docker-compose.yml
+    version: "3"
+    services:
+      jellyfin:
+        image: jellyfin/jellyfin
+        container_name: jellyfin
+        network_mode: host
+        volumes:
+          - /path/to/config:/config
+          - /path/to/cache:/cache
+          - /path/to/media:/media
+        restart: unless-stopped
+        # Hardware acceleration (Intel)
+        devices:
+          - /dev/dri:/dev/dri
+    ```
+    
+    ### Home Assistant Add-on
+    
+    Jellyfin is also available as a **HACS Add-on** for easy installation.
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### HA Integration
+    
+    ```yaml
+    # Settings → Devices → Add Integration → Jellyfin
+    
+    # Requires:
+    # - Jellyfin server URL
+    # - API key (Dashboard → API Keys)
+    
+    # Entities:
+    # - media_player.jellyfin_living_room_tv
+    # - sensor.jellyfin_watching
+    
+    # Automation example
+    automation:
+      - alias: "Pause Jellyfin on doorbell"
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.doorbell
+            to: "on"
+        condition:
+          - condition: state
+            entity_id: media_player.jellyfin_living_room_tv
+            state: "playing"
+        action:
+          - service: media_player.media_pause
+            entity_id: media_player.jellyfin_living_room_tv
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 📀 Plex - Most Popular
+
+<Tabs>
+  <TabItem label="Overview">
+    ### Why Plex?
+    
+    **Price:** Free / Plex Pass $120/year
+    
+    Plex is the **most popular** media server:
+    
+    - ✅ Best metadata and interface
+    - ✅ Client apps for all platforms
+    - ✅ Easy remote streaming
+    - ✅ Plex Discover (streaming guide)
+    - ✅ Large community
+    
+    **Plex Pass features:**
+    - Hardware transcoding
+    - Live TV & DVR
+    - Offline sync
+    - Intro skip
+    
+    **Disadvantages:**
+    - ❌ Best features require payment
+    - ❌ Cloud-dependent auth
+    - ❌ View tracking
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### HA Integration
+    
+    ```yaml
+    # Plex auto-discovered
+    # Settings → Devices → Add Integration → Plex
+    
+    # Entities per client:
+    # - media_player.plex_living_room_tv
+    # - media_player.plex_bedroom
+    
+    # Sensor for what's playing
+    # - sensor.plex_watching
+    
+    # Automation: Movie lights
+    automation:
+      - alias: "Theater mode"
+        trigger:
+          - platform: state
+            entity_id: media_player.plex_living_room
+            to: "playing"
+            attribute: media_content_type
+        condition:
+          - condition: template
+            value_template: "{{ trigger.to_state.attributes.media_content_type == 'movie' }}"
+        action:
+          - service: scene.turn_on
+            entity_id: scene.theater_mode
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 🔊 Multi-room Audio
+
+### Systems Comparison
+
+| System | Protocol | HA Integration | Price/speaker |
+|--------|----------|----------------|---------------|
+| **Sonos** | WiFi/AirPlay | ⭐⭐⭐⭐⭐ | $200+ |
+| **IKEA SYMFONISK** | Sonos/AirPlay | ⭐⭐⭐⭐⭐ | $130 |
+| **HomePod mini** | AirPlay | ⭐⭐⭐⭐ | $99 |
+| **Google Nest** | Chromecast | ⭐⭐⭐⭐ | $80+ |
+| **Amazon Echo** | Alexa | ⭐⭐⭐⭐ | $55+ |
+| **Chromecast Audio** | Chromecast | ⭐⭐⭐⭐ | Discontinued |
+
+---
+
+## 🔈 Sonos - Premium Multi-room
+
+<Tabs>
+  <TabItem label="Overview">
+    ### Why Sonos?
+    
+    Sonos is the **standard** for multi-room audio:
+    
+    - ✅ Excellent sound quality
+    - ✅ Robust multi-room sync
+    - ✅ All streaming services
+    - ✅ AirPlay 2 support
+    - ✅ Easy setup
+    - ✅ Unmatched Home Assistant integration
+    
+    **Popular models:**
+    | Model | Type | Price ~ |
+    |-------|------|---------|
+    | **Era 100** | Compact | $280 |
+    | **Era 300** | Spatial Audio | $490 |
+    | **Beam Gen 2** | Soundbar | $490 |
+    | **Arc** | Premium Soundbar | $1,050 |
+    | **Sub Mini** | Subwoofer | $490 |
+  </TabItem>
+  <TabItem label="IKEA SYMFONISK">
+    ### Budget Sonos: IKEA SYMFONISK
+    
+    IKEA SYMFONISK is **Sonos at half price**:
+    
+    | Model | Price | Best for |
+    |-------|-------|----------|
+    | **Bookshelf** | $130 | Shelf, desk |
+    | **Picture Frame** | $180 | Wall decoration |
+    | **Floor Lamp** | $250 | Living room corner |
+    | **Table Lamp** | $210 | Nightstand |
+    
+    **Fully compatible** with Sonos app and all Sonos features!
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### HA Integration
+    
+    ```yaml
+    # Sonos auto-discovered
+    # Settings → Devices → Add Integration → Sonos
+    
+    # Entities per speaker:
+    # - media_player.sonos_living_room
+    # - media_player.sonos_kitchen
+    # - media_player.sonos_bedroom
+    
+    # Group speakers
+    automation:
+      - alias: "Morning music whole house"
+        trigger:
+          - platform: time
+            at: "07:00:00"
+        condition:
+          - condition: state
+            entity_id: binary_sensor.workday
+            state: "on"
+        action:
+          - service: sonos.join
+            data:
+              master: media_player.sonos_kitchen
+              entity_id:
+                - media_player.sonos_living_room
+                - media_player.sonos_bathroom
+          - service: media_player.play_media
+            target:
+              entity_id: media_player.sonos_kitchen
+            data:
+              media_content_type: "music"
+              media_content_id: "spotify:playlist:37i9dQZF1DXcBWIGoYBM5M"
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 🏠 Media Automations
+
+### Basic: Lights on playback
+
+```yaml
+automation:
+  - alias: "Dim lights on TV playback"
+    trigger:
+      - platform: state
+        entity_id: media_player.living_room_tv
+        to: "playing"
+    action:
+      - service: light.turn_on
+        entity_id: light.living_room
+        data:
+          brightness_pct: 20
+          transition: 5
+
+  - alias: "Restore lights on pause/stop"
+    trigger:
+      - platform: state
+        entity_id: media_player.living_room_tv
+        from: "playing"
+    action:
+      - service: light.turn_on
+        entity_id: light.living_room
+        data:
+          brightness_pct: 80
+          transition: 3
+```
+
+### Advanced: Theater Scene
+
+```yaml
+# scenes.yaml
+scene:
+  - name: Theater Mode
+    entities:
+      light.living_room:
+        state: on
+        brightness_pct: 5
+        color_temp: 500
+      light.tv_backlight:
+        state: on
+        brightness_pct: 30
+        rgb_color: [50, 50, 100]
+      cover.living_room_blinds:
+        state: closed
+
+automation:
+  - alias: "Activate theater on movie start"
+    trigger:
+      - platform: state
+        entity_id: media_player.plex_living_room
+        to: "playing"
+    condition:
+      - condition: template
+        value_template: >
+          {{ state_attr('media_player.plex_living_room', 'media_content_type') == 'movie' }}
+      - condition: sun
+        after: sunset
+    action:
+      - service: scene.turn_on
+        entity_id: scene.theater_mode
+```
+
+### TTS Announcements
+
+```yaml
+automation:
+  - alias: "Announcement on doorbell"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.doorbell
+        to: "on"
+    action:
+      # Pause music
+      - service: media_player.media_pause
+        entity_id: media_player.sonos_living_room
+      # Announcement
+      - service: tts.google_translate_say
+        entity_id: media_player.sonos_living_room
+        data:
+          message: "Someone is at the door"
+      # Wait and resume
+      - delay: "00:00:05"
+      - service: media_player.media_play
+        entity_id: media_player.sonos_living_room
+```
+
+---
+
+## 🛒 Buying Strategy
+
+### Starter (~$280)
+- 1x Fire TV Stick 4K Max ($70)
+- 1x IKEA SYMFONISK Bookshelf ($130)
+- Jellyfin on existing PC (free)
+- **Total:** ~$200
+
+### Mid-range (~$700)
+- 1x Apple TV 4K ($180)
+- 2x IKEA SYMFONISK ($260)
+- 1x Sonos Beam Gen 2 ($490)
+- Plex Pass ($120/year)
+- **Total:** ~$1,050
+
+### Premium (~$2,100)
+- 1x NVIDIA Shield TV Pro ($200)
+- 1x Sonos Arc ($1,050)
+- 1x Sonos Sub Mini ($490)
+- 2x Sonos Era 100 ($560)
+- NAS for Plex/Jellyfin ($400)
+- **Total:** ~$2,700
+
+---
+
+## 🛒 Where to Buy?
+
+### Streaming Devices
+- **[Apple.com](https://apple.com)** - Apple TV
+- **[Amazon](https://amazon.com)** - Fire TV, Shield
+- **[Best Buy](https://bestbuy.com)** - Everything
+
+### Multi-room Audio
+- **[Sonos.com](https://sonos.com)** - Sonos products
+- **[IKEA](https://ikea.com)** - SYMFONISK
+- **[Crutchfield](https://crutchfield.com)** - Premium audio
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Plex or Jellyfin - what should I choose?",
+    answer: "Plex is easier to set up and has better apps, but requires payment for the best features. Jellyfin is 100% free and open source, but requires more technical effort. Start with Jellyfin if you're budget-conscious."
+  },
+  {
+    question: "Which streaming device is best for Home Assistant?",
+    answer: "Chromecast with Google TV and NVIDIA Shield have the best integration. Apple TV also works well. Fire TV requires ADB debug mode for full control."
+  },
+  {
+    question: "Can I use IKEA SYMFONISK with Sonos?",
+    answer: "Yes! SYMFONISK speakers are fully compatible with the Sonos system and app. They can be grouped with other Sonos speakers and work identically."
+  },
+  {
+    question: "What's better for Plex server - Shield or NAS?",
+    answer: "Shield is cheaper and easier to set up, but limited storage. NAS (Synology/QNAP) provides more space and flexibility, but costs more. Shield is fine for libraries under 10TB."
+  },
+  {
+    question: "Can I control my TV with Home Assistant?",
+    answer: "Yes! Most modern TVs (LG, Samsung, Sony) have native HA integrations. Older TVs can be controlled via the streaming device (Apple TV, Chromecast, Shield)."
+  },
+  {
+    question: "How do I get audio to follow me around the house?",
+    answer: "With Sonos or similar multi-room system you can group speakers. Combine with presence sensors in Home Assistant to automatically move music to the room you're in."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Presence Sensors" icon="eye">
+    Automate media based on location.
+    
+    [See guide →](/en/products/presence-sensors/)
+  </Card>
+  <Card title="Smart Lighting" icon="sun">
+    Sync lights with media.
+    
+    [See guide →](/en/products/smart-lighting/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
