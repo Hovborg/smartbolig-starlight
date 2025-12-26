@@ -1,0 +1,632 @@
+---
+title: Smart Garage & Indkørsel
+description: Komplet guide til smart garageportstyring - ratgdo, Meross, ismartgate og Home Assistant integration for lokal kontrol.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Opsæt smart garageport"
+  description="Guide til smart garageportstyring med Home Assistant"
+  totalTime="PT60M"
+  steps={[
+    "Identificer din garageportåbner type",
+    "Vælg kompatibel smart controller",
+    "Installer hardware og firmware",
+    "Integrer med Home Assistant",
+    "Opsæt automationer og sikkerhed"
+  ]}
+/>
+
+<Badge text="Garage" variant="success" /> <Badge text="Lokal" variant="note" /> <Badge text="ESPHome" variant="tip" />
+
+Smart garageportstyring giver dig **fjernbetjening og status** - åbn/luk fra din telefon, få notifikationer og automatiser baseret på tilstedeværelse. Med de rigtige løsninger kan du undgå cloud-afhængighed og holde kontrollen lokalt.
+
+<Aside type="caution" title="MyQ Advarsel">
+**Chamberlain/LiftMaster MyQ** har blokeret tredjeparts-integrationer siden december 2023. Home Assistant understøtter IKKE længere MyQ officielt. Brug i stedet **ratgdo** eller **Konnected blaQ** for lokal kontrol.
+</Aside>
+
+<Aside type="tip" title="Top Anbefalinger 2025">
+- **Lokal kontrol (Chamberlain/LiftMaster)**: ratgdo (~$35) eller Konnected blaQ (~$70)
+- **Universal (alle mærker)**: Meross MSG100HK (~$40)
+- **Premium multi-port**: ismartgate Pro (~$150)
+- **DIY**: Shelly 1 + reed switch (~$20)
+</Aside>
+
+---
+
+## 🎯 Garageport Controller Typer
+
+### Overblik
+
+| Controller | Kompatibilitet | HA Integration | Cloud | Pris |
+|------------|----------------|----------------|-------|------|
+| **ratgdo** | Chamberlain/LiftMaster | ESPHome (lokal) | Nej | 💰 |
+| **Konnected blaQ** | Chamberlain/LiftMaster | ESPHome (lokal) | Valgfri | 💰💰 |
+| **Meross** | Universal (200+ mærker) | HACS/HomeKit | Ja | 💰 |
+| **ismartgate** | Universal | Native | Nej | 💰💰💰 |
+| **Shelly 1 DIY** | Universal (dry contact) | Native | Valgfri | 💰 |
+
+---
+
+## 🔧 ratgdo (Anbefalet for Chamberlain/LiftMaster)
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~$35 / ~250 kr
+    
+    **ratgdo** = "Rage Against The Garage Door Opener"
+    
+    Den **bedste løsning** for Chamberlain/LiftMaster ejere:
+    
+    - ✅ 100% lokal kontrol (ingen cloud)
+    - ✅ ESPHome eller HomeKit firmware
+    - ✅ Åbn/luk/stop kommandoer
+    - ✅ Præcis dørstatus (åben/lukker/lukket/åbner)
+    - ✅ Lys kontrol
+    - ✅ Obstruktionssensor status
+    - ✅ Bevægelsessensor (med 889LM panel)
+    - ✅ Wireless lockout
+    - ✅ Delvis åbning support
+    
+    | Kompatibilitet | Learn Button Farve |
+    |----------------|-------------------|
+    | Security+ 2.0 | Gul (rund) |
+    | Security+ 1.0 | Lilla/Brun/Orange/Rød |
+    | Dry Contact | Alle andre |
+    
+    <Aside type="caution">
+    **IKKE kompatibel** med Security+ 3.0 (hvid learn button - 2025+).
+    </Aside>
+  </TabItem>
+  <TabItem label="Installation">
+    ### Hardware Installation
+    
+    1. **Sluk garageportåbneren** (træk stikket)
+    2. Find terminalerne på bagsiden af motoren
+    3. Tilslut 3 ledninger:
+       - GND → GND
+       - RX → Red terminal
+       - TX → White terminal
+    4. Tilslut USB-C strøm til ratgdo
+    5. Tænd garageportåbneren igen
+    
+    ### Firmware Installation
+    
+    1. Tilslut ratgdo til computer via USB-C
+    2. Gå til [ratgdo.github.io/esphome-ratgdo](https://ratgdo.github.io/esphome-ratgdo/)
+    3. Vælg din protokol (Security+ 2.0 for gul knap)
+    4. Vælg din board version
+    5. Klik "Install" og følg guiden
+    6. Konfigurer WiFi via captive portal
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### ESPHome Integration
+    
+    ```yaml
+    # ratgdo opdages automatisk i HA
+    # Gå til: Indstillinger → Enheder → ESPHome
+    
+    # Entiteter der oprettes:
+    # - cover.ratgdo_garage_door
+    # - light.ratgdo_light
+    # - binary_sensor.ratgdo_obstruction
+    # - binary_sensor.ratgdo_motion
+    # - lock.ratgdo_remote_lock
+    # - button.ratgdo_sync
+    
+    # Eksempel: Garageport automation
+    automation:
+      - alias: "Garage - Luk ved afgang"
+        trigger:
+          - platform: state
+            entity_id: person.brian
+            from: "home"
+            to: "not_home"
+            for: "00:02:00"
+        condition:
+          - condition: state
+            entity_id: cover.ratgdo_garage_door
+            state: "open"
+        action:
+          - service: cover.close_cover
+            entity_id: cover.ratgdo_garage_door
+          - service: notify.mobile_app
+            data:
+              title: "🚗 Garage lukket"
+              message: "Garageporten er automatisk lukket efter afgang."
+    ```
+    
+    ### Ankomst Automation
+    
+    ```yaml
+    automation:
+      - alias: "Garage - Åbn ved ankomst"
+        trigger:
+          - platform: zone
+            entity_id: device_tracker.brians_iphone
+            zone: zone.home
+            event: enter
+        condition:
+          - condition: state
+            entity_id: cover.ratgdo_garage_door
+            state: "closed"
+          - condition: time
+            after: "06:00:00"
+            before: "23:00:00"
+        action:
+          - service: cover.open_cover
+            entity_id: cover.ratgdo_garage_door
+          - service: light.turn_on
+            entity_id: light.ratgdo_light
+    
+      - alias: "Garage - Auto-luk efter 10 min"
+        trigger:
+          - platform: state
+            entity_id: cover.ratgdo_garage_door
+            to: "open"
+            for: "00:10:00"
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "⚠️ Garage stadig åben"
+              message: "Garageporten har været åben i 10 minutter. Luk nu?"
+              data:
+                actions:
+                  - action: "CLOSE_GARAGE"
+                    title: "Luk garage"
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [ratcloud.llc](https://ratcloud.llc), [Amazon](https://amazon.com)
+
+---
+
+## 🔌 Konnected blaQ
+
+**Pris:** ~$70 / ~500 kr
+
+**Kommerciel version** af ratgdo-konceptet:
+
+- ✅ Alt fra ratgdo
+- ✅ Færdigsamlet og testet
+- ✅ Bedre dokumentation
+- ✅ SmartThings & Alexa via cloud (valgfri)
+- ✅ Support inkluderet
+
+```yaml
+# ESPHome integration - samme som ratgdo
+# Opdages automatisk i Home Assistant
+
+cover:
+  - platform: template
+    name: "Garage Door"
+    device_class: garage
+    open_action:
+      - service: cover.open_cover
+        entity_id: cover.blaq_garage_door
+```
+
+**Køb:** [Konnected.io](https://konnected.io)
+
+---
+
+## 📱 Meross Smart Garage Door Opener
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~$40 / ~300 kr
+    
+    **Universal** garageport controller:
+    
+    - ✅ Kompatibel med 200+ mærker
+    - ✅ HomeKit, Alexa, Google Assistant
+    - ✅ Kablet sensor for præcis status
+    - ✅ Auto-luk funktion
+    - ✅ Tidsplanlægning
+    - ✅ Ingen månedlig afgift
+    
+    | Model | Funktion |
+    |-------|----------|
+    | MSG100HK | Universal (HomeKit) |
+    | MSG150HK | Chamberlain/LiftMaster direkte |
+    
+    <Aside type="note">
+    Meross kræver cloud-forbindelse for app, men fungerer lokalt via HomeKit i HA.
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Via HomeKit Controller
+    
+    ```yaml
+    # Meross HomeKit version opdages automatisk
+    # Indstillinger → Enheder → HomeKit Controller
+    
+    # Entiteter:
+    # - cover.meross_garage_door
+    # - binary_sensor.meross_garage_door_contact
+    
+    automation:
+      - alias: "Garage - Nat sikkerhed"
+        trigger:
+          - platform: time
+            at: "23:00:00"
+        condition:
+          - condition: state
+            entity_id: cover.meross_garage_door
+            state: "open"
+        action:
+          - service: cover.close_cover
+            entity_id: cover.meross_garage_door
+          - service: notify.mobile_app
+            data:
+              title: "🌙 Garage lukket"
+              message: "Garageporten er lukket for natten."
+    ```
+    
+    ### Via Meross LAN (HACS)
+    
+    ```yaml
+    # HACS → Integrations → Meross LAN
+    # Lokal HTTP kontrol uden cloud
+    
+    # Fordele:
+    # - Hurtigere respons
+    # - Virker uden internet
+    # - Mere pålidelig
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Amazon.de](https://amazon.de), [Meross Shop](https://shop.meross.com)
+
+---
+
+## 🏠 ismartgate Pro
+
+**Pris:** ~$150 / ~1.100 kr
+
+**Premium** multi-port løsning:
+
+- ✅ Op til 3 porte/låger
+- ✅ 100% lokal (ingen cloud data)
+- ✅ HomeKit, Alexa, Google, SmartThings
+- ✅ IP kamera integration
+- ✅ Brugeradministration
+- ✅ Tilpasset lyd ved åbning/lukning
+- ✅ Native Home Assistant integration
+
+```yaml
+# Native ismartgate integration
+# Indstillinger → Enheder → ismartgate
+
+automation:
+  - alias: "Port - Spil lyd ved ankomst"
+    trigger:
+      - platform: state
+        entity_id: cover.ismartgate_garage
+        to: "opening"
+    action:
+      - service: media_player.play_media
+        entity_id: media_player.garage_speaker
+        data:
+          media_content_type: music
+          media_content_id: "/local/sounds/welcome_home.mp3"
+```
+
+**Køb:** [Amazon.de](https://amazon.de), [ismartgate.com](https://ismartgate.com)
+
+---
+
+## 🔨 DIY: Shelly 1 + Reed Switch
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~$15-25 / ~100-180 kr
+    
+    **Billigste løsning** for dry contact åbnere:
+    
+    - ✅ Shelly 1 (eller Shelly Plus 1)
+    - ✅ Reed switch (magnetkontakt)
+    - ✅ Native HA integration
+    - ✅ Lokal kontrol
+    - ✅ ESPHome firmware valgfri
+    
+    <Aside type="caution">
+    Virker KUN med garageportåbnere der har dry contact input (to ledninger til væg-knap).
+    </Aside>
+  </TabItem>
+  <TabItem label="Installation">
+    ### Komponenter
+    
+    - Shelly 1 eller Shelly Plus 1
+    - Reed switch (NC - normally closed)
+    - Magnet til montering på port
+    - Ledninger
+    
+    ### Tilslutning
+    
+    ```
+    Garageportåbner wall button terminals:
+    ┌─────────────────────────┐
+    │  Terminal 1  ──────────┼──── Shelly 1 "O"
+    │  Terminal 2  ──────────┼──── Shelly 1 "I"
+    └─────────────────────────┘
+    
+    Reed switch:
+    ┌─────────────────────────┐
+    │  Reed COM    ──────────┼──── Shelly 1 "SW"
+    │  Reed NC     ──────────┼──── Shelly 1 "L" (eller GND)
+    └─────────────────────────┘
+    ```
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Konfiguration
+    
+    ```yaml
+    # Shelly opdages automatisk
+    # Indstillinger → Enheder → Shelly
+    
+    # Cover template for garageport
+    cover:
+      - platform: template
+        covers:
+          garage_door:
+            device_class: garage
+            friendly_name: "Garageport"
+            value_template: >
+              {% if is_state('binary_sensor.shelly1_garage_input', 'on') %}
+                open
+              {% else %}
+                closed
+              {% endif %}
+            open_cover:
+              service: switch.turn_on
+              entity_id: switch.shelly1_garage
+            close_cover:
+              service: switch.turn_on
+              entity_id: switch.shelly1_garage
+            stop_cover:
+              service: switch.turn_on
+              entity_id: switch.shelly1_garage
+    
+    # Momentary switch automation
+    automation:
+      - alias: "Garage - Shelly momentary"
+        trigger:
+          - platform: state
+            entity_id: switch.shelly1_garage
+            to: "on"
+        action:
+          - delay: "00:00:01"
+          - service: switch.turn_off
+            entity_id: switch.shelly1_garage
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 🚗 Indkørsel Sensorer
+
+### Bil Tilstedeværelse
+
+```yaml
+# Via ratgdo ultrasonic sensor
+# Eller dedikeret sensor
+
+binary_sensor:
+  - platform: template
+    sensors:
+      car_in_garage:
+        friendly_name: "Bil i garage"
+        device_class: occupancy
+        value_template: >
+          {{ states('sensor.ratgdo_vehicle_distance') | float < 200 }}
+
+automation:
+  - alias: "Garage - Bil parkeret"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.car_in_garage
+        to: "on"
+        for: "00:01:00"
+    condition:
+      - condition: state
+        entity_id: cover.garage_door
+        state: "open"
+    action:
+      - delay: "00:02:00"
+      - service: cover.close_cover
+        entity_id: cover.garage_door
+```
+
+### Indkørsel Bevægelse
+
+```yaml
+# Med PIR sensor eller kamera
+automation:
+  - alias: "Indkørsel - Bevægelse nat"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.driveway_motion
+        to: "on"
+    condition:
+      - condition: sun
+        after: sunset
+    action:
+      - service: light.turn_on
+        entity_id: light.driveway_lights
+        data:
+          brightness_pct: 100
+      - delay: "00:05:00"
+      - service: light.turn_off
+        entity_id: light.driveway_lights
+```
+
+---
+
+## 🏠 Smarte Automationer
+
+### Komplet Garage Sikkerhed
+
+```yaml
+automation:
+  # Nat-tjek
+  - alias: "Garage - Nat sikkerhedstjek"
+    trigger:
+      - platform: time
+        at: "23:00:00"
+    action:
+      - if:
+          - condition: state
+            entity_id: cover.garage_door
+            state: "open"
+        then:
+          - service: cover.close_cover
+            entity_id: cover.garage_door
+          - service: notify.mobile_app
+            data:
+              title: "🔒 Garage sikret"
+              message: "Garageporten er automatisk lukket for natten."
+  
+  # Afrejse tjek
+  - alias: "Garage - Alle væk"
+    trigger:
+      - platform: state
+        entity_id: group.family
+        to: "not_home"
+        for: "00:05:00"
+    condition:
+      - condition: state
+        entity_id: cover.garage_door
+        state: "open"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "⚠️ Garage åben!"
+          message: "Garageporten er stadig åben og alle er væk."
+          data:
+            actions:
+              - action: "CLOSE_GARAGE"
+                title: "Luk nu"
+
+  # Obstruktion alarm
+  - alias: "Garage - Obstruktion"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.ratgdo_obstruction
+        to: "on"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🚨 Garage obstruktion!"
+          message: "Noget blokerer garageportens sensorer."
+```
+
+### Dashboard Card
+
+```yaml
+type: entities
+title: "🚗 Garage"
+entities:
+  - entity: cover.garage_door
+    name: Garageport
+  - entity: light.garage_light
+    name: Lys
+  - entity: binary_sensor.car_in_garage
+    name: Bil parkeret
+  - entity: binary_sensor.garage_obstruction
+    name: Obstruktion
+  - entity: lock.garage_remote_lock
+    name: Fjernbetjening lås
+```
+
+---
+
+## 🛒 Købs Strategi
+
+### Budget DIY (~200 kr)
+- 1x Shelly 1 (~100 kr)
+- 1x Reed switch (~50 kr)
+- Ledninger + montering (~50 kr)
+- **Total:** ~200 kr
+
+### Anbefalet Lokal (~350 kr)
+- 1x ratgdo v2.5 ($35 / ~250 kr)
+- USB-C adapter (~50 kr)
+- Ledninger (~50 kr)
+- **Total:** ~350 kr
+
+### Premium Multi-port (~1.500 kr)
+- 1x ismartgate Pro (~1.100 kr)
+- Sensorer inkluderet
+- **Total:** ~1.100-1.500 kr
+
+---
+
+## 🛒 Hvor Køber Jeg?
+
+### Specialbutikker
+- **[ratcloud.llc](https://ratcloud.llc)** - ratgdo boards
+- **[Konnected.io](https://konnected.io)** - blaQ controller
+- **[ismartgate.com](https://ismartgate.com)** - ismartgate
+
+### Generelle
+- **[Amazon.de](https://amazon.de)** - Meross, ismartgate
+- **[Proshop.dk](https://proshop.dk)** - Shelly enheder
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Virker MyQ stadig med Home Assistant?",
+    answer: "Nej! Chamberlain blokerede tredjeparts-adgang i december 2023. Den officielle MyQ integration er fjernet fra HA. Brug ratgdo eller Konnected blaQ for lokal kontrol."
+  },
+  {
+    question: "Hvad er forskellen på ratgdo og Konnected blaQ?",
+    answer: "Begge bruger samme teknologi. ratgdo er billigere men kræver selv-samling. blaQ er dyrere men færdigsamlet med support. Begge bruger ESPHome og fungerer identisk i HA."
+  },
+  {
+    question: "Kan jeg bruge Meross uden cloud?",
+    answer: "Delvist. HomeKit-versionen kan styres lokalt via HomeKit Controller i HA. Med Meross LAN HACS integration får du fuld lokal HTTP kontrol."
+  },
+  {
+    question: "Hvilken løsning er bedst for Chamberlain/LiftMaster?",
+    answer: "ratgdo eller Konnected blaQ. Disse taler direkte Security+ 2.0 protokollen og giver fuld funktionalitet inkl. obstruktionssensor og lys."
+  },
+  {
+    question: "Kan jeg åbne garagen baseret på GPS?",
+    answer: "Ja! Brug Home Assistant zones og device_tracker. Når din telefon kommer inden for en zone, kan en automation åbne porten. Tilføj sikkerhedsbetingelser som tidspunkt."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="ESPHome Guide" icon="rocket">
+    Lær at flashe og konfigurere ESPHome.
+    
+    [Se guide →](/da/guides/esphome/)
+  </Card>
+  <Card title="Smart Sikkerhed" icon="shield">
+    Kameraer og alarmsystemer.
+    
+    [Se guide →](/da/produkter/smart-sikkerhed/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*

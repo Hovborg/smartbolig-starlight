@@ -1,0 +1,631 @@
+---
+title: Smart Garage & Driveway
+description: Complete guide to smart garage door control - ratgdo, Meross, ismartgate and Home Assistant integration for local control.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Set Up Smart Garage Door"
+  description="Guide to smart garage door control with Home Assistant"
+  totalTime="PT60M"
+  steps={[
+    "Identify your garage door opener type",
+    "Choose compatible smart controller",
+    "Install hardware and firmware",
+    "Integrate with Home Assistant",
+    "Set up automations and security"
+  ]}
+/>
+
+<Badge text="Garage" variant="success" /> <Badge text="Local" variant="note" /> <Badge text="ESPHome" variant="tip" />
+
+Smart garage door control gives you **remote access and status** - open/close from your phone, get notifications, and automate based on presence. With the right solutions, you can avoid cloud dependency and keep control local.
+
+<Aside type="caution" title="MyQ Warning">
+**Chamberlain/LiftMaster MyQ** has blocked third-party integrations since December 2023. Home Assistant NO LONGER officially supports MyQ. Use **ratgdo** or **Konnected blaQ** for local control instead.
+</Aside>
+
+<Aside type="tip" title="Top Recommendations 2025">
+- **Local control (Chamberlain/LiftMaster)**: ratgdo (~$35) or Konnected blaQ (~$70)
+- **Universal (all brands)**: Meross MSG100HK (~$40)
+- **Premium multi-door**: ismartgate Pro (~$150)
+- **DIY**: Shelly 1 + reed switch (~$20)
+</Aside>
+
+---
+
+## 🎯 Garage Door Controller Types
+
+### Overview
+
+| Controller | Compatibility | HA Integration | Cloud | Price |
+|------------|---------------|----------------|-------|-------|
+| **ratgdo** | Chamberlain/LiftMaster | ESPHome (local) | No | 💰 |
+| **Konnected blaQ** | Chamberlain/LiftMaster | ESPHome (local) | Optional | 💰💰 |
+| **Meross** | Universal (200+ brands) | HACS/HomeKit | Yes | 💰 |
+| **ismartgate** | Universal | Native | No | 💰💰💰 |
+| **Shelly 1 DIY** | Universal (dry contact) | Native | Optional | 💰 |
+
+---
+
+## 🔧 ratgdo (Recommended for Chamberlain/LiftMaster)
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$35
+    
+    **ratgdo** = "Rage Against The Garage Door Opener"
+    
+    The **best solution** for Chamberlain/LiftMaster owners:
+    
+    - ✅ 100% local control (no cloud)
+    - ✅ ESPHome or HomeKit firmware
+    - ✅ Open/close/stop commands
+    - ✅ Precise door status (open/closing/closed/opening)
+    - ✅ Light control
+    - ✅ Obstruction sensor status
+    - ✅ Motion sensor (with 889LM panel)
+    - ✅ Wireless lockout
+    - ✅ Partial opening support
+    
+    | Compatibility | Learn Button Color |
+    |---------------|-------------------|
+    | Security+ 2.0 | Yellow (round) |
+    | Security+ 1.0 | Purple/Brown/Orange/Red |
+    | Dry Contact | All others |
+    
+    <Aside type="caution">
+    **NOT compatible** with Security+ 3.0 (white learn button - 2025+).
+    </Aside>
+  </TabItem>
+  <TabItem label="Installation">
+    ### Hardware Installation
+    
+    1. **Power off the garage door opener** (unplug)
+    2. Locate terminals on the back of the motor unit
+    3. Connect 3 wires:
+       - GND → GND
+       - RX → Red terminal
+       - TX → White terminal
+    4. Connect USB-C power to ratgdo
+    5. Power on the garage door opener
+    
+    ### Firmware Installation
+    
+    1. Connect ratgdo to computer via USB-C
+    2. Go to [ratgdo.github.io/esphome-ratgdo](https://ratgdo.github.io/esphome-ratgdo/)
+    3. Select your protocol (Security+ 2.0 for yellow button)
+    4. Select your board version
+    5. Click "Install" and follow the wizard
+    6. Configure WiFi via captive portal
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### ESPHome Integration
+    
+    ```yaml
+    # ratgdo is auto-discovered in HA
+    # Go to: Settings → Devices → ESPHome
+    
+    # Entities created:
+    # - cover.ratgdo_garage_door
+    # - light.ratgdo_light
+    # - binary_sensor.ratgdo_obstruction
+    # - binary_sensor.ratgdo_motion
+    # - lock.ratgdo_remote_lock
+    # - button.ratgdo_sync
+    
+    # Example: Garage door automation
+    automation:
+      - alias: "Garage - Close on departure"
+        trigger:
+          - platform: state
+            entity_id: person.brian
+            from: "home"
+            to: "not_home"
+            for: "00:02:00"
+        condition:
+          - condition: state
+            entity_id: cover.ratgdo_garage_door
+            state: "open"
+        action:
+          - service: cover.close_cover
+            entity_id: cover.ratgdo_garage_door
+          - service: notify.mobile_app
+            data:
+              title: "🚗 Garage closed"
+              message: "Garage door automatically closed after departure."
+    ```
+    
+    ### Arrival Automation
+    
+    ```yaml
+    automation:
+      - alias: "Garage - Open on arrival"
+        trigger:
+          - platform: zone
+            entity_id: device_tracker.brians_iphone
+            zone: zone.home
+            event: enter
+        condition:
+          - condition: state
+            entity_id: cover.ratgdo_garage_door
+            state: "closed"
+          - condition: time
+            after: "06:00:00"
+            before: "23:00:00"
+        action:
+          - service: cover.open_cover
+            entity_id: cover.ratgdo_garage_door
+          - service: light.turn_on
+            entity_id: light.ratgdo_light
+    
+      - alias: "Garage - Auto-close after 10 min"
+        trigger:
+          - platform: state
+            entity_id: cover.ratgdo_garage_door
+            to: "open"
+            for: "00:10:00"
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "⚠️ Garage still open"
+              message: "Garage door has been open for 10 minutes. Close now?"
+              data:
+                actions:
+                  - action: "CLOSE_GARAGE"
+                    title: "Close garage"
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [ratcloud.llc](https://ratcloud.llc), [Amazon](https://amazon.com)
+
+---
+
+## 🔌 Konnected blaQ
+
+**Price:** ~$70
+
+**Commercial version** of the ratgdo concept:
+
+- ✅ Everything from ratgdo
+- ✅ Pre-assembled and tested
+- ✅ Better documentation
+- ✅ SmartThings & Alexa via cloud (optional)
+- ✅ Support included
+
+```yaml
+# ESPHome integration - same as ratgdo
+# Auto-discovered in Home Assistant
+
+cover:
+  - platform: template
+    name: "Garage Door"
+    device_class: garage
+    open_action:
+      - service: cover.open_cover
+        entity_id: cover.blaq_garage_door
+```
+
+**Buy:** [Konnected.io](https://konnected.io)
+
+---
+
+## 📱 Meross Smart Garage Door Opener
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$40
+    
+    **Universal** garage door controller:
+    
+    - ✅ Compatible with 200+ brands
+    - ✅ HomeKit, Alexa, Google Assistant
+    - ✅ Wired sensor for precise status
+    - ✅ Auto-close function
+    - ✅ Scheduling
+    - ✅ No monthly fee
+    
+    | Model | Function |
+    |-------|----------|
+    | MSG100HK | Universal (HomeKit) |
+    | MSG150HK | Chamberlain/LiftMaster direct |
+    
+    <Aside type="note">
+    Meross requires cloud connection for app, but works locally via HomeKit in HA.
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Via HomeKit Controller
+    
+    ```yaml
+    # Meross HomeKit version auto-discovered
+    # Settings → Devices → HomeKit Controller
+    
+    # Entities:
+    # - cover.meross_garage_door
+    # - binary_sensor.meross_garage_door_contact
+    
+    automation:
+      - alias: "Garage - Night security"
+        trigger:
+          - platform: time
+            at: "23:00:00"
+        condition:
+          - condition: state
+            entity_id: cover.meross_garage_door
+            state: "open"
+        action:
+          - service: cover.close_cover
+            entity_id: cover.meross_garage_door
+          - service: notify.mobile_app
+            data:
+              title: "🌙 Garage closed"
+              message: "Garage door closed for the night."
+    ```
+    
+    ### Via Meross LAN (HACS)
+    
+    ```yaml
+    # HACS → Integrations → Meross LAN
+    # Local HTTP control without cloud
+    
+    # Benefits:
+    # - Faster response
+    # - Works without internet
+    # - More reliable
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Amazon](https://amazon.com), [Meross Shop](https://shop.meross.com)
+
+---
+
+## 🏠 ismartgate Pro
+
+**Price:** ~$150
+
+**Premium** multi-door solution:
+
+- ✅ Up to 3 doors/gates
+- ✅ 100% local (no cloud data)
+- ✅ HomeKit, Alexa, Google, SmartThings
+- ✅ IP camera integration
+- ✅ User management
+- ✅ Custom sounds on open/close
+- ✅ Native Home Assistant integration
+
+```yaml
+# Native ismartgate integration
+# Settings → Devices → ismartgate
+
+automation:
+  - alias: "Gate - Play sound on arrival"
+    trigger:
+      - platform: state
+        entity_id: cover.ismartgate_garage
+        to: "opening"
+    action:
+      - service: media_player.play_media
+        entity_id: media_player.garage_speaker
+        data:
+          media_content_type: music
+          media_content_id: "/local/sounds/welcome_home.mp3"
+```
+
+**Buy:** [Amazon](https://amazon.com), [ismartgate.com](https://ismartgate.com)
+
+---
+
+## 🔨 DIY: Shelly 1 + Reed Switch
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$15-25
+    
+    **Cheapest solution** for dry contact openers:
+    
+    - ✅ Shelly 1 (or Shelly Plus 1)
+    - ✅ Reed switch (magnetic contact)
+    - ✅ Native HA integration
+    - ✅ Local control
+    - ✅ ESPHome firmware optional
+    
+    <Aside type="caution">
+    Only works with garage door openers that have dry contact input (two wires to wall button).
+    </Aside>
+  </TabItem>
+  <TabItem label="Installation">
+    ### Components
+    
+    - Shelly 1 or Shelly Plus 1
+    - Reed switch (NC - normally closed)
+    - Magnet for mounting on door
+    - Wires
+    
+    ### Wiring
+    
+    ```
+    Garage door opener wall button terminals:
+    ┌─────────────────────────┐
+    │  Terminal 1  ──────────┼──── Shelly 1 "O"
+    │  Terminal 2  ──────────┼──── Shelly 1 "I"
+    └─────────────────────────┘
+    
+    Reed switch:
+    ┌─────────────────────────┐
+    │  Reed COM    ──────────┼──── Shelly 1 "SW"
+    │  Reed NC     ──────────┼──── Shelly 1 "L" (or GND)
+    └─────────────────────────┘
+    ```
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Configuration
+    
+    ```yaml
+    # Shelly auto-discovered
+    # Settings → Devices → Shelly
+    
+    # Cover template for garage door
+    cover:
+      - platform: template
+        covers:
+          garage_door:
+            device_class: garage
+            friendly_name: "Garage Door"
+            value_template: >
+              {% if is_state('binary_sensor.shelly1_garage_input', 'on') %}
+                open
+              {% else %}
+                closed
+              {% endif %}
+            open_cover:
+              service: switch.turn_on
+              entity_id: switch.shelly1_garage
+            close_cover:
+              service: switch.turn_on
+              entity_id: switch.shelly1_garage
+            stop_cover:
+              service: switch.turn_on
+              entity_id: switch.shelly1_garage
+    
+    # Momentary switch automation
+    automation:
+      - alias: "Garage - Shelly momentary"
+        trigger:
+          - platform: state
+            entity_id: switch.shelly1_garage
+            to: "on"
+        action:
+          - delay: "00:00:01"
+          - service: switch.turn_off
+            entity_id: switch.shelly1_garage
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 🚗 Driveway Sensors
+
+### Vehicle Presence
+
+```yaml
+# Via ratgdo ultrasonic sensor
+# Or dedicated sensor
+
+binary_sensor:
+  - platform: template
+    sensors:
+      car_in_garage:
+        friendly_name: "Car in Garage"
+        device_class: occupancy
+        value_template: >
+          {{ states('sensor.ratgdo_vehicle_distance') | float < 200 }}
+
+automation:
+  - alias: "Garage - Car parked"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.car_in_garage
+        to: "on"
+        for: "00:01:00"
+    condition:
+      - condition: state
+        entity_id: cover.garage_door
+        state: "open"
+    action:
+      - delay: "00:02:00"
+      - service: cover.close_cover
+        entity_id: cover.garage_door
+```
+
+### Driveway Motion
+
+```yaml
+# With PIR sensor or camera
+automation:
+  - alias: "Driveway - Motion at night"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.driveway_motion
+        to: "on"
+    condition:
+      - condition: sun
+        after: sunset
+    action:
+      - service: light.turn_on
+        entity_id: light.driveway_lights
+        data:
+          brightness_pct: 100
+      - delay: "00:05:00"
+      - service: light.turn_off
+        entity_id: light.driveway_lights
+```
+
+---
+
+## 🏠 Smart Automations
+
+### Complete Garage Security
+
+```yaml
+automation:
+  # Night check
+  - alias: "Garage - Night security check"
+    trigger:
+      - platform: time
+        at: "23:00:00"
+    action:
+      - if:
+          - condition: state
+            entity_id: cover.garage_door
+            state: "open"
+        then:
+          - service: cover.close_cover
+            entity_id: cover.garage_door
+          - service: notify.mobile_app
+            data:
+              title: "🔒 Garage secured"
+              message: "Garage door automatically closed for the night."
+  
+  # Away check
+  - alias: "Garage - Everyone away"
+    trigger:
+      - platform: state
+        entity_id: group.family
+        to: "not_home"
+        for: "00:05:00"
+    condition:
+      - condition: state
+        entity_id: cover.garage_door
+        state: "open"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "⚠️ Garage open!"
+          message: "Garage door is still open and everyone is away."
+          data:
+            actions:
+              - action: "CLOSE_GARAGE"
+                title: "Close now"
+
+  # Obstruction alarm
+  - alias: "Garage - Obstruction"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.ratgdo_obstruction
+        to: "on"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🚨 Garage obstruction!"
+          message: "Something is blocking the garage door sensors."
+```
+
+### Dashboard Card
+
+```yaml
+type: entities
+title: "🚗 Garage"
+entities:
+  - entity: cover.garage_door
+    name: Garage Door
+  - entity: light.garage_light
+    name: Light
+  - entity: binary_sensor.car_in_garage
+    name: Car Parked
+  - entity: binary_sensor.garage_obstruction
+    name: Obstruction
+  - entity: lock.garage_remote_lock
+    name: Remote Lock
+```
+
+---
+
+## 🛒 Buying Strategy
+
+### Budget DIY (~$20)
+- 1x Shelly 1 (~$12)
+- 1x Reed switch (~$5)
+- Wires + mounting (~$3)
+- **Total:** ~$20
+
+### Recommended Local (~$40)
+- 1x ratgdo v2.5 (~$35)
+- USB-C adapter (~$5)
+- **Total:** ~$40
+
+### Premium Multi-door (~$150)
+- 1x ismartgate Pro (~$150)
+- Sensors included
+- **Total:** ~$150
+
+---
+
+## 🛒 Where to Buy
+
+### Specialty Stores
+- **[ratcloud.llc](https://ratcloud.llc)** - ratgdo boards
+- **[Konnected.io](https://konnected.io)** - blaQ controller
+- **[ismartgate.com](https://ismartgate.com)** - ismartgate
+
+### General
+- **[Amazon.com](https://amazon.com)** - Meross, ismartgate, Shelly
+- **[AliExpress](https://aliexpress.com)** - Shelly devices
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Does MyQ still work with Home Assistant?",
+    answer: "No! Chamberlain blocked third-party access in December 2023. The official MyQ integration has been removed from HA. Use ratgdo or Konnected blaQ for local control."
+  },
+  {
+    question: "What's the difference between ratgdo and Konnected blaQ?",
+    answer: "Both use the same technology. ratgdo is cheaper but requires self-assembly. blaQ is more expensive but pre-assembled with support. Both use ESPHome and function identically in HA."
+  },
+  {
+    question: "Can I use Meross without cloud?",
+    answer: "Partially. The HomeKit version can be controlled locally via HomeKit Controller in HA. With the Meross LAN HACS integration, you get full local HTTP control."
+  },
+  {
+    question: "Which solution is best for Chamberlain/LiftMaster?",
+    answer: "ratgdo or Konnected blaQ. These speak the Security+ 2.0 protocol directly and provide full functionality including obstruction sensor and light control."
+  },
+  {
+    question: "Can I open the garage based on GPS?",
+    answer: "Yes! Use Home Assistant zones and device_tracker. When your phone enters a zone, an automation can open the door. Add safety conditions like time of day."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="ESPHome Guide" icon="rocket">
+    Learn to flash and configure ESPHome.
+    
+    [See guide →](/en/guides/esphome/)
+  </Card>
+  <Card title="Smart Security" icon="shield">
+    Cameras and alarm systems.
+    
+    [See guide →](/en/products/smart-security/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
