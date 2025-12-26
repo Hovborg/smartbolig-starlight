@@ -1,0 +1,551 @@
+---
+title: Smart Kæledyr
+description: Komplet guide til smarte kæledyrsprodukter - automatiske fodautomater, vandfonæner, kattelem med chip, GPS trackere og Home Assistant integration.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Opsæt smart kæledyrsudstyr"
+  description="Guide til automatiske fodautomater og smarte kæledyrsprodukter"
+  totalTime="PT20M"
+  steps={[
+    "Vælg fodautomat eller vandfontæne",
+    "Download app og opret forbindelse",
+    "Konfigurer fodringsplan",
+    "Integrer med Home Assistant",
+    "Opsæt notifikationer og automationer"
+  ]}
+/>
+
+<Badge text="Kæledyr" variant="success" /> <Badge text="Automatik" variant="note" /> <Badge text="Smart Home" variant="tip" />
+
+Smart kæledyrsudstyr holder dine kæledyr **fodret, hydreret og sikre** - selv når du ikke er hjemme. Moderne produkter tilbyder app-styring, kamera, og Home Assistant integration.
+
+<Aside type="tip" title="Top Anbefalinger 2025">
+- **Fodautomat m. kamera**: PETLIBRO Granary Camera (~700 kr)
+- **Fodautomat budget**: PETKIT Fresh Element (~400 kr)
+- **Vandfontæne**: PetKit Eversweet 3 Pro (~500 kr)
+- **Kattelem m. chip**: SurePet Microchip (~1.200 kr)
+- **GPS tracker**: Tractive GPS (~350 kr + abo)
+</Aside>
+
+---
+
+## 🎯 Typer af Smart Kæledyrsudstyr
+
+### Overblik
+
+| Type | Formål | HA Integration | Pris |
+|------|--------|----------------|------|
+| **Fodautomat** | Automatisk fodring | Via HACS | 💰-💰💰 |
+| **Vandfontæne** | Frisk vand | Via PetKit HACS | 💰 |
+| **Smart kattelem** | Chip-adgang | Native HA | 💰💰 |
+| **GPS tracker** | Sporing udendørs | Via API | 💰 + abo |
+| **Kattebakke** | Auto-rengøring | Via HACS | 💰💰💰 |
+
+---
+
+## 🍽️ Automatiske Fodautomater
+
+### PETLIBRO Granary - Bedste Valg
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~500-700 kr (uden/med kamera)
+    
+    PETLIBRO er **markedsleder** i smart fodring:
+    
+    - ✅ 5L kapacitet (op til 20 dage)
+    - ✅ 5G + 2.4G WiFi
+    - ✅ Op til 10 måltider dagligt
+    - ✅ 1-48 portioner per måltid
+    - ✅ Personlig stemmeoptagelse
+    - ✅ Lav-foder alarm
+    - ✅ Rustfri stålskål
+    
+    **Med kamera (Granary Camera):**
+    - 1080P HD video + nattesyn
+    - 2-vejs audio
+    - Motion detection
+    - 145° vidvinkel
+    
+    | Model | Kamera | Pris ca. |
+    |-------|--------|----------|
+    | Granary | Nej | 500 kr |
+    | Granary Camera | Ja | 700 kr |
+  </TabItem>
+  <TabItem label="Opsætning">
+    ### Nem App-opsætning
+    
+    1. **Download PETLIBRO app** (iOS/Android)
+    2. **Tilslut strøm** og tænd automat
+    3. **Tilføj enhed** i app
+    4. **Forbind til WiFi** (5G eller 2.4G)
+    5. **Opsæt fodringsplan**
+    
+    **Tips:**
+    - Brug originale strømadapter
+    - Skift tørremiddel hver 14 dag
+    - Tør alle dele før samling
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### HA Integration (HACS)
+    
+    Brug **PetLibro custom component**:
+    
+    ```yaml
+    # HACS → Integrations → PetLibro
+    # (Søg efter "petlibro")
+    
+    # Entiteter:
+    # - sensor.petlibro_food_level
+    # - sensor.petlibro_last_feeding
+    # - button.petlibro_feed_now
+    # - switch.petlibro_power
+    
+    # Eksempel: Notifikation ved lav foder
+    automation:
+      - alias: "Kæledyr - Lav foder alarm"
+        trigger:
+          - platform: numeric_state
+            entity_id: sensor.petlibro_food_level
+            below: 20
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "🐱 Fodautomat næsten tom"
+              message: "Kun {{ states('sensor.petlibro_food_level') }}% foder tilbage"
+    
+      - alias: "Bekræft fodring"
+        trigger:
+          - platform: state
+            entity_id: sensor.petlibro_last_feeding
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "Fodring gennemført"
+              message: "Katten er blevet fodret kl. {{ now().strftime('%H:%M') }}"
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Amazon.de](https://amazon.de), [PetLibro.com](https://petlibro.com)
+
+---
+
+### PETKIT Fresh Element
+
+**Pris:** ~400-600 kr
+
+PETKIT er **premium kvalitet**:
+
+- ✅ Fresh Element Mini/Solo/Infinity
+- ✅ Vakuumforsegling (friskhed)
+- ✅ Anti-jam teknologi
+- ✅ Dual strømforsyning
+- ✅ God HA integration via HACS
+
+### PetKit Home Assistant Integration
+
+```yaml
+# HACS → Integrations → PetKit
+# https://github.com/RobertD502/home-assistant-petkit
+
+# Understøtter:
+# - Fresh Element feeders
+# - Eversweet vandfontæner
+# - Pura litter boxes
+
+# Entiteter:
+# - sensor.petkit_feeder_food_level
+# - button.petkit_feeder_feed_now
+# - sensor.petkit_feeder_last_eating_time
+```
+
+---
+
+## 💧 Smarte Vandfontæner
+
+### PetKit Eversweet 3 Pro
+
+**Pris:** ~500 kr
+
+Hold vandet **friskt og rent**:
+
+- ✅ 1.8L kapacitet
+- ✅ 4-lags filtrering
+- ✅ Smart mode (bevægelsessensor)
+- ✅ LED vandstandsindikator
+- ✅ Ultra-stille pumpe
+- ✅ Rustfri stål
+
+### Home Assistant via PetKit HACS
+
+```yaml
+# PetKit integration understøtter Eversweet
+# Kræver BLE relay (anden PetKit enhed)
+
+# Entiteter:
+# - sensor.eversweet_water_level
+# - sensor.eversweet_filter_life
+# - switch.eversweet_power
+# - select.eversweet_mode
+
+automation:
+  - alias: "Vandfontæne - Skift filter"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.eversweet_filter_life
+        below: 10
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "💧 Filter skal skiftes"
+          message: "Vandfontænens filter har kun {{ states('sensor.eversweet_filter_life') }}% tilbage"
+```
+
+---
+
+## 🚪 Smart Kattelem med Chip
+
+### SurePet Microchip Cat Flap
+
+**Pris:** ~1.200-1.800 kr
+
+Lad **kun dine egne katte** ind:
+
+- ✅ Læser mikrochip (RFID)
+- ✅ Op til 32 registrerede katte
+- ✅ 4 låsetilstande
+- ✅ Curfew timer
+- ✅ **Native Home Assistant integration!**
+
+### SurePet Connect Hub
+
+For cloud-funktioner + HA:
+
+- Hub priser: ~600 kr
+- App-styring af låsestatus
+- Historik over ind/ud
+- Push-notifikationer
+
+### Home Assistant Integration
+
+```yaml
+# Native integration!
+# Indstillinger → Enheder → Sure Petcare
+
+# Entiteter:
+# - binary_sensor.cat_misser_location (inside/outside)
+# - lock.cat_flap (locked/unlocked)
+# - sensor.cat_flap_battery
+
+# Eksempel: Spor katten
+automation:
+  - alias: "Kat er kommet hjem"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.cat_misser_location
+        to: "on"  # inside
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🐱 Misser er hjemme"
+          message: "Katten kom ind kl. {{ now().strftime('%H:%M') }}"
+
+  - alias: "Lås kattelem om natten"
+    trigger:
+      - platform: time
+        at: "22:00:00"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.cat_misser_location
+        state: "on"  # Kun hvis katten er inde
+    action:
+      - service: lock.lock
+        entity_id: lock.cat_flap
+
+  - alias: "Lås op om morgenen"
+    trigger:
+      - platform: time
+        at: "07:00:00"
+    action:
+      - service: lock.unlock
+        entity_id: lock.cat_flap
+```
+
+### SurePet Feeder
+
+Chip-baseret fodring til **multi-kat hjem**:
+
+- Læser chip og giver kun adgang til rette kat
+- Forhindrer tyveri af mad
+- Perfekt til diæt-katte
+
+---
+
+## 📍 GPS Trackere
+
+### Tractive GPS
+
+**Pris:** ~350 kr + abonnement (~35 kr/md)
+
+**Real-time sporing** af din hund/kat:
+
+- ✅ GPS + WiFi + Cellular
+- ✅ Live tracking
+- ✅ Virtual fence (geofencing)
+- ✅ Aktivitets- og søvnmonitor
+- ✅ Vandtæt (IPX7)
+
+### Andre GPS Trackere
+
+| Produkt | Abonnement | Batteri | Pris ca. |
+|---------|------------|---------|----------|
+| **Tractive** | 35 kr/md | 2-5 dage | 350 kr |
+| **Apple AirTag** | Gratis | 1 år | 250 kr |
+| **Samsung SmartTag** | Gratis | Måneder | 200 kr |
+
+**Note:** AirTag/SmartTag er Bluetooth - ikke ægte GPS!
+
+### Home Assistant via Tractive
+
+```yaml
+# HACS → Integrations → Tractive
+# Kræver Tractive konto + aktivt abonnement
+
+# Entiteter:
+# - device_tracker.tractive_dog
+# - sensor.tractive_battery
+# - sensor.tractive_activity
+
+automation:
+  - alias: "Hund forlod haven"
+    trigger:
+      - platform: zone
+        entity_id: device_tracker.tractive_dog
+        zone: zone.home
+        event: leave
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🐕 Hund forlod haven!"
+          message: "Max er væk fra hjemmet"
+          data:
+            actions:
+              - action: LOCATE_DOG
+                title: "Vis placering"
+```
+
+---
+
+## 🚽 Smarte Kattebakker
+
+### PetKit Pura X / Pura Max
+
+**Pris:** ~3.500-5.000 kr
+
+Automatisk rengøring = **ingen opskovling**:
+
+- ✅ Auto-rotation efter brug
+- ✅ Lugtfjernelse
+- ✅ Vægt-tracking af kat
+- ✅ App med sundhedsdata
+- ✅ HACS integration
+
+### Litter-Robot 4
+
+**Pris:** ~6.000 kr
+
+Premium selvlensende kattebakke:
+
+- ✅ Patenteret rotation
+- ✅ Stor kapacitet
+- ✅ WiFi + app
+- ✅ Native HA integration
+
+```yaml
+# Litter-Robot integration
+# HACS → Integrations → Litter-Robot
+
+# Entiteter:
+# - sensor.litter_robot_waste_drawer
+# - button.litter_robot_cycle
+# - switch.litter_robot_night_light
+
+automation:
+  - alias: "Kattebakke skal tømmes"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.litter_robot_waste_drawer
+        above: 90
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🚽 Kattebakke fuld"
+          message: "Litter-Robot skuffe er {{ states('sensor.litter_robot_waste_drawer') }}% fuld"
+```
+
+---
+
+## 🏠 Smarte Automationer
+
+### Fodring ved Hjemkomst
+
+```yaml
+automation:
+  - alias: "Bonus fodring ved hjemkomst"
+    trigger:
+      - platform: state
+        entity_id: person.brian
+        to: "home"
+    condition:
+      - condition: time
+        after: "17:00:00"
+        before: "19:00:00"
+      - condition: template
+        value_template: >
+          {{ (as_timestamp(now()) - as_timestamp(states('sensor.petlibro_last_feeding'))) > 14400 }}
+    action:
+      - service: button.press
+        entity_id: button.petlibro_feed_now
+```
+
+### Kat-tracking Dashboard
+
+```yaml
+# Lovelace kort til kæledyr
+type: entities
+title: "🐱 Misser Status"
+entities:
+  - entity: binary_sensor.cat_misser_location
+    name: "Lokation"
+    icon: mdi:cat
+  - entity: sensor.petlibro_last_feeding
+    name: "Sidst fodret"
+  - entity: sensor.eversweet_water_level
+    name: "Vand niveau"
+  - entity: sensor.litter_robot_waste_drawer
+    name: "Kattebakke"
+```
+
+### Nattilstand for Kæledyr
+
+```yaml
+automation:
+  - alias: "Kæledyr nattilstand"
+    trigger:
+      - platform: time
+        at: "22:00:00"
+    action:
+      # Lås kattelem (hvis kat er inde)
+      - if:
+          - condition: state
+            entity_id: binary_sensor.cat_misser_location
+            state: "on"
+        then:
+          - service: lock.lock
+            entity_id: lock.cat_flap
+      # Sluk vandfontæne lys
+      - service: switch.turn_off
+        entity_id: switch.eversweet_light
+      # Skift fodautomat til stille tilstand
+      - service: switch.turn_on
+        entity_id: switch.petlibro_do_not_disturb
+```
+
+---
+
+## 🛒 Købs Strategi
+
+### Starter - Fodautomat (~500 kr)
+- 1x PETLIBRO Granary (500 kr)
+- **Total:** ~500 kr
+
+### Komplet Kat (~2.000 kr)
+- 1x PETLIBRO Granary Camera (700 kr)
+- 1x PetKit Eversweet 3 Pro (500 kr)
+- 1x SurePet Microchip Flap (1.200 kr)
+- Hub: (600 kr)
+- **Total:** ~3.000 kr
+
+### Multi-kat Hjem (~5.000 kr)
+- 1x PetKit Pura X (3.500 kr)
+- 1x SurePet Feeder x2 (2.000 kr)
+- 1x SurePet Flap + Hub (1.800 kr)
+- **Total:** ~7.300 kr
+
+---
+
+## 🛒 Hvor Køber Jeg?
+
+### Fodautomater
+- **[Amazon.de](https://amazon.de)** - PETLIBRO, PetKit
+- **[PetLibro.com](https://petlibro.com)** - Officiel
+
+### Kattelemme
+- **[SurePetcare.com](https://surepetcare.com)** - Officiel
+- **[Zooplus.dk](https://zooplus.dk)** - Dansk butik
+
+### GPS Trackere
+- **[Tractive.com](https://tractive.com)** - Officiel
+- **[Power.dk](https://power.dk)** - AirTag
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Kan jeg fodre min kat når jeg er på ferie?",
+    answer: "Ja! Fodautomater som PETLIBRO kan holde op til 20 dage med en 5L tank. Du kan styre og overvåge via app, og få notifikationer ved hver fodring."
+  },
+  {
+    question: "Virker SurePet med min kats eksisterende mikrochip?",
+    answer: "Ja, SurePet læser alle standard ISO mikrochips (15-cifrede). Du kan også tilføje RFID-halsbåndstags hvis din kat ikke er chippet."
+  },
+  {
+    question: "Er GPS tracker nødvendig for indekatte?",
+    answer: "Ikke nødvendigvis. For indekatte er AirTag/SmartTag tilstrækkeligt som backup. Ægte GPS (Tractive) er bedst for udekatte og hunde."
+  },
+  {
+    question: "Kan Home Assistant spore om min kat er inde eller ude?",
+    answer: "Ja! SurePet integration giver en binary_sensor der viser om katten er inside eller outside. Du kan bruge dette til automationer som at låse lemmen om natten."
+  },
+  {
+    question: "Hvor ofte skal vandfontænefilter skiftes?",
+    answer: "Typisk hver 2-4 uge afhængigt af brug. PetKit integration kan vise filterlevetid i procent og sende notifikationer."
+  },
+  {
+    question: "Kan jeg forhindre en kat i at stjæle en andens mad?",
+    answer: "Ja! SurePet Feeder læser mikrochip og åbner kun for den registrerede kat. Perfekt til multi-kat hjem med diæt-behov."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="Smart Sikkerhed" icon="sun">
+    Overvåg dit hjem og kæledyr med kameraer.
+    
+    [Se guide →](/da/produkter/smart-sikkerhed/)
+  </Card>
+  <Card title="Tilstedeværelse" icon="rocket">
+    Automatiser baseret på hvem der er hjemme.
+    
+    [Se guide →](/da/guides/home-assistant/automationer/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*

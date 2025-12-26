@@ -1,0 +1,552 @@
+---
+title: Smart Pet Care
+description: Complete guide to smart pet products - automatic feeders, water fountains, microchip cat flaps, GPS trackers and Home Assistant integration.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Set up smart pet equipment"
+  description="Guide to automatic feeders and smart pet products"
+  totalTime="PT20M"
+  steps={[
+    "Choose feeder or water fountain",
+    "Download app and connect",
+    "Configure feeding schedule",
+    "Integrate with Home Assistant",
+    "Set up notifications and automations"
+  ]}
+/>
+
+<Badge text="Pets" variant="success" /> <Badge text="Automation" variant="note" /> <Badge text="Smart Home" variant="tip" />
+
+Smart pet equipment keeps your pets **fed, hydrated and safe** - even when you're not home. Modern products offer app control, cameras, and Home Assistant integration.
+
+<Aside type="tip" title="Top Recommendations 2025">
+- **Feeder w/ camera**: PETLIBRO Granary Camera (~$100)
+- **Budget feeder**: PETKIT Fresh Element (~$55)
+- **Water fountain**: PetKit Eversweet 3 Pro (~$70)
+- **Microchip cat flap**: SurePet Microchip (~$170)
+- **GPS tracker**: Tractive GPS (~$50 + subscription)
+</Aside>
+
+---
+
+## 🎯 Types of Smart Pet Equipment
+
+### Overview
+
+| Type | Purpose | HA Integration | Price |
+|------|---------|----------------|-------|
+| **Auto feeder** | Automatic feeding | Via HACS | 💰-💰💰 |
+| **Water fountain** | Fresh water | Via PetKit HACS | 💰 |
+| **Smart cat flap** | Chip access | Native HA | 💰💰 |
+| **GPS tracker** | Outdoor tracking | Via API | 💰 + sub |
+| **Litter box** | Auto-cleaning | Via HACS | 💰💰💰 |
+
+---
+
+## 🍽️ Automatic Pet Feeders
+
+### PETLIBRO Granary - Best Choice
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$70-100 (without/with camera)
+    
+    PETLIBRO is **market leader** in smart feeding:
+    
+    - ✅ 5L capacity (up to 20 days)
+    - ✅ 5G + 2.4G WiFi
+    - ✅ Up to 10 meals daily
+    - ✅ 1-48 portions per meal
+    - ✅ Personal voice recording
+    - ✅ Low-food alarm
+    - ✅ Stainless steel bowl
+    
+    **With camera (Granary Camera):**
+    - 1080P HD video + night vision
+    - 2-way audio
+    - Motion detection
+    - 145° wide angle
+    
+    | Model | Camera | Price ~ |
+    |-------|--------|---------|
+    | Granary | No | $70 |
+    | Granary Camera | Yes | $100 |
+  </TabItem>
+  <TabItem label="Setup">
+    ### Easy App Setup
+    
+    1. **Download PETLIBRO app** (iOS/Android)
+    2. **Connect power** and turn on feeder
+    3. **Add device** in app
+    4. **Connect to WiFi** (5G or 2.4G)
+    5. **Set up feeding schedule**
+    
+    **Tips:**
+    - Use original power adapter
+    - Replace desiccant every 2 weeks
+    - Dry all parts before assembly
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### HA Integration (HACS)
+    
+    Use **PetLibro custom component**:
+    
+    ```yaml
+    # HACS → Integrations → PetLibro
+    # (Search for "petlibro")
+    
+    # Entities:
+    # - sensor.petlibro_food_level
+    # - sensor.petlibro_last_feeding
+    # - button.petlibro_feed_now
+    # - switch.petlibro_power
+    
+    # Example: Low food notification
+    automation:
+      - alias: "Pet - Low food alarm"
+        trigger:
+          - platform: numeric_state
+            entity_id: sensor.petlibro_food_level
+            below: 20
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "🐱 Feeder almost empty"
+              message: "Only {{ states('sensor.petlibro_food_level') }}% food remaining"
+    
+      - alias: "Confirm feeding"
+        trigger:
+          - platform: state
+            entity_id: sensor.petlibro_last_feeding
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "Feeding completed"
+              message: "Cat was fed at {{ now().strftime('%H:%M') }}"
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Amazon](https://amazon.com), [PetLibro.com](https://petlibro.com)
+
+---
+
+### PETKIT Fresh Element
+
+**Price:** ~$55-85
+
+PETKIT offers **premium quality**:
+
+- ✅ Fresh Element Mini/Solo/Infinity
+- ✅ Vacuum sealing (freshness)
+- ✅ Anti-jam technology
+- ✅ Dual power supply
+- ✅ Good HA integration via HACS
+
+### PetKit Home Assistant Integration
+
+```yaml
+# HACS → Integrations → PetKit
+# https://github.com/RobertD502/home-assistant-petkit
+
+# Supports:
+# - Fresh Element feeders
+# - Eversweet water fountains
+# - Pura litter boxes
+
+# Entities:
+# - sensor.petkit_feeder_food_level
+# - button.petkit_feeder_feed_now
+# - sensor.petkit_feeder_last_eating_time
+```
+
+---
+
+## 💧 Smart Water Fountains
+
+### PetKit Eversweet 3 Pro
+
+**Price:** ~$70
+
+Keep water **fresh and clean**:
+
+- ✅ 1.8L capacity
+- ✅ 4-layer filtration
+- ✅ Smart mode (motion sensor)
+- ✅ LED water level indicator
+- ✅ Ultra-quiet pump
+- ✅ Stainless steel
+
+### Home Assistant via PetKit HACS
+
+```yaml
+# PetKit integration supports Eversweet
+# Requires BLE relay (another PetKit device)
+
+# Entities:
+# - sensor.eversweet_water_level
+# - sensor.eversweet_filter_life
+# - switch.eversweet_power
+# - select.eversweet_mode
+
+automation:
+  - alias: "Water fountain - Replace filter"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.eversweet_filter_life
+        below: 10
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "💧 Filter needs replacing"
+          message: "Water fountain filter only has {{ states('sensor.eversweet_filter_life') }}% left"
+```
+
+---
+
+## 🚪 Smart Microchip Cat Flap
+
+### SurePet Microchip Cat Flap
+
+**Price:** ~$170-250
+
+Let **only your own cats** in:
+
+- ✅ Reads microchip (RFID)
+- ✅ Up to 32 registered cats
+- ✅ 4 lock modes
+- ✅ Curfew timer
+- ✅ **Native Home Assistant integration!**
+
+### SurePet Connect Hub
+
+For cloud features + HA:
+
+- Hub price: ~$85
+- App control of lock status
+- History of in/out
+- Push notifications
+
+### Home Assistant Integration
+
+```yaml
+# Native integration!
+# Settings → Devices → Sure Petcare
+
+# Entities:
+# - binary_sensor.cat_whiskers_location (inside/outside)
+# - lock.cat_flap (locked/unlocked)
+# - sensor.cat_flap_battery
+
+# Example: Track the cat
+automation:
+  - alias: "Cat has come home"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.cat_whiskers_location
+        to: "on"  # inside
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🐱 Whiskers is home"
+          message: "Cat came in at {{ now().strftime('%H:%M') }}"
+
+  - alias: "Lock cat flap at night"
+    trigger:
+      - platform: time
+        at: "22:00:00"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.cat_whiskers_location
+        state: "on"  # Only if cat is inside
+    action:
+      - service: lock.lock
+        entity_id: lock.cat_flap
+
+  - alias: "Unlock in morning"
+    trigger:
+      - platform: time
+        at: "07:00:00"
+    action:
+      - service: lock.unlock
+        entity_id: lock.cat_flap
+```
+
+### SurePet Feeder
+
+Chip-based feeding for **multi-cat homes**:
+
+- Reads chip and only opens for registered cat
+- Prevents food theft
+- Perfect for cats on special diets
+
+---
+
+## 📍 GPS Trackers
+
+### Tractive GPS
+
+**Price:** ~$50 + subscription (~$5/mo)
+
+**Real-time tracking** of your dog/cat:
+
+- ✅ GPS + WiFi + Cellular
+- ✅ Live tracking
+- ✅ Virtual fence (geofencing)
+- ✅ Activity and sleep monitor
+- ✅ Waterproof (IPX7)
+
+### Other GPS Trackers
+
+| Product | Subscription | Battery | Price ~ |
+|---------|-------------|---------|---------|
+| **Tractive** | $5/mo | 2-5 days | $50 |
+| **Apple AirTag** | Free | 1 year | $30 |
+| **Samsung SmartTag** | Free | Months | $25 |
+| **Fi Series 3** | $8/mo | 3 months | $150 |
+
+**Note:** AirTag/SmartTag are Bluetooth - not true GPS!
+
+### Home Assistant via Tractive
+
+```yaml
+# HACS → Integrations → Tractive
+# Requires Tractive account + active subscription
+
+# Entities:
+# - device_tracker.tractive_dog
+# - sensor.tractive_battery
+# - sensor.tractive_activity
+
+automation:
+  - alias: "Dog left the yard"
+    trigger:
+      - platform: zone
+        entity_id: device_tracker.tractive_dog
+        zone: zone.home
+        event: leave
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🐕 Dog left the yard!"
+          message: "Max has left home"
+          data:
+            actions:
+              - action: LOCATE_DOG
+                title: "Show location"
+```
+
+---
+
+## 🚽 Smart Litter Boxes
+
+### PetKit Pura X / Pura Max
+
+**Price:** ~$500-700
+
+Automatic cleaning = **no scooping**:
+
+- ✅ Auto-rotation after use
+- ✅ Odor removal
+- ✅ Cat weight tracking
+- ✅ App with health data
+- ✅ HACS integration
+
+### Litter-Robot 4
+
+**Price:** ~$700
+
+Premium self-cleaning litter box:
+
+- ✅ Patented rotation
+- ✅ Large capacity
+- ✅ WiFi + app
+- ✅ Native HA integration
+
+```yaml
+# Litter-Robot integration
+# HACS → Integrations → Litter-Robot
+
+# Entities:
+# - sensor.litter_robot_waste_drawer
+# - button.litter_robot_cycle
+# - switch.litter_robot_night_light
+
+automation:
+  - alias: "Litter box needs emptying"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.litter_robot_waste_drawer
+        above: 90
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🚽 Litter box full"
+          message: "Litter-Robot drawer is {{ states('sensor.litter_robot_waste_drawer') }}% full"
+```
+
+---
+
+## 🏠 Smart Automations
+
+### Feeding on Arrival
+
+```yaml
+automation:
+  - alias: "Bonus feeding on arrival"
+    trigger:
+      - platform: state
+        entity_id: person.brian
+        to: "home"
+    condition:
+      - condition: time
+        after: "17:00:00"
+        before: "19:00:00"
+      - condition: template
+        value_template: >
+          {{ (as_timestamp(now()) - as_timestamp(states('sensor.petlibro_last_feeding'))) > 14400 }}
+    action:
+      - service: button.press
+        entity_id: button.petlibro_feed_now
+```
+
+### Cat Tracking Dashboard
+
+```yaml
+# Lovelace card for pets
+type: entities
+title: "🐱 Whiskers Status"
+entities:
+  - entity: binary_sensor.cat_whiskers_location
+    name: "Location"
+    icon: mdi:cat
+  - entity: sensor.petlibro_last_feeding
+    name: "Last fed"
+  - entity: sensor.eversweet_water_level
+    name: "Water level"
+  - entity: sensor.litter_robot_waste_drawer
+    name: "Litter box"
+```
+
+### Night Mode for Pets
+
+```yaml
+automation:
+  - alias: "Pet night mode"
+    trigger:
+      - platform: time
+        at: "22:00:00"
+    action:
+      # Lock cat flap (if cat is inside)
+      - if:
+          - condition: state
+            entity_id: binary_sensor.cat_whiskers_location
+            state: "on"
+        then:
+          - service: lock.lock
+            entity_id: lock.cat_flap
+      # Turn off fountain light
+      - service: switch.turn_off
+        entity_id: switch.eversweet_light
+      # Switch feeder to quiet mode
+      - service: switch.turn_on
+        entity_id: switch.petlibro_do_not_disturb
+```
+
+---
+
+## 🛒 Buying Strategy
+
+### Starter - Feeder (~$70)
+- 1x PETLIBRO Granary ($70)
+- **Total:** ~$70
+
+### Complete Cat Setup (~$300)
+- 1x PETLIBRO Granary Camera ($100)
+- 1x PetKit Eversweet 3 Pro ($70)
+- 1x SurePet Microchip Flap ($170)
+- Hub: ($85)
+- **Total:** ~$425
+
+### Multi-cat Home (~$700)
+- 1x PetKit Pura X ($500)
+- 2x SurePet Feeder ($280)
+- 1x SurePet Flap + Hub ($255)
+- **Total:** ~$1,035
+
+---
+
+## 🛒 Where to Buy?
+
+### Feeders
+- **[Amazon](https://amazon.com)** - PETLIBRO, PetKit
+- **[PetLibro.com](https://petlibro.com)** - Official
+
+### Cat Flaps
+- **[SurePetcare.com](https://surepetcare.com)** - Official
+- **[Chewy.com](https://chewy.com)** - US retailer
+
+### GPS Trackers
+- **[Tractive.com](https://tractive.com)** - Official
+- **[Amazon](https://amazon.com)** - AirTag, Fi
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Can I feed my cat while on vacation?",
+    answer: "Yes! Feeders like PETLIBRO can hold up to 20 days with a 5L tank. You can control and monitor via app, and get notifications for each feeding."
+  },
+  {
+    question: "Does SurePet work with my cat's existing microchip?",
+    answer: "Yes, SurePet reads all standard ISO microchips (15-digit). You can also add RFID collar tags if your cat isn't chipped."
+  },
+  {
+    question: "Is a GPS tracker necessary for indoor cats?",
+    answer: "Not necessarily. For indoor cats, AirTag/SmartTag is sufficient as backup. True GPS (Tractive) is best for outdoor cats and dogs."
+  },
+  {
+    question: "Can Home Assistant track if my cat is inside or outside?",
+    answer: "Yes! SurePet integration provides a binary_sensor showing if the cat is inside or outside. You can use this for automations like locking the flap at night."
+  },
+  {
+    question: "How often should water fountain filters be changed?",
+    answer: "Typically every 2-4 weeks depending on usage. PetKit integration can show filter life percentage and send notifications."
+  },
+  {
+    question: "Can I prevent one cat from stealing another's food?",
+    answer: "Yes! SurePet Feeder reads microchip and only opens for the registered cat. Perfect for multi-cat homes with diet requirements."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Smart Security" icon="sun">
+    Monitor your home and pets with cameras.
+    
+    [See guide →](/en/products/smart-security/)
+  </Card>
+  <Card title="Presence Detection" icon="rocket">
+    Automate based on who's home.
+    
+    [See guide →](/en/guides/home-assistant/automations/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
