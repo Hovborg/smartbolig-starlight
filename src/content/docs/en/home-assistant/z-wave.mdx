@@ -1,0 +1,386 @@
+---
+title: Z-Wave Guide for Home Assistant
+description: Complete Z-Wave guide - Z-Wave JS UI installation, coordinator selection, device pairing and network optimization for Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+
+<Badge text="Z-Wave" variant="tip" /> <Badge text="Home Assistant" variant="success" />
+
+Z-Wave is a **reliable wireless protocol** for smart home with excellent range and mesh networking. This guide covers everything from coordinator selection to advanced network setup!
+
+<Aside type="tip" title="Z-Wave vs Zigbee">
+**Z-Wave advantages:**
+- Fewer devices = less interference
+- Better interoperability (certification required)
+- Longer range per hop
+- Long Range (up to 1 mile with 800 series)
+
+**Zigbee advantages:**
+- More manufacturers and devices
+- Generally cheaper
+- Faster update frequency
+</Aside>
+
+---
+
+## 🔌 Coordinator Selection
+
+### Recommended USB Sticks
+
+| Coordinator | Series | Long Range | Price | Note |
+|-------------|--------|------------|-------|------|
+| **Zooz ZST39** | 800 | ✅ (US only) | ~$35 | Best value, reliable |
+| **Aeotec Z-Stick 7** | 700 | ❌ | ~$45 | Well-known, stable |
+| **Aeotec Z-Stick 10 Pro** | 800 | ✅ | ~$60 | Dual: Z-Wave + Zigbee |
+| **Home Assistant Connect ZWA-2** | 800 | ✅ | ~$30 | Official HA hardware |
+| **HomeSeer SmartStick G8** | 800 | ✅ | ~$50 | Good support |
+
+<Aside type="caution" title="Z-Wave Long Range">
+**Long Range** is only available in **US/CA/MX** due to frequency regulations. In Europe (868 MHz) you still get the benefits of the 800 series: better range, lower power consumption, and S2 security.
+</Aside>
+
+### GPIO Modules (for Raspberry Pi)
+
+| Module | Series | Price | Note |
+|--------|--------|-------|------|
+| **Zooz ZAC93** | 800 | ~$30 | For HA Yellow/Pi |
+| **RaZberry 7 Pro** | 700 | ~$50 | GPIO header |
+
+---
+
+## 📦 Installation
+
+### Z-Wave JS Add-on (Recommended for Beginners)
+
+<Steps>
+1. Go to **Settings → Add-ons → Add-on Store**
+
+2. Search for **Z-Wave JS** and install
+
+3. Find your USB stick:
+   - **Settings → System → Hardware → ⋮ → All Hardware**
+   - Use the `/dev/serial/by-id/...` path (stable)
+
+4. Configure the add-on:
+   ```yaml
+   device: /dev/serial/by-id/usb-Silicon_Labs_...
+   ```
+
+5. Start the add-on and check logs
+
+6. Go to **Settings → Devices & Services**
+   - Z-Wave integration is discovered automatically
+</Steps>
+
+### Z-Wave JS UI (Advanced)
+
+<Tabs>
+  <TabItem label="HA Add-on">
+    <Steps>
+    1. Add repository: `https://github.com/hassio-addons/repository`
+    
+    2. Install **Z-Wave JS UI** add-on
+    
+    3. Configure USB device
+    
+    4. Start and open Web UI (port 8091)
+    
+    5. Generate security keys:
+       - S0 Legacy
+       - S2 Authenticated
+       - S2 Unauthenticated
+       - S2 Access Control
+    
+    6. Add Z-Wave integration in HA:
+       - Websocket URL: `ws://a]0d7a0ddc-zwavejs2mqtt:3000`
+    </Steps>
+  </TabItem>
+  <TabItem label="Docker">
+    ```yaml
+    # docker-compose.yml
+    version: '3.7'
+    services:
+      zwave-js-ui:
+        container_name: zwave-js-ui
+        image: zwavejs/zwave-js-ui:latest
+        restart: always
+        tty: true
+        stop_signal: SIGINT
+        environment:
+          - SESSION_SECRET=your-secret-key
+          - TZ=Europe/London
+        devices:
+          - '/dev/serial/by-id/usb-Silicon_Labs...:/dev/zwave'
+        volumes:
+          - ./zwave-config:/usr/src/app/store
+        ports:
+          - '8091:8091'  # Web UI
+          - '3000:3000'  # WebSocket
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 🔐 Security Keys
+
+### S2 Security Classes
+
+| Class | Use | Devices |
+|-------|-----|---------|
+| **S2 Access Control** | Highest security | Door locks, garage doors |
+| **S2 Authenticated** | High security | Thermostats, alarms |
+| **S2 Unauthenticated** | Basic security | Sensors, switches |
+| **S0 Legacy** | Old protocol | Older devices |
+
+### Generate Secure Keys
+
+```bash
+# Generate 16-byte hex key (32 characters)
+cat /dev/urandom | tr -dc 'A-F0-9' | fold -w 32 | head -n 1
+```
+
+<Aside type="caution" title="Save Your Keys!">
+**IMPORTANT:** Backup your security keys! Without them you cannot communicate with secure devices if you reinstall.
+
+Store them securely (e.g., password manager).
+</Aside>
+
+---
+
+## ➕ Add Devices
+
+### Standard Inclusion
+
+<Steps>
+1. Open Z-Wave JS UI or HA integration
+
+2. Click **Add Device** / **Inclusion**
+
+3. Choose security level:
+   - **Default** (recommended)
+   - **S2** for maximum security
+   - **No Security** for testing
+
+4. Put device in inclusion mode (see manual)
+   - Typically: Press button 1x
+
+5. Wait for interview (can take minutes)
+
+6. Name the device
+</Steps>
+
+### SmartStart (QR Code)
+
+<Steps>
+1. Find QR code on the device
+
+2. Go to **Add Device → SmartStart**
+
+3. Scan QR code or enter DSK
+
+4. Device is added automatically when powered on
+</Steps>
+
+### Exclusion (Remove Device)
+
+```yaml
+# Important: Exclude devices BEFORE adding them
+# to a new network - even if never added before!
+```
+
+<Steps>
+1. Click **Remove Device** / **Exclusion**
+
+2. Put device in exclusion mode (see manual)
+
+3. Wait for confirmation
+</Steps>
+
+---
+
+## 🌐 Network Optimization
+
+### Mesh Network Basics
+
+| Device Type | Function | Examples |
+|-------------|----------|----------|
+| **Controller** | Network center | USB stick |
+| **Router** | Extends mesh | Dimmers, switches (powered) |
+| **End Device** | Cannot route | Battery sensors |
+
+### Placement Tips
+
+```
+Optimal:
+┌────────────────────────────┐
+│         [Router]           │
+│            │               │
+│ [Router]──[Controller]──[Router] │
+│            │               │
+│         [Router]           │
+└────────────────────────────┘
+
+Avoid:
+- Controller in corner
+- Long chains without routers
+- Devices behind metal/water
+```
+
+### Heal Network / Rebuild Routes
+
+```bash
+# Only when necessary:
+# - After moving devices
+# - For persistent problems
+
+# NOT regularly - generates lots of traffic
+```
+
+In Z-Wave JS UI: **Settings → Rebuild Routes**
+
+---
+
+## 🔧 Advanced Configuration
+
+### Device Configuration
+
+```yaml
+# In Z-Wave JS UI you can change:
+# - Wake-up interval (battery sensors)
+# - Report intervals
+# - LED indicator
+# - Association groups
+```
+
+### Association Groups
+
+Allow direct communication between devices:
+
+```yaml
+# Example: Switch controls lamp directly
+# Group 2 (Basic Set) → Lamp node ID
+
+# Advantages:
+# - Works without controller
+# - Ultra-fast response
+# - Reliable
+
+# Disadvantages:
+# - Hard to manage
+# - No HA automation
+```
+
+### Firmware Update
+
+```yaml
+# Z-Wave JS UI → Device → Firmware Update
+# Upload .otz or .hex file from manufacturer
+# IMPORTANT: Only use official firmware!
+```
+
+---
+
+## 🔍 Troubleshooting
+
+### Device Not Responding
+
+<Steps>
+1. Check **Node Statistics** in Z-Wave JS UI
+   - RTT (round-trip time) over 1000ms = problem
+
+2. **Ping** the device to test connection
+
+3. **Re-interview** the device:
+   - Device → Re-interview
+
+4. Check battery level (for battery-powered)
+
+5. Consider adding router between device and controller
+</Steps>
+
+### Dead Nodes
+
+```yaml
+# Symptoms:
+# - Device marked as "Dead"
+# - No response
+
+# Solutions:
+1. Wait 24 hours (may wake up)
+2. Press device physically
+3. Remove Failed Node (if permanently dead)
+```
+
+### Network Map
+
+In Z-Wave JS UI: **Network → Map**
+
+Shows:
+- All devices and connections
+- Signal strength
+- Routing paths
+
+---
+
+## 📊 Z-Wave vs Zigbee Comparison
+
+| Feature | Z-Wave | Zigbee |
+|---------|--------|--------|
+| **Frequency** | 908 MHz (US) / 868 MHz (EU) | 2.4 GHz |
+| **Interference** | Minimal | WiFi overlap possible |
+| **Max devices** | 232 | 65,000+ |
+| **Max hops** | 4 | Unlimited |
+| **Certification** | Required | Optional |
+| **Price** | Higher | Lower |
+| **Long Range** | Yes (800 series) | No |
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Should I choose Z-Wave JS or Z-Wave JS UI?",
+    answer: "Z-Wave JS is simpler and integrated directly into HA. Z-Wave JS UI provides more control, MQTT support, and better debugging. For most users, Z-Wave JS is enough."
+  },
+  {
+    question: "Can I migrate from 500/700 series to 800 series?",
+    answer: "Yes! You can backup/restore the network via Z-Wave JS UI. However, it requires specific firmware version (7.19.0+). Check documentation for your new stick."
+  },
+  {
+    question: "Why don't I see all entities?",
+    answer: "Wait for the interview to complete (can take several minutes). If still missing: Re-interview the device. Some devices require wake-up first (press button)."
+  },
+  {
+    question: "Is Z-Wave Long Range worth waiting for in Europe?",
+    answer: "No, Long Range is only US/CA/MX due to frequency regulations. But the 800 series still has better range, lower power consumption, and latest security in Europe."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Zigbee2MQTT" icon="seti:arduino">
+    Alternative protocol for smart home.
+    
+    [See guide →](/en/home-assistant/zigbee2mqtt/)
+  </Card>
+  <Card title="Automations" icon="rocket">
+    Use Z-Wave devices in automations.
+    
+    [See guide →](/en/home-assistant/first-automation/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*

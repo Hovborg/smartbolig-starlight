@@ -1,0 +1,386 @@
+---
+title: Z-Wave Guide til Home Assistant
+description: Komplet Z-Wave guide - Z-Wave JS UI installation, coordinator valg, device pairing og netværksoptimering til Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+
+<Badge text="Z-Wave" variant="tip" /> <Badge text="Home Assistant" variant="success" />
+
+Z-Wave er en **pålidelig trådløs protokol** til smart home med excellent rækkevidde og mesh-netværk. Denne guide dækker alt fra coordinator valg til avanceret netværksopsætning!
+
+<Aside type="tip" title="Z-Wave vs Zigbee">
+**Z-Wave fordele:**
+- Færre enheder = mindre interferens
+- Bedre interoperabilitet (certificering påkrævet)
+- Længere rækkevidde per hop
+- Long Range (op til 1.6 km med 800-serien)
+
+**Zigbee fordele:**
+- Flere producenter og enheder
+- Generelt billigere
+- Hurtigere opdateringsfrekvens
+</Aside>
+
+---
+
+## 🔌 Coordinator Valg
+
+### Anbefalede USB Sticks
+
+| Coordinator | Serie | Long Range | Pris | Note |
+|-------------|-------|------------|------|------|
+| **Zooz ZST39** | 800 | ✅ (kun US) | ~$35 | Bedste værdi, pålidelig |
+| **Aeotec Z-Stick 7** | 700 | ❌ | ~$45 | Velkendt, stabil |
+| **Aeotec Z-Stick 10 Pro** | 800 | ✅ | ~$60 | Dual: Z-Wave + Zigbee |
+| **Home Assistant Connect ZWA-2** | 800 | ✅ | ~$30 | Officiel HA hardware |
+| **HomeSeer SmartStick G8** | 800 | ✅ | ~$50 | God support |
+
+<Aside type="caution" title="Z-Wave Long Range">
+**Long Range** er kun tilgængelig i **US/CA/MX** pga. frekvensregulering. I Europa (868 MHz) får du stadig fordelene ved 800-serien: bedre rækkevidde, lavere strømforbrug og S2 sikkerhed.
+</Aside>
+
+### GPIO Moduler (til Raspberry Pi)
+
+| Modul | Serie | Pris | Note |
+|-------|-------|------|------|
+| **Zooz ZAC93** | 800 | ~$30 | Til HA Yellow/Pi |
+| **RaZberry 7 Pro** | 700 | ~$50 | GPIO header |
+
+---
+
+## 📦 Installation
+
+### Z-Wave JS Add-on (Anbefalet for begyndere)
+
+<Steps>
+1. Gå til **Settings → Add-ons → Add-on Store**
+
+2. Søg efter **Z-Wave JS** og installer
+
+3. Find din USB stick:
+   - **Settings → System → Hardware → ⋮ → All Hardware**
+   - Brug `/dev/serial/by-id/...` stien (stabil)
+
+4. Konfigurer add-on:
+   ```yaml
+   device: /dev/serial/by-id/usb-Silicon_Labs_...
+   ```
+
+5. Start add-on og tjek logs
+
+6. Gå til **Settings → Devices & Services**
+   - Z-Wave integration opdages automatisk
+</Steps>
+
+### Z-Wave JS UI (Avanceret)
+
+<Tabs>
+  <TabItem label="HA Add-on">
+    <Steps>
+    1. Tilføj repository: `https://github.com/hassio-addons/repository`
+    
+    2. Installer **Z-Wave JS UI** add-on
+    
+    3. Konfigurer USB device
+    
+    4. Start og åbn Web UI (port 8091)
+    
+    5. Generer sikkerhedsnøgler:
+       - S0 Legacy
+       - S2 Authenticated
+       - S2 Unauthenticated
+       - S2 Access Control
+    
+    6. Tilføj Z-Wave integration i HA:
+       - Websocket URL: `ws://a]0d7a0ddc-zwavejs2mqtt:3000`
+    </Steps>
+  </TabItem>
+  <TabItem label="Docker">
+    ```yaml
+    # docker-compose.yml
+    version: '3.7'
+    services:
+      zwave-js-ui:
+        container_name: zwave-js-ui
+        image: zwavejs/zwave-js-ui:latest
+        restart: always
+        tty: true
+        stop_signal: SIGINT
+        environment:
+          - SESSION_SECRET=din-hemmelige-nøgle
+          - TZ=Europe/Copenhagen
+        devices:
+          - '/dev/serial/by-id/usb-Silicon_Labs...:/dev/zwave'
+        volumes:
+          - ./zwave-config:/usr/src/app/store
+        ports:
+          - '8091:8091'  # Web UI
+          - '3000:3000'  # WebSocket
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 🔐 Sikkerhedsnøgler
+
+### S2 Sikkerhedsklasser
+
+| Klasse | Brug | Enheder |
+|--------|------|---------|
+| **S2 Access Control** | Højeste sikkerhed | Dørlåse, garageporte |
+| **S2 Authenticated** | Høj sikkerhed | Termostater, alarmer |
+| **S2 Unauthenticated** | Basis sikkerhed | Sensorer, kontakter |
+| **S0 Legacy** | Gammel protokol | Ældre enheder |
+
+### Generer Sikre Nøgler
+
+```bash
+# Generer 16-byte hex nøgle (32 tegn)
+cat /dev/urandom | tr -dc 'A-F0-9' | fold -w 32 | head -n 1
+```
+
+<Aside type="caution" title="Gem Dine Nøgler!">
+**VIGTIGT:** Backup dine sikkerhedsnøgler! Uden dem kan du ikke kommunikere med sikre enheder hvis du geninstallerer.
+
+Gem dem sikkert (f.eks. password manager).
+</Aside>
+
+---
+
+## ➕ Tilføj Enheder
+
+### Standard Inclusion
+
+<Steps>
+1. Åbn Z-Wave JS UI eller HA integration
+
+2. Klik **Add Device** / **Inclusion**
+
+3. Vælg sikkerhedsniveau:
+   - **Default** (anbefalet)
+   - **S2** for maksimal sikkerhed
+   - **No Security** for test
+
+4. Sæt enheden i inclusion mode (se manual)
+   - Typisk: Tryk 1x på knap
+
+5. Vent på interview (kan tage minutter)
+
+6. Navngiv enheden
+</Steps>
+
+### SmartStart (QR Kode)
+
+<Steps>
+1. Find QR kode på enheden
+
+2. Gå til **Add Device → SmartStart**
+
+3. Scan QR kode eller indtast DSK
+
+4. Enheden tilføjes automatisk når den tændes
+</Steps>
+
+### Exclusion (Fjern Enhed)
+
+```yaml
+# Vigtigt: Exclude enheder FØR du tilføjer dem
+# til nyt netværk - også selvom de aldrig var tilføjet!
+```
+
+<Steps>
+1. Klik **Remove Device** / **Exclusion**
+
+2. Sæt enheden i exclusion mode (se manual)
+
+3. Vent på bekræftelse
+</Steps>
+
+---
+
+## 🌐 Netværksoptimering
+
+### Mesh Netværk Grundlæggende
+
+| Enhedstype | Funktion | Eksempler |
+|------------|----------|-----------|
+| **Controller** | Netværkets centrum | USB stick |
+| **Router** | Udvider mesh | Dimmere, kontakter (strøm) |
+| **End Device** | Kan ikke route | Batterisensorer |
+
+### Placering Tips
+
+```
+Optimal:
+┌────────────────────────────┐
+│         [Router]           │
+│            │               │
+│ [Router]──[Controller]──[Router] │
+│            │               │
+│         [Router]           │
+└────────────────────────────┘
+
+Undgå:
+- Controller i hjørne
+- Lange kæder uden routere
+- Enheder bag metal/vand
+```
+
+### Heal Network / Rebuild Routes
+
+```bash
+# Kun når nødvendigt:
+# - Efter flytning af enheder
+# - Ved vedvarende problemer
+
+# IKKE regelmæssigt - genererer meget trafik
+```
+
+I Z-Wave JS UI: **Settings → Rebuild Routes**
+
+---
+
+## 🔧 Avanceret Konfiguration
+
+### Device Configuration
+
+```yaml
+# I Z-Wave JS UI kan du ændre:
+# - Wake-up interval (batterisensorer)
+# - Report intervals
+# - LED indikator
+# - Association groups
+```
+
+### Association Groups
+
+Tillader direkte kommunikation mellem enheder:
+
+```yaml
+# Eksempel: Kontakt styrer lampe direkte
+# Group 2 (Basic Set) → Lampe node ID
+
+# Fordele:
+# - Virker uden controller
+# - Ultra-hurtig respons
+# - Pålidelig
+
+# Ulemper:
+# - Svært at administrere
+# - Ingen HA automation
+```
+
+### Firmware Opdatering
+
+```yaml
+# Z-Wave JS UI → Device → Firmware Update
+# Upload .otz eller .hex fil fra producent
+# VIGTIGT: Brug kun officiel firmware!
+```
+
+---
+
+## 🔍 Troubleshooting
+
+### Enhed Svarer Ikke
+
+<Steps>
+1. Tjek **Node Statistics** i Z-Wave JS UI
+   - RTT (round-trip time) over 1000ms = problem
+
+2. **Ping** enheden for at teste forbindelse
+
+3. **Re-interview** enheden:
+   - Device → Re-interview
+
+4. Tjek batteriniveau (for batteridrevne)
+
+5. Overvej at tilføje router mellem enhed og controller
+</Steps>
+
+### Dead Nodes
+
+```yaml
+# Symptomer:
+# - Enhed markeret som "Dead"
+# - Ingen respons
+
+# Løsninger:
+1. Vent 24 timer (kan vågne)
+2. Tryk fysisk på enheden
+3. Remove Failed Node (hvis permanent død)
+```
+
+### Network Map
+
+I Z-Wave JS UI: **Network → Map**
+
+Viser:
+- Alle enheder og forbindelser
+- Signalstyrke
+- Routing paths
+
+---
+
+## 📊 Z-Wave vs Zigbee Sammenligning
+
+| Feature | Z-Wave | Zigbee |
+|---------|--------|--------|
+| **Frekvens** | 868 MHz (EU) | 2.4 GHz |
+| **Interferens** | Minimal | WiFi overlap muligt |
+| **Max enheder** | 232 | 65.000+ |
+| **Max hops** | 4 | Ubegrænset |
+| **Certificering** | Påkrævet | Valgfri |
+| **Pris** | Højere | Lavere |
+| **Long Range** | Ja (800-serien) | Nej |
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Skal jeg vælge Z-Wave JS eller Z-Wave JS UI?",
+    answer: "Z-Wave JS er simplere og integreret direkte i HA. Z-Wave JS UI giver mere kontrol, MQTT support og bedre debugging. For de fleste er Z-Wave JS nok."
+  },
+  {
+    question: "Kan jeg migrere fra 500/700-serien til 800-serien?",
+    answer: "Ja! Du kan backup/restore netværket via Z-Wave JS UI. Dog kræver det specifik firmware-version (7.19.0+). Tjek dokumentation for din nye stick."
+  },
+  {
+    question: "Hvorfor ser jeg ikke alle entiteter?",
+    answer: "Vent på at interview er færdigt (kan tage flere minutter). Hvis stadig mangler: Re-interview enheden. Nogle enheder kræver wake-up først (tryk på knap)."
+  },
+  {
+    question: "Er Z-Wave Long Range værd at vente på i Europa?",
+    answer: "Nej, Long Range er kun US/CA/MX pga. frekvensregulering. Men 800-serien har stadig bedre rækkevidde, lavere strømforbrug og nyeste sikkerhed i Europa."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="Zigbee2MQTT" icon="seti:arduino">
+    Alternativ protokol til smart home.
+    
+    [Se guide →](/da/home-assistant/zigbee2mqtt/)
+  </Card>
+  <Card title="Automationer" icon="rocket">
+    Brug Z-Wave enheder i automationer.
+    
+    [Se guide →](/da/home-assistant/foerste-automation/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*
