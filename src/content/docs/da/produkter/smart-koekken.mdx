@@ -1,0 +1,561 @@
+---
+title: Smart Køkken
+description: Komplet guide til smarte køkkenapparater - kaffemaskiner, ovne, køleskabe, sous vide, air fryers og Home Assistant integration.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Opsæt smart køkken"
+  description="Guide til smarte køkkenapparater med Home Assistant"
+  totalTime="PT30M"
+  steps={[
+    "Vælg smarte køkkenapparater",
+    "Tilslut til WiFi og app",
+    "Integrer med Home Assistant",
+    "Opsæt automationer og stemmestyring",
+    "Kombiner med andre smart home enheder"
+  ]}
+/>
+
+<Badge text="Køkken" variant="success" /> <Badge text="Automatik" variant="note" /> <Badge text="Smart Home" variant="tip" />
+
+Smarte køkkenapparater gør madlavning **nemmere, sikrere og mere bekvemt**. Start kaffen før du står op, forvarm ovnen på vej hjem, eller få besked når maden er klar.
+
+<Aside type="tip" title="Top Anbefalinger 2025">
+- **Kaffemaskine**: Keurig K-Supreme SMART (~1.200 kr)
+- **Multi-cooker**: Instant Pot Pro Plus WiFi (~1.300 kr)
+- **Smart ovn**: Breville Joule Oven Air Fryer Pro (~4.000 kr)
+- **Kødtermometer**: MEATER Plus (~700 kr)
+- **Sous vide**: Anova Precision Cooker (~1.000 kr)
+</Aside>
+
+---
+
+## 🎯 Typer af Smarte Køkkenapparater
+
+### Overblik
+
+| Type | Smart Funktioner | HA Integration | Pris |
+|------|------------------|----------------|------|
+| **Kaffemaskine** | Tidsplan, app-styring | Via API/Alexa | 💰-💰💰 |
+| **Multi-cooker** | Opskrifter, fjernstyring | Via app | 💰💰 |
+| **Smart ovn** | Forvarmning, kamera | Via app | 💰💰💰 |
+| **Kødtermometer** | Trådløs, notifikationer | Via Bluetooth | 💰 |
+| **Køleskab** | Kamera, inventar | Via SmartThings | 💰💰💰💰 |
+
+---
+
+## ☕ Smarte Kaffemaskiner
+
+### Keurig K-Supreme SMART
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~1.200 kr / $150
+    
+    Keurig K-Supreme SMART er **perfekt til travle morgener**:
+    
+    - ✅ BrewID - genkender K-Cup og optimerer brygning
+    - ✅ 5 styrkindstillinger
+    - ✅ 6 temperaturindstillinger
+    - ✅ WiFi + app-styring
+    - ✅ Alexa & Google Assistant
+    - ✅ Gem 10 brygge-presets
+    
+    **Perfekt scenario:**
+    > *"Alexa, bryg min morgenkaffe"* - og kaffen er klar når du kommer ned i køkkenet.
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Via Alexa/Google Integration
+    
+    Keurig integrerer via stemmeasistenter:
+    
+    ```yaml
+    # Via Alexa Media Player integration
+    # HACS → Integrations → Alexa Media Player
+    
+    # Eksempel: Morgenautomastion
+    automation:
+      - alias: "Kaffe - Start ved alarm"
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.alarm_clock
+            to: "on"
+        condition:
+          - condition: time
+            weekday:
+              - mon
+              - tue
+              - wed
+              - thu
+              - fri
+        action:
+          - service: media_player.play_media
+            entity_id: media_player.kitchen_echo
+            data:
+              media_content_type: custom
+              media_content_id: "Alexa, brew coffee"
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Amazon.de](https://amazon.de), [Keurig.com](https://keurig.com)
+
+---
+
+### De'Longhi Dinamica Plus
+
+**Pris:** ~6.000 kr / $800
+
+Premium **bean-to-cup** med app:
+
+- ✅ Maler friske bønner
+- ✅ 12 drikke one-touch
+- ✅ Coffee Link app
+- ✅ Gem personlige profiler
+- ✅ LatteCrema system
+
+---
+
+## 🍳 Multi-Cookere
+
+### Instant Pot Pro Plus WiFi
+
+**Pris:** ~1.300 kr / $170
+
+**10-i-1** multi-cooker med WiFi:
+
+- ✅ Trykkoger, slow cooker, ris, dampning
+- ✅ Yoghurt, kage, sterilisering
+- ✅ WiFi + Instant Brands Connect app
+- ✅ 800+ guidede opskrifter
+- ✅ Fjernmonitorering
+
+### Home Assistant Integration
+
+```yaml
+# Via Instant Brands Connect integration
+# (Begrænset officiel support - brug via stemmeasistenter)
+
+# Alternativ: Smart stikkontakt til on/off
+switch:
+  - platform: template
+    switches:
+      instant_pot:
+        friendly_name: "Instant Pot"
+        value_template: "{{ states('switch.smart_plug_instant_pot') }}"
+        turn_on:
+          service: switch.turn_on
+          entity_id: switch.smart_plug_instant_pot
+        turn_off:
+          service: switch.turn_off
+          entity_id: switch.smart_plug_instant_pot
+
+# Notifikation når strømforbrug falder (madlavning færdig)
+automation:
+  - alias: "Instant Pot færdig"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.instant_pot_power
+        below: 5
+        for: "00:05:00"
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.instant_pot_power
+        above: 0
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🍲 Madlavning færdig"
+          message: "Instant Pot er færdig med at tilberede"
+```
+
+---
+
+### CHEF iQ Smart Pressure Cooker
+
+**Pris:** ~1.500 kr / $200
+
+**Mest intelligente** multi-cooker:
+
+- ✅ Indbygget vægt (vej i gryden!)
+- ✅ Guidede opskrifter step-by-step
+- ✅ Auto-beregning af tid/temp
+- ✅ WiFi + fuld app-kontrol
+- ✅ 1000+ opskrifter
+
+---
+
+## 🔥 Smarte Ovne
+
+### Breville Joule Oven Air Fryer Pro
+
+**Pris:** ~4.000 kr / $550
+
+**13 funktioner** i én enhed:
+
+- ✅ Air fryer, ovn, grill, toast
+- ✅ Dehydrator, slow cook, proof
+- ✅ Element IQ - præcis varmestyring
+- ✅ Breville+ app med 1000+ opskrifter
+- ✅ Stemmestyring
+
+### Tovala Smart Oven
+
+**Pris:** ~3.500 kr / $500
+
+**Scan & cook** teknologi:
+
+- ✅ Scan stregkode → auto-tilberedning
+- ✅ Steam + bake + air fry combo
+- ✅ Perfekt til meal kits
+- ✅ App med meal planning
+
+---
+
+## 🌡️ Smarte Kødtermometre
+
+### MEATER Plus
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~700 kr / $100
+    
+    **100% trådløst** kødtermometer:
+    
+    - ✅ Ingen ledninger overhovedet
+    - ✅ Dual sensorer (kød + omgivende temp)
+    - ✅ Bluetooth + repeater (50m rækkevidde)
+    - ✅ Guidet tilberedning i app
+    - ✅ Push-notifikationer
+    - ✅ Tåler op til 275°C
+    
+    | Spec | Værdi |
+    |------|-------|
+    | Rækkevidde | 50m (med repeater) |
+    | Batteri | 24 timer |
+    | Max temp | 275°C internt |
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### MEATER Integration
+    
+    Via **MEATER HACS integration**:
+    
+    ```yaml
+    # HACS → Integrations → MEATER
+    # Kræver MEATER Cloud konto
+    
+    # Entiteter:
+    # - sensor.meater_probe_internal_temp
+    # - sensor.meater_probe_ambient_temp
+    # - sensor.meater_probe_target_temp
+    # - sensor.meater_cook_status
+    
+    # Eksempel: Notifikation når kødet er klar
+    automation:
+      - alias: "Kød er klar"
+        trigger:
+          - platform: state
+            entity_id: sensor.meater_cook_status
+            to: "Ready to rest"
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "🥩 Kødet er klar!"
+              message: >
+                Temperatur: {{ states('sensor.meater_probe_internal_temp') }}°C
+                Tag det af varmen og lad det hvile.
+          - service: tts.google_say
+            entity_id: media_player.kitchen_speaker
+            data:
+              message: "Kødet er klar. Tag det af varmen nu."
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Amazon.de](https://amazon.de), [MEATER.com](https://meater.com)
+
+---
+
+### ThermoWorks Signals
+
+**Pris:** ~1.500 kr / $200
+
+**4 probes** til seriøs grillning:
+
+- ✅ 4 samtidige probes
+- ✅ WiFi + Bluetooth
+- ✅ Alarmer per probe
+- ✅ Grafisk temperaturhistorik
+
+---
+
+## 🥩 Sous Vide
+
+### Anova Precision Cooker
+
+**Pris:** ~1.000 kr / $150
+
+**Perfekt tilberedning** hver gang:
+
+- ✅ ±0.1°C præcision
+- ✅ WiFi + Bluetooth
+- ✅ Anova app med opskrifter
+- ✅ Alexa & Google Assistant
+- ✅ 1000+ watt
+
+### Home Assistant
+
+```yaml
+# Via Anova integration (community)
+# HACS → Integrations → Anova
+
+# Entiteter:
+# - climate.anova_cooker
+# - sensor.anova_current_temp
+# - sensor.anova_target_temp
+
+# Eksempel: Start sous vide på vej hjem
+automation:
+  - alias: "Start sous vide ved afgang fra arbejde"
+    trigger:
+      - platform: zone
+        entity_id: person.brian
+        zone: zone.work
+        event: leave
+    condition:
+      - condition: state
+        entity_id: input_boolean.sous_vide_scheduled
+        state: "on"
+    action:
+      - service: climate.set_temperature
+        entity_id: climate.anova_cooker
+        data:
+          temperature: 57  # Perfekt bøf
+      - service: notify.mobile_app
+        data:
+          title: "🥩 Sous vide startet"
+          message: "Anova varmer op til 57°C"
+```
+
+---
+
+## 🧊 Smarte Køleskabe
+
+### Samsung Family Hub
+
+**Pris:** ~25.000+ kr / $3.500+
+
+**Køkkenets digitale hub**:
+
+- ✅ 21.5" touchscreen på døren
+- ✅ Indvendige kameraer (se hvad du har)
+- ✅ SmartThings integration
+- ✅ Bixby stemmeassistent
+- ✅ Opskrifter, kalender, noter
+- ✅ Stream musik/video
+
+### Home Assistant via SmartThings
+
+```yaml
+# SmartThings integration
+# Indstillinger → Enheder → SmartThings
+
+# Entiteter:
+# - sensor.fridge_temperature
+# - sensor.freezer_temperature
+# - binary_sensor.fridge_door
+
+automation:
+  - alias: "Køleskabsdør åben for længe"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.fridge_door
+        to: "on"
+        for: "00:02:00"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "❄️ Køleskab"
+          message: "Døren har været åben i over 2 minutter"
+```
+
+---
+
+## 🏠 Smarte Automationer
+
+### Morgenrutine
+
+```yaml
+automation:
+  - alias: "Køkken morgenrutine"
+    trigger:
+      - platform: time
+        at: input_datetime.morning_alarm
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+    action:
+      # Tænd køkkenlys
+      - service: light.turn_on
+        entity_id: light.kitchen
+        data:
+          brightness_pct: 70
+          color_temp: 350
+      # Start kaffemaskine (via smart plug)
+      - service: switch.turn_on
+        entity_id: switch.coffee_maker
+      # Afspil nyheder
+      - delay: "00:00:30"
+      - service: media_player.play_media
+        entity_id: media_player.kitchen_speaker
+        data:
+          media_content_type: news
+          media_content_id: "flash briefing"
+```
+
+### Forvarm Ovn ved Hjemkomst
+
+```yaml
+automation:
+  - alias: "Forvarm ovn på vej hjem"
+    trigger:
+      - platform: zone
+        entity_id: person.brian
+        zone: zone.home
+        event: enter
+    condition:
+      - condition: state
+        entity_id: input_boolean.dinner_planned
+        state: "on"
+      - condition: time
+        after: "16:00:00"
+        before: "19:00:00"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🔥 Forvarm ovn?"
+          message: "Du er næsten hjemme. Skal ovnen forvarmes?"
+          data:
+            actions:
+              - action: PREHEAT_OVEN
+                title: "Ja, 200°C"
+              - action: SKIP_PREHEAT
+                title: "Nej tak"
+```
+
+### Madlavning Færdig Notifikation
+
+```yaml
+automation:
+  - alias: "Komfur slukket - mad færdig"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.stove_power
+        below: 10
+        for: "00:02:00"
+    condition:
+      - condition: template
+        value_template: >
+          {{ states('sensor.stove_power_today') | float > 0.3 }}
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "👨‍🍳 Komfuret er slukket"
+          message: "Madlavning ser ud til at være færdig"
+```
+
+---
+
+## 🛒 Købs Strategi
+
+### Starter (~1.500 kr)
+- 1x MEATER Plus (700 kr)
+- 1x Smart stikkontakt til kaffemaskine (150 kr)
+- **Total:** ~850 kr
+
+### Entusiast (~4.000 kr)
+- 1x Keurig K-Supreme SMART (1.200 kr)
+- 1x Instant Pot Pro Plus WiFi (1.300 kr)
+- 1x MEATER Plus (700 kr)
+- 1x Anova Precision Cooker (1.000 kr)
+- **Total:** ~4.200 kr
+
+### Premium Køkken (~10.000+ kr)
+- 1x Breville Joule Oven (4.000 kr)
+- 1x De'Longhi Dinamica Plus (6.000 kr)
+- 1x MEATER Block (4 probes) (2.000 kr)
+- **Total:** ~12.000 kr
+
+---
+
+## 🛒 Hvor Køber Jeg?
+
+### Køkkenudstyr
+- **[Amazon.de](https://amazon.de)** - Alt køkkenudstyr
+- **[Elgiganten](https://elgiganten.dk)** - Lokalt køb
+- **[Coolshop](https://coolshop.dk)** - Gadgets
+
+### Specialbutikker
+- **[MEATER.com](https://meater.com)** - Kødtermometre
+- **[Anova](https://anovaculinary.com)** - Sous vide
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Kan jeg starte min kaffemaskine fra sengen?",
+    answer: "Ja! Med en WiFi-kaffemaskine som Keurig K-Supreme SMART kan du bruge app eller stemmekommando. Alternativt kan en almindelig kaffemaskine på en smart stikkontakt tændes automatisk."
+  },
+  {
+    question: "Er MEATER værd at købe?",
+    answer: "Absolut! MEATER er det bedste trådløse kødtermometer. Det giver perfekte resultater hver gang og sender notifikation når kødet er klar. Uundværligt for grill-entusiaster."
+  },
+  {
+    question: "Virker smarte køkkenapparater med Home Assistant?",
+    answer: "De fleste integrerer via cloud-apps eller stemmeasistenter. Nogle har HACS-integrationer. Smart stikkontakter med energimåling kan bruges til at detektere hvornår apparater er færdige."
+  },
+  {
+    question: "Er smart køleskab pengene værd?",
+    answer: "For de fleste: nej. Samsung Family Hub koster 25.000+ kr og funktionerne er nice-to-have snarere end need-to-have. Start med mindre apparater først."
+  },
+  {
+    question: "Kan jeg lave sous vide automatiseringer?",
+    answer: "Ja! Anova har HACS integration. Du kan starte opvarmning baseret på tidspunkt, eller når du forlader arbejdet, så maden er klar når du kommer hjem."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="Smart Energi" icon="sun">
+    Overvåg køkkenets strømforbrug.
+    
+    [Se guide →](/da/produkter/smart-energi/)
+  </Card>
+  <Card title="Smart Belysning" icon="rocket">
+    Perfekt lys til madlavning.
+    
+    [Se guide →](/da/produkter/smart-belysning/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*

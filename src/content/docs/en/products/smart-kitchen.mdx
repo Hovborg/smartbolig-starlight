@@ -1,0 +1,561 @@
+---
+title: Smart Kitchen
+description: Complete guide to smart kitchen appliances - coffee makers, ovens, refrigerators, sous vide, air fryers and Home Assistant integration.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Set up smart kitchen"
+  description="Guide to smart kitchen appliances with Home Assistant"
+  totalTime="PT30M"
+  steps={[
+    "Choose smart kitchen appliances",
+    "Connect to WiFi and app",
+    "Integrate with Home Assistant",
+    "Set up automations and voice control",
+    "Combine with other smart home devices"
+  ]}
+/>
+
+<Badge text="Kitchen" variant="success" /> <Badge text="Automation" variant="note" /> <Badge text="Smart Home" variant="tip" />
+
+Smart kitchen appliances make cooking **easier, safer and more convenient**. Start coffee before getting up, preheat the oven on your way home, or get notified when food is ready.
+
+<Aside type="tip" title="Top Recommendations 2025">
+- **Coffee maker**: Keurig K-Supreme SMART (~$150)
+- **Multi-cooker**: Instant Pot Pro Plus WiFi (~$170)
+- **Smart oven**: Breville Joule Oven Air Fryer Pro (~$550)
+- **Meat thermometer**: MEATER Plus (~$100)
+- **Sous vide**: Anova Precision Cooker (~$150)
+</Aside>
+
+---
+
+## 🎯 Types of Smart Kitchen Appliances
+
+### Overview
+
+| Type | Smart Features | HA Integration | Price |
+|------|----------------|----------------|-------|
+| **Coffee maker** | Schedule, app control | Via API/Alexa | 💰-💰💰 |
+| **Multi-cooker** | Recipes, remote control | Via app | 💰💰 |
+| **Smart oven** | Preheating, camera | Via app | 💰💰💰 |
+| **Meat thermometer** | Wireless, notifications | Via Bluetooth | 💰 |
+| **Refrigerator** | Camera, inventory | Via SmartThings | 💰💰💰💰 |
+
+---
+
+## ☕ Smart Coffee Makers
+
+### Keurig K-Supreme SMART
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$150
+    
+    Keurig K-Supreme SMART is **perfect for busy mornings**:
+    
+    - ✅ BrewID - recognizes K-Cup and optimizes brewing
+    - ✅ 5 strength settings
+    - ✅ 6 temperature settings
+    - ✅ WiFi + app control
+    - ✅ Alexa & Google Assistant
+    - ✅ Save 10 brew presets
+    
+    **Perfect scenario:**
+    > *"Alexa, brew my morning coffee"* - and coffee is ready when you come down to the kitchen.
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Via Alexa/Google Integration
+    
+    Keurig integrates via voice assistants:
+    
+    ```yaml
+    # Via Alexa Media Player integration
+    # HACS → Integrations → Alexa Media Player
+    
+    # Example: Morning automation
+    automation:
+      - alias: "Coffee - Start on alarm"
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.alarm_clock
+            to: "on"
+        condition:
+          - condition: time
+            weekday:
+              - mon
+              - tue
+              - wed
+              - thu
+              - fri
+        action:
+          - service: media_player.play_media
+            entity_id: media_player.kitchen_echo
+            data:
+              media_content_type: custom
+              media_content_id: "Alexa, brew coffee"
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Amazon](https://amazon.com), [Keurig.com](https://keurig.com)
+
+---
+
+### De'Longhi Dinamica Plus
+
+**Price:** ~$800
+
+Premium **bean-to-cup** with app:
+
+- ✅ Grinds fresh beans
+- ✅ 12 drinks one-touch
+- ✅ Coffee Link app
+- ✅ Save personal profiles
+- ✅ LatteCrema system
+
+---
+
+## 🍳 Multi-Cookers
+
+### Instant Pot Pro Plus WiFi
+
+**Price:** ~$170
+
+**10-in-1** multi-cooker with WiFi:
+
+- ✅ Pressure cook, slow cook, rice, steam
+- ✅ Yogurt, cake, sterilize
+- ✅ WiFi + Instant Brands Connect app
+- ✅ 800+ guided recipes
+- ✅ Remote monitoring
+
+### Home Assistant Integration
+
+```yaml
+# Via Instant Brands Connect integration
+# (Limited official support - use via voice assistants)
+
+# Alternative: Smart plug for on/off
+switch:
+  - platform: template
+    switches:
+      instant_pot:
+        friendly_name: "Instant Pot"
+        value_template: "{{ states('switch.smart_plug_instant_pot') }}"
+        turn_on:
+          service: switch.turn_on
+          entity_id: switch.smart_plug_instant_pot
+        turn_off:
+          service: switch.turn_off
+          entity_id: switch.smart_plug_instant_pot
+
+# Notification when power drops (cooking done)
+automation:
+  - alias: "Instant Pot done"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.instant_pot_power
+        below: 5
+        for: "00:05:00"
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.instant_pot_power
+        above: 0
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🍲 Cooking done"
+          message: "Instant Pot has finished cooking"
+```
+
+---
+
+### CHEF iQ Smart Pressure Cooker
+
+**Price:** ~$200
+
+**Most intelligent** multi-cooker:
+
+- ✅ Built-in scale (weigh in the pot!)
+- ✅ Guided recipes step-by-step
+- ✅ Auto-calculate time/temp
+- ✅ WiFi + full app control
+- ✅ 1000+ recipes
+
+---
+
+## 🔥 Smart Ovens
+
+### Breville Joule Oven Air Fryer Pro
+
+**Price:** ~$550
+
+**13 functions** in one unit:
+
+- ✅ Air fryer, oven, grill, toast
+- ✅ Dehydrator, slow cook, proof
+- ✅ Element IQ - precise heat control
+- ✅ Breville+ app with 1000+ recipes
+- ✅ Voice control
+
+### Tovala Smart Oven
+
+**Price:** ~$500
+
+**Scan & cook** technology:
+
+- ✅ Scan barcode → auto-cook
+- ✅ Steam + bake + air fry combo
+- ✅ Perfect for meal kits
+- ✅ App with meal planning
+
+---
+
+## 🌡️ Smart Meat Thermometers
+
+### MEATER Plus
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$100
+    
+    **100% wireless** meat thermometer:
+    
+    - ✅ No wires at all
+    - ✅ Dual sensors (meat + ambient temp)
+    - ✅ Bluetooth + repeater (165ft range)
+    - ✅ Guided cooking in app
+    - ✅ Push notifications
+    - ✅ Handles up to 527°F
+    
+    | Spec | Value |
+    |------|-------|
+    | Range | 165ft (with repeater) |
+    | Battery | 24 hours |
+    | Max temp | 527°F internal |
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### MEATER Integration
+    
+    Via **MEATER HACS integration**:
+    
+    ```yaml
+    # HACS → Integrations → MEATER
+    # Requires MEATER Cloud account
+    
+    # Entities:
+    # - sensor.meater_probe_internal_temp
+    # - sensor.meater_probe_ambient_temp
+    # - sensor.meater_probe_target_temp
+    # - sensor.meater_cook_status
+    
+    # Example: Notification when meat is ready
+    automation:
+      - alias: "Meat is ready"
+        trigger:
+          - platform: state
+            entity_id: sensor.meater_cook_status
+            to: "Ready to rest"
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "🥩 Meat is ready!"
+              message: >
+                Temperature: {{ states('sensor.meater_probe_internal_temp') }}°F
+                Remove from heat and let it rest.
+          - service: tts.google_say
+            entity_id: media_player.kitchen_speaker
+            data:
+              message: "The meat is ready. Remove it from heat now."
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Amazon](https://amazon.com), [MEATER.com](https://meater.com)
+
+---
+
+### ThermoWorks Signals
+
+**Price:** ~$200
+
+**4 probes** for serious grilling:
+
+- ✅ 4 simultaneous probes
+- ✅ WiFi + Bluetooth
+- ✅ Alarms per probe
+- ✅ Graphical temperature history
+
+---
+
+## 🥩 Sous Vide
+
+### Anova Precision Cooker
+
+**Price:** ~$150
+
+**Perfect cooking** every time:
+
+- ✅ ±0.1°C precision
+- ✅ WiFi + Bluetooth
+- ✅ Anova app with recipes
+- ✅ Alexa & Google Assistant
+- ✅ 1000+ watts
+
+### Home Assistant
+
+```yaml
+# Via Anova integration (community)
+# HACS → Integrations → Anova
+
+# Entities:
+# - climate.anova_cooker
+# - sensor.anova_current_temp
+# - sensor.anova_target_temp
+
+# Example: Start sous vide on way home
+automation:
+  - alias: "Start sous vide when leaving work"
+    trigger:
+      - platform: zone
+        entity_id: person.brian
+        zone: zone.work
+        event: leave
+    condition:
+      - condition: state
+        entity_id: input_boolean.sous_vide_scheduled
+        state: "on"
+    action:
+      - service: climate.set_temperature
+        entity_id: climate.anova_cooker
+        data:
+          temperature: 135  # Perfect steak (°F)
+      - service: notify.mobile_app
+        data:
+          title: "🥩 Sous vide started"
+          message: "Anova heating to 135°F"
+```
+
+---
+
+## 🧊 Smart Refrigerators
+
+### Samsung Family Hub
+
+**Price:** ~$3,500+
+
+**Kitchen's digital hub**:
+
+- ✅ 21.5" touchscreen on door
+- ✅ Internal cameras (see what you have)
+- ✅ SmartThings integration
+- ✅ Bixby voice assistant
+- ✅ Recipes, calendar, notes
+- ✅ Stream music/video
+
+### Home Assistant via SmartThings
+
+```yaml
+# SmartThings integration
+# Settings → Devices → SmartThings
+
+# Entities:
+# - sensor.fridge_temperature
+# - sensor.freezer_temperature
+# - binary_sensor.fridge_door
+
+automation:
+  - alias: "Fridge door open too long"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.fridge_door
+        to: "on"
+        for: "00:02:00"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "❄️ Refrigerator"
+          message: "Door has been open for over 2 minutes"
+```
+
+---
+
+## 🏠 Smart Automations
+
+### Morning Routine
+
+```yaml
+automation:
+  - alias: "Kitchen morning routine"
+    trigger:
+      - platform: time
+        at: input_datetime.morning_alarm
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+    action:
+      # Turn on kitchen lights
+      - service: light.turn_on
+        entity_id: light.kitchen
+        data:
+          brightness_pct: 70
+          color_temp: 350
+      # Start coffee maker (via smart plug)
+      - service: switch.turn_on
+        entity_id: switch.coffee_maker
+      # Play news
+      - delay: "00:00:30"
+      - service: media_player.play_media
+        entity_id: media_player.kitchen_speaker
+        data:
+          media_content_type: news
+          media_content_id: "flash briefing"
+```
+
+### Preheat Oven on Arrival
+
+```yaml
+automation:
+  - alias: "Preheat oven on way home"
+    trigger:
+      - platform: zone
+        entity_id: person.brian
+        zone: zone.home
+        event: enter
+    condition:
+      - condition: state
+        entity_id: input_boolean.dinner_planned
+        state: "on"
+      - condition: time
+        after: "16:00:00"
+        before: "19:00:00"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🔥 Preheat oven?"
+          message: "You're almost home. Should the oven preheat?"
+          data:
+            actions:
+              - action: PREHEAT_OVEN
+                title: "Yes, 400°F"
+              - action: SKIP_PREHEAT
+                title: "No thanks"
+```
+
+### Cooking Done Notification
+
+```yaml
+automation:
+  - alias: "Stove off - cooking done"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.stove_power
+        below: 10
+        for: "00:02:00"
+    condition:
+      - condition: template
+        value_template: >
+          {{ states('sensor.stove_power_today') | float > 0.3 }}
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "👨‍🍳 Stove turned off"
+          message: "Cooking appears to be finished"
+```
+
+---
+
+## 🛒 Buying Strategy
+
+### Starter (~$150)
+- 1x MEATER Plus ($100)
+- 1x Smart plug for coffee maker ($20)
+- **Total:** ~$120
+
+### Enthusiast (~$550)
+- 1x Keurig K-Supreme SMART ($150)
+- 1x Instant Pot Pro Plus WiFi ($170)
+- 1x MEATER Plus ($100)
+- 1x Anova Precision Cooker ($150)
+- **Total:** ~$570
+
+### Premium Kitchen (~$1,500+)
+- 1x Breville Joule Oven ($550)
+- 1x De'Longhi Dinamica Plus ($800)
+- 1x MEATER Block (4 probes) ($270)
+- **Total:** ~$1,620
+
+---
+
+## 🛒 Where to Buy?
+
+### Kitchen Equipment
+- **[Amazon](https://amazon.com)** - All kitchen equipment
+- **[Best Buy](https://bestbuy.com)** - Local purchase
+- **[Williams Sonoma](https://williams-sonoma.com)** - Premium
+
+### Specialty Stores
+- **[MEATER.com](https://meater.com)** - Meat thermometers
+- **[Anova](https://anovaculinary.com)** - Sous vide
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Can I start my coffee maker from bed?",
+    answer: "Yes! With a WiFi coffee maker like Keurig K-Supreme SMART you can use app or voice command. Alternatively, a regular coffee maker on a smart plug can be turned on automatically."
+  },
+  {
+    question: "Is MEATER worth buying?",
+    answer: "Absolutely! MEATER is the best wireless meat thermometer. It gives perfect results every time and sends notification when meat is ready. Essential for grill enthusiasts."
+  },
+  {
+    question: "Do smart kitchen appliances work with Home Assistant?",
+    answer: "Most integrate via cloud apps or voice assistants. Some have HACS integrations. Smart plugs with energy monitoring can be used to detect when appliances are done."
+  },
+  {
+    question: "Is a smart fridge worth the money?",
+    answer: "For most people: no. Samsung Family Hub costs $3,500+ and features are nice-to-have rather than need-to-have. Start with smaller appliances first."
+  },
+  {
+    question: "Can I create sous vide automations?",
+    answer: "Yes! Anova has HACS integration. You can start heating based on time, or when you leave work, so food is ready when you get home."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Smart Energy" icon="sun">
+    Monitor kitchen power usage.
+    
+    [See guide →](/en/products/smart-energy/)
+  </Card>
+  <Card title="Smart Lighting" icon="rocket">
+    Perfect light for cooking.
+    
+    [See guide →](/en/products/smart-lighting/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
