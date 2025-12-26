@@ -1,0 +1,736 @@
+---
+title: Smart Pool & Spa
+description: Complete guide to smart pool and spa control - water quality monitoring, pump automation, Pentair, Hayward, Balboa and Home Assistant integration.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Set Up Smart Pool"
+  description="Guide to smart pool and spa control with Home Assistant"
+  totalTime="PT90M"
+  steps={[
+    "Identify your pool/spa equipment",
+    "Choose water quality monitor",
+    "Install pool controller integration",
+    "Set up automations for pumps and heating",
+    "Configure dashboard with Pool Monitor Card"
+  ]}
+/>
+
+<Badge text="Pool" variant="success" /> <Badge text="Spa" variant="note" /> <Badge text="Water Quality" variant="tip" />
+
+Smart pool and spa control gives you **automatic water quality monitoring**, remote control of pumps, heaters, and lights, plus energy-saving automations. With Home Assistant, you can integrate everything into one unified system.
+
+<Aside type="caution" title="Important Warnings 2025">
+⚠️ **pHin is DISCONTINUED** (December 2021) - no longer works!
+
+⚠️ **Sutro is SHUTTING DOWN** (October 31, 2025) - don't buy new device!
+
+Choose **PoolSense**, **WaterGuru**, **iopool**, or **DIY ESPHome** instead.
+</Aside>
+
+<Aside type="tip" title="Top Recommendations 2025">
+- **Water Quality:** PoolSense (native HA), WaterGuru Sense S2, iopool EcO
+- **Pool Controller:** Pentair IntelliCenter, Hayward OmniLogic
+- **Hot Tub:** Balboa Spa (native HA integration)
+- **DIY:** ESPHome pH/ORP sensors
+- **Dashboard:** Pool Monitor Card (HACS)
+</Aside>
+
+---
+
+## 🌊 Water Quality Monitors
+
+### Product Overview
+
+| Monitor | HA Integration | Measures | Price | Status |
+|---------|---------------|----------|-------|--------|
+| **PoolSense** | ✅ Native | pH, ORP, temp | 💰💰 | ✅ Active |
+| **WaterGuru S2** | ❌ App only | pH, Cl, TA, CYA, CH | 💰💰💰 | ✅ Active |
+| **iopool EcO** | ❌ App only | ORP, pH, temp | 💰💰 | ✅ Active |
+| **DIY ESPHome** | ✅ Full local | pH, ORP, temp | 💰 | ✅ Active |
+| ~~Sutro~~ | ⚠️ HACS | pH, Cl, alk | - | ❌ Closing Oct 2025 |
+| ~~pHin~~ | - | - | - | ❌ Discontinued 2021 |
+
+---
+
+## ✅ PoolSense (Native HA Integration)
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$200
+    
+    **Only** water quality monitor with **native** Home Assistant integration:
+    
+    - ✅ pH measurement
+    - ✅ ORP (chlorine indicator)
+    - ✅ Water temperature
+    - ✅ Direct in HA without HACS
+    - ✅ Cloud API (polling)
+    
+    <Aside type="note">
+    PoolSense is cloud-based, requiring internet connection.
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Native Integration
+    
+    ```yaml
+    # Settings → Devices → Add Integration
+    # Search for "PoolSense"
+    
+    # Requires:
+    # - PoolSense email
+    # - PoolSense password
+    
+    # Entities created:
+    # - sensor.poolsense_ph
+    # - sensor.poolsense_orp
+    # - sensor.poolsense_water_temperature
+    # - sensor.poolsense_battery
+    ```
+    
+    ### Automation Example
+    
+    ```yaml
+    automation:
+      - alias: "Pool - Low pH alarm"
+        trigger:
+          - platform: numeric_state
+            entity_id: sensor.poolsense_ph
+            below: 7.0
+            for: "01:00:00"
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "⚠️ Pool pH too low!"
+              message: >
+                Pool pH is {{ states('sensor.poolsense_ph') }}.
+                Add pH increaser (base) to raise pH.
+    
+      - alias: "Pool - High ORP (enough chlorine)"
+        trigger:
+          - platform: numeric_state
+            entity_id: sensor.poolsense_orp
+            above: 750
+        action:
+          - service: switch.turn_off
+            entity_id: switch.pool_chlorinator
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [PoolSense](https://poolsense.net), Amazon
+
+---
+
+## 💧 WaterGuru Sense S2
+
+**Price:** ~$300 + cassettes (~$15/month)
+
+**Most advanced** optical measurements:
+
+- ✅ Free chlorine (FC) - actual measurement, not ORP
+- ✅ pH
+- ✅ Total alkalinity (TA)
+- ✅ Cyanuric acid (CYA)
+- ✅ Calcium hardness (CH)
+- ✅ Temperature
+- ✅ Installs in skimmer
+- ❌ No Home Assistant integration
+
+```yaml
+# No official HA integration
+# Data only available via WaterGuru app
+
+# Workaround: Manual input helpers
+input_number:
+  pool_fc:
+    name: Pool Free Chlorine
+    min: 0
+    max: 10
+    step: 0.1
+    unit_of_measurement: "ppm"
+  pool_ph_manual:
+    name: Pool pH (manual)
+    min: 6.5
+    max: 8.5
+    step: 0.1
+```
+
+**Buy:** [WaterGuru.com](https://waterguru.com), [Amazon](https://amazon.com)
+
+---
+
+## 🔋 iopool EcO
+
+**Price:** ~$200 (including gateway)
+
+**Floating** water quality monitor:
+
+- ✅ ORP (disinfection potential)
+- ✅ pH
+- ✅ Temperature
+- ✅ Measures every 15 min
+- ✅ 3-4 seasons lifespan
+- ✅ Bluetooth + WiFi gateway
+- ❌ No official HA integration
+
+<Aside type="note">
+iopool uses ORP instead of direct chlorine measurement. ORP is an indirect indicator affected by pH and temperature.
+</Aside>
+
+**Buy:** [iopool.com](https://iopool.com)
+
+---
+
+## 🔧 DIY ESPHome pH/ORP Sensor
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$50-100
+    
+    **Cheapest** solution with **full local control**:
+    
+    - ✅ ESP32 or D1 Mini
+    - ✅ pH probe + ADC module
+    - ✅ ORP probe (optional)
+    - ✅ DS18B20 temperature
+    - ✅ ESPHome integration
+    - ✅ Requires calibration
+    
+    **Components:**
+    - ESP32 (~$5)
+    - PH-4502C pH sensor module (~$15)
+    - pH probe (~$10-30)
+    - DS18B20 waterproof temp (~$5)
+    - ORP probe module (~$20)
+  </TabItem>
+  <TabItem label="ESPHome">
+    ### ESPHome Configuration
+    
+    ```yaml
+    esphome:
+      name: pool-sensor
+      platform: ESP32
+      board: esp32dev
+    
+    wifi:
+      ssid: !secret wifi_ssid
+      password: !secret wifi_password
+    
+    api:
+    ota:
+    
+    # pH Sensor (analog)
+    sensor:
+      - platform: adc
+        pin: GPIO34
+        name: "Pool pH"
+        id: pool_ph
+        update_interval: 60s
+        unit_of_measurement: "pH"
+        accuracy_decimals: 2
+        filters:
+          - calibrate_linear:
+              - 0.0 -> 0.0
+              - 3.3 -> 14.0
+          # Calibrate with buffer solutions!
+          # pH 4.0 buffer = X volts
+          # pH 7.0 buffer = Y volts
+          # pH 10.0 buffer = Z volts
+    
+      # ORP Sensor
+      - platform: adc
+        pin: GPIO35
+        name: "Pool ORP"
+        id: pool_orp
+        update_interval: 60s
+        unit_of_measurement: "mV"
+        accuracy_decimals: 0
+        filters:
+          - multiply: 1000  # Adjust per module
+    
+      # Temperature (DS18B20)
+      - platform: dallas_temp
+        address: 0x1234567890ABCDEF  # Your sensor address
+        name: "Pool Temperature"
+        update_interval: 60s
+    
+    # OneWire bus for temp sensor
+    one_wire:
+      - pin: GPIO4
+    ```
+  </TabItem>
+  <TabItem label="Calibration">
+    ### pH Calibration
+    
+    1. Buy **buffer solutions** (pH 4.0, 7.0, 10.0)
+    2. Dip probe in pH 7.0 buffer
+    3. Note ADC value (volts)
+    4. Repeat for pH 4.0 and 10.0
+    5. Update `calibrate_linear` filter
+    
+    ```yaml
+    filters:
+      - calibrate_linear:
+          - 2.5 -> 7.0   # Midpoint
+          - 3.0 -> 4.0   # Acidic
+          - 2.0 -> 10.0  # Basic
+    ```
+    
+    ### ORP Calibration
+    
+    ORP typically doesn't require calibration, but check:
+    - 650-750 mV = Normal pool chlorine
+    - Below 650 mV = Add chlorine
+    - Above 800 mV = Too much chlorine
+  </TabItem>
+</Tabs>
+
+---
+
+## 🏊 Pool Controllers
+
+### Pentair IntelliCenter
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$2,000+ (complete system)
+    
+    **Premium** pool automation:
+    
+    - ✅ Pump control (variable speed)
+    - ✅ Heater control
+    - ✅ ColorLogic/IntelliBrite lights
+    - ✅ Chlorinator (IntelliChlor)
+    - ✅ Water features
+    - ✅ Scheduling
+    - ✅ HACS integration (local push)
+    
+    <Aside type="tip">
+    IntelliCenter HACS integration provides **local push** updates - no cloud required!
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### HACS Integration
+    
+    ```yaml
+    # HACS → Custom Repositories
+    # https://github.com/dwradcliffe/intellicenter
+    
+    # Entities created:
+    # - climate.pool (temperature control)
+    # - climate.spa
+    # - switch.pool_pump
+    # - switch.spa_pump
+    # - switch.pool_heater
+    # - light.pool_light (with color effects)
+    # - sensor.pool_water_temperature
+    # - sensor.air_temperature
+    ```
+    
+    ### Automation Examples
+    
+    ```yaml
+    automation:
+      # Sun-based pump operation
+      - alias: "Pool - Run pump during sun hours"
+        trigger:
+          - platform: sun
+            event: sunrise
+            offset: "+01:00:00"
+        action:
+          - service: switch.turn_on
+            entity_id: switch.pool_pump
+    
+      - alias: "Pool - Stop pump after sunset"
+        trigger:
+          - platform: sun
+            event: sunset
+            offset: "+02:00:00"
+        action:
+          - service: switch.turn_off
+            entity_id: switch.pool_pump
+    
+      # Energy-optimized heating
+      - alias: "Pool - Heat during low electricity price"
+        trigger:
+          - platform: numeric_state
+            entity_id: sensor.electricity_price
+            below: 0.10
+        condition:
+          - condition: numeric_state
+            entity_id: sensor.pool_water_temperature
+            below: 78
+        action:
+          - service: climate.set_temperature
+            entity_id: climate.pool
+            data:
+              temperature: 82
+    ```
+  </TabItem>
+</Tabs>
+
+### Hayward OmniLogic
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$2,500+
+    
+    **Competitor** to Pentair:
+    
+    - ✅ Pump and heater control
+    - ✅ ColorLogic V2 lights
+    - ✅ Chlorinator control
+    - ✅ Native HA integration (cloud)
+    - ✅ HACS local UDP integration
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Native Integration (Cloud)
+    
+    ```yaml
+    # Settings → Devices → Add Integration
+    # Search for "Hayward OmniLogic"
+    
+    # Requires Hayward app login
+    # Cloud polling - not local
+    
+    # Entities:
+    # - sensor.omnilogic_air_temp
+    # - sensor.omnilogic_water_temp
+    # - switch.omnilogic_pump
+    # - switch.omnilogic_heater
+    # - light.omnilogic_lights
+    ```
+    
+    ### HACS Local Integration
+    
+    ```yaml
+    # For local UDP control:
+    # HACS → Custom Repositories
+    # https://github.com/cryptk/haomnilogic-local
+    
+    # Requires static IP on OmniLogic
+    # Much faster response than cloud
+    ```
+    
+    ### Chlorinator Automation
+    
+    ```yaml
+    automation:
+      - alias: "Pool - Adjust chlorinator by ORP"
+        trigger:
+          - platform: numeric_state
+            entity_id: sensor.pool_orp
+            below: 650
+            for: "00:30:00"
+        action:
+          - service: omnilogic.set_chlor_timed_percent
+            target:
+              entity_id: switch.chlorinator
+            data:
+              timed_percent: 80
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 🛁 Hot Tub / Spa (Balboa)
+
+<Tabs>
+  <TabItem label="Overview">
+    **Native Home Assistant Integration!**
+    
+    Balboa Spa Client supports spas with:
+    - Balboa BP system
+    - bwa™ Wi-Fi Module (50350)
+    
+    **Features:**
+    - ✅ Temperature control
+    - ✅ Pump control (1-3 pumps)
+    - ✅ Blower/air bubbles
+    - ✅ Light control
+    - ✅ Heating modes
+    - ✅ Auto-discovery
+    
+    <Aside type="note">
+    394+ active installations in Home Assistant!
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Native Integration
+    
+    ```yaml
+    # Auto-discovered or:
+    # Settings → Devices → Add Integration
+    # Search for "Balboa Spa Client"
+    
+    # Enter IP address of spa WiFi module
+    
+    # Entities:
+    # - climate.balboa_spa (temperature)
+    # - switch.balboa_pump_1
+    # - switch.balboa_pump_2
+    # - fan.balboa_blower
+    # - light.balboa_light
+    # - binary_sensor.balboa_heating
+    ```
+    
+    ### Automation Examples
+    
+    ```yaml
+    automation:
+      # Preheat spa before use
+      - alias: "Spa - Preheat for weekend"
+        trigger:
+          - platform: time
+            at: "16:00:00"
+        condition:
+          - condition: time
+            weekday:
+              - fri
+              - sat
+        action:
+          - service: climate.set_temperature
+            entity_id: climate.balboa_spa
+            data:
+              temperature: 100
+    
+      # Energy saving
+      - alias: "Spa - Lower temp at night"
+        trigger:
+          - platform: time
+            at: "23:00:00"
+        action:
+          - service: climate.set_temperature
+            entity_id: climate.balboa_spa
+            data:
+              temperature: 93
+    
+      # Notification when ready
+      - alias: "Spa - Temperature reached"
+        trigger:
+          - platform: numeric_state
+            entity_id: climate.balboa_spa
+            attribute: current_temperature
+            above: 99
+        condition:
+          - condition: state
+            entity_id: binary_sensor.balboa_heating
+            state: "on"
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "🛁 Spa is ready!"
+              message: "Water temperature has reached {{ state_attr('climate.balboa_spa', 'current_temperature') }}°F"
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 📊 Dashboard: Pool Monitor Card
+
+**HACS Lovelace Card** for beautiful pool visualization:
+
+```yaml
+# HACS → Frontend → Search "Pool Monitor Card"
+# Install and restart
+
+# Dashboard configuration
+type: custom:pool-monitor-card
+sensors:
+  temperature:
+    - entity: sensor.pool_temperature
+      name: "Water Temperature"
+      setpoint: 78
+  ph:
+    - entity: sensor.pool_ph
+      name: "pH"
+      setpoint: 7.4
+      step: 0.1
+  orp:
+    - entity: sensor.pool_orp
+      name: "ORP"
+      setpoint: 700
+      unit: "mV"
+```
+
+### Complete Dashboard
+
+```yaml
+type: vertical-stack
+cards:
+  # Pool Monitor Card
+  - type: custom:pool-monitor-card
+    sensors:
+      temperature:
+        - entity: sensor.pool_temperature
+      ph:
+        - entity: sensor.pool_ph
+      orp:
+        - entity: sensor.pool_orp
+  
+  # Control buttons
+  - type: horizontal-stack
+    cards:
+      - type: button
+        entity: switch.pool_pump
+        name: Pump
+        icon: mdi:pump
+      - type: button
+        entity: switch.pool_heater
+        name: Heater
+        icon: mdi:water-boiler
+      - type: button
+        entity: light.pool_light
+        name: Light
+        icon: mdi:lightbulb
+  
+  # Graphs
+  - type: history-graph
+    title: "Pool Temperature (24 hours)"
+    entities:
+      - entity: sensor.pool_temperature
+    hours_to_show: 24
+```
+
+---
+
+## 🤖 Smart Automations
+
+### Complete Pool Automation
+
+```yaml
+automation:
+  # Daily pump cycle based on sun
+  - alias: "Pool - Smart pump operation"
+    trigger:
+      - platform: sun
+        event: sunrise
+        offset: "+02:00:00"
+    action:
+      - service: switch.turn_on
+        entity_id: switch.pool_pump
+      - wait_for_trigger:
+          - platform: sun
+            event: sunset
+            offset: "-01:00:00"
+      - service: switch.turn_off
+        entity_id: switch.pool_pump
+
+  # Water quality alarm
+  - alias: "Pool - Water quality problem"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.pool_ph
+        above: 7.8
+      - platform: numeric_state
+        entity_id: sensor.pool_ph
+        below: 7.0
+      - platform: numeric_state
+        entity_id: sensor.pool_orp
+        below: 600
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "⚠️ Pool water quality"
+          message: >
+            pH: {{ states('sensor.pool_ph') }}
+            ORP: {{ states('sensor.pool_orp') }} mV
+            Check chemicals!
+
+  # Pool party mode
+  - alias: "Pool - Party mode"
+    trigger:
+      - platform: state
+        entity_id: input_boolean.pool_party_mode
+        to: "on"
+    action:
+      - service: light.turn_on
+        entity_id: light.pool_light
+        data:
+          effect: "color_cycle"
+      - service: switch.turn_on
+        entity_id: switch.pool_waterfall
+```
+
+---
+
+## 🛒 Buying Strategy
+
+### Budget DIY (~$100)
+- ESP32 + pH sensor module (~$50)
+- DS18B20 temperature (~$10)
+- Waterproof enclosure (~$20)
+- Shelly 1 for pump (~$15)
+- **Total:** ~$75-100
+
+### Standard Monitoring (~$300)
+- PoolSense monitor (~$200)
+- Pool Monitor Card (free)
+- Shelly for pump/lights (~$50)
+- **Total:** ~$250-300
+
+### Premium System (~$3,000+)
+- Pentair IntelliCenter or Hayward OmniLogic
+- Integrated chlorinator
+- Variable speed pump
+- **Total:** ~$2,000-4,000
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Is Sutro still a good solution?",
+    answer: "NO! Sutro is shutting down October 31, 2025. Devices and app will stop working. Choose PoolSense, WaterGuru, or DIY instead."
+  },
+  {
+    question: "What's the difference between pH, ORP, and free chlorine?",
+    answer: "pH measures acidity (7.2-7.6 optimal). ORP (mV) is an indirect chlorine indicator affected by pH and temp. Free chlorine (ppm) is the actual active chlorine amount. WaterGuru is the only one that measures true free chlorine."
+  },
+  {
+    question: "Which water quality monitor has Home Assistant integration?",
+    answer: "Only PoolSense has native HA integration. WaterGuru, iopool, and others require their apps. For full HA control, build a DIY ESPHome sensor."
+  },
+  {
+    question: "Can I control my Balboa hot tub with Home Assistant?",
+    answer: "Yes! Balboa Spa Client is a native HA integration with 394+ users. It supports temperature, pumps, blower, and lights with local WiFi control."
+  },
+  {
+    question: "How do I save energy on pool heating?",
+    answer: "Integrate with your electricity price sensor and only heat during low prices. Use a solar cover to reduce heat loss. Lower temperature when away. With HA, everything can be automated."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Energy Management" icon="sun">
+    Integrate with solar and electricity prices.
+    
+    [See guide →](/en/products/energy-management/)
+  </Card>
+  <Card title="ESPHome Guide" icon="rocket">
+    Build your own sensors.
+    
+    [See guide →](/en/guides/esphome/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
