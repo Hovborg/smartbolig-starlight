@@ -1,0 +1,425 @@
+---
+title: Performance Optimization in Home Assistant
+description: Optimize Home Assistant with database tuning, recorder configuration, and resource management for a fast and stable smart home.
+sidebar:
+  badge:
+    text: Advanced
+    variant: caution
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+
+<Badge text="Performance" variant="success" /> <Badge text="Database" variant="tip" /> <Badge text="Advanced" variant="caution" />
+
+A slow Home Assistant is frustrating. Dashboards that take forever to load, automations with delay, and a UI that stutters. Fortunately, most problems can be solved with the right configuration.
+
+---
+
+## 🔍 Typical Performance Problems
+
+| Problem | Symptoms | Cause |
+|---------|----------|-------|
+| **Slow UI** | Dashboard loads slowly | Large database, many entities |
+| **Sluggish history** | Graphs take long time | SQLite bottleneck |
+| **High CPU** | Constant 80%+ load | Too many integrations polling |
+| **SD card wear** | Corrupt database, crashes | Too many database writes |
+| **Slow startup** | 5+ minutes to boot | Large database, many add-ons |
+
+---
+
+## 📊 Recorder Optimization
+
+Recorder is Home Assistant's history engine. It writes **everything** by default - that's often too much.
+
+### Basic Configuration
+
+```yaml
+# configuration.yaml
+recorder:
+  purge_keep_days: 7          # Keep only 7 days of history
+  commit_interval: 1          # Write to database every second
+  auto_purge: true            # Automatic cleanup at 04:12
+```
+
+### Exclude Unnecessary Entities
+
+```yaml
+# configuration.yaml
+recorder:
+  purge_keep_days: 7
+  exclude:
+    # Domains that generate A LOT of data
+    domains:
+      - automation          # Automations don't need history
+      - updater             # Update status
+      - camera              # Camera states (images aren't stored)
+    
+    # Specific entity patterns
+    entity_globs:
+      - sensor.sun_*        # Sun sensors (update constantly)
+      - sensor.*_battery    # Battery (changes slowly)
+      - binary_sensor.updater
+    
+    # Individual entities
+    entities:
+      - sensor.date_time
+      - sensor.time
+      - sensor.uptime
+```
+
+### Include Only What Matters
+
+Alternative approach - only save what you actually use:
+
+```yaml
+# configuration.yaml
+recorder:
+  purge_keep_days: 14
+  include:
+    domains:
+      - sensor              # Sensors
+      - climate             # Thermostats
+      - light               # Lights (for energy tracking)
+    entities:
+      - person.brian        # Presence
+      - binary_sensor.motion_living_room
+  exclude:
+    # Except these from included domains
+    entity_globs:
+      - sensor.*_battery
+      - sensor.*_linkquality
+```
+
+### Entities to Exclude (Recommended)
+
+| Entity Type | Why |
+|-------------|-----|
+| `sensor.*_battery` | Changes slowly |
+| `sensor.*_linkquality` | Zigbee signal - rarely needed |
+| `sensor.date_time` | Updates every second |
+| `binary_sensor.updater` | Unnecessary |
+| `automation.*` | Trigger history is rarely useful |
+| `script.*` | Same as automation |
+| `*_last_seen` | Zigbee last seen timestamps |
+
+---
+
+## 🗄️ MariaDB (External Database)
+
+For larger installations, MariaDB is recommended over SQLite.
+
+### When to Switch to MariaDB?
+
+| Situation | Recommendation |
+|-----------|----------------|
+| < 50 entities | SQLite is fine |
+| 50-200 entities | SQLite with optimization |
+| 200+ entities | Consider MariaDB |
+| Raspberry Pi + SD card | MariaDB on external SSD |
+| Slow graphs | MariaDB helps |
+
+### Installation
+
+<Steps>
+1. Go to **Settings → Add-ons → Add-on Store**
+
+2. Search "MariaDB" and install
+
+3. Configure add-on:
+   ```yaml
+   databases:
+     - homeassistant
+   logins:
+     - username: homeassistant
+       password: "your-strong-password"
+   rights:
+     - username: homeassistant
+       database: homeassistant
+   ```
+
+4. Start add-on
+
+5. Update `configuration.yaml`:
+   ```yaml
+   recorder:
+     db_url: mysql://homeassistant:your-strong-password@core-mariadb/homeassistant?charset=utf8mb4
+     purge_keep_days: 14
+   ```
+
+6. Restart Home Assistant
+</Steps>
+
+<Aside type="caution" title="History is lost">
+When switching to MariaDB, you start with an empty database. Your old SQLite history is not automatically transferred.
+</Aside>
+
+### MariaDB Tuning
+
+For better performance, add options in add-on config:
+
+```json
+{
+  "databases": ["homeassistant"],
+  "logins": [
+    {
+      "username": "homeassistant",
+      "password": "your-password"
+    }
+  ],
+  "rights": [
+    {
+      "username": "homeassistant",
+      "database": "homeassistant"
+    }
+  ],
+  "options": {
+    "innodb_buffer_pool_size": "256M",
+    "max_connections": 200
+  }
+}
+```
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| `innodb_buffer_pool_size` | 256M-512M | RAM for database cache |
+| `max_connections` | 200 | Concurrent connections |
+
+---
+
+## 💾 Logbook & History
+
+### Disable Logbook for Irrelevant Entities
+
+```yaml
+# configuration.yaml
+logbook:
+  exclude:
+    domains:
+      - automation
+      - script
+      - group
+    entity_globs:
+      - sensor.*_battery
+      - sensor.*_linkquality
+```
+
+### History Optimization
+
+```yaml
+# configuration.yaml
+history:
+  exclude:
+    domains:
+      - automation
+      - script
+      - updater
+    entity_globs:
+      - sensor.*_battery
+```
+
+---
+
+## ⚡ Integration Optimization
+
+### Reduce Polling Frequency
+
+Many integrations poll too often:
+
+```yaml
+# configuration.yaml
+# Example: Reduce polling for template sensors
+sensor:
+  - platform: template
+    sensors:
+      daily_consumption:
+        friendly_name: "Daily Consumption"
+        value_template: "{{ states('sensor.energy') }}"
+        # Update only every 5 minutes
+        scan_interval: 300
+```
+
+### Disable Unused Integrations
+
+<Steps>
+1. Go to **Settings → Devices & Services**
+
+2. Review all integrations
+
+3. Remove/disable those you don't use
+
+4. Especially: Cloud-based integrations that poll
+</Steps>
+
+---
+
+## 🔧 System Optimization
+
+### Logger Configuration
+
+Reduce log level to save resources:
+
+```yaml
+# configuration.yaml
+logger:
+  default: warning        # Only warnings and errors
+  logs:
+    homeassistant.core: warning
+    homeassistant.components.mqtt: warning
+    homeassistant.components.zha: warning
+    # Debug only for troubleshooting:
+    # homeassistant.components.automation: debug
+```
+
+### Disable Unnecessary Features
+
+```yaml
+# configuration.yaml
+# Only if you don't use them:
+discovery:           # Auto discovery
+zeroconf:           # mDNS
+ssdp:               # UPnP discovery
+```
+
+### Raspberry Pi Specific
+
+| Recommendation | Why |
+|----------------|-----|
+| **Use SSD** | 10x faster than SD card |
+| **USB 3.0 adapter** | Avoid USB 2.0 bottleneck |
+| **Active cooling** | Pi throttles at 80°C |
+| **Overclocking (careful)** | Can give 20%+ boost |
+
+---
+
+## 📈 Monitoring
+
+### Check Database Size
+
+```yaml
+# Automation to track database size
+sensor:
+  - platform: sql
+    db_url: mysql://homeassistant:password@core-mariadb/homeassistant?charset=utf8mb4
+    queries:
+      - name: Database Size
+        query: "SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) as size FROM information_schema.TABLES WHERE table_schema = 'homeassistant'"
+        column: "size"
+        unit_of_measurement: "MB"
+```
+
+### System Monitor Integration
+
+```yaml
+# configuration.yaml
+sensor:
+  - platform: systemmonitor
+    resources:
+      - type: processor_use
+      - type: memory_use_percent
+      - type: disk_use_percent
+        arg: /
+      - type: load_1m
+      - type: load_5m
+```
+
+---
+
+## 🔄 Maintenance
+
+### Weekly
+
+- Check database size
+- Look for errors in logs
+- Verify automations are running
+
+### Monthly
+
+- Clean up unused entities
+- Review recorder excludes
+- Update integrations
+
+### Manual Database Purge
+
+If the database has grown too large:
+
+```yaml
+# Developer Tools → Services
+service: recorder.purge
+data:
+  keep_days: 3
+  repack: true
+```
+
+<Aside type="tip" title="repack: true">
+The `repack` option actually frees disk space by rebuilding the database. Without it, data is only marked as deleted.
+</Aside>
+
+---
+
+## 📋 Performance Checklist
+
+### Quick Optimization (5 min)
+
+- [ ] Reduce `purge_keep_days` to 7
+- [ ] Exclude `automation`, `script` domains
+- [ ] Exclude `*_battery`, `*_linkquality` entities
+- [ ] Reduce logger to `warning`
+
+### Medium Optimization (30 min)
+
+- [ ] Review all entities - exclude unnecessary ones
+- [ ] Check polling intervals on integrations
+- [ ] Disable unused integrations
+- [ ] Add system monitoring
+
+### Larger Project (1-2 hours)
+
+- [ ] Migrate to MariaDB
+- [ ] Install on SSD (Raspberry Pi)
+- [ ] Fine-tune MariaDB parameters
+- [ ] Set up InfluxDB for long-term data
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "How many days of history should I keep?",
+    answer: "7 days is fine for most people. If you use energy graphs or statistics, 14-30 days might make sense. Remember to exclude unnecessary entities - that's more important than the number of days."
+  },
+  {
+    question: "Do I lose history when switching to MariaDB?",
+    answer: "Yes, you start with an empty database. It's technically possible to migrate data, but it's complex and error-prone. Most people just start fresh."
+  },
+  {
+    question: "Why is my Raspberry Pi slow?",
+    answer: "SD cards are slow for database operations. Switch to an external SSD via USB 3.0, install MariaDB, and add active cooling. It makes a huge difference."
+  },
+  {
+    question: "Can too many integrations make HA slow?",
+    answer: "Yes, especially cloud-based integrations that poll often. Review your integrations and disable those you don't use. Also check if some integrations have unnecessarily high poll frequency."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Backup & Security" icon="shield">
+    Protect your optimized system.
+    
+    [See guide →](/en/home-assistant/backup-security/)
+  </Card>
+  <Card title="Dashboard Design" icon="laptop">
+    Build fast, lightweight dashboards.
+    
+    [See guide →](/en/home-assistant/dashboard-design/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
