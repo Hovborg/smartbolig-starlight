@@ -1,0 +1,463 @@
+---
+title: Smart Thermostats & Climate Control
+description: Complete guide to smart thermostats and radiator valves (TRV). Aqara, Sonoff, Tado, Netatmo for Home Assistant. Save on heating bills.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Choose the right smart heating system"
+  description="Guide to smart radiator valves and thermostats for Home Assistant"
+  totalTime="PT25M"
+  steps={[
+    "Assess your heating system (radiator, underfloor, district heating)",
+    "Choose between Zigbee TRV or complete system",
+    "Buy and install radiator valves",
+    "Add to Home Assistant",
+    "Set up Better Thermostat integration",
+    "Configure automations and zones"
+  ]}
+/>
+
+<Badge text="Zigbee" variant="success" /> <Badge text="Energy Savings" variant="note" /> <Badge text="TRV" variant="tip" />
+
+Smart heating is one of the **best investments** in smart home. With smart radiator valves (TRV) you can save **15-25% on heating bills** by heating rooms individually and only when you're home.
+
+<Aside type="tip" title="Top Recommendations 2025">
+- **Budget Zigbee TRV**: Sonoff TRVZB (~$35)
+- **Premium Zigbee TRV**: Aqara E1 (~$50)
+- **Complete system**: Tado, Netatmo, Drayton Wiser
+- **Home Assistant**: Better Thermostat integration
+- **External sensor**: Aqara temperature sensor for accurate readings
+</Aside>
+
+---
+
+## 🔑 What Is A Smart TRV?
+
+A **TRV (Thermostatic Radiator Valve)** is a thermostat valve that sits on your radiator. A smart TRV can:
+
+- ✅ Be controlled from phone or Home Assistant
+- ✅ Follow schedules (heat up before you wake)
+- ✅ Detect open windows and turn off
+- ✅ Use external temperature sensor
+- ✅ Integrate into automations
+
+### Smart TRV vs Complete System
+
+| Zigbee TRV (DIY) | Complete System (Tado/Netatmo) |
+|------------------|-------------------------------|
+| ✅ Cheaper per unit | ✅ Plug-and-play setup |
+| ✅ Full control via Home Assistant | ✅ Nice app for the whole family |
+| ✅ No cloud dependency | ✅ Geofencing built-in |
+| ✅ Mix different brands | ✅ Support and warranty |
+| ❌ Requires more setup | ❌ More expensive |
+| ❌ No official support | ❌ Cloud-dependent (most) |
+| ❌ Cannot call for heat* | ❌ Locked to one ecosystem |
+
+*Most TRVs can only open/close the valve - they cannot turn on the boiler. You need a separate thermostat or relay for that.
+
+---
+
+## 🏆 Zigbee TRV Comparison
+
+### Overview
+
+| Model | Price ~ | Display | Battery | HA Support | Score |
+|-------|---------|---------|---------|------------|-------|
+| **Sonoff TRVZB** | $35 | Vertical LED | 2x AA | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Aqara E1** | $50 | Side LCD | 2x AA (incl.) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Moes ZTRV-BY-100** | $28 | Side LCD | 2x AA | ⭐⭐⭐ | ⭐⭐⭐ |
+| **Tuya TS0601** | $25 | Varies | 2x AA | ⭐⭐⭐ | ⭐⭐⭐ |
+| **Danfoss Ally** | $70 | LED | 2x AA | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
+
+---
+
+## 🥇 Sonoff TRVZB - Best Value
+
+<Tabs>
+  <TabItem label="Overview">
+    ### Why Sonoff TRVZB?
+    
+    **Price:** ~$35
+    
+    Sonoff TRVZB is our **top recommendation** for most people:
+    
+    - ✅ Excellent price/quality ratio
+    - ✅ Vertical LED display (easy to read)
+    - ✅ Click-wheel for manual operation
+    - ✅ Window detection
+    - ✅ Child lock
+    - ✅ Full Zigbee2MQTT/ZHA support
+    - ✅ 6 adapters included (M30x1.5 + Danfoss RA, RAV, RAVL)
+    
+    **Disadvantages:**
+    - ❌ Cannot report valve position precisely
+    - ❌ On/off behavior (not modulating)
+  </TabItem>
+  <TabItem label="Specs">
+    ### Technical Specifications
+    
+    | Spec | Value |
+    |------|-------|
+    | Protocol | Zigbee 3.0 |
+    | Battery | 2x AA (6-12 months) |
+    | Connection | M30x1.5 + adapters |
+    | Temp range | 4-35°C / 39-95°F |
+    | Temp step | 0.5°C / 1°F |
+    | Display | Vertical LED matrix |
+    | Features | Schedule, Window detect, Child lock |
+  </TabItem>
+  <TabItem label="Installation">
+    ### Installation
+    
+    1. **Remove old valve** - Unscrew the old TRV
+    2. **Choose adapter** - Find the right one for your radiator
+    3. **Mount Sonoff** - Hand-tighten onto valve
+    4. **Insert batteries** - 2x AA
+    5. **Pair with Zigbee** - Hold button 5 sec
+    
+    ### Home Assistant
+    
+    With **Zigbee2MQTT**:
+    ```yaml
+    climate:
+      - name: "Living Room Radiator"
+        preset_modes:
+          - manual
+          - holiday
+        # External temperature sensor
+        local_temperature_calibration: auto
+    ```
+    
+    **Available entities:**
+    - climate.living_room_radiator
+    - sensor.living_room_radiator_battery
+    - switch.living_room_radiator_child_lock
+    - switch.living_room_radiator_window_detection
+  </TabItem>
+</Tabs>
+
+**Buy:** [AliExpress](https://aliexpress.com), [ITEAD](https://itead.cc), [Amazon](https://amazon.com)
+
+---
+
+## 🥈 Aqara E1 - Premium Quality
+
+<Tabs>
+  <TabItem label="Overview">
+    ### Why Aqara E1?
+    
+    **Price:** ~$50
+    
+    Aqara E1 is the **premium choice** with best build quality:
+    
+    - ✅ Excellent build quality
+    - ✅ Beautiful design
+    - ✅ Click-wheel with good feedback
+    - ✅ Can use external Aqara temp sensor
+    - ✅ HomeKit compatible (via Aqara hub)
+    - ✅ Batteries included
+    - ✅ 5-year warranty
+    
+    **Disadvantages:**
+    - ❌ More expensive than competitors
+    - ❌ Display on the side (can be hard to see)
+    - ❌ Some report noise during valve movement
+  </TabItem>
+  <TabItem label="Specs">
+    ### Technical Specifications
+    
+    | Spec | Value |
+    |------|-------|
+    | Protocol | Zigbee 3.0 |
+    | Battery | 2x AA (included, 12+ months) |
+    | Connection | M30x1.5 + 3 adapters |
+    | Temp range | 5-30°C / 41-86°F |
+    | Temp step | 0.5°C / 1°F |
+    | Display | Side-mounted LCD |
+    | Features | Schedule, Window detect, External sensor |
+  </TabItem>
+  <TabItem label="Installation">
+    ### Installation
+    
+    1. **Remove old valve**
+    2. **Mount adapter if needed**
+    3. **Screw Aqara E1 on**
+    4. **Pull battery tab** (batteries are pre-installed)
+    5. **Calibrate** - Hold 3 sec on display
+    
+    ### Home Assistant
+    
+    **Zigbee2MQTT** recommended for full functionality:
+    - All modes available
+    - External sensor support
+    - Window detection
+    - Child lock
+    
+    **ZHA** works but with fewer features.
+    
+    ### With External Sensor
+    
+    Aqara E1 can use an external temperature sensor for more accurate room temperature:
+    
+    1. Pair Aqara temperature sensor
+    2. Bind sensor to TRV via Zigbee2MQTT
+    3. TRV now uses external reading
+  </TabItem>
+</Tabs>
+
+**Buy:** [AliExpress](https://aliexpress.com), [Amazon](https://amazon.com)
+
+---
+
+## 💰 Budget: Moes/Tuya TRV
+
+**Price:** ~$25-28
+
+Moes and other Tuya-based TRVs are the **cheapest**, but with compromises:
+
+| Pros | Cons |
+|------|------|
+| ✅ Very cheap | ❌ Lower build quality |
+| ✅ Works with Z2M | ❌ Touch interface (impractical) |
+| ✅ Many adapters | ❌ Display hard to see |
+| | ❌ Inconsistent quality |
+| | ❌ Full open on low battery! |
+
+<Aside type="caution" title="Warning: Moes on low battery">
+Some Moes TRVs open the valve **fully** when battery is low. This can lead to overheating and higher heating bills. Change batteries proactively!
+</Aside>
+
+**Buy:** [AliExpress](https://aliexpress.com) (search "Tuya TRV Zigbee")
+
+---
+
+## 🏠 Complete Systems
+
+If you prefer a **finished solution** with app and support:
+
+### Comparison
+
+| System | Hub | TRV Price | Local control | HA Integration |
+|--------|-----|-----------|---------------|----------------|
+| **Tado** | Yes (incl.) | ~$70 | ❌ Cloud | ✅ Good |
+| **Netatmo** | Yes | ~$85 | ⚠️ Partial | ✅ Good |
+| **Drayton Wiser** | Yes | ~$50 | ⚠️ Partial | ✅ Good |
+| **Danfoss Ally** | No (Zigbee) | ~$70 | ✅ Local | ✅ Perfect |
+
+### Tado
+
+**Pros:**
+- Beautiful design and app
+- Geofencing
+- OpenTherm support (modulating boiler)
+- Matter support (coming)
+
+**Cons:**
+- Expensive
+- Cloud-dependent
+- Subscription for all features
+
+### Netatmo
+
+**Pros:**
+- Good app
+- No subscription
+- Beautiful design
+
+**Cons:**
+- Expensive
+- Partially cloud-dependent
+
+---
+
+## 🧠 Better Thermostat Integration
+
+**Better Thermostat** is a HACS integration that makes your "dumb" TRVs smart:
+
+### Features
+
+- ✅ Uses external temperature sensor (not TRV's inaccurate sensor)
+- ✅ Window/door sensors (turn off when open)
+- ✅ Weather forecast integration
+- ✅ Group multiple TRVs per room
+- ✅ Improved algorithm for energy savings
+
+### Installation
+
+1. **HACS** → Search "Better Thermostat"
+2. **Install** and restart
+3. **Add integration** → Better Thermostat
+4. **Configure**:
+   - Select your TRV climate entity
+   - Select external temperature sensor
+   - Add window/door sensors
+
+### Example Configuration
+
+```yaml
+# configuration.yaml or via UI
+climate:
+  - platform: better_thermostat
+    name: "Living Room Heat"
+    thermostat: climate.living_room_radiator_trv
+    temperature_sensor: sensor.living_room_temperature
+    window_sensors:
+      - binary_sensor.living_room_window
+    outdoor_sensor: sensor.outdoor_temperature
+```
+
+---
+
+## ⚡ Calling For Heat
+
+Most Zigbee TRVs can **only** open/close the valve. They cannot turn on your boiler.
+
+### Solutions
+
+**1. Existing thermostat:**
+Keep your normal thermostat and let it call for heat. The TRVs only control local temperature.
+
+**2. Smart relay:**
+Use a Shelly 1 or similar to turn the boiler on/off based on whether any TRV needs heat.
+
+**3. OpenTherm:**
+If you have a modulating boiler, an OpenTherm gateway (e.g., OTGW) can provide precise control.
+
+### Home Assistant Automation
+
+```yaml
+# Turn on boiler when a TRV calls for heat
+automation:
+  - alias: "Boiler on/off"
+    trigger:
+      - platform: template
+        value_template: >
+          {{ states.climate 
+             | selectattr('attributes.hvac_action', 'eq', 'heating')
+             | list | count > 0 }}
+    action:
+      - choose:
+          - conditions: "{{ trigger.to_state.state == 'True' }}"
+            sequence:
+              - service: switch.turn_on
+                entity_id: switch.boiler_relay
+          - conditions: "{{ trigger.to_state.state == 'False' }}"
+            sequence:
+              - service: switch.turn_off
+                entity_id: switch.boiler_relay
+```
+
+---
+
+## 📊 Zigbee TRV Compatibility
+
+| Radiator Type | M30x1.5 | Danfoss RA | Danfoss RAV | Danfoss RAVL |
+|---------------|---------|------------|-------------|--------------|
+| **Sonoff TRVZB** | ✅ | ✅ | ✅ | ✅ |
+| **Aqara E1** | ✅ | ⚠️ | ⚠️ | ⚠️ |
+| **Moes** | ✅ | ✅ | ✅ | ✅ |
+| **Danfoss Ally** | ✅ | ✅ | ✅ | ✅ |
+
+⚠️ = Requires separate adapter
+
+<Aside type="tip" title="Find your valve type">
+Most European radiators use **M30x1.5**. Danfoss RA/RAV/RAVL is common in Scandinavia. Check your existing valve before buying.
+</Aside>
+
+---
+
+## 🛒 Buying Strategy
+
+### Starter (~$140)
+- 3x Sonoff TRVZB ($105)
+- 1x Aqara temperature sensor ($21)
+- Use existing Zigbee coordinator
+- **Total:** ~$126
+
+### Mid-range (~$350)
+- 6x Sonoff TRVZB ($210)
+- 3x Aqara temperature sensor ($63)
+- 3x Aqara door/window sensor ($42)
+- 1x Shelly 1 for boiler control ($17)
+- **Total:** ~$332
+
+### Premium (~$560)
+- 8x Aqara E1 TRV ($400)
+- 4x Aqara temperature sensor ($84)
+- 4x Aqara door/window sensor ($56)
+- Better Thermostat integration
+- **Total:** ~$540
+
+---
+
+## 🛒 Where to Buy?
+
+### Zigbee TRV
+- **[AliExpress](https://aliexpress.com)** - Cheapest (Sonoff, Aqara, Moes)
+- **[ITEAD](https://itead.cc)** - Official Sonoff
+- **[Amazon](https://amazon.com)** - Fast delivery
+
+### Complete Systems
+- **[Tado](https://tado.com)** - Official
+- **[Amazon](https://amazon.com)** - Tado, Netatmo
+- **[Best Buy](https://bestbuy.com)** - Various brands
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Does smart TRV work with district heating?",
+    answer: "Yes! District heating works exactly like regular central heating. The TRV just controls how much hot water flows through the radiator. You don't need to change anything about your district heating system."
+  },
+  {
+    question: "Can I mix different TRV brands?",
+    answer: "Yes, with Home Assistant and Zigbee2MQTT/ZHA you can freely mix Sonoff, Aqara, Moes, etc. Better Thermostat integration helps unify them."
+  },
+  {
+    question: "How much can I save?",
+    answer: "Typically 15-25% on heating bills. Savings come from: 1) Only heating when you're home, 2) Lower temperature in unused rooms, 3) Automatic off on open windows, 4) Night temperature reduction."
+  },
+  {
+    question: "Do I need an external temperature sensor?",
+    answer: "Recommended! The TRV's built-in sensor sits close to the radiator and often measures 2-4°C too high. An external sensor (Aqara, Sonoff) gives much more accurate temperature control."
+  },
+  {
+    question: "What about underfloor heating?",
+    answer: "Underfloor heating is typically controlled by a separate thermostat, not TRV. See our guide to underfloor heating controllers. You can still integrate these with Home Assistant."
+  },
+  {
+    question: "Do batteries last all winter?",
+    answer: "Most TRVs last 6-12 months on a set of AA batteries with normal use. Sonoff and Aqara are among the most energy efficient."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Zigbee Sensors" icon="rocket">
+    Temperature and window sensors.
+    
+    [See sensors →](/en/products/zigbee-sensors/)
+  </Card>
+  <Card title="Automations" icon="setting">
+    Smart heating control automations.
+    
+    [Learn more →](/en/home-assistant/automations/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*

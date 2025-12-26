@@ -1,0 +1,463 @@
+---
+title: Smart Termostater & Klimakontrol
+description: Komplet guide til smart termostater og radiatorventiler (TRV). Aqara, Sonoff, Tado, Netatmo til Home Assistant. Spar på varmeregningen.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Vælg det rigtige smart varmesystem"
+  description="Guide til smart radiatorventiler og termostater til Home Assistant"
+  totalTime="PT25M"
+  steps={[
+    "Vurder dit varmesystem (radiator, gulvvarme, fjernvarme)",
+    "Vælg mellem Zigbee TRV eller komplet system",
+    "Køb og installer radiatorventiler",
+    "Tilføj til Home Assistant",
+    "Opsæt Better Thermostat integration",
+    "Konfigurer automationer og zoner"
+  ]}
+/>
+
+<Badge text="Zigbee" variant="success" /> <Badge text="Energibesparelse" variant="note" /> <Badge text="TRV" variant="tip" />
+
+Smart varme er en af de **bedste investeringer** i smart home. Med smart radiatorventiler (TRV) kan du spare **15-25% på varmeregningen** ved at varme rum individuelt og kun når du er hjemme.
+
+<Aside type="tip" title="Top Anbefalinger 2025">
+- **Budget Zigbee TRV**: Sonoff TRVZB (~250 kr)
+- **Premium Zigbee TRV**: Aqara E1 (~350 kr)
+- **Komplet system**: Tado, Netatmo, Drayton Wiser
+- **Home Assistant**: Better Thermostat integration
+- **Ekstern sensor**: Aqara temperatur sensor til præcis måling
+</Aside>
+
+---
+
+## 🔑 Hvad Er En Smart TRV?
+
+En **TRV (Thermostatic Radiator Valve)** er en termostatventil der sidder på din radiator. En smart TRV kan:
+
+- ✅ Styres fra telefon eller Home Assistant
+- ✅ Følge skemaer (varme op før du vågner)
+- ✅ Registrere åbne vinduer og slukke
+- ✅ Bruge ekstern temperaturmåler
+- ✅ Integreres i automationer
+
+### Smart TRV vs Komplet System
+
+| Zigbee TRV (DIY) | Komplet System (Tado/Netatmo) |
+|------------------|-------------------------------|
+| ✅ Billigere per enhed | ✅ Plug-and-play opsætning |
+| ✅ Fuld kontrol via Home Assistant | ✅ Pæn app til hele familien |
+| ✅ Ingen cloud afhængighed | ✅ Geofencing indbygget |
+| ✅ Mix forskellige mærker | ✅ Support og garanti |
+| ❌ Kræver mere opsætning | ❌ Dyrere |
+| ❌ Ingen officiel support | ❌ Cloud-afhængig (de fleste) |
+| ❌ Kan ikke kalde på varme* | ❌ Låst til ét økosystem |
+
+*De fleste TRV'er kan kun åbne/lukke ventilen - de kan ikke tænde fyret. Du skal bruge en separat termostat eller relæ til det.
+
+---
+
+## 🏆 Zigbee TRV Sammenligning
+
+### Oversigt
+
+| Model | Pris ca. | Display | Batteri | HA Support | Score |
+|-------|----------|---------|---------|------------|-------|
+| **Sonoff TRVZB** | 250 kr | Lodret LED | 2x AA | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Aqara E1** | 350 kr | Sidevendt LCD | 2x AA (inkl.) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **Moes ZTRV-BY-100** | 200 kr | Sidevendt LCD | 2x AA | ⭐⭐⭐ | ⭐⭐⭐ |
+| **Tuya TS0601** | 180 kr | Varierer | 2x AA | ⭐⭐⭐ | ⭐⭐⭐ |
+| **Danfoss Ally** | 500 kr | LED | 2x AA | ⭐⭐⭐⭐ | ⭐⭐⭐⭐ |
+
+---
+
+## 🥇 Sonoff TRVZB - Bedste Pris/Kvalitet
+
+<Tabs>
+  <TabItem label="Oversigt">
+    ### Hvorfor Sonoff TRVZB?
+    
+    **Pris:** ~250 kr / $35
+    
+    Sonoff TRVZB er vores **top anbefaling** for de fleste:
+    
+    - ✅ Fantastisk pris/kvalitet forhold
+    - ✅ Lodrette LED display (let at aflæse)
+    - ✅ Klik-hjul til manuel betjening
+    - ✅ Vindues-detektion
+    - ✅ Børnelås
+    - ✅ Fuld Zigbee2MQTT/ZHA support
+    - ✅ 6 adaptere inkluderet (M30x1.5 + Danfoss RA, RAV, RAVL)
+    
+    **Ulemper:**
+    - ❌ Kan ikke rapportere ventilposition præcist
+    - ❌ On/off adfærd (ikke modulerende)
+  </TabItem>
+  <TabItem label="Specs">
+    ### Tekniske Specifikationer
+    
+    | Spec | Værdi |
+    |------|-------|
+    | Protokol | Zigbee 3.0 |
+    | Batteri | 2x AA (6-12 mdr) |
+    | Tilslutning | M30x1.5 + adaptere |
+    | Temp range | 4-35°C |
+    | Temp step | 0.5°C |
+    | Display | Lodret LED matrix |
+    | Funktioner | Schedule, Window detect, Child lock |
+  </TabItem>
+  <TabItem label="Installation">
+    ### Installation
+    
+    1. **Fjern gammel ventil** - Skru den gamle TRV af
+    2. **Vælg adapter** - Find den rigtige til din radiator
+    3. **Montér Sonoff** - Skru på med håndkraft
+    4. **Indsæt batterier** - 2x AA
+    5. **Par med Zigbee** - Hold knap 5 sek
+    
+    ### Home Assistant
+    
+    Med **Zigbee2MQTT**:
+    ```yaml
+    climate:
+      - name: "Stue Radiator"
+        preset_modes:
+          - manual
+          - holiday
+        # Ekstern temperatur sensor
+        local_temperature_calibration: auto
+    ```
+    
+    **Tilgængelige entiteter:**
+    - climate.stue_radiator
+    - sensor.stue_radiator_battery
+    - switch.stue_radiator_child_lock
+    - switch.stue_radiator_window_detection
+  </TabItem>
+</Tabs>
+
+**Køb:** [AliExpress](https://aliexpress.com), [ITEAD](https://itead.cc), [Amazon.de](https://amazon.de)
+
+---
+
+## 🥈 Aqara E1 - Premium Kvalitet
+
+<Tabs>
+  <TabItem label="Oversigt">
+    ### Hvorfor Aqara E1?
+    
+    **Pris:** ~350 kr / $50
+    
+    Aqara E1 er **premium valget** med bedste byggekvalitet:
+    
+    - ✅ Fremragende byggekvalitet
+    - ✅ Flot design
+    - ✅ Klik-hjul med god feedback
+    - ✅ Kan bruge ekstern Aqara temp sensor
+    - ✅ HomeKit kompatibel (via Aqara hub)
+    - ✅ Batterier inkluderet
+    - ✅ 5 års garanti
+    
+    **Ulemper:**
+    - ❌ Dyrere end konkurrenter
+    - ❌ Display sidder på siden (kan være svært at se)
+    - ❌ Nogle rapporterer støj ved ventilbevægelse
+  </TabItem>
+  <TabItem label="Specs">
+    ### Tekniske Specifikationer
+    
+    | Spec | Værdi |
+    |------|-------|
+    | Protokol | Zigbee 3.0 |
+    | Batteri | 2x AA (inkluderet, 12+ mdr) |
+    | Tilslutning | M30x1.5 + 3 adaptere |
+    | Temp range | 5-30°C |
+    | Temp step | 0.5°C |
+    | Display | Sidevendt LCD |
+    | Funktioner | Schedule, Window detect, External sensor |
+  </TabItem>
+  <TabItem label="Installation">
+    ### Installation
+    
+    1. **Fjern gammel ventil**
+    2. **Montér adapter hvis nødvendigt**
+    3. **Skru Aqara E1 på**
+    4. **Træk batteritab ud** (batterier er pre-installeret)
+    5. **Kalibrer** - Hold 3 sek på display
+    
+    ### Home Assistant
+    
+    **Zigbee2MQTT** anbefales for fuld funktionalitet:
+    - Alle modes tilgængelige
+    - Ekstern sensor support
+    - Vindues-detektion
+    - Børnelås
+    
+    **ZHA** virker men med færre funktioner.
+    
+    ### Med Ekstern Sensor
+    
+    Aqara E1 kan bruge en ekstern temperaturmåler for mere præcis rumtemperatur:
+    
+    1. Par Aqara temperatur sensor
+    2. Bind sensor til TRV via Zigbee2MQTT
+    3. TRV bruger nu ekstern måling
+  </TabItem>
+</Tabs>
+
+**Køb:** [AliExpress](https://aliexpress.com), [Amazon.de](https://amazon.de)
+
+---
+
+## 💰 Budget: Moes/Tuya TRV
+
+**Pris:** ~180-200 kr / $25-28
+
+Moes og andre Tuya-baserede TRV'er er de **billigste**, men med kompromisser:
+
+| Fordele | Ulemper |
+|---------|---------|
+| ✅ Meget billig | ❌ Lavere byggekvalitet |
+| ✅ Fungerer med Z2M | ❌ Touch interface (upraktisk) |
+| ✅ Mange adaptere | ❌ Display svær at se |
+| | ❌ Inkonsistent kvalitet |
+| | ❌ Fuld åbning ved lavt batteri! |
+
+<Aside type="caution" title="Advarsel: Moes ved lavt batteri">
+Nogle Moes TRV'er åbner ventilen **helt op** når batteriet er lavt. Dette kan føre til overophedning og højere varmeregning. Skift batterier proaktivt!
+</Aside>
+
+**Køb:** [AliExpress](https://aliexpress.com) (søg "Tuya TRV Zigbee")
+
+---
+
+## 🏠 Komplette Systemer
+
+Hvis du foretrækker en **færdig løsning** med app og support:
+
+### Sammenligning
+
+| System | Hub | TRV Pris | Lokal kontrol | HA Integration |
+|--------|-----|----------|---------------|----------------|
+| **Tado** | Ja (inkl.) | ~500 kr | ❌ Cloud | ✅ God |
+| **Netatmo** | Ja | ~600 kr | ⚠️ Delvis | ✅ God |
+| **Drayton Wiser** | Ja | ~350 kr | ⚠️ Delvis | ✅ God |
+| **Danfoss Ally** | Nej (Zigbee) | ~500 kr | ✅ Lokal | ✅ Perfekt |
+
+### Tado
+
+**Fordele:**
+- Flot design og app
+- Geofencing
+- OpenTherm support (modulerende kedel)
+- Matter support (kommende)
+
+**Ulemper:**
+- Dyrt
+- Cloud-afhængig
+- Abonnement for alle features
+
+### Netatmo
+
+**Fordele:**
+- God app
+- Ingen abonnement
+- Flot design
+
+**Ulemper:**
+- Dyr
+- Delvis cloud-afhængig
+
+---
+
+## 🧠 Better Thermostat Integration
+
+**Better Thermostat** er en HACS integration der gør dine "dumme" TRV'er smarte:
+
+### Funktioner
+
+- ✅ Bruger ekstern temperaturmåler (ikke TRV'ens upræcise sensor)
+- ✅ Vindues/dør sensorer (sluk når åben)
+- ✅ Vejrudsigt integration
+- ✅ Gruppér flere TRV'er per rum
+- ✅ Forbedret algoritme for energibesparelse
+
+### Installation
+
+1. **HACS** → Søg "Better Thermostat"
+2. **Installer** og genstart
+3. **Tilføj integration** → Better Thermostat
+4. **Konfigurer**:
+   - Vælg din TRV climate entity
+   - Vælg ekstern temperatursensor
+   - Tilføj vindues/dør sensorer
+
+### Eksempel Konfiguration
+
+```yaml
+# configuration.yaml eller via UI
+climate:
+  - platform: better_thermostat
+    name: "Stue Varme"
+    thermostat: climate.stue_radiator_trv
+    temperature_sensor: sensor.stue_temperatur
+    window_sensors:
+      - binary_sensor.stue_vindue
+    outdoor_sensor: sensor.udendors_temperatur
+```
+
+---
+
+## ⚡ Kald På Varme
+
+De fleste Zigbee TRV'er kan **kun** åbne/lukke ventilen. De kan ikke tænde dit fyr/fjernvarme.
+
+### Løsninger
+
+**1. Eksisterende termostat:**
+Behold din normale termostat og lad den kalde på varme. TRV'erne styrer kun lokal temperatur.
+
+**2. Smart relæ:**
+Brug en Shelly 1 eller lignende til at tænde/slukke fyret baseret på om nogen TRV har brug for varme.
+
+**3. OpenTherm:**
+Hvis du har en modulerende kedel, kan en OpenTherm gateway (fx OTGW) give præcis kontrol.
+
+### Home Assistant Automation
+
+```yaml
+# Tænd fyr når en TRV kalder på varme
+automation:
+  - alias: "Fyr tænd/sluk"
+    trigger:
+      - platform: template
+        value_template: >
+          {{ states.climate 
+             | selectattr('attributes.hvac_action', 'eq', 'heating')
+             | list | count > 0 }}
+    action:
+      - choose:
+          - conditions: "{{ trigger.to_state.state == 'True' }}"
+            sequence:
+              - service: switch.turn_on
+                entity_id: switch.fyr_rele
+          - conditions: "{{ trigger.to_state.state == 'False' }}"
+            sequence:
+              - service: switch.turn_off
+                entity_id: switch.fyr_rele
+```
+
+---
+
+## 📊 Zigbee TRV Kompatibilitet
+
+| Radiator Type | M30x1.5 | Danfoss RA | Danfoss RAV | Danfoss RAVL |
+|---------------|---------|------------|-------------|--------------|
+| **Sonoff TRVZB** | ✅ | ✅ | ✅ | ✅ |
+| **Aqara E1** | ✅ | ⚠️ | ⚠️ | ⚠️ |
+| **Moes** | ✅ | ✅ | ✅ | ✅ |
+| **Danfoss Ally** | ✅ | ✅ | ✅ | ✅ |
+
+⚠️ = Kræver separat adapter
+
+<Aside type="tip" title="Find din ventiltype">
+De fleste europæiske radiatorer bruger **M30x1.5**. Danfoss RA/RAV/RAVL er udbredt i Danmark og Nordeuropa. Tjek din eksisterende ventil før køb.
+</Aside>
+
+---
+
+## 🛒 Købs Strategi
+
+### Starter (~1.000 kr)
+- 3x Sonoff TRVZB (750 kr)
+- 1x Aqara temperatur sensor (150 kr)
+- Brug eksisterende Zigbee koordinator
+- **Total:** ~900 kr
+
+### Mellem (~2.500 kr)
+- 6x Sonoff TRVZB (1.500 kr)
+- 3x Aqara temperatur sensor (450 kr)
+- 3x Aqara dør/vindue sensor (300 kr)
+- 1x Shelly 1 til fyr-kontrol (120 kr)
+- **Total:** ~2.370 kr
+
+### Premium (~4.000 kr)
+- 8x Aqara E1 TRV (2.800 kr)
+- 4x Aqara temperatur sensor (600 kr)
+- 4x Aqara dør/vindue sensor (400 kr)
+- Better Thermostat integration
+- **Total:** ~3.800 kr
+
+---
+
+## 🛒 Hvor Køber Jeg?
+
+### Zigbee TRV
+- **[AliExpress](https://aliexpress.com)** - Billigst (Sonoff, Aqara, Moes)
+- **[ITEAD](https://itead.cc)** - Officiel Sonoff
+- **[Amazon.de](https://amazon.de)** - Hurtig levering
+
+### Komplette Systemer
+- **[Tado](https://tado.com)** - Officiel
+- **[Elgiganten](https://elgiganten.dk)** - Tado, Netatmo
+- **[Power](https://power.dk)** - Danfoss
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Virker smart TRV med fjernvarme?",
+    answer: "Ja! Fjernvarme fungerer præcis som almindelig centralvarme. TRV'en styrer bare hvor meget varmt vand der løber gennem radiatoren. Du behøver ikke ændre noget ved dit fjernvarmeanlæg."
+  },
+  {
+    question: "Kan jeg blande forskellige TRV mærker?",
+    answer: "Ja, med Home Assistant og Zigbee2MQTT/ZHA kan du blande Sonoff, Aqara, Moes osv. frit. Better Thermostat integration hjælper med at samle dem."
+  },
+  {
+    question: "Hvor meget kan jeg spare?",
+    answer: "Typisk 15-25% på varmeregningen. Besparelsen kommer fra: 1) Kun varme når du er hjemme, 2) Lavere temperatur i ubrugte rum, 3) Automatisk sluk ved åbne vinduer, 4) Nattemperatur sænkning."
+  },
+  {
+    question: "Skal jeg have en ekstern temperaturmåler?",
+    answer: "Anbefales! TRV'ens indbyggede sensor sidder tæt på radiatoren og måler ofte 2-4°C for højt. En ekstern sensor (Aqara, Sonoff) giver meget mere præcis temperaturkontrol."
+  },
+  {
+    question: "Hvad med gulvvarme?",
+    answer: "Gulvvarme styres typisk af en separat termostat, ikke TRV. Se vores guide til gulvvarme-kontrollere. Du kan stadig integrere disse med Home Assistant."
+  },
+  {
+    question: "Holder batterierne hele vinteren?",
+    answer: "De fleste TRV'er holder 6-12 måneder på et sæt AA batterier ved normal brug. Sonoff og Aqara er blandt de mest energieffektive."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="Zigbee Sensorer" icon="rocket">
+    Temperatur og vindue sensorer.
+    
+    [Se sensorer →](/da/produkter/zigbee-sensorer/)
+  </Card>
+  <Card title="Automationer" icon="setting">
+    Smart varmestyring automationer.
+    
+    [Lær mere →](/da/home-assistant/automationer/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*
