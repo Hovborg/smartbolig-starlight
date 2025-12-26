@@ -1,0 +1,412 @@
+---
+title: WiFi Smart Home Enheder
+description: Komplet guide til WiFi smart home enheder - Shelly, Sonoff, Tasmota, ESPHome. Relæer, stik, pærer og DIY løsninger til Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Vælg de rigtige WiFi smart home enheder"
+  description="Guide til at vælge WiFi enheder med lokal kontrol til Home Assistant"
+  totalTime="PT15M"
+  steps={[
+    "Beslut om du vil have færdige produkter eller DIY",
+    "Vælg mærke baseret på behov (Shelly, Sonoff, Tuya)",
+    "Tjek om enheden understøtter lokal kontrol",
+    "Installer og konfigurer med Home Assistant",
+    "Opsæt automationer"
+  ]}
+/>
+
+<Badge text="Home Assistant" variant="success" /> <Badge text="Lokal kontrol" variant="note" /> <Badge text="MQTT" variant="tip" />
+
+WiFi smart home enheder er **den nemmeste måde at komme i gang** med smart home. De forbinder direkte til dit WiFi netværk uden ekstra hub. Men pas på - mange kræver cloud og virker ikke uden internet. Denne guide fokuserer på **enheder med lokal kontrol**.
+
+<Aside type="tip" title="Top Anbefalinger 2025">
+- **Relæer**: Shelly 1 Mini Gen3, Shelly 1PM Mini Gen3
+- **Smart stik**: Shelly Plug S, Nous A1T (med Tasmota)
+- **Dimmere**: Shelly Dimmer 2, Shelly Plus Wall Dimmer
+- **DIY**: ESP32 med ESPHome
+- **Energimåling**: Shelly EM, Shelly Pro 3EM
+</Aside>
+
+---
+
+## 🔑 Lokal Kontrol vs Cloud
+
+### Hvorfor lokal kontrol er vigtigt
+
+| Lokal kontrol | Cloud-afhængig |
+|---------------|----------------|
+| ✅ Virker uden internet | ❌ Kræver internet |
+| ✅ Hurtigere respons | ❌ Langsommere |
+| ✅ Privat - ingen data til producent | ❌ Dine data sendes til cloud |
+| ✅ Virker selvom firma lukker | ❌ Stopper hvis service nedlægges |
+| ✅ Fuld kontrol | ❌ Begrænset funktionalitet |
+
+### Mærker med lokal kontrol
+
+| Mærke | Lokal kontrol | Firmware flash | Note |
+|-------|---------------|----------------|------|
+| **Shelly** | ✅ Indbygget | Muligt men unødvendigt | ⭐ Anbefalet |
+| **Sonoff** | ⚠️ Delvist | Tasmota/ESPHome | Nyere modeller sværere |
+| **Tuya/Smart Life** | ❌ Cloud | Tuya-Local eller flash | Mange billige enheder |
+| **Tasmota enheder** | ✅ Fuld | Pre-flashed | Lokal fra start |
+| **ESPHome DIY** | ✅ Fuld | Du bygger selv | Ultimativ kontrol |
+
+---
+
+## 🏆 Shelly - Det Bedste Valg
+
+Shelly er et **bulgarsk firma** der laver nogle af de bedste WiFi smart home enheder. De har lokal kontrol indbygget, fungerer perfekt med Home Assistant, og kræver ingen cloud.
+
+### Shelly Serier
+
+<Tabs>
+  <TabItem label="Gen3 (Nyeste)">
+    ### Gen3 Serie - 2024/2025
+    
+    Nyeste generation med:
+    - ESP-Shelly chip (8MB flash)
+    - Bluetooth gateway funktion
+    - Matter-klar (firmware opdatering)
+    - Hurtigere processor
+    - 3 års garanti
+    
+    **Modeller:**
+    - Shelly 1 Mini Gen3 - Relæ uden strømmåling
+    - Shelly 1PM Mini Gen3 - Relæ med strømmåling
+    - Shelly 2PM Gen3 - 2-kanals relæ med strømmåling
+    - Shelly PM Mini Gen3 - Kun strømmåling
+  </TabItem>
+  <TabItem label="Plus Serie">
+    ### Plus Serie - 2022/2023
+    
+    Mellemgeneration med:
+    - ESP32-baseret
+    - Bluetooth setup
+    - Scripting support
+    - Webhooks og MQTT
+    
+    **Modeller:**
+    - Shelly Plus 1 / 1PM - Standard relæ
+    - Shelly Plus 2PM - 2-kanals / gardin kontrol
+    - Shelly Plus Plug S - Smart stik
+    - Shelly Plus i4 - 4 input scene controller
+  </TabItem>
+  <TabItem label="Pro Serie">
+    ### Pro Serie - Professionel
+    
+    DIN-skinne montering med:
+    - Ethernet + WiFi
+    - Op til 3 faser
+    - Høj kapacitet
+    - 5 års garanti
+    
+    **Modeller:**
+    - Shelly Pro 1/1PM/2PM - DIN relæer
+    - Shelly Pro 3EM - 3-faset energimåling
+    - Shelly Pro 4PM - 4-kanals med måling
+  </TabItem>
+</Tabs>
+
+### 🥇 Shelly 1PM Mini Gen3 - Mest Populære
+
+**Pris:** ca. 130 kr | **Kapacitet:** 8A / 1920W
+
+Verdens mindste WiFi relæ med strømmåling. Passer bag de fleste afbrydere og i lampeudtag.
+
+| Fordele | Ulemper |
+|---------|---------|
+| ✅ Ekstremt lille (31x31x17mm) | ❌ Kun 8A (ikke til store forbrugere) |
+| ✅ Strømmåling inkluderet | ❌ Hørbart klik ved skift |
+| ✅ Lokal kontrol via REST/MQTT | ❌ Kun 4 terminaler |
+| ✅ Automatisk opdaget i HA | |
+| ✅ Bluetooth gateway | |
+
+**Anvendelser:**
+- Bag lysafbrydere
+- I lampeudtag
+- Garageporte
+- Vandingsanlæg
+
+**Køb:** [Shelly.com](https://shelly.com), [Amazon](https://amazon.de), [Proshop](https://proshop.dk)
+
+### Shelly 2PM Gen3 - Til Gardiner/Persienner
+
+**Pris:** ca. 200 kr | **Kapacitet:** 2x 10A
+
+Perfekt til motoriserede gardiner og persienner med tilt-funktion.
+
+**Køb:** [Shelly.com](https://shelly.com)
+
+### Shelly Plug S Gen3 - Smart Stik
+
+**Pris:** ca. 150 kr | **Kapacitet:** 12A / 2880W
+
+Smart stik med strømmåling og Matter support.
+
+**Køb:** [Shelly.com](https://shelly.com), [Amazon](https://amazon.de)
+
+---
+
+## 📊 Sammenligning: Shelly Relæer
+
+| Model | Kanaler | Max | Strømmåling | Størrelse | Pris ca. |
+|-------|---------|-----|-------------|-----------|----------|
+| **1 Mini Gen3** | 1 | 8A | ❌ | 31x31x17 | 100 kr |
+| **1PM Mini Gen3** | 1 | 8A | ✅ | 31x31x17 | 130 kr |
+| **PM Mini Gen3** | 0 | 16A | ✅ | 31x31x17 | 100 kr |
+| **Plus 1** | 1 | 16A | ❌ | 42x36x17 | 120 kr |
+| **Plus 1PM** | 1 | 16A | ✅ | 42x36x17 | 150 kr |
+| **2PM Gen3** | 2 | 2x10A | ✅ | 42x36x17 | 200 kr |
+| **Pro 1PM** | 1 | 16A | ✅ | DIN | 350 kr |
+| **Pro 3EM** | 0 | 3x120A | ✅ | DIN | 800 kr |
+
+---
+
+## ⚡ Sonoff WiFi Enheder
+
+Sonoff laver billige WiFi enheder, men mange kræver cloud (eWeLink). Nogle kan flashesmed Tasmota/ESPHome for lokal kontrol.
+
+### Med Lokal Kontrol (DIY Mode)
+
+| Model | Type | Lokal | Flash | Pris ca. |
+|-------|------|-------|-------|----------|
+| **Sonoff Basic R4** | Relæ | ✅ DIY mode | Muligt | 50 kr |
+| **Sonoff Mini R4** | Relæ | ✅ DIY mode | Muligt | 70 kr |
+| **Sonoff POWR3** | Relæ + måling | ✅ DIY mode | Muligt | 120 kr |
+| **Sonoff S31** | Stik (US) | ⚠️ | Tasmota | 80 kr |
+| **Sonoff S26** | Stik (EU) | ⚠️ | Tasmota | 70 kr |
+
+<Aside type="caution" title="Sonoff DIY Mode">
+Sonoff's DIY mode giver lokal kontrol, men:
+- Ikke alle modeller har det
+- Kræver aktivering via eWeLink app først
+- Færre features end cloud mode
+
+For fuld lokal kontrol, overvej at flashe med Tasmota.
+</Aside>
+
+---
+
+## 🔧 Tasmota & ESPHome
+
+### Tasmota - Færdig Firmware
+
+Tasmota er open source firmware til ESP8266/ESP32 enheder. Giver fuld lokal kontrol via MQTT eller web interface.
+
+**Fordele:**
+- ✅ Nem opsætning via web UI
+- ✅ Understøtter 1000+ enheder
+- ✅ MQTT integration
+- ✅ Ingen programmering nødvendig
+
+**Enheder med Tasmota:**
+- Nous A1T smart stik (pre-flashed)
+- Athom smart stik (pre-flashed)
+- Mange Tuya enheder (kræver flash)
+
+**Find kompatible enheder:** [templates.blakadder.com](https://templates.blakadder.com)
+
+### ESPHome - DIY Firmware
+
+ESPHome lader dig bygge custom firmware med YAML konfiguration. Perfekt til DIY projekter.
+
+**Fordele:**
+- ✅ Native Home Assistant integration
+- ✅ OTA opdateringer
+- ✅ On-device automationer
+- ✅ Fuld kontrol over alle funktioner
+- ✅ ESP32 og ESP8266 support
+
+**Populære DIY projekter:**
+- Temperatur/fugtighed sensorer (DHT22, BME280)
+- Tilstedeværelsessensorer (LD2410, HLK-LD2450)
+- LED strip kontrollere
+- Gardin/persienne motorer
+- IR blastere (klimaanlæg)
+
+---
+
+## 🔌 Smart Stik Sammenligning
+
+| Produkt | Protokol | Lokal | Energimåling | Max | Pris ca. | Score |
+|---------|----------|-------|--------------|-----|----------|-------|
+| **Shelly Plug S Gen3** | WiFi | ✅ | ✅ | 12A | 150 kr | ⭐⭐⭐⭐⭐ |
+| **Nous A1T** | WiFi (Tasmota) | ✅ | ✅ | 16A | 100 kr | ⭐⭐⭐⭐⭐ |
+| **Athom Smart Plug** | WiFi (Tasmota) | ✅ | ✅ | 16A | 120 kr | ⭐⭐⭐⭐ |
+| **Sonoff S26R2** | WiFi | ⚠️ | ❌ | 10A | 70 kr | ⭐⭐⭐ |
+| **Tuya/Smart Life** | WiFi | ❌ | Varierer | 16A | 50-80 kr | ⭐⭐ |
+
+### 🥇 Nous A1T - Bedste Pris/Kvalitet
+
+Pre-flashet med Tasmota fra fabrikken. 16A kapacitet og energimåling.
+
+**Køb:** [Amazon](https://amazon.de), [AliExpress](https://aliexpress.com)
+
+### 🥇 Shelly Plug S Gen3 - Bedste Kvalitet
+
+Shelly's nyeste smart stik med Matter support.
+
+**Køb:** [Shelly.com](https://shelly.com), [Amazon](https://amazon.de)
+
+---
+
+## 💡 Smart Pærer
+
+<Aside type="caution" title="WiFi vs Zigbee Pærer">
+**WiFi pærer** belaster dit netværk og har ofte kun cloud kontrol.
+
+**Zigbee pærer** (IKEA, Philips Hue, Innr) er bedre fordi de:
+- Fungerer som mesh routere
+- Har lokal kontrol
+- Bruger mindre strøm på standby
+
+Vi anbefaler Zigbee pærer i stedet for WiFi pærer.
+</Aside>
+
+Hvis du alligevel vil have WiFi pærer:
+
+| Produkt | Lokal | Farve | Pris ca. |
+|---------|-------|-------|----------|
+| **Shelly Duo** | ✅ | Hvid (CCT) | 100 kr |
+| **Shelly Bulb** | ✅ | RGBW | 150 kr |
+| **Athom (Tasmota)** | ✅ | RGBW | 80 kr |
+| **Tuya/Smart Life** | ❌ | RGBW | 40-60 kr |
+
+---
+
+## 🏠 Home Assistant Integration
+
+### Shelly Integration
+
+Shelly enheder opdages **automatisk** i Home Assistant:
+
+1. Tilslut Shelly til WiFi via Shelly app eller Bluetooth
+2. Home Assistant finder enheden automatisk
+3. Klik "Konfigurer" i Integrationer
+4. Færdig!
+
+**Features:**
+- Øjeblikkelig status opdatering (push)
+- Alle sensorer eksponeret
+- Scripting support
+- Cover (gardin) kontrol med tilt
+
+### Tasmota Integration
+
+Tasmota enheder kan integreres via:
+
+1. **MQTT (Anbefalet)** - Automatisk discovery
+2. **Tasmota integration** - Direkte forbindelse
+
+**MQTT setup:**
+```yaml
+# I Tasmota console:
+SetOption19 1  # Aktiver MQTT discovery
+```
+
+### ESPHome Integration
+
+ESPHome enheder tilføjes direkte i Home Assistant:
+
+1. Installer ESPHome Add-on
+2. Opret ny enhed med YAML
+3. Flash firmware
+4. Enheden opdages automatisk
+
+---
+
+## 🛒 Købs Strategi
+
+### Starter Kit - Shelly (~400 kr)
+- 2x Shelly 1PM Mini Gen3 (260 kr)
+- 1x Shelly Plug S Gen3 (150 kr)
+- **Total:** ~410 kr
+
+### Avanceret - Blandet (~800 kr)
+- 3x Shelly 1PM Mini Gen3 (390 kr)
+- 2x Nous A1T smart stik (200 kr)
+- 1x Shelly 2PM Gen3 til gardiner (200 kr)
+- **Total:** ~790 kr
+
+### DIY Kit - ESPHome (~300 kr)
+- 5x ESP32 DevKit (250 kr)
+- Diverse sensorer (DHT22, PIR, relæ) (50 kr)
+- **Total:** ~300 kr + din tid
+
+---
+
+## 🛒 Hvor Køber Jeg?
+
+### Shelly
+- **[Shelly.com](https://shelly.com)** - Officiel, gratis fragt over 500 kr
+- **[Amazon.de](https://amazon.de)** - Hurtig levering
+- **[Proshop.dk](https://proshop.dk)** - Dansk forhandler
+
+### Tasmota Enheder
+- **[Amazon.de](https://amazon.de)** - Nous, Athom
+- **[AliExpress](https://aliexpress.com)** - Billigst
+
+### DIY / ESP32
+- **[AliExpress](https://aliexpress.com)** - ESP32 boards
+- **[Electrokit.se](https://electrokit.se)** - Nordisk leverandør
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "WiFi eller Zigbee - hvad er bedst?",
+    answer: "Zigbee er generelt bedre for sensorer og pærer (mesh netværk, lavere strømforbrug). WiFi er godt til relæer og stik hvor du alligevel har strøm. Shelly WiFi enheder er et godt kompromis med lokal kontrol."
+  },
+  {
+    question: "Belaster mange WiFi enheder mit netværk?",
+    answer: "Ja, hver WiFi enhed bruger en IP-adresse og sender data. 20-30 enheder er typisk fint for de fleste routere. Overvej et separat IoT netværk/VLAN for mange enheder."
+  },
+  {
+    question: "Kan jeg bruge Shelly uden cloud?",
+    answer: "Ja! Shelly har fuld lokal kontrol via REST API, MQTT, eller Home Assistant integration. Cloud er helt valgfrit."
+  },
+  {
+    question: "Hvad sker der hvis mit WiFi går ned?",
+    answer: "Shelly enheder har en fysisk knap og kan stadig betjenes manuelt. De husker deres tilstand og genopretter forbindelse automatisk."
+  },
+  {
+    question: "Er det sikkert at installere Shelly bag en afbryder?",
+    answer: "Ja, men det kræver basalt kendskab til el-installationer. Shelly enheder er CE-godkendte. Hvis du er usikker, så få en elektriker til at hjælpe."
+  },
+  {
+    question: "Kan jeg flashe Tuya enheder med Tasmota?",
+    answer: "Mange Tuya enheder kan flashes, men nyere modeller bruger ikke-ESP chips. Tjek templates.blakadder.com for kompatible enheder. Alternativt kan du bruge Tuya-Local integration i HA."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="Shelly Guide" icon="rocket">
+    Detaljeret guide til Shelly produkter.
+    
+    [Se Shelly guide →](/da/produkter/shelly/)
+  </Card>
+  <Card title="ESPHome" icon="setting">
+    Byg dine egne smart home enheder.
+    
+    [Kom i gang →](/da/home-assistant/esphome/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*

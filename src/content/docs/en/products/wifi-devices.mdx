@@ -1,0 +1,412 @@
+---
+title: WiFi Smart Home Devices
+description: Complete guide to WiFi smart home devices - Shelly, Sonoff, Tasmota, ESPHome. Relays, plugs, bulbs and DIY solutions for Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Choose the right WiFi smart home devices"
+  description="Guide to choosing WiFi devices with local control for Home Assistant"
+  totalTime="PT15M"
+  steps={[
+    "Decide if you want ready-made products or DIY",
+    "Choose brand based on needs (Shelly, Sonoff, Tuya)",
+    "Check if the device supports local control",
+    "Install and configure with Home Assistant",
+    "Set up automations"
+  ]}
+/>
+
+<Badge text="Home Assistant" variant="success" /> <Badge text="Local control" variant="note" /> <Badge text="MQTT" variant="tip" />
+
+WiFi smart home devices are **the easiest way to get started** with smart home. They connect directly to your WiFi network without an extra hub. But beware - many require cloud and don't work without internet. This guide focuses on **devices with local control**.
+
+<Aside type="tip" title="Top Recommendations 2025">
+- **Relays**: Shelly 1 Mini Gen3, Shelly 1PM Mini Gen3
+- **Smart plugs**: Shelly Plug S, Nous A1T (with Tasmota)
+- **Dimmers**: Shelly Dimmer 2, Shelly Plus Wall Dimmer
+- **DIY**: ESP32 with ESPHome
+- **Energy monitoring**: Shelly EM, Shelly Pro 3EM
+</Aside>
+
+---
+
+## 🔑 Local Control vs Cloud
+
+### Why local control matters
+
+| Local control | Cloud-dependent |
+|---------------|-----------------|
+| ✅ Works without internet | ❌ Requires internet |
+| ✅ Faster response | ❌ Slower |
+| ✅ Private - no data to manufacturer | ❌ Your data sent to cloud |
+| ✅ Works even if company closes | ❌ Stops if service discontinued |
+| ✅ Full control | ❌ Limited functionality |
+
+### Brands with local control
+
+| Brand | Local control | Firmware flash | Note |
+|-------|---------------|----------------|------|
+| **Shelly** | ✅ Built-in | Possible but unnecessary | ⭐ Recommended |
+| **Sonoff** | ⚠️ Partial | Tasmota/ESPHome | Newer models harder |
+| **Tuya/Smart Life** | ❌ Cloud | Tuya-Local or flash | Many cheap devices |
+| **Tasmota devices** | ✅ Full | Pre-flashed | Local from start |
+| **ESPHome DIY** | ✅ Full | You build yourself | Ultimate control |
+
+---
+
+## 🏆 Shelly - The Best Choice
+
+Shelly is a **Bulgarian company** that makes some of the best WiFi smart home devices. They have local control built-in, work perfectly with Home Assistant, and require no cloud.
+
+### Shelly Series
+
+<Tabs>
+  <TabItem label="Gen3 (Latest)">
+    ### Gen3 Series - 2024/2025
+    
+    Latest generation with:
+    - ESP-Shelly chip (8MB flash)
+    - Bluetooth gateway function
+    - Matter-ready (firmware update)
+    - Faster processor
+    - 3-year warranty
+    
+    **Models:**
+    - Shelly 1 Mini Gen3 - Relay without power metering
+    - Shelly 1PM Mini Gen3 - Relay with power metering
+    - Shelly 2PM Gen3 - 2-channel relay with power metering
+    - Shelly PM Mini Gen3 - Power metering only
+  </TabItem>
+  <TabItem label="Plus Series">
+    ### Plus Series - 2022/2023
+    
+    Mid-generation with:
+    - ESP32-based
+    - Bluetooth setup
+    - Scripting support
+    - Webhooks and MQTT
+    
+    **Models:**
+    - Shelly Plus 1 / 1PM - Standard relay
+    - Shelly Plus 2PM - 2-channel / cover control
+    - Shelly Plus Plug S - Smart plug
+    - Shelly Plus i4 - 4 input scene controller
+  </TabItem>
+  <TabItem label="Pro Series">
+    ### Pro Series - Professional
+    
+    DIN rail mounting with:
+    - Ethernet + WiFi
+    - Up to 3 phases
+    - High capacity
+    - 5-year warranty
+    
+    **Models:**
+    - Shelly Pro 1/1PM/2PM - DIN relays
+    - Shelly Pro 3EM - 3-phase energy monitoring
+    - Shelly Pro 4PM - 4-channel with metering
+  </TabItem>
+</Tabs>
+
+### 🥇 Shelly 1PM Mini Gen3 - Most Popular
+
+**Price:** ~$18 | **Capacity:** 8A / 1920W
+
+World's smallest WiFi relay with power metering. Fits behind most switches and in lamp sockets.
+
+| Pros | Cons |
+|------|------|
+| ✅ Extremely small (31x31x17mm) | ❌ Only 8A (not for large loads) |
+| ✅ Power metering included | ❌ Audible click when switching |
+| ✅ Local control via REST/MQTT | ❌ Only 4 terminals |
+| ✅ Auto-discovered in HA | |
+| ✅ Bluetooth gateway | |
+
+**Applications:**
+- Behind light switches
+- In lamp sockets
+- Garage doors
+- Irrigation systems
+
+**Buy:** [Shelly.com](https://shelly.com), [Amazon](https://amazon.com)
+
+### Shelly 2PM Gen3 - For Blinds/Covers
+
+**Price:** ~$28 | **Capacity:** 2x 10A
+
+Perfect for motorized blinds and covers with tilt function.
+
+**Buy:** [Shelly.com](https://shelly.com)
+
+### Shelly Plug S Gen3 - Smart Plug
+
+**Price:** ~$20 | **Capacity:** 12A / 2880W
+
+Smart plug with power metering and Matter support.
+
+**Buy:** [Shelly.com](https://shelly.com), [Amazon](https://amazon.com)
+
+---
+
+## 📊 Comparison: Shelly Relays
+
+| Model | Channels | Max | Power metering | Size | Price ~USD |
+|-------|----------|-----|----------------|------|------------|
+| **1 Mini Gen3** | 1 | 8A | ❌ | 31x31x17 | $14 |
+| **1PM Mini Gen3** | 1 | 8A | ✅ | 31x31x17 | $18 |
+| **PM Mini Gen3** | 0 | 16A | ✅ | 31x31x17 | $14 |
+| **Plus 1** | 1 | 16A | ❌ | 42x36x17 | $17 |
+| **Plus 1PM** | 1 | 16A | ✅ | 42x36x17 | $21 |
+| **2PM Gen3** | 2 | 2x10A | ✅ | 42x36x17 | $28 |
+| **Pro 1PM** | 1 | 16A | ✅ | DIN | $49 |
+| **Pro 3EM** | 0 | 3x120A | ✅ | DIN | $112 |
+
+---
+
+## ⚡ Sonoff WiFi Devices
+
+Sonoff makes cheap WiFi devices, but many require cloud (eWeLink). Some can be flashed with Tasmota/ESPHome for local control.
+
+### With Local Control (DIY Mode)
+
+| Model | Type | Local | Flash | Price ~USD |
+|-------|------|-------|-------|------------|
+| **Sonoff Basic R4** | Relay | ✅ DIY mode | Possible | $7 |
+| **Sonoff Mini R4** | Relay | ✅ DIY mode | Possible | $10 |
+| **Sonoff POWR3** | Relay + metering | ✅ DIY mode | Possible | $17 |
+| **Sonoff S31** | Plug (US) | ⚠️ | Tasmota | $11 |
+| **Sonoff S26** | Plug (EU) | ⚠️ | Tasmota | $10 |
+
+<Aside type="caution" title="Sonoff DIY Mode">
+Sonoff's DIY mode provides local control, but:
+- Not all models have it
+- Requires activation via eWeLink app first
+- Fewer features than cloud mode
+
+For full local control, consider flashing with Tasmota.
+</Aside>
+
+---
+
+## 🔧 Tasmota & ESPHome
+
+### Tasmota - Ready Firmware
+
+Tasmota is open source firmware for ESP8266/ESP32 devices. Provides full local control via MQTT or web interface.
+
+**Pros:**
+- ✅ Easy setup via web UI
+- ✅ Supports 1000+ devices
+- ✅ MQTT integration
+- ✅ No programming required
+
+**Devices with Tasmota:**
+- Nous A1T smart plug (pre-flashed)
+- Athom smart plug (pre-flashed)
+- Many Tuya devices (requires flash)
+
+**Find compatible devices:** [templates.blakadder.com](https://templates.blakadder.com)
+
+### ESPHome - DIY Firmware
+
+ESPHome lets you build custom firmware with YAML configuration. Perfect for DIY projects.
+
+**Pros:**
+- ✅ Native Home Assistant integration
+- ✅ OTA updates
+- ✅ On-device automations
+- ✅ Full control over all features
+- ✅ ESP32 and ESP8266 support
+
+**Popular DIY projects:**
+- Temperature/humidity sensors (DHT22, BME280)
+- Presence sensors (LD2410, HLK-LD2450)
+- LED strip controllers
+- Blind/cover motors
+- IR blasters (AC control)
+
+---
+
+## 🔌 Smart Plug Comparison
+
+| Product | Protocol | Local | Energy metering | Max | Price ~USD | Score |
+|---------|----------|-------|-----------------|-----|------------|-------|
+| **Shelly Plug S Gen3** | WiFi | ✅ | ✅ | 12A | $20 | ⭐⭐⭐⭐⭐ |
+| **Nous A1T** | WiFi (Tasmota) | ✅ | ✅ | 16A | $14 | ⭐⭐⭐⭐⭐ |
+| **Athom Smart Plug** | WiFi (Tasmota) | ✅ | ✅ | 16A | $17 | ⭐⭐⭐⭐ |
+| **Sonoff S26R2** | WiFi | ⚠️ | ❌ | 10A | $10 | ⭐⭐⭐ |
+| **Tuya/Smart Life** | WiFi | ❌ | Varies | 16A | $7-11 | ⭐⭐ |
+
+### 🥇 Nous A1T - Best Value
+
+Pre-flashed with Tasmota from factory. 16A capacity and energy metering.
+
+**Buy:** [Amazon](https://amazon.com), [AliExpress](https://aliexpress.com)
+
+### 🥇 Shelly Plug S Gen3 - Best Quality
+
+Shelly's latest smart plug with Matter support.
+
+**Buy:** [Shelly.com](https://shelly.com), [Amazon](https://amazon.com)
+
+---
+
+## 💡 Smart Bulbs
+
+<Aside type="caution" title="WiFi vs Zigbee Bulbs">
+**WiFi bulbs** burden your network and often only have cloud control.
+
+**Zigbee bulbs** (IKEA, Philips Hue, Innr) are better because they:
+- Function as mesh routers
+- Have local control
+- Use less standby power
+
+We recommend Zigbee bulbs instead of WiFi bulbs.
+</Aside>
+
+If you still want WiFi bulbs:
+
+| Product | Local | Color | Price ~USD |
+|---------|-------|-------|------------|
+| **Shelly Duo** | ✅ | White (CCT) | $14 |
+| **Shelly Bulb** | ✅ | RGBW | $21 |
+| **Athom (Tasmota)** | ✅ | RGBW | $11 |
+| **Tuya/Smart Life** | ❌ | RGBW | $6-8 |
+
+---
+
+## 🏠 Home Assistant Integration
+
+### Shelly Integration
+
+Shelly devices are **automatically discovered** in Home Assistant:
+
+1. Connect Shelly to WiFi via Shelly app or Bluetooth
+2. Home Assistant finds the device automatically
+3. Click "Configure" in Integrations
+4. Done!
+
+**Features:**
+- Instant status updates (push)
+- All sensors exposed
+- Scripting support
+- Cover (blind) control with tilt
+
+### Tasmota Integration
+
+Tasmota devices can be integrated via:
+
+1. **MQTT (Recommended)** - Auto discovery
+2. **Tasmota integration** - Direct connection
+
+**MQTT setup:**
+```yaml
+# In Tasmota console:
+SetOption19 1  # Enable MQTT discovery
+```
+
+### ESPHome Integration
+
+ESPHome devices are added directly in Home Assistant:
+
+1. Install ESPHome Add-on
+2. Create new device with YAML
+3. Flash firmware
+4. Device is discovered automatically
+
+---
+
+## 🛒 Buying Strategy
+
+### Starter Kit - Shelly (~$55)
+- 2x Shelly 1PM Mini Gen3 ($36)
+- 1x Shelly Plug S Gen3 ($20)
+- **Total:** ~$56
+
+### Advanced - Mixed (~$110)
+- 3x Shelly 1PM Mini Gen3 ($54)
+- 2x Nous A1T smart plugs ($28)
+- 1x Shelly 2PM Gen3 for blinds ($28)
+- **Total:** ~$110
+
+### DIY Kit - ESPHome (~$40)
+- 5x ESP32 DevKit ($35)
+- Various sensors (DHT22, PIR, relay) ($7)
+- **Total:** ~$42 + your time
+
+---
+
+## 🛒 Where to Buy?
+
+### Shelly
+- **[Shelly.com](https://shelly.com)** - Official, free shipping over $50
+- **[Amazon.com](https://amazon.com)** - Fast delivery
+- **[Amazon.de](https://amazon.de)** - EU delivery
+
+### Tasmota Devices
+- **[Amazon](https://amazon.com)** - Nous, Athom
+- **[AliExpress](https://aliexpress.com)** - Cheapest
+
+### DIY / ESP32
+- **[AliExpress](https://aliexpress.com)** - ESP32 boards
+- **[Mouser](https://mouser.com)** - Quality components
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "WiFi or Zigbee - which is better?",
+    answer: "Zigbee is generally better for sensors and bulbs (mesh network, lower power consumption). WiFi is good for relays and plugs where you have power anyway. Shelly WiFi devices are a good compromise with local control."
+  },
+  {
+    question: "Do many WiFi devices burden my network?",
+    answer: "Yes, each WiFi device uses an IP address and sends data. 20-30 devices is typically fine for most routers. Consider a separate IoT network/VLAN for many devices."
+  },
+  {
+    question: "Can I use Shelly without cloud?",
+    answer: "Yes! Shelly has full local control via REST API, MQTT, or Home Assistant integration. Cloud is completely optional."
+  },
+  {
+    question: "What happens if my WiFi goes down?",
+    answer: "Shelly devices have a physical button and can still be operated manually. They remember their state and reconnect automatically."
+  },
+  {
+    question: "Is it safe to install Shelly behind a switch?",
+    answer: "Yes, but it requires basic knowledge of electrical installations. Shelly devices are CE certified. If you're unsure, get an electrician to help."
+  },
+  {
+    question: "Can I flash Tuya devices with Tasmota?",
+    answer: "Many Tuya devices can be flashed, but newer models use non-ESP chips. Check templates.blakadder.com for compatible devices. Alternatively, you can use the Tuya-Local integration in HA."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Shelly Guide" icon="rocket">
+    Detailed guide to Shelly products.
+    
+    [See Shelly guide →](/en/products/shelly/)
+  </Card>
+  <Card title="ESPHome" icon="setting">
+    Build your own smart home devices.
+    
+    [Get started →](/en/home-assistant/esphome/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
