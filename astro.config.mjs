@@ -91,6 +91,15 @@ export default defineConfig({
               collapsed: false,
               items: [
                 {
+                  label: "HACS",
+                  link: "/home-assistant/hacs/",
+                },
+                {
+                  label: "Elpris-integration",
+                  translations: { en: "Electricity Price" },
+                  link: "/home-assistant/elpris-integration/",
+                },
+                {
                   label: "Zigbee2MQTT",
                   link: "/home-assistant/zigbee2mqtt/",
                 },
