@@ -12,6 +12,8 @@ import FAQ from '../../../../components/FAQ.astro';
 
 <Badge text="Backup" variant="danger" /> <Badge text="Sikkerhed" variant="caution" /> <Badge text="3-2-1" variant="success" />
 
+<img src="/images/guides/backup-sikkerhed/hero.jpg" alt="Backup og sikkerhed" style="border-radius: 12px; margin-bottom: 1.5rem;" />
+
 Dit smart home er resultatet af mange timers arbejde. Automationer, integrationer, dashboards - alt kan være væk på et øjeblik hvis noget går galt. **Backup er ikke valgfrit** - det er nødvendigt.
 
 ---
@@ -20,22 +22,9 @@ Dit smart home er resultatet af mange timers arbejde. Automationer, integratione
 
 Den gyldne standard for backup:
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    3-2-1 BACKUP REGEL                       │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  3️⃣  TRE kopier af dine data                                │
-│      (produktion + 2 backups)                               │
-│                                                             │
-│  2️⃣  TO forskellige medietyper                              │
-│      (lokal disk + cloud/NAS)                               │
-│                                                             │
-│  1️⃣  ÉN kopi off-site                                       │
-│      (uden for hjemmet)                                     │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
+![3-2-1 Backup strategi](/images/guides/backup-sikkerhed/strategi.svg)
+
+
 
 <Aside type="caution" title="Hvorfor off-site?">
 Hvad nu hvis lynet slår ned og ødelægger både din HA-server OG din NAS? Med en off-site backup (cloud) er du stadig dækket.

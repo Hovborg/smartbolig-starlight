@@ -12,6 +12,8 @@ import FAQ from '../../../../components/FAQ.astro';
 
 <Badge text="Node-RED" variant="danger" /> <Badge text="Automations" variant="success" /> <Badge text="Advanced" variant="caution" />
 
+<img src="/images/guides/node-red/hero.jpg" alt="Node-RED visual programming" style="border-radius: 12px; margin-bottom: 1.5rem;" />
+
 **Node-RED** is a visual programming tool that makes complex automations manageable. Drag nodes, connect them with wires, and build automations that would be impossible (or very tedious) in Home Assistant's standard automation editor.
 
 ---
@@ -208,6 +210,10 @@ let y = global.get("globalVar");
 | **wait until** | Wait for state | Delays with conditions |
 | **trigger: state** | Trigger with multiple conditions | Advanced triggers |
 | **api** | General API access | Everything else |
+
+### Node-RED Flow Example
+
+![Node-RED flow example](/images/guides/node-red/flow-en.svg)
 
 ### events: state Node
 

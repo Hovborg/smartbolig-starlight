@@ -7,6 +7,8 @@ import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/sta
 
 <Badge text="Medium" variant="caution" /> <Badge text="45 min" variant="note" />
 
+<img src="/images/guides/ld2410-mmwave/hero.jpg" alt="LD2410 mmWave radar sensor" style="border-radius: 12px; margin-bottom: 1.5rem;" />
+
 LD2410 is a mmWave radar sensor that can detect human presence - even when you're sitting completely still. Perfect for bathroom, office or other rooms where PIR sensors fail.
 
 ![LD2410 mmWave overview](/images/guides/ld2410-mmwave/overview.svg)
@@ -53,16 +55,7 @@ LD2410C has standard 2.54mm pins that fit directly to Dupont wires. Other versio
 
 ## ⚡ Wiring Diagram
 
-### ESP32 to LD2410C
-
-```
-ESP32           LD2410C
-─────           ───────
-3.3V    ───────  VCC
-GND     ───────  GND  
-GPIO16  ───────  TX (RX on ESP)
-GPIO17  ───────  RX (TX on ESP)
-```
+![LD2410 mmWave to ESP32 wiring diagram](/images/guides/ld2410-mmwave/wiring-en.svg)
 
 ### ESP8266 (D1 Mini) to LD2410C
 

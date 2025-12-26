@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 400">
+  <defs>
+    <linearGradient id="triggerGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#dc2626;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="conditionGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="actionGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
+    </linearGradient>
+    <marker id="arrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#60a5fa"/>
+    </marker>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="800" height="400" fill="#1a1a2e"/>
+  
+  <!-- Title -->
+  <text x="400" y="35" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="22" font-weight="bold">Automation Flow</text>
+  <text x="400" y="55" text-anchor="middle" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="12">Trigger → Condition → Action</text>
+  
+  <!-- TRIGGER Section -->
+  <rect x="40" y="80" width="200" height="180" rx="12" fill="#0f172a" stroke="#ef4444" stroke-width="2"/>
+  <rect x="40" y="80" width="200" height="35" rx="12" fill="url(#triggerGrad)"/>
+  <text x="140" y="103" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="14" font-weight="bold">⚡ TRIGGER</text>
+  
+  <text x="60" y="140" fill="#fca5a5" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">Hvornår?</text>
+  
+  <rect x="55" y="150" width="170" height="25" rx="5" fill="#374151"/>
+  <text x="140" y="167" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="10">🚶 Bevægelse detekteret</text>
+  
+  <rect x="55" y="180" width="170" height="25" rx="5" fill="#374151"/>
+  <text x="140" y="197" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="10">🌅 Solnedgang</text>
+  
+  <rect x="55" y="210" width="170" height="25" rx="5" fill="#374151"/>
+  <text x="140" y="227" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="10">⏰ Kl. 07:00</text>
+  
+  <!-- Arrow 1 -->
+  <line x1="245" y1="170" x2="295" y2="170" stroke="#60a5fa" stroke-width="3" marker-end="url(#arrow)"/>
+  
+  <!-- CONDITION Section -->
+  <rect x="300" y="80" width="200" height="180" rx="12" fill="#0f172a" stroke="#f59e0b" stroke-width="2"/>
+  <rect x="300" y="80" width="200" height="35" rx="12" fill="url(#conditionGrad)"/>
+  <text x="400" y="103" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="14" font-weight="bold">🔍 CONDITION</text>
+  
+  <text x="320" y="140" fill="#fcd34d" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">Kun hvis?</text>
+  
+  <rect x="315" y="150" width="170" height="25" rx="5" fill="#374151"/>
+  <text x="400" y="167" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="10">🌙 Efter solnedgang</text>
+  
+  <rect x="315" y="180" width="170" height="25" rx="5" fill="#374151"/>
+  <text x="400" y="197" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="10">🏠 Nogen er hjemme</text>
+  
+  <rect x="315" y="210" width="170" height="25" rx="5" fill="#374151"/>
+  <text x="400" y="227" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="10">💡 Lys er slukket</text>
+  
+  <!-- Arrow 2 -->
+  <line x1="505" y1="170" x2="555" y2="170" stroke="#60a5fa" stroke-width="3" marker-end="url(#arrow)"/>
+  
+  <!-- ACTION Section -->
+  <rect x="560" y="80" width="200" height="180" rx="12" fill="#0f172a" stroke="#10b981" stroke-width="2"/>
+  <rect x="560" y="80" width="200" height="35" rx="12" fill="url(#actionGrad)"/>
+  <text x="660" y="103" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="14" font-weight="bold">✅ ACTION</text>
+  
+  <text x="580" y="140" fill="#6ee7b7" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">Så gør?</text>
+  
+  <rect x="575" y="150" width="170" height="25" rx="5" fill="#374151"/>
+  <text x="660" y="167" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="10">💡 Tænd lyset (50%)</text>
+  
+  <rect x="575" y="180" width="170" height="25" rx="5" fill="#374151"/>
+  <text x="660" y="197" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="10">📱 Send notifikation</text>
+  
+  <rect x="575" y="210" width="170" height="25" rx="5" fill="#374151"/>
+  <text x="660" y="227" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="10">⏱️ Vent 5 min → sluk</text>
+  
+  <!-- Example box -->
+  <rect x="100" y="290" width="600" height="90" rx="10" fill="#1e3a5f" stroke="#3b82f6" stroke-width="2"/>
+  <text x="400" y="315" text-anchor="middle" fill="#60a5fa" font-family="system-ui, sans-serif" font-size="13" font-weight="bold">📋 Eksempel: Gang-lys automation</text>
+  <text x="400" y="340" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="12">Når bevægelse i gangen → Hvis det er mørkt og lyset er slukket →</text>
+  <text x="400" y="360" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="12">Tænd lyset i 5 minutter, derefter sluk automatisk</text>
+</svg>

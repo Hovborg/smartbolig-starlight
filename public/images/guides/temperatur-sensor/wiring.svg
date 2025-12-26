@@ -1,73 +1,86 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 300">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400">
   <defs>
-    <linearGradient id="esp32Grad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#1a1a2e"/>
-      <stop offset="100%" style="stop-color:#16213e"/>
+    <linearGradient id="esp32Grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e3a5f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
     </linearGradient>
-    <linearGradient id="dhtGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#1e3a5f"/>
-      <stop offset="100%" style="stop-color:#162447"/>
+    <linearGradient id="dhtGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
     </linearGradient>
   </defs>
   
   <!-- Background -->
-  <rect width="600" height="300" fill="#0f0f1a"/>
+  <rect width="700" height="400" fill="#1a1a2e"/>
+  
+  <!-- Title -->
+  <text x="350" y="30" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="20" font-weight="bold">DHT22 → ESP32 Wiring Diagram</text>
   
   <!-- ESP32 Board -->
-  <rect x="350" y="50" width="200" height="200" rx="10" fill="url(#esp32Grad)" stroke="#3b82f6" stroke-width="2"/>
-  <text x="450" y="85" text-anchor="middle" fill="#60a5fa" font-family="system-ui" font-size="16" font-weight="bold">ESP32 DevKit</text>
+  <rect x="400" y="80" width="250" height="280" rx="8" fill="url(#esp32Grad)" stroke="#3b82f6" stroke-width="2"/>
+  <text x="525" y="110" text-anchor="middle" fill="#60a5fa" font-family="system-ui, sans-serif" font-size="16" font-weight="bold">ESP32</text>
   
-  <!-- ESP32 Pins -->
-  <rect x="360" y="110" width="60" height="25" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
-  <text x="390" y="127" text-anchor="middle" fill="#22c55e" font-family="monospace" font-size="12">3.3V</text>
+  <!-- ESP32 Pins (left side) -->
+  <rect x="400" y="140" width="60" height="20" rx="3" fill="#ef4444"/>
+  <text x="430" y="154" text-anchor="middle" fill="white" font-family="monospace" font-size="10" font-weight="bold">3V3</text>
   
-  <rect x="360" y="145" width="60" height="25" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
-  <text x="390" y="162" text-anchor="middle" fill="#f59e0b" font-family="monospace" font-size="12">GPIO4</text>
+  <rect x="400" y="180" width="60" height="20" rx="3" fill="#22c55e"/>
+  <text x="430" y="194" text-anchor="middle" fill="white" font-family="monospace" font-size="10" font-weight="bold">GPIO4</text>
   
-  <rect x="360" y="180" width="60" height="25" rx="4" fill="#1e293b" stroke="#475569" stroke-width="1"/>
-  <text x="390" y="197" text-anchor="middle" fill="#64748b" font-family="monospace" font-size="12">GND</text>
+  <rect x="400" y="220" width="60" height="20" rx="3" fill="#171717"/>
+  <text x="430" y="234" text-anchor="middle" fill="white" font-family="monospace" font-size="10" font-weight="bold">GND</text>
+  
+  <!-- USB indicator -->
+  <rect x="490" y="330" width="70" height="25" rx="4" fill="#374151" stroke="#6b7280" stroke-width="1"/>
+  <text x="525" y="347" text-anchor="middle" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="9">USB-C</text>
   
   <!-- DHT22 Sensor -->
-  <rect x="50" y="80" width="120" height="140" rx="10" fill="url(#dhtGrad)" stroke="#06b6d4" stroke-width="2"/>
-  <text x="110" y="115" text-anchor="middle" fill="#22d3ee" font-family="system-ui" font-size="16" font-weight="bold">DHT22</text>
+  <rect x="50" y="120" width="120" height="180" rx="8" fill="url(#dhtGrad)" stroke="#60a5fa" stroke-width="2"/>
+  <text x="110" y="150" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="14" font-weight="bold">DHT22</text>
+  
+  <!-- DHT22 grid pattern -->
+  <rect x="70" y="165" width="80" height="60" rx="4" fill="#1e3a8a" stroke="#3b82f6" stroke-width="1"/>
+  <line x1="85" y1="165" x2="85" y2="225" stroke="#60a5fa" stroke-width="1" opacity="0.5"/>
+  <line x1="110" y1="165" x2="110" y2="225" stroke="#60a5fa" stroke-width="1" opacity="0.5"/>
+  <line x1="135" y1="165" x2="135" y2="225" stroke="#60a5fa" stroke-width="1" opacity="0.5"/>
   
   <!-- DHT22 Pins -->
-  <rect x="70" y="130" width="80" height="20" rx="4" fill="#1e293b"/>
-  <text x="110" y="145" text-anchor="middle" fill="#22c55e" font-family="monospace" font-size="11">VCC (+)</text>
+  <rect x="60" y="240" width="30" height="20" rx="3" fill="#ef4444"/>
+  <text x="75" y="254" text-anchor="middle" fill="white" font-family="monospace" font-size="8" font-weight="bold">VCC</text>
   
-  <rect x="70" y="155" width="80" height="20" rx="4" fill="#1e293b"/>
-  <text x="110" y="170" text-anchor="middle" fill="#f59e0b" font-family="monospace" font-size="11">DATA</text>
+  <rect x="95" y="240" width="30" height="20" rx="3" fill="#22c55e"/>
+  <text x="110" y="254" text-anchor="middle" fill="white" font-family="monospace" font-size="8" font-weight="bold">DATA</text>
   
-  <rect x="70" y="180" width="80" height="20" rx="4" fill="#1e293b"/>
-  <text x="110" y="195" text-anchor="middle" fill="#64748b" font-family="monospace" font-size="11">GND (-)</text>
+  <rect x="130" y="240" width="30" height="20" rx="3" fill="#171717"/>
+  <text x="145" y="254" text-anchor="middle" fill="white" font-family="monospace" font-size="8" font-weight="bold">GND</text>
   
   <!-- Wires -->
-  <!-- VCC Wire (Red/Green) -->
-  <path d="M 150 140 Q 250 140 360 122" stroke="#22c55e" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <circle cx="150" cy="140" r="4" fill="#22c55e"/>
-  <circle cx="360" cy="122" r="4" fill="#22c55e"/>
+  <!-- VCC (Red) -->
+  <path d="M 75 260 L 75 290 L 380 290 L 380 150 L 400 150" stroke="#ef4444" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <circle cx="75" cy="260" r="4" fill="#ef4444"/>
+  <circle cx="400" cy="150" r="4" fill="#ef4444"/>
   
-  <!-- Data Wire (Yellow/Orange) -->
-  <path d="M 150 165 Q 250 165 360 157" stroke="#f59e0b" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <circle cx="150" cy="165" r="4" fill="#f59e0b"/>
-  <circle cx="360" cy="157" r="4" fill="#f59e0b"/>
+  <!-- DATA (Green) -->
+  <path d="M 110 260 L 110 310 L 370 310 L 370 190 L 400 190" stroke="#22c55e" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <circle cx="110" cy="260" r="4" fill="#22c55e"/>
+  <circle cx="400" cy="190" r="4" fill="#22c55e"/>
   
-  <!-- GND Wire (Black/Gray) -->
-  <path d="M 150 190 Q 250 190 360 192" stroke="#64748b" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <circle cx="150" cy="190" r="4" fill="#64748b"/>
-  <circle cx="360" cy="192" r="4" fill="#64748b"/>
+  <!-- GND (Black/Gray) -->
+  <path d="M 145 260 L 145 330 L 360 330 L 360 230 L 400 230" stroke="#6b7280" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <circle cx="145" cy="260" r="4" fill="#6b7280"/>
+  <circle cx="400" cy="230" r="4" fill="#6b7280"/>
   
   <!-- Legend -->
-  <rect x="50" y="250" width="500" height="40" rx="6" fill="#1e293b" opacity="0.8"/>
-  <circle cx="80" cy="270" r="6" fill="#22c55e"/>
-  <text x="95" y="275" fill="#a1a1aa" font-family="system-ui" font-size="12">3.3V (Rød)</text>
+  <rect x="50" y="355" width="600" height="35" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
   
-  <circle cx="200" cy="270" r="6" fill="#f59e0b"/>
-  <text x="215" y="275" fill="#a1a1aa" font-family="system-ui" font-size="12">Data (Gul)</text>
+  <line x1="80" y1="372" x2="110" y2="372" stroke="#ef4444" stroke-width="3"/>
+  <text x="120" y="377" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="11">VCC → 3V3</text>
   
-  <circle cx="320" cy="270" r="6" fill="#64748b"/>
-  <text x="335" y="275" fill="#a1a1aa" font-family="system-ui" font-size="12">GND (Sort)</text>
+  <line x1="220" y1="372" x2="250" y2="372" stroke="#22c55e" stroke-width="3"/>
+  <text x="260" y="377" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="11">DATA → GPIO4</text>
   
-  <!-- Warning -->
-  <text x="480" y="275" fill="#ef4444" font-family="system-ui" font-size="11" font-weight="bold">⚠️ Brug 3.3V!</text>
+  <line x1="380" y1="372" x2="410" y2="372" stroke="#6b7280" stroke-width="3"/>
+  <text x="420" y="377" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="11">GND → GND</text>
+  
+  <text x="560" y="377" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="10">Pull-up: 10kΩ (valgfrit)</text>
 </svg>

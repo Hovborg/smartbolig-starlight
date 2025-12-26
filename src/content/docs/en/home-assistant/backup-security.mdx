@@ -12,6 +12,8 @@ import FAQ from '../../../../components/FAQ.astro';
 
 <Badge text="Backup" variant="danger" /> <Badge text="Security" variant="caution" /> <Badge text="3-2-1" variant="success" />
 
+<img src="/images/guides/backup-sikkerhed/hero.jpg" alt="Backup and security" style="border-radius: 12px; margin-bottom: 1.5rem;" />
+
 Your smart home is the result of many hours of work. Automations, integrations, dashboards - everything can be gone in an instant if something goes wrong. **Backup is not optional** - it's necessary.
 
 ---
@@ -20,22 +22,7 @@ Your smart home is the result of many hours of work. Automations, integrations, 
 
 The golden standard for backup:
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    3-2-1 BACKUP RULE                        │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  3️⃣  THREE copies of your data                              │
-│      (production + 2 backups)                               │
-│                                                             │
-│  2️⃣  TWO different media types                              │
-│      (local disk + cloud/NAS)                               │
-│                                                             │
-│  1️⃣  ONE copy off-site                                      │
-│      (outside your home)                                    │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
-```
+![3-2-1 Backup Strategy](/images/guides/backup-sikkerhed/strategi-en.svg)
 
 <Aside type="caution" title="Why off-site?">
 What if lightning strikes and destroys both your HA server AND your NAS? With an off-site backup (cloud), you're still covered.
