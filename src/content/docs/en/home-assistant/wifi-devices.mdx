@@ -1,0 +1,449 @@
+---
+title: WiFi Devices in Home Assistant
+description: Complete guide to Shelly, Tasmota and ESPHome WiFi devices in Home Assistant - local control without cloud.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+
+<Badge text="Shelly" variant="success" /> <Badge text="Tasmota" variant="tip" /> <Badge text="ESPHome" variant="note" />
+
+WiFi-based smart home devices are often the easiest to get started with. No coordinator, no mesh - just your existing WiFi network. This guide covers the big three: **Shelly**, **Tasmota**, and **ESPHome**.
+
+---
+
+## 🔌 Shelly - Plug & Play
+
+Shelly devices are Bulgarian-made WiFi products that just work. Out of the box. No flashing, no configuration - connect power, join WiFi, done.
+
+### Why Shelly?
+
+| Advantage | Description |
+|-----------|-------------|
+| **Local API** | Works 100% without internet |
+| **No cloud required** | Disable cloud entirely if you want |
+| **CoIoT/MQTT** | Choose your protocol |
+| **Power metering** | Most models have built-in meters |
+| **Compact size** | Fits behind switches and in junction boxes |
+
+### Popular Shelly Models
+
+| Model | Function | Channels | Power | Price |
+|-------|----------|----------|-------|-------|
+| **Shelly 1** | Relay | 1 | 16A | ~$13 |
+| **Shelly 1PM** | Relay + metering | 1 | 16A | ~$17 |
+| **Shelly 2PM** | Relay + metering | 2 | 10A/ch | ~$24 |
+| **Shelly Plus 1** | Gen2 relay | 1 | 16A | ~$16 |
+| **Shelly Plus 2PM** | Gen2 relay + metering | 2 | 10A/ch | ~$27 |
+| **Shelly Pro 4PM** | DIN rail, display | 4 | 16A/ch | ~$80 |
+| **Shelly Dimmer 2** | LED dimmer | 1 | 220W LED | ~$27 |
+| **Shelly Plug S** | Smart plug | 1 | 12A | ~$20 |
+
+<Aside type="tip" title="Gen1 vs Gen2/Plus/Pro">
+**Gen1** (Shelly 1, 2.5, Dimmer): ESP8266-based, CoIoT protocol
+
+**Gen2/Plus** (Plus 1, Plus 2PM): ESP32-based, faster, Bluetooth for setup
+
+**Pro** (Pro 4PM): DIN rail mount, display, Ethernet option
+</Aside>
+
+### Installation in Home Assistant
+
+Home Assistant automatically discovers Shelly devices on your network:
+
+<Steps>
+1. Connect Shelly to power and WiFi via Shelly app
+
+2. Go to **Settings → Devices & Services**
+
+3. Shelly appears under "Discovered" - click **Configure**
+
+4. Enter IP address if not auto-discovered
+
+5. Done - all entities are created automatically
+</Steps>
+
+### CoIoT Configuration (Gen1)
+
+For faster updates on Gen1 devices:
+
+```yaml
+# In Shelly's web interface:
+# Internet & Security → Advanced - Developer Settings
+
+# Enable CoIoT
+Enable CoIoT: ✓
+
+# Set unicast to Home Assistant
+CoIoT peer: 192.168.1.100:5683  # Your HA IP
+```
+
+<Aside type="caution" title="Important for Gen1">
+After changing CoIoT peer, Shelly must be manually restarted. Without correct CoIoT, HA won't receive push updates from the device.
+</Aside>
+
+### MQTT vs Native Integration
+
+| Aspect | Native Integration | MQTT |
+|--------|-------------------|------|
+| **Setup** | Automatic | Manual configuration |
+| **Speed** | Fast (CoIoT/WebSocket) | Fast |
+| **Cloud** | Can run simultaneously | Gen1: Either/or |
+| **Recommendation** | ✅ For most users | Only if you need MQTT |
+
+**Rule of thumb:** Use the native Shelly integration. MQTT rarely provides benefits and requires more maintenance.
+
+---
+
+## ⚡ Tasmota - Liberate Your Devices
+
+Tasmota is open source firmware for ESP8266/ESP32-based devices. Flash it on cheap Sonoff switches or Chinese smart plugs, and you get full local control.
+
+### When to Use Tasmota?
+
+- You have cheap Tuya/SmartLife devices requiring cloud
+- You want MQTT-based control
+- The device isn't directly supported in Home Assistant
+- You prefer web-based configuration over YAML
+
+### Supported Devices
+
+Tasmota runs on almost anything with ESP8266 or ESP32:
+
+| Device Type | Examples |
+|-------------|----------|
+| **Sonoff** | Basic, Mini, S31, 4CH Pro, POW |
+| **Tuya/SmartLife** | Smart plugs, switches, LED bulbs |
+| **Shelly** | Can flash to Tasmota (but why?) |
+| **BlitzWolf** | BW-SHP6, BW-SHP10 |
+| **Gosund** | SP1, SP111, WP3 |
+| **NodeMCU/Wemos** | DIY projects |
+
+### Flashing Methods
+
+<Tabs>
+  <TabItem label="Web Installer (Easiest)">
+    The easiest method - requires only Chrome/Edge browser:
+    
+    <Steps>
+    1. Go to [tasmota.github.io/install](https://tasmota.github.io/install/)
+    
+    2. Connect device via USB (or USB-to-Serial adapter)
+    
+    3. Select firmware variant (typically "Tasmota")
+    
+    4. Click **Install** and wait
+    
+    5. Device creates WiFi network "tasmota_XXXXXX"
+    
+    6. Connect and configure your WiFi
+    </Steps>
+  </TabItem>
+  <TabItem label="Tasmotizer (Desktop)">
+    Desktop application with more options:
+    
+    ```bash
+    # Windows: Download .exe from GitHub
+    # Linux/Mac:
+    pip install tasmotizer
+    tasmotizer
+    ```
+    
+    Advantages:
+    - Backup original firmware
+    - Erase before flash
+    - Direct WiFi configuration
+  </TabItem>
+  <TabItem label="esptool.py (Advanced)">
+    Command line for full control:
+    
+    ```bash
+    # Install esptool
+    pip install esptool
+    
+    # Erase flash (recommended)
+    esptool.py --port /dev/ttyUSB0 erase_flash
+    
+    # Flash Tasmota
+    esptool.py --port /dev/ttyUSB0 write_flash -fm dout 0x0 tasmota.bin
+    
+    # ESP32 variant:
+    esptool.py --port /dev/ttyUSB0 write_flash 0x0 tasmota32.bin
+    ```
+  </TabItem>
+</Tabs>
+
+### Initial Configuration
+
+After flashing:
+
+<Steps>
+1. **Connect to tasmota_XXXXXX** WiFi network
+
+2. **Open 192.168.4.1** in browser
+
+3. **Select your WiFi** and enter password
+
+4. **Device restarts** and gets new IP from your router
+
+5. **Find IP** in router or via Tasmota Device Locator
+
+6. **Open Tasmota Dashboard** at the new IP
+</Steps>
+
+### Select Device Template
+
+Tasmota needs to know which GPIO pins control what:
+
+```yaml
+# In Tasmota Dashboard:
+# Configuration → Configure Other
+
+# Paste template from templates.blakadder.com
+{"NAME":"Gosund SP1","GPIO":[56,0,158,0,132,134,0,0,131,17,0,21,0],"FLAG":0,"BASE":45}
+
+# Or select module:
+# Configuration → Configure Module → (select from list)
+```
+
+<Aside type="tip" title="Find your template">
+[templates.blakadder.com](https://templates.blakadder.com) has templates for thousands of devices. Search for your product name.
+</Aside>
+
+### MQTT Setup
+
+Tasmota primarily communicates via MQTT:
+
+```yaml
+# Configuration → Configure MQTT
+
+Host: 192.168.1.100      # Your MQTT broker (often HA)
+Port: 1883
+Client: tasmota_%06X     # Unique per device
+User: mqtt_user
+Password: mqtt_password
+Topic: gosund_office     # Choose descriptive name
+Full Topic: %prefix%/%topic%/
+```
+
+### Home Assistant Integration
+
+Tasmota has native integration via MQTT Discovery:
+
+<Steps>
+1. **Enable MQTT Discovery** in Tasmota:
+   ```
+   SetOption19 1
+   ```
+
+2. **Install Tasmota integration** in Home Assistant:
+   - Settings → Devices & Services → Add Integration
+   - Search "Tasmota"
+
+3. **Devices are automatically discovered** via MQTT
+
+4. **All entities** (switches, sensors, metering) are created
+</Steps>
+
+---
+
+## 🔧 ESPHome - YAML Magic
+
+ESPHome is the most flexible choice. You write a YAML file, ESPHome compiles firmware, and you get exactly the functionality you want.
+
+### ESPHome vs Tasmota
+
+| Aspect | ESPHome | Tasmota |
+|--------|---------|---------|
+| **Configuration** | YAML files | Web interface |
+| **Flexibility** | Unlimited | Limited to templates |
+| **HA Integration** | Native API (fastest) | MQTT |
+| **Learning curve** | Steeper | Easier start |
+| **DIY Projects** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
+| **Ready-made devices** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+
+### When to Choose ESPHome?
+
+- DIY projects with sensors and actuators
+- You want native Home Assistant API (faster than MQTT)
+- You need advanced logic on the device itself
+- You prefer declarative configuration
+
+### ESPHome on Ready-Made Devices
+
+You can flash ESPHome on many Tasmota-compatible devices:
+
+```yaml
+# Example: Sonoff Basic
+esphome:
+  name: sonoff-kitchen
+  platform: ESP8266
+  board: esp01_1m
+
+wifi:
+  ssid: "MyWiFi"
+  password: "secret"
+
+api:
+  encryption:
+    key: "your-encryption-key"
+
+ota:
+  password: "ota-password"
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO0
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Button"
+    on_press:
+      - switch.toggle: relay
+
+switch:
+  - platform: gpio
+    name: "Kitchen Light"
+    pin: GPIO12
+    id: relay
+
+status_led:
+  pin:
+    number: GPIO13
+    inverted: true
+```
+
+### Migration from Tasmota to ESPHome
+
+<Steps>
+1. **Flash Tasmota Minimal first** (frees up space):
+   - In Tasmota: Firmware Upgrade → Upload tasmota-minimal.bin
+
+2. **Flash ESPHome via HTTP:**
+   - Compile ESPHome firmware (.bin file)
+   - In Tasmota Minimal: Firmware Upgrade → Upload your .bin
+
+3. **Alternatively:** Flash via serial/USB as normal
+</Steps>
+
+---
+
+## 📊 Comparison
+
+| Feature | Shelly | Tasmota | ESPHome |
+|---------|--------|---------|---------|
+| **Requires flashing** | ❌ | ✅ | ✅ |
+| **Out of box** | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐ |
+| **Flexibility** | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **HA Integration** | Native | MQTT | Native API |
+| **Power metering** | Built-in | Depends on device | Configure yourself |
+| **Price** | Higher | Cheap devices | Cheap devices |
+| **Support** | Commercial | Community | Community |
+| **Warranty** | Preserved | Voided | Voided |
+
+### What Should You Choose?
+
+```
+┌─────────────────────────────────────────────┐
+│      WHICH FIRMWARE IS RIGHT FOR YOU?       │
+└─────────────────────────────────────────────┘
+                      │
+                      ▼
+         ┌────────────────────────┐
+         │ Want to build it       │
+         │ yourself?              │
+         └────────────────────────┘
+                 │           │
+                Yes          No
+                 │           │
+                 ▼           ▼
+            ESPHome    ┌─────────────────┐
+                       │ Have Tuya/cheap │
+                       │ devices?        │
+                       └─────────────────┘
+                            │         │
+                           Yes        No
+                            │         │
+                            ▼         ▼
+                       Tasmota     Shelly
+```
+
+---
+
+## 🔒 Security Tips
+
+### Isolate IoT Devices
+
+WiFi devices are potential security risks. Consider:
+
+```yaml
+# Separate VLAN for IoT
+IoT VLAN: 192.168.10.0/24
+  - No internet access (local only)
+  - Communication only with Home Assistant
+  - Firewall rules for MQTT/API
+```
+
+### Disable Cloud
+
+All three platforms support 100% local control:
+
+| Platform | How to disable cloud |
+|----------|---------------------|
+| **Shelly** | Internet & Security → Cloud → Disable |
+| **Tasmota** | No cloud by default |
+| **ESPHome** | No cloud by default |
+
+### Keep Firmware Updated
+
+- **Shelly:** OTA via app or web interface
+- **Tasmota:** OTA via web interface
+- **ESPHome:** OTA via Home Assistant dashboard
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Can I flash Tasmota on my Shelly?",
+    answer: "Yes, it's technically possible, but there's rarely a reason to do so. Shelly's native firmware has local API, MQTT support, and good Home Assistant integration. You also void the warranty."
+  },
+  {
+    question: "Why choose Tasmota over ESPHome?",
+    answer: "Tasmota is easier to get started with on ready-made devices. The web interface makes configuration easy without writing YAML. It also has better support for many specific devices via templates."
+  },
+  {
+    question: "Are WiFi devices worse than Zigbee?",
+    answer: "Not necessarily. WiFi devices have higher power consumption (bad for batteries), but work directly without a coordinator. For mains-powered devices like switches and smart plugs, WiFi is perfectly fine."
+  },
+  {
+    question: "Can my WiFi devices work if the internet is down?",
+    answer: "Yes! With Shelly (local API), Tasmota (MQTT), or ESPHome (native API), everything works locally. Only cloud-based devices stop working during internet outages."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="ESPHome Advanced" icon="rocket">
+    Build your own sensors and devices.
+    
+    [See guide →](/en/esp32/esphome-advanced/)
+  </Card>
+  <Card title="Zigbee2MQTT" icon="seti:arduino">
+    Alternative to WiFi protocol.
+    
+    [See guide →](/en/home-assistant/zigbee2mqtt/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*

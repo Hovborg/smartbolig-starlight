@@ -1,0 +1,448 @@
+---
+title: WiFi Enheder i Home Assistant
+description: Komplet guide til Shelly, Tasmota og ESPHome WiFi-enheder i Home Assistant - lokal kontrol uden cloud.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+
+<Badge text="Shelly" variant="success" /> <Badge text="Tasmota" variant="tip" /> <Badge text="ESPHome" variant="note" />
+
+WiFi-baserede smart home enheder er ofte de nemmeste at komme i gang med. Ingen coordinator, ingen mesh - bare dit eksisterende WiFi-netværk. Denne guide dækker de tre store: **Shelly**, **Tasmota** og **ESPHome**.
+
+---
+
+## 🔌 Shelly - Plug & Play
+
+Shelly er bulgarsk producerede WiFi-enheder der bare virker. Ud af boksen. Ingen flashing, ingen konfiguration - tilslut strøm, forbind til WiFi, færdig.
+
+### Hvorfor Shelly?
+
+| Fordel | Beskrivelse |
+|--------|-------------|
+| **Lokal API** | Fungerer 100% uden internet |
+| **Ingen cloud påkrævet** | Deaktiver cloud helt hvis du vil |
+| **CoIoT/MQTT** | Vælg selv protokol |
+| **Strømmåling** | De fleste modeller har indbygget måler |
+| **Kompakt størrelse** | Passer bag kontakter og i dåser |
+
+### Populære Shelly Modeller
+
+| Model | Funktion | Kanaler | Strøm | Pris |
+|-------|----------|---------|-------|------|
+| **Shelly 1** | Relæ | 1 | 16A | ~100 kr |
+| **Shelly 1PM** | Relæ + måling | 1 | 16A | ~130 kr |
+| **Shelly 2PM** | Relæ + måling | 2 | 10A/kanal | ~180 kr |
+| **Shelly Plus 1** | Gen2 relæ | 1 | 16A | ~120 kr |
+| **Shelly Plus 2PM** | Gen2 relæ + måling | 2 | 10A/kanal | ~200 kr |
+| **Shelly Pro 4PM** | DIN-skinne, display | 4 | 16A/kanal | ~600 kr |
+| **Shelly Dimmer 2** | LED dimmer | 1 | 220W LED | ~200 kr |
+| **Shelly Plug S** | Stikkontakt | 1 | 12A | ~150 kr |
+
+<Aside type="tip" title="Gen1 vs Gen2/Plus/Pro">
+**Gen1** (Shelly 1, 2.5, Dimmer): ESP8266-baseret, CoIoT protokol
+
+**Gen2/Plus** (Plus 1, Plus 2PM): ESP32-baseret, hurtigere, Bluetooth til opsætning
+
+**Pro** (Pro 4PM): DIN-skinne, display, Ethernet-mulighed
+</Aside>
+
+### Installation i Home Assistant
+
+Home Assistant opdager automatisk Shelly-enheder på dit netværk:
+
+<Steps>
+1. Tilslut Shelly til strøm og WiFi via Shelly-appen
+
+2. Gå til **Indstillinger → Enheder & Tjenester**
+
+3. Shelly dukker op under "Opdaget" - klik **Konfigurer**
+
+4. Angiv IP-adresse hvis ikke auto-opdaget
+
+5. Færdig - alle entiteter oprettes automatisk
+</Steps>
+
+### CoIoT Konfiguration (Gen1)
+
+For hurtigere opdateringer på Gen1-enheder:
+
+```yaml
+# I Shelly's webinterface:
+# Internet & Security → Advanced - Developer Settings
+
+# Aktiver CoIoT
+Enable CoIoT: ✓
+
+# Sæt unicast til Home Assistant
+CoIoT peer: 192.168.1.100:5683  # Din HA IP
+```
+
+<Aside type="caution" title="Vigtigt for Gen1">
+Efter ændring af CoIoT peer skal Shelly genstartes manuelt. Uden korrekt CoIoT modtager HA ikke push-opdateringer fra enheden.
+</Aside>
+
+### MQTT vs Native Integration
+
+| Aspekt | Native Integration | MQTT |
+|--------|-------------------|------|
+| **Opsætning** | Automatisk | Manuel konfiguration |
+| **Hastighed** | Hurtig (CoIoT/WebSocket) | Hurtig |
+| **Cloud** | Kan køre samtidig | Gen1: Enten/eller |
+| **Anbefaling** | ✅ For de fleste | Kun hvis du har brug for MQTT |
+
+**Tommelfingerregel:** Brug den native Shelly-integration. MQTT giver sjældent fordele og kræver mere vedligeholdelse.
+
+---
+
+## ⚡ Tasmota - Befri Dine Enheder
+
+Tasmota er open source firmware til ESP8266/ESP32-baserede enheder. Flash det på billige Sonoff-kontakter eller kinesiske stikkontakter, og du har fuld lokal kontrol.
+
+### Hvornår Tasmota?
+
+- Du har billige Tuya/SmartLife-enheder der kræver cloud
+- Du vil have MQTT-baseret kontrol
+- Enheden er ikke direkte understøttet i Home Assistant
+- Du foretrækker web-baseret konfiguration frem for YAML
+
+### Understøttede Enheder
+
+Tasmota kører på næsten alt med ESP8266 eller ESP32:
+
+| Enhedstype | Eksempler |
+|------------|-----------|
+| **Sonoff** | Basic, Mini, S31, 4CH Pro, POW |
+| **Tuya/SmartLife** | Stikkontakter, kontakter, LED-pærer |
+| **Shelly** | Kan flashe til Tasmota (men hvorfor?) |
+| **BlitzWolf** | BW-SHP6, BW-SHP10 |
+| **Gosund** | SP1, SP111, WP3 |
+| **NodeMCU/Wemos** | DIY-projekter |
+
+### Flashing Metoder
+
+<Tabs>
+  <TabItem label="Web Installer (Nemmest)">
+    Den letteste metode - kræver kun Chrome/Edge browser:
+    
+    <Steps>
+    1. Gå til [tasmota.github.io/install](https://tasmota.github.io/install/)
+    
+    2. Tilslut enheden via USB (eller USB-til-Serial adapter)
+    
+    3. Vælg firmware variant (typisk "Tasmota")
+    
+    4. Klik **Install** og vent
+    
+    5. Enheden opretter WiFi-netværk "tasmota_XXXXXX"
+    
+    6. Forbind og konfigurer dit WiFi
+    </Steps>
+  </TabItem>
+  <TabItem label="Tasmotizer (Desktop)">
+    Desktop-applikation med flere muligheder:
+    
+    ```bash
+    # Windows: Download .exe fra GitHub
+    # Linux/Mac:
+    pip install tasmotizer
+    tasmotizer
+    ```
+    
+    Fordele:
+    - Backup af original firmware
+    - Erase før flash
+    - Direkte WiFi-konfiguration
+  </TabItem>
+  <TabItem label="esptool.py (Avanceret)">
+    Kommandolinje for fuld kontrol:
+    
+    ```bash
+    # Installer esptool
+    pip install esptool
+    
+    # Slet flash (anbefalet)
+    esptool.py --port /dev/ttyUSB0 erase_flash
+    
+    # Flash Tasmota
+    esptool.py --port /dev/ttyUSB0 write_flash -fm dout 0x0 tasmota.bin
+    
+    # ESP32 variant:
+    esptool.py --port /dev/ttyUSB0 write_flash 0x0 tasmota32.bin
+    ```
+  </TabItem>
+</Tabs>
+
+### Initial Konfiguration
+
+Efter flashing:
+
+<Steps>
+1. **Forbind til tasmota_XXXXXX** WiFi-netværk
+
+2. **Åbn 192.168.4.1** i browser
+
+3. **Vælg dit WiFi** og indtast password
+
+4. **Enheden genstarter** og får ny IP fra din router
+
+5. **Find IP** i router eller via Tasmota Device Locator
+
+6. **Åbn Tasmota Dashboard** på den nye IP
+</Steps>
+
+### Vælg Device Template
+
+Tasmota skal vide hvilke GPIO-pins der styrer hvad:
+
+```yaml
+# I Tasmota Dashboard:
+# Configuration → Configure Other
+
+# Indsæt template fra templates.blakadder.com
+{"NAME":"Gosund SP1","GPIO":[56,0,158,0,132,134,0,0,131,17,0,21,0],"FLAG":0,"BASE":45}
+
+# Eller vælg modul:
+# Configuration → Configure Module → (vælg fra listen)
+```
+
+<Aside type="tip" title="Find din template">
+[templates.blakadder.com](https://templates.blakadder.com) har templates til tusindvis af enheder. Søg på dit produktnavn.
+</Aside>
+
+### MQTT Opsætning
+
+Tasmota kommunikerer primært via MQTT:
+
+```yaml
+# Configuration → Configure MQTT
+
+Host: 192.168.1.100      # Din MQTT broker (ofte HA)
+Port: 1883
+Client: tasmota_%06X     # Unik per enhed
+User: mqtt_bruger
+Password: mqtt_password
+Topic: gosund_kontor     # Vælg beskrivende navn
+Full Topic: %prefix%/%topic%/
+```
+
+### Home Assistant Integration
+
+Tasmota har native integration via MQTT Discovery:
+
+<Steps>
+1. **Aktiver MQTT Discovery** i Tasmota:
+   ```
+   SetOption19 1
+   ```
+
+2. **Installer Tasmota integration** i Home Assistant:
+   - Indstillinger → Enheder & Tjenester → Tilføj Integration
+   - Søg "Tasmota"
+
+3. **Enheder opdages automatisk** via MQTT
+
+4. **Alle entiteter** (kontakter, sensorer, måling) oprettes
+</Steps>
+
+---
+
+## 🔧 ESPHome - YAML Magi
+
+ESPHome er det mest fleksible valg. Du skriver en YAML-fil, ESPHome kompilerer firmware, og du har præcis den funktionalitet du ønsker.
+
+### ESPHome vs Tasmota
+
+| Aspekt | ESPHome | Tasmota |
+|--------|---------|---------|
+| **Konfiguration** | YAML-filer | Web interface |
+| **Fleksibilitet** | Ubegrænset | Begrænset til templates |
+| **HA Integration** | Native API (hurtigst) | MQTT |
+| **Læringskurve** | Stejlere | Lettere start |
+| **DIY Projekter** | ⭐⭐⭐⭐⭐ | ⭐⭐⭐ |
+| **Færdige enheder** | ⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+
+### Hvornår ESPHome?
+
+- DIY-projekter med sensorer og aktuatorer
+- Du vil have native Home Assistant API (hurtigere end MQTT)
+- Du har brug for avanceret logik på selve enheden
+- Du foretrækker deklarativ konfiguration
+
+### ESPHome på Færdige Enheder
+
+Du kan flashe ESPHome på mange Tasmota-kompatible enheder:
+
+```yaml
+# Eksempel: Sonoff Basic
+esphome:
+  name: sonoff-koekken
+  platform: ESP8266
+  board: esp01_1m
+
+wifi:
+  ssid: "MitWiFi"
+  password: "hemmeligt"
+
+api:
+  encryption:
+    key: "din-krypteringsnøgle"
+
+ota:
+  password: "ota-password"
+
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: GPIO0
+      mode: INPUT_PULLUP
+      inverted: true
+    name: "Knap"
+    on_press:
+      - switch.toggle: relay
+
+switch:
+  - platform: gpio
+    name: "Køkken Lys"
+    pin: GPIO12
+    id: relay
+
+status_led:
+  pin:
+    number: GPIO13
+    inverted: true
+```
+
+### Migration fra Tasmota til ESPHome
+
+<Steps>
+1. **Flash Tasmota Minimal først** (frigør plads):
+   - I Tasmota: Firmware Upgrade → Upload tasmota-minimal.bin
+
+2. **Flash ESPHome via HTTP:**
+   - Kompiler ESPHome firmware (.bin fil)
+   - I Tasmota Minimal: Firmware Upgrade → Upload din .bin
+
+3. **Alternativt:** Flash via serial/USB som normalt
+</Steps>
+
+---
+
+## 📊 Sammenligning
+
+| Feature | Shelly | Tasmota | ESPHome |
+|---------|--------|---------|---------|
+| **Kræver flashing** | ❌ | ✅ | ✅ |
+| **Out of box** | ⭐⭐⭐⭐⭐ | ⭐⭐ | ⭐⭐ |
+| **Fleksibilitet** | ⭐⭐⭐ | ⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| **HA Integration** | Native | MQTT | Native API |
+| **Strømmåling** | Indbygget | Afhænger af enhed | Konfigurér selv |
+| **Pris** | Højere | Billige enheder | Billige enheder |
+| **Support** | Kommerciel | Community | Community |
+| **Garanti** | Bevares | Mistes | Mistes |
+
+### Hvad Skal Du Vælge?
+
+```
+┌─────────────────────────────────────────────┐
+│        HVILKEN FIRMWARE ER RIGTIG?          │
+└─────────────────────────────────────────────┘
+                      │
+                      ▼
+         ┌────────────────────────┐
+         │ Vil du bygge selv?     │
+         └────────────────────────┘
+                 │           │
+                 Ja          Nej
+                 │           │
+                 ▼           ▼
+            ESPHome    ┌─────────────────┐
+                       │ Har du Tuya/    │
+                       │ billige enheder?│
+                       └─────────────────┘
+                            │         │
+                            Ja        Nej
+                            │         │
+                            ▼         ▼
+                       Tasmota     Shelly
+```
+
+---
+
+## 🔒 Sikkerhed Tips
+
+### Isoler IoT-enheder
+
+WiFi-enheder er potentielle sikkerhedsrisici. Overvej:
+
+```yaml
+# Separat VLAN for IoT
+IoT VLAN: 192.168.10.0/24
+  - Ingen adgang til internet (kun lokal)
+  - Kun kommunikation med Home Assistant
+  - Firewall-regler for MQTT/API
+```
+
+### Deaktiver Cloud
+
+Alle tre platforme understøtter 100% lokal kontrol:
+
+| Platform | Sådan deaktiverer du cloud |
+|----------|---------------------------|
+| **Shelly** | Internet & Security → Cloud → Disable |
+| **Tasmota** | Ingen cloud som standard |
+| **ESPHome** | Ingen cloud som standard |
+
+### Hold Firmware Opdateret
+
+- **Shelly:** OTA via app eller web interface
+- **Tasmota:** OTA via web interface
+- **ESPHome:** OTA via Home Assistant dashboard
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Kan jeg flashe Tasmota på min Shelly?",
+    answer: "Ja, det er teknisk muligt, men der er sjældent grund til det. Shelly's native firmware har lokal API, MQTT-support og god Home Assistant integration. Du mister desuden garanti."
+  },
+  {
+    question: "Hvorfor vælge Tasmota over ESPHome?",
+    answer: "Tasmota er nemmere at komme i gang med på færdige enheder. Web-interfacet gør konfiguration let uden at skrive YAML. Det har også bedre support for mange specifikke enheder via templates."
+  },
+  {
+    question: "Er WiFi-enheder dårligere end Zigbee?",
+    answer: "Ikke nødvendigvis. WiFi-enheder har højere strømforbrug (dårligt for batterier), men fungerer direkte uden coordinator. For netstrømforsynede enheder som kontakter og stikkontakter er WiFi helt fint."
+  },
+  {
+    question: "Kan mine WiFi-enheder virke hvis internettet er nede?",
+    answer: "Ja! Med Shelly (lokal API), Tasmota (MQTT) eller ESPHome (native API) fungerer alt lokalt. Kun cloud-baserede enheder stopper ved internet-nedbrud."
+  }
+]} />
+
+---
+
+## 📚 Næste Trin
+
+<CardGrid>
+  <Card title="ESPHome Avanceret" icon="rocket">
+    Byg dine egne sensorer og enheder.
+    
+    [Se guide →](/da/esp32/esphome-avanceret/)
+  </Card>
+  <Card title="Zigbee2MQTT" icon="seti:arduino">
+    Alternativ til WiFi-protokol.
+    
+    [Se guide →](/da/home-assistant/zigbee2mqtt/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*
