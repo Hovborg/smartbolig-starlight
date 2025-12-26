@@ -1,0 +1,452 @@
+---
+title: Backup & Security in Home Assistant
+description: Complete guide to automatic backups, 3-2-1 strategy, Google Drive, NAS and disaster recovery in Home Assistant.
+sidebar:
+  badge:
+    text: Important
+    variant: danger
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+
+<Badge text="Backup" variant="danger" /> <Badge text="Security" variant="caution" /> <Badge text="3-2-1" variant="success" />
+
+Your smart home is the result of many hours of work. Automations, integrations, dashboards - everything can be gone in an instant if something goes wrong. **Backup is not optional** - it's necessary.
+
+---
+
+## 🎯 The 3-2-1 Backup Rule
+
+The golden standard for backup:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    3-2-1 BACKUP RULE                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                             │
+│  3️⃣  THREE copies of your data                              │
+│      (production + 2 backups)                               │
+│                                                             │
+│  2️⃣  TWO different media types                              │
+│      (local disk + cloud/NAS)                               │
+│                                                             │
+│  1️⃣  ONE copy off-site                                      │
+│      (outside your home)                                    │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+```
+
+<Aside type="caution" title="Why off-site?">
+What if lightning strikes and destroys both your HA server AND your NAS? With an off-site backup (cloud), you're still covered.
+</Aside>
+
+---
+
+## 🆕 Automatic Backup (2025.1+)
+
+Home Assistant 2025.1 introduced a **completely new backup system**:
+
+### New Features
+
+| Feature | Description |
+|---------|-------------|
+| **Automatic backups** | Scheduled backups without add-ons |
+| **Multiple locations** | Cloud + NAS + local simultaneously |
+| **Encryption** | Default for cloud, optional for local |
+| **Retention policies** | Automatic deletion of old backups |
+| **Easy setup** | Wizard for quick configuration |
+
+### Set Up Automatic Backup
+
+<Steps>
+1. Go to **Settings → System → Backups**
+
+2. Click **Configure automatic backups**
+
+3. Choose schedule:
+   - Daily, weekly, or after updates
+   - Time (e.g., 4:00 AM)
+
+4. Choose retention:
+   - Number of backups to keep (e.g., 3)
+
+5. Choose locations:
+   - Local
+   - Google Drive
+   - OneDrive
+   - Home Assistant Cloud
+   - NAS (SMB/NFS)
+
+6. Choose encryption:
+   - **SAVE YOUR ENCRYPTION KEY!** (Password manager)
+
+7. Click **Save**
+</Steps>
+
+<Aside type="danger" title="Important!">
+If you lose your encryption key, you **cannot** restore your backups. Store the key in a safe place - preferably multiple places.
+</Aside>
+
+---
+
+## ☁️ Cloud Backup Locations
+
+### Google Drive (Native 2025.2+)
+
+<Steps>
+1. Go to **Settings → Devices & Services**
+
+2. Click **Add Integration** → search "Google Drive"
+
+3. Follow Google OAuth flow:
+   - Log in to your Google account
+   - Grant access to Google Drive
+
+4. Go to **Settings → System → Backups → Locations**
+
+5. Add Google Drive as backup location
+
+6. Backups are automatically stored in "Home Assistant" folder
+</Steps>
+
+**Free storage:** 15 GB (shared with Gmail and Photos)
+
+### OneDrive (Native 2025.2+)
+
+Same process as Google Drive - use the OneDrive integration.
+
+### Home Assistant Cloud (Nabu Casa)
+
+If you subscribe to Home Assistant Cloud:
+
+<Steps>
+1. Go to **Settings → Home Assistant Cloud**
+
+2. Cloud backup is automatically available
+
+3. Backups are **always encrypted** (cannot be disabled)
+
+4. Add as backup location under Backups
+</Steps>
+
+**Price:** ~€7.50/month (includes remote access, Alexa/Google integration)
+
+---
+
+## 🗄️ NAS Backup (SMB/NFS)
+
+### Prepare NAS
+
+<Tabs>
+  <TabItem label="Synology">
+    <Steps>
+    1. Open **Control Panel → User & Group**
+    
+    2. Create user for Home Assistant:
+       - Username: `homeassistant`
+       - Strong password
+       - Disable DSM access
+    
+    3. Open **Control Panel → Shared Folder**
+    
+    4. Create shared folder:
+       - Name: `ha-backups`
+       - Give HA user full access
+    
+    5. Enable SMB under **File Services → SMB**
+    </Steps>
+  </TabItem>
+  <TabItem label="TrueNAS/QNAP">
+    Similar process:
+    - Create dedicated user
+    - Create dedicated share
+    - Set permissions to read/write
+    - Enable SMB/NFS
+  </TabItem>
+</Tabs>
+
+### Add NAS to Home Assistant
+
+<Steps>
+1. Go to **Settings → System → Storage**
+
+2. Click **Add Network Storage**
+
+3. Fill in:
+   ```yaml
+   Name: NAS Backup
+   Usage: Backup
+   Server: 192.168.1.50  # Your NAS IP
+   Type: SMB (or NFS)
+   Share: ha-backups
+   Username: homeassistant
+   Password: ****
+   ```
+
+4. Click **Connect**
+
+5. Go to **Backups → Locations** and add NAS
+</Steps>
+
+---
+
+## 🔐 Encryption
+
+### When to Encrypt?
+
+| Location | Recommendation | Reason |
+|----------|----------------|--------|
+| **Cloud** | ✅ Always | Data leaves your network |
+| **Home Assistant Cloud** | 🔒 Automatic | Cannot be disabled |
+| **NAS (home)** | ⚖️ Optional | Easier recovery without |
+| **USB disk** | ✅ Yes | Can be lost/stolen |
+
+### Encryption Key Management
+
+```yaml
+# STORE IN THESE PLACES:
+1. Password Manager (1Password, Bitwarden, etc.)
+2. Physical copy in safe/safety deposit box
+3. Shared with a trusted person
+
+# DON'T STORE:
+- In Home Assistant itself (lost on crash)
+- In unencrypted file on NAS
+- Only in your head
+```
+
+---
+
+## 📅 Backup Strategy
+
+### Recommended Setup
+
+| Backup Type | Frequency | Retention | Location |
+|-------------|-----------|-----------|----------|
+| **Daily** | Every night at 4:00 AM | 3 copies | Local |
+| **Weekly** | Sunday at 4:00 AM | 4 copies | NAS + Cloud |
+| **Before update** | On every HA update | 3 copies | All locations |
+
+### Configure Differentiated Backups
+
+```yaml
+# Automatic backup configuration
+# Settings → System → Backups → Automatic backup
+
+Schedule:
+  Frequency: Daily
+  Time: 04:00
+  Day: Every day
+
+Retention:
+  Number of copies: 3
+
+Locations:
+  - Local (encrypted: no)
+  - Google Drive (encrypted: yes)
+  - NAS (encrypted: no)
+
+On updates:
+  Create backup: Yes
+```
+
+---
+
+## 🔄 Restoration (Restore)
+
+### From Backup UI
+
+<Steps>
+1. Go to **Settings → System → Backups**
+
+2. Find backup (from local, cloud, or NAS)
+
+3. Click on backup → **Restore**
+
+4. Choose what to restore:
+   - Everything
+   - Configuration only
+   - Specific add-ons
+
+5. Wait for restoration (can take 5-30 min)
+
+6. Log in again after restart
+</Steps>
+
+### Disaster Recovery (New Installation)
+
+If your HA server is completely dead:
+
+<Steps>
+1. **Install Home Assistant** on new hardware
+
+2. Run through initial setup
+
+3. **Mount backup location:**
+   - NAS: Add network storage
+   - Google Drive: Install integration
+   - USB: Connect disk
+
+4. Go to **Settings → System → Backups**
+
+5. Find backup from your location
+
+6. **Restore full backup**
+
+7. Restart and log in with your old credentials
+</Steps>
+
+<Aside type="tip" title="Cross-platform restore">
+Home Assistant backups work across CPU architectures! You can restore a backup from Raspberry Pi on an x86 server and vice versa.
+</Aside>
+
+---
+
+## 🛡️ Security Best Practices
+
+### Network Security
+
+| Practice | Implementation |
+|----------|----------------|
+| **Separate VLAN** | IoT devices in own network |
+| **Firewall** | Block unnecessary traffic |
+| **No port forwarding** | Use VPN or Nabu Casa |
+| **HTTPS** | SSL/TLS on all traffic |
+
+### Home Assistant Security
+
+```yaml
+# configuration.yaml
+http:
+  ssl_certificate: /ssl/fullchain.pem
+  ssl_key: /ssl/privkey.pem
+  ip_ban_enabled: true
+  login_attempts_threshold: 5
+```
+
+### User Security
+
+| Practice | Description |
+|----------|-------------|
+| **Strong passwords** | 16+ characters, password manager |
+| **2FA** | Enable for all users |
+| **Least privilege** | Grant only necessary permissions |
+| **Separate accounts** | One per household member, admin separate |
+
+### Enable 2FA
+
+<Steps>
+1. Go to your **Profile picture** (bottom left)
+
+2. Scroll to **Multifactor Authentication Modules**
+
+3. Enable **Time-based One-Time Password**
+
+4. Scan QR code with authenticator app:
+   - Google Authenticator
+   - Authy
+   - 1Password
+
+5. Enter code to confirm
+</Steps>
+
+---
+
+## 🔧 Troubleshooting
+
+### Backup Fails
+
+```yaml
+# Check:
+1. Is there enough space on destination disk?
+2. Is network connection stable (NAS)?
+3. Are credentials correct (cloud/NAS)?
+4. Check Supervisor logs for details
+```
+
+### Restoration Fails
+
+```yaml
+# Check:
+1. Is backup corrupted? (try another backup)
+2. Is encryption key correct?
+3. Is HA version compatible?
+4. Do you have enough disk space?
+```
+
+### NAS Mount Fails
+
+```yaml
+# Common problems:
+1. SMB version mismatch → Try SMB 2.0 or 3.0
+2. Wrong credentials → Check username/password
+3. Share doesn't exist → Check share name on NAS
+4. Firewall blocks → Port 445 (SMB) must be open
+```
+
+---
+
+## 📋 Checklist
+
+### Weekly
+
+- [ ] Verify automatic backup runs
+- [ ] Check backup status in UI
+- [ ] Ensure space on backup locations
+
+### Monthly
+
+- [ ] Test restoration on test server (if possible)
+- [ ] Verify encryption key is accessible
+- [ ] Clean up old/unnecessary backups
+
+### On Major Changes
+
+- [ ] Create manual backup BEFORE changes
+- [ ] Test backup after major updates
+- [ ] Document changes
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "How often should I backup?",
+    answer: "Minimum weekly, preferably daily. With the new automatic backup system, there's no reason not to run daily backups. Also remember backup before updates."
+  },
+  {
+    question: "Can I restore on different hardware?",
+    answer: "Yes! Home Assistant backups are cross-platform and work across CPU architectures. You can go from Raspberry Pi to Intel NUC without problems."
+  },
+  {
+    question: "What's included in a backup?",
+    answer: "Everything! Configuration, automations, dashboards, add-ons and their data, integrations, history (if selected). The only thing not included is Home Assistant OS itself."
+  },
+  {
+    question: "Should I use encryption on local backup?",
+    answer: "It's optional for local/NAS backups. The advantage of unencrypted backups is that you can manually extract files without Home Assistant. Cloud backups should always be encrypted."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Dashboard Design" icon="laptop">
+    Build beautiful dashboards.
+    
+    [See guide →](/en/home-assistant/dashboard-design/)
+  </Card>
+  <Card title="Node-RED" icon="rocket">
+    Advanced automations.
+    
+    [See guide →](/en/home-assistant/node-red/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
