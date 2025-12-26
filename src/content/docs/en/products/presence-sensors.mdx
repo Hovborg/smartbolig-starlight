@@ -1,0 +1,528 @@
+---
+title: Presence Sensors
+description: Complete guide to presence sensors - PIR vs mmWave, LD2410, Aqara FP2, Everything Presence. Build your own with ESPHome for Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Choose the right presence sensor"
+  description="Guide to PIR and mmWave sensors for Home Assistant"
+  totalTime="PT20M"
+  steps={[
+    "Understand the difference between PIR and mmWave",
+    "Choose sensor based on use case",
+    "Buy ready-made sensor or build DIY",
+    "Install and add to Home Assistant",
+    "Configure zones and automations"
+  ]}
+/>
+
+<Badge text="mmWave" variant="success" /> <Badge text="ESPHome" variant="note" /> <Badge text="Automation" variant="tip" />
+
+Presence sensors are **the key to truly smart automation**. With the right sensor, you can detect if someone is in a room - even when they're sitting completely still. This guide helps you choose between PIR and mmWave technology.
+
+<Aside type="tip" title="Top Recommendations 2025">
+- **Plug-and-play**: Aqara FP2 (~$85)
+- **Best DIY**: LD2410C + ESP32 (~$14)
+- **Multi-target**: Everything Presence Lite (~$50)
+- **Budget Zigbee**: Tuya ZY-M100 (~$25)
+- **Premium**: Apollo MSR-2 (~$70)
+</Aside>
+
+---
+
+## 🔑 PIR vs mmWave - What's The Difference?
+
+### PIR (Passive Infrared)
+
+Traditional motion sensors that detect **heat changes**:
+
+| Pros | Cons |
+|------|------|
+| ✅ Cheap | ❌ Only motion, not stillness |
+| ✅ Low power consumption | ❌ Cannot see through glass |
+| ✅ Simple | ❌ False triggers from heat sources |
+| ✅ Reliable for motion | ❌ Poor for office/couch use |
+
+**Best for:** Hallways, stairs, entryways - places you just pass through.
+
+### mmWave (Millimeter Wave Radar)
+
+Modern radar sensors that detect **even minimal movement** (breathing):
+
+| Pros | Cons |
+|------|------|
+| ✅ Detects stationary people | ❌ More expensive |
+| ✅ Works through thin walls | ❌ Can trigger on pets |
+| ✅ Zone detection possible | ❌ Requires more setup |
+| ✅ Distance measurement | ❌ Can detect through windows |
+
+**Best for:** Living room, bedroom, office, bathroom - places where you stay.
+
+---
+
+## 🏆 Ready-Made mmWave Sensors
+
+### Comparison
+
+| Sensor | Protocol | Zones | Multi-person | Price ~ | Score |
+|--------|----------|-------|--------------|---------|-------|
+| **Aqara FP2** | WiFi/HomeKit | ✅ 30 zones | ❌ | $85 | ⭐⭐⭐⭐⭐ |
+| **Everything Presence Lite** | WiFi/ESPHome | ✅ 3 zones | ✅ 3 people | $50 | ⭐⭐⭐⭐⭐ |
+| **Apollo MSR-2** | WiFi/ESPHome | ✅ 3 zones | ✅ 3 people | $70 | ⭐⭐⭐⭐⭐ |
+| **Tuya ZY-M100** | Zigbee | ❌ | ❌ | $25 | ⭐⭐⭐⭐ |
+| **Sonoff SNZB-06P** | Zigbee | ❌ | ❌ | $28 | ⭐⭐⭐⭐ |
+| **Aqara FP1** | Zigbee | ❌ | ❌ | $65 | ⭐⭐⭐ |
+
+---
+
+## 🥇 Aqara FP2 - Best Plug-and-Play
+
+<Tabs>
+  <TabItem label="Overview">
+    ### Why Aqara FP2?
+    
+    **Price:** ~$85
+    
+    Aqara FP2 is the **most user-friendly** mmWave sensor:
+    
+    - ✅ Up to 30 custom zones
+    - ✅ HomeKit, Alexa, Google Home native
+    - ✅ Beautiful app with zone drawing
+    - ✅ Lux sensor built-in
+    - ✅ Home Assistant via HomeKit integration
+    - ✅ Wall mount or ceiling mount
+    
+    **Disadvantages:**
+    - ❌ Expensive
+    - ❌ No multi-person tracking
+    - ❌ Requires WiFi (no Zigbee)
+    - ❌ Slower detection than DIY (~3.6 sec)
+  </TabItem>
+  <TabItem label="Specs">
+    ### Technical Specifications
+    
+    | Spec | Value |
+    |------|-------|
+    | Protocol | WiFi 2.4GHz |
+    | Range | 5 meters / 16 feet |
+    | Angle | 120° horizontal |
+    | Zones | Up to 30 |
+    | Power | USB-C 5V/1A |
+    | Integration | HomeKit, HA, Alexa, Google |
+  </TabItem>
+  <TabItem label="Installation">
+    ### Setup
+    
+    1. **Download Aqara Home app**
+    2. **Connect USB-C power**
+    3. **Add device** in app
+    4. **Place the sensor** - wall or ceiling
+    5. **Draw zones** in app
+    
+    ### Home Assistant
+    
+    FP2 integrates via **HomeKit Controller**:
+    
+    1. Settings → Devices & Services
+    2. Add Integration → HomeKit Controller
+    3. Scan QR code from Aqara app
+    4. Zones appear as separate binary_sensors
+    
+    **Entities:**
+    - binary_sensor.fp2_presence
+    - binary_sensor.fp2_zone_1
+    - binary_sensor.fp2_zone_2 (etc.)
+    - sensor.fp2_illuminance
+  </TabItem>
+</Tabs>
+
+**Buy:** [Aqara.com](https://aqara.com), [Amazon](https://amazon.com)
+
+---
+
+## 🥈 Everything Presence Lite - Best ESPHome
+
+<Tabs>
+  <TabItem label="Overview">
+    ### Why EP Lite?
+    
+    **Price:** ~$50
+    
+    Everything Presence Lite is the **best compromise**:
+    
+    - ✅ HiLink LD2450 mmWave sensor
+    - ✅ Up to 3 person tracking
+    - ✅ 3 custom zones
+    - ✅ ESPHome - full control
+    - ✅ Lux sensor built-in
+    - ✅ Bluetooth proxy for HA
+    - ✅ Open source firmware
+    
+    **Disadvantages:**
+    - ❌ Requires more setup than Aqara
+    - ❌ Static detection weaker than EP One
+  </TabItem>
+  <TabItem label="Specs">
+    ### Technical Specifications
+    
+    | Spec | Value |
+    |------|-------|
+    | mmWave Sensor | HiLink LD2450 |
+    | Protocol | WiFi/ESPHome |
+    | Range | 6 meters / 20 feet |
+    | Angle | 60° |
+    | Multi-target | Up to 3 people |
+    | Zones | 3 pcs |
+    | Extra | Lux sensor, BLE proxy |
+  </TabItem>
+  <TabItem label="Installation">
+    ### Setup
+    
+    1. **Connect USB-C power**
+    2. **Connect to WiFi** via browser (Chrome)
+       - Go to [web.esphome.io](https://web.esphome.io)
+       - Select "Install Everything Presence Lite"
+    3. **Device auto-discovered** in Home Assistant
+    4. **Configure zones** via HA dashboard
+    
+    ### Zone Configuration
+    
+    In Home Assistant you get controls for:
+    - Max distance
+    - Zone 1/2/3 coordinates
+    - Target tracking (X, Y, distance, speed)
+    
+    ```yaml
+    # Example automation
+    automation:
+      - alias: "Light on in living room zone"
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.ep_lite_zone_1
+            to: "on"
+        action:
+          - service: light.turn_on
+            entity_id: light.living_room
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Everything Smart Technology](https://shop.everythingsmart.io), [AliExpress](https://aliexpress.com)
+
+---
+
+## 💰 Budget: Tuya ZY-M100
+
+**Price:** ~$25
+
+The **cheapest ready-made mmWave sensor** with Zigbee:
+
+| Pros | Cons |
+|------|------|
+| ✅ Very cheap | ❌ No zones |
+| ✅ Zigbee (no cloud) | ❌ No multi-person |
+| ✅ Works with Z2M/ZHA | ❌ Limited fine-tuning |
+| ✅ Compact size | ❌ Can have false triggers |
+
+**Buy:** [AliExpress](https://aliexpress.com) (search "Tuya ZY-M100 mmWave")
+
+---
+
+## 🔧 DIY: LD2410 + ESP32
+
+The **most flexible and cheapest** solution is to build your own sensor!
+
+### Why DIY?
+
+- ✅ Only ~$14 total
+- ✅ Full control over all parameters
+- ✅ Can combine with other sensors
+- ✅ Community ESPHome support
+- ✅ No cloud
+
+### Components
+
+| Part | Price ~ | Where |
+|------|---------|-------|
+| **HiLink LD2410C** | $7 | AliExpress |
+| **ESP32 DevKit** | $5 | AliExpress |
+| **USB cable + adapter** | $3 | Often have |
+| **Dupont cables** | $1 | AliExpress |
+| **Total** | ~$16 | |
+
+### LD2410 Variants
+
+| Model | Interface | Bluetooth | Recommended |
+|-------|-----------|-----------|-------------|
+| **LD2410** | 1.25mm connector | ❌ | Harder to solder |
+| **LD2410B** | 1.25mm connector | ✅ | Good, but small pins |
+| **LD2410C** | 2.54mm pins | ✅ | ⭐ Easiest to use |
+
+### Wiring
+
+```
+ESP32          LD2410C
+------         -------
+3.3V   ────►   VCC
+GND    ────►   GND
+GPIO16 ────►   TX
+GPIO17 ────►   RX
+```
+
+### ESPHome Configuration
+
+```yaml
+esphome:
+  name: presence-sensor-living-room
+
+esp32:
+  board: esp32dev
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+uart:
+  tx_pin: GPIO17
+  rx_pin: GPIO16
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+
+ld2410:
+  id: ld2410_sensor
+
+binary_sensor:
+  - platform: ld2410
+    has_target:
+      name: "Living Room Presence"
+    has_moving_target:
+      name: "Living Room Motion"
+    has_still_target:
+      name: "Living Room Still"
+
+sensor:
+  - platform: ld2410
+    moving_distance:
+      name: "Motion Distance"
+    still_distance:
+      name: "Still Distance"
+    moving_energy:
+      name: "Motion Energy"
+    still_energy:
+      name: "Still Energy"
+    detection_distance:
+      name: "Detection Distance"
+    light:
+      name: "Light Level"
+
+number:
+  - platform: ld2410
+    timeout:
+      name: "Timeout"
+    max_move_distance_gate:
+      name: "Max Motion Gate"
+    max_still_distance_gate:
+      name: "Max Still Gate"
+
+switch:
+  - platform: ld2410
+    engineering_mode:
+      name: "Engineering Mode"
+    bluetooth:
+      name: "Bluetooth"
+```
+
+### 3D Print Enclosure
+
+Find free STL files on:
+- [Thingiverse](https://thingiverse.com) (search "LD2410 case")
+- [Printables](https://printables.com) (search "LD2410 enclosure")
+
+---
+
+## 📊 HiLink Sensor Comparison
+
+| Model | Range | Multi-target | Static | ESPHome | Price |
+|-------|-------|--------------|--------|---------|-------|
+| **LD2410** | 6m | ❌ | ⭐⭐⭐⭐⭐ | ✅ Official | $7 |
+| **LD2410B** | 6m | ❌ | ⭐⭐⭐⭐⭐ | ✅ Official | $8 |
+| **LD2410C** | 6m | ❌ | ⭐⭐⭐⭐⭐ | ✅ Official | $7 |
+| **LD2420** | 10m | ❌ | ⭐⭐⭐⭐ | ✅ Official | $5 |
+| **LD2450** | 6m | ✅ 3 targets | ⭐⭐⭐ | ⚠️ Community | $10 |
+
+<Aside type="tip" title="Recommendation">
+**LD2410C** is the best choice for most DIY projects. Easy 2.54mm pins, good static detection, and official ESPHome support.
+
+**LD2450** if you need multi-person tracking, but static detection is weaker.
+</Aside>
+
+---
+
+## 🏠 Automation Examples
+
+### Basic: Light on presence
+
+```yaml
+automation:
+  - alias: "Living room light on presence"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.living_room_presence
+        to: "on"
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.living_room_lux
+        below: 50
+    action:
+      - service: light.turn_on
+        entity_id: light.living_room
+        data:
+          brightness_pct: 80
+
+  - alias: "Living room light off when empty"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.living_room_presence
+        to: "off"
+        for:
+          minutes: 5
+    action:
+      - service: light.turn_off
+        entity_id: light.living_room
+```
+
+### Advanced: Zone-based
+
+```yaml
+automation:
+  - alias: "Desk lamp when working"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.office_zone_desk
+        to: "on"
+    action:
+      - service: light.turn_on
+        entity_id: light.desk_lamp
+
+  - alias: "TV ambient lighting"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.living_room_zone_couch
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: media_player.tv
+        state: "playing"
+    action:
+      - service: light.turn_on
+        entity_id: light.tv_backlight
+        data:
+          brightness_pct: 30
+```
+
+---
+
+## ⚠️ Sensors To Avoid
+
+Based on community tests, these sensors are **not recommended**:
+
+| Sensor | Problem |
+|--------|---------|
+| **Aqara FP1** | Outdated, replaced by FP2 |
+| **Moes ZSS-LP-HP02** | Inconsistent, many false triggers |
+| **Cheap Tuya clones** | Varying quality, poor support |
+
+---
+
+## 🛒 Buying Strategy
+
+### Starter DIY (~$20)
+- 1x LD2410C sensor ($7)
+- 1x ESP32 DevKit ($5)
+- Cables and USB adapter ($4)
+- 3D printed enclosure ($4)
+- **Total:** ~$20
+
+### Mid-range - Ready (~$70)
+- 1x Everything Presence Lite ($50)
+- 1x Aqara Motion P2 (PIR for entry) ($21)
+- **Total:** ~$71
+
+### Premium Multi-room (~$280)
+- 2x Aqara FP2 ($170)
+- 3x DIY LD2410C sensors ($60)
+- **Total:** ~$230
+
+---
+
+## 🛒 Where to Buy?
+
+### Ready-Made Sensors
+- **[Aqara Store](https://aqara.com)** - FP2
+- **[Everything Smart](https://shop.everythingsmart.io)** - EP Lite, EP One
+- **[Amazon](https://amazon.com)** - Aqara, Apollo
+
+### DIY Components
+- **[AliExpress](https://aliexpress.com)** - LD2410, ESP32, all DIY
+- **[Adafruit](https://adafruit.com)** - Quality components
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Can mmWave sensors see pets?",
+    answer: "Yes, mmWave radar detects all living beings that move - including pets. Solutions: 1) Adjust sensitivity/thresholds, 2) Use zones that exclude floor level, 3) Combine with other sensors for smarter logic."
+  },
+  {
+    question: "PIR or mmWave - what should I choose?",
+    answer: "PIR for passage areas (entry, stairs) where you just pass through. mmWave for living spaces (living room, office, bedroom) where you sit still. Many use both: PIR for quick trigger, mmWave to keep lights on."
+  },
+  {
+    question: "Can mmWave detect through walls?",
+    answer: "Yes, mmWave radar can detect through thin walls and windows, which can cause false triggers. Adjust range and zones to avoid this, or use physical shielding."
+  },
+  {
+    question: "How many sensors do I need?",
+    answer: "Typically one sensor per room. Large rooms or L-shaped rooms may require two. Start with one room, test thoroughly, then expand."
+  },
+  {
+    question: "What's better: LD2410 or LD2450?",
+    answer: "LD2410 for best static detection (people sitting still). LD2450 for multi-person tracking (counting people in room). LD2410 has official ESPHome support and is easier to work with."
+  },
+  {
+    question: "Can I combine PIR and mmWave?",
+    answer: "Yes! A popular strategy: PIR to turn on lights quickly (instant trigger), mmWave to keep lights on as long as someone is in the room. Everything Presence One has both sensors built-in."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="ESPHome Guide" icon="rocket">
+    Build your own sensors.
+    
+    [Get started →](/en/home-assistant/esphome/)
+  </Card>
+  <Card title="Automations" icon="setting">
+    Maximize your sensors.
+    
+    [Learn more →](/en/home-assistant/automations/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*

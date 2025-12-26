@@ -1,0 +1,528 @@
+---
+title: Tilstedeværelsessensorer
+description: Komplet guide til tilstedeværelsessensorer - PIR vs mmWave, LD2410, Aqara FP2, Everything Presence. Byg din egen med ESPHome til Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Vælg den rigtige tilstedeværelsessensor"
+  description="Guide til PIR og mmWave sensorer til Home Assistant"
+  totalTime="PT20M"
+  steps={[
+    "Forstå forskellen på PIR og mmWave",
+    "Vælg sensor baseret på anvendelse",
+    "Køb færdig sensor eller byg DIY",
+    "Installer og tilføj til Home Assistant",
+    "Konfigurer zoner og automationer"
+  ]}
+/>
+
+<Badge text="mmWave" variant="success" /> <Badge text="ESPHome" variant="note" /> <Badge text="Automation" variant="tip" />
+
+Tilstedeværelsessensorer er **nøglen til virkelig smart automatisering**. Med den rigtige sensor kan du detektere om nogen er i et rum - selv når de sidder helt stille. Denne guide hjælper dig med at vælge mellem PIR og mmWave teknologi.
+
+<Aside type="tip" title="Top Anbefalinger 2025">
+- **Plug-and-play**: Aqara FP2 (~600 kr)
+- **Bedste DIY**: LD2410C + ESP32 (~100 kr)
+- **Multi-target**: Everything Presence Lite (~350 kr)
+- **Budget Zigbee**: Tuya ZY-M100 (~180 kr)
+- **Premium**: Apollo MSR-2 (~500 kr)
+</Aside>
+
+---
+
+## 🔑 PIR vs mmWave - Hvad Er Forskellen?
+
+### PIR (Passive Infrared)
+
+Traditionelle bevægelsessensorer der detekterer **varmeændringer**:
+
+| Fordele | Ulemper |
+|---------|---------|
+| ✅ Billig | ❌ Kun bevægelse, ikke stilstand |
+| ✅ Lavt strømforbrug | ❌ Kan ikke se gennem glas |
+| ✅ Simpel | ❌ Falske triggers fra varmekilder |
+| ✅ Pålidelig til bevægelse | ❌ Dårlig til kontor/sofabrug |
+
+**Bedst til:** Entre, trapper, gangarealer - steder hvor du bare passerer igennem.
+
+### mmWave (Millimeter Wave Radar)
+
+Moderne radarsensorer der detekterer **selv minimal bevægelse** (vejrtrækning):
+
+| Fordele | Ulemper |
+|---------|---------|
+| ✅ Detekterer stillesiddende personer | ❌ Dyrere |
+| ✅ Virker gennem tynde vægge | ❌ Kan trigge på kæledyr |
+| ✅ Zone-detektion mulig | ❌ Kræver mere opsætning |
+| ✅ Afstandsmåling | ❌ Kan detektere gennem vinduer |
+
+**Bedst til:** Stue, soveværelse, kontor, badeværelse - steder hvor du opholder dig.
+
+---
+
+## 🏆 Færdige mmWave Sensorer
+
+### Sammenligning
+
+| Sensor | Protokol | Zoner | Multi-person | Pris ca. | Score |
+|--------|----------|-------|--------------|----------|-------|
+| **Aqara FP2** | WiFi/HomeKit | ✅ 30 zoner | ❌ | 600 kr | ⭐⭐⭐⭐⭐ |
+| **Everything Presence Lite** | WiFi/ESPHome | ✅ 3 zoner | ✅ 3 personer | 350 kr | ⭐⭐⭐⭐⭐ |
+| **Apollo MSR-2** | WiFi/ESPHome | ✅ 3 zoner | ✅ 3 personer | 500 kr | ⭐⭐⭐⭐⭐ |
+| **Tuya ZY-M100** | Zigbee | ❌ | ❌ | 180 kr | ⭐⭐⭐⭐ |
+| **Sonoff SNZB-06P** | Zigbee | ❌ | ❌ | 200 kr | ⭐⭐⭐⭐ |
+| **Aqara FP1** | Zigbee | ❌ | ❌ | 450 kr | ⭐⭐⭐ |
+
+---
+
+## 🥇 Aqara FP2 - Bedste Plug-and-Play
+
+<Tabs>
+  <TabItem label="Oversigt">
+    ### Hvorfor Aqara FP2?
+    
+    **Pris:** ~600 kr / $85
+    
+    Aqara FP2 er den **mest brugervenlige** mmWave sensor:
+    
+    - ✅ Op til 30 tilpassede zoner
+    - ✅ HomeKit, Alexa, Google Home native
+    - ✅ Flot app med zone-tegning
+    - ✅ Lux sensor indbygget
+    - ✅ Home Assistant via HomeKit integration
+    - ✅ Vægmontering eller loftmontering
+    
+    **Ulemper:**
+    - ❌ Dyr
+    - ❌ Ingen multi-person tracking
+    - ❌ Kræver WiFi (ingen Zigbee)
+    - ❌ Langsommere detektion end DIY (~3.6 sek)
+  </TabItem>
+  <TabItem label="Specs">
+    ### Tekniske Specifikationer
+    
+    | Spec | Værdi |
+    |------|-------|
+    | Protokol | WiFi 2.4GHz |
+    | Rækkevidde | 5 meter |
+    | Vinkel | 120° horisontalt |
+    | Zoner | Op til 30 |
+    | Strøm | USB-C 5V/1A |
+    | Integration | HomeKit, HA, Alexa, Google |
+  </TabItem>
+  <TabItem label="Installation">
+    ### Opsætning
+    
+    1. **Download Aqara Home app**
+    2. **Tilslut USB-C strøm**
+    3. **Tilføj enhed** i appen
+    4. **Placer sensoren** - væg eller loft
+    5. **Tegn zoner** i appen
+    
+    ### Home Assistant
+    
+    FP2 integreres via **HomeKit Controller**:
+    
+    1. Indstillinger → Enheder & Tjenester
+    2. Tilføj Integration → HomeKit Controller
+    3. Scan QR-kode fra Aqara app
+    4. Zoner vises som separate binary_sensors
+    
+    **Entiteter:**
+    - binary_sensor.fp2_presence
+    - binary_sensor.fp2_zone_1
+    - binary_sensor.fp2_zone_2 (osv.)
+    - sensor.fp2_illuminance
+  </TabItem>
+</Tabs>
+
+**Køb:** [Aqara.com](https://aqara.com), [Amazon.de](https://amazon.de), [Elgiganten](https://elgiganten.dk)
+
+---
+
+## 🥈 Everything Presence Lite - Bedste ESPHome
+
+<Tabs>
+  <TabItem label="Oversigt">
+    ### Hvorfor EP Lite?
+    
+    **Pris:** ~350 kr / $50
+    
+    Everything Presence Lite er det **bedste kompromis**:
+    
+    - ✅ HiLink LD2450 mmWave sensor
+    - ✅ Op til 3 personer tracking
+    - ✅ 3 tilpassede zoner
+    - ✅ ESPHome - fuld kontrol
+    - ✅ Lux sensor indbygget
+    - ✅ Bluetooth proxy til HA
+    - ✅ Open source firmware
+    
+    **Ulemper:**
+    - ❌ Kræver mere opsætning end Aqara
+    - ❌ Statisk detektion svagere end EP One
+  </TabItem>
+  <TabItem label="Specs">
+    ### Tekniske Specifikationer
+    
+    | Spec | Værdi |
+    |------|-------|
+    | mmWave Sensor | HiLink LD2450 |
+    | Protokol | WiFi/ESPHome |
+    | Rækkevidde | 6 meter |
+    | Vinkel | 60° |
+    | Multi-target | Op til 3 personer |
+    | Zoner | 3 stk |
+    | Ekstra | Lux sensor, BLE proxy |
+  </TabItem>
+  <TabItem label="Installation">
+    ### Opsætning
+    
+    1. **Tilslut USB-C strøm**
+    2. **Forbind til WiFi** via browser (Chrome)
+       - Gå til [web.esphome.io](https://web.esphome.io)
+       - Vælg "Install Everything Presence Lite"
+    3. **Enhed opdages automatisk** i Home Assistant
+    4. **Konfigurer zoner** via HA dashboard
+    
+    ### Zone Konfiguration
+    
+    I Home Assistant får du kontroller til:
+    - Max afstand
+    - Zone 1/2/3 koordinater
+    - Target tracking (X, Y, afstand, hastighed)
+    
+    ```yaml
+    # Eksempel automation
+    automation:
+      - alias: "Lys tændes i stue-zone"
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.ep_lite_zone_1
+            to: "on"
+        action:
+          - service: light.turn_on
+            entity_id: light.stue
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Everything Smart Technology](https://shop.everythingsmart.io), [AliExpress](https://aliexpress.com)
+
+---
+
+## 💰 Budget: Tuya ZY-M100
+
+**Pris:** ~180 kr / $25
+
+Den **billigste færdige mmWave sensor** med Zigbee:
+
+| Fordele | Ulemper |
+|---------|---------|
+| ✅ Meget billig | ❌ Ingen zoner |
+| ✅ Zigbee (ingen cloud) | ❌ Ingen multi-person |
+| ✅ Fungerer med Z2M/ZHA | ❌ Begrænset finjustering |
+| ✅ Kompakt størrelse | ❌ Kan have falske triggers |
+
+**Køb:** [AliExpress](https://aliexpress.com) (søg "Tuya ZY-M100 mmWave")
+
+---
+
+## 🔧 DIY: LD2410 + ESP32
+
+Den **mest fleksible og billigste** løsning er at bygge din egen sensor!
+
+### Hvorfor DIY?
+
+- ✅ Kun ~100 kr total
+- ✅ Fuld kontrol over alle parametre
+- ✅ Kan kombinere med andre sensorer
+- ✅ Community ESPHome support
+- ✅ Ingen cloud
+
+### Komponenter
+
+| Del | Pris ca. | Hvor |
+|-----|----------|------|
+| **HiLink LD2410C** | 50 kr | AliExpress |
+| **ESP32 DevKit** | 40 kr | AliExpress |
+| **USB kabel + adapter** | 20 kr | Haves ofte |
+| **Dupont kabler** | 10 kr | AliExpress |
+| **Total** | ~120 kr | |
+
+### LD2410 Varianter
+
+| Model | Interface | Bluetooth | Anbefalet |
+|-------|-----------|-----------|-----------|
+| **LD2410** | 1.25mm stik | ❌ | Sværere at lodde |
+| **LD2410B** | 1.25mm stik | ✅ | God, men små pins |
+| **LD2410C** | 2.54mm pins | ✅ | ⭐ Nemmest at bruge |
+
+### Tilslutning
+
+```
+ESP32          LD2410C
+------         -------
+3.3V   ────►   VCC
+GND    ────►   GND
+GPIO16 ────►   TX
+GPIO17 ────►   RX
+```
+
+### ESPHome Konfiguration
+
+```yaml
+esphome:
+  name: presence-sensor-stue
+
+esp32:
+  board: esp32dev
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+uart:
+  tx_pin: GPIO17
+  rx_pin: GPIO16
+  baud_rate: 256000
+  parity: NONE
+  stop_bits: 1
+
+ld2410:
+  id: ld2410_sensor
+
+binary_sensor:
+  - platform: ld2410
+    has_target:
+      name: "Stue Tilstedeværelse"
+    has_moving_target:
+      name: "Stue Bevægelse"
+    has_still_target:
+      name: "Stue Stillestående"
+
+sensor:
+  - platform: ld2410
+    moving_distance:
+      name: "Bevægelse Afstand"
+    still_distance:
+      name: "Stillestående Afstand"
+    moving_energy:
+      name: "Bevægelse Energi"
+    still_energy:
+      name: "Stillestående Energi"
+    detection_distance:
+      name: "Detektions Afstand"
+    light:
+      name: "Lys Niveau"
+
+number:
+  - platform: ld2410
+    timeout:
+      name: "Timeout"
+    max_move_distance_gate:
+      name: "Max Bevægelse Gate"
+    max_still_distance_gate:
+      name: "Max Stillestående Gate"
+
+switch:
+  - platform: ld2410
+    engineering_mode:
+      name: "Engineering Mode"
+    bluetooth:
+      name: "Bluetooth"
+```
+
+### 3D Print Kabinet
+
+Find gratis STL filer på:
+- [Thingiverse](https://thingiverse.com) (søg "LD2410 case")
+- [Printables](https://printables.com) (søg "LD2410 enclosure")
+
+---
+
+## 📊 HiLink Sensor Sammenligning
+
+| Model | Rækkevidde | Multi-target | Statisk | ESPHome | Pris |
+|-------|------------|--------------|---------|---------|------|
+| **LD2410** | 6m | ❌ | ⭐⭐⭐⭐⭐ | ✅ Official | 50 kr |
+| **LD2410B** | 6m | ❌ | ⭐⭐⭐⭐⭐ | ✅ Official | 55 kr |
+| **LD2410C** | 6m | ❌ | ⭐⭐⭐⭐⭐ | ✅ Official | 50 kr |
+| **LD2420** | 10m | ❌ | ⭐⭐⭐⭐ | ✅ Official | 40 kr |
+| **LD2450** | 6m | ✅ 3 targets | ⭐⭐⭐ | ⚠️ Community | 70 kr |
+
+<Aside type="tip" title="Anbefaling">
+**LD2410C** er det bedste valg for de fleste DIY projekter. Nemme 2.54mm pins, god statisk detektion, og officiel ESPHome support.
+
+**LD2450** hvis du har brug for multi-person tracking, men statisk detektion er svagere.
+</Aside>
+
+---
+
+## 🏠 Automations Eksempler
+
+### Basis: Lys ved tilstedeværelse
+
+```yaml
+automation:
+  - alias: "Stue lys ved tilstedeværelse"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.stue_tilstedevaerelse
+        to: "on"
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.stue_lux
+        below: 50
+    action:
+      - service: light.turn_on
+        entity_id: light.stue
+        data:
+          brightness_pct: 80
+
+  - alias: "Stue lys sluk når tom"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.stue_tilstedevaerelse
+        to: "off"
+        for:
+          minutes: 5
+    action:
+      - service: light.turn_off
+        entity_id: light.stue
+```
+
+### Avanceret: Zone-baseret
+
+```yaml
+automation:
+  - alias: "Skrivebordslampe ved arbejde"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.kontor_zone_skrivebord
+        to: "on"
+    action:
+      - service: light.turn_on
+        entity_id: light.skrivebordslampe
+
+  - alias: "Fjernsynsbelysning"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.stue_zone_sofa
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: media_player.tv
+        state: "playing"
+    action:
+      - service: light.turn_on
+        entity_id: light.tv_baggrund
+        data:
+          brightness_pct: 30
+```
+
+---
+
+## ⚠️ Sensorer At Undgå
+
+Baseret på community tests er disse sensorer **ikke anbefalede**:
+
+| Sensor | Problem |
+|--------|---------|
+| **Aqara FP1** | Forældet, erstattet af FP2 |
+| **Moes ZSS-LP-HP02** | Inkonsistent, mange falske triggers |
+| **Billige Tuya kloner** | Varierende kvalitet, dårlig support |
+
+---
+
+## 🛒 Købs Strategi
+
+### Starter DIY (~150 kr)
+- 1x LD2410C sensor (50 kr)
+- 1x ESP32 DevKit (40 kr)
+- Kabler og USB adapter (30 kr)
+- 3D printet kabinet (30 kr)
+- **Total:** ~150 kr
+
+### Mellem - Færdig (~500 kr)
+- 1x Everything Presence Lite (350 kr)
+- 1x Aqara Motion P2 (PIR til entre) (150 kr)
+- **Total:** ~500 kr
+
+### Premium Multi-rum (~2.000 kr)
+- 2x Aqara FP2 (1.200 kr)
+- 3x DIY LD2410C sensorer (450 kr)
+- **Total:** ~1.650 kr
+
+---
+
+## 🛒 Hvor Køber Jeg?
+
+### Færdige Sensorer
+- **[Aqara Store](https://aqara.com)** - FP2
+- **[Everything Smart](https://shop.everythingsmart.io)** - EP Lite, EP One
+- **[Amazon.de](https://amazon.de)** - Aqara, Apollo
+
+### DIY Komponenter
+- **[AliExpress](https://aliexpress.com)** - LD2410, ESP32, alt DIY
+- **[Electrokit.se](https://electrokit.se)** - Nordisk leverandør
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Kan mmWave sensorer se kæledyr?",
+    answer: "Ja, mmWave radar detekterer alle levende væsener der bevæger sig - inklusiv kæledyr. Løsninger: 1) Juster sensitivitet/tærskler, 2) Brug zoner der udelukker gulvniveau, 3) Kombiner med andre sensorer for smartere logik."
+  },
+  {
+    question: "PIR eller mmWave - hvad skal jeg vælge?",
+    answer: "PIR til passageområder (entre, trappe) hvor du bare passerer. mmWave til opholdsrum (stue, kontor, soveværelse) hvor du sidder stille. Mange bruger begge: PIR til hurtig trigger, mmWave til at holde lys tændt."
+  },
+  {
+    question: "Kan mmWave detektere gennem vægge?",
+    answer: "Ja, mmWave radar kan detektere gennem tynde vægge og vinduer, hvilket kan give falske triggers. Juster rækkevidde og zoner for at undgå dette, eller brug fysisk afskærmning."
+  },
+  {
+    question: "Hvor mange sensorer har jeg brug for?",
+    answer: "Typisk én sensor per rum. Store rum eller L-formede rum kan kræve to. Start med ét rum, test grundigt, og udvid derefter."
+  },
+  {
+    question: "Hvad er bedst: LD2410 eller LD2450?",
+    answer: "LD2410 for bedste statisk detektion (persomer der sidder stille). LD2450 for multi-person tracking (tælle personer i rum). LD2410 har officiel ESPHome support og er nemmere at arbejde med."
+  },
+  {
+    question: "Kan jeg kombinere PIR og mmWave?",
+    answer: "Ja! En populær strategi: PIR til at tænde lys hurtigt (instant trigger), mmWave til at holde lys tændt så længe nogen er i rummet. Everything Presence One har begge sensorer indbygget."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="ESPHome Guide" icon="rocket">
+    Byg dine egne sensorer.
+    
+    [Kom i gang →](/da/home-assistant/esphome/)
+  </Card>
+  <Card title="Automationer" icon="setting">
+    Udnyt dine sensorer maksimalt.
+    
+    [Lær mere →](/da/home-assistant/automationer/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*
