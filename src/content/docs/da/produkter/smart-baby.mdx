@@ -1,0 +1,602 @@
+---
+title: Smart Baby & Børn
+description: Komplet guide til smart babyudstyr - babymonitorer, natlamper, lydmaskiner og Home Assistant integration for trygge forældre.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Opsæt smart babyværelse"
+  description="Guide til smarte babyenheder med Home Assistant"
+  totalTime="PT30M"
+  steps={[
+    "Vælg babymonitor og tilbehør",
+    "Installer og tilslut enheder",
+    "Integrer med Home Assistant",
+    "Opsæt automationer og notifikationer",
+    "Test systemet grundigt"
+  ]}
+/>
+
+<Badge text="Baby" variant="success" /> <Badge text="Sikkerhed" variant="note" /> <Badge text="Søvn" variant="tip" />
+
+Smart babyudstyr giver forældre **tryghed og overblik** - fra HD video-overvågning og vejrtrækningsmonitorering til automatisk natlampe og hvid støj. Kombiner med Home Assistant for det ultimative smarte babyværelse.
+
+<Aside type="tip" title="Top Anbefalinger 2025">
+- **Babymonitor**: Nanit Pro (~1.500 kr)
+- **Lydmaskine**: Hatch Rest 2nd Gen (~500 kr)
+- **Vejrtrækning**: Owlet Dream Sock (~2.500 kr)
+- **Simpel monitor**: Eufy SpaceView Pro (~1.200 kr)
+</Aside>
+
+---
+
+## 🎯 Typer af Smart Babyudstyr
+
+### Overblik
+
+| Type | Funktion | HA Integration | Pris |
+|------|----------|----------------|------|
+| **Video babymonitor** | HD video, tovejs lyd | Via RTMP/Docker | 💰💰-💰💰💰 |
+| **Vejrtrækningsmonitor** | SpO2, puls | Begrænset | 💰💰💰 |
+| **Lydmaskine** | Hvid støj, natlampe | HACS | 💰-💰💰 |
+| **Smart natlampe** | Dæmpbar, farver | Native/Zigbee | 💰 |
+| **Temperatur/fugt** | Miljøsensorer | Native | 💰 |
+
+---
+
+## 📹 Video Babymonitorer
+
+### Nanit Pro
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~1.500 kr / $200
+    
+    Nanit Pro er den **mest avancerede** babymonitor:
+    
+    - ✅ 1080p HD video (dag & nat)
+    - ✅ Vejrtrækningsmonitorering (med Breathing Wear)
+    - ✅ Søvnsporing og -analyse
+    - ✅ Temperatur & fugtighed
+    - ✅ Tovejs lyd
+    - ✅ Split-screen (flere kameraer)
+    - ✅ Natlampe indbygget
+    - ✅ Tips baseret på søvndata
+    
+    | Spec | Værdi |
+    |------|-------|
+    | Opløsning | 1080p HD |
+    | Synsfelt | 130° |
+    | Natlys | Ja (dæmpbar) |
+    | Abonnement | Gratis 1 år, derefter betalt |
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Via Docker RTMP Restreaming
+    
+    Nanit kan integreres via RTMP restreaming:
+    
+    ```yaml
+    # Docker container til Nanit
+    # https://github.com/indiefan/home_assistant_nanit
+    
+    # docker-compose.yml
+    version: '3'
+    services:
+      nanit:
+        image: indiefan/nanit
+        container_name: nanit
+        restart: unless-stopped
+        volumes:
+          - /path/to/data:/data
+        environment:
+          - NANIT_RTMP_ADDR=192.168.1.100:1935
+          - NANIT_LOG_LEVEL=info
+        ports:
+          - "1935:1935"
+    
+    # Home Assistant configuration.yaml
+    camera:
+      - platform: ffmpeg
+        name: "Nanit Babyværelse"
+        input: rtmp://192.168.1.100:1935/local/BABY_UID
+    ```
+    
+    ### Sensorer fra Nanit
+    
+    ```yaml
+    # REST sensorer (kræver API adgang)
+    sensor:
+      - platform: template
+        sensors:
+          baby_room_temperature:
+            friendly_name: "Babyværelse Temperatur"
+            unit_of_measurement: "°C"
+            value_template: "{{ states('sensor.nanit_temperature') }}"
+          
+          baby_sleep_status:
+            friendly_name: "Baby Søvnstatus"
+            value_template: >
+              {% if is_state('binary_sensor.nanit_sleeping', 'on') %}
+                Sover
+              {% else %}
+                Vågen
+              {% endif %}
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Amazon.de](https://amazon.de), [Nanit.com](https://nanit.com)
+
+---
+
+### Eufy SpaceView Pro
+
+**Pris:** ~1.200 kr / $160
+
+**Lokal forbindelse** (ingen cloud):
+
+- ✅ 5" 720p skærm
+- ✅ Ingen WiFi/cloud krævet
+- ✅ 460m rækkevidde
+- ✅ Pan/tilt/zoom
+- ✅ Temperatur sensor
+- ✅ Tovejs lyd
+- ✅ Op til 12 timer batteri
+
+**Bedst til:** Forældre der foretrækker privatliv og ingen abonnement.
+
+---
+
+### Owlet Cam
+
+**Pris:** ~1.000 kr / $130
+
+**Perfekt sammen med** Owlet Dream Sock:
+
+- ✅ 1080p HD video
+- ✅ Nat vision
+- ✅ Tovejs lyd
+- ✅ Temperatur sensor
+- ✅ Integration med Owlet app
+
+---
+
+## 🧦 Vejrtrækningsmonitorer
+
+### Owlet Dream Sock
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~2.500 kr / $300
+    
+    **FDA-godkendt** vejrtrækningsmonitor:
+    
+    - ✅ Puls overvågning
+    - ✅ Iltmætning (SpO2)
+    - ✅ Søvnsporing
+    - ✅ Bevægelsesregistrering
+    - ✅ App notifikationer
+    - ✅ Base station med lys/lyd alarmer
+    - ✅ 0-5 år (flere sokstørrelser)
+    
+    | Spec | Værdi |
+    |------|-------|
+    | Puls område | 60-220 BPM |
+    | SpO2 område | 80-100% |
+    | Batteri | 16 timer |
+    | Sokker inkl. | 3 størrelser |
+    
+    <Aside type="caution" title="Vigtigt">
+    Owlet er **ikke en medicinsk enhed** og erstatter ikke lægetilsyn. Brug det som ekstra tryghed, ikke som diagnostisk værktøj.
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Begrænset Integration
+    
+    Owlet har pt. ingen officiel HA integration, men data kan hentes via uofficielle metoder:
+    
+    ```yaml
+    # Via Owlet API (uofficiel)
+    # Kræver login credentials
+    
+    # Eksempel sensor template
+    sensor:
+      - platform: rest
+        name: "Owlet Heart Rate"
+        resource: https://api.owletdata.com/...
+        headers:
+          Authorization: !secret owlet_token
+        value_template: "{{ value_json.heart_rate }}"
+        unit_of_measurement: "BPM"
+    
+    # Alarm automation
+    automation:
+      - alias: "Owlet - Lav iltmætning"
+        trigger:
+          - platform: numeric_state
+            entity_id: sensor.owlet_oxygen
+            below: 90
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "⚠️ OWLET ALARM"
+              message: "Lav iltmætning registreret!"
+              data:
+                priority: high
+                ttl: 0
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Amazon.de](https://amazon.de), [Owletcare.com](https://owletcare.com)
+
+---
+
+## 🎵 Lydmaskiner & Natlamper
+
+### Hatch Rest 2nd Gen
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~500 kr / $70
+    
+    **Alt-i-én** søvnassistent:
+    
+    - ✅ 11 beroligende lyde (hvid støj, regn, vind)
+    - ✅ RGB natlampe (fuldt tilpasselig)
+    - ✅ Time-to-Rise funktion (for større børn)
+    - ✅ WiFi + app-styring
+    - ✅ Programmerbare rutiner
+    - ✅ Tovejs audio (Rest+)
+    
+    | Spec | Værdi |
+    |------|-------|
+    | Lyde | 11 indbyggede |
+    | Farver | 16 millioner (RGB) |
+    | WiFi | 2.4 GHz |
+    | Batteri | 8 timer (Rest+) |
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Hatch HACS Integration
+    
+    ```yaml
+    # HACS → Tilføj custom repository
+    # https://github.com/dahlb/ha_hatch
+    
+    # Entiteter:
+    # - light.hatch_rest_light
+    # - media_player.hatch_rest_sound
+    # - switch.hatch_rest_power
+    # - number.hatch_rest_volume
+    
+    # Eksempel: Sengetidsrutine
+    automation:
+      - alias: "Sengetid - Start Hatch"
+        trigger:
+          - platform: time
+            at: "19:30:00"
+        action:
+          # Tænd dæmpet orange lys
+          - service: light.turn_on
+            entity_id: light.hatch_rest_light
+            data:
+              brightness_pct: 20
+              rgb_color: [255, 140, 0]
+          # Start hvid støj
+          - service: media_player.play_media
+            entity_id: media_player.hatch_rest_sound
+            data:
+              media_content_type: sound
+              media_content_id: white_noise
+          - service: number.set_value
+            entity_id: number.hatch_rest_volume
+            data:
+              value: 40
+    
+    # Time-to-Rise automation
+    automation:
+      - alias: "Morgen - Hatch grønt lys"
+        trigger:
+          - platform: time
+            at: "07:00:00"
+        action:
+          - service: light.turn_on
+            entity_id: light.hatch_rest_light
+            data:
+              brightness_pct: 50
+              rgb_color: [0, 255, 0]  # Grøn = ok at stå op
+          - service: media_player.turn_off
+            entity_id: media_player.hatch_rest_sound
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Amazon.de](https://amazon.de), [Hatch.co](https://hatch.co)
+
+---
+
+### Hatch Rest+ (med batteri)
+
+**Pris:** ~700 kr / $90
+
+**Opgraderet version** med:
+
+- ✅ Alt fra Rest 2nd Gen
+- ✅ 8 timers backup batteri
+- ✅ Audio monitor funktion
+- ✅ Perfekt til rejser
+
+---
+
+## 💡 Smart Natlamper (Budget)
+
+### IKEA TRÅDFRI Natlampe
+
+**Pris:** ~150 kr / $20
+
+**Simpel og billig** løsning:
+
+- ✅ Zigbee (via IKEA hub eller direkte)
+- ✅ Dæmpbar
+- ✅ Varmt hvidt lys
+- ✅ Native HA integration
+
+```yaml
+# Via Zigbee2MQTT eller IKEA integration
+light:
+  - platform: group
+    name: "Babyværelse Natlys"
+    entities:
+      - light.tradfri_nursery
+      
+automation:
+  - alias: "Natlampe - Bevægelse nat"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.nursery_motion
+        to: "on"
+    condition:
+      - condition: time
+        after: "22:00:00"
+        before: "06:00:00"
+    action:
+      - service: light.turn_on
+        entity_id: light.tradfri_nursery
+        data:
+          brightness_pct: 5
+          color_temp: 500
+```
+
+---
+
+## 🌡️ Miljøovervågning
+
+### Aqara Temperature & Humidity Sensor
+
+**Pris:** ~100 kr / $15
+
+Perfekt til babyværelset:
+
+```yaml
+# Via Zigbee2MQTT
+
+# Temperatur alarm
+automation:
+  - alias: "Babyværelse - Temperatur advarsel"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.nursery_temperature
+        above: 24
+      - platform: numeric_state
+        entity_id: sensor.nursery_temperature
+        below: 18
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🌡️ Babyværelse temperatur"
+          message: >
+            Temperaturen er {{ states('sensor.nursery_temperature') }}°C.
+            Anbefalet: 18-22°C for sovende baby.
+
+# Dashboard card
+type: gauge
+entity: sensor.nursery_temperature
+name: "Babyværelse"
+min: 15
+max: 30
+segments:
+  - from: 15
+    color: '#1E88E5'
+  - from: 18
+    color: '#43A047'
+  - from: 22
+    color: '#FB8C00'
+  - from: 24
+    color: '#E53935'
+```
+
+---
+
+## 🏠 Smarte Automationer
+
+### Komplet Sengetidsrutine
+
+```yaml
+automation:
+  - alias: "Baby - Sengetidsrutine"
+    trigger:
+      - platform: time
+        at: input_datetime.baby_bedtime
+    action:
+      # Dæmp alle lys gradvist
+      - service: light.turn_on
+        entity_id: light.nursery_main
+        data:
+          brightness_pct: 30
+          color_temp: 500
+          transition: 300
+      # Start Hatch
+      - service: light.turn_on
+        entity_id: light.hatch_rest
+        data:
+          brightness_pct: 15
+          rgb_color: [255, 100, 50]
+      - service: media_player.play_media
+        entity_id: media_player.hatch_rest
+        data:
+          media_content_id: white_noise
+      # Sluk hovedlys efter 15 min
+      - delay: "00:15:00"
+      - service: light.turn_off
+        entity_id: light.nursery_main
+
+  - alias: "Baby - Vågen om natten"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.nursery_motion
+        to: "on"
+    condition:
+      - condition: time
+        after: "22:00:00"
+        before: "06:00:00"
+    action:
+      # Tænd svagt lys til amning/bleskift
+      - service: light.turn_on
+        entity_id: light.nursery_night_light
+        data:
+          brightness_pct: 10
+          color_temp: 500
+      # Sluk efter 10 min uden bevægelse
+      - wait_for_trigger:
+          - platform: state
+            entity_id: binary_sensor.nursery_motion
+            to: "off"
+            for: "00:10:00"
+      - service: light.turn_off
+        entity_id: light.nursery_night_light
+```
+
+### Morgen Rutine
+
+```yaml
+automation:
+  - alias: "Baby - God morgen"
+    trigger:
+      - platform: time
+        at: "07:00:00"
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+    action:
+      # Grønt lys = ok at stå op
+      - service: light.turn_on
+        entity_id: light.hatch_rest
+        data:
+          rgb_color: [0, 255, 0]
+          brightness_pct: 40
+      # Fade hvid støj ud
+      - service: number.set_value
+        entity_id: number.hatch_volume
+        data:
+          value: 20
+      - delay: "00:05:00"
+      - service: media_player.turn_off
+        entity_id: media_player.hatch_rest
+```
+
+---
+
+## 🛒 Købs Strategi
+
+### Budget (~700 kr)
+- 1x Hatch Rest 2nd Gen (500 kr)
+- 1x Aqara temp/fugt sensor (100 kr)
+- 1x IKEA TRÅDFRI natlampe (150 kr)
+- **Total:** ~750 kr
+
+### Standard (~3.000 kr)
+- 1x Nanit Pro (1.500 kr)
+- 1x Hatch Rest+ (700 kr)
+- 1x Aqara sensor (100 kr)
+- **Total:** ~2.300 kr
+
+### Premium (~6.000 kr)
+- 1x Nanit Pro (1.500 kr)
+- 1x Owlet Dream Sock (2.500 kr)
+- 1x Hatch Rest+ (700 kr)
+- 2x Aqara sensorer (200 kr)
+- **Total:** ~4.900 kr
+
+---
+
+## 🛒 Hvor Køber Jeg?
+
+### Baby Specialbutikker
+- **[Nanit.com](https://nanit.com)** - Nanit monitorer
+- **[Owletcare.com](https://owletcare.com)** - Owlet produkter
+- **[Hatch.co](https://hatch.co)** - Hatch lydmaskiner
+
+### Danske/Europæiske
+- **[Amazon.de](https://amazon.de)** - Alt babyudstyr
+- **[BabySam](https://babysam.dk)** - Dansk babybutik
+- **[Proshop](https://proshop.dk)** - Elektronik
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Er Owlet sock sikker at bruge?",
+    answer: "Ja, Owlet er FDA-godkendt som forbrugervare. Det er IKKE en medicinsk enhed og erstatter ikke lægetilsyn. Brug det som ekstra tryghed, ikke som primær overvågning af risikobørn."
+  },
+  {
+    question: "Nanit vs Owlet - hvad er forskellen?",
+    answer: "Nanit fokuserer på video og søvnsporing via kamera. Owlet fokuserer på fysiologiske målinger (puls, ilt) via bærbar sok. Mange forældre bruger begge sammen."
+  },
+  {
+    question: "Kan Hatch Rest integreres med Home Assistant?",
+    answer: "Ja! Via HACS custom integration (ha_hatch). Du kan styre lys, lyd, volumen og oprette automationer baseret på tid og andre sensorer."
+  },
+  {
+    question: "Hvad er den ideelle temperatur for babyværelset?",
+    answer: "18-22°C anbefales for sovende babyer. Brug en smart temperatur sensor til at overvåge og få notifikationer hvis det bliver for varmt eller koldt."
+  },
+  {
+    question: "Kræver Nanit abonnement?",
+    answer: "Nanit inkluderer 1 års gratis Insights. Derefter kræves betalt abonnement for søvnanalyse og historik. Grundlæggende live video fungerer altid."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="Smart Sikkerhed" icon="shield">
+    Kameraer og bevægelsessensorer.
+    
+    [Se guide →](/da/produkter/smart-sikkerhed/)
+  </Card>
+  <Card title="Smart Klimastyring" icon="sun">
+    Hold optimal temperatur.
+    
+    [Se guide →](/da/produkter/smart-klimastyring/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*

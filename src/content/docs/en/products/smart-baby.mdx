@@ -1,0 +1,602 @@
+---
+title: Smart Baby & Kids
+description: Complete guide to smart baby equipment - baby monitors, night lights, sound machines and Home Assistant integration for peace of mind.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Set up smart nursery"
+  description="Guide to smart baby devices with Home Assistant"
+  totalTime="PT30M"
+  steps={[
+    "Choose baby monitor and accessories",
+    "Install and connect devices",
+    "Integrate with Home Assistant",
+    "Set up automations and notifications",
+    "Test the system thoroughly"
+  ]}
+/>
+
+<Badge text="Baby" variant="success" /> <Badge text="Safety" variant="note" /> <Badge text="Sleep" variant="tip" />
+
+Smart baby equipment gives parents **peace of mind and oversight** - from HD video monitoring and breathing tracking to automatic night lights and white noise. Combine with Home Assistant for the ultimate smart nursery.
+
+<Aside type="tip" title="Top Recommendations 2025">
+- **Baby monitor**: Nanit Pro (~$200)
+- **Sound machine**: Hatch Rest 2nd Gen (~$70)
+- **Breathing**: Owlet Dream Sock (~$300)
+- **Simple monitor**: Eufy SpaceView Pro (~$160)
+</Aside>
+
+---
+
+## 🎯 Types of Smart Baby Equipment
+
+### Overview
+
+| Type | Function | HA Integration | Price |
+|------|----------|----------------|-------|
+| **Video baby monitor** | HD video, two-way audio | Via RTMP/Docker | 💰💰-💰💰💰 |
+| **Breathing monitor** | SpO2, heart rate | Limited | 💰💰💰 |
+| **Sound machine** | White noise, night light | HACS | 💰-💰💰 |
+| **Smart night light** | Dimmable, colors | Native/Zigbee | 💰 |
+| **Temperature/humidity** | Environment sensors | Native | 💰 |
+
+---
+
+## 📹 Video Baby Monitors
+
+### Nanit Pro
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$200
+    
+    Nanit Pro is the **most advanced** baby monitor:
+    
+    - ✅ 1080p HD video (day & night)
+    - ✅ Breathing monitoring (with Breathing Wear)
+    - ✅ Sleep tracking and analysis
+    - ✅ Temperature & humidity
+    - ✅ Two-way audio
+    - ✅ Split-screen (multiple cameras)
+    - ✅ Built-in night light
+    - ✅ Tips based on sleep data
+    
+    | Spec | Value |
+    |------|-------|
+    | Resolution | 1080p HD |
+    | Field of view | 130° |
+    | Night light | Yes (dimmable) |
+    | Subscription | Free 1 year, then paid |
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Via Docker RTMP Restreaming
+    
+    Nanit can be integrated via RTMP restreaming:
+    
+    ```yaml
+    # Docker container for Nanit
+    # https://github.com/indiefan/home_assistant_nanit
+    
+    # docker-compose.yml
+    version: '3'
+    services:
+      nanit:
+        image: indiefan/nanit
+        container_name: nanit
+        restart: unless-stopped
+        volumes:
+          - /path/to/data:/data
+        environment:
+          - NANIT_RTMP_ADDR=192.168.1.100:1935
+          - NANIT_LOG_LEVEL=info
+        ports:
+          - "1935:1935"
+    
+    # Home Assistant configuration.yaml
+    camera:
+      - platform: ffmpeg
+        name: "Nanit Nursery"
+        input: rtmp://192.168.1.100:1935/local/BABY_UID
+    ```
+    
+    ### Sensors from Nanit
+    
+    ```yaml
+    # REST sensors (requires API access)
+    sensor:
+      - platform: template
+        sensors:
+          baby_room_temperature:
+            friendly_name: "Nursery Temperature"
+            unit_of_measurement: "°C"
+            value_template: "{{ states('sensor.nanit_temperature') }}"
+          
+          baby_sleep_status:
+            friendly_name: "Baby Sleep Status"
+            value_template: >
+              {% if is_state('binary_sensor.nanit_sleeping', 'on') %}
+                Sleeping
+              {% else %}
+                Awake
+              {% endif %}
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Amazon](https://amazon.com), [Nanit.com](https://nanit.com)
+
+---
+
+### Eufy SpaceView Pro
+
+**Price:** ~$160
+
+**Local connection** (no cloud):
+
+- ✅ 5" 720p screen
+- ✅ No WiFi/cloud required
+- ✅ 1500ft range
+- ✅ Pan/tilt/zoom
+- ✅ Temperature sensor
+- ✅ Two-way audio
+- ✅ Up to 12 hours battery
+
+**Best for:** Parents who prefer privacy and no subscription.
+
+---
+
+### Owlet Cam
+
+**Price:** ~$130
+
+**Perfect together with** Owlet Dream Sock:
+
+- ✅ 1080p HD video
+- ✅ Night vision
+- ✅ Two-way audio
+- ✅ Temperature sensor
+- ✅ Integration with Owlet app
+
+---
+
+## 🧦 Breathing Monitors
+
+### Owlet Dream Sock
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$300
+    
+    **FDA-cleared** breathing monitor:
+    
+    - ✅ Heart rate monitoring
+    - ✅ Oxygen saturation (SpO2)
+    - ✅ Sleep tracking
+    - ✅ Movement detection
+    - ✅ App notifications
+    - ✅ Base station with light/sound alarms
+    - ✅ 0-5 years (multiple sock sizes)
+    
+    | Spec | Value |
+    |------|-------|
+    | Heart rate range | 60-220 BPM |
+    | SpO2 range | 80-100% |
+    | Battery | 16 hours |
+    | Socks included | 3 sizes |
+    
+    <Aside type="caution" title="Important">
+    Owlet is **not a medical device** and does not replace medical supervision. Use it for extra peace of mind, not as a diagnostic tool.
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Limited Integration
+    
+    Owlet currently has no official HA integration, but data can be retrieved via unofficial methods:
+    
+    ```yaml
+    # Via Owlet API (unofficial)
+    # Requires login credentials
+    
+    # Example sensor template
+    sensor:
+      - platform: rest
+        name: "Owlet Heart Rate"
+        resource: https://api.owletdata.com/...
+        headers:
+          Authorization: !secret owlet_token
+        value_template: "{{ value_json.heart_rate }}"
+        unit_of_measurement: "BPM"
+    
+    # Alarm automation
+    automation:
+      - alias: "Owlet - Low oxygen"
+        trigger:
+          - platform: numeric_state
+            entity_id: sensor.owlet_oxygen
+            below: 90
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "⚠️ OWLET ALARM"
+              message: "Low oxygen saturation detected!"
+              data:
+                priority: high
+                ttl: 0
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Amazon](https://amazon.com), [Owletcare.com](https://owletcare.com)
+
+---
+
+## 🎵 Sound Machines & Night Lights
+
+### Hatch Rest 2nd Gen
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$70
+    
+    **All-in-one** sleep assistant:
+    
+    - ✅ 11 soothing sounds (white noise, rain, wind)
+    - ✅ RGB night light (fully customizable)
+    - ✅ Time-to-Rise function (for older kids)
+    - ✅ WiFi + app control
+    - ✅ Programmable routines
+    - ✅ Two-way audio (Rest+)
+    
+    | Spec | Value |
+    |------|-------|
+    | Sounds | 11 built-in |
+    | Colors | 16 million (RGB) |
+    | WiFi | 2.4 GHz |
+    | Battery | 8 hours (Rest+) |
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Hatch HACS Integration
+    
+    ```yaml
+    # HACS → Add custom repository
+    # https://github.com/dahlb/ha_hatch
+    
+    # Entities:
+    # - light.hatch_rest_light
+    # - media_player.hatch_rest_sound
+    # - switch.hatch_rest_power
+    # - number.hatch_rest_volume
+    
+    # Example: Bedtime routine
+    automation:
+      - alias: "Bedtime - Start Hatch"
+        trigger:
+          - platform: time
+            at: "19:30:00"
+        action:
+          # Turn on dim orange light
+          - service: light.turn_on
+            entity_id: light.hatch_rest_light
+            data:
+              brightness_pct: 20
+              rgb_color: [255, 140, 0]
+          # Start white noise
+          - service: media_player.play_media
+            entity_id: media_player.hatch_rest_sound
+            data:
+              media_content_type: sound
+              media_content_id: white_noise
+          - service: number.set_value
+            entity_id: number.hatch_rest_volume
+            data:
+              value: 40
+    
+    # Time-to-Rise automation
+    automation:
+      - alias: "Morning - Hatch green light"
+        trigger:
+          - platform: time
+            at: "07:00:00"
+        action:
+          - service: light.turn_on
+            entity_id: light.hatch_rest_light
+            data:
+              brightness_pct: 50
+              rgb_color: [0, 255, 0]  # Green = ok to wake up
+          - service: media_player.turn_off
+            entity_id: media_player.hatch_rest_sound
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Amazon](https://amazon.com), [Hatch.co](https://hatch.co)
+
+---
+
+### Hatch Rest+ (with battery)
+
+**Price:** ~$90
+
+**Upgraded version** with:
+
+- ✅ Everything from Rest 2nd Gen
+- ✅ 8-hour backup battery
+- ✅ Audio monitor function
+- ✅ Perfect for travel
+
+---
+
+## 💡 Smart Night Lights (Budget)
+
+### IKEA TRÅDFRI Night Light
+
+**Price:** ~$20
+
+**Simple and affordable** solution:
+
+- ✅ Zigbee (via IKEA hub or direct)
+- ✅ Dimmable
+- ✅ Warm white light
+- ✅ Native HA integration
+
+```yaml
+# Via Zigbee2MQTT or IKEA integration
+light:
+  - platform: group
+    name: "Nursery Night Light"
+    entities:
+      - light.tradfri_nursery
+      
+automation:
+  - alias: "Night light - Motion at night"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.nursery_motion
+        to: "on"
+    condition:
+      - condition: time
+        after: "22:00:00"
+        before: "06:00:00"
+    action:
+      - service: light.turn_on
+        entity_id: light.tradfri_nursery
+        data:
+          brightness_pct: 5
+          color_temp: 500
+```
+
+---
+
+## 🌡️ Environment Monitoring
+
+### Aqara Temperature & Humidity Sensor
+
+**Price:** ~$15
+
+Perfect for the nursery:
+
+```yaml
+# Via Zigbee2MQTT
+
+# Temperature alarm
+automation:
+  - alias: "Nursery - Temperature warning"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.nursery_temperature
+        above: 75  # °F
+      - platform: numeric_state
+        entity_id: sensor.nursery_temperature
+        below: 65  # °F
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "🌡️ Nursery temperature"
+          message: >
+            Temperature is {{ states('sensor.nursery_temperature') }}°F.
+            Recommended: 65-72°F for sleeping baby.
+
+# Dashboard card
+type: gauge
+entity: sensor.nursery_temperature
+name: "Nursery"
+min: 60
+max: 85
+segments:
+  - from: 60
+    color: '#1E88E5'
+  - from: 65
+    color: '#43A047'
+  - from: 72
+    color: '#FB8C00'
+  - from: 75
+    color: '#E53935'
+```
+
+---
+
+## 🏠 Smart Automations
+
+### Complete Bedtime Routine
+
+```yaml
+automation:
+  - alias: "Baby - Bedtime routine"
+    trigger:
+      - platform: time
+        at: input_datetime.baby_bedtime
+    action:
+      # Dim all lights gradually
+      - service: light.turn_on
+        entity_id: light.nursery_main
+        data:
+          brightness_pct: 30
+          color_temp: 500
+          transition: 300
+      # Start Hatch
+      - service: light.turn_on
+        entity_id: light.hatch_rest
+        data:
+          brightness_pct: 15
+          rgb_color: [255, 100, 50]
+      - service: media_player.play_media
+        entity_id: media_player.hatch_rest
+        data:
+          media_content_id: white_noise
+      # Turn off main light after 15 min
+      - delay: "00:15:00"
+      - service: light.turn_off
+        entity_id: light.nursery_main
+
+  - alias: "Baby - Awake at night"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.nursery_motion
+        to: "on"
+    condition:
+      - condition: time
+        after: "22:00:00"
+        before: "06:00:00"
+    action:
+      # Turn on dim light for feeding/diaper change
+      - service: light.turn_on
+        entity_id: light.nursery_night_light
+        data:
+          brightness_pct: 10
+          color_temp: 500
+      # Turn off after 10 min without motion
+      - wait_for_trigger:
+          - platform: state
+            entity_id: binary_sensor.nursery_motion
+            to: "off"
+            for: "00:10:00"
+      - service: light.turn_off
+        entity_id: light.nursery_night_light
+```
+
+### Morning Routine
+
+```yaml
+automation:
+  - alias: "Baby - Good morning"
+    trigger:
+      - platform: time
+        at: "07:00:00"
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+    action:
+      # Green light = ok to wake up
+      - service: light.turn_on
+        entity_id: light.hatch_rest
+        data:
+          rgb_color: [0, 255, 0]
+          brightness_pct: 40
+      # Fade out white noise
+      - service: number.set_value
+        entity_id: number.hatch_volume
+        data:
+          value: 20
+      - delay: "00:05:00"
+      - service: media_player.turn_off
+        entity_id: media_player.hatch_rest
+```
+
+---
+
+## 🛒 Buying Strategy
+
+### Budget (~$100)
+- 1x Hatch Rest 2nd Gen ($70)
+- 1x Aqara temp/humidity sensor ($15)
+- 1x IKEA TRÅDFRI night light ($20)
+- **Total:** ~$105
+
+### Standard (~$350)
+- 1x Nanit Pro ($200)
+- 1x Hatch Rest+ ($90)
+- 1x Aqara sensor ($15)
+- **Total:** ~$305
+
+### Premium (~$700)
+- 1x Nanit Pro ($200)
+- 1x Owlet Dream Sock ($300)
+- 1x Hatch Rest+ ($90)
+- 2x Aqara sensors ($30)
+- **Total:** ~$620
+
+---
+
+## 🛒 Where to Buy?
+
+### Baby Specialty Stores
+- **[Nanit.com](https://nanit.com)** - Nanit monitors
+- **[Owletcare.com](https://owletcare.com)** - Owlet products
+- **[Hatch.co](https://hatch.co)** - Hatch sound machines
+
+### General Retailers
+- **[Amazon](https://amazon.com)** - All baby equipment
+- **[Target](https://target.com)** - Baby section
+- **[Best Buy](https://bestbuy.com)** - Electronics
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Is the Owlet sock safe to use?",
+    answer: "Yes, Owlet is FDA-cleared as a consumer wellness product. It is NOT a medical device and does not replace medical supervision. Use it for extra peace of mind, not as primary monitoring for at-risk infants."
+  },
+  {
+    question: "Nanit vs Owlet - what's the difference?",
+    answer: "Nanit focuses on video and sleep tracking via camera. Owlet focuses on physiological measurements (heart rate, oxygen) via wearable sock. Many parents use both together."
+  },
+  {
+    question: "Can Hatch Rest integrate with Home Assistant?",
+    answer: "Yes! Via HACS custom integration (ha_hatch). You can control light, sound, volume and create automations based on time and other sensors."
+  },
+  {
+    question: "What's the ideal temperature for the nursery?",
+    answer: "65-72°F (18-22°C) is recommended for sleeping babies. Use a smart temperature sensor to monitor and get notifications if it gets too hot or cold."
+  },
+  {
+    question: "Does Nanit require a subscription?",
+    answer: "Nanit includes 1 year of free Insights. After that, a paid subscription is required for sleep analysis and history. Basic live video always works."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Smart Security" icon="shield">
+    Cameras and motion sensors.
+    
+    [See guide →](/en/products/smart-security/)
+  </Card>
+  <Card title="Smart Climate" icon="sun">
+    Maintain optimal temperature.
+    
+    [See guide →](/en/products/smart-climate/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
