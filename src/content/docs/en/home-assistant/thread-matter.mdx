@@ -1,0 +1,366 @@
+---
+title: Thread & Matter Guide
+description: Complete Thread and Matter guide for Home Assistant - border router setup, device commissioning and best practices.
+sidebar:
+  badge:
+    text: New
+    variant: success
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+
+<Badge text="Thread" variant="tip" /> <Badge text="Matter" variant="success" /> <Badge text="Home Assistant" variant="note" />
+
+**Matter** and **Thread** are the future of smart home standards. This guide helps you get started with the new technology in Home Assistant!
+
+<Aside type="caution" title="Beta Status">
+Matter in Home Assistant is still under active development. Expect some bugs and limitations. Recommended for technically experienced users.
+</Aside>
+
+---
+
+## 🔍 What are Thread and Matter?
+
+### Thread - The Network Protocol
+
+| Feature | Thread | Zigbee | WiFi |
+|---------|--------|--------|------|
+| **Type** | Mesh network | Mesh network | Star network |
+| **Frequency** | 2.4 GHz (802.15.4) | 2.4 GHz (802.15.4) | 2.4/5 GHz |
+| **Power consumption** | Ultra-low | Low | High |
+| **IP-based** | ✅ IPv6 | ❌ | ✅ IPv4/IPv6 |
+| **Border Router** | Required | Coordinator | Router |
+| **Multi-admin** | ✅ | ❌ | ✅ |
+
+**Thread is NOT a control protocol** - it only defines how devices communicate. You need Matter or HomeKit on top of Thread to control devices.
+
+### Matter - The Control Protocol
+
+```
+┌─────────────────────────────────────────┐
+│            MATTER CONTROLLER            │
+│         (Home Assistant, Google,        │
+│          Apple, Amazon, etc.)           │
+└─────────────┬───────────────┬───────────┘
+              │               │
+      ┌───────▼───────┐ ┌─────▼─────┐
+      │  Thread       │ │   WiFi    │
+      │  (via Border  │ │  (Direct) │
+      │   Router)     │ │           │
+      └───────┬───────┘ └─────┬─────┘
+              │               │
+      ┌───────▼───────┐ ┌─────▼─────┐
+      │ Thread Devices│ │WiFi Matter│
+      │ (Sensors,     │ │ Devices   │
+      │  Switches)    │ │           │
+      └───────────────┘ └───────────┘
+```
+
+**Matter advantages:**
+- ✅ Multi-controller (use same device with HA + Google + Apple)
+- ✅ Local communication (no cloud required)
+- ✅ Industry standard (500+ companies)
+- ✅ Certified interoperability
+
+---
+
+## 🔌 Border Router Selection
+
+### Thread Border Routers
+
+A **Thread Border Router (TBR)** connects the Thread mesh network to your IP network (WiFi/Ethernet).
+
+| Border Router | Platform | Price | Note |
+|---------------|----------|-------|------|
+| **HomePod Mini** | Apple | ~$99 | Best with iPhone |
+| **Apple TV 4K** | Apple | ~$129 | With Ethernet |
+| **Google Nest Hub (2nd gen)** | Google | ~$99 | Best with Android |
+| **Google Nest WiFi Pro** | Google | ~$199 | Router + TBR |
+| **HA SkyConnect** | Home Assistant | ~$30 | Requires OTBR add-on |
+| **HA Yellow** | Home Assistant | ~$125 | Built-in radio |
+| **SONOFF ZBDongle-E** | DIY | ~$20 | With Thread firmware |
+| **SMLIGHT SLZB-06** | DIY | ~$50 | PoE + Thread |
+
+<Aside type="tip" title="Recommendation">
+**iPhone users:** Use HomePod Mini/Apple TV as Thread Border Router.
+
+**Android users:** Use Google Nest Hub (2nd gen) as Thread Border Router.
+
+**DIY/Advanced:** Use HA SkyConnect + OpenThread Border Router add-on.
+</Aside>
+
+---
+
+## 📦 Installation in Home Assistant
+
+### Method 1: Existing Border Router (Easiest)
+
+If you have HomePod Mini, Apple TV 4K, or Google Nest Hub:
+
+<Steps>
+1. Install **Thread integration**:
+   - **Settings → Devices & Services → Add Integration**
+   - Search "Thread"
+
+2. Install **Matter integration**:
+   - **Settings → Devices & Services → Add Integration**
+   - Search "Matter"
+   - Check "Use the official Matter Server Supervisor add-on"
+
+3. Configure Thread credentials:
+   - Go to **Thread integration**
+   - Find your border router
+   - Click **"Add to preferred network"**
+   - Click **"Use router for Android + iOS credentials"**
+
+4. Restart Home Assistant
+</Steps>
+
+### Method 2: OpenThread Border Router (Advanced)
+
+For HA SkyConnect, Yellow, or third-party dongles:
+
+<Tabs>
+  <TabItem label="HA Add-on">
+    <Steps>
+    1. Flash Thread firmware on your dongle:
+       - Go to [SkyConnect Web Flasher](https://skyconnect.home-assistant.io/)
+       - Select "Thread" firmware
+    
+    2. Install **OpenThread Border Router** add-on:
+       - **Settings → Add-ons → Add-on Store**
+       - Search "OpenThread Border Router"
+       - Install
+    
+    3. Configure add-on:
+       ```yaml
+       device: /dev/serial/by-id/usb-Nabu_Casa_SkyConnect...
+       baudrate: 460800
+       flow_control: true
+       autoflash_firmware: true
+       ```
+    
+    4. Start add-on and enable:
+       - "Start on boot"
+       - "Watchdog"
+    
+    5. Install integrations:
+       - **Thread** integration
+       - **OpenThread Border Router** integration
+       - **Matter** integration
+    
+    6. Configure preferred network (see Method 1, step 3)
+    </Steps>
+  </TabItem>
+  <TabItem label="Network Dongle (SLZB-06)">
+    ```yaml
+    # OpenThread Border Router add-on configuration
+    device: socket://192.168.1.100:6638
+    baudrate: 460800
+    flow_control: false
+    autoflash_firmware: false
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## ➕ Add Matter Devices
+
+### Via Home Assistant App (Recommended)
+
+<Steps>
+1. Open **Home Assistant app** on phone
+
+2. Go to **Settings → Devices & Services**
+
+3. Select **Devices** tab → **Add device**
+
+4. Select **Add Matter device**
+
+5. Select **"No, it's new"** (for new device)
+
+6. **Scan QR code** on the device
+   - Or enter manual pairing code
+
+7. Wait for commissioning (can take 1-5 minutes)
+
+8. Name the device
+</Steps>
+
+<Aside type="caution" title="Commissioning Requirements">
+**For Thread devices:**
+- Border router must be on the same network
+- Phone must be close to border router AND the device
+
+**For WiFi Matter devices:**
+- Phone must be on 2.4 GHz WiFi
+- Same network as Home Assistant
+</Aside>
+
+### Via Share Sheet (Multi-admin)
+
+If the device is already added to Google/Apple:
+
+<Steps>
+1. In Google Home/Apple Home, find the device
+
+2. Select **"Share device"** or **"Turn on pairing mode"**
+
+3. Share with Home Assistant app
+
+4. Device is added as additional controller
+</Steps>
+
+---
+
+## 🔧 Supported Devices
+
+### Matter Device Types
+
+| Type | Status in HA | Examples |
+|------|--------------|----------|
+| **Lights (on/off)** | ✅ Full support | Nanoleaf, IKEA |
+| **Dimmable lights** | ✅ Full support | Philips Hue Matter |
+| **Color lights** | ✅ Full support | Nanoleaf Essentials |
+| **Switches** | ✅ Full support | Eve Energy, TP-Link |
+| **Thermostats** | ✅ Full support | Ecobee, Tado |
+| **Door locks** | ✅ Full support | Yale, Schlage |
+| **Blinds** | ✅ Full support | IKEA FYRTUR |
+| **Sensors** | 🔄 Partial | Eve Door, Eve Motion |
+| **Cameras** | ❌ Not yet | Coming |
+| **Robots** | ❌ Not yet | Coming |
+
+### Recommended Matter Products
+
+| Product | Type | Protocol | Price |
+|---------|------|----------|-------|
+| **Eve Energy** | Smart plug | Thread | ~$40 |
+| **Nanoleaf Essentials** | Bulbs | Thread | ~$20 |
+| **IKEA DIRIGERA** | Hub/Bridge | WiFi | ~$60 |
+| **TP-Link Tapo P125M** | Smart plug | WiFi | ~$20 |
+| **Aqara Door Sensor P2** | Sensor | Thread | ~$25 |
+
+---
+
+## 🔍 Troubleshooting
+
+### Device Cannot Pair
+
+<Steps>
+1. **Check border router is online:**
+   - Thread integration → Check status
+
+2. **Factory reset the device:**
+   - See device manual
+   - Typically: Hold button 10+ seconds
+
+3. **Move closer:**
+   - Phone close to border router
+   - Device close to border router
+
+4. **Check WiFi (for WiFi Matter):**
+   - Must be 2.4 GHz
+   - Same network as HA
+
+5. **Restart:**
+   - Home Assistant
+   - Border router
+   - Matter Server add-on
+</Steps>
+
+### Device Offline
+
+```yaml
+# Typical causes:
+1. Thread network not available
+2. Border router offline
+3. Device too far from mesh
+
+# Solutions:
+- Add more Thread routers (any powered Thread device)
+- Move border router centrally
+- Check Thread network map in HA
+```
+
+### Matter Server Logs
+
+```bash
+# In Home Assistant:
+# Settings → System → Logs → Select "Matter Server"
+
+# Or via terminal:
+ha addons logs core_matter_server
+```
+
+---
+
+## 📊 Thread vs Zigbee vs Z-Wave
+
+| Feature | Thread/Matter | Zigbee | Z-Wave |
+|---------|---------------|--------|--------|
+| **IP-native** | ✅ | ❌ | ❌ |
+| **Multi-controller** | ✅ | ❌ | ❌ |
+| **Standard** | Open | Open | Closed |
+| **Battery life** | Excellent | Good | Good |
+| **Mesh routing** | ✅ | ✅ | ✅ |
+| **Maturity** | New (2022+) | Mature | Mature |
+| **Device count** | Many | Most | Moderate |
+| **Price** | Moderate | Low | High |
+
+<Aside type="tip" title="When to Choose What?">
+**Choose Matter/Thread if:**
+- You want to use devices with multiple systems
+- You're starting from scratch
+- You prioritize future-proofing
+
+**Stay with Zigbee/Z-Wave if:**
+- You have existing setup
+- You need specific devices
+- You want most choice now
+</Aside>
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Can I use Matter without Thread?",
+    answer: "Yes! Matter also works over WiFi. You only need a Thread border router for Thread-based Matter devices (typically battery-powered sensors)."
+  },
+  {
+    question: "Can I use the same device with Google, Apple AND Home Assistant?",
+    answer: "Yes, that's Matter's big advantage! You can add up to 5 controllers to the same device. The device is controlled locally by all controllers independently."
+  },
+  {
+    question: "Should I switch from Zigbee to Matter?",
+    answer: "No, not necessarily. Zigbee is mature and has more devices. Matter is the future but still under development. You can easily run both in parallel."
+  },
+  {
+    question: "Why doesn't my iPhone work with HA as border router?",
+    answer: "There's a known bug. iOS requires Apple border router (HomePod/Apple TV) for Thread commissioning. Android works with HA's OpenThread Border Router."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Zigbee2MQTT" icon="seti:arduino">
+    Alternative mature protocol.
+    
+    [See guide →](/en/home-assistant/zigbee2mqtt/)
+  </Card>
+  <Card title="Z-Wave" icon="rocket">
+    Reliable smart home protocol.
+    
+    [See guide →](/en/home-assistant/z-wave/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
