@@ -1,0 +1,94 @@
+---
+/**
+ * FAQ Component with Schema.org structured data
+ * Usage:
+ * <FAQ items={[
+ *   { question: "Hvad er Home Assistant?", answer: "Home Assistant er..." },
+ *   { question: "Er det gratis?", answer: "Ja, Home Assistant er..." }
+ * ]} />
+ */
+
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  items: FAQItem[];
+}
+
+const { items } = Astro.props;
+
+// Generate Schema.org FAQPage structured data
+const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": items.map(item => ({
+    "@type": "Question",
+    "name": item.question,
+    "acceptedAnswer": {
+      "@type": "Answer",
+      "text": item.answer
+    }
+  }))
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+
+<div class="faq-section">
+  <h2>Ofte stillede spørgsmål</h2>
+  <dl class="faq-list">
+    {items.map((item) => (
+      <div class="faq-item">
+        <dt class="faq-question">{item.question}</dt>
+        <dd class="faq-answer">{item.answer}</dd>
+      </div>
+    ))}
+  </dl>
+</div>
+
+<style>
+  .faq-section {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--sl-color-gray-6);
+    border-radius: 8px;
+  }
+  
+  .faq-section h2 {
+    margin-top: 0;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+  }
+  
+  .faq-list {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .faq-item {
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--sl-color-gray-5);
+  }
+  
+  .faq-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+  
+  .faq-question {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--sl-color-white);
+    margin-bottom: 0.5rem;
+  }
+  
+  .faq-answer {
+    margin: 0;
+    color: var(--sl-color-gray-2);
+    line-height: 1.6;
+  }
+</style>

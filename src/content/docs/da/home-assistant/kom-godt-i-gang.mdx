@@ -8,6 +8,7 @@ sidebar:
 ---
 
 import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
 
 <Badge text="Begynder" variant="success" /> <Badge text="15 min læsning" variant="note" />
 
@@ -155,25 +156,25 @@ Du kan køre Home Assistant på mange forskellige måder. Her er de tre mest pop
 
 ## ❓ FAQ
 
-<Aside type="tip" title="Koster Home Assistant noget?">
-**Nej!** Home Assistant er 100% gratis og open source. Der er en valgfri cloud-service (Nabu Casa) til fjernadgang for ~50 kr/md, men den er ikke nødvendig.
-</Aside>
-
-<Aside type="tip" title="Kan jeg styre mine enheder når jeg ikke er hjemme?">
-Ja, men det kræver ekstra opsætning:
-1. **Nabu Casa** (nemmest, ~50 kr/md)
-2. **VPN** til dit hjemmenetværk
-3. **Cloudflare Tunnel** (gratis, kræver opsætning)
-</Aside>
-
-<Aside type="tip" title="Virker mine IKEA/Philips/Sonos enheder?">
-Ja! Home Assistant har integrationer til 2000+ mærker. Tjek [integrations listen](https://www.home-assistant.io/integrations/) for dit specifikke mærke.
-</Aside>
-
-<Aside type="tip" title="Skal jeg kunne programmere?">
-**Nej!** De fleste ting kan gøres via brugerfladen. YAML bruges til avanceret konfiguration, men det er nemt at lære.
-</Aside>
-
-<Aside type="tip" title="Kan jeg skifte platform senere?">
-Ja! Home Assistant har backup/restore funktionalitet. Du kan nemt flytte fra Raspberry Pi til Proxmox eller omvendt ved at gendanne en backup.
-</Aside>
+<FAQ items={[
+  {
+    question: "Koster Home Assistant noget?",
+    answer: "Nej! Home Assistant er 100% gratis og open source. Der er en valgfri cloud-service (Nabu Casa) til fjernadgang for ca. 50 kr/md, men den er ikke nødvendig."
+  },
+  {
+    question: "Kan jeg styre mine enheder når jeg ikke er hjemme?",
+    answer: "Ja, men det kræver ekstra opsætning. Du kan bruge Nabu Casa (nemmest, ca. 50 kr/md), VPN til dit hjemmenetværk, eller Cloudflare Tunnel (gratis, kræver opsætning)."
+  },
+  {
+    question: "Virker mine IKEA/Philips/Sonos enheder?",
+    answer: "Ja! Home Assistant har integrationer til over 2000 mærker. De fleste populære smart home enheder understøttes direkte."
+  },
+  {
+    question: "Skal jeg kunne programmere?",
+    answer: "Nej! De fleste ting kan gøres via brugerfladen. YAML bruges til avanceret konfiguration, men det er nemt at lære."
+  },
+  {
+    question: "Kan jeg skifte platform senere?",
+    answer: "Ja! Home Assistant har backup/restore funktionalitet. Du kan nemt flytte fra Raspberry Pi til Proxmox eller omvendt ved at gendanne en backup."
+  }
+]} />

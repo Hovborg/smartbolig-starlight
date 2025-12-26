@@ -8,6 +8,21 @@ sidebar:
 ---
 
 import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  title="Installer Home Assistant på Raspberry Pi"
+  description="Komplet guide til installation af Home Assistant OS på Raspberry Pi 4 eller 5. Inkluderer hardware, download, flash og første opsætning."
+  totalTime="PT30M"
+  steps={[
+    { name: "Saml hardware", text: "Anskaf Raspberry Pi 4/5, strømforsyning, SD-kort (32GB+) og ethernet-kabel." },
+    { name: "Download Raspberry Pi Imager", text: "Hent og installer Raspberry Pi Imager fra raspberrypi.com/software." },
+    { name: "Flash Home Assistant OS", text: "Åbn Raspberry Pi Imager, vælg 'Other specific-purpose OS' > 'Home Assistant' > 'Home Assistant OS'. Vælg dit SD-kort og klik Write." },
+    { name: "Tilslut hardware", text: "Sæt SD-kortet i Raspberry Pi, tilslut ethernet og strøm." },
+    { name: "Vent på opstart", text: "Vent 5-10 minutter mens Home Assistant installerer sig selv." },
+    { name: "Åbn onboarding", text: "Åbn homeassistant.local:8123 i din browser og opret din første bruger." }
+  ]}
+/>
 
 <Badge text="Let" variant="success" /> <Badge text="30 min" variant="note" /> <Badge text="~650 kr" variant="caution" />
 

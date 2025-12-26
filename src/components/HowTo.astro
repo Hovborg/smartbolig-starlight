@@ -1,0 +1,50 @@
+---
+/**
+ * HowTo Component with Schema.org structured data
+ * For step-by-step tutorials/guides
+ * 
+ * Usage:
+ * <HowTo
+ *   title="Installer Home Assistant på Raspberry Pi"
+ *   description="Komplet guide til installation af Home Assistant OS på Raspberry Pi"
+ *   totalTime="PT30M"
+ *   steps={[
+ *     { name: "Download image", text: "Download Home Assistant OS fra..." },
+ *     { name: "Flash SD-kort", text: "Brug Balena Etcher til at..." }
+ *   ]}
+ * />
+ */
+
+interface HowToStep {
+  name: string;
+  text: string;
+  image?: string;
+}
+
+interface Props {
+  title: string;
+  description: string;
+  totalTime?: string; // ISO 8601 duration, e.g. "PT30M" for 30 minutes
+  steps: HowToStep[];
+}
+
+const { title, description, totalTime, steps } = Astro.props;
+
+// Generate Schema.org HowTo structured data
+const howToSchema = {
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": title,
+  "description": description,
+  ...(totalTime && { "totalTime": totalTime }),
+  "step": steps.map((step, index) => ({
+    "@type": "HowToStep",
+    "position": index + 1,
+    "name": step.name,
+    "text": step.text,
+    ...(step.image && { "image": step.image })
+  }))
+};
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />

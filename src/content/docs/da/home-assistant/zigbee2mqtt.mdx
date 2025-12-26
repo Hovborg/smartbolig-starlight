@@ -8,6 +8,22 @@ sidebar:
 ---
 
 import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  title="Opsæt Zigbee2MQTT med Home Assistant"
+  description="Komplet guide til installation af Zigbee2MQTT add-on i Home Assistant. Styr alle dine Zigbee-enheder fra IKEA, Aqara, Philips og flere med én USB-dongle."
+  totalTime="PT30M"
+  steps={[
+    { name: "Køb Zigbee USB-dongle", text: "Anskaf en understøttet Zigbee coordinator som Sonoff Zigbee 3.0 USB Dongle Plus eller SLZB-06." },
+    { name: "Tilslut dongle", text: "Sæt USB-donglen i din Home Assistant server (Raspberry Pi, Proxmox VM, etc.)." },
+    { name: "Installer Mosquitto broker", text: "Gå til Settings > Add-ons > Add-on Store. Søg efter Mosquitto broker og installer den." },
+    { name: "Konfigurer MQTT bruger", text: "Opret en dedikeret MQTT bruger i Home Assistant til Zigbee2MQTT." },
+    { name: "Installer Zigbee2MQTT add-on", text: "Tilføj Zigbee2MQTT repository og installer add-on fra Add-on Store." },
+    { name: "Konfigurer serial port", text: "Angiv den korrekte serial port for din USB-dongle i Zigbee2MQTT konfigurationen." },
+    { name: "Par første enhed", text: "Aktiver parringstilstand og tilføj din første Zigbee-enhed." }
+  ]}
+/>
 
 <Badge text="Medium" variant="caution" /> <Badge text="30 min" variant="note" /> <Badge text="~200 kr" variant="caution" />
 
