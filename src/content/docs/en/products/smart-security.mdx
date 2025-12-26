@@ -1,0 +1,498 @@
+---
+title: Smart Security
+description: Complete guide to smart security - door locks, cameras, video doorbells, alarms. Nuki, Yale, Reolink, Eufy and Frigate for Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Build smart security for your home"
+  description="Guide to door locks, cameras and alarm systems with Home Assistant"
+  totalTime="PT30M"
+  steps={[
+    "Choose smart lock for your door",
+    "Install surveillance cameras",
+    "Add video doorbell",
+    "Set up alarm system",
+    "Integrate everything in Home Assistant"
+  ]}
+/>
+
+<Badge text="Security" variant="caution" /> <Badge text="Local" variant="success" /> <Badge text="No Cloud" variant="tip" />
+
+Smart security is about **protecting your home locally** - without sending video recordings to cloud servers. This guide covers door locks, cameras, video doorbells and alarm systems that work with Home Assistant.
+
+<Aside type="tip" title="Top Recommendations 2025">
+- **Smart lock Europe**: Nuki Smart Lock Pro 4.0 (~$280)
+- **Smart lock USA**: Yale Assure Lock 2 (~$350)
+- **Camera (local)**: Reolink RLC-810A (~$100)
+- **Video doorbell**: Reolink Video Doorbell PoE (~$140)
+- **Budget camera**: TP-Link Tapo C210 (~$35)
+</Aside>
+
+---
+
+## 🔐 Smart Door Locks
+
+### Why Smart Lock?
+
+- ✅ Unlock with app, code, keycard or fingerprint
+- ✅ Share access with guests (time-limited)
+- ✅ Auto-lock when you leave
+- ✅ See who comes and goes
+- ✅ Integration with Home Assistant automations
+
+### Europe vs USA
+
+| Region | Recommended | Reason |
+|--------|-------------|--------|
+| **Europe** | Nuki | European cylinders, Matter support |
+| **USA** | Yale/August | American deadbolts, wide compatibility |
+| **Budget** | SwitchBot Lock | Retrofit, cheap, wide compatibility |
+
+---
+
+## 🥇 Nuki Smart Lock Pro 4.0
+
+<Tabs>
+  <TabItem label="Overview">
+    ### Why Nuki?
+    
+    **Price:** ~$280
+    
+    Nuki is **Europe's preferred smart lock**:
+    
+    - ✅ Fits existing cylinder (no replacement)
+    - ✅ Matter + Thread (future-proof)
+    - ✅ WiFi built-in (no bridge needed)
+    - ✅ Auto-unlock via GPS
+    - ✅ Native Home Assistant integration
+    - ✅ Alexa, Google, HomeKit
+    - ✅ Battery powered (~6 months)
+    
+    **Disadvantages:**
+    - ❌ Expensive
+    - ❌ Still requires physical key from outside
+  </TabItem>
+  <TabItem label="Models">
+    ### Nuki Lineup
+    
+    | Model | WiFi | Matter | Price ~ |
+    |-------|------|--------|---------|
+    | **Smart Lock 4.0** | Via Bridge | ❌ | $210 |
+    | **Smart Lock Pro 4.0** | ✅ Built-in | ✅ | $280 |
+    
+    **Accessories:**
+    - **Nuki Keypad 2.0** (~$110) - Code or fingerprint
+    - **Nuki Fob** (~$40) - Bluetooth keyring
+    - **Nuki Door Sensor** (~$55) - Door open/closed
+  </TabItem>
+  <TabItem label="Installation">
+    ### Mounting
+    
+    Nuki mounts **on the inside** of your door:
+    
+    1. **Remove existing thumb turn** (keep cylinder)
+    2. **Mount Nuki adapter** on cylinder
+    3. **Click Nuki into place**
+    4. **Calibrate via app** (learns your lock)
+    
+    ⚠️ **Important:** Your cylinder must protrude at least 3mm on the inside.
+    
+    ### Home Assistant
+    
+    ```yaml
+    # Nuki auto-discovered via integration
+    # Settings → Devices → Add Integration → Nuki
+    
+    # Example automation
+    automation:
+      - alias: "Lock door at night"
+        trigger:
+          - platform: time
+            at: "23:00:00"
+        action:
+          - service: lock.lock
+            entity_id: lock.nuki_front_door
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Nuki.io](https://nuki.io), [Amazon](https://amazon.com)
+
+---
+
+## 🥈 Yale Linus L2 / Assure Lock 2
+
+<Tabs>
+  <TabItem label="Yale Linus L2 (EU)">
+    ### Yale Linus L2
+    
+    **Price:** ~$250
+    
+    Yale's European smart lock:
+    
+    - ✅ Fits European cylinders
+    - ✅ Matter support
+    - ✅ DoorSense (door open/closed)
+    - ✅ Elegant design
+    - ✅ HomeKit, Alexa, Google
+    
+    **Installation:** Like Nuki - mounts on cylinder inside.
+  </TabItem>
+  <TabItem label="Yale Assure Lock 2 (US)">
+    ### Yale Assure Lock 2
+    
+    **Price:** ~$350
+    
+    Yale's American premium lock:
+    
+    - ✅ Replaces entire deadbolt
+    - ✅ Touchscreen keypad
+    - ✅ Fingerprint reader (Touch model)
+    - ✅ Matter/Thread/WiFi/Zigbee modules
+    - ✅ Apple Home Key support
+    - ✅ HomeKit, Alexa, Google, SmartThings
+    
+    **Disadvantages:**
+    - ❌ Only American deadbolts
+    - ❌ Requires module purchase for WiFi
+  </TabItem>
+</Tabs>
+
+---
+
+## 💰 Budget: SwitchBot Lock Pro
+
+**Price:** ~$140
+
+The **cheapest well-functioning smart lock**:
+
+| Pros | Cons |
+|------|------|
+| ✅ Retrofit on almost any lock | ❌ Requires Hub for remote control |
+| ✅ Turns existing thumb turn | ❌ Less elegant |
+| ✅ Battery or USB-C | ❌ Can be a bit noisy |
+| ✅ Keypad and fingerprint add-on | |
+| ✅ Matter via Hub | |
+
+**Ideal for:** Apartments where you can't modify the lock.
+
+**Buy:** [SwitchBot.com](https://switch-bot.com), [Amazon](https://amazon.com)
+
+---
+
+## 📹 Surveillance Cameras
+
+### Local vs Cloud
+
+| Type | Pros | Cons |
+|------|------|------|
+| **Local (Reolink, Eufy)** | No subscription, privacy, fast | Requires NVR or NAS |
+| **Cloud (Ring, Nest)** | Easy setup | Expensive subscription, privacy |
+
+<Aside type="caution" title="Avoid Cloud Dependency">
+Choose cameras with **local recording** (SD card, NVR, NAS) to avoid monthly fees and privacy concerns. Reolink and Eufy are the best choices.
+</Aside>
+
+---
+
+## 🏆 Reolink - Works with Home Assistant
+
+Reolink is **officially certified** for Home Assistant and is the community favorite:
+
+### Why Reolink?
+
+- ✅ **Works with Home Assistant** certified
+- ✅ No cloud required
+- ✅ Local recording (SD/NVR/NAS)
+- ✅ RTSP/ONVIF support
+- ✅ 4K+ resolution
+- ✅ PoE and WiFi options
+- ✅ Person/vehicle/pet AI detection
+- ✅ No subscription
+
+### Recommended Models
+
+| Model | Type | Resolution | Price ~ | Best for |
+|-------|------|------------|---------|----------|
+| **RLC-810A** | PoE Bullet | 4K | $100 | Driveway, yard |
+| **RLC-520A** | PoE Dome | 5MP | $70 | Carport, covered |
+| **E1 Outdoor** | WiFi PTZ | 4MP | $85 | Yard, tracking |
+| **Argus 4 Pro** | Battery | 4K 180° | $170 | Flexible placement |
+| **Duo 3 PoE** | PoE Dual | 4K 180° | $210 | Large area |
+
+### Home Assistant Integration
+
+```yaml
+# Reolink auto-discovered
+# Settings → Devices → Add Integration → Reolink
+
+# Entities you get:
+# - camera.reolink_driveway
+# - binary_sensor.reolink_driveway_person
+# - binary_sensor.reolink_driveway_vehicle
+# - switch.reolink_driveway_siren
+```
+
+**Buy:** [Reolink.com](https://reolink.com), [Amazon](https://amazon.com)
+
+---
+
+## 🥈 Eufy - Privacy First
+
+Eufy is a good alternative with focus on **on-device AI**:
+
+### Why Eufy?
+
+- ✅ Local AI processing
+- ✅ HomeBase with local storage
+- ✅ Facial recognition
+- ✅ No subscription
+- ✅ Apple HomeKit support
+- ✅ Geofencing
+
+### Recommended Models
+
+| Model | Type | Resolution | Price ~ |
+|-------|------|------------|---------|
+| **SoloCam S340** | Battery/Solar | 3K | $170 |
+| **Floodlight Cam E340** | Wired | 3K | $210 |
+| **Indoor Cam E30** | Indoor | 4K | $55 |
+| **eufyCam S3 Pro** | Battery | 4K | $280 |
+
+**Buy:** [Eufy.com](https://eufy.com), [Amazon](https://amazon.com)
+
+---
+
+## 🔔 Video Doorbells
+
+### Comparison
+
+| Model | Type | Resolution | Subscription | Price ~ |
+|-------|------|------------|--------------|---------|
+| **Reolink Doorbell PoE** | PoE Wired | 5MP | ❌ No | $140 |
+| **Reolink Doorbell WiFi** | Wired/Battery | 2K+ | ❌ No | $110 |
+| **Eufy Doorbell C31** | Battery | 2K | ❌ No | $100 |
+| **Tapo D225** | Wired | 2K 180° | ❌ No | $85 |
+| **Ring Battery** | Battery | 1080p | ✅ Yes | $130 |
+
+<Aside type="tip" title="Recommendation">
+**Reolink Doorbell PoE** is the best choice for permanent installation - no battery, 5MP quality, local recording, and full Home Assistant integration.
+</Aside>
+
+---
+
+## 🚨 Alarm Systems
+
+### DIY vs Professional
+
+| Type | Pros | Cons | Examples |
+|------|------|------|----------|
+| **DIY (Home Assistant)** | Cheap, flexible, local | Requires setup, no monitoring | Zigbee sensors + HA |
+| **Hybrid** | Pro hardware + local | More expensive | Yale Sync, Ring Alarm |
+| **Professional** | 24/7 monitoring | Expensive subscription | ADT, SimpliSafe |
+
+### DIY Alarm with Home Assistant
+
+Build your own alarm with Zigbee sensors:
+
+**Components:**
+- Door/window sensors (Aqara, Sonoff)
+- Motion sensors (PIR or mmWave)
+- Siren (Zigbee or WiFi)
+- Keypad (Zigbee or smart lock keypad)
+
+```yaml
+# Home Assistant Alarm Panel
+alarm_control_panel:
+  - platform: manual
+    name: Home Alarm
+    arming_time: 30
+    delay_time: 30
+    trigger_time: 120
+    disarmed:
+      trigger_time: 0
+    armed_home:
+      arming_time: 0
+      delay_time: 0
+
+# Automation: Trigger alarm
+automation:
+  - alias: "Alarm trigger on intrusion"
+    trigger:
+      - platform: state
+        entity_id: 
+          - binary_sensor.front_door
+          - binary_sensor.living_room_window
+          - binary_sensor.back_door
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: alarm_control_panel.home_alarm
+        state: "armed_away"
+    action:
+      - service: alarm_control_panel.alarm_trigger
+        entity_id: alarm_control_panel.home_alarm
+      - service: notify.mobile_app
+        data:
+          title: "⚠️ ALARM!"
+          message: "Intrusion detected!"
+```
+
+---
+
+## 🎬 Frigate NVR
+
+For advanced AI-based video analysis, use **Frigate**:
+
+### What is Frigate?
+
+- ✅ Open source NVR for Home Assistant
+- ✅ Real-time object detection (person, car, pet)
+- ✅ Google Coral TPU support
+- ✅ Runs locally (no cloud)
+- ✅ Integrates with all RTSP cameras
+
+### Hardware Requirements
+
+| Component | Recommended |
+|-----------|-------------|
+| **Server** | Dedicated mini-PC or NAS |
+| **AI Accelerator** | Google Coral USB (~$70) |
+| **Storage** | SSD for database, HDD for recordings |
+| **RAM** | Min. 4GB |
+
+### Basic Frigate Config
+
+```yaml
+# frigate.yml
+mqtt:
+  host: 192.168.1.100
+
+cameras:
+  driveway:
+    ffmpeg:
+      inputs:
+        - path: rtsp://admin:password@192.168.1.50:554/h264Preview_01_main
+          roles:
+            - detect
+            - record
+    detect:
+      width: 1920
+      height: 1080
+      fps: 5
+
+detectors:
+  coral:
+    type: edgetpu
+    device: usb
+
+objects:
+  track:
+    - person
+    - car
+    - dog
+    - cat
+```
+
+---
+
+## 🛒 Buying Strategy
+
+### Starter (~$280)
+- 1x SwitchBot Lock Pro ($140)
+- 2x Reolink RLC-520A PoE ($140)
+- **Total:** ~$280
+
+### Complete (~$850)
+- 1x Nuki Smart Lock Pro 4.0 ($280)
+- 1x Nuki Keypad 2.0 ($110)
+- 2x Reolink RLC-810A 4K ($200)
+- 1x Reolink Doorbell PoE ($140)
+- DIY alarm sensors ($110)
+- **Total:** ~$840
+
+### Premium (~$1,700)
+- 1x Nuki Smart Lock Pro 4.0 + Keypad ($390)
+- 4x Reolink cameras mix ($560)
+- 1x Reolink Doorbell PoE ($140)
+- 1x Reolink NVR 8-channel ($280)
+- 1x Google Coral USB ($70)
+- Yale Sync Alarm system ($210)
+- **Total:** ~$1,650
+
+---
+
+## 🛒 Where to Buy?
+
+### Smart Locks
+- **[Nuki.io](https://nuki.io)** - Direct from manufacturer
+- **[Amazon](https://amazon.com)** - Often cheaper
+
+### Cameras
+- **[Reolink.com](https://reolink.com)** - Direct, good support
+- **[Amazon](https://amazon.com)** - Fast delivery
+- **[Eufy.com](https://eufy.com)** - Eufy products
+
+### Alarm Sensors
+- **[AliExpress](https://aliexpress.com)** - Aqara, Sonoff, cheap
+- **[Amazon](https://amazon.com)** - Faster delivery
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Can I use smart lock without internet?",
+    answer: "Yes! Nuki, Yale and SwitchBot all work via Bluetooth. You can unlock with your phone close to the door. Internet/WiFi is only needed for remote control and notifications."
+  },
+  {
+    question: "Are Reolink cameras secure?",
+    answer: "Yes, Reolink cameras work fully locally without cloud. They support RTSP/ONVIF and are Works with Home Assistant certified. Keep firmware updated for best security."
+  },
+  {
+    question: "What about Ring and Nest - are they bad?",
+    answer: "No, they are good products but require cloud subscription and send data to Amazon/Google servers. If privacy is important, choose Reolink or Eufy instead."
+  },
+  {
+    question: "Can I build my own alarm cheaply?",
+    answer: "Yes! With Zigbee door/window sensors (~$7 each), motion sensors (~$14 each) and a siren (~$21), you can build a complete alarm system for under $140."
+  },
+  {
+    question: "Should I use PoE or WiFi cameras?",
+    answer: "PoE is more reliable and easier to power, but requires cabling. WiFi is easier to install but can have connection issues. Use PoE where possible."
+  },
+  {
+    question: "What is Frigate and do I need it?",
+    answer: "Frigate is an advanced NVR with AI object detection. It requires more hardware (Coral TPU) but provides better detection than cameras' built-in AI. Start without and add later."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Presence Sensors" icon="eye">
+    Combine with security.
+    
+    [See guide →](/en/products/presence-sensors/)
+  </Card>
+  <Card title="Home Assistant" icon="setting">
+    Integrate all your devices.
+    
+    [Get started →](/en/home-assistant/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*

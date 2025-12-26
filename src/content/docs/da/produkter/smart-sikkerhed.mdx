@@ -1,0 +1,498 @@
+---
+title: Smart Sikkerhed
+description: Komplet guide til smart sikkerhed - dørlåse, kameraer, video doorbells, alarmer. Nuki, Yale, Reolink, Eufy og Frigate til Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Opbyg smart sikkerhed til dit hjem"
+  description="Guide til dørlåse, kameraer og alarmsystemer med Home Assistant"
+  totalTime="PT30M"
+  steps={[
+    "Vælg smart lås til din dør",
+    "Installer overvågningskameraer",
+    "Tilføj video doorbell",
+    "Opsæt alarmsystem",
+    "Integrer alt i Home Assistant"
+  ]}
+/>
+
+<Badge text="Sikkerhed" variant="caution" /> <Badge text="Lokal" variant="success" /> <Badge text="Ingen Cloud" variant="tip" />
+
+Smart sikkerhed handler om at **beskytte dit hjem lokalt** - uden at sende videooptagelser til cloud-servere. Denne guide dækker dørlåse, kameraer, video doorbells og alarmsystemer der fungerer med Home Assistant.
+
+<Aside type="tip" title="Top Anbefalinger 2025">
+- **Smart lås Europa**: Nuki Smart Lock Pro 4.0 (~2.000 kr)
+- **Smart lås USA**: Yale Assure Lock 2 (~2.500 kr)
+- **Kamera (lokal)**: Reolink RLC-810A (~700 kr)
+- **Video doorbell**: Reolink Video Doorbell PoE (~1.000 kr)
+- **Budget kamera**: TP-Link Tapo C210 (~250 kr)
+</Aside>
+
+---
+
+## 🔐 Smarte Dørlåse
+
+### Hvorfor Smart Lås?
+
+- ✅ Lås op med app, kode, nøglekort eller fingeraftryk
+- ✅ Del adgang med gæster (tidsbegrænset)
+- ✅ Auto-lås når du går
+- ✅ Se hvem der kommer og går
+- ✅ Integration med Home Assistant automationer
+
+### Europa vs USA
+
+| Region | Anbefalet | Grund |
+|--------|-----------|-------|
+| **Europa/DK** | Nuki | Europæiske cylindere, Matter support |
+| **USA** | Yale/August | Amerikanske deadbolts, bred kompatibilitet |
+| **Budget** | SwitchBot Lock | Retrofit, billig, bred kompatibilitet |
+
+---
+
+## 🥇 Nuki Smart Lock Pro 4.0
+
+<Tabs>
+  <TabItem label="Oversigt">
+    ### Hvorfor Nuki?
+    
+    **Pris:** ~2.000 kr / $280
+    
+    Nuki er **Europas foretrukne smart lås**:
+    
+    - ✅ Passer på eksisterende cylinder (ingen udskiftning)
+    - ✅ Matter + Thread (fremtidssikret)
+    - ✅ WiFi indbygget (ingen bridge)
+    - ✅ Auto-unlock via GPS
+    - ✅ Native Home Assistant integration
+    - ✅ Alexa, Google, HomeKit
+    - ✅ Batteridrevet (~6 mdr)
+    
+    **Ulemper:**
+    - ❌ Dyr
+    - ❌ Kræver stadig fysisk nøgle udefra
+  </TabItem>
+  <TabItem label="Modeller">
+    ### Nuki Lineup
+    
+    | Model | WiFi | Matter | Pris ca. |
+    |-------|------|--------|----------|
+    | **Smart Lock 4.0** | Via Bridge | ❌ | 1.500 kr |
+    | **Smart Lock Pro 4.0** | ✅ Indbygget | ✅ | 2.000 kr |
+    
+    **Tilbehør:**
+    - **Nuki Keypad 2.0** (~800 kr) - Kode eller fingeraftryk
+    - **Nuki Fob** (~300 kr) - Bluetooth nøglering
+    - **Nuki Door Sensor** (~400 kr) - Dør åben/lukket
+  </TabItem>
+  <TabItem label="Installation">
+    ### Montering
+    
+    Nuki monteres **på indersiden** af din dør:
+    
+    1. **Fjern eksisterende drejeknop** (behold cylinder)
+    2. **Montér Nuki adapter** på cylinderen
+    3. **Klik Nuki på plads**
+    4. **Kalibrer via app** (lærer din lås)
+    
+    ⚠️ **Vigtigt:** Din cylinder skal stikke mindst 3mm ud på indersiden.
+    
+    ### Home Assistant
+    
+    ```yaml
+    # Nuki opdages automatisk via integration
+    # Indstillinger → Enheder → Tilføj Integration → Nuki
+    
+    # Eksempel automation
+    automation:
+      - alias: "Lås døren om natten"
+        trigger:
+          - platform: time
+            at: "23:00:00"
+        action:
+          - service: lock.lock
+            entity_id: lock.nuki_fordor
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Nuki.io](https://nuki.io), [Amazon.de](https://amazon.de), [Elgiganten](https://elgiganten.dk)
+
+---
+
+## 🥈 Yale Linus L2 / Assure Lock 2
+
+<Tabs>
+  <TabItem label="Yale Linus L2 (EU)">
+    ### Yale Linus L2
+    
+    **Pris:** ~1.800 kr / $250
+    
+    Yales europæiske smart lås:
+    
+    - ✅ Passer europæiske cylindere
+    - ✅ Matter support
+    - ✅ DoorSense (dør åben/lukket)
+    - ✅ Elegant design
+    - ✅ HomeKit, Alexa, Google
+    
+    **Installation:** Ligesom Nuki - monteres på cylinder indvendigt.
+  </TabItem>
+  <TabItem label="Yale Assure Lock 2 (US)">
+    ### Yale Assure Lock 2
+    
+    **Pris:** ~2.500 kr / $350
+    
+    Yales amerikanske premium lås:
+    
+    - ✅ Erstatter hele deadbolt
+    - ✅ Touchscreen keypad
+    - ✅ Fingeraftrykslæser (Touch model)
+    - ✅ Matter/Thread/WiFi/Zigbee moduler
+    - ✅ Apple Home Key support
+    - ✅ HomeKit, Alexa, Google, SmartThings
+    
+    **Ulemper:**
+    - ❌ Kun amerikanske deadbolts
+    - ❌ Kræver modul-tilkøb for WiFi
+  </TabItem>
+</Tabs>
+
+---
+
+## 💰 Budget: SwitchBot Lock Pro
+
+**Pris:** ~1.000 kr / $140
+
+Den **billigste velfungerende smart lås**:
+
+| Fordele | Ulemper |
+|---------|---------|
+| ✅ Retrofit på næsten alle låse | ❌ Kræver Hub for fjernbetjening |
+| ✅ Drejer eksisterende drejeknop | ❌ Mindre elegant |
+| ✅ Batteri eller USB-C | ❌ Kan larme lidt |
+| ✅ Keypad og fingeraftryk tilkøb | |
+| ✅ Matter via Hub | |
+
+**Ideel til:** Lejligheder hvor du ikke må ændre låsen.
+
+**Køb:** [SwitchBot.com](https://switch-bot.com), [Amazon](https://amazon.de)
+
+---
+
+## 📹 Overvågningskameraer
+
+### Lokal vs Cloud
+
+| Type | Fordele | Ulemper |
+|------|---------|---------|
+| **Lokal (Reolink, Eufy)** | Ingen abonnement, privatliv, hurtigt | Kræver NVR eller NAS |
+| **Cloud (Ring, Nest)** | Nemt setup | Dyrt abonnement, privatliv |
+
+<Aside type="caution" title="Undgå Cloud-afhængighed">
+Vælg kameraer med **lokal optagelse** (SD-kort, NVR, NAS) for at undgå månedlige gebyrer og privatliv bekymringer. Reolink og Eufy er de bedste valg.
+</Aside>
+
+---
+
+## 🏆 Reolink - Works with Home Assistant
+
+Reolink er **officielt certificeret** til Home Assistant og er community-favoritten:
+
+### Hvorfor Reolink?
+
+- ✅ **Works with Home Assistant** certificeret
+- ✅ Ingen cloud påkrævet
+- ✅ Lokal optagelse (SD/NVR/NAS)
+- ✅ RTSP/ONVIF support
+- ✅ 4K+ opløsning
+- ✅ PoE og WiFi muligheder
+- ✅ Person/køretøj/dyr AI detektion
+- ✅ Ingen abonnement
+
+### Anbefalede Modeller
+
+| Model | Type | Opløsning | Pris ca. | Bedst til |
+|-------|------|-----------|----------|-----------|
+| **RLC-810A** | PoE Bullet | 4K | 700 kr | Indkørsel, have |
+| **RLC-520A** | PoE Dome | 5MP | 500 kr | Carport, overdækket |
+| **E1 Outdoor** | WiFi PTZ | 4MP | 600 kr | Have, tracking |
+| **Argus 4 Pro** | Batteri | 4K 180° | 1.200 kr | Fleksibel placering |
+| **Duo 3 PoE** | PoE Dual | 4K 180° | 1.500 kr | Stort område |
+
+### Home Assistant Integration
+
+```yaml
+# Reolink opdages automatisk
+# Indstillinger → Enheder → Tilføj Integration → Reolink
+
+# Entiteter du får:
+# - camera.reolink_indkorsel
+# - binary_sensor.reolink_indkorsel_person
+# - binary_sensor.reolink_indkorsel_vehicle
+# - switch.reolink_indkorsel_siren
+```
+
+**Køb:** [Reolink.com](https://reolink.com), [Amazon.de](https://amazon.de)
+
+---
+
+## 🥈 Eufy - Privacy First
+
+Eufy er et godt alternativ med fokus på **on-device AI**:
+
+### Hvorfor Eufy?
+
+- ✅ Lokal AI processing
+- ✅ HomeBase med lokal storage
+- ✅ Ansigtsgenkendelse
+- ✅ Ingen abonnement
+- ✅ Apple HomeKit support
+- ✅ Geofencing
+
+### Anbefalede Modeller
+
+| Model | Type | Opløsning | Pris ca. |
+|-------|------|-----------|----------|
+| **SoloCam S340** | Batteri/Solar | 3K | 1.200 kr |
+| **Floodlight Cam E340** | Wired | 3K | 1.500 kr |
+| **Indoor Cam E30** | Indoor | 4K | 400 kr |
+| **eufyCam S3 Pro** | Batteri | 4K | 2.000 kr |
+
+**Køb:** [Eufy.com](https://eufy.com), [Amazon.de](https://amazon.de)
+
+---
+
+## 🔔 Video Doorbells
+
+### Sammenligning
+
+| Model | Type | Opløsning | Abonnement | Pris ca. |
+|-------|------|-----------|------------|----------|
+| **Reolink Doorbell PoE** | PoE Wired | 5MP | ❌ Nej | 1.000 kr |
+| **Reolink Doorbell WiFi** | Wired/Batteri | 2K+ | ❌ Nej | 800 kr |
+| **Eufy Doorbell C31** | Batteri | 2K | ❌ Nej | 700 kr |
+| **Tapo D225** | Wired | 2K 180° | ❌ Nej | 600 kr |
+| **Ring Battery** | Batteri | 1080p | ✅ Ja | 900 kr |
+
+<Aside type="tip" title="Anbefaling">
+**Reolink Doorbell PoE** er det bedste valg for permanent installation - ingen batteri, 5MP kvalitet, lokal optagelse, og fuld Home Assistant integration.
+</Aside>
+
+---
+
+## 🚨 Alarmsystemer
+
+### DIY vs Professionel
+
+| Type | Fordele | Ulemper | Eksempler |
+|------|---------|---------|-----------|
+| **DIY (Home Assistant)** | Billigt, fleksibelt, lokalt | Kræver opsætning, ingen overvågning | Zigbee sensorer + HA |
+| **Hybrid** | Professionel hardware + lokal | Dyrere | Yale Sync, Ring Alarm |
+| **Professionel** | Overvågning 24/7 | Dyrt abonnement | Verisure, Sector Alarm |
+
+### DIY Alarm med Home Assistant
+
+Byg din egen alarm med Zigbee sensorer:
+
+**Komponenter:**
+- Dør/vindue sensorer (Aqara, Sonoff)
+- Bevægelsessensorer (PIR eller mmWave)
+- Sirene (Zigbee eller WiFi)
+- Keypad (Zigbee eller smart lock keypad)
+
+```yaml
+# Home Assistant Alarmpanel
+alarm_control_panel:
+  - platform: manual
+    name: Hjem Alarm
+    arming_time: 30
+    delay_time: 30
+    trigger_time: 120
+    disarmed:
+      trigger_time: 0
+    armed_home:
+      arming_time: 0
+      delay_time: 0
+
+# Automation: Trigger alarm
+automation:
+  - alias: "Alarm trigger ved indbrud"
+    trigger:
+      - platform: state
+        entity_id: 
+          - binary_sensor.fordor
+          - binary_sensor.stue_vindue
+          - binary_sensor.bagdor
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: alarm_control_panel.hjem_alarm
+        state: "armed_away"
+    action:
+      - service: alarm_control_panel.alarm_trigger
+        entity_id: alarm_control_panel.hjem_alarm
+      - service: notify.mobile_app
+        data:
+          title: "⚠️ ALARM!"
+          message: "Indtrængen detekteret!"
+```
+
+---
+
+## 🎬 Frigate NVR
+
+For avanceret AI-baseret videoanalyse, brug **Frigate**:
+
+### Hvad er Frigate?
+
+- ✅ Open source NVR til Home Assistant
+- ✅ Real-time object detection (person, bil, dyr)
+- ✅ Google Coral TPU support
+- ✅ Kører lokalt (ingen cloud)
+- ✅ Integrerer med alle RTSP kameraer
+
+### Hardware Krav
+
+| Komponent | Anbefalet |
+|-----------|-----------|
+| **Server** | Dedicated mini-PC eller NAS |
+| **AI Accelerator** | Google Coral USB (~500 kr) |
+| **Storage** | SSD til database, HDD til optagelser |
+| **RAM** | Min. 4GB |
+
+### Grundlæggende Frigate Config
+
+```yaml
+# frigate.yml
+mqtt:
+  host: 192.168.1.100
+
+cameras:
+  indkorsel:
+    ffmpeg:
+      inputs:
+        - path: rtsp://admin:password@192.168.1.50:554/h264Preview_01_main
+          roles:
+            - detect
+            - record
+    detect:
+      width: 1920
+      height: 1080
+      fps: 5
+
+detectors:
+  coral:
+    type: edgetpu
+    device: usb
+
+objects:
+  track:
+    - person
+    - car
+    - dog
+    - cat
+```
+
+---
+
+## 🛒 Købs Strategi
+
+### Starter (~2.000 kr)
+- 1x SwitchBot Lock Pro (1.000 kr)
+- 2x Reolink RLC-520A PoE (1.000 kr)
+- **Total:** ~2.000 kr
+
+### Komplet (~6.000 kr)
+- 1x Nuki Smart Lock Pro 4.0 (2.000 kr)
+- 1x Nuki Keypad 2.0 (800 kr)
+- 2x Reolink RLC-810A 4K (1.400 kr)
+- 1x Reolink Doorbell PoE (1.000 kr)
+- DIY alarm sensorer (800 kr)
+- **Total:** ~6.000 kr
+
+### Premium (~12.000 kr)
+- 1x Nuki Smart Lock Pro 4.0 + Keypad (2.800 kr)
+- 4x Reolink kameraer mix (4.000 kr)
+- 1x Reolink Doorbell PoE (1.000 kr)
+- 1x Reolink NVR 8-kanal (2.000 kr)
+- 1x Google Coral USB (500 kr)
+- Yale Sync Alarm system (1.500 kr)
+- **Total:** ~11.800 kr
+
+---
+
+## 🛒 Hvor Køber Jeg?
+
+### Smarte Låse
+- **[Nuki.io](https://nuki.io)** - Direkte fra producent
+- **[Amazon.de](https://amazon.de)** - Ofte billigere
+
+### Kameraer
+- **[Reolink.com](https://reolink.com)** - Direkte, god support
+- **[Amazon.de](https://amazon.de)** - Hurtig levering
+- **[Eufy.com](https://eufy.com)** - Eufy produkter
+
+### Alarm Sensorer
+- **[AliExpress](https://aliexpress.com)** - Aqara, Sonoff, billigt
+- **[Amazon.de](https://amazon.de)** - Hurtigere levering
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Kan jeg bruge smart lås uden internet?",
+    answer: "Ja! Nuki, Yale og SwitchBot fungerer alle via Bluetooth. Du kan låse op med telefonen tæt på døren. Internet/WiFi er kun nødvendigt for fjernbetjening og notifikationer."
+  },
+  {
+    question: "Er Reolink kameraer sikre?",
+    answer: "Ja, Reolink kameraer fungerer fuldt lokalt uden cloud. De understøtter RTSP/ONVIF og er Works with Home Assistant certificeret. Hold firmware opdateret for bedste sikkerhed."
+  },
+  {
+    question: "Hvad med Ring og Nest - er de dårlige?",
+    answer: "Nej, de er gode produkter men kræver cloud-abonnement og sender data til Amazon/Google servere. Hvis privatliv er vigtigt, vælg Reolink eller Eufy i stedet."
+  },
+  {
+    question: "Kan jeg bygge min egen alarm billigt?",
+    answer: "Ja! Med Zigbee dør/vindue sensorer (~50 kr/stk), bevægelsessensorer (~100 kr/stk) og en sirene (~150 kr) kan du bygge et komplet alarmsystem for under 1.000 kr."
+  },
+  {
+    question: "Skal jeg bruge PoE eller WiFi kameraer?",
+    answer: "PoE er mere pålideligt og nemmere at strømforsyne, men kræver kabelføring. WiFi er nemmere at installere men kan have forbindelsesproblemer. Brug PoE hvor muligt."
+  },
+  {
+    question: "Hvad er Frigate og har jeg brug for det?",
+    answer: "Frigate er en avanceret NVR med AI object detection. Det kræver mere hardware (Coral TPU) men giver bedre detektion end kameraernes indbyggede AI. Start uden og tilføj senere."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="Tilstedeværelsessensorer" icon="eye">
+    Kombiner med sikkerhed.
+    
+    [Se guide →](/da/produkter/tilstedevaerelse/)
+  </Card>
+  <Card title="Home Assistant" icon="setting">
+    Integrer alle dine enheder.
+    
+    [Kom i gang →](/da/home-assistant/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*
