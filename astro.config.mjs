@@ -32,10 +32,6 @@ export default defineConfig({
           href: "https://github.com/Hovborg/smartbolig-starlight",
         },
       ],
-      // Edit link - "Rediger denne side" på GitHub
-      editLink: {
-        baseUrl: "https://github.com/Hovborg/smartbolig-starlight/edit/main/",
-      },
       // Internationalization (Danish default + English)
       defaultLocale: "da",
       locales: {
