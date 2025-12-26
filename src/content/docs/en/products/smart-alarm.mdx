@@ -1,0 +1,768 @@
+---
+title: Smart Alarm Systems
+description: Complete guide to smart alarm systems - Ring, SimpliSafe, Abode, Konnected DIY and Alarmo integration with Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Set Up Smart Alarm"
+  description="Guide to smart alarm system with Home Assistant"
+  totalTime="PT60M"
+  steps={[
+    "Choose alarm system (commercial or DIY)",
+    "Install sensors and hub",
+    "Configure Home Assistant integration",
+    "Set up Alarmo for central control",
+    "Configure notifications and automations"
+  ]}
+/>
+
+<Badge text="Alarm" variant="caution" /> <Badge text="Security" variant="success" /> <Badge text="DIY" variant="tip" />
+
+A smart alarm system protects your home with **door sensors, motion detectors, sirens and notifications** - all integrated with Home Assistant for full control and automation.
+
+<Aside type="tip" title="Top Recommendations 2025">
+**Commercial systems:**
+- **SimpliSafe** - Native HA integration (1,397+ users)
+- **Abode** - HomeKit + HA compatible
+- **Ring Alarm** - Alexa ecosystem (HACS required)
+
+**DIY solutions:**
+- **Konnected Alarm Panel Pro** - ESPHome, Works with HA ✅
+- **Alarmo** - HACS, build alarm from existing sensors
+
+**Recommendation:** Konnected + Alarmo for full local control!
+</Aside>
+
+---
+
+## 🏠 Alarm System Overview
+
+### Product Comparison
+
+| System | HA Integration | Local? | Price | Subscription |
+|--------|---------------|--------|-------|--------------|
+| **Konnected Pro** | ✅ ESPHome | ✅ Yes | 💰💰 | ❌ No |
+| **Alarmo** | ✅ HACS | ✅ Yes | Free | ❌ No |
+| **SimpliSafe** | ✅ Native | ❌ Cloud | 💰💰 | Optional |
+| **Abode** | ✅ Native | ❌ Cloud | 💰💰 | Optional |
+| **Ring Alarm** | ⚠️ HACS | ❌ Cloud | 💰💰 | Optional |
+
+---
+
+## 🏆 Konnected Alarm Panel Pro (Recommended DIY)
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$189 (6-zone), ~$249 (12-zone Pro)
+    
+    **Works with Home Assistant** certified! ✅
+    
+    Reuse your **existing wired sensors** from an old alarm system:
+    
+    - ✅ ESP32-based with ESPHome firmware
+    - ✅ WiFi, Ethernet and PoE support
+    - ✅ 6-12 zones for sensors
+    - ✅ Siren and strobe outputs
+    - ✅ Local control, no cloud
+    - ✅ No monthly fees
+    - ✅ Standalone alarm mode (Nov 2024)
+    
+    <Aside type="note">
+    Konnected supports standard wired sensors: door contacts, PIR motion, glass break sensors, smoke detectors, etc.
+    </Aside>
+  </TabItem>
+  <TabItem label="Installation">
+    ### ESPHome Firmware
+    
+    Konnected now uses **ESPHome** (legacy integration is deprecated):
+    
+    1. Go to [install.konnected.io](https://install.konnected.io)
+    2. Select your device and firmware
+    3. Connect via USB and flash
+    4. Connect to WiFi via captive portal
+    5. Automatically discovered in Home Assistant
+    
+    ### Zone Configuration
+    
+    ```yaml
+    # ESPHome configuration (automatic from Konnected)
+    # Customize in ESPHome Dashboard
+    
+    binary_sensor:
+      - platform: gpio
+        pin:
+          number: $zone1
+          mode: INPUT_PULLUP
+        name: "Front Door"
+        device_class: door
+        
+      - platform: gpio
+        pin:
+          number: $zone2
+          mode: INPUT_PULLUP
+        name: "Living Room Motion"
+        device_class: motion
+    
+    switch:
+      - platform: gpio
+        pin: $alarm
+        name: "Siren"
+        icon: "mdi:alarm-light"
+    ```
+  </TabItem>
+  <TabItem label="Automations">
+    ### Konnected + Alarmo Integration
+    
+    ```yaml
+    # Alarmo uses Konnected sensors automatically
+    # Set up in Alarmo UI:
+    # 1. Add Konnected binary_sensors
+    # 2. Assign to zones (Entry, Interior)
+    # 3. Configure delays
+    
+    automation:
+      # Activate siren when alarm triggers
+      - alias: "Alarm - Activate Konnected Siren"
+        trigger:
+          - platform: state
+            entity_id: alarm_control_panel.alarmo
+            to: "triggered"
+        action:
+          - service: switch.turn_on
+            entity_id: switch.konnected_siren
+          - delay: "00:03:00"  # Siren for 3 min
+          - service: switch.turn_off
+            entity_id: switch.konnected_siren
+    
+      # Stop siren on disarm
+      - alias: "Alarm - Stop Siren on Disarm"
+        trigger:
+          - platform: state
+            entity_id: alarm_control_panel.alarmo
+            to: "disarmed"
+        action:
+          - service: switch.turn_off
+            entity_id: switch.konnected_siren
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Konnected.io](https://konnected.io)
+
+---
+
+## 🛡️ Alarmo (HACS - Recommended)
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** FREE (open source)
+    
+    **The best way** to build an alarm system in Home Assistant:
+    
+    - ✅ Complete UI-based setup
+    - ✅ No YAML required
+    - ✅ 4 modes: Home, Away, Night, Custom
+    - ✅ User codes with different permissions
+    - ✅ Entry/Exit delays
+    - ✅ Push notifications
+    - ✅ Zones and sensor groups
+    - ✅ Beautiful Lovelace alarm panel card
+    
+    <Aside type="tip">
+    Alarmo uses your existing sensors - Zigbee, Z-Wave, WiFi, ESPHome, anything!
+    </Aside>
+  </TabItem>
+  <TabItem label="Installation">
+    ### HACS Installation
+    
+    1. Open HACS → Integrations
+    2. Click "+" and search "Alarmo"
+    3. Download and restart Home Assistant
+    4. Go to Settings → Devices → Add Integration
+    5. Search "Alarmo" and add
+    6. Alarmo menu appears in sidebar
+    
+    ### Basic Configuration
+    
+    In Alarmo panel:
+    
+    **General tab:**
+    - Enable modes (Away, Home, Night)
+    - Set Exit delay (time to leave)
+    - Set Entry delay (time to disarm)
+    - Trigger time (siren duration)
+    
+    **Sensors tab:**
+    - Add door/window sensors
+    - Add motion sensors
+    - Configure per-sensor delays
+  </TabItem>
+  <TabItem label="Configuration">
+    ### Sensor Setup
+    
+    For each sensor, configure:
+    
+    - **Immediate:** Triggers alarm instantly (windows)
+    - **Entry delay:** Gives time to disarm (front door)
+    - **Exit delay:** Ignored during arming
+    - **Bypass:** Can be skipped when arming
+    
+    ### User Codes
+    
+    ```yaml
+    # Alarmo UI - Codes tab
+    # Create different users:
+    
+    # Admin - full access
+    # User: "Mom and Dad"
+    # Code: 1234
+    # Permissions: Arm + Disarm
+    
+    # Limited - disarm only
+    # User: "Kids"
+    # Code: 5678
+    # Permissions: Disarm only
+    
+    # Cleaning - time limited
+    # User: "Cleaner"
+    # Code: 9999
+    # Permissions: Arm + Disarm
+    # Schedule: Tuesdays 10:00-14:00
+    ```
+    
+    ### Actions (Automations)
+    
+    Alarmo has built-in actions system:
+    
+    **Notifications:**
+    - Alarm armed → Push to all
+    - Alarm triggered → Push + SMS
+    - Failed to arm → Show which sensor
+    
+    **Devices:**
+    - Triggered → Turn on all lights
+    - Triggered → Activate siren
+    - Triggered → Record cameras
+  </TabItem>
+  <TabItem label="Dashboard">
+    ### Alarmo Card (HACS)
+    
+    ```yaml
+    # HACS → Frontend → Search "Alarmo Card"
+    
+    # Dashboard configuration
+    type: custom:alarmo-card
+    entity: alarm_control_panel.alarmo
+    show_keypad: true
+    button_scale: 1.2
+    states:
+      - arm_away
+      - arm_home
+      - arm_night
+    ```
+    
+    ### Complete Alarm Dashboard
+    
+    ```yaml
+    type: vertical-stack
+    cards:
+      # Alarmo control
+      - type: custom:alarmo-card
+        entity: alarm_control_panel.alarmo
+        show_keypad: true
+      
+      # Sensor status
+      - type: entities
+        title: "Security Sensors"
+        entities:
+          - entity: binary_sensor.front_door
+            name: "Front Door"
+          - entity: binary_sensor.back_door
+            name: "Back Door"
+          - entity: binary_sensor.living_room_motion
+            name: "Living Room Motion"
+          - entity: binary_sensor.garage_door
+            name: "Garage Door"
+      
+      # Quick arm/disarm
+      - type: horizontal-stack
+        cards:
+          - type: button
+            name: "Away"
+            icon: mdi:shield-lock
+            tap_action:
+              action: call-service
+              service: alarmo.arm
+              service_data:
+                entity_id: alarm_control_panel.alarmo
+                mode: away
+                code: !secret alarm_code
+          - type: button
+            name: "Home"
+            icon: mdi:shield-home
+            tap_action:
+              action: call-service
+              service: alarmo.arm
+              service_data:
+                entity_id: alarm_control_panel.alarmo
+                mode: home
+    ```
+  </TabItem>
+</Tabs>
+
+**GitHub:** [github.com/nielsfaber/alarmo](https://github.com/nielsfaber/alarmo)
+
+---
+
+## 📱 SimpliSafe (Native HA)
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$200-500
+    **Subscription:** $0-30/month (optional)
+    
+    **Native Home Assistant integration** with 1,397+ users:
+    
+    - ✅ Alarm control panel
+    - ✅ All sensors as entities
+    - ✅ Door lock support
+    - ✅ Siren status
+    - ✅ Event triggers (doorbell, etc.)
+    - ❌ Cloud-based (requires internet)
+    - ❌ Requires MFA enabled
+    
+    **Sensor support:**
+    - Door/window sensors
+    - Motion sensors
+    - Glass break sensors
+    - CO detectors
+    - Smoke detectors
+    - Water leak
+    - Freeze sensors
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Native Integration
+    
+    ```yaml
+    # Settings → Devices → Add Integration
+    # Search "SimpliSafe"
+    
+    # Requires:
+    # - SimpliSafe email
+    # - SimpliSafe password
+    # - MFA MUST be enabled!
+    
+    # Follow simplisafe-python documentation:
+    # https://simplisafe-python.readthedocs.io/
+    
+    # Entities created:
+    # - alarm_control_panel.simplisafe
+    # - binary_sensor.front_door
+    # - binary_sensor.living_room_motion
+    # - lock.front_door_lock
+    # - sensor.simplisafe_alarm_state
+    ```
+    
+    ### Automation Examples
+    
+    ```yaml
+    automation:
+      # Arm when everyone leaves
+      - alias: "SimpliSafe - Auto Arm Away"
+        trigger:
+          - platform: state
+            entity_id: group.family
+            to: "not_home"
+            for: "00:05:00"
+        action:
+          - service: alarm_control_panel.alarm_arm_away
+            entity_id: alarm_control_panel.simplisafe
+    
+      # Disarm on arrival
+      - alias: "SimpliSafe - Auto Disarm"
+        trigger:
+          - platform: state
+            entity_id: person.mom
+            to: "home"
+        condition:
+          - condition: state
+            entity_id: alarm_control_panel.simplisafe
+            state: "armed_away"
+        action:
+          - service: alarm_control_panel.alarm_disarm
+            entity_id: alarm_control_panel.simplisafe
+            data:
+              code: !secret simplisafe_code
+    
+      # Doorbell event
+      - alias: "SimpliSafe - Doorbell"
+        trigger:
+          - platform: event
+            event_type: SIMPLISAFE_EVENT
+            event_data:
+              last_event_type: doorbell_detected
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "🔔 Someone at the door"
+              message: "{{ trigger.event.data.last_event_sensor_name }}"
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [SimpliSafe.com](https://simplisafe.com)
+
+---
+
+## 🏡 Abode
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$200-400
+    **Subscription:** $0-25/month
+    
+    **Most smart home compatible:**
+    
+    - ✅ Native HA integration
+    - ✅ Apple HomeKit support
+    - ✅ Google Home
+    - ✅ Amazon Alexa
+    - ✅ Z-Wave and Zigbee radios
+    - ✅ IFTTT integration
+    - ❌ Cloud-based
+    
+    <Aside type="tip">
+    Abode Iota has built-in camera and Zigbee/Z-Wave hub - all-in-one solution.
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Integration Setup
+    
+    ```yaml
+    # Settings → Devices → Add Integration
+    # Search "Abode"
+    
+    # Entities:
+    # - alarm_control_panel.abode
+    # - binary_sensor.[sensor_name]
+    # - camera.abode_camera
+    # - cover.abode_garage
+    
+    automation:
+      - alias: "Abode - Night mode"
+        trigger:
+          - platform: time
+            at: "23:00:00"
+        action:
+          - service: alarm_control_panel.alarm_arm_night
+            entity_id: alarm_control_panel.abode
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Goabode.com](https://goabode.com)
+
+---
+
+## 🔔 Ring Alarm
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$200-350
+    **Subscription:** $0-20/month
+    
+    **Amazon ecosystem:**
+    
+    - ✅ Deep Alexa integration
+    - ✅ Z-Wave sensors
+    - ✅ Video doorbell integration
+    - ⚠️ No native HA integration
+    - ⚠️ Requires HACS/MQTT
+    - ❌ Cloud-based
+    
+    <Aside type="caution" title="Privacy Concerns">
+    Ring has had security issues and cooperates with police on data sharing. Consider alternatives if privacy is important.
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Ring Integration (HACS)
+    
+    ```yaml
+    # HACS → Integrations
+    # Search "Ring" or use native integration
+    
+    # Native Ring integration:
+    # Settings → Devices → Add Integration
+    # Search "Ring"
+    
+    # For alarm control, use ring-mqtt:
+    # https://github.com/tsightler/ring-mqtt
+    
+    # Docker/Add-on installation required
+    # Gives full MQTT control over Ring Alarm
+    
+    # Entities via ring-mqtt:
+    # - alarm_control_panel.ring_alarm
+    # - binary_sensor.front_door
+    # - switch.ring_siren
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Ring.com](https://ring.com), Amazon
+
+---
+
+## 🤖 Smart Automations
+
+### Complete Alarm Automation Suite
+
+```yaml
+automation:
+  # ===== AUTO ARM/DISARM =====
+  
+  # Arm Away when everyone leaves
+  - alias: "Alarm - Auto Arm Away"
+    trigger:
+      - platform: state
+        entity_id: group.family
+        to: "not_home"
+        for: "00:05:00"
+    condition:
+      - condition: state
+        entity_id: alarm_control_panel.alarmo
+        state: "disarmed"
+    action:
+      - service: alarmo.arm
+        data:
+          entity_id: alarm_control_panel.alarmo
+          mode: away
+          skip_delay: false
+
+  # Arm Home at night
+  - alias: "Alarm - Night Arm"
+    trigger:
+      - platform: time
+        at: "23:00:00"
+    condition:
+      - condition: state
+        entity_id: group.family
+        state: "home"
+      - condition: state
+        entity_id: alarm_control_panel.alarmo
+        state: "disarmed"
+    action:
+      - service: alarmo.arm
+        data:
+          entity_id: alarm_control_panel.alarmo
+          mode: night
+
+  # Disarm in the morning
+  - alias: "Alarm - Morning Disarm"
+    trigger:
+      - platform: time
+        at: "06:30:00"
+    condition:
+      - condition: state
+        entity_id: alarm_control_panel.alarmo
+        state: "armed_night"
+    action:
+      - service: alarmo.disarm
+        data:
+          entity_id: alarm_control_panel.alarmo
+
+  # ===== TRIGGERED RESPONSE =====
+  
+  # Turn on all lights
+  - alias: "Alarm - Triggered Lights"
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.alarmo
+        to: "triggered"
+    action:
+      - service: light.turn_on
+        entity_id: all
+        data:
+          brightness_pct: 100
+      - service: switch.turn_on
+        entity_id: switch.outdoor_lights
+
+  # Push notification with actionable buttons
+  - alias: "Alarm - Triggered Notification"
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.alarmo
+        to: "triggered"
+    action:
+      - service: notify.mobile_app_phone
+        data:
+          title: "🚨 ALARM TRIGGERED!"
+          message: >
+            Sensor: {{ state_attr('alarm_control_panel.alarmo', 'open_sensors') }}
+            Time: {{ now().strftime('%H:%M') }}
+          data:
+            actions:
+              - action: "DISARM_ALARM"
+                title: "Disarm"
+              - action: "CALL_POLICE"
+                title: "Call 911"
+            push:
+              sound:
+                name: "alarm.caf"
+                critical: 1
+                volume: 1.0
+
+  # Handle notification actions
+  - alias: "Alarm - Handle Disarm Action"
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: "DISARM_ALARM"
+    action:
+      - service: alarmo.disarm
+        data:
+          entity_id: alarm_control_panel.alarmo
+          code: !secret alarm_code
+
+  # ===== PRESENCE DETECTION =====
+  
+  # Smart disarm on arrival
+  - alias: "Alarm - Smart Disarm"
+    trigger:
+      - platform: state
+        entity_id: 
+          - person.mom
+          - person.dad
+        to: "home"
+    condition:
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: alarm_control_panel.alarmo
+            state: "armed_away"
+          - condition: state
+            entity_id: alarm_control_panel.alarmo
+            state: "armed_home"
+    action:
+      - service: alarmo.disarm
+        data:
+          entity_id: alarm_control_panel.alarmo
+```
+
+---
+
+## 📋 Sensor Types Guide
+
+### Which Sensors for Which Zones
+
+| Sensor Type | Entry Zone | Interior | Perimeter | 24/7 |
+|-------------|-----------|----------|-----------|------|
+| Front Door | ✅ | | | |
+| Back Door | ✅ | | | |
+| Windows | | | ✅ | |
+| Living Room Motion | | ✅ | | |
+| Hallway Motion | ✅ | | | |
+| Glass Break | | | ✅ | |
+| Smoke Detector | | | | ✅ |
+| CO Detector | | | | ✅ |
+| Water Leak | | | | ✅ |
+
+### Delay Recommendations
+
+```yaml
+# Entry Zone (front door, back door)
+entry_delay: 30  # seconds to disarm
+exit_delay: 60   # seconds to leave
+
+# Interior (motion)
+entry_delay: 0   # triggers immediately
+exit_delay: 60   # ignored during exit
+
+# Perimeter (windows, glass break)
+entry_delay: 0   # triggers immediately
+exit_delay: 0    # triggers immediately
+
+# 24/7 (smoke, CO, water)
+always_on: true  # active regardless of arm status
+```
+
+---
+
+## 🛒 Buying Strategy
+
+### Budget DIY (~$150)
+- Zigbee door/window sensors (5x) (~$75)
+- Zigbee motion sensor (2x) (~$40)
+- Alarmo (free)
+- Smart speaker as siren (~$30)
+- **Total:** ~$145
+
+### Standard Konnected (~$350)
+- Konnected Alarm Panel (~$189)
+- Reuse existing wired sensors
+- Alarmo (free)
+- 12V siren (~$25)
+- **Total:** ~$215-350
+
+### Commercial + HA (~$500)
+- SimpliSafe starter kit (~$350)
+- Extra sensors (~$100)
+- Native HA integration
+- **Total:** ~$450-550
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "What is the best alarm for Home Assistant?",
+    answer: "For full local control: Konnected Alarm Panel Pro + Alarmo. For easy setup: SimpliSafe with native integration. For smart home compatibility: Abode with HomeKit/Zigbee/Z-Wave support."
+  },
+  {
+    question: "Can I build an alarm with just Zigbee sensors?",
+    answer: "Yes! Use Alarmo from HACS. It works with any sensors in Home Assistant - Zigbee, Z-Wave, WiFi, ESPHome, you name it. No extra hardware required beyond sensors and a Zigbee coordinator."
+  },
+  {
+    question: "Do I need professional monitoring?",
+    answer: "No, not necessarily. With Home Assistant you can get push notifications, sirens, and even automatic camera recording. However, professional monitoring can provide extra peace of mind and connection to monitoring centers."
+  },
+  {
+    question: "Does Konnected work with my old alarm system?",
+    answer: "Yes! Konnected is designed to reuse wired sensors from older alarm systems. You replace the old panel with Konnected and keep all your existing sensors."
+  },
+  {
+    question: "How do I get a siren to work?",
+    answer: "With Konnected: Connect a 12V siren to the alarm output. With Alarmo: Use a smart speaker as siren via media_player, or a Zigbee/WiFi siren as a switch. Set up automation to activate on 'triggered' state."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Smart Security" icon="shield">
+    Cameras, door locks and more.
+    
+    [See guide →](/en/products/smart-security/)
+  </Card>
+  <Card title="Presence Detection" icon="rocket">
+    Presence detection for automation.
+    
+    [See guide →](/en/products/presence-sensors/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*

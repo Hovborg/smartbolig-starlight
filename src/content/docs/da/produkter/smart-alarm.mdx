@@ -1,0 +1,768 @@
+---
+title: Smart Alarm Systemer
+description: Komplet guide til smart alarm - Ring, SimpliSafe, Abode, Konnected DIY og Alarmo integration med Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Opsæt smart alarm"
+  description="Guide til smart alarmsystem med Home Assistant"
+  totalTime="PT60M"
+  steps={[
+    "Vælg alarmsystem (kommerciel eller DIY)",
+    "Installer sensorer og hub",
+    "Konfigurer Home Assistant integration",
+    "Opsæt Alarmo til central styring",
+    "Konfigurer notifikationer og automationer"
+  ]}
+/>
+
+<Badge text="Alarm" variant="caution" /> <Badge text="Sikkerhed" variant="success" /> <Badge text="DIY" variant="tip" />
+
+Et smart alarmsystem beskytter dit hjem med **dørsensorer, bevægelsesdetektorer, sirener og notifikationer** - alt integreret med Home Assistant for fuld kontrol og automatisering.
+
+<Aside type="tip" title="Top Anbefalinger 2025">
+**Kommercielle systemer:**
+- **SimpliSafe** - Native HA integration (1.397+ brugere)
+- **Abode** - HomeKit + HA kompatibel
+- **Ring Alarm** - Alexa ecosystem (HACS kræves)
+
+**DIY løsninger:**
+- **Konnected Alarm Panel Pro** - ESPHome, Works with HA ✅
+- **Alarmo** - HACS, byg alarm fra eksisterende sensorer
+
+**Anbefaling:** Konnected + Alarmo for fuld lokal kontrol!
+</Aside>
+
+---
+
+## 🏠 Alarmsystem Oversigt
+
+### Produktsammenligning
+
+| System | HA Integration | Lokal? | Pris | Abonnement |
+|--------|---------------|--------|------|------------|
+| **Konnected Pro** | ✅ ESPHome | ✅ Ja | 💰💰 | ❌ Nej |
+| **Alarmo** | ✅ HACS | ✅ Ja | Gratis | ❌ Nej |
+| **SimpliSafe** | ✅ Native | ❌ Cloud | 💰💰 | Valgfrit |
+| **Abode** | ✅ Native | ❌ Cloud | 💰💰 | Valgfrit |
+| **Ring Alarm** | ⚠️ HACS | ❌ Cloud | 💰💰 | Valgfrit |
+
+---
+
+## 🏆 Konnected Alarm Panel Pro (Anbefalet DIY)
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~$189 / ~1.400 kr (6-zone), ~$249 / ~1.850 kr (12-zone Pro)
+    
+    **Works with Home Assistant** certificeret! ✅
+    
+    Genbrug dine **eksisterende kablede sensorer** fra et gammelt alarmsystem:
+    
+    - ✅ ESP32-baseret med ESPHome firmware
+    - ✅ WiFi, Ethernet og PoE support
+    - ✅ 6-12 zoner for sensorer
+    - ✅ Sirene og strobe output
+    - ✅ Lokal kontrol, ingen cloud
+    - ✅ Ingen månedlige gebyrer
+    - ✅ Standalone alarm mode (nov 2024)
+    
+    <Aside type="note">
+    Konnected understøtter standard kablede sensorer: dørkontakter, PIR bevægelse, glasbrudsensorer, røgdetektorer m.m.
+    </Aside>
+  </TabItem>
+  <TabItem label="Installation">
+    ### ESPHome Firmware
+    
+    Konnected bruger nu **ESPHome** (legacy integration er deprecated):
+    
+    1. Gå til [install.konnected.io](https://install.konnected.io)
+    2. Vælg din enhed og firmware
+    3. Tilslut via USB og flash
+    4. Forbind til WiFi via captive portal
+    5. Opdages automatisk i Home Assistant
+    
+    ### Zone Konfiguration
+    
+    ```yaml
+    # ESPHome konfiguration (automatisk fra Konnected)
+    # Tilpas i ESPHome Dashboard
+    
+    binary_sensor:
+      - platform: gpio
+        pin:
+          number: $zone1
+          mode: INPUT_PULLUP
+        name: "Hoveddør"
+        device_class: door
+        
+      - platform: gpio
+        pin:
+          number: $zone2
+          mode: INPUT_PULLUP
+        name: "Stue Bevægelse"
+        device_class: motion
+    
+    switch:
+      - platform: gpio
+        pin: $alarm
+        name: "Sirene"
+        icon: "mdi:alarm-light"
+    ```
+  </TabItem>
+  <TabItem label="Automationer">
+    ### Konnected + Alarmo Integration
+    
+    ```yaml
+    # Alarmo bruger Konnected sensorer automatisk
+    # Opsæt i Alarmo UI:
+    # 1. Tilføj Konnected binary_sensors
+    # 2. Tildel til zoner (Entry, Interior)
+    # 3. Konfigurer delays
+    
+    automation:
+      # Aktiver sirene når alarm udløses
+      - alias: "Alarm - Aktiver Konnected Sirene"
+        trigger:
+          - platform: state
+            entity_id: alarm_control_panel.alarmo
+            to: "triggered"
+        action:
+          - service: switch.turn_on
+            entity_id: switch.konnected_siren
+          - delay: "00:03:00"  # Sirene i 3 min
+          - service: switch.turn_off
+            entity_id: switch.konnected_siren
+    
+      # Stop sirene ved afvæbning
+      - alias: "Alarm - Stop Sirene ved Disarm"
+        trigger:
+          - platform: state
+            entity_id: alarm_control_panel.alarmo
+            to: "disarmed"
+        action:
+          - service: switch.turn_off
+            entity_id: switch.konnected_siren
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Konnected.io](https://konnected.io)
+
+---
+
+## 🛡️ Alarmo (HACS - Anbefalet)
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** GRATIS (open source)
+    
+    **Den bedste måde** at bygge et alarmsystem i Home Assistant:
+    
+    - ✅ Komplet UI-baseret opsætning
+    - ✅ Ingen YAML krævet
+    - ✅ 4 tilstande: Home, Away, Night, Custom
+    - ✅ Brugerkoder med forskellige rettigheder
+    - ✅ Entry/Exit delays
+    - ✅ Push notifikationer
+    - ✅ Zoner og sensor grupper
+    - ✅ Smuk Lovelace alarmpanel kort
+    
+    <Aside type="tip">
+    Alarmo bruger dine eksisterende sensorer - Zigbee, Z-Wave, WiFi, ESPHome, hvad som helst!
+    </Aside>
+  </TabItem>
+  <TabItem label="Installation">
+    ### HACS Installation
+    
+    1. Åbn HACS → Integrationer
+    2. Klik "+" og søg "Alarmo"
+    3. Download og genstart Home Assistant
+    4. Gå til Indstillinger → Enheder → Tilføj Integration
+    5. Søg "Alarmo" og tilføj
+    6. Alarmo menu vises i sidebar
+    
+    ### Grundkonfiguration
+    
+    I Alarmo panel:
+    
+    **General tab:**
+    - Aktiver tilstande (Away, Home, Night)
+    - Sæt Exit delay (tid til at forlade)
+    - Sæt Entry delay (tid til at afvæbne)
+    - Trigger time (sirenens varighed)
+    
+    **Sensors tab:**
+    - Tilføj door/window sensorer
+    - Tilføj motion sensorer
+    - Konfigurer per-sensor delays
+  </TabItem>
+  <TabItem label="Konfiguration">
+    ### Sensor Opsætning
+    
+    For hver sensor, konfigurer:
+    
+    - **Immediate:** Udløser alarm med det samme (vinduer)
+    - **Entry delay:** Giver tid til afvæbning (hoveddør)
+    - **Exit delay:** Ignoreres under arming
+    - **Bypass:** Kan springes over ved arming
+    
+    ### Brugerkoder
+    
+    ```yaml
+    # Alarmo UI - Codes tab
+    # Opret forskellige brugere:
+    
+    # Admin - fuld adgang
+    # Bruger: "Mor og Far"
+    # Kode: 1234
+    # Rettigheder: Arm + Disarm
+    
+    # Begrænset - kun afvæbning
+    # Bruger: "Børn"
+    # Kode: 5678
+    # Rettigheder: Kun Disarm
+    
+    # Rengøring - tidsbegrænset
+    # Bruger: "Rengøring"
+    # Kode: 9999
+    # Rettigheder: Arm + Disarm
+    # Tidsplan: Tirsdage 10:00-14:00
+    ```
+    
+    ### Actions (Automationer)
+    
+    Alarmo har indbygget actions system:
+    
+    **Notifikationer:**
+    - Alarm armed → Push til alle
+    - Alarm triggered → Push + SMS
+    - Failed to arm → Vis hvilken sensor
+    
+    **Enheder:**
+    - Triggered → Tænd alle lys
+    - Triggered → Aktiver sirene
+    - Triggered → Optag kameraer
+  </TabItem>
+  <TabItem label="Dashboard">
+    ### Alarmo Card (HACS)
+    
+    ```yaml
+    # HACS → Frontend → Søg "Alarmo Card"
+    
+    # Dashboard konfiguration
+    type: custom:alarmo-card
+    entity: alarm_control_panel.alarmo
+    show_keypad: true
+    button_scale: 1.2
+    states:
+      - arm_away
+      - arm_home
+      - arm_night
+    ```
+    
+    ### Komplet Alarm Dashboard
+    
+    ```yaml
+    type: vertical-stack
+    cards:
+      # Alarmo kontrol
+      - type: custom:alarmo-card
+        entity: alarm_control_panel.alarmo
+        show_keypad: true
+      
+      # Sensor status
+      - type: entities
+        title: "Sikkerhedssensorer"
+        entities:
+          - entity: binary_sensor.hovedddor
+            name: "Hoveddør"
+          - entity: binary_sensor.bagdor
+            name: "Bagdør"
+          - entity: binary_sensor.stue_bevaegelse
+            name: "Stue bevægelse"
+          - entity: binary_sensor.garage_dor
+            name: "Garage dør"
+      
+      # Hurtig arm/disarm
+      - type: horizontal-stack
+        cards:
+          - type: button
+            name: "Væk"
+            icon: mdi:shield-lock
+            tap_action:
+              action: call-service
+              service: alarmo.arm
+              service_data:
+                entity_id: alarm_control_panel.alarmo
+                mode: away
+                code: !secret alarm_code
+          - type: button
+            name: "Hjemme"
+            icon: mdi:shield-home
+            tap_action:
+              action: call-service
+              service: alarmo.arm
+              service_data:
+                entity_id: alarm_control_panel.alarmo
+                mode: home
+    ```
+  </TabItem>
+</Tabs>
+
+**GitHub:** [github.com/nielsfaber/alarmo](https://github.com/nielsfaber/alarmo)
+
+---
+
+## 📱 SimpliSafe (Native HA)
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~$200-500 / ~1.500-3.700 kr (kit)
+    **Abonnement:** $0-30/måned (valgfrit)
+    
+    **Native Home Assistant integration** med 1.397+ brugere:
+    
+    - ✅ Alarm control panel
+    - ✅ Alle sensorer som entities
+    - ✅ Dørlåse support
+    - ✅ Sirene status
+    - ✅ Event triggers (doorbell, etc.)
+    - ❌ Cloud-baseret (kræver internet)
+    - ❌ Kræver MFA aktiveret
+    
+    **Sensor support:**
+    - Dør/vindue sensorer
+    - Bevægelse sensorer
+    - Glasbrudsensorer
+    - CO detektorer
+    - Røgdetektorer
+    - Vandlækage
+    - Frysesensorer
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Native Integration
+    
+    ```yaml
+    # Indstillinger → Enheder → Tilføj Integration
+    # Søg "SimpliSafe"
+    
+    # Kræver:
+    # - SimpliSafe email
+    # - SimpliSafe password
+    # - MFA SKAL være aktiveret!
+    
+    # Følg simplisafe-python dokumentation:
+    # https://simplisafe-python.readthedocs.io/
+    
+    # Entiteter der oprettes:
+    # - alarm_control_panel.simplisafe
+    # - binary_sensor.front_door
+    # - binary_sensor.living_room_motion
+    # - lock.front_door_lock
+    # - sensor.simplisafe_alarm_state
+    ```
+    
+    ### Automation Eksempler
+    
+    ```yaml
+    automation:
+      # Arm når alle forlader
+      - alias: "SimpliSafe - Auto Arm Away"
+        trigger:
+          - platform: state
+            entity_id: group.family
+            to: "not_home"
+            for: "00:05:00"
+        action:
+          - service: alarm_control_panel.alarm_arm_away
+            entity_id: alarm_control_panel.simplisafe
+    
+      # Disarm ved hjemkomst
+      - alias: "SimpliSafe - Auto Disarm"
+        trigger:
+          - platform: state
+            entity_id: person.mor
+            to: "home"
+        condition:
+          - condition: state
+            entity_id: alarm_control_panel.simplisafe
+            state: "armed_away"
+        action:
+          - service: alarm_control_panel.alarm_disarm
+            entity_id: alarm_control_panel.simplisafe
+            data:
+              code: !secret simplisafe_code
+    
+      # Doorbell event
+      - alias: "SimpliSafe - Doorbell"
+        trigger:
+          - platform: event
+            event_type: SIMPLISAFE_EVENT
+            event_data:
+              last_event_type: doorbell_detected
+        action:
+          - service: notify.mobile_app
+            data:
+              title: "🔔 Nogen ringer på"
+              message: "{{ trigger.event.data.last_event_sensor_name }}"
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [SimpliSafe.com](https://simplisafe.com)
+
+---
+
+## 🏡 Abode
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~$200-400 / ~1.500-3.000 kr
+    **Abonnement:** $0-25/måned
+    
+    **Mest smart home kompatibel:**
+    
+    - ✅ Native HA integration
+    - ✅ Apple HomeKit support
+    - ✅ Google Home
+    - ✅ Amazon Alexa
+    - ✅ Z-Wave og Zigbee radio
+    - ✅ IFTTT integration
+    - ❌ Cloud-baseret
+    
+    <Aside type="tip">
+    Abode Iota har indbygget kamera og Zigbee/Z-Wave hub - alt-i-én løsning.
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Integration Opsætning
+    
+    ```yaml
+    # Indstillinger → Enheder → Tilføj Integration
+    # Søg "Abode"
+    
+    # Entiteter:
+    # - alarm_control_panel.abode
+    # - binary_sensor.[sensor_name]
+    # - camera.abode_camera
+    # - cover.abode_garage
+    
+    automation:
+      - alias: "Abode - Nat tilstand"
+        trigger:
+          - platform: time
+            at: "23:00:00"
+        action:
+          - service: alarm_control_panel.alarm_arm_night
+            entity_id: alarm_control_panel.abode
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Goabode.com](https://goabode.com)
+
+---
+
+## 🔔 Ring Alarm
+
+<Tabs>
+  <TabItem label="Oversigt">
+    **Pris:** ~$200-350 / ~1.500-2.600 kr
+    **Abonnement:** $0-20/måned
+    
+    **Amazon ecosystem:**
+    
+    - ✅ Dyb Alexa integration
+    - ✅ Z-Wave sensorer
+    - ✅ Video doorbell integration
+    - ⚠️ Ingen native HA integration
+    - ⚠️ Kræver HACS/MQTT
+    - ❌ Cloud-baseret
+    
+    <Aside type="caution" title="Privacy Bekymringer">
+    Ring har haft sikkerhedsproblemer og samarbejder med politi om datadeling. Overvej alternativer hvis privacy er vigtigt.
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Ring Integration (HACS)
+    
+    ```yaml
+    # HACS → Integrationer
+    # Søg "Ring" eller brug native integration
+    
+    # Native Ring integration:
+    # Indstillinger → Enheder → Tilføj Integration
+    # Søg "Ring"
+    
+    # For alarm kontrol, brug ring-mqtt:
+    # https://github.com/tsightler/ring-mqtt
+    
+    # Docker/Add-on installation kræves
+    # Giver fuld MQTT kontrol over Ring Alarm
+    
+    # Entiteter via ring-mqtt:
+    # - alarm_control_panel.ring_alarm
+    # - binary_sensor.front_door
+    # - switch.ring_siren
+    ```
+  </TabItem>
+</Tabs>
+
+**Køb:** [Ring.com](https://ring.com), Amazon
+
+---
+
+## 🤖 Smarte Automationer
+
+### Komplet Alarm Automation Suite
+
+```yaml
+automation:
+  # ===== AUTO ARM/DISARM =====
+  
+  # Arm Away når alle forlader
+  - alias: "Alarm - Auto Arm Away"
+    trigger:
+      - platform: state
+        entity_id: group.family
+        to: "not_home"
+        for: "00:05:00"
+    condition:
+      - condition: state
+        entity_id: alarm_control_panel.alarmo
+        state: "disarmed"
+    action:
+      - service: alarmo.arm
+        data:
+          entity_id: alarm_control_panel.alarmo
+          mode: away
+          skip_delay: false
+
+  # Arm Home om natten
+  - alias: "Alarm - Nat Arm"
+    trigger:
+      - platform: time
+        at: "23:00:00"
+    condition:
+      - condition: state
+        entity_id: group.family
+        state: "home"
+      - condition: state
+        entity_id: alarm_control_panel.alarmo
+        state: "disarmed"
+    action:
+      - service: alarmo.arm
+        data:
+          entity_id: alarm_control_panel.alarmo
+          mode: night
+
+  # Disarm om morgenen
+  - alias: "Alarm - Morgen Disarm"
+    trigger:
+      - platform: time
+        at: "06:30:00"
+    condition:
+      - condition: state
+        entity_id: alarm_control_panel.alarmo
+        state: "armed_night"
+    action:
+      - service: alarmo.disarm
+        data:
+          entity_id: alarm_control_panel.alarmo
+
+  # ===== TRIGGERED RESPONSE =====
+  
+  # Tænd alle lys
+  - alias: "Alarm - Triggered Lys"
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.alarmo
+        to: "triggered"
+    action:
+      - service: light.turn_on
+        entity_id: all
+        data:
+          brightness_pct: 100
+      - service: switch.turn_on
+        entity_id: switch.outdoor_lights
+
+  # Push notifikation med actionable buttons
+  - alias: "Alarm - Triggered Notifikation"
+    trigger:
+      - platform: state
+        entity_id: alarm_control_panel.alarmo
+        to: "triggered"
+    action:
+      - service: notify.mobile_app_phone
+        data:
+          title: "🚨 ALARM UDLØST!"
+          message: >
+            Sensor: {{ state_attr('alarm_control_panel.alarmo', 'open_sensors') }}
+            Tid: {{ now().strftime('%H:%M') }}
+          data:
+            actions:
+              - action: "DISARM_ALARM"
+                title: "Afvæbn"
+              - action: "CALL_POLICE"
+                title: "Ring 112"
+            push:
+              sound:
+                name: "alarm.caf"
+                critical: 1
+                volume: 1.0
+
+  # Håndter notifikation actions
+  - alias: "Alarm - Handle Disarm Action"
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: "DISARM_ALARM"
+    action:
+      - service: alarmo.disarm
+        data:
+          entity_id: alarm_control_panel.alarmo
+          code: !secret alarm_code
+
+  # ===== PRESENCE DETECTION =====
+  
+  # Smart disarm ved hjemkomst
+  - alias: "Alarm - Smart Disarm"
+    trigger:
+      - platform: state
+        entity_id: 
+          - person.mor
+          - person.far
+        to: "home"
+    condition:
+      - condition: or
+        conditions:
+          - condition: state
+            entity_id: alarm_control_panel.alarmo
+            state: "armed_away"
+          - condition: state
+            entity_id: alarm_control_panel.alarmo
+            state: "armed_home"
+    action:
+      - service: alarmo.disarm
+        data:
+          entity_id: alarm_control_panel.alarmo
+```
+
+---
+
+## 📋 Sensor Typer Guide
+
+### Hvilke Sensorer til Hvilke Zoner
+
+| Sensor Type | Entry Zone | Interior | Perimeter | 24/7 |
+|-------------|-----------|----------|-----------|------|
+| Hoveddør | ✅ | | | |
+| Bagdør | ✅ | | | |
+| Vinduer | | | ✅ | |
+| Stue bevægelse | | ✅ | | |
+| Gang bevægelse | ✅ | | | |
+| Glasbrud | | | ✅ | |
+| Røgdetektor | | | | ✅ |
+| CO detektor | | | | ✅ |
+| Vandlækage | | | | ✅ |
+
+### Delay Anbefalinger
+
+```yaml
+# Entry Zone (hoveddør, bagdør)
+entry_delay: 30  # sekunder til at afvæbne
+exit_delay: 60   # sekunder til at forlade
+
+# Interior (bevægelse)
+entry_delay: 0   # udløser med det samme
+exit_delay: 60   # ignoreres under exit
+
+# Perimeter (vinduer, glasbrud)
+entry_delay: 0   # udløser med det samme
+exit_delay: 0    # udløser med det samme
+
+# 24/7 (røg, CO, vand)
+always_on: true  # aktiv uanset arm status
+```
+
+---
+
+## 🛒 Købs Strategi
+
+### Budget DIY (~1.000 kr)
+- Zigbee dør/vindue sensorer (5x) (~500 kr)
+- Zigbee bevægelsessensor (2x) (~300 kr)
+- Alarmo (gratis)
+- Smart speaker som sirene (~200 kr)
+- **Total:** ~1.000 kr
+
+### Standard Konnected (~3.000 kr)
+- Konnected Alarm Panel (~1.400 kr)
+- Genbrug eksisterende kablede sensorer
+- Alarmo (gratis)
+- 12V sirene (~200 kr)
+- **Total:** ~1.600-3.000 kr
+
+### Kommerciel + HA (~4.000 kr)
+- SimpliSafe starter kit (~2.500 kr)
+- Ekstra sensorer (~1.000 kr)
+- Native HA integration
+- **Total:** ~3.500-4.500 kr
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Hvad er den bedste alarm til Home Assistant?",
+    answer: "For fuld lokal kontrol: Konnected Alarm Panel Pro + Alarmo. For nem opsætning: SimpliSafe med native integration. For smart home kompatibilitet: Abode med HomeKit/Zigbee/Z-Wave support."
+  },
+  {
+    question: "Kan jeg bygge en alarm kun med Zigbee sensorer?",
+    answer: "Ja! Brug Alarmo fra HACS. Det virker med alle sensorer i Home Assistant - Zigbee, Z-Wave, WiFi, ESPHome, you name it. Ingen ekstra hardware krævet udover sensorer og en Zigbee coordinator."
+  },
+  {
+    question: "Har jeg brug for professionel overvågning?",
+    answer: "Nej, ikke nødvendigvis. Med Home Assistant kan du få push notifikationer, sirener, og endda automatisk optag af kameraer. Dog kan professionel overvågning give ekstra tryghed og kontakt til alarmcentral."
+  },
+  {
+    question: "Virker Konnected med mit gamle alarmsystem?",
+    answer: "Ja! Konnected er designet til at genbruge kablede sensorer fra ældre alarmsystemer. Du erstatter det gamle panel med Konnected og beholder alle dine eksisterende sensorer."
+  },
+  {
+    question: "Hvordan får jeg sirene til at virke?",
+    answer: "Med Konnected: Tilslut en 12V sirene til alarm output. Med Alarmo: Brug en smart speaker som sirene via media_player, eller en Zigbee/WiFi sirene som switch. Opsæt automation til at aktivere ved 'triggered' tilstand."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="Smart Sikkerhed" icon="shield">
+    Kameraer, dørlåse og mere.
+    
+    [Se guide →](/da/produkter/smart-sikkerhed/)
+  </Card>
+  <Card title="Tilstedeværelse" icon="rocket">
+    Presence detection for automation.
+    
+    [Se guide →](/da/produkter/tilstedevaerelse/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*
