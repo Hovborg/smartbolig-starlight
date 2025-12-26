@@ -1,0 +1,371 @@
+---
+title: Shelly Produktguide
+description: Komplet oversigt over Shelly smart home produkter - relæer, dimmere, sensorer, termostater og mere. Alle virker 100% lokalt med Home Assistant.
+sidebar:
+  badge:
+    text: Anbefalet
+    variant: success
+---
+
+import { Card, CardGrid, Aside, Badge, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Vælg det rigtige Shelly produkt"
+  description="Guide til at vælge mellem Shelly Plus, Pro, Mini og BLU produktserier"
+  totalTime="PT5M"
+  steps={[
+    "Identificer dit behov (relæ, dimmer, sensor, termostat)",
+    "Vælg installation (bag kontakt, DIN-skinne, stikkontakt)",
+    "Vælg protokol (WiFi, Bluetooth, Z-Wave)",
+    "Tjek om du har nulleder (neutral wire)",
+    "Bestil og installer"
+  ]}
+/>
+
+<Badge text="100% Lokal" variant="success" /> <Badge text="Home Assistant" variant="note" /> <Badge text="Ingen Cloud" variant="tip" />
+
+Shelly er et bulgarsk-baseret firma der laver nogle af de bedste og mest pålidelige smart home produkter på markedet. **Alt virker 100% lokalt** uden cloud, har fantastisk Home Assistant integration, og er designet i EU.
+
+<Aside type="tip" title="Hvorfor Shelly?">
+- **Lokal kontrol** - Ingen cloud påkrævet, virker selv uden internet
+- **Home Assistant** - Fantastisk integration via WiFi/MQTT
+- **Scripting** - Avanceret automatisering direkte på enheden
+- **Garanti** - 3 år på Plus/Gen3/Gen4, 5 år på Pro-serien
+- **EU-baseret** - Designet og udviklet i Bulgarien
+</Aside>
+
+---
+
+## 🏠 Produktserier Forklaret
+
+| Serie | Installation | Protokol | Bedst til |
+|-------|--------------|----------|-----------|
+| **Plus** | Bag kontakt | WiFi + BT | Hjemmebrug, retrofitting |
+| **Pro** | DIN-skinne | WiFi + BT + LAN | Eltavle, professionel |
+| **Mini Gen3** | Bag kontakt | WiFi + BT | Meget små pladser |
+| **Gen4** | Varierer | WiFi + BT + Zigbee + Matter | Fremtidssikring |
+| **BLU** | Batteri | Bluetooth | Sensorer, knapper |
+| **Wave** | Varierer | Z-Wave | Z-Wave netværk |
+
+---
+
+## ⚡ Relæer (Tænd/Sluk)
+
+### Plus-serien (Bag kontakt)
+
+| Produkt | Kanaler | Strømmåling | Neutral | Pris ca. | Note |
+|---------|---------|-------------|---------|----------|------|
+| **Shelly Plus 1** | 1 | Nej | Ja | 120 kr | ⭐ Mest populær |
+| **Shelly Plus 1PM** | 1 | Ja | Ja | 150 kr | Med strømmåling |
+| **Shelly Plus 2PM** | 2 | Ja | Ja | 200 kr | Gardiner/persienner |
+| **Shelly Plus 1 Mini** | 1 | Nej | Ja | 100 kr | 35% mindre |
+| **Shelly Plus 1PM Mini** | 1 | Ja | Ja | 130 kr | Mini med måling |
+| **Shelly Plus PM Mini** | 0 | Ja | Ja | 110 kr | Kun måling |
+
+### Mini Gen3-serien (Mindst mulige)
+
+| Produkt | Kanaler | Strømmåling | Neutral | Pris ca. | Note |
+|---------|---------|-------------|---------|----------|------|
+| **Shelly 1 Mini Gen3** | 1 | Nej | Ja | 100 kr | Ny chip, 8MB |
+| **Shelly 1PM Mini Gen3** | 1 | Ja | Ja | 130 kr | ⭐ Anbefalet |
+| **Shelly PM Mini Gen3** | 0 | Ja | Ja | 110 kr | Kun strømmåling |
+
+### Gen4-serien (Multi-protokol)
+
+| Produkt | Kanaler | Strømmåling | Protokoller | Pris ca. | Note |
+|---------|---------|-------------|-------------|----------|------|
+| **Shelly 1 Gen4** | 1 | Nej | WiFi/BT/Zigbee/Matter | 130 kr | Ny 2025 |
+| **Shelly 1PM Gen4** | 1 | Ja | WiFi/BT/Zigbee/Matter | 160 kr | Fremtidssikret |
+| **Shelly 2PM Gen4** | 2 | Ja | WiFi/BT/Zigbee/Matter | 220 kr | Gardiner |
+
+### Pro-serien (DIN-skinne / Eltavle)
+
+| Produkt | Kanaler | Strømmåling | LAN | Pris ca. | Note |
+|---------|---------|-------------|-----|----------|------|
+| **Shelly Pro 1** | 1 | Nej | Ja | 250 kr | DIN-skinne |
+| **Shelly Pro 1PM** | 1 | Ja | Ja | 300 kr | Med måling |
+| **Shelly Pro 2** | 2 | Nej | Ja | 300 kr | 2 kanaler |
+| **Shelly Pro 2PM** | 2 | Ja | Ja | 350 kr | 2 kanaler + måling |
+| **Shelly Pro 3** | 3 | Nej | Ja | 350 kr | 3 kanaler |
+| **Shelly Pro 4PM** | 4 | Ja | Ja | 550 kr | ⭐ Professionel |
+
+<Aside type="note" title="Neutral ledning">
+De fleste Shelly relæer kræver neutral ledning (nulleder). Hvis du har ældre installation uden neutral i kontakten, se Shelly Plus 0-10V Dimmer eller Shelly Dimmer 2.
+</Aside>
+
+---
+
+## 💡 Dimmere
+
+### Plus/Gen3 Dimmere
+
+| Produkt | Kanaler | Neutral | Max watt | Pris ca. | Note |
+|---------|---------|---------|----------|----------|------|
+| **Shelly Dimmer 2** | 1 | Nej | 220W | 200 kr | Virker UDEN neutral |
+| **Shelly Plus 0-10V Dimmer** | 1 | Nej | - | 180 kr | Til 0-10V drivere |
+| **Shelly Dimmer Gen3** | 1 | Nej | 200W | 200 kr | Ny 2024 |
+
+### Pro Dimmere (DIN-skinne)
+
+| Produkt | Kanaler | Strømmåling | Max watt | Pris ca. | Note |
+|---------|---------|-------------|----------|----------|------|
+| **Shelly Pro Dimmer 1PM** | 1 | Ja | 200W | 400 kr | Eltavle |
+| **Shelly Pro Dimmer 2PM** | 2 | Ja | 200W/kanal | 500 kr | ⭐ 2 kredsløb |
+
+<Aside type="tip" title="Dimmer tips">
+- **Trailing edge** dimmere er bedst til LED
+- Tjek at dine LED-pærer er **dimmable**
+- Start med min. 10% lysstyrke for at undgå flimmer
+</Aside>
+
+---
+
+## 🌡️ Klima & Varme
+
+### Radiatortermostater
+
+| Produkt | Protokol | Batteri | Gateway | Pris ca. | Note |
+|---------|----------|---------|---------|----------|------|
+| **Shelly TRV** | WiFi | Genopladeligt, 2 år | Nej | 450 kr | ⚠️ Udgået |
+| **Shelly BLU TRV** | Bluetooth | 2x AA | Ja (BLU Gateway) | 350 kr | ⭐ Anbefalet |
+| **Shelly BLU TRV Starter Kit** | Bluetooth | Inkl. | Inkl. Gateway | 500 kr | Med Gateway + sensor |
+
+### Temperatur & Fugtighed Sensorer
+
+| Produkt | Protokol | Display | Batteri | Pris ca. | Note |
+|---------|----------|---------|---------|----------|------|
+| **Shelly H&T Gen3** | WiFi | E-ink | CR123A | 300 kr | ⭐ Bedste WiFi |
+| **Shelly BLU H&T** | Bluetooth | Nej | CR2032 | 150 kr | Billig, kræver gateway |
+| **Shelly Plus Add-On** | - | - | - | 100 kr | DS18B20/DHT22 til Plus |
+
+### Gulvvarme
+
+| Produkt | Type | Protokol | Pris ca. | Note |
+|---------|------|----------|----------|------|
+| **Shelly Qubino Flush Heat & Cool Thermostat** | Termostat | Z-Wave | 400 kr | Gulvvarme/køl |
+
+---
+
+## 🔌 Smart Stik & Målere
+
+### Smart Stik
+
+| Produkt | Strømmåling | Max load | Pris ca. | Note |
+|---------|-------------|----------|----------|------|
+| **Shelly Plug S** | Ja | 2500W | 180 kr | Kompakt |
+| **Shelly Plus Plug S** | Ja | 2500W | 200 kr | ⭐ Anbefalet |
+| **Shelly Plus Plug IT** | Ja | 2500W | 200 kr | Italiensk stik |
+
+### Energimålere
+
+| Produkt | Faser | Installation | Pris ca. | Note |
+|---------|-------|--------------|----------|------|
+| **Shelly EM** | 1 | Med CT-clamp | 350 kr | Til hovedtavle |
+| **Shelly 3EM** | 3 | Med CT-clamps | 800 kr | 3-faset |
+| **Shelly Pro 3EM** | 3 | DIN + CT | 900 kr | ⭐ Professionel |
+| **Shelly Pro EM-50** | 2 | DIN | 600 kr | Op til 50A |
+
+<Aside type="tip" title="Energimåling til solceller">
+Shelly 3EM eller Pro 3EM er perfekt til at måle dit forbrug og solcelleproduktion. Integrerer direkte med Home Assistant Energy Dashboard.
+</Aside>
+
+---
+
+## 🚨 Sikkerhed & Sensorer
+
+### Oversvømmelse & Gas
+
+| Produkt | Type | Protokol | Batteri | Pris ca. | Note |
+|---------|------|----------|---------|----------|------|
+| **Shelly Flood** | Vand | WiFi | CR123A | 200 kr | Vanddetektor |
+| **Shelly Flood Gen4** | Vand | WiFi/Zigbee/Matter | CR123A | 250 kr | Ny med kabel-option |
+| **Shelly Gas** | CNG/LPG | WiFi | 230V | 400 kr | Gasdetektor |
+
+### Bevægelse & Dør/Vindue
+
+| Produkt | Type | Protokol | Batteri | Pris ca. | Note |
+|---------|------|----------|---------|----------|------|
+| **Shelly Motion** | PIR | WiFi | Genopladeligt | 350 kr | WiFi motion |
+| **Shelly Motion 2** | PIR | WiFi | Genopladeligt | 400 kr | Forbedret |
+| **Shelly BLU Motion** | PIR | Bluetooth | CR2477 | 200 kr | Kræver gateway |
+| **Shelly BLU Door/Window** | Kontakt | Bluetooth | CR2032 | 150 kr | ⭐ Billig og god |
+
+### Røg & Alarm
+
+| Produkt | Type | Protokol | Pris ca. | Note |
+|---------|------|----------|----------|------|
+| **Shelly Plus Smoke** | Røg | WiFi | 250 kr | Fotoelektrisk |
+
+---
+
+## 🎛️ Kontrolpaneler & Displays
+
+| Produkt | Skærm | Relæ | Termostat | Pris ca. | Note |
+|---------|-------|------|-----------|----------|------|
+| **Shelly Wall Display** | 4" touch | 5A | Ja (med BLU H&T) | 900 kr | ⭐ Dashboard på væg |
+| **Shelly Wall Display X2** | 4" touch | 2x 5A | Ja | 1100 kr | 2 kanaler |
+
+<Aside type="tip" title="Wall Display som termostat">
+Shelly Wall Display kan fungere som rumtermostat sammen med en Shelly BLU H&T sensor. Perfekt til at styre varme/køl i et rum.
+</Aside>
+
+---
+
+## 🔘 Knapper & Fjernbetjeninger
+
+### BLU-serien (Bluetooth)
+
+| Produkt | Knapper | Protokol | Batteri | Pris ca. | Note |
+|---------|---------|----------|---------|----------|------|
+| **Shelly BLU Button1** | 1 | Bluetooth | CR2032 | 100 kr | Simpel knap |
+| **Shelly BLU Button Tough 1** | 1 | Bluetooth | CR2032 | 120 kr | Vandtæt IP54 |
+| **Shelly BLU RC Button 4** | 4 | Bluetooth | CR2032 | 180 kr | Fjernbetjening |
+| **Shelly BLU Wall Switch 4** | 4 | Bluetooth | CR2032 | 200 kr | Vægmonteret |
+
+### Input Controllers
+
+| Produkt | Inputs | Protokol | Pris ca. | Note |
+|---------|--------|----------|----------|------|
+| **Shelly Plus i4** | 4 | WiFi | 150 kr | Scenecontroller |
+| **Shelly Plus i4 DC** | 4 | WiFi (5-24V DC) | 150 kr | Lavspænding |
+
+---
+
+## 💡 Lys & LED
+
+### Pærer
+
+| Produkt | Fatning | Farve | Pris ca. | Note |
+|---------|---------|-------|----------|------|
+| **Shelly Duo** | E27 | CCT (varm/kold hvid) | 150 kr | Dimmbar |
+| **Shelly Duo RGBW** | E27 | RGB + Hvid | 200 kr | Farveskift |
+| **Shelly Vintage** | E27 | Varm hvid | 180 kr | Retrodesign |
+
+### LED Controllere
+
+| Produkt | Kanaler | Type | Pris ca. | Note |
+|---------|---------|------|----------|------|
+| **Shelly RGBW2** | 4 | RGB + W | 200 kr | LED strips |
+| **Shelly Plus RGBW PM** | 4 | RGB + W | 250 kr | Med strømmåling |
+| **Shelly Pro RGBWW PM** | 5 | RGB + WW + CW | 350 kr | DIN, CCT |
+
+---
+
+## 🏢 Specialprodukter
+
+### Gardiner & Persienner
+
+| Produkt | Motorer | Strømmåling | Pris ca. | Note |
+|---------|---------|-------------|----------|------|
+| **Shelly Plus 2PM** | 2 | Ja | 200 kr | Rullegardin/persienne |
+| **Shelly Pro Dual Cover PM** | 2 | Ja | 400 kr | DIN, 2 gardiner |
+
+### Specielle
+
+| Produkt | Funktion | Pris ca. | Note |
+|---------|----------|----------|------|
+| **Shelly Uni** | Universal I/O | 150 kr | ADC, digital I/O |
+| **Shelly Plus Uni** | Universal I/O | 180 kr | Plus version |
+| **Shelly Valve** | Vandventil DN25 | 600 kr | Smart hovedhane |
+
+---
+
+## 📡 Gateways
+
+| Produkt | Protokol | Funktion | Pris ca. | Note |
+|---------|----------|----------|----------|------|
+| **Shelly BLU Gateway** | BLE → WiFi | Bridge BLU enheder | 150 kr | USB-powered |
+| **Shelly BLU Gateway Gen3** | BLE → WiFi | Forbedret bridge | 180 kr | ⭐ Anbefalet |
+
+<Aside type="note" title="Gateway ikke altid nødvendigt">
+Alle Shelly Plus/Pro/Gen3/Gen4 enheder kan fungere som BLE gateway for Shelly BLU produkter. Du behøver kun en dedikeret gateway hvis du ikke har andre Shelly WiFi-enheder.
+</Aside>
+
+---
+
+## 🛒 Hvor Køber Jeg Shelly?
+
+### Danske forhandlere
+- **[Proshop.dk](https://www.proshop.dk)** - Godt udvalg, hurtig levering
+- **[AV-Cables.dk](https://www.av-cables.dk)** - Specialist i smart home
+- **[Komplett.dk](https://www.komplett.dk)** - Udvalgte produkter
+
+### Internationale
+- **[Shelly.com](https://www.shelly.com)** - Direkte fra producent
+- **[Amazon.de](https://www.amazon.de)** - Stort udvalg, hurtig levering
+- **[Robbshop.nl](https://www.robbshop.nl)** - Hollandsk specialist
+
+---
+
+## 🔧 Home Assistant Integration
+
+Shelly har **native integration** i Home Assistant - ingen MQTT påkrævet (men understøttet).
+
+<Steps>
+1. Tilslut din Shelly enhed til WiFi via Shelly app
+2. Home Assistant finder den automatisk via discovery
+3. Klik "Konfigurer" og tilføj enheden
+4. Alle entiteter oprettes automatisk
+</Steps>
+
+### Avanceret: MQTT
+
+For mere kontrol kan du aktivere MQTT:
+
+1. Gå til Shelly's webinterface (IP-adresse)
+2. Settings → MQTT
+3. Aktiver MQTT og indtast din broker
+4. Brug Mosquitto i Home Assistant
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Virker Shelly uden internet?",
+    answer: "Ja! Alle Shelly enheder virker 100% lokalt. Du kan styre dem via lokal IP, MQTT, eller Home Assistant - ingen cloud påkrævet."
+  },
+  {
+    question: "Hvad er forskellen på Plus og Pro?",
+    answer: "Plus er til montering bag kontakter, Pro er til DIN-skinne i eltavlen. Pro har også LAN-port og længere garanti (5 år vs 3 år)."
+  },
+  {
+    question: "Kan jeg bruge Shelly uden Home Assistant?",
+    answer: "Ja. Shelly app (iOS/Android) virker fint alene, og du kan også bruge Alexa, Google Home, eller Apple HomeKit (via Matter på Gen4)."
+  },
+  {
+    question: "Hvad betyder Gen3 og Gen4?",
+    answer: "Gen3 har ny 8MB chip, bedre performance og Matter-support. Gen4 tilføjer multi-protokol: WiFi, Bluetooth, Zigbee OG Matter i samme enhed."
+  },
+  {
+    question: "Kræver Shelly BLU en gateway?",
+    answer: "Ja, for app-kontrol. Men alle Shelly Plus/Pro/Gen3/Gen4 enheder kan fungere som gateway - du behøver ikke købe en separat."
+  },
+  {
+    question: "Kan jeg installere Shelly selv?",
+    answer: "Stik og sensorer: Ja. Relæer bag kontakter: Kun hvis du er fortrolig med el-arbejde. Ved tvivl, brug en autoriseret elektriker."
+  }
+]} />
+
+---
+
+## 🎯 Vores Top Anbefalinger
+
+### Starter Kit (ca. 500 kr)
+1. **Shelly Plus 1PM Mini** - Smart kontakt med måling
+2. **Shelly Plus Plug S** - Smart stikkontakt
+3. **Shelly BLU Door/Window** - Sensor (gateway via Plus 1PM)
+
+### Komplet Hjem (ca. 2000 kr)
+1. **Shelly Pro 4PM** - 4 kredsløb fra eltavlen
+2. **Shelly Wall Display** - Kontrolpanel
+3. **Shelly BLU H&T** - Temperatur/fugt
+4. **Shelly BLU TRV** - Smart radiator
+5. **Shelly 3EM** - Energimåling
+
+---
+
+*Sidst opdateret: December 2025*
