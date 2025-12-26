@@ -1,0 +1,528 @@
+---
+title: Smart Stemmestyring
+description: Komplet guide til lokal stemmestyring med Home Assistant Assist - Piper, Whisper, Wyoming og voice satellites.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Opsæt lokal stemmestyring"
+  description="Guide til Home Assistant Assist med Piper, Whisper og ESP32 voice satellites"
+  totalTime="PT60M"
+  steps={[
+    "Installer Whisper (tale-til-tekst)",
+    "Installer Piper (tekst-til-tale)",
+    "Konfigurer Assist pipeline",
+    "Tilføj voice satellite (valgfrit)",
+    "Test og tilpas wake word"
+  ]}
+/>
+
+<Badge text="Stemme" variant="tip" /> <Badge text="Lokal" variant="success" /> <Badge text="Privacy" variant="caution" />
+
+Med **Home Assistant Assist** kan du styre dit smarte hjem med stemmen - **100% lokalt** uden cloud! Ingen data forlader dit hjem, og det virker selv når internettet er nede.
+
+<Aside type="tip" title="Anbefalinger 2025">
+**Voice Satellites (hardware):**
+- **M5Stack ATOM Echo** - Billigst (~100 kr), lille, god lyd
+- **ESP32-S3-BOX-3** - Bedst display, touchscreen (~400 kr)
+- **Home Assistant Voice PE** - Officiel HA hardware (~500 kr)
+
+**Software Stack:**
+- **Whisper** - Tale-til-tekst (OpenAI, lokal)
+- **Piper** - Tekst-til-tale (lokal, hurtig)
+- **openWakeWord** - Wake word detection
+
+**Anbefaling:** Start med ATOM Echo + Whisper/Piper!
+</Aside>
+
+---
+
+## 🎤 Stemmestyring Oversigt
+
+### Assist Pipeline Komponenter
+
+| Komponent | Funktion | Lokale Muligheder |
+|-----------|----------|-------------------|
+| **Wake Word** | Lytter efter aktiveringsord | openWakeWord, microWakeWord |
+| **STT** | Tale til tekst | Whisper, Speech-to-Phrase |
+| **Intent** | Forstår kommandoer | HA Conversation, LLM |
+| **TTS** | Tekst til tale | Piper, Home Assistant Cloud |
+| **Satellite** | Mikrofon/højttaler | ESP32, Voice PE |
+
+### Hardware Sammenligning
+
+| Enhed | Pris | Display | Mikrofon | Højttaler | Wake Word |
+|-------|------|---------|----------|-----------|-----------|
+| **ATOM Echo** | ~100 kr | ❌ | ✅ | ✅ (lille) | On-device |
+| **S3-BOX-3** | ~400 kr | ✅ Touch | ✅✅ | ✅ | On-device |
+| **Voice PE** | ~500 kr | ✅ | ✅✅ | ✅✅ | On-device |
+| **CoreS3SE** | ~600 kr | ✅ Touch | ✅✅ | ✅ | On-device |
+
+---
+
+## 🔧 Lokal Voice Setup
+
+<Tabs>
+  <TabItem label="1. Installer Add-ons">
+    ### Whisper (Tale-til-Tekst)
+    
+    ```yaml
+    # Indstillinger → Add-ons → Add-on Store
+    # Søg "Whisper" → Installer
+    
+    # Konfiguration (Settings tab):
+    model: small  # tiny, base, small, medium, large
+    language: da  # Dansk!
+    
+    # Start add-on
+    # Vent på model download (kan tage tid)
+    ```
+    
+    <Aside type="note">
+    **Model størrelser:**
+    - `tiny` - Hurtigst, lavest kvalitet
+    - `small` - God balance (anbefalet)
+    - `medium` - Bedre kvalitet, langsommere
+    - `large` - Bedst kvalitet, kræver meget RAM
+    </Aside>
+    
+    ### Piper (Tekst-til-Tale)
+    
+    ```yaml
+    # Indstillinger → Add-ons → Add-on Store
+    # Søg "Piper" → Installer
+    
+    # Konfiguration:
+    voice: da_DK-talesyntese-medium  # Dansk stemme
+    
+    # Start add-on
+    ```
+    
+    ### openWakeWord (Wake Word)
+    
+    ```yaml
+    # Indstillinger → Add-ons → Add-on Store
+    # Søg "openWakeWord" → Installer → Start
+    
+    # Understøttede wake words:
+    # - "Ok Nabu"
+    # - "Hey Jarvis"
+    # - "Alexa"
+    # - "Hey Mycroft"
+    ```
+  </TabItem>
+  <TabItem label="2. Wyoming Integration">
+    ### Tilføj Integrationer
+    
+    ```yaml
+    # Indstillinger → Enheder & Services → Tilføj Integration
+    
+    # 1. Søg "Wyoming Protocol"
+    # - Whisper burde auto-discoveres
+    # - Klik "Konfigurer" → "Send"
+    
+    # 2. Piper burde også auto-discoveres
+    # - Klik "Konfigurer" → "Send"
+    
+    # 3. openWakeWord ligeså
+    # - Klik "Konfigurer" → "Send"
+    ```
+    
+    <Aside type="tip">
+    Hvis de ikke auto-discoveres, tilføj manuelt:
+    - Host: `core-whisper` / `core-piper` / `core-openwakeword`
+    - Port: `10300` / `10200` / `10400`
+    </Aside>
+  </TabItem>
+  <TabItem label="3. Assist Pipeline">
+    ### Opret Voice Assistant
+    
+    ```yaml
+    # Indstillinger → Voice Assistants → Tilføj Assistant
+    
+    # Navn: "Dansk Assistent"
+    # Sprog: Dansk
+    
+    # Conversation agent: Home Assistant
+    # Speech-to-text: Whisper
+    # Text-to-speech: Piper
+    # Wake word: openWakeWord (vælg wake word)
+    
+    # Gem
+    ```
+    
+    ### Test Pipeline
+    
+    ```yaml
+    # Klik på "Prøv pipeline" knappen
+    # Sig: "Tænd lyset i stuen"
+    
+    # Tjek:
+    # - Blev talen genkendt korrekt?
+    # - Blev kommandoen forstået?
+    # - Hørte du svaret?
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 📱 Voice Satellites
+
+<Tabs>
+  <TabItem label="M5Stack ATOM Echo">
+    **Pris:** ~$13 / ~100 kr
+    
+    **Den billigste voice satellite:**
+    
+    - ✅ ESP32 baseret
+    - ✅ Indbygget mikrofon + højttaler
+    - ✅ On-device wake word (microWakeWord)
+    - ✅ LED status indikator
+    - ✅ Nem setup via web
+    - ⚠️ Lille højttaler (lav lydstyrke)
+    - ❌ Intet display
+    
+    ### Installation
+    
+    ```yaml
+    # 1. Gå til: https://www.home-assistant.io/voice_control/thirteen-usd-voice-remote/
+    # 2. Klik "Connect" i Chrome/Edge
+    # 3. Vælg COM port
+    # 4. Klik "Install Voice Assistant"
+    # 5. Indtast WiFi credentials
+    # 6. Enhed dukker op i HA
+    ```
+    
+    ### ESPHome Config (avanceret)
+    
+    ```yaml
+    substitutions:
+      name: stue-voice
+      friendly_name: "Stue Voice Assistant"
+      micro_wake_word_model: hey_jarvis
+    
+    packages:
+      m5stack.atom-echo:
+        url: https://github.com/esphome/firmware
+        files:
+          - voice-assistant/m5stack-atom-echo.yaml
+        refresh: 0s
+    
+    esphome:
+      name: ${name}
+      friendly_name: ${friendly_name}
+    
+    wifi:
+      ssid: !secret wifi_ssid
+      password: !secret wifi_password
+    ```
+    
+    **Køb:** [M5Stack](https://shop.m5stack.com/products/atom-echo-smart-speaker-dev-kit), AliExpress
+  </TabItem>
+  <TabItem label="ESP32-S3-BOX-3">
+    **Pris:** ~$50 / ~400 kr
+    
+    **Bedste all-round voice satellite:**
+    
+    - ✅ 2.4" touchscreen display
+    - ✅ Dual mikrofoner (bedre genkendelse)
+    - ✅ God højttaler
+    - ✅ On-device wake word
+    - ✅ Officiel ESPHome support
+    - ✅ Inkluderer dock/stand
+    - ⚠️ Kræver USB-C strøm
+    
+    ### Installation
+    
+    ```yaml
+    # 1. ESPHome → New Device
+    # 2. Name: "bedroom-voice"
+    # 3. Device: ESP32-S3-BOX-3
+    # 4. Tilføj til YAML:
+    
+    packages:
+      esphome.voice-assistant:
+        url: https://github.com/esphome/firmware
+        files:
+          - voice-assistant/esp32-s3-box-3.yaml
+        refresh: 0s
+    
+    substitutions:
+      micro_wake_word_model: okay_nabu
+    
+    esphome:
+      name: bedroom-voice
+      friendly_name: "Soveværelse Voice"
+    
+    wifi:
+      ssid: !secret wifi_ssid
+      password: !secret wifi_password
+    
+    api:
+      encryption:
+        key: !secret api_key
+    ```
+    
+    **Køb:** [Espressif](https://www.espressif.com), AliExpress, Amazon
+  </TabItem>
+  <TabItem label="Home Assistant Voice PE">
+    **Pris:** ~$59 / ~500 kr
+    
+    **Officiel Home Assistant hardware:**
+    
+    - ✅ Designet specifikt til HA
+    - ✅ Premium mikrofoner
+    - ✅ God højttaler
+    - ✅ E-ink display
+    - ✅ Fysisk mute knap
+    - ✅ Pre-installeret firmware
+    - ✅ Officiel support
+    
+    ### Setup
+    
+    ```yaml
+    # 1. Tilslut USB-C strøm
+    # 2. Følg on-screen instruktioner
+    # 3. Scan QR kode med HA app
+    # 4. Vælg WiFi netværk
+    # 5. Tildel til rum
+    # 6. Færdig!
+    ```
+    
+    <Aside type="tip" title="Bedste brugeroplevelse">
+    Voice PE er den nemmeste løsning - plug and play!
+    </Aside>
+    
+    **Køb:** [Home Assistant Store](https://www.home-assistant.io/voice-pe/)
+  </TabItem>
+</Tabs>
+
+---
+
+## 🗣️ Wake Words
+
+### Tilgængelige Wake Words
+
+| Wake Word | Sprog | Model |
+|-----------|-------|-------|
+| "Ok Nabu" | Multi | openWakeWord, microWakeWord |
+| "Hey Jarvis" | Engelsk | microWakeWord |
+| "Alexa" | Multi | microWakeWord |
+| "Hey Mycroft" | Engelsk | microWakeWord |
+
+### Opret Custom Wake Word
+
+```yaml
+# 1. Gå til: https://www.home-assistant.io/voice_control/create_wake_word/
+
+# 2. Vælg et unikt ord (3-4 stavelser)
+# - Undgå almindelige ord
+# - Kun engelsk understøttet pt.
+
+# 3. Generer træningsdata med Piper
+# 4. Træn model (kan tage flere forsøg)
+# 5. Download og installer
+```
+
+---
+
+## 🤖 Automationer med Stemme
+
+```yaml
+automation:
+  # Broadcast til alle højttalere
+  - alias: "Stemme - Godmorgen Broadcast"
+    trigger:
+      - platform: time
+        at: "07:00:00"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.workday
+        state: "on"
+    action:
+      - service: tts.speak
+        target:
+          entity_id: tts.piper
+        data:
+          media_player_entity_id: 
+            - media_player.stue_speaker
+            - media_player.kokken_speaker
+          message: >
+            God morgen! Klokken er 7. 
+            Temperaturen udenfor er {{ states('sensor.outdoor_temperature') }} grader.
+            {% if states('sensor.rain_probability') | int > 50 %}
+            Husk paraply - der er risiko for regn.
+            {% endif %}
+
+  # Påmindelse via stemme
+  - alias: "Stemme - Vaskemaskine Færdig"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.vaskemaskine_running
+        to: "off"
+    action:
+      - service: tts.speak
+        target:
+          entity_id: tts.piper
+        data:
+          media_player_entity_id: media_player.kokken_speaker
+          message: "Vaskemaskinen er færdig. Husk at tømme den."
+
+  # Velkomst når man kommer hjem
+  - alias: "Stemme - Velkomst Hjem"
+    trigger:
+      - platform: state
+        entity_id: person.brian
+        to: "home"
+    action:
+      - delay: "00:00:30"
+      - service: tts.speak
+        target:
+          entity_id: tts.piper
+        data:
+          media_player_entity_id: media_player.entré_speaker
+          message: >
+            Velkommen hjem! 
+            Der er {{ states('sensor.indoor_temperature') }} grader indenfor.
+```
+
+---
+
+## 🎯 Stemmekommandoer
+
+### Understøttede Kommandoer
+
+```yaml
+# Lys
+"Tænd lyset i stuen"
+"Sluk alle lys"
+"Sæt lysstyrken i køkkenet til 50 procent"
+"Skift farven i soveværelset til blå"
+
+# Klima
+"Hvad er temperaturen?"
+"Sæt termostaten til 21 grader"
+"Tænd for varmen i badeværelset"
+
+# Enheder
+"Tænd fjernsynet"
+"Start støvsugeren"
+"Lås hoveddøren"
+
+# Information
+"Hvad er vejret i dag?"
+"Hvornår går solen ned?"
+"Er der nogen hjemme?"
+
+# Scener
+"Aktiver filmaften"
+"Godnat"
+"Jeg forlader hjemmet"
+```
+
+### Tilpas Sætninger
+
+```yaml
+# configuration.yaml eller via UI
+
+intent_script:
+  CustomWelcome:
+    speech:
+      text: "Velkommen! Hvad kan jeg hjælpe med?"
+
+conversation:
+  intents:
+    CustomWelcome:
+      - "hej [assistent]"
+      - "goddag"
+      - "hvad kan du"
+```
+
+---
+
+## 📊 Dashboard
+
+```yaml
+type: vertical-stack
+cards:
+  # Voice status
+  - type: entities
+    title: "🎤 Stemmestyring"
+    entities:
+      - entity: assist_satellite.stue_voice
+        name: "Stue Satellite"
+      - entity: assist_satellite.sovevaerelse_voice
+        name: "Soveværelse Satellite"
+      - entity: binary_sensor.whisper_running
+        name: "Whisper Status"
+      - entity: binary_sensor.piper_running
+        name: "Piper Status"
+
+  # Test knap
+  - type: button
+    name: "Test Stemme"
+    tap_action:
+      action: call-service
+      service: tts.speak
+      target:
+        entity_id: tts.piper
+      data:
+        media_player_entity_id: media_player.stue_speaker
+        message: "Stemmestyring virker!"
+```
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Virker dansk stemmegenkendelse?",
+    answer: "Ja! Whisper understøtter dansk meget godt med 'small' eller større model. Piper har også danske stemmer. Sæt language til 'da' i Whisper konfiguration."
+  },
+  {
+    question: "Hvor meget RAM kræver lokal stemme?",
+    answer: "Whisper 'small' model bruger ca. 2GB RAM. 'Medium' bruger 5GB. Raspberry Pi 4 med 4GB kan køre 'small'. For bedre performance anbefales en mini-PC eller dedikeret server."
+  },
+  {
+    question: "Kan jeg bruge flere wake words?",
+    answer: "Ja! Siden HA 2025.10 kan du have op til 2 wake words per satellite. Du kan f.eks. bruge 'Ok Nabu' til dansk og 'Hey Jarvis' til engelsk pipeline."
+  },
+  {
+    question: "Hvorfor svarer assistenten på engelsk?",
+    answer: "Tjek at Piper er sat til dansk stemme, og at din Assist pipeline har dansk som sprog. Whisper skal også have language: da i konfigurationen."
+  },
+  {
+    question: "Hvad er forskellen på Whisper og Speech-to-Phrase?",
+    answer: "Whisper er en generel tale-til-tekst model der forstår alt. Speech-to-Phrase er optimeret til smart home kommandoer og er hurtigere/lettere, men mere begrænset."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="ESP32 Projekter" icon="seti:arduino">
+    Byg flere ESPHome enheder.
+    
+    [Se guide →](/da/esp32/)
+  </Card>
+  <Card title="Automationer" icon="rocket">
+    Avancerede automationer.
+    
+    [Se guide →](/da/home-assistant/foerste-automation/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*
