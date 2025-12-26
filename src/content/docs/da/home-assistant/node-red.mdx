@@ -1,0 +1,530 @@
+---
+title: Node-RED til Home Assistant
+description: Komplet Node-RED guide - installation, Home Assistant integration, og avancerede automationer med visuel programmering.
+sidebar:
+  badge:
+    text: Avanceret
+    variant: caution
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+
+<Badge text="Node-RED" variant="danger" /> <Badge text="Automationer" variant="success" /> <Badge text="Avanceret" variant="caution" />
+
+**Node-RED** er et visuelt programmeringsværktøj der gør komplekse automationer overskuelige. Træk nodes, forbind dem med linjer, og byg automationer der ville være umulige (eller meget besværlige) i Home Assistants standard automation editor.
+
+---
+
+## 🤔 Hvorfor Node-RED?
+
+### HA Automationer vs Node-RED
+
+| Feature | HA Automationer | Node-RED |
+|---------|-----------------|----------|
+| **Læringsurve** | Lav | Mellem-høj |
+| **Visuel editor** | Simpel | Avanceret |
+| **Debugging** | Begrænset | Fremragende |
+| **Loops** | ❌ | ✅ |
+| **Variabler** | Begrænset | Flow/Global |
+| **JavaScript** | ❌ | ✅ |
+| **Genbrug (subflows)** | ❌ | ✅ |
+| **Tidsbaseret logik** | Basis | Avanceret |
+
+### Hvornår bruge Node-RED?
+
+**Brug Node-RED når du har brug for:**
+- Kompleks logik med mange betingelser
+- Loops og gentagne handlinger
+- Tilpasset JavaScript-kode
+- Bedre debugging og fejlfinding
+- Genanvendelige automationsblokke
+
+**Bliv ved HA automationer når:**
+- Automationen er simpel (trigger → action)
+- Du foretrækker YAML/UI
+- Du vil holde alt i ét system
+
+---
+
+## 📦 Installation
+
+### Som Home Assistant Add-on
+
+<Steps>
+1. Gå til **Indstillinger → Add-ons**
+
+2. Klik **Add-on Store** (nederst til højre)
+
+3. Søg efter "Node-RED"
+
+4. Vælg **Node-RED** og klik **Installer**
+
+5. Konfigurer add-on:
+   ```yaml
+   # Vigtige indstillinger:
+   ssl: false  # Sæt til true hvis du har SSL
+   credential_secret: "din-hemmelige-nøgle"
+   ```
+
+6. Start add-on og aktiver:
+   - ✅ Start on boot
+   - ✅ Watchdog
+   - ✅ Show in sidebar
+
+7. Åbn Node-RED via sidebaren
+</Steps>
+
+### Docker Installation
+
+```yaml
+# docker-compose.yml
+version: '3'
+services:
+  nodered:
+    image: nodered/node-red:latest
+    container_name: nodered
+    restart: unless-stopped
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./nodered-data:/data
+    environment:
+      - TZ=Europe/Copenhagen
+```
+
+---
+
+## 🔗 Home Assistant Integration
+
+### Opret Access Token
+
+<Steps>
+1. I Home Assistant, klik på dit **profilbillede** (nederst til venstre)
+
+2. Scroll ned til **Langvarige adgangstokens**
+
+3. Klik **Opret token**
+
+4. Navngiv den "Node-RED"
+
+5. **Kopier tokenet** - du kan kun se det én gang!
+</Steps>
+
+### Konfigurer Server i Node-RED
+
+<Steps>
+1. Træk en **events: state** node ind på workspace
+
+2. Dobbeltklik og klik på **blyanten** ved siden af Server
+
+3. Udfyld:
+   ```
+   Name: Home Assistant
+   Base URL: http://homeassistant.local:8123
+   Access Token: [din token fra forrige trin]
+   ```
+
+4. Klik **Add** og derefter **Done**
+</Steps>
+
+### Installer Companion Integration (Valgfri)
+
+For ekstra funktioner som at aktivere/deaktivere flows fra HA:
+
+<Steps>
+1. Installer via HACS:
+   - Søg "Node-RED Companion"
+   - Installer og genstart HA
+
+2. Tilføj integration:
+   - Indstillinger → Enheder & Tjenester → Tilføj Integration
+   - Søg "Node-RED"
+</Steps>
+
+---
+
+## 🧱 Node-RED Basics
+
+### Terminologi
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        FLOW (Tab)                           │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              SEQUENCE (Forbundne nodes)              │   │
+│  │   ┌──────┐    ┌──────┐    ┌──────┐    ┌──────┐     │   │
+│  │   │ NODE │───►│ NODE │───►│ NODE │───►│ NODE │     │   │
+│  │   └──────┘    └──────┘    └──────┘    └──────┘     │   │
+│  │        msg.payload sendes mellem nodes              │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              ANDEN SEQUENCE                          │   │
+│  │   ┌──────┐    ┌──────┐                              │   │
+│  │   │ NODE │───►│ NODE │                              │   │
+│  │   └──────┘    └──────┘                              │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| Term | Beskrivelse |
+|------|-------------|
+| **Node** | En enkelt byggeklods (trigger, action, logik) |
+| **Sequence** | Forbundne nodes der udgør én automation |
+| **Flow** | Alle sequences på én tab |
+| **msg** | Besked der sendes mellem nodes |
+| **msg.payload** | Standard data-felt i beskeden |
+
+### Variable Scopes
+
+| Scope | Tilgængelig | Brug |
+|-------|-------------|------|
+| **msg** | Kun i nuværende sequence | Data mellem nodes |
+| **flow** | Alle nodes på samme tab | Delt data på flow |
+| **global** | Alle nodes overalt | Delt data på tværs |
+
+```javascript
+// Sæt variabler
+flow.set("myVar", "værdi");
+global.set("globalVar", 123);
+
+// Læs variabler
+let x = flow.get("myVar");
+let y = global.get("globalVar");
+```
+
+---
+
+## 🏠 Home Assistant Nodes
+
+### De Vigtigste Nodes
+
+| Node | Funktion | Brug |
+|------|----------|------|
+| **events: state** | Trigger ved tilstandsændring | Start automationer |
+| **current state** | Læs aktuel tilstand | Betingelser |
+| **call service** | Kald HA service | Handlinger |
+| **wait until** | Vent på tilstand | Forsinkelser med betingelse |
+| **trigger: state** | Trigger med flere betingelser | Avancerede triggers |
+| **api** | Generel API-adgang | Alt muligt |
+
+### events: state Node
+
+Trigger når en entity ændrer tilstand:
+
+```yaml
+# Konfiguration:
+Entity: light.stue
+If State: "on"          # Valgfri: Kun trigger ved denne tilstand
+For: 00:00:05           # Valgfri: Kun hvis tilstand holder i 5 sek
+```
+
+Output:
+```javascript
+msg.payload = "on";           // Ny tilstand
+msg.data.old_state.state      // Gammel tilstand
+msg.data.entity_id            // Entity ID
+```
+
+### current state Node
+
+Læs tilstand midt i et flow (trigger ikke selv):
+
+```yaml
+# Konfiguration:
+Entity: binary_sensor.motion_kitchen
+If State: "on"
+# Hvis tilstand matcher → Output 1
+# Hvis ikke → Output 2 (eller stop)
+```
+
+### call service Node
+
+Udfør handlinger i Home Assistant:
+
+```yaml
+# Eksempel: Tænd lys
+Domain: light
+Service: turn_on
+Entity: light.stue
+Data: {"brightness": 255, "color_temp": 350}
+```
+
+---
+
+## 📝 Praktiske Eksempler
+
+### Eksempel 1: Simpel Bevægelsesbelysning
+
+```
+[events: state]──►[call service]
+   motion_sensor      light.turn_on
+
+[events: state]──►[delay]──►[call service]
+   motion_sensor    2 min     light.turn_off
+   (off)
+```
+
+**Flow JSON:**
+```json
+[
+  {
+    "id": "motion_on",
+    "type": "server-state-changed",
+    "entity_id": "binary_sensor.motion_stue",
+    "ifstate": "on",
+    "wires": [["light_on"]]
+  },
+  {
+    "id": "light_on",
+    "type": "api-call-service",
+    "domain": "light",
+    "service": "turn_on",
+    "entity_id": "light.stue"
+  }
+]
+```
+
+### Eksempel 2: Betinget Automation (Kun om natten)
+
+```
+[events: state]──►[current state]──►[call service]
+   motion            sun.sun          light.turn_on
+                     (below_horizon)
+```
+
+Sun entity bruges til at tjekke om det er nat før lyset tændes.
+
+### Eksempel 3: Timeout med Reset
+
+Lys der slukker efter 5 minutter uden bevægelse, men resetter hvis der er ny bevægelse:
+
+```
+[events: state]──►[stoptimer]──►[call service]
+   motion (on)      reset          (ingenting)
+       │
+       └──────────►[stoptimer]──►[call service]
+                    start 5min     light.turn_off
+```
+
+<Aside type="tip" title="Installer stoptimer">
+`node-red-contrib-stoptimer` installeres via:
+Menu → Manage palette → Install → Søg "stoptimer"
+</Aside>
+
+### Eksempel 4: Multi-Room Presence
+
+Tænd/sluk lys baseret på hvilke rum der er bevægelse i:
+
+```javascript
+// Function node til at tracke aktive rum
+let activeRooms = global.get("activeRooms") || [];
+let room = msg.data.entity_id.replace("binary_sensor.motion_", "");
+
+if (msg.payload === "on") {
+    if (!activeRooms.includes(room)) {
+        activeRooms.push(room);
+    }
+} else {
+    activeRooms = activeRooms.filter(r => r !== room);
+}
+
+global.set("activeRooms", activeRooms);
+msg.activeRooms = activeRooms;
+return msg;
+```
+
+---
+
+## 🔧 Avancerede Teknikker
+
+### Subflows (Genanvendelig Logik)
+
+Lav dine egne nodes fra en gruppe af nodes:
+
+<Steps>
+1. Vælg de nodes du vil genbruge
+
+2. **Menu → Subflows → Selection to Subflow**
+
+3. Navngiv din subflow
+
+4. Den nye subflow vises i paletten under "subflows"
+
+5. Træk den ind hvor du har brug for den
+</Steps>
+
+### Link Nodes
+
+Forbind sequences på tværs af flows uden at trække lange linjer:
+
+```
+Flow 1:                           Flow 2:
+[trigger]──►[link out: "alarm"]   [link in: "alarm"]──►[action]
+```
+
+### Inject Node til Test
+
+Test dine flows uden at vente på rigtige triggers:
+
+```
+[inject]──►[resten af dit flow]
+  (manuel trigger via klik)
+```
+
+Konfigurer inject node med testdata:
+```javascript
+msg.payload = "on";
+msg.data = {
+    entity_id: "binary_sensor.test",
+    old_state: { state: "off" }
+};
+```
+
+### Debug Node
+
+Se hvad der sker i dit flow:
+
+```
+[trigger]──►[debug]──►[action]
+              │
+              └──► Viser msg i Debug panel
+```
+
+Tip: Sæt debug til "complete msg object" for at se alt.
+
+---
+
+## 📚 Nyttige Paletter
+
+Installer via **Menu → Manage palette → Install**:
+
+| Palette | Beskrivelse |
+|---------|-------------|
+| **node-red-contrib-bigtimer** | Avanceret tidsbaseret scheduling |
+| **node-red-contrib-stoptimer** | Start/stop/reset timers |
+| **node-red-contrib-weekday** | Filter på ugedage |
+| **node-red-contrib-time-range-switch** | Routing baseret på tid |
+| **node-red-contrib-schedex** | Solnedgang/solopgang scheduling |
+| **node-red-dashboard** | Byg dashboards i Node-RED |
+
+---
+
+## 🐛 Fejlfinding
+
+### Flow Deployer Ikke
+
+```yaml
+# Tjek:
+1. Alle nodes har gyldige forbindelser
+2. Ingen røde trekanter på nodes (konfigurationsfejl)
+3. Server connection er konfigureret
+4. Access token er gyldig
+```
+
+### Automation Trigger Ikke
+
+<Steps>
+1. Tilføj **debug node** efter trigger
+
+2. Tjek at entity_id er korrekt
+
+3. Verificer at "If State" matcher
+
+4. Tjek Debug panel for output
+</Steps>
+
+### Forbindelse til HA Fejler
+
+```yaml
+# Tjek access token:
+1. Opret ny token i HA
+2. Opdater server config i Node-RED
+3. Deploy alle flows
+4. Genstart Node-RED add-on
+```
+
+---
+
+## 📋 Best Practices
+
+### Organisering
+
+| Praksis | Beskrivelse |
+|---------|-------------|
+| **Én tab per område** | Stue, køkken, soveværelse, etc. |
+| **Kommentarer** | Brug comment nodes til forklaring |
+| **Navngivning** | Giv alle nodes beskrivende navne |
+| **Subflows** | Genbrug logik frem for copy/paste |
+
+### Performance
+
+```yaml
+# Undgå:
+- events: all node (bruger mange ressourcer)
+- Polling i loops (brug triggers i stedet)
+- Store debug outputs i produktion
+
+# Brug:
+- "Modified Flows" deploy type
+- Specifikke entity triggers
+- Disable debug nodes når ikke i brug
+```
+
+### Backup
+
+Node-RED flows gemmes i:
+```
+# Add-on:
+/config/node-red/flows.json
+
+# Docker:
+./nodered-data/flows.json
+```
+
+Inkluder denne fil i din Home Assistant backup!
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Skal jeg flytte alle mine automationer til Node-RED?",
+    answer: "Nej! Brug Node-RED til komplekse automationer og behold simple automationer i HA. Der er ingen grund til at gøre tingene mere komplicerede end nødvendigt."
+  },
+  {
+    question: "Kan Node-RED køre uden Home Assistant?",
+    answer: "Ja, Node-RED er et selvstændigt værktøj. Du kan bruge det til andre IoT-projekter, API-integrationer, og meget mere. HA-noderne er bare et ekstra modul."
+  },
+  {
+    question: "Hvad sker der med mine automationer hvis Node-RED går ned?",
+    answer: "Automationer i Node-RED stopper. Derfor er det vigtigt at holde kritiske automationer (alarm, sikkerhed) i Home Assistant selv, eller have watchdog aktiveret på Node-RED."
+  },
+  {
+    question: "Kan jeg se Node-RED automationer i HA's automations liste?",
+    answer: "Ikke direkte. Med Node-RED Companion integration kan du dog se og aktivere/deaktivere flows fra HA's UI."
+  }
+]} />
+
+---
+
+## 📚 Næste Trin
+
+<CardGrid>
+  <Card title="HA Dashboard Design" icon="laptop">
+    Byg smukke dashboards.
+    
+    [Se guide →](/da/home-assistant/dashboard-design/)
+  </Card>
+  <Card title="Første Automation" icon="rocket">
+    Start med HA's built-in automationer.
+    
+    [Se guide →](/da/home-assistant/foerste-automation/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*

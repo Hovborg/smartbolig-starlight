@@ -1,0 +1,530 @@
+---
+title: Node-RED for Home Assistant
+description: Complete Node-RED guide - installation, Home Assistant integration, and advanced automations with visual programming.
+sidebar:
+  badge:
+    text: Advanced
+    variant: caution
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+
+<Badge text="Node-RED" variant="danger" /> <Badge text="Automations" variant="success" /> <Badge text="Advanced" variant="caution" />
+
+**Node-RED** is a visual programming tool that makes complex automations manageable. Drag nodes, connect them with wires, and build automations that would be impossible (or very tedious) in Home Assistant's standard automation editor.
+
+---
+
+## 🤔 Why Node-RED?
+
+### HA Automations vs Node-RED
+
+| Feature | HA Automations | Node-RED |
+|---------|----------------|----------|
+| **Learning curve** | Low | Medium-high |
+| **Visual editor** | Simple | Advanced |
+| **Debugging** | Limited | Excellent |
+| **Loops** | ❌ | ✅ |
+| **Variables** | Limited | Flow/Global |
+| **JavaScript** | ❌ | ✅ |
+| **Reuse (subflows)** | ❌ | ✅ |
+| **Time-based logic** | Basic | Advanced |
+
+### When to Use Node-RED?
+
+**Use Node-RED when you need:**
+- Complex logic with many conditions
+- Loops and repeated actions
+- Custom JavaScript code
+- Better debugging and troubleshooting
+- Reusable automation blocks
+
+**Stick with HA automations when:**
+- The automation is simple (trigger → action)
+- You prefer YAML/UI
+- You want to keep everything in one system
+
+---
+
+## 📦 Installation
+
+### As Home Assistant Add-on
+
+<Steps>
+1. Go to **Settings → Add-ons**
+
+2. Click **Add-on Store** (bottom right)
+
+3. Search for "Node-RED"
+
+4. Select **Node-RED** and click **Install**
+
+5. Configure the add-on:
+   ```yaml
+   # Important settings:
+   ssl: false  # Set to true if you have SSL
+   credential_secret: "your-secret-key"
+   ```
+
+6. Start the add-on and enable:
+   - ✅ Start on boot
+   - ✅ Watchdog
+   - ✅ Show in sidebar
+
+7. Open Node-RED via the sidebar
+</Steps>
+
+### Docker Installation
+
+```yaml
+# docker-compose.yml
+version: '3'
+services:
+  nodered:
+    image: nodered/node-red:latest
+    container_name: nodered
+    restart: unless-stopped
+    ports:
+      - "1880:1880"
+    volumes:
+      - ./nodered-data:/data
+    environment:
+      - TZ=Europe/Copenhagen
+```
+
+---
+
+## 🔗 Home Assistant Integration
+
+### Create Access Token
+
+<Steps>
+1. In Home Assistant, click your **profile picture** (bottom left)
+
+2. Scroll down to **Long-Lived Access Tokens**
+
+3. Click **Create Token**
+
+4. Name it "Node-RED"
+
+5. **Copy the token** - you can only see it once!
+</Steps>
+
+### Configure Server in Node-RED
+
+<Steps>
+1. Drag an **events: state** node onto the workspace
+
+2. Double-click and click the **pencil icon** next to Server
+
+3. Fill in:
+   ```
+   Name: Home Assistant
+   Base URL: http://homeassistant.local:8123
+   Access Token: [your token from previous step]
+   ```
+
+4. Click **Add** then **Done**
+</Steps>
+
+### Install Companion Integration (Optional)
+
+For extra features like enabling/disabling flows from HA:
+
+<Steps>
+1. Install via HACS:
+   - Search "Node-RED Companion"
+   - Install and restart HA
+
+2. Add integration:
+   - Settings → Devices & Services → Add Integration
+   - Search "Node-RED"
+</Steps>
+
+---
+
+## 🧱 Node-RED Basics
+
+### Terminology
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                        FLOW (Tab)                           │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              SEQUENCE (Connected nodes)              │   │
+│  │   ┌──────┐    ┌──────┐    ┌──────┐    ┌──────┐     │   │
+│  │   │ NODE │───►│ NODE │───►│ NODE │───►│ NODE │     │   │
+│  │   └──────┘    └──────┘    └──────┘    └──────┘     │   │
+│  │        msg.payload is passed between nodes          │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │              ANOTHER SEQUENCE                        │   │
+│  │   ┌──────┐    ┌──────┐                              │   │
+│  │   │ NODE │───►│ NODE │                              │   │
+│  │   └──────┘    └──────┘                              │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+```
+
+| Term | Description |
+|------|-------------|
+| **Node** | A single building block (trigger, action, logic) |
+| **Sequence** | Connected nodes forming one automation |
+| **Flow** | All sequences on one tab |
+| **msg** | Message passed between nodes |
+| **msg.payload** | Default data field in the message |
+
+### Variable Scopes
+
+| Scope | Available To | Use Case |
+|-------|--------------|----------|
+| **msg** | Only current sequence | Data between nodes |
+| **flow** | All nodes on same tab | Shared data on flow |
+| **global** | All nodes everywhere | Shared data across all |
+
+```javascript
+// Set variables
+flow.set("myVar", "value");
+global.set("globalVar", 123);
+
+// Read variables
+let x = flow.get("myVar");
+let y = global.get("globalVar");
+```
+
+---
+
+## 🏠 Home Assistant Nodes
+
+### The Most Important Nodes
+
+| Node | Function | Use |
+|------|----------|-----|
+| **events: state** | Trigger on state change | Start automations |
+| **current state** | Read current state | Conditions |
+| **call service** | Call HA service | Actions |
+| **wait until** | Wait for state | Delays with conditions |
+| **trigger: state** | Trigger with multiple conditions | Advanced triggers |
+| **api** | General API access | Everything else |
+
+### events: state Node
+
+Triggers when an entity changes state:
+
+```yaml
+# Configuration:
+Entity: light.living_room
+If State: "on"          # Optional: Only trigger on this state
+For: 00:00:05           # Optional: Only if state holds for 5 sec
+```
+
+Output:
+```javascript
+msg.payload = "on";           // New state
+msg.data.old_state.state      // Old state
+msg.data.entity_id            // Entity ID
+```
+
+### current state Node
+
+Read state in the middle of a flow (doesn't trigger itself):
+
+```yaml
+# Configuration:
+Entity: binary_sensor.motion_kitchen
+If State: "on"
+# If state matches → Output 1
+# If not → Output 2 (or stop)
+```
+
+### call service Node
+
+Execute actions in Home Assistant:
+
+```yaml
+# Example: Turn on light
+Domain: light
+Service: turn_on
+Entity: light.living_room
+Data: {"brightness": 255, "color_temp": 350}
+```
+
+---
+
+## 📝 Practical Examples
+
+### Example 1: Simple Motion Lighting
+
+```
+[events: state]──►[call service]
+   motion_sensor      light.turn_on
+
+[events: state]──►[delay]──►[call service]
+   motion_sensor    2 min     light.turn_off
+   (off)
+```
+
+**Flow JSON:**
+```json
+[
+  {
+    "id": "motion_on",
+    "type": "server-state-changed",
+    "entity_id": "binary_sensor.motion_living_room",
+    "ifstate": "on",
+    "wires": [["light_on"]]
+  },
+  {
+    "id": "light_on",
+    "type": "api-call-service",
+    "domain": "light",
+    "service": "turn_on",
+    "entity_id": "light.living_room"
+  }
+]
+```
+
+### Example 2: Conditional Automation (Night Only)
+
+```
+[events: state]──►[current state]──►[call service]
+   motion            sun.sun          light.turn_on
+                     (below_horizon)
+```
+
+The sun entity is used to check if it's night before turning on the light.
+
+### Example 3: Timeout with Reset
+
+Light that turns off after 5 minutes without motion, but resets if there's new motion:
+
+```
+[events: state]──►[stoptimer]──►[call service]
+   motion (on)      reset          (nothing)
+       │
+       └──────────►[stoptimer]──►[call service]
+                    start 5min     light.turn_off
+```
+
+<Aside type="tip" title="Install stoptimer">
+`node-red-contrib-stoptimer` is installed via:
+Menu → Manage palette → Install → Search "stoptimer"
+</Aside>
+
+### Example 4: Multi-Room Presence
+
+Turn lights on/off based on which rooms have motion:
+
+```javascript
+// Function node to track active rooms
+let activeRooms = global.get("activeRooms") || [];
+let room = msg.data.entity_id.replace("binary_sensor.motion_", "");
+
+if (msg.payload === "on") {
+    if (!activeRooms.includes(room)) {
+        activeRooms.push(room);
+    }
+} else {
+    activeRooms = activeRooms.filter(r => r !== room);
+}
+
+global.set("activeRooms", activeRooms);
+msg.activeRooms = activeRooms;
+return msg;
+```
+
+---
+
+## 🔧 Advanced Techniques
+
+### Subflows (Reusable Logic)
+
+Create your own nodes from a group of nodes:
+
+<Steps>
+1. Select the nodes you want to reuse
+
+2. **Menu → Subflows → Selection to Subflow**
+
+3. Name your subflow
+
+4. The new subflow appears in the palette under "subflows"
+
+5. Drag it in wherever you need it
+</Steps>
+
+### Link Nodes
+
+Connect sequences across flows without drawing long wires:
+
+```
+Flow 1:                           Flow 2:
+[trigger]──►[link out: "alarm"]   [link in: "alarm"]──►[action]
+```
+
+### Inject Node for Testing
+
+Test your flows without waiting for real triggers:
+
+```
+[inject]──►[rest of your flow]
+  (manual trigger via click)
+```
+
+Configure inject node with test data:
+```javascript
+msg.payload = "on";
+msg.data = {
+    entity_id: "binary_sensor.test",
+    old_state: { state: "off" }
+};
+```
+
+### Debug Node
+
+See what's happening in your flow:
+
+```
+[trigger]──►[debug]──►[action]
+              │
+              └──► Shows msg in Debug panel
+```
+
+Tip: Set debug to "complete msg object" to see everything.
+
+---
+
+## 📚 Useful Palettes
+
+Install via **Menu → Manage palette → Install**:
+
+| Palette | Description |
+|---------|-------------|
+| **node-red-contrib-bigtimer** | Advanced time-based scheduling |
+| **node-red-contrib-stoptimer** | Start/stop/reset timers |
+| **node-red-contrib-weekday** | Filter on weekdays |
+| **node-red-contrib-time-range-switch** | Routing based on time |
+| **node-red-contrib-schedex** | Sunset/sunrise scheduling |
+| **node-red-dashboard** | Build dashboards in Node-RED |
+
+---
+
+## 🐛 Troubleshooting
+
+### Flow Won't Deploy
+
+```yaml
+# Check:
+1. All nodes have valid connections
+2. No red triangles on nodes (configuration errors)
+3. Server connection is configured
+4. Access token is valid
+```
+
+### Automation Doesn't Trigger
+
+<Steps>
+1. Add **debug node** after trigger
+
+2. Check that entity_id is correct
+
+3. Verify that "If State" matches
+
+4. Check Debug panel for output
+</Steps>
+
+### Connection to HA Fails
+
+```yaml
+# Check access token:
+1. Create new token in HA
+2. Update server config in Node-RED
+3. Deploy all flows
+4. Restart Node-RED add-on
+```
+
+---
+
+## 📋 Best Practices
+
+### Organization
+
+| Practice | Description |
+|----------|-------------|
+| **One tab per area** | Living room, kitchen, bedroom, etc. |
+| **Comments** | Use comment nodes for explanation |
+| **Naming** | Give all nodes descriptive names |
+| **Subflows** | Reuse logic instead of copy/paste |
+
+### Performance
+
+```yaml
+# Avoid:
+- events: all node (uses many resources)
+- Polling in loops (use triggers instead)
+- Large debug outputs in production
+
+# Use:
+- "Modified Flows" deploy type
+- Specific entity triggers
+- Disable debug nodes when not in use
+```
+
+### Backup
+
+Node-RED flows are stored in:
+```
+# Add-on:
+/config/node-red/flows.json
+
+# Docker:
+./nodered-data/flows.json
+```
+
+Include this file in your Home Assistant backup!
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Should I move all my automations to Node-RED?",
+    answer: "No! Use Node-RED for complex automations and keep simple automations in HA. There's no reason to make things more complicated than necessary."
+  },
+  {
+    question: "Can Node-RED run without Home Assistant?",
+    answer: "Yes, Node-RED is a standalone tool. You can use it for other IoT projects, API integrations, and much more. The HA nodes are just an extra module."
+  },
+  {
+    question: "What happens to my automations if Node-RED goes down?",
+    answer: "Automations in Node-RED stop. That's why it's important to keep critical automations (alarm, security) in Home Assistant itself, or have watchdog enabled on Node-RED."
+  },
+  {
+    question: "Can I see Node-RED automations in HA's automations list?",
+    answer: "Not directly. With the Node-RED Companion integration, however, you can see and enable/disable flows from HA's UI."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="HA Dashboard Design" icon="laptop">
+    Build beautiful dashboards.
+    
+    [See guide →](/en/home-assistant/dashboard-design/)
+  </Card>
+  <Card title="First Automation" icon="rocket">
+    Start with HA's built-in automations.
+    
+    [See guide →](/en/home-assistant/first-automation/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
