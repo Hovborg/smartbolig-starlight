@@ -1,0 +1,520 @@
+---
+title: Elpris-integration med Energi Data Service
+description: Komplet guide til at få danske elpriser i Home Assistant - inkl. dashboard kort, daglig/månedlig/årlig beregning og live omkostninger baseret på dit forbrug.
+sidebar:
+  order: 4
+---
+
+import { Steps, Aside, Card, CardGrid, LinkCard, Tabs, TabItem } from '@astrojs/starlight/components';
+import HowTo from '../../../../components/HowTo.astro';
+import FAQ from '../../../../components/FAQ.astro';
+
+Med **Energi Data Service** integrationen kan du få realtids elpriser direkte i Home Assistant - inklusiv alle danske tariffer og afgifter. Perfekt til at spare penge ved at køre vaskemaskine, opvaskemaskine og elbil-opladning når strømmen er billigst.
+
+<Aside type="tip">
+Denne guide viser dig hvordan du installerer integrationen, opretter sensorer til dag/måned/år forbrug, og laver et komplet energi-dashboard med live omkostninger.
+</Aside>
+
+## Hvad får du?
+
+- 📊 **Timepriser** for i dag og i morgen (efter kl. 13)
+- 💰 **Samlede priser** inkl. alle tariffer og afgifter
+- 📈 **Grafer** der viser prisudvikling
+- 🔮 **5-dages prognose** via Carnot.dk
+- ⚡ **Live omkostninger** baseret på dit aktuelle forbrug
+- 📅 **Akkumuleret forbrug** pr. dag, måned og år
+
+<LinkCard 
+  title="Energi Data Service på GitHub" 
+  href="https://github.com/MTrab/energidataservice" 
+  description="Officielt repository med dokumentation og eksempler"
+/>
+
+## Forudsætninger
+
+Før du starter, skal du have:
+
+- ✅ [HACS installeret](/da/home-assistant/hacs/)
+- ✅ Vide hvilket prisområde du bor i (DK1 eller DK2)
+- ✅ Vide hvem dit netselskab er (for korrekte tariffer)
+
+<Aside>
+**DK1** = Vest for Storebælt (Jylland/Fyn)  
+**DK2** = Øst for Storebælt (Sjælland/Bornholm)
+</Aside>
+
+## Installation af Energi Data Service
+
+<HowTo
+  name="Installer Energi Data Service"
+  totalTime="PT10M"
+  steps={[
+    {
+      name: "Åbn HACS",
+      text: "Gå til HACS i sidemenuen i Home Assistant."
+    },
+    {
+      name: "Søg efter integrationen",
+      text: "Klik på Integrationer → + Udforsk og download repositories → søg efter 'Energi Data Service'."
+    },
+    {
+      name: "Download integrationen",
+      text: "Klik på Energi Data Service → Download → vælg seneste version → Download."
+    },
+    {
+      name: "Genstart Home Assistant",
+      text: "Gå til Indstillinger → System → Genstart Home Assistant."
+    },
+    {
+      name: "Tilføj integrationen",
+      text: "Gå til Indstillinger → Enheder og tjenester → Tilføj integration → søg efter 'Energi Data Service'."
+    },
+    {
+      name: "Konfigurer integrationen",
+      text: "Giv den et navn (f.eks. 'Elpriser'), vælg Danmark som land, vælg dit prisområde (DK1/DK2), vælg pris pr. kWh, aktiver automatiske tariffer og vælg dit netselskab."
+    }
+  ]}
+/>
+
+### Konfigurationsindstillinger
+
+| Indstilling | Anbefaling |
+|-------------|------------|
+| **Land** | Danmark |
+| **Prisområde** | DK1 (vest) eller DK2 (øst) |
+| **Pris type** | kWh |
+| **Moms** | Ja (25%) |
+| **Tariffer** | Automatisk fra netselskab |
+| **Netselskab** | Vælg dit (f.eks. Radius, N1, TREFOR) |
+
+## Sensorer du får
+
+Efter installation har du disse sensorer:
+
+| Sensor | Beskrivelse |
+|--------|-------------|
+| `sensor.energi_data_service` | Aktuel elpris inkl. afgifter |
+| `sensor.energi_data_service_forecast` | Prognose for kommende dage |
+
+Sensoren har også **attributter** med alle timepriser for i dag og i morgen.
+
+## Dashboard Kort
+
+Nu kommer det sjove - lad os lave nogle flotte dashboard kort!
+
+### 1. Installer ApexCharts Card
+
+Først skal du installere ApexCharts Card via HACS:
+
+<Steps>
+1. Gå til **HACS** → **Frontend**
+2. Klik **+ Udforsk og download repositories**
+3. Søg efter "ApexCharts Card"
+4. Klik **Download** → **Download**
+5. Genindlæs browser (Ctrl+F5)
+</Steps>
+
+<LinkCard 
+  title="ApexCharts Card på GitHub" 
+  href="https://github.com/RomRider/apexcharts-card" 
+  description="Avancerede grafer til Home Assistant dashboards"
+/>
+
+### 2. Simpel Prisvisning (Aktuel pris)
+
+Dette kort viser den aktuelle elpris:
+
+```yaml
+type: entity
+entity: sensor.energi_data_service
+name: Aktuel elpris
+icon: mdi:flash
+```
+
+### 3. Prisgraf for 24-48 timer
+
+Dette kort viser timepriser som søjlediagram med farver baseret på pris:
+
+```yaml
+type: custom:apexcharts-card
+header:
+  show: true
+  title: Elpriser i dag og i morgen
+  show_states: true
+  colorize_states: true
+graph_span: 48h
+span:
+  start: day
+now:
+  show: true
+  label: Nu
+  color: red
+yaxis:
+  - id: price
+    decimals: 2
+    min: 0
+    apex_config:
+      tickAmount: 5
+experimental:
+  color_threshold: true
+series:
+  - entity: sensor.energi_data_service
+    name: Elpris
+    unit: kr/kWh
+    yaxis_id: price
+    type: column
+    float_precision: 2
+    data_generator: |
+      const today = entity.attributes.raw_today || [];
+      const tomorrow = entity.attributes.raw_tomorrow || [];
+      const combined = [...today, ...tomorrow];
+      return combined.map((entry) => {
+        return [new Date(entry.hour).getTime(), entry.price];
+      });
+    color_threshold:
+      - value: 0
+        color: green
+      - value: 1.5
+        color: yellow
+      - value: 2.5
+        color: orange
+      - value: 3.5
+        color: red
+```
+
+### 4. Mini-oversigt med dagens statistik
+
+Dette kort viser min, max og gennemsnitspris for dagen:
+
+```yaml
+type: markdown
+title: Dagens elpriser
+content: |
+  | Statistik | Pris |
+  |-----------|------|
+  | 🟢 Laveste | {{ state_attr('sensor.energi_data_service', 'min_price') | round(2) }} kr/kWh |
+  | 🔴 Højeste | {{ state_attr('sensor.energi_data_service', 'max_price') | round(2) }} kr/kWh |
+  | 📊 Gennemsnit | {{ state_attr('sensor.energi_data_service', 'average_price') | round(2) }} kr/kWh |
+  | ⏰ Aktuel | {{ states('sensor.energi_data_service') | round(2) }} kr/kWh |
+```
+
+## Live Omkostninger baseret på Watt-forbrug
+
+Dette er den smarte del - beregn hvad det koster dig **lige nu** baseret på dit aktuelle strømforbrug!
+
+### Opret Template Sensor
+
+Tilføj dette til din `configuration.yaml` (eller via UI under Hjælpere):
+
+```yaml
+template:
+  - sensor:
+      - name: "Live Elomkostning"
+        unique_id: live_electricity_cost
+        unit_of_measurement: "kr/time"
+        device_class: monetary
+        state: >
+          {% set power_watts = states('sensor.dit_power_sensor') | float(0) %}
+          {% set price_kwh = states('sensor.energi_data_service') | float(0) %}
+          {% set cost_per_hour = (power_watts / 1000) * price_kwh %}
+          {{ cost_per_hour | round(2) }}
+        attributes:
+          power_w: "{{ states('sensor.dit_power_sensor') | float(0) | round(0) }}"
+          price_kwh: "{{ states('sensor.energi_data_service') | float(2) }}"
+          description: "Omkostning hvis nuværende forbrug fortsætter i en time"
+```
+
+<Aside type="caution">
+Erstat `sensor.dit_power_sensor` med din faktiske strømmåler-sensor, f.eks. fra en Shelly EM, P1-dongle eller lignende.
+</Aside>
+
+### Dashboard Kort for Live Omkostning
+
+```yaml
+type: custom:mushroom-entity-card
+entity: sensor.live_elomkostning
+name: Live strømomkostning
+icon: mdi:currency-usd
+primary_info: state
+secondary_info: name
+icon_color: |
+  {% set cost = states('sensor.live_elomkostning') | float(0) %}
+  {% if cost < 1 %}green
+  {% elif cost < 3 %}yellow
+  {% elif cost < 5 %}orange
+  {% else %}red
+  {% endif %}
+```
+
+## Utility Meter - Dag/Måned/År forbrug
+
+For at spore dit forbrug over tid, skal du oprette **Utility Meter** sensorer.
+
+### 1. Opret Riemann Sum sensor (kWh fra Watt)
+
+Hvis din strømmåler kun viser Watt, skal du først konvertere til kWh:
+
+<Steps>
+1. Gå til **Indstillinger** → **Enheder og tjenester** → **Hjælpere**
+2. Klik **+ Opret hjælper** → **Integral sensor**
+3. Navn: "Samlet Energiforbrug"
+4. Input sensor: Din power sensor (Watt)
+5. Integration method: "Venstre Riemann sum" eller "Trapez"
+6. Metric prefix: "kilo (k)"
+7. Time unit: "Timer"
+</Steps>
+
+### 2. Opret Utility Meters
+
+Nu opretter vi målere der nulstilles dagligt, månedligt og årligt:
+
+<Tabs>
+  <TabItem label="Via UI">
+    <Steps>
+    1. Gå til **Indstillinger** → **Enheder og tjenester** → **Hjælpere**
+    2. Klik **+ Opret hjælper** → **Utility Meter**
+    3. Opret tre målere:
+       - **Dagligt forbrug**: Cycle = Daglig
+       - **Månedligt forbrug**: Cycle = Månedlig
+       - **Årligt forbrug**: Cycle = Årlig
+    4. Input sensor: Din kWh sensor fra trin 1
+    </Steps>
+  </TabItem>
+  <TabItem label="Via YAML">
+    ```yaml
+    utility_meter:
+      dagligt_energiforbrug:
+        source: sensor.samlet_energiforbrug
+        name: Dagligt Energiforbrug
+        cycle: daily
+      maanedligt_energiforbrug:
+        source: sensor.samlet_energiforbrug
+        name: Månedligt Energiforbrug
+        cycle: monthly
+      aarligt_energiforbrug:
+        source: sensor.samlet_energiforbrug
+        name: Årligt Energiforbrug
+        cycle: yearly
+    ```
+  </TabItem>
+</Tabs>
+
+### 3. Beregn Omkostninger pr. Dag/Måned/År
+
+Opret template sensorer der beregner omkostninger baseret på forbrug og gennemsnitspris:
+
+```yaml
+template:
+  - sensor:
+      - name: "Daglig Elomkostning"
+        unique_id: daily_electricity_cost
+        unit_of_measurement: "kr"
+        device_class: monetary
+        state: >
+          {% set kwh = states('sensor.dagligt_energiforbrug') | float(0) %}
+          {% set avg_price = state_attr('sensor.energi_data_service', 'average_price') | float(2) %}
+          {{ (kwh * avg_price) | round(2) }}
+          
+      - name: "Månedlig Elomkostning"
+        unique_id: monthly_electricity_cost
+        unit_of_measurement: "kr"
+        device_class: monetary
+        state: >
+          {% set kwh = states('sensor.maanedligt_energiforbrug') | float(0) %}
+          {% set avg_price = state_attr('sensor.energi_data_service', 'average_price') | float(2) %}
+          {{ (kwh * avg_price) | round(2) }}
+          
+      - name: "Årlig Elomkostning"
+        unique_id: yearly_electricity_cost
+        unit_of_measurement: "kr"
+        device_class: monetary
+        state: >
+          {% set kwh = states('sensor.aarligt_energiforbrug') | float(0) %}
+          {% set avg_price = state_attr('sensor.energi_data_service', 'average_price') | float(2) %}
+          {{ (kwh * avg_price) | round(2) }}
+```
+
+## Alt-i-ét Dashboard Kort
+
+Her er et samlet kort der viser alt på ét sted:
+
+```yaml
+type: vertical-stack
+cards:
+  - type: custom:mushroom-title-card
+    title: ⚡ Energioversigt
+    subtitle: Live elpriser og forbrug
+    
+  - type: horizontal-stack
+    cards:
+      - type: custom:mushroom-entity-card
+        entity: sensor.energi_data_service
+        name: Pris nu
+        icon: mdi:flash
+        primary_info: state
+        secondary_info: name
+        icon_color: |
+          {% set price = states('sensor.energi_data_service') | float(0) %}
+          {% if price < 1.5 %}green
+          {% elif price < 2.5 %}yellow
+          {% elif price < 3.5 %}orange
+          {% else %}red
+          {% endif %}
+          
+      - type: custom:mushroom-entity-card
+        entity: sensor.live_elomkostning
+        name: Live omkostning
+        icon: mdi:currency-usd
+        primary_info: state
+        secondary_info: name
+        
+  - type: custom:apexcharts-card
+    header:
+      show: true
+      title: Timepriser
+    graph_span: 48h
+    span:
+      start: day
+    now:
+      show: true
+      label: Nu
+    yaxis:
+      - id: price
+        min: 0
+    series:
+      - entity: sensor.energi_data_service
+        type: column
+        data_generator: |
+          const today = entity.attributes.raw_today || [];
+          const tomorrow = entity.attributes.raw_tomorrow || [];
+          return [...today, ...tomorrow].map((e) => [new Date(e.hour).getTime(), e.price]);
+          
+  - type: horizontal-stack
+    cards:
+      - type: statistic
+        entity: sensor.dagligt_energiforbrug
+        name: I dag
+        period:
+          calendar:
+            period: day
+            
+      - type: statistic
+        entity: sensor.maanedligt_energiforbrug
+        name: Denne måned
+        period:
+          calendar:
+            period: month
+            
+  - type: markdown
+    content: |
+      ### 💰 Omkostninger
+      | Periode | Forbrug | Estimat |
+      |---------|---------|---------|
+      | I dag | {{ states('sensor.dagligt_energiforbrug') | round(1) }} kWh | {{ states('sensor.daglig_elomkostning') | round(0) }} kr |
+      | Denne måned | {{ states('sensor.maanedligt_energiforbrug') | round(1) }} kWh | {{ states('sensor.maanedlig_elomkostning') | round(0) }} kr |
+      | I år | {{ states('sensor.aarligt_energiforbrug') | round(0) }} kWh | {{ states('sensor.aarlig_elomkostning') | round(0) }} kr |
+```
+
+## Bonus: Dynamic Energy Cost Integration
+
+For endnu nemmere omkostningsberegning kan du installere **Dynamic Energy Cost** via HACS:
+
+<LinkCard 
+  title="Dynamic Energy Cost på GitHub" 
+  href="https://github.com/martinarva/dynamic_energy_cost" 
+  description="Automatisk omkostningsberegning baseret på dynamiske elpriser"
+/>
+
+Denne integration opretter automatisk sensorer for:
+- Timeomkostninger
+- Daglige omkostninger
+- Ugentlige omkostninger
+- Månedlige omkostninger
+- Årlige omkostninger
+
+## Automation: Kør når strømmen er billig
+
+Her er en automation der starter en enhed når elprisen er lav:
+
+```yaml
+automation:
+  - alias: "Tænd vaskemaskine når strømmen er billig"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.energi_data_service
+        below: 1.5
+    condition:
+      - condition: time
+        after: "08:00:00"
+        before: "22:00:00"
+    action:
+      - service: switch.turn_on
+        target:
+          entity_id: switch.vaskemaskine
+      - service: notify.mobile_app
+        data:
+          title: "Vaskemaskine tændt"
+          message: "Elprisen er nu {{ states('sensor.energi_data_service') }} kr/kWh"
+```
+
+## Fejlfinding
+
+### Ingen data for i morgen
+
+Priser for næste dag offentliggøres typisk omkring kl. 13:00. Før det tidspunkt vil `raw_tomorrow` være tom.
+
+### Forkerte tariffer
+
+1. Tjek at du har valgt det korrekte netselskab
+2. Tjek integrationens Wiki for opdaterede tarifoplysninger
+3. Overvej at bruge en custom template for ekstra omkostninger
+
+### Sensoren viser 0 eller unavailable
+
+1. Tjek din internetforbindelse
+2. Genstart Home Assistant
+3. Tjek loggen under Indstillinger → System → Logs
+
+<FAQ
+  questions={[
+    {
+      question: "Hvad er forskellen på DK1 og DK2?",
+      answer: "DK1 er Vestdanmark (Jylland og Fyn), DK2 er Østdanmark (Sjælland og Bornholm). Priserne kan variere mellem områderne pga. forskellige produktionsforhold."
+    },
+    {
+      question: "Hvornår kommer priserne for i morgen?",
+      answer: "Nord Pool offentliggør normalt priserne for næste dag omkring kl. 13:00. Energi Data Service opdaterer kort efter."
+    },
+    {
+      question: "Inkluderer prisen moms og afgifter?",
+      answer: "Ja, hvis du har aktiveret automatiske tariffer og valgt dit netselskab, inkluderer prisen alle kendte afgifter, tariffer og 25% moms."
+    },
+    {
+      question: "Kan jeg bruge dette med Eloverblik?",
+      answer: "Ja, du kan kombinere Energi Data Service (for priser) med Eloverblik (for dit faktiske forbrug) for at få endnu mere præcise omkostningsberegninger."
+    },
+    {
+      question: "Virker det med solceller og salg af strøm?",
+      answer: "Ja, du kan bruge separate sensorer til køb og salg, og beregne nettoomkostninger baseret på spotprisen."
+    }
+  ]}
+/>
+
+## Næste skridt
+
+<CardGrid>
+  <LinkCard 
+    title="Første automation" 
+    href="/da/home-assistant/foerste-automation/"
+    description="Lær at lave automationer baseret på elpriser"
+  />
+  <LinkCard 
+    title="Zigbee2MQTT" 
+    href="/da/home-assistant/zigbee2mqtt/"
+    description="Tilføj Zigbee-enheder til dit smarte hjem"
+  />
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*

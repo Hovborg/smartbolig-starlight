@@ -1,0 +1,519 @@
+---
+title: Electricity Price Integration
+description: Complete guide to getting real-time electricity prices in Home Assistant - including dashboard cards, daily/monthly/yearly calculations and live costs based on your consumption.
+sidebar:
+  order: 4
+---
+
+import { Steps, Aside, Card, CardGrid, LinkCard, Tabs, TabItem } from '@astrojs/starlight/components';
+import HowTo from '../../../../components/HowTo.astro';
+import FAQ from '../../../../components/FAQ.astro';
+
+With **electricity price integrations** like Nordpool or EPEX Spot, you can get real-time electricity prices directly in Home Assistant. Perfect for saving money by running your washing machine, dishwasher, and EV charging when electricity is cheapest.
+
+<Aside type="tip">
+This guide shows you how to install the integration, create sensors for daily/monthly/yearly consumption, and build a complete energy dashboard with live costs.
+</Aside>
+
+## What You'll Get
+
+- 📊 **Hourly prices** for today and tomorrow (after ~13:00)
+- 💰 **Total prices** including all tariffs and fees
+- 📈 **Graphs** showing price development
+- ⚡ **Live costs** based on your current consumption
+- 📅 **Accumulated consumption** per day, month and year
+
+## Available Integrations
+
+| Integration | Coverage | GitHub |
+|-------------|----------|--------|
+| **Nordpool** | Nordic countries, Baltic states | [GitHub](https://github.com/custom-components/nordpool) |
+| **EPEX Spot** | Most of Europe | [GitHub](https://github.com/mampfes/ha_epex_spot) |
+| **Energi Data Service** | Denmark (with tariffs) | [GitHub](https://github.com/MTrab/energidataservice) |
+
+## Prerequisites
+
+Before you start, you need:
+
+- ✅ [HACS installed](/en/home-assistant/hacs/)
+- ✅ Know your price region (e.g., NO1, SE3, DE-LU, etc.)
+- ✅ Know your currency preference
+
+## Installation of Nordpool Integration
+
+<HowTo
+  name="Install Nordpool Integration"
+  totalTime="PT10M"
+  steps={[
+    {
+      name: "Open HACS",
+      text: "Go to HACS in the Home Assistant sidebar."
+    },
+    {
+      name: "Search for the integration",
+      text: "Click Integrations → + Explore & download repositories → search for 'Nordpool'."
+    },
+    {
+      name: "Download the integration",
+      text: "Click on Nordpool → Download → select latest version → Download."
+    },
+    {
+      name: "Restart Home Assistant",
+      text: "Go to Settings → System → Restart Home Assistant."
+    },
+    {
+      name: "Add the integration",
+      text: "Go to Settings → Devices & Services → Add integration → search for 'Nordpool'."
+    },
+    {
+      name: "Configure the integration",
+      text: "Select your region, currency, enable VAT if applicable, and choose kWh as price type."
+    }
+  ]}
+/>
+
+### Configuration Options
+
+| Setting | Description |
+|---------|-------------|
+| **Region** | Your price area (e.g., NO1, SE3, DK1, FI) |
+| **Currency** | EUR, NOK, SEK, DKK, etc. |
+| **VAT** | Enable to add local VAT |
+| **Price type** | kWh (recommended) |
+| **Low price cutoff** | Percentage below average for "cheap" hours |
+
+## Sensors You'll Get
+
+After installation you'll have these sensors:
+
+| Sensor | Description |
+|--------|-------------|
+| `sensor.nordpool_kwh_*` | Current electricity price |
+| Attributes: `today` | Array of today's hourly prices |
+| Attributes: `tomorrow` | Array of tomorrow's hourly prices |
+| Attributes: `min` / `max` | Min and max price for today |
+| Attributes: `average` | Average price for today |
+
+## Dashboard Cards
+
+Now for the fun part - let's create some nice dashboard cards!
+
+### 1. Install ApexCharts Card
+
+First, install ApexCharts Card via HACS:
+
+<Steps>
+1. Go to **HACS** → **Frontend**
+2. Click **+ Explore & download repositories**
+3. Search for "ApexCharts Card"
+4. Click **Download** → **Download**
+5. Reload browser (Ctrl+F5)
+</Steps>
+
+<LinkCard 
+  title="ApexCharts Card on GitHub" 
+  href="https://github.com/RomRider/apexcharts-card" 
+  description="Advanced graphs for Home Assistant dashboards"
+/>
+
+### 2. Simple Price Display (Current Price)
+
+This card shows the current electricity price:
+
+```yaml
+type: entity
+entity: sensor.nordpool_kwh_se3_sek_3_10_025
+name: Current Electricity Price
+icon: mdi:flash
+```
+
+### 3. Price Graph for 24-48 Hours
+
+This card shows hourly prices as a bar chart with colors based on price:
+
+```yaml
+type: custom:apexcharts-card
+header:
+  show: true
+  title: Electricity Prices Today and Tomorrow
+  show_states: true
+  colorize_states: true
+graph_span: 48h
+span:
+  start: day
+now:
+  show: true
+  label: Now
+  color: red
+yaxis:
+  - id: price
+    decimals: 2
+    min: 0
+    apex_config:
+      tickAmount: 5
+experimental:
+  color_threshold: true
+series:
+  - entity: sensor.nordpool_kwh_se3_sek_3_10_025
+    name: Price
+    unit: EUR/kWh
+    yaxis_id: price
+    type: column
+    float_precision: 3
+    data_generator: |
+      const today = entity.attributes.today || [];
+      const tomorrow = entity.attributes.tomorrow || [];
+      const now = new Date();
+      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      return today.map((price, index) => {
+        const time = new Date(startOfDay.getTime() + index * 3600000);
+        return [time.getTime(), price];
+      }).concat(tomorrow.map((price, index) => {
+        const time = new Date(startOfDay.getTime() + (24 + index) * 3600000);
+        return [time.getTime(), price];
+      }));
+    color_threshold:
+      - value: 0
+        color: green
+      - value: 0.10
+        color: yellow
+      - value: 0.20
+        color: orange
+      - value: 0.30
+        color: red
+```
+
+### 4. Mini Overview with Today's Statistics
+
+This card shows min, max and average price for today:
+
+```yaml
+type: markdown
+title: Today's Electricity Prices
+content: |
+  | Statistic | Price |
+  |-----------|-------|
+  | 🟢 Lowest | {{ state_attr('sensor.nordpool_kwh_se3_sek_3_10_025', 'min') | round(3) }} EUR/kWh |
+  | 🔴 Highest | {{ state_attr('sensor.nordpool_kwh_se3_sek_3_10_025', 'max') | round(3) }} EUR/kWh |
+  | 📊 Average | {{ state_attr('sensor.nordpool_kwh_se3_sek_3_10_025', 'average') | round(3) }} EUR/kWh |
+  | ⏰ Current | {{ states('sensor.nordpool_kwh_se3_sek_3_10_025') | round(3) }} EUR/kWh |
+```
+
+## Live Costs Based on Watt Consumption
+
+This is the smart part - calculate what it costs you **right now** based on your current power consumption!
+
+### Create Template Sensor
+
+Add this to your `configuration.yaml` (or via UI under Helpers):
+
+```yaml
+template:
+  - sensor:
+      - name: "Live Electricity Cost"
+        unique_id: live_electricity_cost
+        unit_of_measurement: "EUR/h"
+        device_class: monetary
+        state: >
+          {% set power_watts = states('sensor.your_power_sensor') | float(0) %}
+          {% set price_kwh = states('sensor.nordpool_kwh_se3_sek_3_10_025') | float(0) %}
+          {% set cost_per_hour = (power_watts / 1000) * price_kwh %}
+          {{ cost_per_hour | round(3) }}
+        attributes:
+          power_w: "{{ states('sensor.your_power_sensor') | float(0) | round(0) }}"
+          price_kwh: "{{ states('sensor.nordpool_kwh_se3_sek_3_10_025') | float(3) }}"
+          description: "Cost if current consumption continues for one hour"
+```
+
+<Aside type="caution">
+Replace `sensor.your_power_sensor` with your actual power meter sensor, e.g., from a Shelly EM, P1 dongle, or similar.
+</Aside>
+
+### Dashboard Card for Live Cost
+
+```yaml
+type: custom:mushroom-entity-card
+entity: sensor.live_electricity_cost
+name: Live Power Cost
+icon: mdi:currency-usd
+primary_info: state
+secondary_info: name
+icon_color: |
+  {% set cost = states('sensor.live_electricity_cost') | float(0) %}
+  {% if cost < 0.05 %}green
+  {% elif cost < 0.15 %}yellow
+  {% elif cost < 0.25 %}orange
+  {% else %}red
+  {% endif %}
+```
+
+## Utility Meter - Day/Month/Year Consumption
+
+To track your consumption over time, you need to create **Utility Meter** sensors.
+
+### 1. Create Riemann Sum Sensor (kWh from Watt)
+
+If your power meter only shows Watts, you first need to convert to kWh:
+
+<Steps>
+1. Go to **Settings** → **Devices & Services** → **Helpers**
+2. Click **+ Create Helper** → **Integral sensor**
+3. Name: "Total Energy Consumption"
+4. Input sensor: Your power sensor (Watts)
+5. Integration method: "Left Riemann sum" or "Trapezoidal"
+6. Metric prefix: "kilo (k)"
+7. Time unit: "Hours"
+</Steps>
+
+### 2. Create Utility Meters
+
+Now we create meters that reset daily, monthly, and yearly:
+
+<Tabs>
+  <TabItem label="Via UI">
+    <Steps>
+    1. Go to **Settings** → **Devices & Services** → **Helpers**
+    2. Click **+ Create Helper** → **Utility Meter**
+    3. Create three meters:
+       - **Daily consumption**: Cycle = Daily
+       - **Monthly consumption**: Cycle = Monthly
+       - **Yearly consumption**: Cycle = Yearly
+    4. Input sensor: Your kWh sensor from step 1
+    </Steps>
+  </TabItem>
+  <TabItem label="Via YAML">
+    ```yaml
+    utility_meter:
+      daily_energy_consumption:
+        source: sensor.total_energy_consumption
+        name: Daily Energy Consumption
+        cycle: daily
+      monthly_energy_consumption:
+        source: sensor.total_energy_consumption
+        name: Monthly Energy Consumption
+        cycle: monthly
+      yearly_energy_consumption:
+        source: sensor.total_energy_consumption
+        name: Yearly Energy Consumption
+        cycle: yearly
+    ```
+  </TabItem>
+</Tabs>
+
+### 3. Calculate Costs per Day/Month/Year
+
+Create template sensors that calculate costs based on consumption and average price:
+
+```yaml
+template:
+  - sensor:
+      - name: "Daily Electricity Cost"
+        unique_id: daily_electricity_cost
+        unit_of_measurement: "EUR"
+        device_class: monetary
+        state: >
+          {% set kwh = states('sensor.daily_energy_consumption') | float(0) %}
+          {% set avg_price = state_attr('sensor.nordpool_kwh_se3_sek_3_10_025', 'average') | float(0.1) %}
+          {{ (kwh * avg_price) | round(2) }}
+          
+      - name: "Monthly Electricity Cost"
+        unique_id: monthly_electricity_cost
+        unit_of_measurement: "EUR"
+        device_class: monetary
+        state: >
+          {% set kwh = states('sensor.monthly_energy_consumption') | float(0) %}
+          {% set avg_price = state_attr('sensor.nordpool_kwh_se3_sek_3_10_025', 'average') | float(0.1) %}
+          {{ (kwh * avg_price) | round(2) }}
+          
+      - name: "Yearly Electricity Cost"
+        unique_id: yearly_electricity_cost
+        unit_of_measurement: "EUR"
+        device_class: monetary
+        state: >
+          {% set kwh = states('sensor.yearly_energy_consumption') | float(0) %}
+          {% set avg_price = state_attr('sensor.nordpool_kwh_se3_sek_3_10_025', 'average') | float(0.1) %}
+          {{ (kwh * avg_price) | round(2) }}
+```
+
+## All-in-One Dashboard Card
+
+Here's a combined card that shows everything in one place:
+
+```yaml
+type: vertical-stack
+cards:
+  - type: custom:mushroom-title-card
+    title: ⚡ Energy Overview
+    subtitle: Live electricity prices and consumption
+    
+  - type: horizontal-stack
+    cards:
+      - type: custom:mushroom-entity-card
+        entity: sensor.nordpool_kwh_se3_sek_3_10_025
+        name: Price now
+        icon: mdi:flash
+        primary_info: state
+        secondary_info: name
+        icon_color: |
+          {% set price = states('sensor.nordpool_kwh_se3_sek_3_10_025') | float(0) %}
+          {% if price < 0.10 %}green
+          {% elif price < 0.20 %}yellow
+          {% elif price < 0.30 %}orange
+          {% else %}red
+          {% endif %}
+          
+      - type: custom:mushroom-entity-card
+        entity: sensor.live_electricity_cost
+        name: Live cost
+        icon: mdi:currency-usd
+        primary_info: state
+        secondary_info: name
+        
+  - type: custom:apexcharts-card
+    header:
+      show: true
+      title: Hourly Prices
+    graph_span: 48h
+    span:
+      start: day
+    now:
+      show: true
+      label: Now
+    yaxis:
+      - id: price
+        min: 0
+    series:
+      - entity: sensor.nordpool_kwh_se3_sek_3_10_025
+        type: column
+        data_generator: |
+          const today = entity.attributes.today || [];
+          const tomorrow = entity.attributes.tomorrow || [];
+          const now = new Date();
+          const start = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          return today.map((p, i) => [start.getTime() + i*3600000, p])
+            .concat(tomorrow.map((p, i) => [start.getTime() + (24+i)*3600000, p]));
+          
+  - type: horizontal-stack
+    cards:
+      - type: statistic
+        entity: sensor.daily_energy_consumption
+        name: Today
+        period:
+          calendar:
+            period: day
+            
+      - type: statistic
+        entity: sensor.monthly_energy_consumption
+        name: This month
+        period:
+          calendar:
+            period: month
+            
+  - type: markdown
+    content: |
+      ### 💰 Costs
+      | Period | Consumption | Estimate |
+      |--------|-------------|----------|
+      | Today | {{ states('sensor.daily_energy_consumption') | round(1) }} kWh | {{ states('sensor.daily_electricity_cost') | round(2) }} EUR |
+      | This month | {{ states('sensor.monthly_energy_consumption') | round(1) }} kWh | {{ states('sensor.monthly_electricity_cost') | round(2) }} EUR |
+      | This year | {{ states('sensor.yearly_energy_consumption') | round(0) }} kWh | {{ states('sensor.yearly_electricity_cost') | round(2) }} EUR |
+```
+
+## Bonus: Dynamic Energy Cost Integration
+
+For even easier cost calculation, you can install **Dynamic Energy Cost** via HACS:
+
+<LinkCard 
+  title="Dynamic Energy Cost on GitHub" 
+  href="https://github.com/martinarva/dynamic_energy_cost" 
+  description="Automatic cost calculation based on dynamic electricity prices"
+/>
+
+This integration automatically creates sensors for:
+- Hourly costs
+- Daily costs
+- Weekly costs
+- Monthly costs
+- Yearly costs
+
+## Automation: Run When Electricity is Cheap
+
+Here's an automation that starts a device when the electricity price is low:
+
+```yaml
+automation:
+  - alias: "Turn on washing machine when electricity is cheap"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.nordpool_kwh_se3_sek_3_10_025
+        below: 0.08
+    condition:
+      - condition: time
+        after: "08:00:00"
+        before: "22:00:00"
+    action:
+      - service: switch.turn_on
+        target:
+          entity_id: switch.washing_machine
+      - service: notify.mobile_app
+        data:
+          title: "Washing machine started"
+          message: "Electricity price is now {{ states('sensor.nordpool_kwh_se3_sek_3_10_025') }} EUR/kWh"
+```
+
+## Troubleshooting
+
+### No data for tomorrow
+
+Prices for the next day are typically published around 13:00. Before that time, the `tomorrow` attribute will be empty.
+
+### Sensor shows 0 or unavailable
+
+1. Check your internet connection
+2. Restart Home Assistant
+3. Check the log under Settings → System → Logs
+4. Verify your region code is correct
+
+<FAQ
+  questions={[
+    {
+      question: "What are the different price regions?",
+      answer: "Nordpool divides the Nordic market into regions: NO1-NO5 (Norway), SE1-SE4 (Sweden), DK1-DK2 (Denmark), FI (Finland), and Baltic states. Each region can have different prices."
+    },
+    {
+      question: "When do tomorrow's prices arrive?",
+      answer: "Nord Pool typically publishes prices for the next day around 13:00 CET. The integration updates shortly after."
+    },
+    {
+      question: "Does the price include VAT and fees?",
+      answer: "The Nordpool integration shows spot prices. You can enable VAT in the settings. For additional fees and tariffs, you may need to use templates or integrations specific to your country."
+    },
+    {
+      question: "Can I use this with solar panels?",
+      answer: "Yes, you can use separate sensors for import and export, and calculate net costs based on the spot price."
+    },
+    {
+      question: "Which integration should I use?",
+      answer: "Use Nordpool for Nordic countries, EPEX Spot for Central Europe, or country-specific integrations like Energi Data Service (Denmark) or Tibber for more features."
+    }
+  ]}
+/>
+
+## Next Steps
+
+<CardGrid>
+  <LinkCard 
+    title="First Automation" 
+    href="/en/home-assistant/first-automation/"
+    description="Learn to create automations based on electricity prices"
+  />
+  <LinkCard 
+    title="Zigbee2MQTT" 
+    href="/en/home-assistant/zigbee2mqtt/"
+    description="Add Zigbee devices to your smart home"
+  />
+</CardGrid>
+
+---
+
+*Last updated: December 2025*

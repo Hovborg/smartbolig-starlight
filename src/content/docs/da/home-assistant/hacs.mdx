@@ -1,0 +1,232 @@
+---
+title: HACS Installation
+description: Komplet guide til installation af Home Assistant Community Store (HACS) - få adgang til tusindvis af custom integrationer, themes og dashboard kort.
+sidebar:
+  order: 3
+---
+
+import { Steps, Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import HowTo from '../../../../components/HowTo.astro';
+import FAQ from '../../../../components/FAQ.astro';
+
+**Home Assistant Community Store (HACS)** er en custom integration, der giver dig adgang til tusindvis af community-udviklede integrationer, themes og Lovelace kort. HACS er næsten et must-have for alle Home Assistant brugere.
+
+<Aside type="tip">
+HACS er ikke en officiel Home Assistant add-on, men et community-projekt der kører direkte i Home Assistant. Lav altid backup før installation!
+</Aside>
+
+## Hvad er HACS?
+
+HACS fungerer som en "app store" for Home Assistant, hvor du kan:
+
+- **Opdage** nye custom integrationer og komponenter
+- **Installere** med få klik direkte fra brugerfladen  
+- **Opdatere** alt fra ét sted
+- **Administrere** dine installerede tilføjelser
+
+<LinkCard 
+  title="HACS på GitHub" 
+  href="https://github.com/hacs/integration" 
+  description="Officielt repository med kildekode og dokumentation"
+/>
+
+## Forudsætninger
+
+Før du starter, skal du have:
+
+- ✅ Home Assistant kørende (OS, Supervised, Container eller Core)
+- ✅ En gratis [GitHub konto](https://github.com/signup)
+- ✅ Adgang til Home Assistant webinterface
+- ✅ En backup af dit system
+
+<Aside type="caution">
+HACS installerer custom komponenter der kører direkte i Home Assistant. Der er altid en lille risiko for at noget kan gå galt - lav derfor altid backup først!
+</Aside>
+
+## Installation
+
+Installationsmetoden afhænger af din Home Assistant installationstype. Du kan se din type under **Indstillinger → Om**.
+
+<HowTo
+  name="Installer HACS på Home Assistant"
+  totalTime="PT15M"
+  steps={[
+    {
+      name: "Lav backup",
+      text: "Gå til Indstillinger → System → Backups → Opret backup. Download backup'en til en anden enhed for sikkerhed."
+    },
+    {
+      name: "Tilføj HACS repository (OS/Supervised)",
+      text: "Klik på dette link for at tilføje HACS add-on repository: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fhacs%2Faddons - eller tilføj manuelt via Indstillinger → Add-ons → Add-on butik → ⋮ → Repositories → tilføj: https://github.com/hacs/addons"
+    },
+    {
+      name: "Installer HACS add-on",
+      text: "Find 'HACS' i add-on butikken og klik Installer. Start add-on'en når installationen er færdig."
+    },
+    {
+      name: "Følg log-instruktioner",
+      text: "Gå til add-on'ens Log-fane og følg instruktionerne der vises."
+    },
+    {
+      name: "Genstart Home Assistant",
+      text: "Gå til Indstillinger → System → Genstart Home Assistant."
+    },
+    {
+      name: "Tilføj HACS integration",
+      text: "Gå til Indstillinger → Enheder og tjenester → Tilføj integration → søg efter 'HACS'."
+    },
+    {
+      name: "Godkend alle vilkår",
+      text: "Læs og accepter alle vilkår ved at sætte flueben i alle bokse, klik derefter Submit."
+    },
+    {
+      name: "Autoriser med GitHub",
+      text: "Du får en kode og et link til GitHub. Åbn linket, log ind på GitHub, indtast koden og klik 'Authorize hacs'. Vent på bekræftelsen 'You're all set!'."
+    }
+  ]}
+/>
+
+### Container/Core Installation
+
+Hvis du kører Home Assistant Container eller Core, skal du køre dette script:
+
+```bash
+# Kør i din Home Assistant config mappe
+wget -O - https://get.hacs.xyz | bash -
+```
+
+Genstart derefter Home Assistant og fortsæt fra trin 6 ovenfor.
+
+## Første gang i HACS
+
+Efter installation finder du HACS i sidemenuen. Her er et overblik over sektionerne:
+
+<CardGrid>
+  <Card title="Integrationer" icon="puzzle">
+    Custom integrationer der tilføjer nye enheder og tjenester til Home Assistant
+  </Card>
+  <Card title="Frontend" icon="laptop">
+    Lovelace kort, themes og andre UI-komponenter til dit dashboard
+  </Card>
+</CardGrid>
+
+## Installer din første integration
+
+Lad os installere en populær integration som eksempel:
+
+<Steps>
+1. Klik på **HACS** i sidemenuen
+2. Vælg **Integrationer**
+3. Klik på **+ Udforsk og download repositories** (nederst til højre)
+4. Søg efter f.eks. "Energi Data Service" (dansk elpris-integration)
+5. Klik på integrationen og læs beskrivelsen
+6. Klik **Download** → vælg version → **Download**
+7. **Genstart Home Assistant** når du bliver bedt om det
+8. Tilføj integrationen via Indstillinger → Enheder og tjenester → Tilføj integration
+</Steps>
+
+<Aside type="tip">
+Efter download af en integration skal du altid genstarte Home Assistant og derefter tilføje integrationen under Enheder og tjenester.
+</Aside>
+
+## Populære HACS Integrationer
+
+Her er nogle af de mest populære integrationer du kan installere:
+
+| Integration | Beskrivelse | GitHub |
+|-------------|-------------|--------|
+| **Energi Data Service** | Danske elpriser med tariffer | [GitHub](https://github.com/MTrab/energidataservice) |
+| **Nordpool** | Elpriser fra Nord Pool | [GitHub](https://github.com/custom-components/nordpool) |
+| **Adaptive Lighting** | Automatisk lystilpasning | [GitHub](https://github.com/basnijholt/adaptive-lighting) |
+| **Browser Mod** | Avanceret browser-kontrol | [GitHub](https://github.com/thomasloven/hass-browser_mod) |
+
+## Populære Frontend Komponenter
+
+| Komponent | Beskrivelse | GitHub |
+|-----------|-------------|--------|
+| **Mushroom Cards** | Smukke, minimalistiske kort | [GitHub](https://github.com/piitaya/lovelace-mushroom) |
+| **ApexCharts Card** | Avancerede grafer og diagrammer | [GitHub](https://github.com/RomRider/apexcharts-card) |
+| **Mini Graph Card** | Kompakte grafer | [GitHub](https://github.com/kalkih/mini-graph-card) |
+| **Button Card** | Tilpassede knapper | [GitHub](https://github.com/custom-cards/button-card) |
+
+## Opdatering af HACS komponenter
+
+HACS gør det nemt at holde alt opdateret:
+
+<Steps>
+1. Gå til **HACS** i sidemenuen
+2. Se efter et **orange badge** der viser tilgængelige opdateringer
+3. Klik på komponenten med opdatering
+4. Klik **Opdater** og følg instruktionerne
+5. Genstart Home Assistant hvis påkrævet
+</Steps>
+
+Fra HACS 2.0 vises opdateringer også i Home Assistants normale opdateringsoversigt.
+
+## Fejlfinding
+
+### HACS vises ikke efter installation
+
+- Sørg for at du har genstartet Home Assistant
+- Ryd browser-cache (Ctrl+F5)
+- Tjek at HACS-filerne ligger i `custom_components/hacs/`
+
+### GitHub API limit
+
+HACS bruger GitHub API'en, som har begrænsninger. Hvis du får fejl:
+
+- Vent 1 time og prøv igen
+- Sørg for at din GitHub-konto er korrekt forbundet
+
+### Integration virker ikke efter download
+
+1. Tjek at du har genstartet Home Assistant
+2. Tjek loggen under **Indstillinger → System → Logs**
+3. Læs integrationens dokumentation på GitHub
+4. Søg efter løsninger i Home Assistant Community forum
+
+<FAQ
+  questions={[
+    {
+      question: "Er HACS sikkert at bruge?",
+      answer: "HACS er et community-projekt med over 5.000 stjerner på GitHub. De enkelte integrationer er dog ikke officielt godkendt af Home Assistant teamet, så læs altid dokumentationen og anmeldelser før installation."
+    },
+    {
+      question: "Kan HACS ødelægge min Home Assistant installation?",
+      answer: "Der er altid en lille risiko ved custom komponenter. Lav altid backup før du installerer nye integrationer, og installer kun fra velkendte repositories med aktiv vedligeholdelse."
+    },
+    {
+      question: "Hvorfor har jeg brug for en GitHub konto?",
+      answer: "HACS henter alle komponenter fra GitHub. En gratis GitHub-konto giver dig adgang til flere API-kald og bedre hastighed."
+    },
+    {
+      question: "Hvordan fjerner jeg en HACS integration?",
+      answer: "Gå til HACS → find integrationen → klik på den → klik på de tre prikker → Fjern → Genstart Home Assistant."
+    },
+    {
+      question: "Virker HACS med alle Home Assistant installationstyper?",
+      answer: "Ja, HACS virker med Home Assistant OS, Supervised, Container og Core. Installationsmetoden varierer dog - OS/Supervised bruger add-on metoden, mens Container/Core bruger script-metoden."
+    }
+  ]}
+/>
+
+## Næste skridt
+
+Nu hvor du har HACS installeret, kan du:
+
+<CardGrid>
+  <LinkCard 
+    title="Elpris-integration" 
+    href="/da/home-assistant/elpris-integration/"
+    description="Installer Energi Data Service og få danske elpriser i Home Assistant"
+  />
+  <LinkCard 
+    title="Første automation" 
+    href="/da/home-assistant/foerste-automation/"
+    description="Lær at lave din første automation"
+  />
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*

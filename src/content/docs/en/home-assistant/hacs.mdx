@@ -1,0 +1,232 @@
+---
+title: HACS Installation
+description: Complete guide to installing Home Assistant Community Store (HACS) - get access to thousands of custom integrations, themes and dashboard cards.
+sidebar:
+  order: 3
+---
+
+import { Steps, Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+import HowTo from '../../../../components/HowTo.astro';
+import FAQ from '../../../../components/FAQ.astro';
+
+**Home Assistant Community Store (HACS)** is a custom integration that gives you access to thousands of community-developed integrations, themes, and Lovelace cards. HACS is almost a must-have for all Home Assistant users.
+
+<Aside type="tip">
+HACS is not an official Home Assistant add-on, but a community project that runs directly in Home Assistant. Always create a backup before installation!
+</Aside>
+
+## What is HACS?
+
+HACS works as an "app store" for Home Assistant, where you can:
+
+- **Discover** new custom integrations and components
+- **Install** with just a few clicks directly from the UI
+- **Update** everything from one place
+- **Manage** your installed add-ons
+
+<LinkCard 
+  title="HACS on GitHub" 
+  href="https://github.com/hacs/integration" 
+  description="Official repository with source code and documentation"
+/>
+
+## Prerequisites
+
+Before you start, you need:
+
+- ✅ Home Assistant running (OS, Supervised, Container or Core)
+- ✅ A free [GitHub account](https://github.com/signup)
+- ✅ Access to Home Assistant web interface
+- ✅ A backup of your system
+
+<Aside type="caution">
+HACS installs custom components that run directly in Home Assistant. There's always a small risk that something can go wrong - always create a backup first!
+</Aside>
+
+## Installation
+
+The installation method depends on your Home Assistant installation type. You can see your type under **Settings → About**.
+
+<HowTo
+  name="Install HACS on Home Assistant"
+  totalTime="PT15M"
+  steps={[
+    {
+      name: "Create backup",
+      text: "Go to Settings → System → Backups → Create backup. Download the backup to another device for safety."
+    },
+    {
+      name: "Add HACS repository (OS/Supervised)",
+      text: "Click this link to add the HACS add-on repository: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fhacs%2Faddons - or add manually via Settings → Add-ons → Add-on store → ⋮ → Repositories → add: https://github.com/hacs/addons"
+    },
+    {
+      name: "Install HACS add-on",
+      text: "Find 'HACS' in the add-on store and click Install. Start the add-on when installation is complete."
+    },
+    {
+      name: "Follow log instructions",
+      text: "Go to the add-on's Log tab and follow the instructions shown there."
+    },
+    {
+      name: "Restart Home Assistant",
+      text: "Go to Settings → System → Restart Home Assistant."
+    },
+    {
+      name: "Add HACS integration",
+      text: "Go to Settings → Devices & Services → Add integration → search for 'HACS'."
+    },
+    {
+      name: "Accept all terms",
+      text: "Read and accept all terms by checking all boxes, then click Submit."
+    },
+    {
+      name: "Authorize with GitHub",
+      text: "You'll get a code and a link to GitHub. Open the link, log in to GitHub, enter the code and click 'Authorize hacs'. Wait for the confirmation 'You're all set!'."
+    }
+  ]}
+/>
+
+### Container/Core Installation
+
+If you're running Home Assistant Container or Core, run this script:
+
+```bash
+# Run in your Home Assistant config directory
+wget -O - https://get.hacs.xyz | bash -
+```
+
+Then restart Home Assistant and continue from step 6 above.
+
+## First Time in HACS
+
+After installation, you'll find HACS in the sidebar menu. Here's an overview of the sections:
+
+<CardGrid>
+  <Card title="Integrations" icon="puzzle">
+    Custom integrations that add new devices and services to Home Assistant
+  </Card>
+  <Card title="Frontend" icon="laptop">
+    Lovelace cards, themes and other UI components for your dashboard
+  </Card>
+</CardGrid>
+
+## Install Your First Integration
+
+Let's install a popular integration as an example:
+
+<Steps>
+1. Click **HACS** in the sidebar
+2. Select **Integrations**
+3. Click **+ Explore & download repositories** (bottom right)
+4. Search for e.g. "Nordpool" (electricity price integration)
+5. Click on the integration and read the description
+6. Click **Download** → select version → **Download**
+7. **Restart Home Assistant** when prompted
+8. Add the integration via Settings → Devices & Services → Add integration
+</Steps>
+
+<Aside type="tip">
+After downloading an integration, you must always restart Home Assistant and then add the integration under Devices & Services.
+</Aside>
+
+## Popular HACS Integrations
+
+Here are some of the most popular integrations you can install:
+
+| Integration | Description | GitHub |
+|-------------|-------------|--------|
+| **Nordpool** | Electricity prices from Nord Pool | [GitHub](https://github.com/custom-components/nordpool) |
+| **EPEX Spot** | European electricity prices | [GitHub](https://github.com/mampfes/ha_epex_spot) |
+| **Adaptive Lighting** | Automatic light adaptation | [GitHub](https://github.com/basnijholt/adaptive-lighting) |
+| **Browser Mod** | Advanced browser control | [GitHub](https://github.com/thomasloven/hass-browser_mod) |
+
+## Popular Frontend Components
+
+| Component | Description | GitHub |
+|-----------|-------------|--------|
+| **Mushroom Cards** | Beautiful, minimalist cards | [GitHub](https://github.com/piitaya/lovelace-mushroom) |
+| **ApexCharts Card** | Advanced graphs and charts | [GitHub](https://github.com/RomRider/apexcharts-card) |
+| **Mini Graph Card** | Compact graphs | [GitHub](https://github.com/kalkih/mini-graph-card) |
+| **Button Card** | Customizable buttons | [GitHub](https://github.com/custom-cards/button-card) |
+
+## Updating HACS Components
+
+HACS makes it easy to keep everything updated:
+
+<Steps>
+1. Go to **HACS** in the sidebar
+2. Look for an **orange badge** showing available updates
+3. Click on the component with an update
+4. Click **Update** and follow the instructions
+5. Restart Home Assistant if required
+</Steps>
+
+From HACS 2.0, updates also appear in Home Assistant's normal update overview.
+
+## Troubleshooting
+
+### HACS doesn't show after installation
+
+- Make sure you've restarted Home Assistant
+- Clear browser cache (Ctrl+F5)
+- Check that HACS files are in `custom_components/hacs/`
+
+### GitHub API limit
+
+HACS uses the GitHub API, which has limitations. If you get errors:
+
+- Wait 1 hour and try again
+- Make sure your GitHub account is properly connected
+
+### Integration doesn't work after download
+
+1. Check that you've restarted Home Assistant
+2. Check the log under **Settings → System → Logs**
+3. Read the integration's documentation on GitHub
+4. Search for solutions in Home Assistant Community forum
+
+<FAQ
+  questions={[
+    {
+      question: "Is HACS safe to use?",
+      answer: "HACS is a community project with over 5,000 stars on GitHub. However, individual integrations are not officially approved by the Home Assistant team, so always read the documentation and reviews before installation."
+    },
+    {
+      question: "Can HACS break my Home Assistant installation?",
+      answer: "There's always a small risk with custom components. Always create a backup before installing new integrations, and only install from well-known repositories with active maintenance."
+    },
+    {
+      question: "Why do I need a GitHub account?",
+      answer: "HACS fetches all components from GitHub. A free GitHub account gives you access to more API calls and better speed."
+    },
+    {
+      question: "How do I remove a HACS integration?",
+      answer: "Go to HACS → find the integration → click on it → click the three dots → Remove → Restart Home Assistant."
+    },
+    {
+      question: "Does HACS work with all Home Assistant installation types?",
+      answer: "Yes, HACS works with Home Assistant OS, Supervised, Container and Core. However, the installation method varies - OS/Supervised use the add-on method, while Container/Core use the script method."
+    }
+  ]}
+/>
+
+## Next Steps
+
+Now that you have HACS installed, you can:
+
+<CardGrid>
+  <LinkCard 
+    title="Electricity Price Integration" 
+    href="/en/home-assistant/electricity-price-integration/"
+    description="Install Nordpool or EPEX Spot to get electricity prices in Home Assistant"
+  />
+  <LinkCard 
+    title="First Automation" 
+    href="/en/home-assistant/first-automation/"
+    description="Learn to create your first automation"
+  />
+</CardGrid>
+
+---
+
+*Last updated: December 2025*

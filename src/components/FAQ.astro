@@ -2,10 +2,12 @@
 /**
  * FAQ Component with Schema.org structured data
  * Usage:
- * <FAQ items={[
+ * <FAQ questions={[
  *   { question: "Hvad er Home Assistant?", answer: "Home Assistant er..." },
  *   { question: "Er det gratis?", answer: "Ja, Home Assistant er..." }
  * ]} />
+ * 
+ * Also accepts 'items' as an alias for backwards compatibility
  */
 
 interface FAQItem {
@@ -14,16 +16,20 @@ interface FAQItem {
 }
 
 interface Props {
-  items: FAQItem[];
+  questions?: FAQItem[];
+  items?: FAQItem[];
 }
 
-const { items } = Astro.props;
+const { questions, items } = Astro.props;
+
+// Support both 'questions' and 'items' prop names
+const faqItems = questions || items || [];
 
 // Generate Schema.org FAQPage structured data
 const faqSchema = {
   "@context": "https://schema.org",
   "@type": "FAQPage",
-  "mainEntity": items.map(item => ({
+  "mainEntity": faqItems.map(item => ({
     "@type": "Question",
     "name": item.question,
     "acceptedAnswer": {
@@ -39,7 +45,7 @@ const faqSchema = {
 <div class="faq-section">
   <h2>Ofte stillede spørgsmål</h2>
   <dl class="faq-list">
-    {items.map((item) => (
+    {faqItems.map((item) => (
       <div class="faq-item">
         <dt class="faq-question">{item.question}</dt>
         <dd class="faq-answer">{item.answer}</dd>
