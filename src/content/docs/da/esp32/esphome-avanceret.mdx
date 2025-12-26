@@ -1,0 +1,568 @@
+---
+title: ESPHome Avanceret Guide
+description: Avanceret ESPHome guide - packages, substitutions, templates, multi-sensor projekter og custom components til Home Assistant.
+sidebar:
+  badge:
+    text: Avanceret
+    variant: caution
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+
+<Badge text="DIY" variant="tip" /> <Badge text="ESPHome" variant="success" /> <Badge text="Avanceret" variant="caution" />
+
+Denne guide dækker **avancerede ESPHome teknikker** - fra packages og substitutions til multi-sensor projekter og external components. Perfekt til dig der vil tage dine DIY projekter til næste niveau!
+
+<Aside type="tip" title="Forudsætninger">
+Denne guide antager du allerede har:
+- ESPHome installeret (add-on eller standalone)
+- Grundlæggende erfaring med YAML
+- Kendskab til ESP32/ESP8266
+
+Se [Kom godt i gang](/da/esp32/kom-godt-i-gang/) først hvis du er ny.
+</Aside>
+
+---
+
+## 📦 Packages & Substitutions
+
+### Hvorfor bruge Packages?
+
+**Packages** lader dig genbruge konfiguration på tværs af mange enheder. I stedet for at kopiere den samme WiFi, API og OTA konfiguration til 10 enheder, lægger du det i én fil og importerer den.
+
+### Grundlæggende Substitutions
+
+```yaml
+# device.yaml
+substitutions:
+  device_name: stue-sensor
+  friendly_name: "Stue Sensor"
+  update_interval: 60s
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+sensor:
+  - platform: dht
+    pin: GPIO4
+    temperature:
+      name: "${friendly_name} Temperatur"
+    humidity:
+      name: "${friendly_name} Fugtighed"
+    update_interval: ${update_interval}
+```
+
+### Lokale Packages med !include
+
+<Tabs>
+  <TabItem label="Struktur">
+    ```
+    esphome/
+    ├── common/
+    │   ├── base.yaml         # WiFi, API, OTA
+    │   ├── sensors.yaml      # Fælles sensorer
+    │   └── wifi.yaml         # WiFi config
+    ├── stue-sensor.yaml
+    ├── sovevaerelse-sensor.yaml
+    └── secrets.yaml
+    ```
+  </TabItem>
+  <TabItem label="base.yaml">
+    ```yaml
+    # common/base.yaml
+    esphome:
+      name: ${device_name}
+      friendly_name: ${friendly_name}
+      platform: ${platform}
+      board: ${board}
+
+    wifi:
+      ssid: !secret wifi_ssid
+      password: !secret wifi_password
+      ap:
+        ssid: "${device_name} Fallback"
+        password: !secret fallback_password
+
+    api:
+      encryption:
+        key: !secret api_key
+
+    ota:
+      platform: esphome
+      password: !secret ota_password
+
+    logger:
+      level: DEBUG
+
+    # Fælles sensorer
+    sensor:
+      - platform: wifi_signal
+        name: "${friendly_name} WiFi Signal"
+        update_interval: 60s
+
+      - platform: uptime
+        name: "${friendly_name} Oppetid"
+
+    button:
+      - platform: restart
+        name: "${friendly_name} Genstart"
+    ```
+  </TabItem>
+  <TabItem label="Device Config">
+    ```yaml
+    # stue-sensor.yaml
+    substitutions:
+      device_name: stue-sensor
+      friendly_name: "Stue Sensor"
+      platform: esp32
+      board: esp32dev
+
+    packages:
+      base: !include common/base.yaml
+
+    # Device-specifik konfiguration
+    sensor:
+      - platform: bme280_i2c
+        address: 0x76
+        temperature:
+          name: "${friendly_name} Temperatur"
+          oversampling: 16x
+        pressure:
+          name: "${friendly_name} Lufttryk"
+        humidity:
+          name: "${friendly_name} Fugtighed"
+        update_interval: 60s
+
+    i2c:
+      sda: GPIO21
+      scl: GPIO22
+    ```
+  </TabItem>
+</Tabs>
+
+### Remote Packages fra GitHub
+
+```yaml
+# Importer packages direkte fra GitHub
+substitutions:
+  device_name: my-sensor
+  friendly_name: "My Sensor"
+
+packages:
+  # Officielle ESPHome packages
+  voice_assistant:
+    url: https://github.com/esphome/firmware
+    files:
+      - voice-assistant/m5stack-atom-echo.yaml
+    refresh: 1d
+
+  # Community packages
+  common:
+    url: https://github.com/olegtarasov/esphome-common
+    ref: main
+    files:
+      - common/base.yaml
+    refresh: 1d
+```
+
+<Aside type="caution" title="Remote Package Begrænsninger">
+Remote packages kan **ikke** bruge `!secret` lookups. Brug substitutions med defaults i stedet, og override lokalt.
+</Aside>
+
+---
+
+## 🔧 Avancerede Templates
+
+### Lambda Expressions
+
+```yaml
+sensor:
+  - platform: template
+    name: "Beregnet Værdi"
+    lambda: |-
+      // C++ kode her
+      float temp = id(temperature_sensor).state;
+      float hum = id(humidity_sensor).state;
+      
+      // Beregn duggpunkt
+      float a = 17.27;
+      float b = 237.7;
+      float alpha = ((a * temp) / (b + temp)) + log(hum / 100.0);
+      float dewpoint = (b * alpha) / (a - alpha);
+      
+      return dewpoint;
+    update_interval: 60s
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+```
+
+### Conditional Logic
+
+```yaml
+binary_sensor:
+  - platform: template
+    name: "Komfort Zone"
+    lambda: |-
+      float temp = id(temperature_sensor).state;
+      float hum = id(humidity_sensor).state;
+      
+      // Komfortabel: 20-24°C og 40-60% fugtighed
+      bool comfortable = (temp >= 20 && temp <= 24) && 
+                         (hum >= 40 && hum <= 60);
+      return comfortable;
+```
+
+### Text Sensors med Jinja2 (ESPHome 2025.7+)
+
+```yaml
+# Ny i ESPHome 2025.7: Jinja2 i substitutions!
+substitutions:
+  # Dynamiske værdier
+  compile_time: "{{ now().strftime('%Y-%m-%d %H:%M') }}"
+  random_suffix: "{{ range(1000, 9999) | random }}"
+
+text_sensor:
+  - platform: template
+    name: "Firmware Info"
+    lambda: |-
+      return {"Kompileret: ${compile_time}"};
+```
+
+---
+
+## 🛠️ Multi-Sensor Projekter
+
+### All-in-One Rum Sensor
+
+```yaml
+# Komplet rum sensor med alle relevante målinger
+substitutions:
+  device_name: room-sensor
+  friendly_name: "Stue Multi-Sensor"
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+
+# I2C bus til sensorer
+i2c:
+  sda: GPIO21
+  scl: GPIO22
+  scan: true
+
+# UART til CO2 sensor
+uart:
+  - id: uart_co2
+    rx_pin: GPIO16
+    tx_pin: GPIO17
+    baud_rate: 9600
+
+sensor:
+  # ===== TEMPERATUR & FUGTIGHED =====
+  - platform: bme280_i2c
+    address: 0x76
+    temperature:
+      name: "${friendly_name} Temperatur"
+      id: temperature
+      filters:
+        - sliding_window_moving_average:
+            window_size: 5
+            send_every: 1
+    humidity:
+      name: "${friendly_name} Fugtighed"
+      id: humidity
+    pressure:
+      name: "${friendly_name} Lufttryk"
+    update_interval: 30s
+
+  # ===== CO2 =====
+  - platform: senseair
+    uart_id: uart_co2
+    co2:
+      name: "${friendly_name} CO2"
+      id: co2
+    update_interval: 60s
+
+  # ===== LYS =====
+  - platform: bh1750
+    name: "${friendly_name} Lysstyrke"
+    address: 0x23
+    update_interval: 30s
+
+  # ===== BEVÆGELSE (mmWave) =====
+  # Tilføj LD2410 for tilstedeværelse
+
+  # ===== BEREGNET: DUGGPUNKT =====
+  - platform: template
+    name: "${friendly_name} Duggpunkt"
+    lambda: |-
+      float t = id(temperature).state;
+      float h = id(humidity).state;
+      float a = 17.27, b = 237.7;
+      float alpha = ((a * t) / (b + t)) + log(h / 100.0);
+      return (b * alpha) / (a - alpha);
+    unit_of_measurement: "°C"
+    accuracy_decimals: 1
+    update_interval: 60s
+
+  # ===== BEREGNET: LUFTKVALITET INDEX =====
+  - platform: template
+    name: "${friendly_name} Luftkvalitet"
+    lambda: |-
+      int co2_val = id(co2).state;
+      if (co2_val < 600) return 100;      // Excellent
+      if (co2_val < 800) return 80;       // Good
+      if (co2_val < 1000) return 60;      // Moderate
+      if (co2_val < 1500) return 40;      // Poor
+      return 20;                           // Bad
+    unit_of_measurement: "%"
+    update_interval: 60s
+
+binary_sensor:
+  # PIR bevægelse
+  - platform: gpio
+    pin: GPIO27
+    name: "${friendly_name} Bevægelse"
+    device_class: motion
+
+# Status LED
+light:
+  - platform: esp32_rmt_led_strip
+    rgb_order: GRB
+    pin: GPIO25
+    num_leds: 1
+    chipset: WS2812
+    name: "${friendly_name} Status LED"
+    id: status_led
+
+# Interval for status LED baseret på CO2
+interval:
+  - interval: 5s
+    then:
+      - if:
+          condition:
+            lambda: 'return id(co2).state < 800;'
+          then:
+            - light.turn_on:
+                id: status_led
+                brightness: 30%
+                red: 0%
+                green: 100%
+                blue: 0%
+          else:
+            - if:
+                condition:
+                  lambda: 'return id(co2).state < 1200;'
+                then:
+                  - light.turn_on:
+                      id: status_led
+                      brightness: 30%
+                      red: 100%
+                      green: 100%
+                      blue: 0%
+                else:
+                  - light.turn_on:
+                      id: status_led
+                      brightness: 30%
+                      red: 100%
+                      green: 0%
+                      blue: 0%
+```
+
+### Komponenter Liste
+
+| Sensor | Måling | I2C Adresse | Pris |
+|--------|--------|-------------|------|
+| BME280 | Temp, Hum, Tryk | 0x76/0x77 | ~40 kr |
+| SenseAir S8 | CO2 | UART | ~350 kr |
+| BH1750 | Lys | 0x23 | ~20 kr |
+| LD2410 | mmWave | UART | ~60 kr |
+| AM312 | PIR | GPIO | ~15 kr |
+
+**Total:** ~500 kr for komplet multi-sensor
+
+---
+
+## 🔌 External Components
+
+### Hvad er External Components?
+
+External components er custom ESPHome komponenter hostet på GitHub. De udvider ESPHome med funktionalitet der ikke er i kerne-biblioteket.
+
+```yaml
+external_components:
+  # LD2410 mmWave radar
+  - source: github://screek-workshop/ld2410@main
+    components: [ld2410]
+    refresh: 1d
+
+  # Custom sensor fra community
+  - source:
+      type: git
+      url: https://github.com/ssieb/esphome_components
+    components: [serial_csv]
+```
+
+### Populære External Components
+
+| Component | Funktion | GitHub |
+|-----------|----------|--------|
+| **ld2410** | mmWave radar | screek-workshop/ld2410 |
+| **ratgdo** | Garage door | ratgdo/esphome-ratgdo |
+| **bluetooth_proxy** | BLE proxy | esphome/bluetooth-proxies |
+| **improv** | Easy WiFi setup | esphome/improv |
+
+### Skriv Din Egen Component
+
+```yaml
+# external_components/my_sensor/__init__.py
+import esphome.codegen as cg
+import esphome.config_validation as cv
+from esphome.components import sensor
+from esphome.const import CONF_ID, UNIT_CELSIUS
+
+my_sensor_ns = cg.esphome_ns.namespace('my_sensor')
+MySensor = my_sensor_ns.class_('MySensor', sensor.Sensor, cg.PollingComponent)
+
+CONFIG_SCHEMA = sensor.sensor_schema(
+    MySensor,
+    unit_of_measurement=UNIT_CELSIUS,
+    accuracy_decimals=1
+).extend(cv.polling_component_schema('60s'))
+
+async def to_code(config):
+    var = await sensor.new_sensor(config)
+    await cg.register_component(var, config)
+```
+
+---
+
+## 📊 Sharing & Distribution
+
+### Project Template
+
+```yaml
+# For deling af dine projekter
+substitutions:
+  name: "my-project"
+  friendly_name: "My Project"
+
+esphome:
+  name: "${name}"
+  friendly_name: "${friendly_name}"
+  name_add_mac_suffix: true  # Unik for hver enhed
+  
+  project:
+    name: "username.my-project"
+    version: "1.0.0"
+
+# Dashboard import for nem adoption
+dashboard_import:
+  package_import_url: github://username/esphome-project/project.yaml@v1
+  import_full_config: false
+
+# Captive portal for første setup
+wifi:
+  ap:
+    ssid: "${name} Setup"
+    password: "12345678"
+
+captive_portal:
+```
+
+---
+
+## 🧪 Debugging & Optimering
+
+### Memory Analyse (ESPHome 2025.11+)
+
+```bash
+# Ny kommando til memory analyse
+esphome analyze-memory device.yaml
+```
+
+### Debug Logging
+
+```yaml
+logger:
+  level: DEBUG
+  logs:
+    # Reducer støj fra specifikke komponenter
+    component: ERROR
+    wifi: WARN
+    # Øg logging for debugging
+    sensor: DEBUG
+    api: VERBOSE
+```
+
+### Performance Tips
+
+```yaml
+# Optimer for batteridrift
+deep_sleep:
+  run_duration: 30s
+  sleep_duration: 5min
+
+# Reducer WiFi strømforbrug
+wifi:
+  power_save_mode: LIGHT  # eller HIGH
+
+# Batch sensor opdateringer
+sensor:
+  - platform: adc
+    filters:
+      - sliding_window_moving_average:
+          window_size: 10
+          send_every: 5
+```
+
+---
+
+## ❓ Ofte Stillede Spørgsmål
+
+<FAQ questions={[
+  {
+    question: "Hvad er forskellen på packages og !include?",
+    answer: "Packages merger intelligent (lister kombineres, dict'er merges), mens !include bare indsætter YAML direkte. Brug packages når du har flere filer med samme sektioner (f.eks. multiple sensor: blokke)."
+  },
+  {
+    question: "Kan jeg bruge secrets i remote packages?",
+    answer: "Nej, remote packages kan ikke bruge !secret. Brug substitutions med defaults i pakken, og override dem lokalt hvor du kan bruge secrets."
+  },
+  {
+    question: "Hvordan debugger jeg lambda expressions?",
+    answer: "Brug ESP_LOGD() i din lambda: ESP_LOGD(\"custom\", \"Value: %f\", value); - dette vises i loggen med DEBUG level."
+  },
+  {
+    question: "Hvornår skal jeg bruge external components?",
+    answer: "Når funktionaliteten ikke findes i ESPHome core, eller når community har lavet en bedre implementation. Tjek altid at componenten er vedligeholdt og kompatibel med din ESPHome version."
+  }
+]} />
+
+---
+
+## 📚 Næste Skridt
+
+<CardGrid>
+  <Card title="Temperatur Sensor" icon="seti:arduino">
+    Basis ESP32 projekt.
+    
+    [Se guide →](/da/esp32/temperatur-sensor/)
+  </Card>
+  <Card title="mmWave Sensor" icon="rocket">
+    Avanceret tilstedeværelse.
+    
+    [Se guide →](/da/esp32/ld2410-mmwave/)
+  </Card>
+</CardGrid>
+
+---
+
+*Sidst opdateret: December 2025*
