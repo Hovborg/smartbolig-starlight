@@ -654,7 +654,7 @@ export default defineConfig({
           tag: "script",
           attrs: {
             async: true,
-            src: "https://www.googletagmanager.com/gtag/js?id=G-H52D2TJGV0",
+            src: "https://www.googletagmanager.com/gtag/js?id=G-78F6DLB00Z",
             "data-cookieconsent": "statistics",
           },
         },
@@ -663,7 +663,7 @@ export default defineConfig({
           attrs: {
             "data-cookieconsent": "statistics",
           },
-          content: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-H52D2TJGV0');`,
+          content: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-78F6DLB00Z');`,
         },
         // RSS Feed auto-discovery
         {
