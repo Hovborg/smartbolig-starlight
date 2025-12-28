@@ -1,1 +1,25 @@
 @import "tailwindcss";
+
+/* Hero action buttons - larger size */
+.hero .action {
+  font-size: 1.25rem !important;
+  padding: 1rem 2rem !important;
+  border-radius: 0.5rem !important;
+}
+
+/* Primary button (Kom i gang / Get Started) */
+.hero .action.primary {
+  font-weight: 600 !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Secondary button (Se alle guides / Browse Guides) */
+.hero .action.secondary {
+  font-weight: 500 !important;
+}
+
+/* Hover effect */
+.hero .action:hover {
+  transform: translateY(-2px);
+  transition: transform 0.2s ease;
+}

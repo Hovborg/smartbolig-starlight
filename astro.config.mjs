@@ -24,6 +24,8 @@ export default defineConfig({
       components: {
         Head: "./src/components/Head.astro",
       },
+      // Custom CSS for styling
+      customCss: ["./src/styles/global.css"],
       // Social links
       social: [
         {
