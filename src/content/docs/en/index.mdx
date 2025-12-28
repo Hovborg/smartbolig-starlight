@@ -5,7 +5,7 @@ template: splash
 hero:
   tagline: Your resource for everything smart home technology. In-depth guides, tutorials and reviews to build the perfect intelligent home.
   image:
-    html: "<picture><img src='/images/hero/front.png' alt='SmartBolig smart home illustration' style='width:900px;max-width:130%;height:auto;display:block;transform:scale(1.1);'></picture>"
+    html: "<img src='/images/hero/front.png' alt='SmartBolig smart home illustration' style='max-width:100%;height:auto;'>"
   actions:
     - text: Get Started
       link: /en/home-assistant/kom-godt-i-gang/
@@ -21,28 +21,13 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
 
 <CardGrid stagger>
   <Card title="Home Assistant" icon="setting">
-    Setup, backup, dashboards and integrations that work in practice. [Go to
-    Home Assistant →](/en/home-assistant/)
+    Setup, backup, dashboards and integrations that work in practice. [Go to Home Assistant →](/en/home-assistant/)
   </Card>
   <Card title="ESP32 & ESPHome" icon="rocket">
-    Build your own sensors and switches with copy-ready ESPHome configurations.
-    [See ESP32 guides →](/en/esp32/)
-  </Card>
-  <Card title="Automations" icon="puzzle">
-    From simple light rules to advanced flows with conditions and scenes. [See
-    automations →](/en/automations/)
+    Build your own sensors and switches with copy-ready ESPHome configurations. [See ESP32 guides →](/en/esp32/)
   </Card>
   <Card title="Products" icon="seti:salesforce">
-    Recommendations for hubs, sensors and equipment that work with HA. [See
-    products →](/en/products/)
-  </Card>
-  <Card title="Security" icon="approve-check">
-    Harden your network, 2FA and secrets management to keep data at home. [Read
-    security →](/en/security/)
-  </Card>
-  <Card title="Protocols" icon="random">
-    Zigbee, Z-Wave, WiFi, Thread & Matter - choose the right one for your setup. [See
-    protocols →](/en/home-assistant/zigbee2mqtt/)
+    Recommendations for hubs, sensors and equipment that work with HA. [See products →](/en/products/)
   </Card>
 </CardGrid>
 
@@ -84,7 +69,7 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
     href="/en/home-assistant/thread-matter/"
   />
   <LinkCard
-    title="📶 WiFi Devices (Shelly)"
+    title="📶 WiFi Devices"
     description="Shelly, Tasmota and ESPHome - local control without cloud"
     href="/en/home-assistant/wifi-enheder/"
   />
@@ -162,6 +147,11 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
 
 <CardGrid>
   <LinkCard
+    title="🚀 Getting Started"
+    description="Your first ESP32 with ESPHome - from unboxing to sensor"
+    href="/en/esp32/kom-godt-i-gang/"
+  />
+  <LinkCard
     title="🌡️ Temperature Sensor"
     description="DHT22/BME280 with ESPHome - perfect beginner project"
     href="/en/esp32/temperatur-sensor/"
@@ -180,6 +170,11 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
     title="📡 LD2410 mmWave"
     description="Radar sensor that detects stationary people"
     href="/en/esp32/ld2410-mmwave/"
+  />
+  <LinkCard
+    title="⚙️ Advanced ESPHome"
+    description="Lambdas, custom components and advanced configurations"
+    href="/en/esp32/esphome-avanceret/"
   />
 </CardGrid>
 
@@ -214,9 +209,36 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
     href="/en/home-assistant/better-thermostat/"
   />
   <LinkCard
+    title="🎨 Dashboard Design"
+    description="Build beautiful and functional dashboards"
+    href="/en/home-assistant/dashboard-design/"
+  />
+</CardGrid>
+
+---
+
+## 📚 More Resources
+
+<CardGrid>
+  <LinkCard
+    title="🛠️ HACS"
+    description="Home Assistant Community Store - extensions and integrations"
+    href="/en/home-assistant/hacs/"
+  />
+  <LinkCard
     title="💾 Backup & Security"
     description="Protect your setup with automatic backups"
     href="/en/home-assistant/backup-sikkerhed/"
+  />
+  <LinkCard
+    title="🔧 Troubleshooting"
+    description="Solve the most common problems"
+    href="/en/home-assistant/fejlfinding/"
+  />
+  <LinkCard
+    title="📖 Glossary"
+    description="Explanations of smart home terms"
+    href="/en/home-assistant/glossar/"
   />
 </CardGrid>
 
@@ -225,20 +247,10 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
 ## 🧭 Quick Start Path
 
 <Aside type="note" title="Recommended order">
-  <ol>
-    <li>
-      <strong>Choose platform</strong>: Raspberry Pi (easy), Proxmox (advanced), or Docker (existing server).
-    </li>
-    <li>
-      <strong>Add Zigbee</strong>: Zigbee2MQTT for sensors and switches from IKEA, Aqara etc.
-    </li>
-    <li>
-      <strong>Build your own devices</strong>: ESP32 with ESPHome for temperature, motion, LED strips.
-    </li>
-    <li>
-      <strong>Automate</strong>: Start with simple automations and expand gradually.
-    </li>
-  </ol>
+  1. **Choose platform**: Raspberry Pi (easy), Proxmox (advanced), or Docker (existing server).
+  2. **Add Zigbee**: Zigbee2MQTT for sensors and switches from IKEA, Aqara etc.
+  3. **Build your own devices**: ESP32 with ESPHome for temperature, motion, LED strips.
+  4. **Automate**: Start with simple automations and expand gradually.
 </Aside>
 
 ---

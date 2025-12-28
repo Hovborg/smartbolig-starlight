@@ -5,7 +5,7 @@ template: splash
 hero:
   tagline: Din danske ressource til alt inden for smart home teknologi. Dybdegående guides, tutorials og anmeldelser til at bygge det perfekte intelligente hjem.
   image:
-    html: "<picture><img src='/images/hero/front.png' alt='SmartBolig abstrakt smart home illustration' style='width:900px;max-width:130%;height:auto;display:block;transform:scale(1.1);'></picture>"
+    html: "<img src='/images/hero/front.png' alt='SmartBolig smart home illustration' style='max-width:100%;height:auto;'>"
   actions:
     - text: Kom i gang
       link: /da/home-assistant/kom-godt-i-gang/
@@ -21,28 +21,13 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
 
 <CardGrid stagger>
   <Card title="Home Assistant" icon="setting">
-    Opsætning, backup, dashboards og integrationer der virker i praksis. [Gå til
-    Home Assistant →](/da/home-assistant/)
+    Opsætning, backup, dashboards og integrationer der virker i praksis. [Gå til Home Assistant →](/da/home-assistant/)
   </Card>
   <Card title="ESP32 & ESPHome" icon="rocket">
-    Byg dine egne sensorer og kontakter med ESPHome-konfigurationer du kan
-    kopiere. [Se ESP32 guides →](/da/esp32/)
-  </Card>
-  <Card title="Automationer" icon="puzzle">
-    Fra simple lysregler til avancerede flows med betingelser og scener. [Se
-    automationer →](/da/automationer/)
+    Byg dine egne sensorer og kontakter med ESPHome-konfigurationer du kan kopiere. [Se ESP32 guides →](/da/esp32/)
   </Card>
   <Card title="Produkter" icon="seti:salesforce">
-    Anbefalinger til hubbe, sensorer og udstyr der spiller med HA. [Se
-    produkter →](/da/produkter/)
-  </Card>
-  <Card title="Sikkerhed" icon="approve-check">
-    Hærd dit netværk, 2FA og secrets-håndtering så data bliver hjemme. [Læs
-    sikkerhed →](/da/sikkerhed/)
-  </Card>
-  <Card title="Protokoller" icon="random">
-    Zigbee, Z-Wave, WiFi, Thread & Matter - vælg det rigtige til dit setup. [Se
-    protokoller →](/da/home-assistant/zigbee2mqtt/)
+    Anbefalinger til hubbe, sensorer og udstyr der spiller med HA. [Se produkter →](/da/produkter/)
   </Card>
 </CardGrid>
 
@@ -84,7 +69,7 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
     href="/da/home-assistant/thread-matter/"
   />
   <LinkCard
-    title="📶 WiFi Enheder (Shelly)"
+    title="📶 WiFi Enheder"
     description="Shelly, Tasmota og ESPHome - lokal kontrol uden cloud"
     href="/da/home-assistant/wifi-enheder/"
   />
@@ -162,6 +147,11 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
 
 <CardGrid>
   <LinkCard
+    title="🚀 Kom godt i gang"
+    description="Din første ESP32 med ESPHome - fra udpakning til sensor"
+    href="/da/esp32/kom-godt-i-gang/"
+  />
+  <LinkCard
     title="🌡️ Temperatur Sensor"
     description="DHT22/BME280 med ESPHome - perfekt begynderprojekt"
     href="/da/esp32/temperatur-sensor/"
@@ -180,6 +170,11 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
     title="📡 LD2410 mmWave"
     description="Radar sensor der detekterer stillestående personer"
     href="/da/esp32/ld2410-mmwave/"
+  />
+  <LinkCard
+    title="⚙️ Avanceret ESPHome"
+    description="Lambdas, custom components og avancerede konfigurationer"
+    href="/da/esp32/esphome-avanceret/"
   />
 </CardGrid>
 
@@ -214,9 +209,36 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
     href="/da/home-assistant/better-thermostat/"
   />
   <LinkCard
+    title="🎨 Dashboard Design"
+    description="Byg flotte og funktionelle dashboards"
+    href="/da/home-assistant/dashboard-design/"
+  />
+</CardGrid>
+
+---
+
+## 📚 Flere ressourcer
+
+<CardGrid>
+  <LinkCard
+    title="🛠️ HACS"
+    description="Home Assistant Community Store - udvidelser og integrationer"
+    href="/da/home-assistant/hacs/"
+  />
+  <LinkCard
     title="💾 Backup & Sikkerhed"
     description="Beskyt din opsætning med automatiske backups"
     href="/da/home-assistant/backup-sikkerhed/"
+  />
+  <LinkCard
+    title="🔧 Fejlfinding"
+    description="Løs de mest almindelige problemer"
+    href="/da/home-assistant/fejlfinding/"
+  />
+  <LinkCard
+    title="📖 Ordliste"
+    description="Forklaringer på smart home begreber"
+    href="/da/home-assistant/glossar/"
   />
 </CardGrid>
 
@@ -225,20 +247,10 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
 ## 🧭 Kom hurtigt i gang
 
 <Aside type="note" title="Anbefalet rækkefølge">
-  <ol>
-    <li>
-      <strong>Vælg platform</strong>: Raspberry Pi (nemt), Proxmox (avanceret), eller Docker (eksisterende server).
-    </li>
-    <li>
-      <strong>Tilføj Zigbee</strong>: Zigbee2MQTT til sensorer og kontakter fra IKEA, Aqara m.fl.
-    </li>
-    <li>
-      <strong>Byg egne enheder</strong>: ESP32 med ESPHome til temperatur, bevægelse, LED strips.
-    </li>
-    <li>
-      <strong>Automatiser</strong>: Start med simple automationer og udvid efterhånden.
-    </li>
-  </ol>
+  1. **Vælg platform**: Raspberry Pi (nemt), Proxmox (avanceret), eller Docker (eksisterende server).
+  2. **Tilføj Zigbee**: Zigbee2MQTT til sensorer og kontakter fra IKEA, Aqara m.fl.
+  3. **Byg egne enheder**: ESP32 med ESPHome til temperatur, bevægelse, LED strips.
+  4. **Automatiser**: Start med simple automationer og udvid efterhånden.
 </Aside>
 
 ---
