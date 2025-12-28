@@ -8,7 +8,7 @@ hero:
     html: "<picture><img src='/images/hero/front.png' alt='SmartBolig smart home illustration' style='width:900px;max-width:130%;height:auto;display:block;transform:scale(1.1);'></picture>"
   actions:
     - text: Get Started
-      link: /en/home-assistant/getting-started/
+      link: /en/home-assistant/kom-godt-i-gang/
       variant: primary
     - text: Browse Guides
       link: /en/home-assistant/
@@ -32,19 +32,21 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
     From simple light rules to advanced flows with conditions and scenes. [See
     automations →](/en/automations/)
   </Card>
-  <Card title="Zigbee & MQTT" icon="plug">
-    Stable radio with Zigbee2MQTT, broker selection and pairing strategies.
-    [Build your network →](/en/home-assistant/zigbee2mqtt/)
+  <Card title="Products" icon="seti:salesforce">
+    Recommendations for hubs, sensors and equipment that work with HA. [See
+    products →](/en/products/)
   </Card>
   <Card title="Security" icon="approve-check">
     Harden your network, 2FA and secrets management to keep data at home. [Read
     security →](/en/security/)
   </Card>
-  <Card title="Hardware & Products" icon="device">
-    Recommendations for hubs, sensors and power monitoring that work with HA.
-    [See products →](/en/products/)
+  <Card title="Protocols" icon="random">
+    Zigbee, Z-Wave, WiFi, Thread & Matter - choose the right one for your setup. [See
+    protocols →](/en/home-assistant/zigbee2mqtt/)
   </Card>
 </CardGrid>
+
+---
 
 ## 💿 Installation - Choose Your Platform
 
@@ -66,18 +68,145 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
   />
 </CardGrid>
 
-## 🔥 New Guides
+---
+
+## 📡 Protocols & Integrations
 
 <CardGrid>
+  <LinkCard
+    title="📡 Zigbee2MQTT"
+    description="One dongle for all Zigbee devices - IKEA, Aqara, Sonoff etc."
+    href="/en/home-assistant/zigbee2mqtt/"
+  />
+  <LinkCard
+    title="🧵 Thread & Matter"
+    description="The future of smart home - setup and best practices"
+    href="/en/home-assistant/thread-matter/"
+  />
+  <LinkCard
+    title="📶 WiFi Devices (Shelly)"
+    description="Shelly, Tasmota and ESPHome - local control without cloud"
+    href="/en/home-assistant/wifi-enheder/"
+  />
+  <LinkCard
+    title="🌊 Z-Wave"
+    description="Robust protocol with long range and no interference"
+    href="/en/home-assistant/z-wave/"
+  />
+  <LinkCard
+    title="⚡ Electricity Price Integration"
+    description="Real-time electricity prices and automatic optimization"
+    href="/en/home-assistant/elpris-integration/"
+  />
+  <LinkCard
+    title="🔴 Node-RED"
+    description="Visual programming for advanced automations"
+    href="/en/home-assistant/node-red/"
+  />
+</CardGrid>
+
+---
+
+## 🛒 Product Categories
+
+<CardGrid>
+  <LinkCard
+    title="📡 Zigbee Coordinators"
+    description="Sonoff, SLZB-06, Conbee - choose the right one for your setup"
+    href="/en/products/zigbee-koordinatorer/"
+  />
+  <LinkCard
+    title="🔌 Zigbee Sensors"
+    description="Temperature, motion, door/window, air quality and more"
+    href="/en/products/zigbee-sensorer/"
+  />
+  <LinkCard
+    title="📶 WiFi Devices"
+    description="Shelly relays, plugs and sensors for your existing network"
+    href="/en/products/wifi-enheder/"
+  />
+  <LinkCard
+    title="💡 Smart Lighting"
+    description="Bulbs, strips and switches for intelligent lighting control"
+    href="/en/products/smart-belysning/"
+  />
+  <LinkCard
+    title="🌡️ Smart Thermostats"
+    description="Save on heating with intelligent temperature control"
+    href="/en/products/smart-termostater/"
+  />
+  <LinkCard
+    title="👤 Presence Detection"
+    description="PIR, mmWave radar and Bluetooth for precise detection"
+    href="/en/products/tilstedevaerelse/"
+  />
+  <LinkCard
+    title="🔒 Smart Security"
+    description="Cameras, locks, alarms and access control"
+    href="/en/products/smart-sikkerhed/"
+  />
+  <LinkCard
+    title="⚡ Energy Management"
+    description="Monitoring, optimization and tracking of your power usage"
+    href="/en/products/energistyring/"
+  />
+</CardGrid>
+
+<Aside type="tip" title="More Categories">
+  See all product categories including kitchen, garden, pool, pets and much more on the [product overview →](/en/products/)
+</Aside>
+
+---
+
+## 🔧 ESP32 Projects
+
+<CardGrid>
+  <LinkCard
+    title="🌡️ Temperature Sensor"
+    description="DHT22/BME280 with ESPHome - perfect beginner project"
+    href="/en/esp32/temperatur-sensor/"
+  />
+  <LinkCard
+    title="🚶 Motion Sensor"
+    description="PIR sensor for automatic light control"
+    href="/en/esp32/bevaegelsessensor/"
+  />
+  <LinkCard
+    title="🌈 LED Strip"
+    description="Addressable WS2812B with effects and colors"
+    href="/en/esp32/led-strip/"
+  />
+  <LinkCard
+    title="📡 LD2410 mmWave"
+    description="Radar sensor that detects stationary people"
+    href="/en/esp32/ld2410-mmwave/"
+  />
+</CardGrid>
+
+---
+
+## 🔥 Popular Guides
+
+<CardGrid>
+  <LinkCard
+    title="📖 Getting Started"
+    description="Complete introduction to Home Assistant"
+    href="/en/home-assistant/kom-godt-i-gang/"
+  />
+  <LinkCard
+    title="⚡ First Automation"
+    description="Create a simple time-based automation with UI"
+    href="/en/home-assistant/foerste-automation/"
+  />
+  <LinkCard
+    title="🧺 Washing Machine Notification"
+    description="Get notified when the laundry is done"
+    href="/en/home-assistant/vaskemaskine-notification/"
+  />
   <LinkCard
     title="📺 Shelly Wall Display"
     description="Touchscreen with HA dashboards, sensors and relay"
     href="/en/home-assistant/shelly-wall-display/"
-  />
-  <LinkCard
-    title="📡 LD2410 mmWave Presence"
-    description="Detect stationary people with radar"
-    href="/en/esp32/ld2410-mmwave/"
   />
   <LinkCard
     title="🌡️ Better Thermostat"
@@ -85,46 +214,13 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
     href="/en/home-assistant/better-thermostat/"
   />
   <LinkCard
-    title="🧺 Washing Machine Notification"
-    description="Get notified when the laundry is done"
-    href="/en/home-assistant/washing-machine-notification/"
+    title="💾 Backup & Security"
+    description="Protect your setup with automatic backups"
+    href="/en/home-assistant/backup-sikkerhed/"
   />
 </CardGrid>
 
-## 📚 Popular Guides
-
-<CardGrid>
-  <LinkCard
-    title="Getting Started"
-    description="Complete introduction to Home Assistant"
-    href="/en/home-assistant/getting-started/"
-  />
-  <LinkCard
-    title="First Automation"
-    description="Create a simple time-based automation with UI"
-    href="/en/home-assistant/first-automation/"
-  />
-  <LinkCard
-    title="Zigbee2MQTT"
-    description="Pair devices and build a stable mesh network"
-    href="/en/home-assistant/zigbee2mqtt/"
-  />
-  <LinkCard
-    title="Temperature Sensor (ESP32)"
-    description="ESPHome configuration ready for DHT22"
-    href="/en/esp32/temperature-sensor/"
-  />
-  <LinkCard
-    title="Motion Sensor (ESP32)"
-    description="PIR sensor for automatic light control"
-    href="/en/esp32/motion-sensor/"
-  />
-  <LinkCard
-    title="LED Strip Control"
-    description="Addressable LED strip with ESPHome"
-    href="/en/esp32/led-strip/"
-  />
-</CardGrid>
+---
 
 ## 🧭 Quick Start Path
 
@@ -145,13 +241,15 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
   </ol>
 </Aside>
 
-## ✅ Help & Support
+---
 
-<Aside type="tip" title="Status">
-  All guides are tested on real setups. If you find an error or miss a topic,
-  send an email – and we'll fix it.
+## ✅ About SmartBolig.net
+
+<Aside type="tip" title="Quality Content">
+  All guides are tested on real setups. We focus on **local control** - no cloud dependency, your data stays at home.
 </Aside>
 
-- Use the **search field** at the top to quickly find guides.
-- Each category page collects related guides and recommendations.
-- **Copy code blocks** directly – they're ready to use.
+- 🔍 Use the **search field** at the top to quickly find guides
+- 📋 **Copy code blocks** directly – they're ready to use
+- 🌍 Content in both Danish and English
+- 🔒 Focus on privacy and local control

@@ -17,7 +17,7 @@ hero:
 
 import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
 
-## 🚀 Dine kerneområder
+## 🚀 Kerneområder
 
 <CardGrid stagger>
   <Card title="Home Assistant" icon="setting">
@@ -32,19 +32,21 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
     Fra simple lysregler til avancerede flows med betingelser og scener. [Se
     automationer →](/da/automationer/)
   </Card>
-  <Card title="Zigbee & MQTT" icon="plug">
-    Stabil radio med Zigbee2MQTT, broker-valg og pairing-strategier. [Byg dit
-    netværk →](/da/home-assistant/zigbee2mqtt/)
+  <Card title="Produkter" icon="seti:salesforce">
+    Anbefalinger til hubbe, sensorer og udstyr der spiller med HA. [Se
+    produkter →](/da/produkter/)
   </Card>
   <Card title="Sikkerhed" icon="approve-check">
     Hærd dit netværk, 2FA og secrets-håndtering så data bliver hjemme. [Læs
     sikkerhed →](/da/sikkerhed/)
   </Card>
-  <Card title="Hardware & produkter" icon="device">
-    Anbefalinger til hubbe, sensorer og strøm-måling der spiller med HA. [Se
-    produkter →](/da/produkter/)
+  <Card title="Protokoller" icon="random">
+    Zigbee, Z-Wave, WiFi, Thread & Matter - vælg det rigtige til dit setup. [Se
+    protokoller →](/da/home-assistant/zigbee2mqtt/)
   </Card>
 </CardGrid>
+
+---
 
 ## 💿 Installation - Vælg din platform
 
@@ -66,18 +68,145 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
   />
 </CardGrid>
 
-## 🔥 Nye guides
+---
+
+## 📡 Protokoller & Integrationer
 
 <CardGrid>
+  <LinkCard
+    title="📡 Zigbee2MQTT"
+    description="Én dongle til alle Zigbee enheder - IKEA, Aqara, Sonoff m.fl."
+    href="/da/home-assistant/zigbee2mqtt/"
+  />
+  <LinkCard
+    title="🧵 Thread & Matter"
+    description="Fremtidens smart home standard - opsætning og best practices"
+    href="/da/home-assistant/thread-matter/"
+  />
+  <LinkCard
+    title="📶 WiFi Enheder (Shelly)"
+    description="Shelly, Tasmota og ESPHome - lokal kontrol uden cloud"
+    href="/da/home-assistant/wifi-enheder/"
+  />
+  <LinkCard
+    title="🌊 Z-Wave"
+    description="Robust protokol med lang rækkevidde og ingen interferens"
+    href="/da/home-assistant/z-wave/"
+  />
+  <LinkCard
+    title="⚡ Elpris Integration"
+    description="Realtids elpriser og automatisk optimering af forbrug"
+    href="/da/home-assistant/elpris-integration/"
+  />
+  <LinkCard
+    title="🔴 Node-RED"
+    description="Visuel programmering til avancerede automationer"
+    href="/da/home-assistant/node-red/"
+  />
+</CardGrid>
+
+---
+
+## 🛒 Produktkategorier
+
+<CardGrid>
+  <LinkCard
+    title="📡 Zigbee Koordinatorer"
+    description="Sonoff, SLZB-06, Conbee - vælg den rigtige til dit setup"
+    href="/da/produkter/zigbee-koordinatorer/"
+  />
+  <LinkCard
+    title="🔌 Zigbee Sensorer"
+    description="Temperatur, bevægelse, dør/vindue, luftkvalitet m.m."
+    href="/da/produkter/zigbee-sensorer/"
+  />
+  <LinkCard
+    title="📶 WiFi Enheder"
+    description="Shelly relæer, stik og sensorer til dit eksisterende netværk"
+    href="/da/produkter/wifi-enheder/"
+  />
+  <LinkCard
+    title="💡 Smart Belysning"
+    description="Pærer, strips og kontakter til intelligent lysstyring"
+    href="/da/produkter/smart-belysning/"
+  />
+  <LinkCard
+    title="🌡️ Smart Termostater"
+    description="Spar på varmen med intelligent temperaturkontrol"
+    href="/da/produkter/smart-termostater/"
+  />
+  <LinkCard
+    title="👤 Tilstedeværelse"
+    description="PIR, mmWave radar og Bluetooth til præcis detektion"
+    href="/da/produkter/tilstedevaerelse/"
+  />
+  <LinkCard
+    title="🔒 Smart Sikkerhed"
+    description="Kameraer, låse, alarmer og adgangskontrol"
+    href="/da/produkter/smart-sikkerhed/"
+  />
+  <LinkCard
+    title="⚡ Energistyring"
+    description="Måling, optimering og overvågning af dit elforbrug"
+    href="/da/produkter/energistyring/"
+  />
+</CardGrid>
+
+<Aside type="tip" title="Flere kategorier">
+  Se alle produktkategorier inkl. køkken, have, pool, kæledyr og meget mere på [produktoversigten →](/da/produkter/)
+</Aside>
+
+---
+
+## 🔧 ESP32 Projekter
+
+<CardGrid>
+  <LinkCard
+    title="🌡️ Temperatur Sensor"
+    description="DHT22/BME280 med ESPHome - perfekt begynderprojekt"
+    href="/da/esp32/temperatur-sensor/"
+  />
+  <LinkCard
+    title="🚶 Bevægelsessensor"
+    description="PIR sensor til automatisk lysstyring"
+    href="/da/esp32/bevaegelsessensor/"
+  />
+  <LinkCard
+    title="🌈 LED Strip"
+    description="Adresserbar WS2812B med effekter og farver"
+    href="/da/esp32/led-strip/"
+  />
+  <LinkCard
+    title="📡 LD2410 mmWave"
+    description="Radar sensor der detekterer stillestående personer"
+    href="/da/esp32/ld2410-mmwave/"
+  />
+</CardGrid>
+
+---
+
+## 🔥 Populære Guides
+
+<CardGrid>
+  <LinkCard
+    title="📖 Kom godt i gang"
+    description="Komplet introduktion til Home Assistant"
+    href="/da/home-assistant/kom-godt-i-gang/"
+  />
+  <LinkCard
+    title="⚡ Første automation"
+    description="Lav en simpel tidsbaseret automation med UI"
+    href="/da/home-assistant/foerste-automation/"
+  />
+  <LinkCard
+    title="🧺 Vaskemaskine Notifikation"
+    description="Få besked når vasken er færdig"
+    href="/da/home-assistant/vaskemaskine-notification/"
+  />
   <LinkCard
     title="📺 Shelly Wall Display"
     description="Touchskærm med HA dashboards, sensorer og relæ"
     href="/da/home-assistant/shelly-wall-display/"
-  />
-  <LinkCard
-    title="📡 LD2410 mmWave Presence"
-    description="Detektér stillestående personer med radar"
-    href="/da/esp32/ld2410-mmwave/"
   />
   <LinkCard
     title="🌡️ Better Thermostat"
@@ -85,46 +214,13 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
     href="/da/home-assistant/better-thermostat/"
   />
   <LinkCard
-    title="🧺 Vaskemaskine Notifikation"
-    description="Få besked når vasken er færdig"
-    href="/da/home-assistant/vaskemaskine-notification/"
+    title="💾 Backup & Sikkerhed"
+    description="Beskyt din opsætning med automatiske backups"
+    href="/da/home-assistant/backup-sikkerhed/"
   />
 </CardGrid>
 
-## 📚 Populære guides
-
-<CardGrid>
-  <LinkCard
-    title="Kom godt i gang"
-    description="Komplet introduktion til Home Assistant"
-    href="/da/home-assistant/kom-godt-i-gang/"
-  />
-  <LinkCard
-    title="Første automation"
-    description="Lav en simpel tidsbaseret automation med UI"
-    href="/da/home-assistant/foerste-automation/"
-  />
-  <LinkCard
-    title="Zigbee2MQTT"
-    description="Par enheder og byg et stabilt mesh netværk"
-    href="/da/home-assistant/zigbee2mqtt/"
-  />
-  <LinkCard
-    title="Temperatur sensor (ESP32)"
-    description="ESPHome-konfiguration klar til DHT22"
-    href="/da/esp32/temperatur-sensor/"
-  />
-  <LinkCard
-    title="Bevægelsessensor (ESP32)"
-    description="PIR sensor til automatisk lysstyring"
-    href="/da/esp32/bevaegelsessensor/"
-  />
-  <LinkCard
-    title="LED strip kontrol"
-    description="Adresserbar LED strip med ESPHome"
-    href="/da/esp32/led-strip/"
-  />
-</CardGrid>
+---
 
 ## 🧭 Kom hurtigt i gang
 
@@ -145,13 +241,15 @@ import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
   </ol>
 </Aside>
 
-## ✅ Drift & hjælp
+---
 
-<Aside type="tip" title="Status">
-  Alle guides er testet på rigtige opsætninger. Finder du en fejl eller mangler et
-  emne, så send en mail – så retter vi det.
+## ✅ Om SmartBolig.net
+
+<Aside type="tip" title="Dansk kvalitet">
+  Alle guides er skrevet på dansk og testet på rigtige opsætninger. Vi fokuserer på **lokal kontrol** - ingen cloud-afhængighed, dine data bliver hjemme.
 </Aside>
 
-- Brug **søgefeltet** i toppen til hurtigt at finde guides.
-- Hver kategoriside samler relaterede guides og anbefalinger.
-- **Kopiér kodeblokke** direkte – de er klar til brug.
+- 🔍 Brug **søgefeltet** i toppen til hurtigt at finde guides
+- 📋 **Kopiér kodeblokke** direkte – de er klar til brug
+- 🇩🇰 Alt indhold på dansk med danske priser og forhandlere
+- 🔒 Fokus på privatliv og lokal kontrol
