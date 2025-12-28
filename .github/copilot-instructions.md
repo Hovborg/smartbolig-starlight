@@ -68,7 +68,3 @@ sidebar:
   order: 1
 ---
 ```
-
-## Kendte Issues at Fixe
-
-Se `TODO.md` for komplet liste.
