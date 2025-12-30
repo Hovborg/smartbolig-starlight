@@ -1,0 +1,114 @@
+---
+/**
+ * Affiliate Link Component for SmartBolig.net
+ * Wraps product links in affiliate tracking URLs
+ *
+ * Usage:
+ * <AffiliateLink store="proshop" url="https://www.proshop.dk/Smart-Home/..." text="Køb hos Proshop" />
+ */
+
+interface Props {
+  store: 'proshop' | 'amazon' | 'aliexpress';
+  url: string;
+  text?: string;
+  price?: string;
+  class?: string;
+}
+
+const { store, url, text, price, class: className } = Astro.props;
+
+// Affiliate configurations
+const affiliateConfig = {
+  proshop: {
+    partnerId: '55881',
+    bannerId: '67785',
+    baseUrl: 'https://www.partner-ads.com/dk/klikbanner.php',
+    name: 'Proshop',
+    icon: '🛒',
+  },
+  amazon: {
+    // Placeholder for future Amazon affiliate
+    partnerId: '',
+    bannerId: '',
+    baseUrl: '',
+    name: 'Amazon',
+    icon: '📦',
+  },
+  aliexpress: {
+    // Placeholder for future AliExpress affiliate
+    partnerId: '',
+    bannerId: '',
+    baseUrl: '',
+    name: 'AliExpress',
+    icon: '🌏',
+  },
+};
+
+const config = affiliateConfig[store];
+
+// Generate affiliate URL
+function generateAffiliateUrl(productUrl: string): string {
+  if (store === 'proshop') {
+    const encodedUrl = encodeURIComponent(productUrl);
+    return `${config.baseUrl}?partnerid=${config.partnerId}&bannerid=${config.bannerId}&htmlurl=${encodedUrl}`;
+  }
+  // For unconfigured stores, return original URL
+  return productUrl;
+}
+
+const affiliateUrl = generateAffiliateUrl(url);
+const displayText = text || `Køb hos ${config.name}`;
+---
+
+<a
+  href={affiliateUrl}
+  target="_blank"
+  rel="noopener sponsored"
+  class:list={['affiliate-link', `affiliate-${store}`, className]}
+>
+  <span class="affiliate-icon">{config.icon}</span>
+  <span class="affiliate-text">{displayText}</span>
+  {price && <span class="affiliate-price">{price}</span>}
+</a>
+
+<style>
+  .affiliate-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+    color: white;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .affiliate-link:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+  }
+
+  .affiliate-proshop {
+    background: linear-gradient(135deg, #00a0e3 0%, #0077b6 100%);
+  }
+
+  .affiliate-proshop:hover {
+    background: linear-gradient(135deg, #0077b6 0%, #005f8a 100%);
+  }
+
+  .affiliate-icon {
+    font-size: 1.1rem;
+  }
+
+  .affiliate-price {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.2rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.85rem;
+  }
+</style>

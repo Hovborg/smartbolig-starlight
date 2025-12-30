@@ -1,12 +1,133 @@
 ---
 title: Products
-description: Recommended smart home products - our tested favorites for Home Assistant, Zigbee, WiFi and ESP32.
+description: Reviews and recommendations of smart home products tested in real homes. Focus on local control with Home Assistant.
+sidebar:
+  badge:
+    text: Recommendations
+    variant: tip
 ---
 
-# Products
+import { Card, CardGrid, Aside, Badge } from '@astrojs/starlight/components';
 
-Find our recommended smart home products here. Everything is tested in our own setup.
+<Badge text="Tested" variant="success" /> <Badge text="Local Control" variant="note" />
 
-## Guides
+Reviews and recommendations of smart home products tested in real homes. We focus on products that work **locally** with Home Assistant.
 
-- [Recommended Products](/en/products/recommendations/) - Our top picks for smart home
+<Aside type="tip" title="Local First">
+We recommend products that work **without cloud** when possible. This provides better privacy, faster response times, and works even if the manufacturer shuts down.
+</Aside>
+
+:::tip[See also]
+[Complete product guide with all recommendations](/en/products/anbefalinger/)
+:::
+
+## Top Recommendations
+
+### Zigbee Coordinator (USB Dongle)
+
+| Product | Price | Rating | Comment |
+|---------|-------|--------|---------|
+| **Sonoff Zigbee 3.0 USB Dongle Plus** | $15-20 | 5/5 | Best value |
+| SLZB-06 (Ethernet) | $40 | 5/5 | Best for range |
+| Conbee II | $35 | 4/5 | Popular, good software |
+
+### Temperature & Humidity Sensors
+
+| Product | Price | Battery | Comment |
+|---------|-------|---------|---------|
+| **Aqara WSDCGQ11LM** | $12 | 2+ years | Best choice |
+| Sonoff SNZB-02 | $8 | 1 year | Budget alternative |
+| IKEA VINDSTYRKA | $15 | USB | With air quality |
+
+### Door/Window Sensors
+
+| Product | Price | Size | Comment |
+|---------|-------|------|---------|
+| **Aqara MCCGQ11LM** | $10 | Small | Best choice |
+| Sonoff SNZB-04 | $7 | Medium | Budget option |
+| IKEA PARASOLL | $12 | Large | Easy to find |
+
+### Motion Sensors
+
+| Product | Price | Response | Comment |
+|---------|-------|----------|---------|
+| **Aqara P1** | $18 | Fast | Best choice, adjustable |
+| Aqara RTCGQ11LM | $15 | OK | Classic |
+| IKEA TRADFRI | $12 | Slow | Cheap but sluggish |
+
+### Smart Plugs
+
+| Product | Price | Power Monitoring | Comment |
+|---------|-------|------------------|---------|
+| **IKEA TRETAKT** | $10 | No | Easy to find |
+| Sonoff S31 Lite ZB | $12 | Yes | With monitoring |
+| BlitzWolf SHP-15 | $15 | Yes | WiFi, Tasmota compatible |
+
+### Smart Bulbs
+
+| Product | Price | Type | Comment |
+|---------|-------|------|---------|
+| **IKEA TRADFRI** | $10-18 | Zigbee | Good price, acts as router |
+| Philips Hue | $20-40 | Zigbee | Premium quality |
+| LIFX | $40 | WiFi | No hub, but cloud dependent |
+
+## Protocol Comparison
+
+| Protocol | Pros | Cons |
+|----------|------|------|
+| **Zigbee** | Mesh network, low power, many devices | Requires coordinator |
+| **WiFi** | No hub, high speed | Router load, higher power |
+| **Z-Wave** | Very stable, long range | Expensive, fewer devices |
+| **Bluetooth** | Cheap, simple | Short range, no mesh |
+| **Thread/Matter** | Future standard, open | New, few devices yet |
+
+<Aside type="tip" title="Our Recommendation">
+Start with **Zigbee** - it's affordable, stable, and has the most compatible devices. A Sonoff dongle + some Aqara sensors is a fantastic start!
+</Aside>
+
+## Where to Buy
+
+### Fast Shipping (EU/US)
+
+| Store | Comment |
+|-------|---------|
+| [Amazon](https://amazon.com) | Wide selection, fast shipping |
+| [IKEA](https://ikea.com) | TRADFRI products |
+| Local electronics stores | Check for Zigbee coordinators |
+
+### Budget (2-4 weeks)
+
+| Store | Comment |
+|-------|---------|
+| [AliExpress](https://aliexpress.com) | Cheapest, long wait |
+| [Banggood](https://banggood.com) | Good deals, moderate wait |
+
+<Aside type="note" title="Import Duties">
+When buying from China, there may be import duties and taxes. From EU sellers there are usually no extra fees within EU.
+</Aside>
+
+## DIY Components
+
+Check our [ESP32 guides](/en/esp32/) to build your own sensors!
+
+| Component | Price | Use for |
+|-----------|-------|---------|
+| ESP32 DevKit | $5-8 | Base for all projects |
+| DHT22 sensor | $3-4 | Temperature & humidity |
+| HC-SR501 PIR | $2 | Motion sensor |
+| WS2812B LED strip | $8-15 | Addressable lighting |
+
+## Get Started
+
+<CardGrid>
+  <Card title="Zigbee2MQTT" icon="setting">
+    Set up your Zigbee coordinator and add devices.
+
+    [Setup Zigbee](/en/home-assistant/zigbee2mqtt/)
+  </Card>
+  <Card title="ESP32" icon="rocket">
+    Build your own sensors from scratch.
+
+    [ESP32 guides](/en/esp32/)
+  </Card>
+</CardGrid>

@@ -1,13 +1,67 @@
 ---
-// 404 page for SmartBolig.net
+/**
+ * Custom 404 page for SmartBolig.net
+ * Overrides Starlight's default 404 component
+ */
+import type { Props } from '@astrojs/starlight/props';
+import CallToAction from '@astrojs/starlight/components/CallToAction.astro';
+
+// Detect language from URL
+const lang = Astro.url.pathname.startsWith('/en/') ? 'en' : 'da';
+
+const content = {
+  da: {
+    title: '404 - Side ikke fundet',
+    heading: 'Siden blev ikke fundet',
+    description: 'Beklager! Den side du leder efter eksisterer ikke, er blevet flyttet, eller er midlertidigt utilgængelig.',
+    homeLink: 'Gå til forsiden',
+    haLink: 'Home Assistant',
+    espLink: 'ESP32',
+    popularTitle: 'Populære guides:',
+    guides: [
+      { href: '/da/home-assistant/kom-godt-i-gang/', text: 'Kom godt i gang' },
+      { href: '/da/home-assistant/zigbee2mqtt/', text: 'Zigbee2MQTT' },
+      { href: '/da/esp32/temperatur-sensor/', text: 'Temperatur sensor' },
+      { href: '/da/home-assistant/foerste-automation/', text: 'Din første automation' },
+    ],
+    langSwitch: { href: '/en/', text: 'English version', flag: '🇬🇧' },
+    homePath: '/da/',
+    haPath: '/da/home-assistant/',
+    espPath: '/da/esp32/',
+  },
+  en: {
+    title: '404 - Page not found',
+    heading: 'Page not found',
+    description: 'Sorry! The page you are looking for does not exist, has been moved, or is temporarily unavailable.',
+    homeLink: 'Go to homepage',
+    haLink: 'Home Assistant',
+    espLink: 'ESP32',
+    popularTitle: 'Popular guides:',
+    guides: [
+      { href: '/en/home-assistant/kom-godt-i-gang/', text: 'Getting Started' },
+      { href: '/en/home-assistant/zigbee2mqtt/', text: 'Zigbee2MQTT' },
+      { href: '/en/esp32/temperatur-sensor/', text: 'Temperature Sensor' },
+      { href: '/en/home-assistant/foerste-automation/', text: 'First Automation' },
+    ],
+    langSwitch: { href: '/da/', text: 'Dansk version', flag: '🇩🇰' },
+    homePath: '/en/',
+    haPath: '/en/home-assistant/',
+    espPath: '/en/esp32/',
+  },
+};
+
+const t = content[lang];
 ---
 
 <!DOCTYPE html>
-<html lang="da">
+<html lang={lang}>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 - Side ikke fundet | SmartBolig.net</title>
+    <title>{t.title} | SmartBolig.net</title>
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="icon" href="/favicon.ico" sizes="32x32">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <style>
         * {
             margin: 0;
@@ -27,6 +81,10 @@
         .container {
             text-align: center;
             max-width: 600px;
+        }
+        .emoji {
+            font-size: 4rem;
+            margin-bottom: 1rem;
         }
         .error-code {
             font-size: 8rem;
@@ -75,10 +133,6 @@
             border-color: #818cf8;
             color: #818cf8;
         }
-        .emoji {
-            font-size: 4rem;
-            margin-bottom: 1rem;
-        }
         .popular {
             margin-top: 2rem;
             padding-top: 2rem;
@@ -114,36 +168,35 @@
             padding: 0.25rem 0.5rem;
             color: #a1a1aa;
         }
+        .lang-switch a:hover {
+            color: #818cf8;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="emoji">🏠</div>
         <div class="error-code">404</div>
-        <h1>Siden blev ikke fundet</h1>
-        <p>
-            Beklager! Den side du leder efter eksisterer ikke, er blevet flyttet, 
-            eller er midlertidigt utilgængelig.
-        </p>
-        
+        <h1>{t.heading}</h1>
+        <p>{t.description}</p>
+
         <div class="links">
-            <a href="/da/">🏠 Gå til forsiden</a>
-            <a href="/da/home-assistant/" class="secondary">Home Assistant</a>
-            <a href="/da/esp32/" class="secondary">ESP32</a>
+            <a href={t.homePath}>🏠 {t.homeLink}</a>
+            <a href={t.haPath} class="secondary">{t.haLink}</a>
+            <a href={t.espPath} class="secondary">{t.espLink}</a>
         </div>
-        
+
         <div class="popular">
-            <h2>Populære guides:</h2>
+            <h2>{t.popularTitle}</h2>
             <div class="popular-links">
-                <a href="/da/home-assistant/kom-godt-i-gang/">Kom godt i gang</a>
-                <a href="/da/home-assistant/zigbee2mqtt/">Zigbee2MQTT</a>
-                <a href="/da/esp32/temperatur-sensor/">Temperatur sensor</a>
-                <a href="/da/home-assistant/foerste-automation/">Din første automation</a>
+                {t.guides.map(guide => (
+                    <a href={guide.href}>{guide.text}</a>
+                ))}
             </div>
         </div>
-        
+
         <div class="lang-switch">
-            <a href="/en/">🇬🇧 English version</a>
+            <a href={t.langSwitch.href}>{t.langSwitch.flag} {t.langSwitch.text}</a>
         </div>
     </div>
 </body>

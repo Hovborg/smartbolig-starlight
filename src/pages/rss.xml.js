@@ -31,7 +31,7 @@ export async function GET(context) {
         title: doc.data.title,
         description: doc.data.description || '',
         link: `/${slug}/`,
-        pubDate: new Date('2024-12-25'), // Default date since Starlight doesn't use dates
+        pubDate: doc.data.date ? new Date(doc.data.date) : new Date(), // Use frontmatter date or build date
       };
     }),
     customData: `<language>da</language>`,
