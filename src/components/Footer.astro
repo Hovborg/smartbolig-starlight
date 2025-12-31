@@ -1,0 +1,124 @@
+---
+/**
+ * Custom Footer Component for SmartBolig.net
+ * Adds copyright notice and legal links
+ */
+import EditLink from 'virtual:starlight/components/EditLink';
+import LastUpdated from 'virtual:starlight/components/LastUpdated';
+import Pagination from 'virtual:starlight/components/Pagination';
+import config from 'virtual:starlight/user-config';
+
+const currentYear = new Date().getFullYear();
+const locale = Astro.currentLocale || 'da';
+
+// Translations
+const translations = {
+  da: {
+    copyright: `© ${currentYear} SmartBolig.net - Alle rettigheder forbeholdes`,
+    terms: 'Brugsvilkår',
+    privacy: 'Privatlivspolitik',
+    affiliate: 'Affiliate Disclosure',
+    noReproduction: 'Indhold må ikke kopieres uden skriftlig tilladelse.',
+  },
+  en: {
+    copyright: `© ${currentYear} SmartBolig.net - All rights reserved`,
+    terms: 'Terms of Use',
+    privacy: 'Privacy Policy',
+    affiliate: 'Affiliate Disclosure',
+    noReproduction: 'Content may not be copied without written permission.',
+  },
+};
+
+const t = translations[locale as keyof typeof translations] || translations.da;
+const basePath = locale === 'en' ? '/en' : '/da';
+---
+
+<footer class="sl-flex">
+  <div class="meta sl-flex">
+    <EditLink />
+    <LastUpdated />
+  </div>
+  <Pagination />
+
+  <!-- Copyright and Legal Section -->
+  <div class="copyright-section">
+    <div class="copyright-notice">
+      <p class="copyright-text">{t.copyright}</p>
+      <p class="no-reproduction">{t.noReproduction}</p>
+    </div>
+    <nav class="legal-links">
+      <a href={`${basePath}/juridisk/brugsvilkaar/`}>{t.terms}</a>
+      <span class="separator">|</span>
+      <a href={`${basePath}/juridisk/privatlivspolitik/`}>{t.privacy}</a>
+      <span class="separator">|</span>
+      <a href={`${basePath}/juridisk/affiliate-disclosure/`}>{t.affiliate}</a>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  @layer starlight.core {
+    footer {
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .meta {
+      gap: 0.75rem 3rem;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-top: 3rem;
+      font-size: var(--sl-text-sm);
+      color: var(--sl-color-gray-3);
+    }
+    .meta > :global(p:only-child) {
+      margin-inline-start: auto;
+    }
+  }
+
+  .copyright-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--sl-color-gray-5);
+    text-align: center;
+  }
+
+  .copyright-notice {
+    margin-bottom: 1rem;
+  }
+
+  .copyright-text {
+    font-size: var(--sl-text-sm);
+    font-weight: 600;
+    color: var(--sl-color-gray-2);
+    margin: 0;
+  }
+
+  .no-reproduction {
+    font-size: var(--sl-text-xs);
+    color: var(--sl-color-gray-4);
+    margin: 0.5rem 0 0 0;
+  }
+
+  .legal-links {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    font-size: var(--sl-text-xs);
+  }
+
+  .legal-links a {
+    color: var(--sl-color-gray-3);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .legal-links a:hover {
+    color: var(--sl-color-white);
+    text-decoration: underline;
+  }
+
+  .separator {
+    color: var(--sl-color-gray-5);
+  }
+</style>

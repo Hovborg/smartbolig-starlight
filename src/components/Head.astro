@@ -97,4 +97,17 @@ const combinedSchema = {
 
 <Default {...Astro.props} />
 
+<!-- Content Protection Meta Tags -->
+<meta name="robots" content="max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+
+<!-- Block AI crawlers from using content for training -->
+<meta name="robots" content="noai, noimageai" />
+
+<!-- Copyright information -->
+<meta name="copyright" content="SmartBolig.net" />
+<meta name="author" content="SmartBolig.net" />
+
+<!-- Prevent caching of pages by AI crawlers -->
+<meta http-equiv="X-Robots-Tag" content="noai, noimageai" />
+
 <script type="application/ld+json" set:html={JSON.stringify(combinedSchema)} />

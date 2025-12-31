@@ -23,6 +23,7 @@ export default defineConfig({
       // Custom components
       components: {
         Head: "./src/components/Head.astro",
+        Footer: "./src/components/Footer.astro",
         NotFound: "./src/components/NotFound.astro",
       },
       // Social links
@@ -531,6 +532,11 @@ export default defineConfig({
             {
               label: "Affiliate Disclosure",
               link: "/juridisk/affiliate-disclosure/",
+            },
+            {
+              label: "Brugsvilkår",
+              translations: { en: "Terms of Use" },
+              link: "/juridisk/brugsvilkaar/",
             },
           ],
         },
