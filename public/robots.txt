@@ -44,15 +44,15 @@ Disallow: /
 User-agent: ChatGPT-User
 Disallow: /
 
-# Anthropic
+# Anthropic - ALLOWED (we use Claude!)
 User-agent: anthropic-ai
-Disallow: /
+Allow: /
 
 User-agent: Claude-Web
-Disallow: /
+Allow: /
 
 User-agent: ClaudeBot
-Disallow: /
+Allow: /
 
 # Common Crawl (used for AI training)
 User-agent: CCBot
