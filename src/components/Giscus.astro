@@ -38,6 +38,8 @@ const showComments = !isSplashPage && !isLegalPage && !isIndexPage;
   .giscus-wrapper {
     margin-top: 3rem;
     padding-top: 1rem;
+    width: 100%;
+    max-width: 100%;
   }
 
   .giscus-divider {
@@ -51,5 +53,12 @@ const showComments = !isSplashPage && !isLegalPage && !isIndexPage;
     font-weight: 600;
     margin-bottom: 1rem;
     color: var(--sl-color-white);
+  }
+
+  /* Make Giscus iframe full width */
+  .giscus-wrapper :global(.giscus),
+  .giscus-wrapper :global(.giscus-frame) {
+    width: 100% !important;
+    min-width: 100% !important;
   }
 </style>
