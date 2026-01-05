@@ -543,6 +543,8 @@ export default defineConfig({
       ],
       // Table of contents
       tableOfContents: { minHeadingLevel: 2, maxHeadingLevel: 3 },
+      // Show last updated date on pages (requires git)
+      lastUpdated: true,
       // Enable search
       pagefind: true,
       // Head tags for SEO and monetization
