@@ -34,3 +34,25 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           command: pages deploy dist --project-name=smartbolig-starlight
+
+      - name: Ping IndexNow
+        run: |
+          curl -s -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "host": "smartbolig.net",
+              "key": "${{ secrets.INDEXNOW_KEY }}",
+              "keyLocation": "https://smartbolig.net/${{ secrets.INDEXNOW_KEY }}.txt",
+              "urlList": [
+                "https://smartbolig.net/",
+                "https://smartbolig.net/da/",
+                "https://smartbolig.net/en/",
+                "https://smartbolig.net/da/home-assistant/",
+                "https://smartbolig.net/en/home-assistant/",
+                "https://smartbolig.net/da/esp32/",
+                "https://smartbolig.net/en/esp32/",
+                "https://smartbolig.net/da/produkter/",
+                "https://smartbolig.net/en/produkter/"
+              ]
+            }'
+          echo "IndexNow ping sent!"
