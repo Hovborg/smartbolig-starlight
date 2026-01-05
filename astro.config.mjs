@@ -645,32 +645,40 @@ export default defineConfig({
             content: "https://smartbolig.net/images/og-image.png",
           },
         },
-        // Cookiebot
+        // Deferred third-party scripts loader (improves LCP)
         {
           tag: "script",
-          attrs: {
-            id: "Cookiebot",
-            src: "https://consent.cookiebot.com/uc.js",
-            "data-cbid": "97aa135b-54bd-4bf5-8bc5-9994966ebab6",
-            "data-blockingmode": "auto",
-            type: "text/javascript",
-          },
-        },
-        // Google Analytics 4 (via Cookiebot consent)
-        {
-          tag: "script",
-          attrs: {
-            async: true,
-            src: "https://www.googletagmanager.com/gtag/js?id=G-78F6DLB00Z",
-            "data-cookieconsent": "statistics",
-          },
-        },
-        {
-          tag: "script",
-          attrs: {
-            "data-cookieconsent": "statistics",
-          },
-          content: `window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-78F6DLB00Z');`,
+          content: `
+            (function() {
+              function loadDeferredScripts() {
+                // Cookiebot
+                var cb = document.createElement('script');
+                cb.id = 'Cookiebot';
+                cb.src = 'https://consent.cookiebot.com/uc.js';
+                cb.setAttribute('data-cbid', '97aa135b-54bd-4bf5-8bc5-9994966ebab6');
+                cb.setAttribute('data-blockingmode', 'auto');
+                document.head.appendChild(cb);
+
+                // Google Analytics 4
+                var ga = document.createElement('script');
+                ga.async = true;
+                ga.src = 'https://www.googletagmanager.com/gtag/js?id=G-78F6DLB00Z';
+                ga.setAttribute('data-cookieconsent', 'statistics');
+                document.head.appendChild(ga);
+
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', 'G-78F6DLB00Z');
+              }
+
+              if (document.readyState === 'complete') {
+                setTimeout(loadDeferredScripts, 0);
+              } else {
+                window.addEventListener('load', loadDeferredScripts);
+              }
+            })();
+          `,
         },
         // RSS Feed auto-discovery
         {
@@ -691,23 +699,36 @@ export default defineConfig({
             href: "https://smartbolig.net/en/rss.xml",
           },
         },
-        // Ezoic
+        // Deferred ad scripts loader (improves LCP)
         {
           tag: "script",
-          attrs: {
-            src: "https://cdn.ezoic.net/ezoic/ezoic.js",
-            "data-cfasync": "false",
-            "data-cookieconsent": "marketing",
-          },
-        },
-        // Google AdSense
-        {
-          tag: "script",
-          attrs: {
-            async: true,
-            src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1259715054941263",
-            crossorigin: "anonymous",
-          },
+          content: `
+            (function() {
+              function loadAdScripts() {
+                // Ezoic
+                var ez = document.createElement('script');
+                ez.src = 'https://cdn.ezoic.net/ezoic/ezoic.js';
+                ez.setAttribute('data-cfasync', 'false');
+                ez.setAttribute('data-cookieconsent', 'marketing');
+                document.head.appendChild(ez);
+
+                // Google AdSense
+                var ads = document.createElement('script');
+                ads.async = true;
+                ads.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1259715054941263';
+                ads.crossOrigin = 'anonymous';
+                document.head.appendChild(ads);
+              }
+
+              if (document.readyState === 'complete') {
+                setTimeout(loadAdScripts, 100);
+              } else {
+                window.addEventListener('load', function() {
+                  setTimeout(loadAdScripts, 100);
+                });
+              }
+            })();
+          `,
         },
       ],
       // Disable credits
