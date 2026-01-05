@@ -1,0 +1,29 @@
+# Cloudflare Pages Redirects
+# Redirect old English URLs to new Danish-style URLs for SEO consistency
+
+# Standalone pages
+/en/about /en/om-os 301
+/en/about/ /en/om-os/ 301
+/en/contact /en/kontakt 301
+/en/contact/ /en/kontakt/ 301
+
+# Section indexes
+/en/automations /en/automationer 301
+/en/automations/ /en/automationer/ 301
+/en/security /en/sikkerhed 301
+/en/security/ /en/sikkerhed/ 301
+
+# Legal pages
+/en/legal /en/juridisk 301
+/en/legal/ /en/juridisk/ 301
+/en/legal/privacy-policy /en/juridisk/privatlivspolitik 301
+/en/legal/privacy-policy/ /en/juridisk/privatlivspolitik/ 301
+/en/legal/cookie-policy /en/juridisk/cookiepolitik 301
+/en/legal/cookie-policy/ /en/juridisk/cookiepolitik/ 301
+/en/legal/affiliate-disclosure /en/juridisk/affiliate-disclosure 301
+/en/legal/affiliate-disclosure/ /en/juridisk/affiliate-disclosure/ 301
+
+# Products - index and all subpages
+/en/products /en/produkter 301
+/en/products/ /en/produkter/ 301
+/en/products/* /en/produkter/:splat 301
