@@ -1,0 +1,22 @@
+{
+  "mcpServers": {
+    "lighthouse": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@danielsogl/lighthouse-mcp"
+      ],
+      "env": {}
+    },
+    "playwright": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@anthropic-ai/mcp-server-playwright@latest"
+      ],
+      "env": {}
+    }
+  }
+}
