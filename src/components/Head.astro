@@ -97,6 +97,13 @@ const combinedSchema = {
 
 <Default {...Astro.props} />
 
+<!-- Preload LCP hero image for splash pages -->
+{Astro.url.pathname.match(/^\/(da|en)\/?$/) && (
+  <>
+    <link rel="preload" as="image" href="/images/hero/front.webp" type="image/webp" fetchpriority="high" />
+  </>
+)}
+
 <!-- Content Protection Meta Tags -->
 <meta name="robots" content="max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
 
