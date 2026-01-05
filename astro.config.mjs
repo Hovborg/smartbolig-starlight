@@ -699,20 +699,12 @@ export default defineConfig({
             href: "https://smartbolig.net/en/rss.xml",
           },
         },
-        // Deferred ad scripts loader (improves LCP)
+        // Google AdSense (deferred for better LCP)
         {
           tag: "script",
           content: `
             (function() {
-              function loadAdScripts() {
-                // Ezoic
-                var ez = document.createElement('script');
-                ez.src = 'https://cdn.ezoic.net/ezoic/ezoic.js';
-                ez.setAttribute('data-cfasync', 'false');
-                ez.setAttribute('data-cookieconsent', 'marketing');
-                document.head.appendChild(ez);
-
-                // Google AdSense
+              function loadAdSense() {
                 var ads = document.createElement('script');
                 ads.async = true;
                 ads.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1259715054941263';
@@ -721,10 +713,10 @@ export default defineConfig({
               }
 
               if (document.readyState === 'complete') {
-                setTimeout(loadAdScripts, 100);
+                setTimeout(loadAdSense, 100);
               } else {
                 window.addEventListener('load', function() {
-                  setTimeout(loadAdScripts, 100);
+                  setTimeout(loadAdSense, 100);
                 });
               }
             })();
