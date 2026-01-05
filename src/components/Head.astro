@@ -55,6 +55,25 @@ const websiteSchema = {
   }
 };
 
+// BreadcrumbList Schema for navigation
+const pathParts = Astro.url.pathname.split('/').filter(Boolean);
+const breadcrumbItems = pathParts.map((part, index) => {
+  const path = '/' + pathParts.slice(0, index + 1).join('/') + '/';
+  const name = part.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  return {
+    "@type": "ListItem",
+    position: index + 1,
+    name: name,
+    item: `${siteUrl}${path}`
+  };
+});
+
+const breadcrumbSchema = breadcrumbItems.length > 0 ? {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: breadcrumbItems
+} : null;
+
 // TechArticle Schema for documentation pages (only if we have entry data)
 const techArticleSchema = entry?.data ? {
   "@context": "https://schema.org",
@@ -85,6 +104,9 @@ const techArticleSchema = entry?.data ? {
 
 // Combine all schemas
 const graphItems = [organizationSchema, websiteSchema];
+if (breadcrumbSchema) {
+  graphItems.push(breadcrumbSchema);
+}
 if (techArticleSchema) {
   graphItems.push(techArticleSchema);
 }
