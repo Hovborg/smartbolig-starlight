@@ -1,0 +1,55 @@
+---
+// Giscus comments component for SmartBolig.net
+// Only shows on article pages, not on index/splash pages
+
+const pathname = Astro.url.pathname;
+const isSplashPage = pathname.match(/^\/(da|en)\/?$/);
+const isLegalPage = pathname.includes('/juridisk/');
+const isIndexPage = pathname.endsWith('/index') || pathname.match(/\/(home-assistant|esp32|produkter|automationer|sikkerhed)\/?$/);
+
+// Don't show comments on splash, legal, or section index pages
+const showComments = !isSplashPage && !isLegalPage && !isIndexPage;
+---
+
+{showComments && (
+  <div class="giscus-wrapper">
+    <hr class="giscus-divider" />
+    <h2 class="giscus-title">Kommentarer</h2>
+    <script
+      src="https://giscus.app/client.js"
+      data-repo="Hovborg/smartbolig-starlight"
+      data-repo-id="R_kgDOQuqhoQ"
+      data-category="Comments"
+      data-category-id="DIC_kwDOQuqhoc4C0naS"
+      data-mapping="pathname"
+      data-strict="0"
+      data-reactions-enabled="1"
+      data-emit-metadata="0"
+      data-input-position="bottom"
+      data-theme="preferred_color_scheme"
+      data-lang="da"
+      crossorigin="anonymous"
+      async
+    />
+  </div>
+)}
+
+<style>
+  .giscus-wrapper {
+    margin-top: 3rem;
+    padding-top: 1rem;
+  }
+
+  .giscus-divider {
+    border: none;
+    border-top: 1px solid var(--sl-color-gray-5);
+    margin-bottom: 1.5rem;
+  }
+
+  .giscus-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: var(--sl-color-white);
+  }
+</style>

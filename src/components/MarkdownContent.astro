@@ -1,0 +1,8 @@
+---
+// Custom MarkdownContent that adds Giscus comments after article content
+import Default from '@astrojs/starlight/components/MarkdownContent.astro';
+import Giscus from './Giscus.astro';
+---
+
+<Default><slot /></Default>
+<Giscus />

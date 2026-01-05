@@ -25,6 +25,7 @@ export default defineConfig({
         Head: "./src/components/Head.astro",
         Footer: "./src/components/Footer.astro",
         NotFound: "./src/components/NotFound.astro",
+        MarkdownContent: "./src/components/MarkdownContent.astro",
       },
       // Social links
       social: [
