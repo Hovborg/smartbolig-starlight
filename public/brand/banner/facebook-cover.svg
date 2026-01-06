@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 312" fill="none">
+  <defs>
+    <linearGradient id="chipGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+    <filter id="chipBlur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="12"/>
+    </filter>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="820" height="312" fill="url(#bgGrad)"/>
+
+  <!-- Chip icon -->
+  <g transform="translate(60, 31)">
+    <rect x="10" y="10" width="230" height="230" rx="50" fill="#06b6d4" opacity="0.4" filter="url(#chipBlur)"/>
+    <rect width="250" height="250" rx="55" fill="#0d1117" stroke="#30363d" stroke-width="4"/>
+
+    <g transform="translate(125, 125)">
+      <rect x="-55" y="-55" width="110" height="110" rx="14" fill="#1e293b" stroke="url(#chipGrad)" stroke-width="8"/>
+      <rect x="-35" y="-35" width="70" height="70" rx="10" fill="url(#chipGrad)" opacity="0.5"/>
+
+      <line x1="-27" y1="-55" x2="-27" y2="-82" stroke="#06b6d4" stroke-width="8" stroke-linecap="round"/>
+      <line x1="0" y1="-55" x2="0" y2="-82" stroke="#06b6d4" stroke-width="8" stroke-linecap="round"/>
+      <line x1="27" y1="-55" x2="27" y2="-82" stroke="#06b6d4" stroke-width="8" stroke-linecap="round"/>
+
+      <line x1="-27" y1="55" x2="-27" y2="82" stroke="#06b6d4" stroke-width="8" stroke-linecap="round"/>
+      <line x1="0" y1="55" x2="0" y2="82" stroke="#06b6d4" stroke-width="8" stroke-linecap="round"/>
+      <line x1="27" y1="55" x2="27" y2="82" stroke="#06b6d4" stroke-width="8" stroke-linecap="round"/>
+
+      <line x1="-55" y1="-27" x2="-82" y2="-27" stroke="#06b6d4" stroke-width="8" stroke-linecap="round"/>
+      <line x1="-55" y1="27" x2="-82" y2="27" stroke="#06b6d4" stroke-width="8" stroke-linecap="round"/>
+
+      <line x1="55" y1="-27" x2="82" y2="-27" stroke="#06b6d4" stroke-width="8" stroke-linecap="round"/>
+      <line x1="55" y1="27" x2="82" y2="27" stroke="#06b6d4" stroke-width="8" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- Text -->
+  <text x="350" y="140" font-family="system-ui, -apple-system, sans-serif" font-size="64" font-weight="600" fill="#e6edf3">Smart</text>
+  <text x="350" y="215" font-family="system-ui, -apple-system, sans-serif" font-size="64" font-weight="700" fill="#3fb950">Bolig</text>
+  <text x="580" y="215" font-family="system-ui, -apple-system, sans-serif" font-size="38" font-weight="400" fill="#6e7681">.net</text>
+</svg>

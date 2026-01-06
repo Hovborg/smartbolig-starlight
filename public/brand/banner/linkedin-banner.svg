@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1584 396" fill="none">
+  <defs>
+    <linearGradient id="chipGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4"/>
+      <stop offset="100%" stop-color="#0891b2"/>
+    </linearGradient>
+    <filter id="chipBlur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="15"/>
+    </filter>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1584" height="396" fill="url(#bgGrad)"/>
+
+  <!-- Chip icon (left side) -->
+  <g transform="translate(100, 48)">
+    <rect x="12" y="12" width="276" height="276" rx="60" fill="#06b6d4" opacity="0.4" filter="url(#chipBlur)"/>
+    <rect width="300" height="300" rx="66" fill="#0d1117" stroke="#30363d" stroke-width="5"/>
+
+    <g transform="translate(150, 150)">
+      <rect x="-66" y="-66" width="132" height="132" rx="16" fill="#1e293b" stroke="url(#chipGrad)" stroke-width="10"/>
+      <rect x="-42" y="-42" width="84" height="84" rx="12" fill="url(#chipGrad)" opacity="0.5"/>
+
+      <line x1="-33" y1="-66" x2="-33" y2="-99" stroke="#06b6d4" stroke-width="10" stroke-linecap="round"/>
+      <line x1="0" y1="-66" x2="0" y2="-99" stroke="#06b6d4" stroke-width="10" stroke-linecap="round"/>
+      <line x1="33" y1="-66" x2="33" y2="-99" stroke="#06b6d4" stroke-width="10" stroke-linecap="round"/>
+
+      <line x1="-33" y1="66" x2="-33" y2="99" stroke="#06b6d4" stroke-width="10" stroke-linecap="round"/>
+      <line x1="0" y1="66" x2="0" y2="99" stroke="#06b6d4" stroke-width="10" stroke-linecap="round"/>
+      <line x1="33" y1="66" x2="33" y2="99" stroke="#06b6d4" stroke-width="10" stroke-linecap="round"/>
+
+      <line x1="-66" y1="-33" x2="-99" y2="-33" stroke="#06b6d4" stroke-width="10" stroke-linecap="round"/>
+      <line x1="-66" y1="33" x2="-99" y2="33" stroke="#06b6d4" stroke-width="10" stroke-linecap="round"/>
+
+      <line x1="66" y1="-33" x2="99" y2="-33" stroke="#06b6d4" stroke-width="10" stroke-linecap="round"/>
+      <line x1="66" y1="33" x2="99" y2="33" stroke="#06b6d4" stroke-width="10" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- Text -->
+  <text x="450" y="175" font-family="system-ui, -apple-system, sans-serif" font-size="80" font-weight="600" fill="#e6edf3">Smart</text>
+  <text x="450" y="270" font-family="system-ui, -apple-system, sans-serif" font-size="80" font-weight="700" fill="#3fb950">Bolig</text>
+  <text x="740" y="270" font-family="system-ui, -apple-system, sans-serif" font-size="48" font-weight="400" fill="#6e7681">.net</text>
+
+  <!-- Tagline -->
+  <text x="950" y="222" font-family="system-ui, -apple-system, sans-serif" font-size="24" font-weight="400" fill="#8b949e">Smart home guides til danskere</text>
+</svg>
