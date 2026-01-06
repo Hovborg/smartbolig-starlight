@@ -1,0 +1,208 @@
+---
+// CustomHero.astro - Hero C design med billede i ramme
+interface Props {
+  title?: string;
+  tagline?: string;
+  image?: string;
+  primaryLink?: string;
+  primaryText?: string;
+  secondaryLink?: string;
+  secondaryText?: string;
+}
+
+const {
+  title = "Byg dit <span class='highlight'>smarte hjem</span> med danske guides",
+  tagline = "50+ dybdegående guides til Home Assistant, ESP32 og automatisering. Alt testet på rigtige opsætninger.",
+  image = "/images/hero/front.webp",
+  primaryLink = "/da/home-assistant/kom-godt-i-gang/",
+  primaryText = "Kom i gang",
+  secondaryLink = "/da/home-assistant/",
+  secondaryText = "Se alle guides",
+} = Astro.props;
+---
+
+<section class="custom-hero">
+  <div class="custom-hero-container">
+    <div class="custom-hero-grid">
+      <div class="custom-hero-text">
+        <h1 set:html={title} />
+        <p class="custom-hero-tagline">{tagline}</p>
+        <div class="custom-hero-buttons">
+          <a href={primaryLink} class="custom-hero-btn custom-hero-btn-primary">{primaryText}</a>
+          <a href={secondaryLink} class="custom-hero-btn custom-hero-btn-secondary">{secondaryText}</a>
+        </div>
+      </div>
+      <div class="custom-hero-image-wrapper">
+        <div class="custom-hero-image-frame">
+          <img src={image} alt="Smart home illustration" loading="eager" />
+        </div>
+        <div class="custom-hero-image-badge">
+          <div class="badge-item"><strong>50+</strong> Guides</div>
+          <div class="badge-item"><strong>100%</strong> Dansk</div>
+          <div class="badge-item"><strong>0</strong> Cloud</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* Hide default Starlight hero when custom hero is present on the page */
+  :global(.sl-container:has(.custom-hero) > .hero) {
+    display: none !important;
+  }
+
+  .custom-hero {
+    padding: 60px 0 80px;
+    position: relative;
+  }
+
+  .custom-hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+    background:
+      radial-gradient(ellipse at 30% 0%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 100%, rgba(63, 185, 80, 0.06) 0%, transparent 50%);
+    pointer-events: none;
+  }
+
+  .custom-hero-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .custom-hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 60px;
+    align-items: center;
+  }
+
+  @media (max-width: 900px) {
+    .custom-hero-grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+  }
+
+  .custom-hero-text h1 {
+    font-size: 2.75rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    line-height: 1.15;
+    color: var(--sl-color-white);
+  }
+
+  .custom-hero-text h1 :global(.highlight) {
+    color: #06b6d4;
+  }
+
+  .custom-hero-tagline {
+    font-size: 1.15rem;
+    color: var(--sl-color-gray-2);
+    margin-bottom: 32px;
+    line-height: 1.6;
+  }
+
+  .custom-hero-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .custom-hero-btn {
+    padding: 14px 28px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s;
+  }
+
+  .custom-hero-btn-primary {
+    background: #06b6d4;
+    color: white;
+  }
+
+  .custom-hero-btn-primary:hover {
+    background: #0891b2;
+    transform: translateY(-2px);
+  }
+
+  .custom-hero-btn-secondary {
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-white);
+    border: 1px solid var(--sl-color-gray-5);
+  }
+
+  .custom-hero-btn-secondary:hover {
+    border-color: #06b6d4;
+  }
+
+  /* Hero image with frame */
+  .custom-hero-image-wrapper {
+    position: relative;
+  }
+
+  .custom-hero-image-frame {
+    background: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+  }
+
+  .custom-hero-image-frame img {
+    width: 100%;
+    height: auto;
+    border-radius: 10px;
+    display: block;
+  }
+
+  .custom-hero-image-badge {
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 20px;
+    padding: 8px 20px;
+    display: flex;
+    gap: 20px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+
+  .badge-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--sl-color-gray-2);
+  }
+
+  .badge-item strong {
+    color: #06b6d4;
+  }
+
+  @media (max-width: 600px) {
+    .custom-hero-text h1 {
+      font-size: 2rem;
+    }
+
+    .custom-hero-tagline {
+      font-size: 1rem;
+    }
+
+    .custom-hero-image-badge {
+      gap: 12px;
+      padding: 6px 14px;
+      font-size: 0.7rem;
+    }
+  }
+</style>

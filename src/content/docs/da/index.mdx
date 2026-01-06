@@ -3,19 +3,22 @@ title: Smart Home Guiden - Home Assistant, ESP32 & Zigbee på Dansk
 description: Danmarks mest komplette guide til smart home. Lær Home Assistant, ESP32 og automatisering med letforståelige tutorials på dansk.
 template: splash
 hero:
-  tagline: Din danske ressource til alt inden for smart home teknologi. Dybdegående guides, tutorials og anmeldelser til at bygge det perfekte intelligente hjem.
-  image:
-    html: "<picture><source srcset='/images/hero/front-768.webp 768w, /images/hero/front.webp 1536w' sizes='(max-width: 768px) 768px, 1536px' type='image/webp'><img src='/images/hero/front.webp' alt='SmartBolig smart home illustration' width='1536' height='1024' style='max-width:100%;height:auto;' fetchpriority='high' decoding='async'></picture>"
-  actions:
-    - text: Kom i gang
-      link: /da/home-assistant/kom-godt-i-gang/
-      variant: primary
-    - text: Se alle guides
-      link: /da/home-assistant/
-      variant: secondary
+  tagline: ""
+  actions: []
 ---
 
 import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
+import CustomHero from "../../../components/CustomHero.astro";
+
+<CustomHero
+  title="Byg dit <span class='highlight'>smarte hjem</span> med danske guides"
+  tagline="50+ dybdegående guides til Home Assistant, ESP32 og automatisering. Alt testet på rigtige opsætninger."
+  image="/images/hero/front.webp"
+  primaryLink="/da/home-assistant/kom-godt-i-gang/"
+  primaryText="Kom i gang"
+  secondaryLink="/da/home-assistant/"
+  secondaryText="Se alle guides"
+/>
 
 ## 🚀 Kerneområder
 
