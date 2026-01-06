@@ -11,10 +11,10 @@ export default defineConfig({
   integrations: [
     starlight({
       title: "SmartBolig.net",
-      // Logo configuration
+      // Logo configuration - animated chip logo with glow
       logo: {
-        light: "./src/assets/logo-header.png",
-        dark: "./src/assets/logo-header.png",
+        light: "./src/assets/logo-light.svg",
+        dark: "./src/assets/logo-dark.svg",
         replacesTitle: true,
         alt: "SmartBolig logo",
       },
@@ -26,6 +26,7 @@ export default defineConfig({
         Footer: "./src/components/Footer.astro",
         NotFound: "./src/components/NotFound.astro",
         MarkdownContent: "./src/components/MarkdownContent.astro",
+        SiteTitle: "./src/components/SiteTitle.astro",
       },
       // Social links
       social: [

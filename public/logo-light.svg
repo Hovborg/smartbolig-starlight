@@ -1,31 +1,62 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 50" fill="none">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 90" fill="none">
+  <style>
+    @keyframes chipPulse {
+      0%, 100% { opacity: 0.2; }
+      50% { opacity: 0.6; }
+    }
+    @keyframes pinFlow {
+      0% { stroke-dashoffset: 8; }
+      100% { stroke-dashoffset: 0; }
+    }
+    .chip-glow { animation: chipPulse 3s ease-in-out infinite; }
+    .pin { animation: pinFlow 1s linear infinite; stroke-dasharray: 4 4; }
+  </style>
   <defs>
-    <linearGradient id="houseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#2ea043"/>
-      <stop offset="100%" style="stop-color:#238636"/>
+    <linearGradient id="chipGradLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0969da"/>
+      <stop offset="100%" stop-color="#0550ae"/>
     </linearGradient>
-    <linearGradient id="circuitGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" style="stop-color:#0969da"/>
-      <stop offset="100%" style="stop-color:#2ea043"/>
-    </linearGradient>
+    <filter id="chipBlurLight" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8"/>
+    </filter>
   </defs>
-  <g transform="translate(5, 5)">
-    <path d="M20 18 L20 38 L40 38 L40 18" fill="#f6f8fa" stroke="url(#houseGrad)" stroke-width="2.5"/>
-    <path d="M10 20 L30 5 L50 20" fill="none" stroke="url(#houseGrad)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-    <rect x="27" y="26" width="6" height="12" rx="1" fill="url(#houseGrad)"/>
-    <rect x="22" y="22" width="4" height="4" rx="0.5" fill="url(#circuitGrad)"/>
-    <rect x="34" y="22" width="4" height="4" rx="0.5" fill="url(#circuitGrad)"/>
-    <g transform="translate(26, 8)">
-      <path d="M4 6 Q4 4, 6 4" fill="none" stroke="#0969da" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M2 4 Q2 1, 6 1" fill="none" stroke="#0969da" stroke-width="1.5" stroke-linecap="round"/>
-      <circle cx="6" cy="6" r="1.5" fill="#0969da"/>
+
+  <g transform="translate(9, 9)">
+    <!-- Blue glow -->
+    <rect x="3" y="3" width="66" height="66" rx="14" fill="#0969da" class="chip-glow" filter="url(#chipBlurLight)"/>
+
+    <!-- Background -->
+    <rect width="72" height="72" rx="16" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1.5"/>
+
+    <!-- CPU/Chip icon -->
+    <g transform="translate(36, 36)">
+      <!-- Main chip body -->
+      <rect x="-16" y="-16" width="32" height="32" rx="4" fill="#eaeef2" stroke="url(#chipGradLight)" stroke-width="3"/>
+
+      <!-- Inner core -->
+      <rect x="-10" y="-10" width="20" height="20" rx="3" fill="url(#chipGradLight)" opacity="0.5"/>
+
+      <!-- Pins - top -->
+      <line x1="-8" y1="-16" x2="-8" y2="-24" stroke="#0969da" stroke-width="3" stroke-linecap="round" class="pin"/>
+      <line x1="0" y1="-16" x2="0" y2="-24" stroke="#0969da" stroke-width="3" stroke-linecap="round" class="pin" style="animation-delay: 0.2s"/>
+      <line x1="8" y1="-16" x2="8" y2="-24" stroke="#0969da" stroke-width="3" stroke-linecap="round" class="pin" style="animation-delay: 0.4s"/>
+
+      <!-- Pins - bottom -->
+      <line x1="-8" y1="16" x2="-8" y2="24" stroke="#0969da" stroke-width="3" stroke-linecap="round" class="pin" style="animation-delay: 0.1s"/>
+      <line x1="0" y1="16" x2="0" y2="24" stroke="#0969da" stroke-width="3" stroke-linecap="round" class="pin" style="animation-delay: 0.3s"/>
+      <line x1="8" y1="16" x2="8" y2="24" stroke="#0969da" stroke-width="3" stroke-linecap="round" class="pin" style="animation-delay: 0.5s"/>
+
+      <!-- Pins - left -->
+      <line x1="-16" y1="-8" x2="-24" y2="-8" stroke="#0969da" stroke-width="3" stroke-linecap="round" class="pin"/>
+      <line x1="-16" y1="8" x2="-24" y2="8" stroke="#0969da" stroke-width="3" stroke-linecap="round" class="pin" style="animation-delay: 0.2s"/>
+
+      <!-- Pins - right -->
+      <line x1="16" y1="-8" x2="24" y2="-8" stroke="#0969da" stroke-width="3" stroke-linecap="round" class="pin" style="animation-delay: 0.1s"/>
+      <line x1="16" y1="8" x2="24" y2="8" stroke="#0969da" stroke-width="3" stroke-linecap="round" class="pin" style="animation-delay: 0.3s"/>
     </g>
-    <circle cx="15" cy="30" r="2" fill="#0969da"/>
-    <circle cx="45" cy="30" r="2" fill="#0969da"/>
-    <path d="M15 30 L15 35 L18 35" fill="none" stroke="#0969da" stroke-width="1.5" stroke-linecap="round"/>
-    <path d="M45 30 L45 35 L42 35" fill="none" stroke="#0969da" stroke-width="1.5" stroke-linecap="round"/>
   </g>
-  <text x="60" y="32" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="22" font-weight="700" fill="#24292f">Smart</text>
-  <text x="116" y="32" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="22" font-weight="700" fill="#238636">Bolig</text>
-  <text x="168" y="32" font-family="system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="14" font-weight="400" fill="#57606a">.net</text>
+
+  <text x="100" y="58" font-family="system-ui, -apple-system, sans-serif" font-size="38" font-weight="600" fill="#24292f">Smart</text>
+  <text x="202" y="58" font-family="system-ui, -apple-system, sans-serif" font-size="38" font-weight="700" fill="#238636">Bolig</text>
+  <text x="310" y="58" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="400" fill="#57606a">.net</text>
 </svg>
