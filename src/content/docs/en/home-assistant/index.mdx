@@ -1,44 +1,134 @@
 ---
 title: Home Assistant
 description: Complete guides for Home Assistant - installation, configuration, integrations and automations.
+sidebar:
+  badge:
+    text: Essential
+    variant: tip
 ---
 
-import { Aside } from '@astrojs/starlight/components';
+import { Card, CardGrid, LinkCard, Aside, Badge } from '@astrojs/starlight/components';
 
-# Home Assistant Guides
+<Badge text="Free" variant="success" /> <Badge text="Open Source" variant="note" /> <Badge text="2000+ integrations" variant="caution" />
 
-Home Assistant is the heart of your smart home. Here you'll find everything from installation to advanced automations.
+Home Assistant is the world's most popular open source smart home platform. Combine all your devices in one app - completely without cloud dependency.
 
 <Aside type="note" title="Open Source">
-Home Assistant is open source! Check out the [Home Assistant GitHub](https://github.com/home-assistant/core) for development and [HACS](https://github.com/hacs/integration) for community integrations.
+Home Assistant is open source! Check out [Home Assistant on GitHub](https://github.com/home-assistant/core) for development and [HACS](https://github.com/hacs/integration) for community integrations.
 </Aside>
 
-## 🚀 Getting Started
+## 🤔 Why Home Assistant?
 
-| Guide | Description |
-|-------|-------------|
-| [Getting Started](/en/home-assistant/getting-started/) | Your first steps with Home Assistant |
-| [Raspberry Pi Installation](/en/home-assistant/raspberry-pi-installation/) | Install on Raspberry Pi |
-| [Proxmox Installation](/en/home-assistant/proxmox-installation/) | Install as VM on Proxmox |
-| [Docker Installation](/en/home-assistant/docker-installation/) | Run in Docker container |
+<CardGrid>
+  <Card title="🔒 Privacy" icon="approve-check">
+    Your data stays local. No cloud, no tracking.
+  </Card>
+  <Card title="🔌 2000+ integrations" icon="setting">
+    From IKEA to Sonos - everything works together.
+  </Card>
+  <Card title="🤖 Powerful automations" icon="rocket">
+    If X then Y. As simple - or complex - as you want.
+  </Card>
+  <Card title="💰 Free" icon="document">
+    Open source and free forever. No subscriptions.
+  </Card>
+</CardGrid>
 
-## 🔌 Integrations
+## 🚀 Start here
 
-| Guide | Description |
-|-------|-------------|
-| [Zigbee2MQTT](/en/home-assistant/zigbee2mqtt/) | Connect Zigbee devices |
-| [Shelly Wall Display](/en/home-assistant/shelly-wall-display/) | Touchscreen control panel |
-| [Better Thermostat](/en/home-assistant/better-thermostat/) | Smart heating control |
+<CardGrid>
+  <LinkCard
+    title="📘 Getting Started"
+    description="Complete introduction to Home Assistant"
+    href="/en/home-assistant/getting-started/"
+  />
+</CardGrid>
+
+## 💿 Installation
+
+Choose the method that suits you:
+
+<CardGrid>
+  <LinkCard
+    title="🍓 Raspberry Pi"
+    description="The classic method - perfect for beginners"
+    href="/en/home-assistant/raspberry-pi-installation/"
+  />
+  <LinkCard
+    title="🖥️ Proxmox VM"
+    description="For home servers with snapshots and backup"
+    href="/en/home-assistant/proxmox-installation/"
+  />
+  <LinkCard
+    title="🐳 Docker"
+    description="For experienced users with existing server"
+    href="/en/home-assistant/docker-installation/"
+  />
+</CardGrid>
+
+### Which method should I choose?
+
+| Method | Best for | Difficulty | Add-ons |
+|--------|----------|------------|---------|
+| **Raspberry Pi** | Beginners, dedicated device | ⭐ Easy | ✅ Yes |
+| **Proxmox VM** | Home server, homelab | ⭐⭐ Medium | ✅ Yes |
+| **Docker** | NAS, existing server | ⭐⭐⭐ Advanced | ❌ No |
+
+<Aside type="tip" title="Not sure?">
+- **Completely new?** → Raspberry Pi
+- **Have a Proxmox server?** → Proxmox VM
+- **Have NAS/Docker?** → Docker
+</Aside>
+
+## 🔥 Popular integrations
+
+<CardGrid>
+  <LinkCard
+    title="📺 Shelly Wall Display"
+    description="Touchscreen with dashboards, sensors and relay"
+    href="/en/home-assistant/shelly-wall-display/"
+  />
+  <LinkCard
+    title="🌡️ Better Thermostat"
+    description="Intelligent heating control with external sensor"
+    href="/en/home-assistant/better-thermostat/"
+  />
+  <LinkCard
+    title="📡 Zigbee2MQTT"
+    description="Open Zigbee gateway for all devices"
+    href="/en/home-assistant/zigbee2mqtt/"
+  />
+</CardGrid>
 
 ## 🤖 Automations
 
-| Guide | Description |
-|-------|-------------|
-| [First Automation](/en/home-assistant/first-automation/) | Create your first automation |
-| [Washing Machine Notification](/en/home-assistant/washing-machine-notification/) | Get notified when laundry is done |
+<CardGrid>
+  <LinkCard
+    title="⚡ Your first automation"
+    description="Learn to create simple automations"
+    href="/en/home-assistant/first-automation/"
+  />
+  <LinkCard
+    title="🧺 Washing machine notification"
+    description="Get notified when laundry is done"
+    href="/en/home-assistant/washing-machine-notification/"
+  />
+</CardGrid>
 
-## 💡 Tips
+## 📚 All Home Assistant guides
 
-:::tip[Pro tip]
-Start simple! Get Home Assistant running first, then add devices and automations gradually.
-:::
+| Guide | Description | Difficulty |
+|-------|-------------|------------|
+| [Getting started](/en/home-assistant/getting-started/) | Introduction and overview | ⭐ Beginner |
+| [Raspberry Pi installation](/en/home-assistant/raspberry-pi-installation/) | HAOS on Raspberry Pi | ⭐ Easy |
+| [Proxmox installation](/en/home-assistant/proxmox-installation/) | HAOS in VM with snapshots | ⭐⭐ Medium |
+| [Docker installation](/en/home-assistant/docker-installation/) | Container on existing server | ⭐⭐⭐ Advanced |
+| [Your first automation](/en/home-assistant/first-automation/) | Trigger, condition, action | ⭐ Easy |
+| [Zigbee2MQTT](/en/home-assistant/zigbee2mqtt/) | Open Zigbee coordinator | ⭐⭐ Medium |
+| [Shelly Wall Display](/en/home-assistant/shelly-wall-display/) | Touchscreen with HA dashboard | ⭐⭐ Medium |
+| [Better Thermostat](/en/home-assistant/better-thermostat/) | Intelligent heating control | ⭐⭐ Medium |
+| [Washing machine notification](/en/home-assistant/washing-machine-notification/) | Get notified via power measurement | ⭐ Easy |
+
+<Aside type="tip" title="New to Home Assistant?">
+Start with the [Getting started](/en/home-assistant/getting-started/) guide - it gives you a complete overview of your options.
+</Aside>
