@@ -1,0 +1,652 @@
+---
+title: Smart Water & Leak Detection
+description: Complete guide to smart water monitoring - Flo by Moen, Phyn Plus, Zigbee leak sensors and automatic water shutoff with Home Assistant.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Set Up Smart Water Monitoring"
+  description="Guide to leak detection and automatic water shutoff with Home Assistant"
+  totalTime="PT45M"
+  steps={[
+    "Choose leak sensors (Zigbee, WiFi or Z-Wave)",
+    "Place sensors at risk points",
+    "Configure Home Assistant integration",
+    "Set up smart water valve (optional)",
+    "Create automations and notifications"
+  ]}
+/>
+
+<Badge text="Water" variant="tip" /> <Badge text="Safety" variant="caution" /> <Badge text="Automation" variant="success" />
+
+Water damage is one of the most costly home disasters. With **smart water monitoring** you can detect leaks early and automatically shut off water before catastrophe strikes.
+
+<Aside type="tip" title="Top Recommendations 2025">
+**Whole-home systems (with automatic shutoff):**
+- **Flo by Moen** - Native HA, flow + pressure + temp
+- **Phyn Plus** - AI leak detection
+- **Flume 2** - Easy DIY installation (no shutoff)
+
+**Point leak sensors:**
+- **Aqara Water Leak Sensor** - Zigbee, HomeKit, ~$20
+- **ThirdReality** - Zigbee, 120dB alarm, HA compatible
+- **Shelly Flood** - WiFi, direct HA integration
+
+**Recommendation:** Aqara sensors + Aqara Valve Controller T1!
+</Aside>
+
+---
+
+## 🏠 Water Monitoring Overview
+
+### Product Comparison
+
+| System | HA Integration | Type | Auto-stop | Price |
+|--------|---------------|------|-----------|-------|
+| **Flo by Moen** | ✅ Native | Whole-home | ✅ Yes | 💰💰💰 |
+| **Phyn Plus** | ⚠️ IFTTT | Whole-home | ✅ Yes | 💰💰💰 |
+| **Flume 2** | ⚠️ HACS | Whole-home | ❌ No | 💰💰 |
+| **Aqara Sensor** | ✅ Z2M/ZHA | Point | ❌ No | 💰 |
+| **Aqara Valve T1** | ✅ Z2M/ZHA | Valve | ✅ Yes | 💰💰 |
+| **Shelly Flood** | ✅ Native | Point | ❌ No | 💰 |
+
+---
+
+## 🌊 Flo by Moen (Native HA - Recommended)
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$500 (Smart Water Shutoff)
+    **Sensor price:** ~$50 (Smart Leak Detector)
+    
+    **Native Home Assistant integration:**
+    
+    - ✅ Water flow rate (real-time)
+    - ✅ Water pressure measurement
+    - ✅ Temperature monitoring
+    - ✅ Automatic water shutoff
+    - ✅ Daily water consumption
+    - ✅ Micro-leak detection
+    - ✅ Away/Home/Sleep modes
+    - ❌ Requires plumber installation
+    
+    <Aside type="note">
+    Flo by Moen can detect leaks as small as **one drop per minute** by analyzing pressure changes in the pipes.
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### Native Integration
+    
+    ```yaml
+    # Settings → Devices → Add Integration
+    # Search "Flo"
+    
+    # Requires:
+    # - Flo by Moen email
+    # - Flo by Moen password
+    
+    # Entities created:
+    # - switch.flo_valve (open/close valve)
+    # - sensor.flo_water_flow_rate
+    # - sensor.flo_water_pressure
+    # - sensor.flo_water_temperature
+    # - sensor.flo_daily_consumption
+    # - binary_sensor.flo_pending_alerts
+    ```
+    
+    ### Services
+    
+    ```yaml
+    # Available services:
+    
+    # Run health test
+    - service: flo.run_health_test
+      target:
+        entity_id: switch.flo_valve
+    
+    # Set to Away mode
+    - service: flo.set_away_mode
+      target:
+        entity_id: switch.flo_valve
+    
+    # Set to Home mode
+    - service: flo.set_home_mode
+      target:
+        entity_id: switch.flo_valve
+    
+    # Set to Sleep mode (pauses monitoring)
+    - service: flo.set_sleep_mode
+      target:
+        entity_id: switch.flo_valve
+    ```
+  </TabItem>
+  <TabItem label="Automations">
+    ### Automatic Water Shutoff
+    
+    ```yaml
+    automation:
+      # Shut off water on leak
+      - alias: "Water - Shut Off on Leak"
+        trigger:
+          - platform: state
+            entity_id: 
+              - binary_sensor.aqara_water_leak_kitchen
+              - binary_sensor.aqara_water_leak_bathroom
+              - binary_sensor.aqara_water_leak_laundry
+            to: "on"
+        action:
+          - service: switch.turn_off
+            entity_id: switch.flo_valve
+          - service: notify.mobile_app
+            data:
+              title: "🚰 WATER SHUT OFF!"
+              message: >
+                Leak detected: {{ trigger.to_state.name }}
+                Water automatically shut off.
+              data:
+                push:
+                  sound:
+                    name: "alarm.caf"
+                    critical: 1
+    
+      # Away mode when everyone leaves
+      - alias: "Water - Away Mode"
+        trigger:
+          - platform: state
+            entity_id: group.family
+            to: "not_home"
+            for: "00:30:00"
+        action:
+          - service: flo.set_away_mode
+            target:
+              entity_id: switch.flo_valve
+    
+      # Home mode on arrival
+      - alias: "Water - Home Mode"
+        trigger:
+          - platform: state
+            entity_id: group.family
+            to: "home"
+        action:
+          - service: flo.set_home_mode
+            target:
+              entity_id: switch.flo_valve
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Moen.com](https://www.moen.com/flo), Amazon
+
+---
+
+## 💧 Phyn Plus
+
+<Tabs>
+  <TabItem label="Overview">
+    **Price:** ~$600
+    
+    **AI-powered leak detection:**
+    
+    - ✅ 240 measurements per second
+    - ✅ Learns your home's water pattern
+    - ✅ Detects leaks before they grow
+    - ✅ Automatic water shutoff
+    - ✅ Freeze alert
+    - ⚠️ No native HA integration
+    - ⚠️ IFTTT or custom API only
+    - ❌ Requires plumber installation
+    
+    <Aside type="caution" title="HA Integration">
+    Phyn has no official HA integration. Use IFTTT or third-party API calls for integration.
+    </Aside>
+  </TabItem>
+  <TabItem label="Home Assistant">
+    ### IFTTT Integration
+    
+    ```yaml
+    # Via IFTTT webhooks
+    
+    # IFTTT Applet:
+    # IF: Phyn detects leak
+    # THEN: Webhook to HA
+    
+    automation:
+      - alias: "Phyn Leak via IFTTT"
+        trigger:
+          - platform: webhook
+            webhook_id: phyn_leak_detected
+        action:
+          - service: notify.all
+            data:
+              title: "🚰 Phyn: Leak detected!"
+              message: "Phyn has detected a possible leak"
+    ```
+    
+    ### Custom REST Integration (Advanced)
+    
+    ```yaml
+    # Phyn has unofficial API
+    # See: github.com/MizterB/homeassistant-phyn
+    
+    # HACS custom component required
+    ```
+  </TabItem>
+</Tabs>
+
+**Buy:** [Phyn.com](https://www.phyn.com)
+
+---
+
+## 📡 Zigbee Leak Sensors (Recommended DIY)
+
+<Tabs>
+  <TabItem label="Aqara Water Leak">
+    **Price:** ~$20 per sensor
+    
+    **The most popular Zigbee sensor:**
+    
+    - ✅ Zigbee 3.0
+    - ✅ IP67 waterproof
+    - ✅ Detects 0.5mm water
+    - ✅ CR2032 battery (2+ years)
+    - ✅ Temperature sensor
+    - ✅ HomeKit (via Aqara Hub)
+    - ⚠️ Works with Z2M/ZHA (unofficial)
+    
+    ### Zigbee2MQTT Setup
+    
+    ```yaml
+    # Pair sensor:
+    # 1. Hold down on top until blue LED blinks
+    # 2. Allow pairing in Z2M
+    
+    # Entities:
+    # - binary_sensor.aqara_water_leak_xxx
+    # - sensor.aqara_water_leak_xxx_temperature
+    # - sensor.aqara_water_leak_xxx_battery
+    ```
+    
+    **Buy:** Amazon, AliExpress
+  </TabItem>
+  <TabItem label="ThirdReality">
+    **Price:** ~$25 per sensor
+    
+    **Officially Home Assistant compatible:**
+    
+    - ✅ Zigbee 3.0
+    - ✅ 120dB built-in alarm
+    - ✅ Drip detection
+    - ✅ AAA batteries (easier replacement)
+    - ✅ Works with HA badge
+    - ✅ Works with all Zigbee hubs
+    
+    ```yaml
+    # Zigbee2MQTT device:
+    # Manufacturer: ThirdReality
+    # Model: 3RWS18BZ
+    
+    # Entities:
+    # - binary_sensor.thirdreality_water_leak
+    # - sensor.thirdreality_battery
+    ```
+    
+    **Buy:** Amazon
+  </TabItem>
+  <TabItem label="Aeotec/SmartThings">
+    **Price:** ~$25 per sensor
+    
+    **Premium Zigbee sensor:**
+    
+    - ✅ Zigbee 3.0
+    - ✅ Drip indicator (top)
+    - ✅ Floor sensor (bottom)
+    - ✅ Temperature sensor
+    - ✅ LED and siren alarm
+    - ✅ Solid build quality
+    
+    ```yaml
+    # SmartThings Water Leak Sensor (Aeotec)
+    # Works with ZHA and Z2M
+    
+    # Entities:
+    # - binary_sensor.water_leak
+    # - sensor.temperature
+    # - sensor.battery
+    ```
+    
+    **Buy:** Amazon, SmartThings
+  </TabItem>
+</Tabs>
+
+---
+
+## 🔧 Smart Water Valves
+
+<Tabs>
+  <TabItem label="Aqara Valve T1">
+    **Price:** ~$60
+    
+    **Best Zigbee water valve:**
+    
+    - ✅ Zigbee 3.0 + Matter
+    - ✅ Fits DN15/DN20/DN25 (½", ¾", 1")
+    - ✅ 4x AA batteries (2 years)
+    - ✅ Manual backup on power failure
+    - ✅ Home Assistant, HomeKit, Alexa
+    - ✅ Easy DIY installation
+    - ❌ Requires Aqara Hub
+    
+    ### Integration
+    
+    ```yaml
+    # Via Aqara Hub → HA integration
+    # Or Zigbee2MQTT (experimental)
+    
+    # Entities:
+    # - switch.aqara_valve_t1
+    # - sensor.aqara_valve_t1_battery
+    
+    automation:
+      - alias: "Shut off water on leak"
+        trigger:
+          - platform: state
+            entity_id: binary_sensor.water_leak
+            to: "on"
+        action:
+          - service: switch.turn_off
+            entity_id: switch.aqara_valve_t1
+    ```
+    
+    **Buy:** [Aqara.com](https://www.aqara.com), Amazon
+  </TabItem>
+  <TabItem label="Tuya/MOES Zigbee">
+    **Price:** ~$40-60
+    
+    **Budget alternative:**
+    
+    - ✅ Zigbee or WiFi versions
+    - ✅ Fits standard ball valves
+    - ✅ Timer and scheduling
+    - ✅ Tuya/Smart Life app
+    - ✅ Works with Z2M
+    - ⚠️ Requires neutral
+    
+    ```yaml
+    # Tuya Zigbee valve via Z2M
+    # Search for: TS0001 valve
+    
+    # Entities:
+    # - switch.tuya_valve
+    ```
+    
+    **Buy:** AliExpress, Amazon
+  </TabItem>
+  <TabItem label="SONOFF Zigbee">
+    **Price:** ~$90
+    
+    **Smart garden watering with flow:**
+    
+    - ✅ Zigbee 3.0
+    - ✅ Flow rate sensor
+    - ✅ 180 days history
+    - ✅ Capacity and scheduling
+    - ⚠️ Flow doesn't work in HA yet
+    
+    ```yaml
+    # SONOFF SWV (Smart Water Valve)
+    # ZHA: Only on/off exposed
+    # Z2M: On/off + flow (0 bug)
+    
+    # Waiting for firmware update
+    ```
+    
+    **Buy:** [ITEAD](https://itead.cc), Amazon
+  </TabItem>
+</Tabs>
+
+---
+
+## 📍 Placement Guide
+
+### Where to place leak sensors?
+
+| Location | Priority | Risk |
+|----------|----------|------|
+| Under dishwasher | ⭐⭐⭐ High | Hose burst |
+| Under washing machine | ⭐⭐⭐ High | Hose burst |
+| Under kitchen sink | ⭐⭐⭐ High | Leaky fitting |
+| By water heater | ⭐⭐⭐ High | Tank leak |
+| Under toilet | ⭐⭐ Medium | Condensation, leak |
+| By sump pump | ⭐⭐ Medium | Flooding |
+| Basement/utility room | ⭐⭐ Medium | Groundwater |
+| By refrigerator | ⭐ Lower | Ice maker leak |
+
+<Aside type="tip" title="Sensor Placement">
+Place sensors at the **lowest point** where water will collect. Sensor contacts must touch the floor.
+</Aside>
+
+---
+
+## 🤖 Complete Automation Suite
+
+```yaml
+automation:
+  # ===== LEAK RESPONSE =====
+  
+  # Critical leak alarm
+  - alias: "Water - Critical Leak"
+    trigger:
+      - platform: state
+        entity_id:
+          - binary_sensor.water_leak_kitchen
+          - binary_sensor.water_leak_bathroom
+          - binary_sensor.water_leak_laundry
+          - binary_sensor.water_leak_basement
+        to: "on"
+    action:
+      # Shut main valve
+      - service: switch.turn_off
+        entity_id: switch.water_main_valve
+      
+      # Critical notification
+      - service: notify.mobile_app
+        data:
+          title: "🚨 WATER LEAK!"
+          message: >
+            {{ trigger.to_state.attributes.friendly_name }}
+            Water automatically shut off!
+          data:
+            push:
+              sound:
+                name: "alarm.caf"
+                critical: 1
+                volume: 1.0
+            actions:
+              - action: "REOPEN_WATER"
+                title: "Reopen water"
+      
+      # Turn on lights
+      - service: light.turn_on
+        entity_id: light.all_lights
+        data:
+          brightness_pct: 100
+      
+      # TTS alarm
+      - service: tts.speak
+        target:
+          entity_id: media_player.kitchen_speaker
+        data:
+          message: "Warning! Water leak detected. Water has been shut off."
+
+  # Handle reopening
+  - alias: "Water - Reopen after alarm"
+    trigger:
+      - platform: event
+        event_type: mobile_app_notification_action
+        event_data:
+          action: "REOPEN_WATER"
+    condition:
+      # Only if leak stopped
+      - condition: state
+        entity_id: binary_sensor.water_leak_kitchen
+        state: "off"
+    action:
+      - service: switch.turn_on
+        entity_id: switch.water_main_valve
+      - service: notify.mobile_app
+        data:
+          message: "✅ Water reopened"
+
+  # ===== PREVENTION =====
+  
+  # Freeze warning
+  - alias: "Water - Freeze Warning"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.water_pipe_temperature
+        below: 4
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "❄️ Freeze Warning"
+          message: >
+            Water temperature: {{ states('sensor.water_pipe_temperature') }}°C
+            Risk of frozen pipes!
+
+  # ===== WATER USAGE =====
+  
+  # Abnormal usage
+  - alias: "Water - Abnormal Usage"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.flo_daily_consumption
+        above: 500  # liters
+    condition:
+      - condition: time
+        after: "23:00:00"
+    action:
+      - service: notify.mobile_app
+        data:
+          title: "💧 High water usage"
+          message: >
+            Today's usage: {{ states('sensor.flo_daily_consumption') }} liters
+            This is above normal.
+```
+
+---
+
+## 📊 Dashboard
+
+```yaml
+type: vertical-stack
+cards:
+  # Water status
+  - type: entities
+    title: "💧 Water Monitoring"
+    entities:
+      - entity: switch.flo_valve
+        name: "Main Valve"
+      - entity: sensor.flo_water_flow_rate
+        name: "Flow rate"
+      - entity: sensor.flo_water_pressure
+        name: "Pressure"
+      - entity: sensor.flo_daily_consumption
+        name: "Today's usage"
+
+  # Leak sensors
+  - type: glance
+    title: "🚰 Leak Sensors"
+    entities:
+      - entity: binary_sensor.water_leak_kitchen
+        name: "Kitchen"
+      - entity: binary_sensor.water_leak_bathroom
+        name: "Bathroom"
+      - entity: binary_sensor.water_leak_laundry
+        name: "Laundry"
+      - entity: binary_sensor.water_leak_basement
+        name: "Basement"
+    state_color: true
+
+  # Usage graph
+  - type: history-graph
+    title: "Water Usage (7 days)"
+    entities:
+      - entity: sensor.flo_daily_consumption
+    hours_to_show: 168
+```
+
+---
+
+## 🛒 Buying Strategy
+
+### Budget DIY (~$80)
+- Aqara Water Leak Sensor (4x) (~$80)
+- Zigbee coordinator (if not existing)
+- **Total:** ~$80-120
+
+### Standard Smart (~$200)
+- Aqara Water Leak Sensor (4x) (~$80)
+- Aqara Valve Controller T1 (~$60)
+- Aqara Hub M2 (~$60)
+- **Total:** ~$200
+
+### Complete Whole-home (~$650)
+- Flo by Moen Smart Water Shutoff (~$500)
+- Flo Smart Leak Detector (2x) (~$100)
+- Plumber installation (~$50)
+- **Total:** ~$650
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Can I use Aqara sensors without Aqara Hub?",
+    answer: "Yes! Aqara sensors work with Zigbee2MQTT and ZHA via a Zigbee USB coordinator like SONOFF ZBDongle-E or Conbee II. However, it's 'unofficial' and some features may be missing."
+  },
+  {
+    question: "How many leak sensors do I need?",
+    answer: "At minimum: 1 by washing machine, 1 by dishwasher, 1 by water heater. Ideally: also under kitchen sink, toilet, and in basement. 4-6 sensors cover most homes."
+  },
+  {
+    question: "Can I automatically shut off water without Flo/Phyn?",
+    answer: "Yes! Combine Zigbee leak sensors with an Aqara Valve Controller T1 or Tuya Zigbee water valve. HA automation closes the valve when sensor triggers."
+  },
+  {
+    question: "Do sensors work in wet areas like bathrooms?",
+    answer: "Aqara sensors are IP67 rated and handle humidity. Place them where water collects during leaks, not where there's normally water (e.g., not in the shower)."
+  },
+  {
+    question: "What happens during power outage?",
+    answer: "Aqara Valve Controller T1 can be operated manually. Flo by Moen keeps valve in last position during power failure. Leak sensors are battery-powered and continue working."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="Smart Alarm" icon="shield">
+    Protect your entire home.
+    
+    [See guide →](/en/products/smart-alarm/)
+  </Card>
+  <Card title="Energy Management" icon="rocket">
+    Monitor usage and save money.
+    
+    [See guide →](/en/products/energy-management/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*

@@ -1,0 +1,161 @@
+---
+title: Security
+description: Secure your smart home network and protect your data. Best practices and guides.
+sidebar:
+  badge:
+    text: Important
+    variant: danger
+---
+
+import { Card, CardGrid, Aside, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Critical" variant="danger" /> <Badge text="All levels" variant="note" />
+
+![Smart home security](/images/guides/sikkerhed-hero.png)
+
+Smart home also means responsibility. An insecure setup can give hackers access to your network, cameras, and data. Take security seriously from the start.
+
+<Aside type="danger" title="⚠️ Security is not optional">
+Insecure smart home devices are among the most hacked devices on the internet. Many devices have default passwords, no updates, and insecure communication.
+</Aside>
+
+## 🔒 Basic Security
+
+### ⭐⭐⭐ Critical (do this first!)
+
+| Action | Why | How |
+|--------|-----|-----|
+| **Strong passwords** | Weak passwords = easy access | Use password manager, 16+ characters |
+| **Two-factor on HA** | Extra protection | Settings → Users → 2FA |
+| **Update everything** | Security holes get patched | Check for updates weekly |
+| **Change default passwords** | Everyone knows them | Router, cameras, everything! |
+
+### ⭐⭐ Recommended
+
+| Action | Why | How |
+|--------|-----|-----|
+| **Separate IoT network** | Isolates devices | VLAN or guest WiFi |
+| **Local DNS (Pi-hole)** | Blocks tracking | Run Pi-hole or AdGuard |
+| **VPN for remote access** | Secure access from outside | WireGuard, Tailscale |
+| **Avoid cloud devices** | Smaller attack surface | Choose local alternatives |
+
+### ⭐ Advanced
+
+| Action | Why | How |
+|--------|-----|-----|
+| **Firewall rules** | Control traffic | pfSense, OPNsense |
+| **IDS/IPS** | Detect attacks | Suricata, Snort |
+| **Log analysis** | Detect misuse | Graylog, Grafana |
+
+## 🏠 Why Local?
+
+Home Assistant and ESPHome run **locally** on your network. This is a BIG security advantage:
+
+| Local | Cloud |
+|-------|-------|
+| ✅ Works without internet | ❌ Requires internet |
+| ✅ Faster response | ❌ Slower |
+| ✅ Private - no data to vendor | ❌ Your data sent to cloud |
+| ✅ Works if company shuts down | ❌ Stops if service is discontinued |
+| ✅ You have full control | ❌ Vendor has control |
+
+<Aside type="tip" title="Local first">
+Always choose local solutions when possible. Zigbee, Z-Wave, and WiFi devices with local API (Tasmota, ESPHome) are better than cloud-dependent devices.
+</Aside>
+
+## 🌐 Network Segmentation
+
+Keep IoT devices on a separate network:
+
+```
+┌─────────────────────────────────────────────────────┐
+│                     ROUTER                          │
+└─────────────────────────────────────────────────────┘
+        │                    │                  │
+   ┌────┴────┐         ┌────┴────┐        ┌────┴────┐
+   │  VLAN 1 │         │  VLAN 2 │        │  VLAN 3 │
+   │ Primary │         │   IoT   │        │  Guest  │
+   │         │         │         │        │         │
+   │ PC      │         │ Sensors │        │ Guests  │
+   │ Phone   │   ──►   │ Cameras │        │         │
+   │ HA      │         │ Bulbs   │        │         │
+   └─────────┘         └─────────┘        └─────────┘
+```
+
+<Aside type="note" title="Simple solution">
+Don't have VLAN support? Use your router's **guest network** for IoT devices. That provides basic isolation.
+</Aside>
+
+## 🔐 Password Best Practices
+
+### Good Passwords
+
+```
+❌ Bad:    password123
+❌ Bad:    MyDog2024
+❌ Bad:    qwerty
+✅ Good:   correct-horse-battery-staple
+✅ Good:   Xk9#mP2$vL8@nQ4&
+```
+
+### Use a Password Manager
+
+| Manager | Price | Comment |
+|---------|-------|---------|
+| **Bitwarden** | Free | ⭐ Recommended, open source |
+| 1Password | $3/mo | Polished, family sharing |
+| KeePass | Free | Offline, full control |
+
+## 🌍 Secure Remote Access
+
+Want to access Home Assistant from outside? Do it securely:
+
+| Method | Security | Difficulty |
+|--------|----------|------------|
+| **Nabu Casa** | ⭐⭐⭐⭐⭐ | Easy |
+| **Tailscale VPN** | ⭐⭐⭐⭐⭐ | Easy |
+| **WireGuard VPN** | ⭐⭐⭐⭐⭐ | Medium |
+| Reverse proxy + cert | ⭐⭐⭐⭐ | Hard |
+| Port forwarding | ⭐ | **AVOID!** |
+
+<Aside type="danger" title="Never port forward!">
+Port forwarding Home Assistant directly to the internet is **extremely dangerous**. Use VPN or Nabu Casa instead.
+</Aside>
+
+## 📋 Security Checklist
+
+### At Installation
+
+- [ ] Change all default passwords
+- [ ] Update firmware on all devices
+- [ ] Enable two-factor on Home Assistant
+- [ ] Use HTTPS (automatic with Nabu Casa)
+
+### Monthly
+
+- [ ] Check for updates
+- [ ] Review active users
+- [ ] Check logs for anomalies
+- [ ] Backup configuration
+
+### For New Devices
+
+- [ ] Research manufacturer's security practices
+- [ ] Prefer devices without cloud
+- [ ] Update firmware before use
+- [ ] Place on IoT network
+
+## 🚀 Next Steps
+
+<CardGrid>
+  <Card title="🏠 Home Assistant" icon="setting">
+    Get started with local smart home platform.
+    
+    [Home Assistant →](/en/home-assistant/)
+  </Card>
+  <Card title="🔧 ESP32" icon="rocket">
+    Build 100% local sensors yourself.
+    
+    [ESP32 guides →](/en/esp32/)
+  </Card>
+</CardGrid>

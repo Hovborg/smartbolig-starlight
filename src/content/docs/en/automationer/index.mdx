@@ -1,0 +1,116 @@
+---
+title: Automations
+description: Advanced automations for your smart home with Home Assistant.
+sidebar:
+  badge:
+    text: Guides
+    variant: note
+---
+
+import { Card, CardGrid, Aside, LinkCard, Badge } from '@astrojs/starlight/components';
+
+<Badge text="All levels" variant="note" />
+
+Automations are the heart of a smart home. Here you'll find guides to build everything from simple light automations to complex flows.
+
+<Aside type="tip" title="New to automations?">
+Start with [Your First Automation](/en/home-assistant/first-automation/) - it covers everything from the beginning.
+</Aside>
+
+## 🚀 Start Here
+
+<CardGrid>
+  <LinkCard 
+    title="⚡ Your First Automation" 
+    description="Learn the basic principles and create your first automation"
+    href="/en/home-assistant/first-automation/"
+  />
+</CardGrid>
+
+## 🧠 How Automations Work
+
+All automations have three parts:
+
+```
+TRIGGER  →  CONDITION  →  ACTION
+(When?)      (If?)        (What?)
+```
+
+| Part | Description | Examples |
+|------|-------------|----------|
+| **Trigger** | What starts the automation | Sunset, motion, time, temperature |
+| **Condition** | What must be true | Is anyone home? Is it dark? |
+| **Action** | What happens | Turn on lights, send message, play music |
+
+## 📚 Automation Ideas
+
+### 🏠 Daily Use
+
+| Automation | Trigger | Action |
+|------------|---------|--------|
+| Lights at sunset | Sun goes down | Turn on living room lights |
+| Good morning routine | 7:00 AM on weekdays | Turn on lights, start coffee |
+| Welcome home | Person arrives | Turn on lights, unlock door |
+| Good night | 11:00 PM | Turn off everything, lock doors |
+
+### 🔔 Notifications
+
+| Automation | Trigger | Action |
+|------------|---------|--------|
+| Washing machine done | Power < 5W | Push notification |
+| Door left open | Door open > 10 min | Push notification |
+| Low temperature | Temp < 18°C | Push notification |
+
+### 💡 Advanced
+
+| Automation | Trigger | Action |
+|------------|---------|--------|
+| Adaptive lighting | Time of day | Adjust color temperature |
+| Vacation mode | No one home 24h+ | Simulate presence |
+| Energy monitoring | High power | Log and alert |
+
+## 🔧 Useful Tools
+
+### Helpers
+
+Go to **Settings** → **Devices** → **Helpers** to create:
+
+| Helper | Use for |
+|--------|---------|
+| **Input Boolean** | Vacation mode, guest mode |
+| **Input Number** | Temperature limits, timers |
+| **Input Select** | House state (home/away/sleeping) |
+| **Timer** | Countdown to actions |
+
+### Scenes
+
+Combine multiple actions:
+
+```yaml title="scenes.yaml"
+- name: "Cozy evening"
+  entities:
+    light.living_room:
+      state: on
+      brightness_pct: 40
+      color_temp: 400
+    light.tv_backlight:
+      state: on
+      rgb_color: [255, 100, 50]
+    media_player.living_room:
+      state: playing
+```
+
+## 🚀 Next Steps
+
+<CardGrid>
+  <Card title="📡 More Sensors" icon="setting">
+    The more sensors, the smarter your automations.
+    
+    [Zigbee2MQTT →](/en/home-assistant/zigbee2mqtt/)
+  </Card>
+  <Card title="🔧 DIY Sensors" icon="rocket">
+    Build exactly the sensors you need.
+    
+    [ESP32 guides →](/en/esp32/)
+  </Card>
+</CardGrid>

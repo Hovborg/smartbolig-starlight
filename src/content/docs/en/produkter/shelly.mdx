@@ -1,0 +1,320 @@
+---
+title: Shelly Product Guide
+description: Complete overview of Shelly smart home products - relays, dimmers, sensors, thermostats and more. All work 100% locally with Home Assistant.
+sidebar:
+  badge:
+    text: Recommended
+    variant: success
+---
+
+import { Card, CardGrid, Aside, Badge, Steps } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Choose the right Shelly product"
+  description="Guide to choosing between Shelly Plus, Pro, Mini and BLU product series"
+  totalTime="PT5M"
+  steps={[
+    "Identify your need (relay, dimmer, sensor, thermostat)",
+    "Choose installation type (behind switch, DIN rail, plug)",
+    "Choose protocol (WiFi, Bluetooth, Z-Wave)",
+    "Check if you have neutral wire",
+    "Order and install"
+  ]}
+/>
+
+<Badge text="100% Local" variant="success" /> <Badge text="Home Assistant" variant="note" /> <Badge text="No Cloud" variant="tip" />
+
+Shelly is a Bulgarian-based company making some of the best and most reliable smart home products on the market. **Everything works 100% locally** without cloud, has fantastic Home Assistant integration, and is designed in the EU.
+
+<Aside type="tip" title="Why Shelly?">
+- **Local control** - No cloud required, works even without internet
+- **Home Assistant** - Fantastic integration via WiFi/MQTT
+- **Scripting** - Advanced automation directly on the device
+- **Warranty** - 3 years on Plus/Gen3/Gen4, 5 years on Pro series
+- **EU-based** - Designed and developed in Bulgaria
+</Aside>
+
+---
+
+## 🏠 Product Series Explained
+
+| Series | Installation | Protocol | Best for |
+|--------|--------------|----------|----------|
+| **Plus** | Behind switch | WiFi + BT | Home use, retrofitting |
+| **Pro** | DIN rail | WiFi + BT + LAN | Breaker box, professional |
+| **Mini Gen3** | Behind switch | WiFi + BT | Very small spaces |
+| **Gen4** | Varies | WiFi + BT + Zigbee + Matter | Future-proofing |
+| **BLU** | Battery | Bluetooth | Sensors, buttons |
+| **Wave** | Varies | Z-Wave | Z-Wave networks |
+
+---
+
+## ⚡ Relays (On/Off)
+
+### Plus Series (Behind Switch)
+
+| Product | Channels | Power Meter | Neutral | Price | Note |
+|---------|----------|-------------|---------|-------|------|
+| **Shelly Plus 1** | 1 | No | Yes | €12 | ⭐ Most popular |
+| **Shelly Plus 1PM** | 1 | Yes | Yes | €15 | With power metering |
+| **Shelly Plus 2PM** | 2 | Yes | Yes | €20 | Blinds/shutters |
+| **Shelly Plus 1 Mini** | 1 | No | Yes | €10 | 35% smaller |
+| **Shelly Plus 1PM Mini** | 1 | Yes | Yes | €13 | Mini with metering |
+| **Shelly Plus PM Mini** | 0 | Yes | Yes | €11 | Metering only |
+
+### Mini Gen3 Series (Smallest)
+
+| Product | Channels | Power Meter | Neutral | Price | Note |
+|---------|----------|-------------|---------|-------|------|
+| **Shelly 1 Mini Gen3** | 1 | No | Yes | €10 | New chip, 8MB |
+| **Shelly 1PM Mini Gen3** | 1 | Yes | Yes | €13 | ⭐ Recommended |
+| **Shelly PM Mini Gen3** | 0 | Yes | Yes | €11 | Power metering only |
+
+### Gen4 Series (Multi-protocol)
+
+| Product | Channels | Power Meter | Protocols | Price | Note |
+|---------|----------|-------------|-----------|-------|------|
+| **Shelly 1 Gen4** | 1 | No | WiFi/BT/Zigbee/Matter | €13 | New 2025 |
+| **Shelly 1PM Gen4** | 1 | Yes | WiFi/BT/Zigbee/Matter | €16 | Future-proof |
+| **Shelly 2PM Gen4** | 2 | Yes | WiFi/BT/Zigbee/Matter | €22 | Blinds |
+
+### Pro Series (DIN Rail / Breaker Box)
+
+| Product | Channels | Power Meter | LAN | Price | Note |
+|---------|----------|-------------|-----|-------|------|
+| **Shelly Pro 1** | 1 | No | Yes | €25 | DIN rail |
+| **Shelly Pro 1PM** | 1 | Yes | Yes | €30 | With metering |
+| **Shelly Pro 2** | 2 | No | Yes | €30 | 2 channels |
+| **Shelly Pro 2PM** | 2 | Yes | Yes | €35 | 2 channels + metering |
+| **Shelly Pro 3** | 3 | No | Yes | €35 | 3 channels |
+| **Shelly Pro 4PM** | 4 | Yes | Yes | €55 | ⭐ Professional |
+
+<Aside type="note" title="Neutral wire">
+Most Shelly relays require a neutral wire. If you have older installations without neutral in the switch box, see Shelly Plus 0-10V Dimmer or Shelly Dimmer 2.
+</Aside>
+
+---
+
+## 💡 Dimmers
+
+### Plus/Gen3 Dimmers
+
+| Product | Channels | Neutral | Max watts | Price | Note |
+|---------|----------|---------|-----------|-------|------|
+| **Shelly Dimmer 2** | 1 | No | 220W | €20 | Works WITHOUT neutral |
+| **Shelly Plus 0-10V Dimmer** | 1 | No | - | €18 | For 0-10V drivers |
+| **Shelly Dimmer Gen3** | 1 | No | 200W | €20 | New 2024 |
+
+### Pro Dimmers (DIN Rail)
+
+| Product | Channels | Power Meter | Max watts | Price | Note |
+|---------|----------|-------------|-----------|-------|------|
+| **Shelly Pro Dimmer 1PM** | 1 | Yes | 200W | €40 | Breaker box |
+| **Shelly Pro Dimmer 2PM** | 2 | Yes | 200W/ch | €50 | ⭐ 2 circuits |
+
+<Aside type="tip" title="Dimmer tips">
+- **Trailing edge** dimmers are best for LED
+- Verify your LED bulbs are **dimmable**
+- Start with min. 10% brightness to avoid flicker
+</Aside>
+
+---
+
+## 🌡️ Climate & Heating
+
+### Radiator Thermostats
+
+| Product | Protocol | Battery | Gateway | Price | Note |
+|---------|----------|---------|---------|-------|------|
+| **Shelly TRV** | WiFi | Rechargeable, 2yr | No | €45 | ⚠️ Discontinued |
+| **Shelly BLU TRV** | Bluetooth | 2x AA | Yes (BLU Gateway) | €35 | ⭐ Recommended |
+| **Shelly BLU TRV Starter Kit** | Bluetooth | Incl. | Incl. Gateway | €50 | With Gateway + sensor |
+
+### Temperature & Humidity Sensors
+
+| Product | Protocol | Display | Battery | Price | Note |
+|---------|----------|---------|---------|-------|------|
+| **Shelly H&T Gen3** | WiFi | E-ink | CR123A | €30 | ⭐ Best WiFi |
+| **Shelly BLU H&T** | Bluetooth | No | CR2032 | €15 | Cheap, needs gateway |
+| **Shelly Plus Add-On** | - | - | - | €10 | DS18B20/DHT22 for Plus |
+
+---
+
+## 🔌 Smart Plugs & Meters
+
+### Smart Plugs
+
+| Product | Power Meter | Max load | Price | Note |
+|---------|-------------|----------|-------|------|
+| **Shelly Plug S** | Yes | 2500W | €18 | Compact |
+| **Shelly Plus Plug S** | Yes | 2500W | €20 | ⭐ Recommended |
+
+### Energy Meters
+
+| Product | Phases | Installation | Price | Note |
+|---------|--------|--------------|-------|------|
+| **Shelly EM** | 1 | With CT-clamp | €35 | For main panel |
+| **Shelly 3EM** | 3 | With CT-clamps | €80 | 3-phase |
+| **Shelly Pro 3EM** | 3 | DIN + CT | €90 | ⭐ Professional |
+
+<Aside type="tip" title="Energy metering for solar">
+Shelly 3EM or Pro 3EM is perfect for measuring your consumption and solar production. Integrates directly with Home Assistant Energy Dashboard.
+</Aside>
+
+---
+
+## 🚨 Safety & Sensors
+
+### Flood & Gas
+
+| Product | Type | Protocol | Battery | Price | Note |
+|---------|------|----------|---------|-------|------|
+| **Shelly Flood** | Water | WiFi | CR123A | €20 | Water detector |
+| **Shelly Flood Gen4** | Water | WiFi/Zigbee/Matter | CR123A | €25 | New with cable option |
+| **Shelly Gas** | CNG/LPG | WiFi | 230V | €40 | Gas detector |
+
+### Motion & Door/Window
+
+| Product | Type | Protocol | Battery | Price | Note |
+|---------|------|----------|---------|-------|------|
+| **Shelly Motion** | PIR | WiFi | Rechargeable | €35 | WiFi motion |
+| **Shelly Motion 2** | PIR | WiFi | Rechargeable | €40 | Improved |
+| **Shelly BLU Motion** | PIR | Bluetooth | CR2477 | €20 | Requires gateway |
+| **Shelly BLU Door/Window** | Contact | Bluetooth | CR2032 | €15 | ⭐ Cheap and good |
+
+---
+
+## 🎛️ Control Panels & Displays
+
+| Product | Screen | Relay | Thermostat | Price | Note |
+|---------|--------|-------|------------|-------|------|
+| **Shelly Wall Display** | 4" touch | 5A | Yes (with BLU H&T) | €90 | ⭐ Dashboard on wall |
+| **Shelly Wall Display X2** | 4" touch | 2x 5A | Yes | €110 | 2 channels |
+
+---
+
+## 🔘 Buttons & Remotes
+
+### BLU Series (Bluetooth)
+
+| Product | Buttons | Protocol | Battery | Price | Note |
+|---------|---------|----------|---------|-------|------|
+| **Shelly BLU Button1** | 1 | Bluetooth | CR2032 | €10 | Simple button |
+| **Shelly BLU Button Tough 1** | 1 | Bluetooth | CR2032 | €12 | Waterproof IP54 |
+| **Shelly BLU RC Button 4** | 4 | Bluetooth | CR2032 | €18 | Remote control |
+| **Shelly BLU Wall Switch 4** | 4 | Bluetooth | CR2032 | €20 | Wall mounted |
+
+### Input Controllers
+
+| Product | Inputs | Protocol | Price | Note |
+|---------|--------|----------|-------|------|
+| **Shelly Plus i4** | 4 | WiFi | €15 | Scene controller |
+| **Shelly Plus i4 DC** | 4 | WiFi (5-24V DC) | €15 | Low voltage |
+
+---
+
+## 💡 Lighting & LED
+
+### Bulbs
+
+| Product | Socket | Color | Price | Note |
+|---------|--------|-------|-------|------|
+| **Shelly Duo** | E27 | CCT (warm/cold white) | €15 | Dimmable |
+| **Shelly Duo RGBW** | E27 | RGB + White | €20 | Color changing |
+| **Shelly Vintage** | E27 | Warm white | €18 | Retro design |
+
+### LED Controllers
+
+| Product | Channels | Type | Price | Note |
+|---------|----------|------|-------|------|
+| **Shelly RGBW2** | 4 | RGB + W | €20 | LED strips |
+| **Shelly Plus RGBW PM** | 4 | RGB + W | €25 | With power metering |
+| **Shelly Pro RGBWW PM** | 5 | RGB + WW + CW | €35 | DIN, CCT |
+
+---
+
+## 📡 Gateways
+
+| Product | Protocol | Function | Price | Note |
+|---------|----------|----------|-------|------|
+| **Shelly BLU Gateway** | BLE → WiFi | Bridge BLU devices | €15 | USB-powered |
+| **Shelly BLU Gateway Gen3** | BLE → WiFi | Improved bridge | €18 | ⭐ Recommended |
+
+<Aside type="note" title="Gateway not always needed">
+All Shelly Plus/Pro/Gen3/Gen4 devices can function as BLE gateway for Shelly BLU products. You only need a dedicated gateway if you don't have other Shelly WiFi devices.
+</Aside>
+
+---
+
+## 🔧 Home Assistant Integration
+
+Shelly has **native integration** in Home Assistant - no MQTT required (but supported).
+
+<Steps>
+1. Connect your Shelly device to WiFi via Shelly app
+2. Home Assistant finds it automatically via discovery
+3. Click "Configure" and add the device
+4. All entities are created automatically
+</Steps>
+
+### Advanced: MQTT
+
+For more control you can enable MQTT:
+
+1. Go to Shelly's web interface (IP address)
+2. Settings → MQTT
+3. Enable MQTT and enter your broker
+4. Use Mosquitto in Home Assistant
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "Does Shelly work without internet?",
+    answer: "Yes! All Shelly devices work 100% locally. You can control them via local IP, MQTT, or Home Assistant - no cloud required."
+  },
+  {
+    question: "What's the difference between Plus and Pro?",
+    answer: "Plus is for mounting behind switches, Pro is for DIN rail in breaker boxes. Pro also has LAN port and longer warranty (5 years vs 3 years)."
+  },
+  {
+    question: "Can I use Shelly without Home Assistant?",
+    answer: "Yes. Shelly app (iOS/Android) works fine alone, and you can also use Alexa, Google Home, or Apple HomeKit (via Matter on Gen4)."
+  },
+  {
+    question: "What does Gen3 and Gen4 mean?",
+    answer: "Gen3 has new 8MB chip, better performance and Matter support. Gen4 adds multi-protocol: WiFi, Bluetooth, Zigbee AND Matter in the same device."
+  },
+  {
+    question: "Does Shelly BLU require a gateway?",
+    answer: "Yes, for app control. But all Shelly Plus/Pro/Gen3/Gen4 devices can function as gateway - you don't need to buy a separate one."
+  },
+  {
+    question: "Can I install Shelly myself?",
+    answer: "Plugs and sensors: Yes. Relays behind switches: Only if you're comfortable with electrical work. When in doubt, use a certified electrician."
+  }
+]} />
+
+---
+
+## 🎯 Our Top Recommendations
+
+### Starter Kit (~€50)
+1. **Shelly Plus 1PM Mini** - Smart switch with metering
+2. **Shelly Plus Plug S** - Smart plug
+3. **Shelly BLU Door/Window** - Sensor (gateway via Plus 1PM)
+
+### Complete Home (~€200)
+1. **Shelly Pro 4PM** - 4 circuits from breaker box
+2. **Shelly Wall Display** - Control panel
+3. **Shelly BLU H&T** - Temperature/humidity
+4. **Shelly BLU TRV** - Smart radiator
+5. **Shelly 3EM** - Energy monitoring
+
+---
+
+*Last updated: December 2025*

@@ -1,0 +1,528 @@
+---
+title: Smart Voice Control
+description: Complete guide to local voice control with Home Assistant Assist - Piper, Whisper, Wyoming and voice satellites.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
+import HowTo from '../../../../components/HowTo.astro';
+
+<HowTo
+  name="Set Up Local Voice Control"
+  description="Guide to Home Assistant Assist with Piper, Whisper and ESP32 voice satellites"
+  totalTime="PT60M"
+  steps={[
+    "Install Whisper (speech-to-text)",
+    "Install Piper (text-to-speech)",
+    "Configure Assist pipeline",
+    "Add voice satellite (optional)",
+    "Test and customize wake word"
+  ]}
+/>
+
+<Badge text="Voice" variant="tip" /> <Badge text="Local" variant="success" /> <Badge text="Privacy" variant="caution" />
+
+With **Home Assistant Assist** you can control your smart home with your voice - **100% locally** without cloud! No data leaves your home, and it works even when the internet is down.
+
+<Aside type="tip" title="Recommendations 2025">
+**Voice Satellites (hardware):**
+- **M5Stack ATOM Echo** - Cheapest (~$13), small, good sound
+- **ESP32-S3-BOX-3** - Best display, touchscreen (~$50)
+- **Home Assistant Voice PE** - Official HA hardware (~$59)
+
+**Software Stack:**
+- **Whisper** - Speech-to-text (OpenAI, local)
+- **Piper** - Text-to-speech (local, fast)
+- **openWakeWord** - Wake word detection
+
+**Recommendation:** Start with ATOM Echo + Whisper/Piper!
+</Aside>
+
+---
+
+## 🎤 Voice Control Overview
+
+### Assist Pipeline Components
+
+| Component | Function | Local Options |
+|-----------|----------|---------------|
+| **Wake Word** | Listens for activation word | openWakeWord, microWakeWord |
+| **STT** | Speech to text | Whisper, Speech-to-Phrase |
+| **Intent** | Understands commands | HA Conversation, LLM |
+| **TTS** | Text to speech | Piper, Home Assistant Cloud |
+| **Satellite** | Microphone/speaker | ESP32, Voice PE |
+
+### Hardware Comparison
+
+| Device | Price | Display | Microphone | Speaker | Wake Word |
+|--------|-------|---------|------------|---------|-----------|
+| **ATOM Echo** | ~$13 | ❌ | ✅ | ✅ (small) | On-device |
+| **S3-BOX-3** | ~$50 | ✅ Touch | ✅✅ | ✅ | On-device |
+| **Voice PE** | ~$59 | ✅ | ✅✅ | ✅✅ | On-device |
+| **CoreS3SE** | ~$70 | ✅ Touch | ✅✅ | ✅ | On-device |
+
+---
+
+## 🔧 Local Voice Setup
+
+<Tabs>
+  <TabItem label="1. Install Add-ons">
+    ### Whisper (Speech-to-Text)
+    
+    ```yaml
+    # Settings → Add-ons → Add-on Store
+    # Search "Whisper" → Install
+    
+    # Configuration (Settings tab):
+    model: small  # tiny, base, small, medium, large
+    language: en  # Your language
+    
+    # Start add-on
+    # Wait for model download (can take time)
+    ```
+    
+    <Aside type="note">
+    **Model sizes:**
+    - `tiny` - Fastest, lowest quality
+    - `small` - Good balance (recommended)
+    - `medium` - Better quality, slower
+    - `large` - Best quality, requires lots of RAM
+    </Aside>
+    
+    ### Piper (Text-to-Speech)
+    
+    ```yaml
+    # Settings → Add-ons → Add-on Store
+    # Search "Piper" → Install
+    
+    # Configuration:
+    voice: en_US-lessac-medium  # English voice
+    
+    # Start add-on
+    ```
+    
+    ### openWakeWord (Wake Word)
+    
+    ```yaml
+    # Settings → Add-ons → Add-on Store
+    # Search "openWakeWord" → Install → Start
+    
+    # Supported wake words:
+    # - "Ok Nabu"
+    # - "Hey Jarvis"
+    # - "Alexa"
+    # - "Hey Mycroft"
+    ```
+  </TabItem>
+  <TabItem label="2. Wyoming Integration">
+    ### Add Integrations
+    
+    ```yaml
+    # Settings → Devices & Services → Add Integration
+    
+    # 1. Search "Wyoming Protocol"
+    # - Whisper should auto-discover
+    # - Click "Configure" → "Submit"
+    
+    # 2. Piper should also auto-discover
+    # - Click "Configure" → "Submit"
+    
+    # 3. openWakeWord likewise
+    # - Click "Configure" → "Submit"
+    ```
+    
+    <Aside type="tip">
+    If they don't auto-discover, add manually:
+    - Host: `core-whisper` / `core-piper` / `core-openwakeword`
+    - Port: `10300` / `10200` / `10400`
+    </Aside>
+  </TabItem>
+  <TabItem label="3. Assist Pipeline">
+    ### Create Voice Assistant
+    
+    ```yaml
+    # Settings → Voice Assistants → Add Assistant
+    
+    # Name: "Local Assistant"
+    # Language: English
+    
+    # Conversation agent: Home Assistant
+    # Speech-to-text: Whisper
+    # Text-to-speech: Piper
+    # Wake word: openWakeWord (choose wake word)
+    
+    # Save
+    ```
+    
+    ### Test Pipeline
+    
+    ```yaml
+    # Click "Try pipeline" button
+    # Say: "Turn on the living room light"
+    
+    # Check:
+    # - Was speech recognized correctly?
+    # - Was command understood?
+    # - Did you hear the response?
+    ```
+  </TabItem>
+</Tabs>
+
+---
+
+## 📱 Voice Satellites
+
+<Tabs>
+  <TabItem label="M5Stack ATOM Echo">
+    **Price:** ~$13
+    
+    **The cheapest voice satellite:**
+    
+    - ✅ ESP32 based
+    - ✅ Built-in microphone + speaker
+    - ✅ On-device wake word (microWakeWord)
+    - ✅ LED status indicator
+    - ✅ Easy web setup
+    - ⚠️ Small speaker (low volume)
+    - ❌ No display
+    
+    ### Installation
+    
+    ```yaml
+    # 1. Go to: https://www.home-assistant.io/voice_control/thirteen-usd-voice-remote/
+    # 2. Click "Connect" in Chrome/Edge
+    # 3. Select COM port
+    # 4. Click "Install Voice Assistant"
+    # 5. Enter WiFi credentials
+    # 6. Device appears in HA
+    ```
+    
+    ### ESPHome Config (advanced)
+    
+    ```yaml
+    substitutions:
+      name: living-room-voice
+      friendly_name: "Living Room Voice Assistant"
+      micro_wake_word_model: hey_jarvis
+    
+    packages:
+      m5stack.atom-echo:
+        url: https://github.com/esphome/firmware
+        files:
+          - voice-assistant/m5stack-atom-echo.yaml
+        refresh: 0s
+    
+    esphome:
+      name: ${name}
+      friendly_name: ${friendly_name}
+    
+    wifi:
+      ssid: !secret wifi_ssid
+      password: !secret wifi_password
+    ```
+    
+    **Buy:** [M5Stack](https://shop.m5stack.com/products/atom-echo-smart-speaker-dev-kit), AliExpress
+  </TabItem>
+  <TabItem label="ESP32-S3-BOX-3">
+    **Price:** ~$50
+    
+    **Best all-round voice satellite:**
+    
+    - ✅ 2.4" touchscreen display
+    - ✅ Dual microphones (better recognition)
+    - ✅ Good speaker
+    - ✅ On-device wake word
+    - ✅ Official ESPHome support
+    - ✅ Includes dock/stand
+    - ⚠️ Requires USB-C power
+    
+    ### Installation
+    
+    ```yaml
+    # 1. ESPHome → New Device
+    # 2. Name: "bedroom-voice"
+    # 3. Device: ESP32-S3-BOX-3
+    # 4. Add to YAML:
+    
+    packages:
+      esphome.voice-assistant:
+        url: https://github.com/esphome/firmware
+        files:
+          - voice-assistant/esp32-s3-box-3.yaml
+        refresh: 0s
+    
+    substitutions:
+      micro_wake_word_model: okay_nabu
+    
+    esphome:
+      name: bedroom-voice
+      friendly_name: "Bedroom Voice"
+    
+    wifi:
+      ssid: !secret wifi_ssid
+      password: !secret wifi_password
+    
+    api:
+      encryption:
+        key: !secret api_key
+    ```
+    
+    **Buy:** [Espressif](https://www.espressif.com), AliExpress, Amazon
+  </TabItem>
+  <TabItem label="Home Assistant Voice PE">
+    **Price:** ~$59
+    
+    **Official Home Assistant hardware:**
+    
+    - ✅ Designed specifically for HA
+    - ✅ Premium microphones
+    - ✅ Good speaker
+    - ✅ E-ink display
+    - ✅ Physical mute button
+    - ✅ Pre-installed firmware
+    - ✅ Official support
+    
+    ### Setup
+    
+    ```yaml
+    # 1. Connect USB-C power
+    # 2. Follow on-screen instructions
+    # 3. Scan QR code with HA app
+    # 4. Select WiFi network
+    # 5. Assign to room
+    # 6. Done!
+    ```
+    
+    <Aside type="tip" title="Best User Experience">
+    Voice PE is the easiest solution - plug and play!
+    </Aside>
+    
+    **Buy:** [Home Assistant Store](https://www.home-assistant.io/voice-pe/)
+  </TabItem>
+</Tabs>
+
+---
+
+## 🗣️ Wake Words
+
+### Available Wake Words
+
+| Wake Word | Language | Model |
+|-----------|----------|-------|
+| "Ok Nabu" | Multi | openWakeWord, microWakeWord |
+| "Hey Jarvis" | English | microWakeWord |
+| "Alexa" | Multi | microWakeWord |
+| "Hey Mycroft" | English | microWakeWord |
+
+### Create Custom Wake Word
+
+```yaml
+# 1. Go to: https://www.home-assistant.io/voice_control/create_wake_word/
+
+# 2. Choose a unique word (3-4 syllables)
+# - Avoid common words
+# - Only English supported currently
+
+# 3. Generate training data with Piper
+# 4. Train model (may take several attempts)
+# 5. Download and install
+```
+
+---
+
+## 🤖 Automations with Voice
+
+```yaml
+automation:
+  # Broadcast to all speakers
+  - alias: "Voice - Good Morning Broadcast"
+    trigger:
+      - platform: time
+        at: "07:00:00"
+    condition:
+      - condition: state
+        entity_id: binary_sensor.workday
+        state: "on"
+    action:
+      - service: tts.speak
+        target:
+          entity_id: tts.piper
+        data:
+          media_player_entity_id: 
+            - media_player.living_room_speaker
+            - media_player.kitchen_speaker
+          message: >
+            Good morning! It's 7 o'clock.
+            The temperature outside is {{ states('sensor.outdoor_temperature') }} degrees.
+            {% if states('sensor.rain_probability') | int > 50 %}
+            Remember your umbrella - there's a chance of rain.
+            {% endif %}
+
+  # Voice reminder
+  - alias: "Voice - Washing Machine Done"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.washing_machine_running
+        to: "off"
+    action:
+      - service: tts.speak
+        target:
+          entity_id: tts.piper
+        data:
+          media_player_entity_id: media_player.kitchen_speaker
+          message: "The washing machine is done. Don't forget to empty it."
+
+  # Welcome home
+  - alias: "Voice - Welcome Home"
+    trigger:
+      - platform: state
+        entity_id: person.brian
+        to: "home"
+    action:
+      - delay: "00:00:30"
+      - service: tts.speak
+        target:
+          entity_id: tts.piper
+        data:
+          media_player_entity_id: media_player.hallway_speaker
+          message: >
+            Welcome home! 
+            It's {{ states('sensor.indoor_temperature') }} degrees inside.
+```
+
+---
+
+## 🎯 Voice Commands
+
+### Supported Commands
+
+```yaml
+# Lights
+"Turn on the living room light"
+"Turn off all lights"
+"Set the kitchen brightness to 50 percent"
+"Change the bedroom color to blue"
+
+# Climate
+"What's the temperature?"
+"Set the thermostat to 72 degrees"
+"Turn on the bathroom heater"
+
+# Devices
+"Turn on the TV"
+"Start the vacuum"
+"Lock the front door"
+
+# Information
+"What's the weather today?"
+"When does the sun set?"
+"Is anyone home?"
+
+# Scenes
+"Activate movie night"
+"Good night"
+"I'm leaving home"
+```
+
+### Customize Sentences
+
+```yaml
+# configuration.yaml or via UI
+
+intent_script:
+  CustomWelcome:
+    speech:
+      text: "Welcome! What can I help with?"
+
+conversation:
+  intents:
+    CustomWelcome:
+      - "hey [assistant]"
+      - "hello"
+      - "what can you do"
+```
+
+---
+
+## 📊 Dashboard
+
+```yaml
+type: vertical-stack
+cards:
+  # Voice status
+  - type: entities
+    title: "🎤 Voice Control"
+    entities:
+      - entity: assist_satellite.living_room_voice
+        name: "Living Room Satellite"
+      - entity: assist_satellite.bedroom_voice
+        name: "Bedroom Satellite"
+      - entity: binary_sensor.whisper_running
+        name: "Whisper Status"
+      - entity: binary_sensor.piper_running
+        name: "Piper Status"
+
+  # Test button
+  - type: button
+    name: "Test Voice"
+    tap_action:
+      action: call-service
+      service: tts.speak
+      target:
+        entity_id: tts.piper
+      data:
+        media_player_entity_id: media_player.living_room_speaker
+        message: "Voice control is working!"
+```
+
+---
+
+## ❓ Frequently Asked Questions
+
+<FAQ questions={[
+  {
+    question: "How much RAM does local voice require?",
+    answer: "Whisper 'small' model uses about 2GB RAM. 'Medium' uses 5GB. Raspberry Pi 4 with 4GB can run 'small'. For better performance a mini-PC or dedicated server is recommended."
+  },
+  {
+    question: "Can I use multiple wake words?",
+    answer: "Yes! Since HA 2025.10 you can have up to 2 wake words per satellite. You can use 'Ok Nabu' for one language and 'Hey Jarvis' for another pipeline."
+  },
+  {
+    question: "Why is the response slow?",
+    answer: "Usually the Whisper model is too large for your hardware. Try 'tiny' or 'small' model. Also check that you're running on a fast storage device (SSD, not SD card)."
+  },
+  {
+    question: "Can I use this with LLMs like ChatGPT?",
+    answer: "Yes! You can configure your Assist pipeline to use OpenAI, Ollama (local), or other LLMs as the conversation agent for more natural interactions."
+  },
+  {
+    question: "What's the difference between Whisper and Speech-to-Phrase?",
+    answer: "Whisper is a general speech-to-text model that understands everything. Speech-to-Phrase is optimized for smart home commands and is faster/lighter, but more limited."
+  }
+]} />
+
+---
+
+## 📚 Next Steps
+
+<CardGrid>
+  <Card title="ESP32 Projects" icon="seti:arduino">
+    Build more ESPHome devices.
+    
+    [See guide →](/en/esp32/)
+  </Card>
+  <Card title="Automations" icon="rocket">
+    Advanced automations.
+    
+    [See guide →](/en/home-assistant/first-automation/)
+  </Card>
+</CardGrid>
+
+---
+
+*Last updated: December 2025*
