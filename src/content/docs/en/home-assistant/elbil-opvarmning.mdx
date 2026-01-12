@@ -1,0 +1,419 @@
+---
+title: EV Preheating in Winter
+description: Automatic preheating of your electric vehicle when temperatures drop. Save battery and step into a warm car every morning with Home Assistant.
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Easy" variant="success" /> <Badge text="15 min" variant="note" />
+
+Never step into a freezing car again! This guide shows how to automatically preheat your electric vehicle when temperatures drop - while saving battery by only heating when necessary.
+
+## Why Automatic Preheating?
+
+| Benefit | Description |
+|---------|-------------|
+| **Comfort** | Warm cabin and defrosted windows every morning |
+| **Battery** | Preheating while plugged in uses grid power, not battery |
+| **Range** | Preheated battery = better range in cold weather |
+| **Safety** | Clear windows without scraping |
+
+<Aside type="tip" title="Save your battery">
+When the car is plugged in, preheating uses power from the grid instead of the battery. Automation ensures you only heat when necessary!
+</Aside>
+
+## What You Need
+
+| Component | Description |
+|-----------|-------------|
+| **Home Assistant** | With Tesla, Polestar, VW or other EV integration |
+| **EV Integration** | Tesla Custom Integration, Volkswagen We Connect, Polestar API, etc. |
+| **Mobile phone** | For notifications |
+
+### Supported Electric Vehicles
+
+| Brand | Integration | HACS |
+|-------|-------------|:----:|
+| **Tesla** | Tesla Custom Integration | Yes |
+| **Volkswagen/Audi/Skoda** | Volkswagen We Connect ID | Yes |
+| **Polestar** | Polestar API | Yes |
+| **BMW** | BMW Connected Drive | Yes |
+| **Mercedes** | Mercedes ME | Yes |
+| **Hyundai/Kia** | Hyundai/Kia Connect | Yes |
+| **Renault** | Renault ZE Services | Yes |
+
+<Aside type="note" title="Tesla example">
+This guide uses Tesla as an example, but the principles are the same for other brands. Adjust entity_ids for your car.
+</Aside>
+
+## Entities You Get
+
+With a typical EV integration you get these entities:
+
+| Entity | Type | Description |
+|--------|------|-------------|
+| `climate.car_climate` | Climate | Turn climate on/off |
+| `sensor.car_inside_temperature` | Sensor | Interior temperature |
+| `sensor.car_outside_temperature` | Sensor | Exterior temperature |
+| `sensor.car_battery_level` | Sensor | Battery level in % |
+| `sensor.car_charging` | Sensor | Charging status |
+| `select.car_seat_heater_*` | Select | Seat heater (off/low/medium/high) |
+
+## Automations
+
+### 1. Automatic Heating Below Freezing
+
+The most important automation - turn on climate automatically when it's freezing:
+
+```yaml
+automation:
+  - alias: "Car: Heating below 0 degrees"
+    description: "Turns on car climate when temperature is below 0°C for 1 minute"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.car_inside_temperature
+        below: 0
+        for:
+          minutes: 1
+    condition:
+      # Only if battery is above 40%
+      - condition: numeric_state
+        entity_id: sensor.car_battery_level
+        above: 40
+    action:
+      # Turn on climate
+      - service: climate.set_preset_mode
+        target:
+          entity_id: climate.car_climate
+        data:
+          preset_mode: "on"
+      # Wait 15 minutes
+      - delay:
+          minutes: 15
+      # Turn off again
+      - service: climate.set_preset_mode
+        target:
+          entity_id: climate.car_climate
+        data:
+          preset_mode: "off"
+```
+
+<Aside type="caution" title="Battery condition">
+We check that the battery is above 40% before heating. Adjust this value to your needs - you don't want to drain the battery completely!
+</Aside>
+
+### 2. Cold Car Notification (at night)
+
+Get notified if the car gets too cold at night:
+
+```yaml
+automation:
+  - alias: "Car: Cold at night"
+    description: "Sends notification when car is below 5°C at night"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.car_inside_temperature
+        below: 5
+    condition:
+      - condition: time
+        after: "22:00:00"
+        before: "07:00:00"
+    action:
+      - service: notify.mobile_app_your_phone
+        data:
+          title: "Car is cold"
+          message: >
+            Interior temp: {{ states("sensor.car_inside_temperature") }}°C
+          data:
+            tag: "car_cold"
+```
+
+### 3. Cooling in High Temperature (summer)
+
+Bonus: Keep the car cool in summer:
+
+```yaml
+automation:
+  - alias: "Car: Cooling above 30 degrees"
+    description: "Turns on AC when temperature is above 30°C"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.car_inside_temperature
+        above: 30
+        for:
+          seconds: 20
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.car_battery_level
+        above: 40
+    action:
+      - service: climate.set_temperature
+        target:
+          entity_id: climate.car_climate
+        data:
+          temperature: 20
+          hvac_mode: "cool"
+
+  - alias: "Car: Turn off cooling below 20 degrees"
+    description: "Turns off AC when temperature is below 20°C"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.car_inside_temperature
+        below: 20
+        for:
+          minutes: 2
+    action:
+      - service: climate.turn_off
+        target:
+          entity_id: climate.car_climate
+```
+
+### 4. Morning Preheating on Weekdays
+
+Preheat the car automatically before work:
+
+```yaml
+automation:
+  - alias: "Car: Morning preheating"
+    description: "Preheats the car at 07:00 on weekdays when cold"
+    mode: single
+    trigger:
+      - platform: time
+        at: "07:00:00"
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+      # Only if it's cold
+      - condition: numeric_state
+        entity_id: sensor.car_inside_temperature
+        below: 10
+      # Only if battery is OK
+      - condition: numeric_state
+        entity_id: sensor.car_battery_level
+        above: 30
+    action:
+      - service: climate.set_preset_mode
+        target:
+          entity_id: climate.car_climate
+        data:
+          preset_mode: "on"
+      - service: notify.mobile_app_your_phone
+        data:
+          title: "Car is preheating"
+          message: >
+            Temp: {{ states("sensor.car_inside_temperature") }}°C
+            → Ready in 15 min
+      - delay:
+          minutes: 15
+      - service: climate.set_preset_mode
+        target:
+          entity_id: climate.car_climate
+        data:
+          preset_mode: "off"
+```
+
+### 5. Seat Heaters When Cold
+
+Turn on seat heaters automatically with climate:
+
+```yaml
+automation:
+  - alias: "Car: Seat heaters when freezing"
+    description: "Turns on seat heaters when climate activates in freezing conditions"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: climate.car_climate
+        to: "heat_cool"
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.car_inside_temperature
+        below: 5
+    action:
+      # Turn on seat heaters on both front seats
+      - service: select.select_option
+        target:
+          entity_id: select.car_seat_heater_left
+        data:
+          option: "high"
+      - service: select.select_option
+        target:
+          entity_id: select.car_seat_heater_right
+        data:
+          option: "high"
+      # Set to medium after 5 min
+      - delay:
+          minutes: 5
+      - service: select.select_option
+        target:
+          entity_id:
+            - select.car_seat_heater_left
+            - select.car_seat_heater_right
+        data:
+          option: "medium"
+```
+
+## Dashboard Cards
+
+### Car Status Card
+
+```yaml
+type: entities
+title: "EV Status"
+entities:
+  - entity: sensor.car_inside_temperature
+    name: Interior temp
+    icon: mdi:thermometer
+  - entity: sensor.car_outside_temperature
+    name: Exterior temp
+    icon: mdi:thermometer
+  - entity: sensor.car_battery_level
+    name: Battery
+    icon: mdi:battery
+  - entity: climate.car_climate
+    name: Climate
+  - entity: sensor.car_charging
+    name: Charging
+```
+
+### Climate Control Card
+
+```yaml
+type: thermostat
+entity: climate.car_climate
+name: Car Climate
+features:
+  - type: climate-preset-modes
+    preset_modes:
+      - "off"
+      - "on"
+      - "dog"
+      - "camp"
+```
+
+### Gauge Card
+
+```yaml
+type: gauge
+entity: sensor.car_inside_temperature
+name: Cabin Temperature
+unit: "°C"
+min: -20
+max: 50
+severity:
+  green: 15
+  yellow: 25
+  red: 35
+needle: true
+```
+
+## Tesla-Specific Preset Modes
+
+Tesla has special preset modes:
+
+| Mode | Description |
+|------|-------------|
+| `off` | Climate off |
+| `on` | Normal heating/cooling |
+| `dog` | Dog mode - maintains comfortable temp and shows message on screen |
+| `camp` | Camp mode - maintains climate and power to devices |
+
+```yaml
+# Activate dog mode
+service: climate.set_preset_mode
+target:
+  entity_id: climate.car_climate
+data:
+  preset_mode: "dog"
+```
+
+<Aside type="tip" title="Dog Mode">
+Perfect when leaving your dog in the car briefly. The screen shows "My owner will be back soon" and the temperature is kept comfortable.
+</Aside>
+
+## Helpers for Advanced Control
+
+### Input for Heating Time
+
+```yaml
+input_datetime:
+  car_heating_time:
+    name: "Car heating time"
+    has_date: false
+    has_time: true
+    icon: mdi:car-clock
+```
+
+### Input for Minimum Battery
+
+```yaml
+input_number:
+  car_min_battery_heating:
+    name: "Minimum battery for heating"
+    min: 20
+    max: 80
+    step: 5
+    unit_of_measurement: "%"
+    icon: mdi:battery-alert
+```
+
+## Tips
+
+### Optimize Battery Usage
+
+1. **Preheat while plugged in** - Use grid power, not battery
+2. **Set time limit** - 15-20 minutes is typically enough
+3. **Check battery first** - Avoid heating at low battery
+4. **Use seat heaters** - Uses less power than cabin heating
+
+### Winter Range Tips
+
+| Tip | Effect |
+|-----|--------|
+| Preheat while plugged in | +10-20% range |
+| Use seat heaters instead of cabin heat | +5% range |
+| Keep battery above 20% | Protects battery |
+
+## Troubleshooting
+
+<Aside type="tip" title="Car not responding?">
+1. Check that the car has internet connection
+2. Verify the integration is active
+3. Try "waking" the car first via `button.car_wake`
+4. Check the Tesla/car app works
+</Aside>
+
+<Aside type="tip" title="Automation not running?">
+1. Check the conditions (battery, temperature)
+2. View automation trace in Home Assistant
+3. Verify entity_ids are correct
+4. Check that the automation is enabled
+</Aside>
+
+<Aside type="tip" title="Too much battery usage?">
+Reduce heating time from 15 to 10 minutes, or set a higher battery threshold (e.g., 50% instead of 40%).
+</Aside>
+
+## Next Steps
+
+<CardGrid>
+  <Card title="Electricity Price Integration" icon="seti:config">
+    Charge the car when electricity is cheapest.
+
+    [Electricity prices →](/en/home-assistant/elpris-integration/)
+  </Card>
+  <Card title="Low Battery Alert" icon="warning">
+    Get notified before sensors run out.
+
+    [Low battery →](/en/home-assistant/)
+  </Card>
+</CardGrid>

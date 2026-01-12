@@ -1,0 +1,419 @@
+---
+title: Elbil Opvarmning om Vinteren
+description: Automatisk opvarmning af din elbil når temperaturen falder. Spar batteri og stig ind i en varm bil hver morgen med Home Assistant.
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Let" variant="success" /> <Badge text="15 min" variant="note" />
+
+Aldrig mere stig ind i en iskold bil om vinteren! Denne guide viser hvordan du automatisk forvarmer din elbil når temperaturen falder - og samtidig sparer batteri ved kun at opvarme når det er nødvendigt.
+
+## Hvorfor automatisk opvarmning?
+
+| Fordel | Beskrivelse |
+|--------|-------------|
+| **Komfort** | Varm kabine og optøede ruder hver morgen |
+| **Batteri** | Opvarmning mens tilsluttet bruger strøm fra nettet, ikke batteriet |
+| **Rækkevidde** | Forvarmet batteri = bedre rækkevidde i kulde |
+| **Sikkerhed** | Klare ruder uden at skrabe |
+
+<Aside type="tip" title="Spar på batteriet">
+Når bilen er tilsluttet lader, bruger opvarmningen strøm fra nettet i stedet for batteriet. Automatisering sikrer at du kun opvarmer når nødvendigt!
+</Aside>
+
+## Hvad du skal bruge
+
+| Komponent | Beskrivelse |
+|-----------|-------------|
+| **Home Assistant** | Med Tesla, Polestar, VW eller anden elbil-integration |
+| **Elbil-integration** | Tesla Custom Integration, Volkswagen We Connect, Polestar API, etc. |
+| **Mobiltelefon** | Til notifikationer |
+
+### Understøttede elbiler
+
+| Mærke | Integration | HACS |
+|-------|-------------|:----:|
+| **Tesla** | Tesla Custom Integration | ✅ |
+| **Volkswagen/Audi/Skoda** | Volkswagen We Connect ID | ✅ |
+| **Polestar** | Polestar API | ✅ |
+| **BMW** | BMW Connected Drive | ✅ |
+| **Mercedes** | Mercedes ME | ✅ |
+| **Hyundai/Kia** | Hyundai/Kia Connect | ✅ |
+| **Renault** | Renault ZE Services | ✅ |
+
+<Aside type="note" title="Tesla eksempel">
+Denne guide bruger Tesla som eksempel, men principperne er de samme for andre mærker. Tilpas entity_id'er til din bil.
+</Aside>
+
+## Entities du får
+
+Med en typisk elbil-integration får du disse entities:
+
+| Entity | Type | Beskrivelse |
+|--------|------|-------------|
+| `climate.bil_climate` | Climate | Tænd/sluk klimaanlæg |
+| `sensor.bil_inside_temperature` | Sensor | Indvendig temperatur |
+| `sensor.bil_outside_temperature` | Sensor | Udvendig temperatur |
+| `sensor.bil_battery_level` | Sensor | Batteriniveau i % |
+| `sensor.bil_charging` | Sensor | Opladningsstatus |
+| `select.bil_seat_heater_*` | Select | Sædevarme (off/low/medium/high) |
+
+## Automationer
+
+### 1. Automatisk opvarmning under 0°C
+
+Den vigtigste automation - tænd klimaanlæg automatisk når det er frostvejr:
+
+```yaml
+automation:
+  - alias: "Bil: Opvarmning under 0 grader"
+    description: "Tænder bilens klimaanlæg når temperaturen er under 0°C i 1 minut"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bil_inside_temperature
+        below: 0
+        for:
+          minutes: 1
+    condition:
+      # Kun hvis batteri er over 40%
+      - condition: numeric_state
+        entity_id: sensor.bil_battery_level
+        above: 40
+    action:
+      # Tænd klimaanlæg
+      - service: climate.set_preset_mode
+        target:
+          entity_id: climate.bil_climate
+        data:
+          preset_mode: "on"
+      # Vent 15 minutter
+      - delay:
+          minutes: 15
+      # Sluk igen
+      - service: climate.set_preset_mode
+        target:
+          entity_id: climate.bil_climate
+        data:
+          preset_mode: "off"
+```
+
+<Aside type="caution" title="Batteri-betingelse">
+Vi tjekker at batteriet er over 40% før opvarmning. Tilpas denne værdi efter dine behov - du vil ikke dræne batteriet helt!
+</Aside>
+
+### 2. Notifikation om kold bil (om natten)
+
+Få besked hvis bilen bliver for kold om natten:
+
+```yaml
+automation:
+  - alias: "Bil: Kold om natten"
+    description: "Sender notifikation når bilen er under 5°C om natten"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bil_inside_temperature
+        below: 5
+    condition:
+      - condition: time
+        after: "22:00:00"
+        before: "07:00:00"
+    action:
+      - service: notify.mobile_app_din_telefon
+        data:
+          title: "🚗❄️ Bilen er kold"
+          message: >
+            Indvendig temp: {{ states("sensor.bil_inside_temperature") }}°C
+          data:
+            tag: "bil_kold"
+```
+
+### 3. Køling ved høj temperatur (sommer)
+
+Bonus: Hold bilen kølig om sommeren:
+
+```yaml
+automation:
+  - alias: "Bil: Køling over 30 grader"
+    description: "Tænder AC når temperaturen er over 30°C"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bil_inside_temperature
+        above: 30
+        for:
+          seconds: 20
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.bil_battery_level
+        above: 40
+    action:
+      - service: climate.set_temperature
+        target:
+          entity_id: climate.bil_climate
+        data:
+          temperature: 20
+          hvac_mode: "cool"
+
+  - alias: "Bil: Sluk køling under 20 grader"
+    description: "Slukker AC når temperaturen er under 20°C"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.bil_inside_temperature
+        below: 20
+        for:
+          minutes: 2
+    action:
+      - service: climate.turn_off
+        target:
+          entity_id: climate.bil_climate
+```
+
+### 4. Morgen-opvarmning på hverdage
+
+Opvarm bilen automatisk før du skal på arbejde:
+
+```yaml
+automation:
+  - alias: "Bil: Morgen opvarmning"
+    description: "Forvarmer bilen kl. 07:00 på hverdage når det er koldt"
+    mode: single
+    trigger:
+      - platform: time
+        at: "07:00:00"
+    condition:
+      - condition: time
+        weekday:
+          - mon
+          - tue
+          - wed
+          - thu
+          - fri
+      # Kun hvis det er koldt
+      - condition: numeric_state
+        entity_id: sensor.bil_inside_temperature
+        below: 10
+      # Kun hvis batteri er OK
+      - condition: numeric_state
+        entity_id: sensor.bil_battery_level
+        above: 30
+    action:
+      - service: climate.set_preset_mode
+        target:
+          entity_id: climate.bil_climate
+        data:
+          preset_mode: "on"
+      - service: notify.mobile_app_din_telefon
+        data:
+          title: "🚗🔥 Bilen forvarmes"
+          message: >
+            Temp: {{ states("sensor.bil_inside_temperature") }}°C
+            → Klar om 15 min
+      - delay:
+          minutes: 15
+      - service: climate.set_preset_mode
+        target:
+          entity_id: climate.bil_climate
+        data:
+          preset_mode: "off"
+```
+
+### 5. Sædevarme når det er koldt
+
+Tænd sædevarme automatisk sammen med klimaanlæg:
+
+```yaml
+automation:
+  - alias: "Bil: Sædevarme ved frost"
+    description: "Tænder sædevarme når klimaanlæg aktiveres ved frost"
+    mode: single
+    trigger:
+      - platform: state
+        entity_id: climate.bil_climate
+        to: "heat_cool"
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.bil_inside_temperature
+        below: 5
+    action:
+      # Tænd sædevarme på begge forsæder
+      - service: select.select_option
+        target:
+          entity_id: select.bil_seat_heater_left
+        data:
+          option: "high"
+      - service: select.select_option
+        target:
+          entity_id: select.bil_seat_heater_right
+        data:
+          option: "high"
+      # Sæt til medium efter 5 min
+      - delay:
+          minutes: 5
+      - service: select.select_option
+        target:
+          entity_id:
+            - select.bil_seat_heater_left
+            - select.bil_seat_heater_right
+        data:
+          option: "medium"
+```
+
+## Dashboard Cards
+
+### Bil-status card
+
+```yaml
+type: entities
+title: "🚗 Elbil Status"
+entities:
+  - entity: sensor.bil_inside_temperature
+    name: Indvendig temp
+    icon: mdi:thermometer
+  - entity: sensor.bil_outside_temperature
+    name: Udvendig temp
+    icon: mdi:thermometer
+  - entity: sensor.bil_battery_level
+    name: Batteri
+    icon: mdi:battery
+  - entity: climate.bil_climate
+    name: Klimaanlæg
+  - entity: sensor.bil_charging
+    name: Opladning
+```
+
+### Klimakontrol card
+
+```yaml
+type: thermostat
+entity: climate.bil_climate
+name: Bil Klimaanlæg
+features:
+  - type: climate-preset-modes
+    preset_modes:
+      - "off"
+      - "on"
+      - "dog"
+      - "camp"
+```
+
+### Gauge card
+
+```yaml
+type: gauge
+entity: sensor.bil_inside_temperature
+name: Kabine temperatur
+unit: "°C"
+min: -20
+max: 50
+severity:
+  green: 15
+  yellow: 25
+  red: 35
+needle: true
+```
+
+## Tesla-specifikke preset modes
+
+Tesla har specielle preset modes:
+
+| Mode | Beskrivelse |
+|------|-------------|
+| `off` | Klimaanlæg slukket |
+| `on` | Normal opvarmning/køling |
+| `dog` | Hundetilstand - holder behagelig temp og viser besked på skærm |
+| `camp` | Campingtilstand - holder klima og strøm til enheder |
+
+```yaml
+# Aktivér hundetilstand
+service: climate.set_preset_mode
+target:
+  entity_id: climate.bil_climate
+data:
+  preset_mode: "dog"
+```
+
+<Aside type="tip" title="Hundetilstand">
+Perfekt når du efterlader din hund i bilen kort tid. Skærmen viser "Min ejer kommer snart tilbage" og temperaturen holdes behagelig.
+</Aside>
+
+## Helpers til avanceret styring
+
+### Input for opvarmningstid
+
+```yaml
+input_datetime:
+  bil_opvarmning_tid:
+    name: "Bil opvarmningstid"
+    has_date: false
+    has_time: true
+    icon: mdi:car-clock
+```
+
+### Input for minimum batteri
+
+```yaml
+input_number:
+  bil_min_batteri_opvarmning:
+    name: "Minimum batteri for opvarmning"
+    min: 20
+    max: 80
+    step: 5
+    unit_of_measurement: "%"
+    icon: mdi:battery-alert
+```
+
+## Tips
+
+### Optimér batteriforbrug
+
+1. **Opvarm mens tilsluttet** - Brug strøm fra nettet, ikke batteriet
+2. **Sæt tidsbegrænsning** - 15-20 min er typisk nok
+3. **Tjek batteri først** - Undgå opvarmning ved lavt batteri
+4. **Brug sædevarme** - Bruger mindre strøm end kabineopvarmning
+
+### Vinter-rækkevidde
+
+| Tip | Effekt |
+|-----|--------|
+| Forvarm mens tilsluttet | +10-20% rækkevidde |
+| Brug sædevarme frem for kabinevarme | +5% rækkevidde |
+| Hold batteri over 20% | Beskytter batteriet |
+
+## Fejlfinding
+
+<Aside type="tip" title="Bilen reagerer ikke?">
+1. Tjek at bilen har internetforbindelse
+2. Verificer at integrationen er aktiv
+3. Prøv at "vække" bilen først via `button.bil_wake`
+4. Tjek Tesla/bil-appen virker
+</Aside>
+
+<Aside type="tip" title="Automation kører ikke?">
+1. Tjek betingelserne (batteri, temperatur)
+2. Se automation trace i Home Assistant
+3. Verificer entity_id'er er korrekte
+4. Tjek at automationen er aktiveret
+</Aside>
+
+<Aside type="tip" title="For meget batteriforbrug?">
+Reducer opvarmningstiden fra 15 til 10 minutter, eller sæt en højere batteri-grænse (f.eks. 50% i stedet for 40%).
+</Aside>
+
+## Næste skridt
+
+<CardGrid>
+  <Card title="⚡ Elpris-integration" icon="seti:config">
+    Oplad bilen når strømmen er billigst.
+
+    [Elpris-integration →](/da/home-assistant/elpris-integration/)
+  </Card>
+  <Card title="🔋 Lavt Batteri Alarm" icon="warning">
+    Få besked før sensorer løber tør.
+
+    [Lavt batteri →](/da/home-assistant/)
+  </Card>
+</CardGrid>

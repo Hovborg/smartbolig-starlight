@@ -161,6 +161,11 @@ export default defineConfig({
                   link: "/home-assistant/fugtighed-alarm-affugter/",
                 },
                 {
+                  label: "Elbil Opvarmning",
+                  translations: { en: "EV Preheating" },
+                  link: "/home-assistant/elbil-opvarmning/",
+                },
+                {
                   label: "Node-RED",
                   link: "/home-assistant/node-red/",
                 },
