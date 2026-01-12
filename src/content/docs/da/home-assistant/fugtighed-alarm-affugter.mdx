@@ -1,0 +1,361 @@
+---
+title: Fugtigheds-alarm med Automatisk Affugter
+description: Undgå skimmel og fugtskader med smart fugtighedsovervågning. Få alarm ved høj fugtighed og styr din affugter automatisk via Home Assistant.
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Mellem" variant="caution" /> <Badge text="30 min" variant="note" />
+
+Høj fugtighed i kælder eller badeværelse kan føre til skimmel, muglugt og dyre reparationer. Denne guide viser hvordan du overvåger fugtigheden, får alarm når den er for høj, og automatisk tænder en affugter.
+
+## Hvorfor overvåge fugtighed?
+
+| Problem | Konsekvens | Løsning |
+|---------|------------|---------|
+| **Skimmelsvamp** | Sundhedsskadeligt, dyrt at fjerne | Hold fugtighed under 60% |
+| **Muglugt** | Ubehageligt, spreder sig | Affugt regelmæssigt |
+| **Fugtskader** | Ødelagte møbler, vægge | Tidlig alarm + handling |
+| **Kondens** | Rust på metal, ødelagt elektronik | Konstant overvågning |
+
+<Aside type="tip" title="Anbefalede fugtighedsniveauer">
+- **Kælder**: Under 60% (ideelt 50-55%)
+- **Badeværelse**: Under 70% (kort efter bad OK)
+- **Beboelsesrum**: 40-60%
+</Aside>
+
+## Hvad du skal bruge
+
+### Minimum setup
+
+| Komponent | Eksempler | Pris ca. |
+|-----------|-----------|----------|
+| **Fugtigheds-sensor** | Aqara, SONOFF, Xiaomi | 100-200 kr |
+
+### Udvidet setup (anbefalet)
+
+| Komponent | Eksempler | Pris ca. |
+|-----------|-----------|----------|
+| **Fugtigheds-sensor** | Aqara WSDCGQ11LM, SONOFF SNZB-02 | 100-200 kr |
+| **Smart affugter** | Tuya WiFi affugter | 800-2000 kr |
+| **Smart stik med strømmåling** | Shelly Plug S, NOUS A1T | 150-250 kr |
+
+<Aside type="note" title="Tuya affugter anbefaling">
+Tuya-baserede affugtere kan integreres direkte i Home Assistant via **Local Tuya** integrationen - ingen cloud nødvendig! De har ofte indbygget fugtighedsmåler, men en separat sensor giver mere præcise målinger.
+</Aside>
+
+## Opsætning
+
+### Trin 1: Tilføj fugtigheds-sensor
+
+<Steps>
+1. Tilslut din Zigbee sensor via Zigbee2MQTT eller ZHA
+2. Verificer at sensoren rapporterer i Home Assistant
+3. Find entity_id (f.eks. `sensor.temp_kaelder_humidity`)
+4. Tjek at værdien opdaterer regelmæssigt
+</Steps>
+
+**Test din sensor:**
+```yaml
+# Gå til Developer Tools → States
+# Søg efter "humidity"
+# Din sensor bør vise en værdi mellem 30-80%
+```
+
+### Trin 2: Opret Helper til status tracking
+
+<Steps>
+1. Gå til **Indstillinger** → **Enheder og tjenester** → **Hjælpere**
+2. Klik **Opret hjælper** → **Dropdown**
+3. **Navn**: "Kælder Fugtighed Status"
+4. **Tilstande**: `normal`, `høj`, `kritisk`, `affugter_aktiv`
+</Steps>
+
+## Automationer
+
+### Basis: Alarm ved høj fugtighed
+
+```yaml
+automation:
+  - alias: "Advar ved høj fugtighed kælder"
+    description: "Sender notifikation når fugtighed er over 65% i 1 time"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.temp_kaelder_humidity
+        above: 65
+        for:
+          hours: 1
+    action:
+      - service: notify.mobile_app_din_telefon
+        data:
+          title: "💧 Høj fugtighed i kælder"
+          message: >
+            Fugtighed: {{ states("sensor.temp_kaelder_humidity") }}%.
+            Tænd affugter!
+          data:
+            tag: "fugtighed_kaelder"
+            persistent: true
+```
+
+### Avanceret: Automatisk affugter-styring
+
+Tænd affugteren automatisk når fugtigheden er for høj, sluk når den er normal:
+
+```yaml
+automation:
+  # Tænd affugter ved høj fugtighed
+  - alias: "Kælder: Tænd affugter ved høj fugtighed"
+    description: "Starter affugter når fugtighed over 60% i 30 min"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.temp_kaelder_humidity
+        above: 60
+        for:
+          minutes: 30
+    condition:
+      - condition: state
+        entity_id: humidifier.affugter_kaelder
+        state: "off"
+    action:
+      - service: humidifier.turn_on
+        target:
+          entity_id: humidifier.affugter_kaelder
+      - service: notify.mobile_app_din_telefon
+        data:
+          title: "💨 Affugter tændt"
+          message: >
+            Fugtighed: {{ states("sensor.temp_kaelder_humidity") }}%
+            Affugter startet automatisk.
+
+  # Sluk affugter ved normal fugtighed
+  - alias: "Kælder: Sluk affugter ved normal fugtighed"
+    description: "Stopper affugter når fugtighed under 50%"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.temp_kaelder_humidity
+        below: 50
+        for:
+          minutes: 15
+    condition:
+      - condition: state
+        entity_id: humidifier.affugter_kaelder
+        state: "on"
+    action:
+      - service: humidifier.turn_off
+        target:
+          entity_id: humidifier.affugter_kaelder
+      - service: notify.mobile_app_din_telefon
+        data:
+          title: "✅ Affugter slukket"
+          message: >
+            Fugtighed normaliseret: {{ states("sensor.temp_kaelder_humidity") }}%
+```
+
+### Bonus: Track affugter-cykler
+
+Hold styr på hvor ofte affugteren kører - nyttigt til vedligeholdelse:
+
+```yaml
+# Helpers (tilføj via UI eller configuration.yaml)
+counter:
+  kaelder_affugter_cycles:
+    name: "Kælder Affugter Cycles"
+    icon: mdi:water-percent
+    initial: 0
+    step: 1
+
+input_datetime:
+  kaelder_affugter_last_cycle:
+    name: "Kælder Affugter Last Cycle"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+
+automation:
+  - alias: "Kælder Affugter Cycle Tracker"
+    description: "Tæller affugter-cykler baseret på strømforbrug"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.affugter_power  # Din strømmåler
+        above: 100
+        for:
+          seconds: 10
+    action:
+      - service: counter.increment
+        target:
+          entity_id: counter.kaelder_affugter_cycles
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.kaelder_affugter_last_cycle
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+      - service: logbook.log
+        data:
+          name: "Affugter Kælder"
+          message: >
+            Cyklus #{{ states('counter.kaelder_affugter_cycles') }} startet
+          entity_id: sensor.affugter_power
+```
+
+## Tuya Affugter Integration
+
+### Via Local Tuya (anbefalet)
+
+<Steps>
+1. Installer **Local Tuya** via HACS
+2. Find din affugters **Device ID** og **Local Key** via Tuya IoT Platform
+3. Tilføj enheden i Local Tuya
+4. Vælg entity type: **Humidifier** (dehumidifier mode)
+</Steps>
+
+<Aside type="tip" title="Local Tuya fordele">
+- Ingen cloud-afhængighed
+- Hurtigere respons
+- Virker selvom internet er nede
+- Privatliv - data forlader ikke dit hjem
+</Aside>
+
+### Via Tuya Integration (alternativ)
+
+```yaml
+# Hvis du bruger den officielle Tuya integration
+# får du automatisk humidifier entities
+humidifier:
+  - platform: tuya
+    # Automatisk konfigureret
+```
+
+## Dashboard Card
+
+```yaml
+type: vertical-stack
+cards:
+  - type: entities
+    title: "💧 Kælder Fugtighed"
+    entities:
+      - entity: sensor.temp_kaelder_humidity
+        name: Fugtighed nu
+        icon: mdi:water-percent
+      - entity: humidifier.affugter_kaelder
+        name: Affugter
+      - entity: counter.kaelder_affugter_cycles
+        name: Total cykler
+      - entity: input_datetime.kaelder_affugter_last_cycle
+        name: Sidste cyklus
+        format: relative
+
+  - type: history-graph
+    title: "Fugtighed over tid"
+    hours_to_show: 168  # 1 uge
+    entities:
+      - entity: sensor.temp_kaelder_humidity
+        name: Kælder
+```
+
+### Gauge Card
+
+```yaml
+type: gauge
+entity: sensor.temp_kaelder_humidity
+name: Kælder Fugtighed
+unit: "%"
+min: 30
+max: 80
+severity:
+  green: 40
+  yellow: 55
+  red: 65
+```
+
+## Advarsels-niveauer
+
+Konfigurer forskellige alarmer baseret på alvorlighed:
+
+| Niveau | Fugtighed | Handling |
+|--------|-----------|----------|
+| **Normal** | Under 55% | Ingen |
+| **Forhøjet** | 55-65% | Log til historik |
+| **Høj** | 65-75% | Notifikation + tænd affugter |
+| **Kritisk** | Over 75% | Gentagne alarmer + TTS |
+
+```yaml
+automation:
+  - alias: "Kritisk fugtighed alarm"
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.temp_kaelder_humidity
+        above: 75
+        for:
+          minutes: 15
+    action:
+      - service: notify.mobile_app_din_telefon
+        data:
+          title: "🚨 KRITISK FUGTIGHED!"
+          message: >
+            Kælder: {{ states("sensor.temp_kaelder_humidity") }}%!
+            Tjek for vandskade eller utætheder!
+          data:
+            tag: "fugtighed_kritisk"
+            priority: high
+            channel: "alarm"
+      # TTS alarm
+      - service: tts.speak
+        target:
+          entity_id: tts.piper
+        data:
+          media_player_entity_id: media_player.stue_speaker
+          message: "Advarsel! Kritisk høj fugtighed i kælderen. Tjek straks."
+```
+
+## Fejlfinding
+
+<Aside type="tip" title="Sensor viser forkert værdi?">
+Kalibrer din sensor ved at sammenligne med et præcist hygrometer. De fleste Zigbee sensorer kan kalibreres via Zigbee2MQTT.
+</Aside>
+
+<Aside type="tip" title="Affugter reagerer ikke?">
+1. Tjek at Local Tuya er korrekt konfigureret
+2. Verificer at affugteren er på WiFi
+3. Test manuelt via Home Assistant UI
+4. Tjek loggen for fejl
+</Aside>
+
+<Aside type="tip" title="For mange notifikationer?">
+Brug `for:` perioder på triggers og `tag:` på notifikationer for at undgå spam.
+</Aside>
+
+## Vedligeholdelse
+
+| Opgave | Interval | Reminder automation |
+|--------|----------|---------------------|
+| Tøm vandtank | Ved behov | Notifikation fra affugter |
+| Rens filter | Månedligt | Calendar reminder |
+| Tjek sensor batteri | Hver 6. måned | Lavt batteri automation |
+| Kalibrer sensor | Årligt | Calendar reminder |
+
+## Tips til lavere fugtighed
+
+1. **Ventilation** - Åbn vinduer regelmæssigt
+2. **Varmekilde** - Varme luft holder mindre fugt
+3. **Undgå tørring indendørs** - Tør tøj udenfor eller i tørretumbler
+4. **Tjek dræn** - Sikr at gulvafløb fungerer
+5. **Isolering** - Undgå kolde overflader der kondenserer
+
+## Næste skridt
+
+<CardGrid>
+  <Card title="🔋 Lavt Batteri Alarm" icon="warning">
+    Få besked før dine sensorer løber tør for batteri.
+
+    [Lavt batteri alarm →](/da/home-assistant/)
+  </Card>
+  <Card title="🌡️ Temperatur Overvågning" icon="seti:config">
+    Kombiner med temperatur for bedre klimakontrol.
+
+    [Better Thermostat →](/da/home-assistant/better-thermostat/)
+  </Card>
+</CardGrid>

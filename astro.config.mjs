@@ -156,6 +156,11 @@ export default defineConfig({
                   link: "/home-assistant/vaskemaskine-notification/",
                 },
                 {
+                  label: "Fugtighed & Affugter",
+                  translations: { en: "Humidity & Dehumidifier" },
+                  link: "/home-assistant/fugtighed-alarm-affugter/",
+                },
+                {
                   label: "Node-RED",
                   link: "/home-assistant/node-red/",
                 },

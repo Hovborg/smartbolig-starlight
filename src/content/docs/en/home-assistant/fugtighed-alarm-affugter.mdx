@@ -1,0 +1,307 @@
+---
+title: Humidity Alert with Automatic Dehumidifier
+description: Avoid mold and moisture damage with smart humidity monitoring. Get alerts when humidity is high and control your dehumidifier automatically via Home Assistant.
+---
+
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+
+<Badge text="Medium" variant="caution" /> <Badge text="30 min" variant="note" />
+
+High humidity in basements or bathrooms can lead to mold, musty smells, and expensive repairs. This guide shows you how to monitor humidity, get alerts when it's too high, and automatically control a dehumidifier.
+
+## Why Monitor Humidity?
+
+| Problem | Consequence | Solution |
+|---------|-------------|----------|
+| **Mold growth** | Health hazard, expensive to remove | Keep humidity below 60% |
+| **Musty smell** | Unpleasant, spreads | Dehumidify regularly |
+| **Moisture damage** | Damaged furniture, walls | Early alert + action |
+| **Condensation** | Rust on metal, damaged electronics | Constant monitoring |
+
+<Aside type="tip" title="Recommended humidity levels">
+- **Basement**: Below 60% (ideal 50-55%)
+- **Bathroom**: Below 70% (briefly after shower is OK)
+- **Living areas**: 40-60%
+</Aside>
+
+## What You Need
+
+### Minimum setup
+
+| Component | Examples | Price approx. |
+|-----------|----------|---------------|
+| **Humidity sensor** | Aqara, SONOFF, Xiaomi | €10-25 |
+
+### Extended setup (recommended)
+
+| Component | Examples | Price approx. |
+|-----------|----------|---------------|
+| **Humidity sensor** | Aqara WSDCGQ11LM, SONOFF SNZB-02 | €10-25 |
+| **Smart dehumidifier** | Tuya WiFi dehumidifier | €80-200 |
+| **Smart plug with power monitoring** | Shelly Plug S, NOUS A1T | €15-30 |
+
+<Aside type="note" title="Tuya dehumidifier recommendation">
+Tuya-based dehumidifiers can be integrated directly into Home Assistant via the **Local Tuya** integration - no cloud required! They often have a built-in humidity sensor, but a separate sensor provides more accurate readings.
+</Aside>
+
+## Setup
+
+### Step 1: Add humidity sensor
+
+<Steps>
+1. Connect your Zigbee sensor via Zigbee2MQTT or ZHA
+2. Verify the sensor reports in Home Assistant
+3. Find the entity_id (e.g., `sensor.basement_humidity`)
+4. Check that the value updates regularly
+</Steps>
+
+**Test your sensor:**
+```yaml
+# Go to Developer Tools → States
+# Search for "humidity"
+# Your sensor should show a value between 30-80%
+```
+
+### Step 2: Create Helper for status tracking
+
+<Steps>
+1. Go to **Settings** → **Devices & Services** → **Helpers**
+2. Click **Create helper** → **Dropdown**
+3. **Name**: "Basement Humidity Status"
+4. **Options**: `normal`, `high`, `critical`, `dehumidifier_active`
+</Steps>
+
+## Automations
+
+### Basic: Alert on high humidity
+
+```yaml
+automation:
+  - alias: "Alert on high basement humidity"
+    description: "Send notification when humidity is above 65% for 1 hour"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.basement_humidity
+        above: 65
+        for:
+          hours: 1
+    action:
+      - service: notify.mobile_app_your_phone
+        data:
+          title: "💧 High humidity in basement"
+          message: >
+            Humidity: {{ states("sensor.basement_humidity") }}%.
+            Turn on dehumidifier!
+          data:
+            tag: "humidity_basement"
+            persistent: true
+```
+
+### Advanced: Automatic dehumidifier control
+
+Turn on the dehumidifier automatically when humidity is too high, turn off when normal:
+
+```yaml
+automation:
+  # Turn on dehumidifier when humidity is high
+  - alias: "Basement: Turn on dehumidifier on high humidity"
+    description: "Start dehumidifier when humidity above 60% for 30 min"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.basement_humidity
+        above: 60
+        for:
+          minutes: 30
+    condition:
+      - condition: state
+        entity_id: humidifier.dehumidifier_basement
+        state: "off"
+    action:
+      - service: humidifier.turn_on
+        target:
+          entity_id: humidifier.dehumidifier_basement
+      - service: notify.mobile_app_your_phone
+        data:
+          title: "💨 Dehumidifier turned on"
+          message: >
+            Humidity: {{ states("sensor.basement_humidity") }}%
+            Dehumidifier started automatically.
+
+  # Turn off dehumidifier when humidity is normal
+  - alias: "Basement: Turn off dehumidifier on normal humidity"
+    description: "Stop dehumidifier when humidity below 50%"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.basement_humidity
+        below: 50
+        for:
+          minutes: 15
+    condition:
+      - condition: state
+        entity_id: humidifier.dehumidifier_basement
+        state: "on"
+    action:
+      - service: humidifier.turn_off
+        target:
+          entity_id: humidifier.dehumidifier_basement
+      - service: notify.mobile_app_your_phone
+        data:
+          title: "✅ Dehumidifier turned off"
+          message: >
+            Humidity normalized: {{ states("sensor.basement_humidity") }}%
+```
+
+### Bonus: Track dehumidifier cycles
+
+Keep track of how often the dehumidifier runs - useful for maintenance:
+
+```yaml
+# Helpers (add via UI or configuration.yaml)
+counter:
+  basement_dehumidifier_cycles:
+    name: "Basement Dehumidifier Cycles"
+    icon: mdi:water-percent
+    initial: 0
+    step: 1
+
+input_datetime:
+  basement_dehumidifier_last_cycle:
+    name: "Basement Dehumidifier Last Cycle"
+    has_date: true
+    has_time: true
+    icon: mdi:clock-outline
+
+automation:
+  - alias: "Basement Dehumidifier Cycle Tracker"
+    description: "Count dehumidifier cycles based on power consumption"
+    mode: single
+    trigger:
+      - platform: numeric_state
+        entity_id: sensor.dehumidifier_power
+        above: 100
+        for:
+          seconds: 10
+    action:
+      - service: counter.increment
+        target:
+          entity_id: counter.basement_dehumidifier_cycles
+      - service: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.basement_dehumidifier_last_cycle
+        data:
+          datetime: "{{ now().strftime('%Y-%m-%d %H:%M:%S') }}"
+```
+
+## Tuya Dehumidifier Integration
+
+### Via Local Tuya (recommended)
+
+<Steps>
+1. Install **Local Tuya** via HACS
+2. Find your dehumidifier's **Device ID** and **Local Key** via Tuya IoT Platform
+3. Add the device in Local Tuya
+4. Select entity type: **Humidifier** (dehumidifier mode)
+</Steps>
+
+<Aside type="tip" title="Local Tuya benefits">
+- No cloud dependency
+- Faster response
+- Works even when internet is down
+- Privacy - data doesn't leave your home
+</Aside>
+
+## Dashboard Card
+
+```yaml
+type: vertical-stack
+cards:
+  - type: entities
+    title: "💧 Basement Humidity"
+    entities:
+      - entity: sensor.basement_humidity
+        name: Current humidity
+        icon: mdi:water-percent
+      - entity: humidifier.dehumidifier_basement
+        name: Dehumidifier
+      - entity: counter.basement_dehumidifier_cycles
+        name: Total cycles
+      - entity: input_datetime.basement_dehumidifier_last_cycle
+        name: Last cycle
+        format: relative
+
+  - type: history-graph
+    title: "Humidity over time"
+    hours_to_show: 168  # 1 week
+    entities:
+      - entity: sensor.basement_humidity
+        name: Basement
+```
+
+### Gauge Card
+
+```yaml
+type: gauge
+entity: sensor.basement_humidity
+name: Basement Humidity
+unit: "%"
+min: 30
+max: 80
+severity:
+  green: 40
+  yellow: 55
+  red: 65
+```
+
+## Warning Levels
+
+Configure different alerts based on severity:
+
+| Level | Humidity | Action |
+|-------|----------|--------|
+| **Normal** | Below 55% | None |
+| **Elevated** | 55-65% | Log to history |
+| **High** | 65-75% | Notification + turn on dehumidifier |
+| **Critical** | Above 75% | Repeated alarms + TTS |
+
+## Troubleshooting
+
+<Aside type="tip" title="Sensor showing wrong value?">
+Calibrate your sensor by comparing with an accurate hygrometer. Most Zigbee sensors can be calibrated via Zigbee2MQTT.
+</Aside>
+
+<Aside type="tip" title="Dehumidifier not responding?">
+1. Check that Local Tuya is correctly configured
+2. Verify the dehumidifier is on WiFi
+3. Test manually via Home Assistant UI
+4. Check the log for errors
+</Aside>
+
+<Aside type="tip" title="Too many notifications?">
+Use `for:` periods on triggers and `tag:` on notifications to avoid spam.
+</Aside>
+
+## Tips for Lower Humidity
+
+1. **Ventilation** - Open windows regularly
+2. **Heat source** - Warm air holds less moisture
+3. **Avoid indoor drying** - Dry clothes outside or in dryer
+4. **Check drains** - Ensure floor drains work
+5. **Insulation** - Avoid cold surfaces that cause condensation
+
+## Next Steps
+
+<CardGrid>
+  <Card title="🔋 Low Battery Alert" icon="warning">
+    Get notified before your sensors run out of battery.
+
+    [Low battery alert →](/en/home-assistant/)
+  </Card>
+  <Card title="🌡️ Temperature Monitoring" icon="seti:config">
+    Combine with temperature for better climate control.
+
+    [Better Thermostat →](/en/home-assistant/better-thermostat/)
+  </Card>
+</CardGrid>
