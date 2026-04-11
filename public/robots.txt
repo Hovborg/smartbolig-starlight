@@ -12,6 +12,8 @@ Sitemap: https://smartbolig.net/sitemap-index.xml
 # RSS Feeds
 # Danish: https://smartbolig.net/rss.xml
 # English: https://smartbolig.net/en/rss.xml
+# AI News Danish: https://smartbolig.net/da/ai/nyheder/rss.xml
+# AI News English: https://smartbolig.net/en/ai/news/rss.xml
 
 # Disallow internal/admin paths
 Disallow: /api/

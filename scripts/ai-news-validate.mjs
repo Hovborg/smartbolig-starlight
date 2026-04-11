@@ -73,6 +73,9 @@ function validateArticle(filePath, content, issues) {
 
   if (!frontmatter.title) fail(issues, filePath, 'missing title');
   if (!frontmatter.description) fail(issues, filePath, 'missing description');
+  if (!content.includes(`<time datetime="${basename}">`)) {
+    fail(issues, filePath, 'missing visible publication date with matching <time datetime>');
+  }
 
   if (content.length > 24000) {
     fail(issues, filePath, 'article is too long for a daily public brief');

@@ -11,6 +11,12 @@ const siteUrl = "https://smartbolig.net";
 const pathname = Astro.url.pathname;
 const pageUrl = new URL(pathname, siteUrl).href;
 const logoUrl = `${siteUrl}/images/og-image.png`;
+const aiNewsSocialImageUrl = `${siteUrl}/images/ai-news-og.png`;
+const aiNewsSchemaImages = [
+  { url: `${siteUrl}/images/ai-news-og-16x9.png`, width: 1200, height: 675 },
+  { url: `${siteUrl}/images/ai-news-og-4x3.png`, width: 1200, height: 900 },
+  { url: `${siteUrl}/images/ai-news-og-1x1.png`, width: 1200, height: 1200 },
+];
 
 let starlightRoute: typeof Astro.locals.starlightRoute | null = null;
 
@@ -43,6 +49,8 @@ const isAiNewsArticle = /^\/(?:da|en)\/ai\/nyheder\/\d{4}-\d{2}-\d{2}\/?$/.test(
 const isAiNewsIndex = /^\/(?:da|en)\/ai\/nyheder\/?$/.test(pathname);
 const isHomePage = /^\/(?:da|en)\/?$/.test(pathname);
 const newsSources = Array.isArray(entry?.data?.news?.sources) ? entry.data.news.sources : [];
+const defaultLanguagePath = pathname.startsWith("/en/") ? pathname.replace(/^\/en\//, "/da/") : pathname;
+const defaultLanguageUrl = new URL(defaultLanguagePath, siteUrl).href;
 const datePublished =
   toIsoDate(entry?.data?.date, entry?.data?.lastUpdated, lastUpdated) || "2024-01-01T00:00:00.000Z";
 const dateModified = toIsoDate(entry?.data?.updated, entry?.data?.lastUpdated, lastUpdated, entry?.data?.date);
@@ -65,7 +73,12 @@ const upsertMeta = (key: "name" | "property", value: string, content: string | n
 
 const addLink = (attrs: Record<string, string>) => {
   const exists = starlightHead.some(
-    (item) => item.tag === "link" && item.attrs?.rel === attrs.rel && item.attrs?.href === attrs.href
+    (item) =>
+      item.tag === "link" &&
+      item.attrs?.rel === attrs.rel &&
+      item.attrs?.href === attrs.href &&
+      item.attrs?.hreflang === attrs.hreflang &&
+      item.attrs?.type === attrs.type
   );
   if (!exists) starlightHead.push({ tag: "link", attrs });
 };
@@ -75,11 +88,28 @@ if (entry?.data) {
 }
 
 if (isAiNewsPage) {
+  upsertMeta("property", "og:image", aiNewsSocialImageUrl);
+  upsertMeta("property", "og:image:width", "1200");
+  upsertMeta("property", "og:image:height", "630");
+  upsertMeta(
+    "property",
+    "og:image:alt",
+    lang === "da" ? "SmartBolig.net AI-nyheder" : "SmartBolig.net AI News"
+  );
+  upsertMeta("name", "twitter:image", aiNewsSocialImageUrl);
   addLink({
     rel: "alternate",
     type: "application/rss+xml",
     title: lang === "da" ? "SmartBolig.net AI-nyheder" : "SmartBolig.net AI News",
     href: aiNewsRssHref,
+  });
+}
+
+if (entry?.data) {
+  addLink({
+    rel: "alternate",
+    hreflang: "x-default",
+    href: defaultLanguageUrl,
   });
 }
 
@@ -156,6 +186,13 @@ const aiNewsKeywords = lang === "da"
   ? ["AI-nyheder", "OpenAI Codex", "Claude Code", "Gemini CLI", "AI CLI", "API-priser"]
   : ["AI News", "OpenAI Codex", "Claude Code", "Gemini CLI", "AI CLI", "API pricing"];
 
+const defaultSchemaImage = {
+  "@type": "ImageObject",
+  url: logoUrl,
+  width: 1200,
+  height: 630
+};
+
 const articleSchema = entry?.data && !isAiNewsIndex ? {
   "@context": "https://schema.org",
   "@type": isAiNewsArticle ? "NewsArticle" : "TechArticle",
@@ -187,12 +224,12 @@ const articleSchema = entry?.data && !isAiNewsIndex ? {
   publisher: {
     "@id": `${siteUrl}/#organization`
   },
-  image: {
-    "@type": "ImageObject",
-    url: logoUrl,
-    width: 1200,
-    height: 630
-  },
+  image: isAiNewsArticle
+    ? aiNewsSchemaImages.map((image) => ({
+        "@type": "ImageObject",
+        ...image,
+      }))
+    : defaultSchemaImage,
   mainEntityOfPage: {
     "@type": "WebPage",
     "@id": pageUrl
@@ -214,6 +251,10 @@ const collectionPageSchema = entry?.data && isAiNewsIndex ? {
   publisher: {
     "@id": `${siteUrl}/#organization`
   },
+  image: aiNewsSchemaImages.map((image) => ({
+    "@type": "ImageObject",
+    ...image,
+  })),
   mainEntity: {
     "@type": "DataFeed",
     name: lang === "da" ? "SmartBolig.net AI-nyheder" : "SmartBolig.net AI News",

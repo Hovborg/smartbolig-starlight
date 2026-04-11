@@ -9,6 +9,12 @@ const distDir = path.join(rootDir, 'dist');
 const docsDir = path.join(rootDir, 'src/content/docs');
 const daNewsDir = path.join(docsDir, 'da/ai/nyheder');
 const enNewsDir = path.join(docsDir, 'en/ai/nyheder');
+const aiNewsImages = [
+  'public/images/ai-news-og.png',
+  'public/images/ai-news-og-16x9.png',
+  'public/images/ai-news-og-4x3.png',
+  'public/images/ai-news-og-1x1.png',
+];
 
 function fail(issues, filePath, message) {
   issues.push(`${path.relative(rootDir, filePath)}: ${message}`);
@@ -49,6 +55,10 @@ async function main() {
     fail(issues, distDir, 'missing dist; run npm run build before seo:validate');
   }
 
+  for (const imagePath of aiNewsImages) {
+    if (!existsSync(path.join(rootDir, imagePath))) fail(issues, path.join(rootDir, imagePath), 'missing AI News SEO image');
+  }
+
   if (!latest || !enArticles.includes(`${latest}.mdx`)) {
     fail(issues, daNewsDir, 'missing mirrored AI News daily issue');
   } else {
@@ -56,10 +66,14 @@ async function main() {
       required: [
         { needle: `<link rel="canonical" href="https://smartbolig.net/da/ai/nyheder/${latest}/"`, label: 'canonical URL' },
         { needle: '<meta property="og:type" content="article"', label: 'article Open Graph type' },
+        { needle: '<meta property="og:image" content="https://smartbolig.net/images/ai-news-og.png"', label: 'AI News Open Graph image' },
         { needle: `<meta property="article:published_time" content="${latest}T00:00:00.000Z"`, label: 'article published time' },
+        { needle: `<time datetime="${latest}">`, label: 'visible publication date' },
+        { needle: '<link rel="alternate" hreflang="x-default" href="https://smartbolig.net/da/ai/nyheder/', label: 'x-default hreflang' },
         { needle: '<link rel="alternate" type="application/rss+xml" title="SmartBolig.net AI-nyheder" href="https://smartbolig.net/da/ai/nyheder/rss.xml"', label: 'AI News RSS autodiscovery' },
         { needle: '"@type":"NewsArticle"', label: 'NewsArticle JSON-LD' },
         { needle: `"datePublished":"${latest}T00:00:00.000Z"`, label: 'JSON-LD datePublished' },
+        { needle: '"url":"https://smartbolig.net/images/ai-news-og-16x9.png"', label: 'AI News 16:9 structured-data image' },
         { needle: '"citation":[', label: 'source citations in JSON-LD' },
       ],
       forbidden: [{ needle: 'noindex', label: 'noindex robots directive' }],
@@ -69,10 +83,14 @@ async function main() {
       required: [
         { needle: `<link rel="canonical" href="https://smartbolig.net/en/ai/nyheder/${latest}/"`, label: 'canonical URL' },
         { needle: '<meta property="og:type" content="article"', label: 'article Open Graph type' },
+        { needle: '<meta property="og:image" content="https://smartbolig.net/images/ai-news-og.png"', label: 'AI News Open Graph image' },
         { needle: `<meta property="article:published_time" content="${latest}T00:00:00.000Z"`, label: 'article published time' },
+        { needle: `<time datetime="${latest}">`, label: 'visible publication date' },
+        { needle: '<link rel="alternate" hreflang="x-default" href="https://smartbolig.net/da/ai/nyheder/', label: 'x-default hreflang' },
         { needle: '<link rel="alternate" type="application/rss+xml" title="SmartBolig.net AI News" href="https://smartbolig.net/en/ai/news/rss.xml"', label: 'AI News RSS autodiscovery' },
         { needle: '"@type":"NewsArticle"', label: 'NewsArticle JSON-LD' },
         { needle: `"datePublished":"${latest}T00:00:00.000Z"`, label: 'JSON-LD datePublished' },
+        { needle: '"url":"https://smartbolig.net/images/ai-news-og-16x9.png"', label: 'AI News 16:9 structured-data image' },
         { needle: '"citation":[', label: 'source citations in JSON-LD' },
       ],
       forbidden: [{ needle: 'noindex', label: 'noindex robots directive' }],
@@ -82,6 +100,8 @@ async function main() {
   await validatePage(issues, path.join(distDir, 'da/ai/nyheder/index.html'), {
     required: [
       { needle: '<link rel="canonical" href="https://smartbolig.net/da/ai/nyheder/"', label: 'canonical URL' },
+      { needle: '<meta property="og:image" content="https://smartbolig.net/images/ai-news-og.png"', label: 'AI News Open Graph image' },
+      { needle: '<link rel="alternate" hreflang="x-default" href="https://smartbolig.net/da/ai/nyheder/"', label: 'x-default hreflang' },
       { needle: '<link rel="alternate" type="application/rss+xml" title="SmartBolig.net AI-nyheder" href="https://smartbolig.net/da/ai/nyheder/rss.xml"', label: 'AI News RSS autodiscovery' },
       { needle: '"@type":"CollectionPage"', label: 'CollectionPage JSON-LD' },
       { needle: '"@type":"DataFeed"', label: 'DataFeed JSON-LD' },
@@ -92,6 +112,8 @@ async function main() {
   await validatePage(issues, path.join(distDir, 'en/ai/nyheder/index.html'), {
     required: [
       { needle: '<link rel="canonical" href="https://smartbolig.net/en/ai/nyheder/"', label: 'canonical URL' },
+      { needle: '<meta property="og:image" content="https://smartbolig.net/images/ai-news-og.png"', label: 'AI News Open Graph image' },
+      { needle: '<link rel="alternate" hreflang="x-default" href="https://smartbolig.net/da/ai/nyheder/"', label: 'x-default hreflang' },
       { needle: '<link rel="alternate" type="application/rss+xml" title="SmartBolig.net AI News" href="https://smartbolig.net/en/ai/news/rss.xml"', label: 'AI News RSS autodiscovery' },
       { needle: '"@type":"CollectionPage"', label: 'CollectionPage JSON-LD' },
       { needle: '"@type":"DataFeed"', label: 'DataFeed JSON-LD' },
@@ -107,6 +129,20 @@ async function main() {
   } else if (!existsSync(sitemapPath)) {
     fail(issues, sitemapPath, 'missing sitemap');
   }
+
+  await validatePage(issues, path.join(distDir, 'da/ai/nyheder/rss.xml'), {
+    required: [
+      { needle: '<atom:link href="https://smartbolig.net/da/ai/nyheder/rss.xml" rel="self" type="application/rss+xml"/>', label: 'Danish AI News RSS self link' },
+      { needle: '<category>AI News</category>', label: 'AI News RSS category' },
+    ],
+  });
+
+  await validatePage(issues, path.join(distDir, 'en/ai/news/rss.xml'), {
+    required: [
+      { needle: '<atom:link href="https://smartbolig.net/en/ai/news/rss.xml" rel="self" type="application/rss+xml"/>', label: 'English AI News RSS self link' },
+      { needle: '<category>AI News</category>', label: 'AI News RSS category' },
+    ],
+  });
 
   if (issues.length > 0) {
     console.error('SEO validation failed:');

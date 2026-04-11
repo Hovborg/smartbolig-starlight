@@ -258,6 +258,9 @@ function renderArticle({ locale, date, items, weakSignal }) {
   const description = isDa
     ? `Kurateret AI-overblik for ${formattedDate}: OpenAI, Claude Code, Gemini CLI, API-priser og agent-workflows.`
     : `Curated AI brief for ${formattedDate}: OpenAI, Claude Code, Gemini CLI, API pricing, and agent workflows.`;
+  const publishedMeta = isDa
+    ? `<p><strong>Publiceret:</strong> <time datetime="${date}">${formattedDate}</time> | <strong>Opdateret:</strong> <time datetime="${date}">${formattedDate}</time></p>`
+    : `<p><strong>Published:</strong> <time datetime="${date}">${formattedDate}</time> | <strong>Updated:</strong> <time datetime="${date}">${formattedDate}</time></p>`;
   const signal = weakSignal ? 'low' : items.length >= 4 ? 'high' : 'medium';
   const sourceUrls = [...new Set(items.map((item) => item.url))];
 
@@ -309,6 +312,8 @@ import { Badge, Aside } from "@astrojs/starlight/components";
 
 <Badge text="AI Radar" variant="note" /> <Badge text="${signal === 'high' ? 'Høj signalværdi' : signal === 'medium' ? 'Middel signalværdi' : 'Lav signalværdi'}" variant="${signal === 'high' ? 'success' : signal === 'medium' ? 'note' : 'caution'}" />
 
+${publishedMeta}
+
 ${weakSignal ? 'Der var ikke nok høj-signal nyheder til en fuld dagsudgave. Denne side er derfor en kort kildebaseret status, ikke en fyldartikel.' : sourceSummaryDa(items)}
 
 <Aside type="caution" title="Kildeførst">
@@ -344,6 +349,8 @@ ${sourceRows || '| AI | Ingen publicerbar kilde | - |'}
 import { Badge, Aside } from "@astrojs/starlight/components";
 
 <Badge text="AI Radar" variant="note" /> <Badge text="${signal === 'high' ? 'High signal' : signal === 'medium' ? 'Medium signal' : 'Low signal'}" variant="${signal === 'high' ? 'success' : signal === 'medium' ? 'note' : 'caution'}" />
+
+${publishedMeta}
 
 ${weakSignal ? 'There were not enough high-signal updates for a full daily issue. This page is a short source-backed status, not filler content.' : sourceSummaryEn(items)}
 
