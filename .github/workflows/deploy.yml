@@ -15,6 +15,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -33,11 +35,12 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.81.1"
           command: pages deploy dist --project-name=smartbolig-starlight
 
       - name: Ping IndexNow
         run: |
-          curl -s -X POST "https://api.indexnow.org/indexnow" \
+          curl --fail-with-body -sS -X POST "https://api.indexnow.org/indexnow" \
             -H "Content-Type: application/json" \
             -d '{
               "host": "smartbolig.net",
@@ -52,7 +55,11 @@ jobs:
                 "https://smartbolig.net/da/esp32/",
                 "https://smartbolig.net/en/esp32/",
                 "https://smartbolig.net/da/produkter/",
-                "https://smartbolig.net/en/produkter/"
+                "https://smartbolig.net/en/produkter/",
+                "https://smartbolig.net/da/home-assistant/elbil-opvarmning/",
+                "https://smartbolig.net/en/home-assistant/elbil-opvarmning/",
+                "https://smartbolig.net/da/home-assistant/fugtighed-alarm-affugter/",
+                "https://smartbolig.net/en/home-assistant/fugtighed-alarm-affugter/"
               ]
             }'
           echo "IndexNow ping sent!"

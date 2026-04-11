@@ -1,0 +1,202 @@
+---
+title: "Priser, planer og API-priser"
+description: "Hvad Codex CLI, Claude Code og Gemini CLI koster via abonnementer, API keys og pay-as-you-go."
+---
+
+import { Aside, Badge, Card, CardGrid } from '@astrojs/starlight/components';
+
+<Badge text="Priser" variant="note" /> <Badge text="AI CLI" variant="success" />
+
+AI CLI'er kan betales på to måder: med et fast abonnement, hvor brug er inkluderet op til en grænse, eller med en API key, hvor du betaler efter tokens, værktøjskald og modelvalg.
+
+<Aside type="caution" title="Tjek altid før køb">
+Priser, modeller, kvoter og kampagner ændrer sig ofte. Tallene her er sidst tjekket 11. april 2026. Den danske version viser cirka-priser i kroner, omregnet fra officielle USD-priser med 1 USD cirka 6,40 kr. Faktiske checkout-priser kan afvige på grund af moms, valutakurs og lokal prissætning.
+</Aside>
+
+## Kort beslutning
+
+| Behov | Typisk valg |
+|---|---|
+| Du vil bare lære værktøjet | Start med gratis tier eller et lille personligt abonnement. |
+| Du bruger CLI'en flere gange om ugen | Vælg et abonnement med inkluderet CLI-brug. |
+| Du vil køre automation, CI eller scripts | Brug API key med spend limits. |
+| Du arbejder i team | Brug team-/business-plan med central billing, SSO og admin controls. |
+| Du arbejder i store repos | Sæt budgetter, brug billigere modeller til rutineopgaver og hold kontekst lille. |
+
+## Hvad driver regningen?
+
+| Driver | Hvorfor det betyder noget | Praktisk kontrol |
+|---|---|---|
+| Repo-størrelse | Agenten kan læse mange filer og sende mere kontekst. | Start i den konkrete app-mappe, ikke hele workspacet. |
+| Instruktionsfiler | Lange `AGENTS.md`, `CLAUDE.md` og `GEMINI.md` bliver ofte sendt med. | Hold rodfiler korte og læg detaljer tæt på delprojektet. |
+| MCP og tools | Hvert eksternt tool kan tilføje beskrivelser, output og ekstra kald. | Slå kun MCP-servere til, når opgaven kræver dem. |
+| Modelvalg | De stærkeste modeller er dyrere og bruger ofte mere reasoning. | Brug mini/Haiku/Flash til rutine og stærke modeller til svære opgaver. |
+| Output-længde | Lange rapporter og kodegenerering koster output tokens. | Bed om konkrete fund, patches og korte opsummeringer. |
+| Automation | Loops, cron og CI kan køre uden at du opdager forbruget. | Brug separate API keys, budgets, rate limits og logs. |
+
+En simpel API-regel:
+
+```text
+pris = input tokens + cached input tokens + output tokens + tool-kald
+```
+
+For CLI-abonnementer er reglen mere praktisk:
+
+```text
+forbrug = antal opgaver * opgavestørrelse * modelvalg * ekstra tools/subagents
+```
+
+## OpenAI Codex og OpenAI API
+
+Codex kan bruges med ChatGPT-login eller med OpenAI API key. ChatGPT-planer giver adgang til Codex i web, CLI, IDE og i nogle tilfælde cloud features. API key er bedst til automation og CI, men cloud-baserede features som GitHub code review og Slack er ikke inkluderet.
+
+| Plan | Pris | Relevans for Codex |
+|---|---:|---|
+| Free | 0 kr./md. | Hurtige testopgaver og læring. |
+| Go | Ca. 51 kr./md. | Lettere coding tasks. |
+| Plus | Ca. 128 kr./md. | Codex i web, CLI, IDE og iOS, nyere modeller og kreditter. |
+| Pro | Fra ca. 640 kr./md. | 5x eller 20x højere limits end Plus og prioriteret behandling. |
+| Business | Forbrugsafregnet | Team-workspace, admin controls, større VM'er og credits. |
+| Enterprise/Edu | Kontakt sales | Enterprise controls, audit logs, retention og data residency. |
+| API key | Tokenbaseret | Lokale Codex-opgaver i CLI/SDK/IDE, men uden cloud code review. |
+
+### OpenAI API-priser
+
+| Model | Input / 1M tokens | Cached input / 1M tokens | Output / 1M tokens |
+|---|---:|---:|---:|
+| GPT-5.4 | Ca. 16 kr. | Ca. 1,60 kr. | Ca. 96 kr. |
+| GPT-5.4 mini | Ca. 4,80 kr. | Ca. 0,48 kr. | Ca. 29 kr. |
+| GPT-5.4 nano | Ca. 1,30 kr. | Ca. 0,13 kr. | Ca. 8 kr. |
+
+OpenAI oplyser, at standardpriserne her gælder for context lengths under 270K. Data residency og regional processing kan give et tillæg for modeller udgivet efter 5. marts 2026.
+
+### Codex credits
+
+Codex credits bruges til at fortsætte efter inkluderede limits. For nye og eksisterende Business-kunder og nye Enterprise-kunder viste OpenAI denne tokenbaserede credit-rate:
+
+| Model | Input / 1M tokens | Cached input / 1M tokens | Output / 1M tokens |
+|---|---:|---:|---:|
+| GPT-5.4 | 62.50 credits | 6.250 credits | 375 credits |
+| GPT-5.4-mini | 18.75 credits | 1.875 credits | 113 credits |
+| GPT-5.3-Codex | 43.75 credits | 4.375 credits | 350 credits |
+| GPT-5.2 | 43.75 credits | 4.375 credits | 350 credits |
+
+Fast mode bruger 2x credits. GPT-5.3-Codex-Spark var research preview for ChatGPT Pro og ikke tilgængelig i API ved lancering.
+
+### Codex inkluderede limits
+
+OpenAI angiver limits som intervaller, fordi de afhænger af opgavens størrelse og model. Som praktisk tommelfingerregel bør du forvente, at store repos, lange prompts og subagents bruger grænsen hurtigere.
+
+| Plan | Eksempler på local messages pr. 5 timer |
+|---|---|
+| Plus | GPT-5.4: 20-100, GPT-5.4-mini: 60-350, GPT-5.3-Codex: 30-150 |
+| Pro 5x | GPT-5.4: 200-1000, GPT-5.4-mini: 600-3500, GPT-5.3-Codex: 300-1500 |
+| Pro 20x | GPT-5.4: 400-2000, GPT-5.4-mini: 1200-7000, GPT-5.3-Codex: 600-3000 |
+
+Cloud tasks og lokale beskeder kan dele samme 5-timers vindue, og ugentlige grænser kan også gælde.
+
+## Anthropic Claude Code og Claude API
+
+Claude Code kan bruges via Claude-abonnementer eller via API-tokenforbrug. Claude Code viser tokenforbrug med `/cost` for API-brugere. Pro og Max-abonnenter har brug inkluderet i abonnementet og bør bruge `/stats` til at forstå mønstre.
+
+| Plan | Pris | Relevans for Claude Code |
+|---|---:|---|
+| Free | 0 kr. | Prøv Claude i appen. |
+| Pro | Ca. 109 kr./md. årligt eller ca. 128 kr./md. månedligt | Mere brug, Claude Code, Claude Cowork og Projects. |
+| Max | Fra ca. 640 kr./md. | 5x eller 20x mere brug end Pro og højere output limits. |
+| Team standard | Ca. 128 kr./sæde/md. årligt eller ca. 160 kr./md. | Teamfunktioner, Claude Code, SSO og admin. |
+| Team premium | Ca. 640 kr./sæde/md. årligt eller ca. 800 kr./md. | 5x mere brug end standard seats. |
+| Enterprise | Ca. 128 kr./sæde + API-forbrug | Enterprise controls, spend controls, audit logs og retention. |
+| API | Tokenbaseret | Betal efter model, input, output, cache og værktøjer. |
+
+Anthropic beskriver typiske enterprise-omkostninger for Claude Code som cirka 83 kr. pr. udvikler pr. aktiv dag og 960-1.600 kr. pr. udvikler pr. måned, men med stor variation efter model, repo-størrelse og brugsmønster.
+
+### Claude API-priser
+
+| Model | Input / 1M tokens | Output / 1M tokens | Cache write / 1M | Cache read / 1M |
+|---|---:|---:|---:|---:|
+| Opus 4.6 | Ca. 32 kr. | Ca. 160 kr. | Ca. 40 kr. | Ca. 3,20 kr. |
+| Sonnet 4.6 | Ca. 19 kr. | Ca. 96 kr. | Ca. 24 kr. | Ca. 1,90 kr. |
+| Haiku 4.5 | Ca. 6,40 kr. | Ca. 32 kr. | Ca. 8 kr. | Ca. 0,64 kr. |
+
+US-only inference koster 1.1x input- og outputpriser. Claude web search koster ca. 64 kr. pr. 1.000 søgninger. Code execution har 50 gratis timer dagligt pr. organisation og derefter ca. 0,32 kr. pr. time pr. container.
+
+## Gemini CLI, Google AI-planer og Gemini API
+
+Gemini CLI har flere auth-veje: Google-login, Gemini API key og Vertex AI. Den rigtige prismodel afhænger af login-metoden.
+
+| Auth eller plan | Pris eller model | CLI-kvote ifølge Gemini CLI docs |
+|---|---:|---:|
+| Google account, Gemini Code Assist individual | Gratis | 1.000 requests pr. bruger pr. dag |
+| Google AI Pro | Ca. 128 kr./md. | 1.500 requests pr. bruger pr. dag |
+| Google AI Ultra | Ca. 1.600 kr./md. | 2.000 requests pr. bruger pr. dag |
+| Gemini API key, unpaid | Gratis tier | 250 requests pr. bruger pr. dag, Flash only |
+| Gemini API key, paid | Forbrugsafregnet | Varierer efter pricing tier og tokenforbrug |
+| Vertex AI | Forbrugsafregnet | Varierer efter Google Cloud-kvote og model |
+| Workspace Code Assist Standard | Sæde/licens | 1.500 requests pr. bruger pr. dag |
+| Workspace Code Assist Enterprise | Sæde/licens | 2.000 requests pr. bruger pr. dag |
+
+Google AI Plus findes som forbrugerabonnement, men Gemini CLI-dokumentationen siger, at tiers som ikke er listet, inklusive Google AI Plus, ikke understøttes som CLI paid tier.
+
+### Gemini API-priser
+
+| Model og tier | Input / 1M tokens | Output / 1M tokens |
+|---|---:|---:|
+| Gemini 3.1 Pro Preview, Standard, under 200k prompt | Ca. 13 kr. | Ca. 77 kr. |
+| Gemini 3.1 Pro Preview, Standard, over 200k prompt | Ca. 26 kr. | Ca. 115 kr. |
+| Gemini 3.1 Pro Preview, Batch/Flex, under 200k prompt | Ca. 6,40 kr. | Ca. 38 kr. |
+| Gemini 3.1 Flash-Lite Preview, Standard text/image/video | Ca. 1,60 kr. | Ca. 9,60 kr. |
+| Gemini 3.1 Flash-Lite Preview, Batch/Flex text/image/video | Ca. 0,80 kr. | Ca. 4,80 kr. |
+| Gemini 3 Flash Preview, Standard text/image/video | Ca. 3,20 kr. | Ca. 19 kr. |
+| Gemini 3 Flash Preview, Batch/Flex text/image/video | Ca. 1,60 kr. | Ca. 9,60 kr. |
+
+Grounding med Google Search for Gemini 3 havde 5.000 prompts pr. måned inkluderet på paid tier og derefter ca. 90 kr. pr. 1.000 search queries. Batch API kan reducere tokenprisen, men er bedst til opgaver der kan vente.
+
+## Budgetvalg i praksis
+
+| Profil | Startbudget | Hvorfor |
+|---|---|---|
+| Ny bruger | Gratis tier eller én personlig plan i en måned | Du lærer workflows før du kobler API keys på. |
+| Solo developer | Codex Plus/Pro, Claude Pro/Max eller Google AI Pro efter økosystem | Fast månedlig pris er lettere end tokenregning. |
+| Automation | API key med lavt spend limit | Scripts kan ellers køre dyrt uden at du ser det. |
+| Team | Business/Team/Enterprise | Central billing, SSO, audit, retention og spend controls er vigtigere end laveste tokenpris. |
+| Stort repo | Abonnement + API fallback | Brug abonnement til manuel udvikling og API key til målte automationer. |
+
+## Danske kroner vs dollars
+
+Den danske side viser cirka-beløb i kroner, fordi det gør planvalg nemmere. De officielle prissider angiver typisk USD. Brug derfor tallene her som overslag, og tjek checkout for:
+
+- moms
+- valutakurs
+- lokale prisændringer
+- enterprise-rabatter
+- kampagner og midlertidige usage boosts
+
+## Sådan undgår du dyre overraskelser
+
+<CardGrid>
+  <Card title="Start med abonnement" icon="rocket">
+    Til læring og manuel brug er faste planer lettere at forstå end API-forbrug.
+  </Card>
+  <Card title="Sæt spend limits" icon="seti:config">
+    API keys bør altid have budgetter, rate limits og separate nøgler til test, CI og produktion.
+  </Card>
+  <Card title="Hold kontekst lille" icon="document">
+    Store instruktioner, mange MCP-servere og brede prompts bruger flere tokens.
+  </Card>
+  <Card title="Brug billig model først" icon="check">
+    Brug mini, Haiku eller Flash til rutineopgaver og gem de stærkeste modeller til svære ændringer.
+  </Card>
+</CardGrid>
+
+## Kilder
+
+Sidst tjekket: 11. april 2026.
+
+- [OpenAI Codex pricing](https://developers.openai.com/codex/pricing)
+- [OpenAI API pricing](https://platform.openai.com/docs/pricing)
+- [Claude pricing](https://claude.com/pricing)
+- [Claude Code costs](https://code.claude.com/docs/en/costs)
+- [Gemini CLI quotas and pricing](https://geminicli.com/docs/resources/quota-and-pricing/)
+- [Google AI Pro and Ultra subscriptions](https://gemini.google/us/subscriptions/)
+- [Gemini API pricing](https://ai.google.dev/gemini-api/docs/pricing)

@@ -3,18 +3,21 @@
 // Only shows on article pages, not on index/splash pages
 
 const pathname = Astro.url.pathname;
+const locale = Astro.currentLocale || (pathname.startsWith('/en/') ? 'en' : 'da');
 const isSplashPage = pathname.match(/^\/(da|en)\/?$/);
 const isLegalPage = pathname.includes('/juridisk/');
 const isIndexPage = pathname.endsWith('/index') || pathname.match(/\/(home-assistant|esp32|produkter|automationer|sikkerhed)\/?$/);
+const isUtilityPage = pathname.includes('/404') || pathname.includes('/kontakt') || pathname.includes('/om-os');
+const title = locale === 'en' ? 'Comments' : 'Kommentarer';
 
-// Don't show comments on splash, legal, or section index pages
-const showComments = !isSplashPage && !isLegalPage && !isIndexPage;
+// Don't show comments on splash, legal, section index, or utility pages.
+const showComments = !isSplashPage && !isLegalPage && !isIndexPage && !isUtilityPage;
 ---
 
 {showComments && (
   <div class="giscus-wrapper">
     <hr class="giscus-divider" />
-    <h2 class="giscus-title">Kommentarer</h2>
+    <h2 class="giscus-title">{title}</h2>
     <script
       src="https://giscus.app/client.js"
       data-repo="Hovborg/smartbolig-starlight"
@@ -27,7 +30,7 @@ const showComments = !isSplashPage && !isLegalPage && !isIndexPage;
       data-emit-metadata="0"
       data-input-position="bottom"
       data-theme="preferred_color_scheme"
-      data-lang="da"
+      data-lang={locale}
       crossorigin="anonymous"
       async
     />

@@ -1,0 +1,272 @@
+---
+title: "Project folders and workflows"
+description: Where to put AGENTS.md, CLAUDE.md, and GEMINI.md, and how to start AI CLIs in the right folder.
+---
+
+import { Aside, Badge, Card, CardGrid, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
+
+<Badge text="Workflow" variant="note" /> <Badge text="Project folders" variant="success" />
+
+AI CLIs work from the folder where you start them. That means the project root, Git status, and instruction files have a large effect on quality, security, and cost.
+
+<Aside type="tip" title="Short rule">
+Start the CLI in the specific repository or app folder you want to work on. Do not start in your home directory or a whole workspace root unless the task is truly about the whole workspace.
+</Aside>
+
+## Recommended repo structure
+
+```text
+your-project/
+  AGENTS.md
+  CLAUDE.md
+  GEMINI.md
+  .gitignore
+  package.json
+  src/
+  tests/
+  docs/
+  .claude/
+    rules/
+```
+
+You do not need all three instruction files on day one. If you use multiple CLIs in the same repository, short files for each tool are practical.
+
+## The Start Folder Is a Security Boundary
+
+The start folder often determines:
+
+- which files the agent reads first
+- which instructions are loaded
+- where edits are expected
+- where Git status and diff are measured
+- how many tokens are spent understanding the project
+
+The right choice is almost always the smallest folder that still contains enough context for the task.
+
+| Wrong start | Better start |
+|---|---|
+| Home folder | The concrete Git repository |
+| Whole workspace root | The app or service folder |
+| Monorepo root for a small UI bug | The relevant frontend app |
+| Production folder with secrets | A clean worktree or copy without secrets |
+
+## Where should you start the CLI?
+
+| Situation | Start folder |
+|---|---|
+| A normal app | The app's Git root. |
+| Monorepo with many apps | The app or service you are changing. |
+| Cross-cutting refactor | Monorepo root, but with a very precise prompt. |
+| Documentation task | The folder where docs and navigation live. |
+| Risky change | A Git worktree or separate branch. |
+
+Before each session:
+
+<Steps>
+1. Go to the project folder.
+
+   ```bash
+   cd your-project
+   ```
+
+2. Check Git status.
+
+   ```bash
+   git status
+   ```
+
+3. Start with a read-only task.
+
+   ```text
+   Explain the project and which files control build, test, and deployment. Do not make changes.
+   ```
+</Steps>
+
+## Quick Folder Test
+
+Run these checks before starting an agent:
+
+```bash
+pwd
+git status --short
+rg --files -g 'AGENTS.md' -g 'CLAUDE.md' -g 'GEMINI.md' -g 'package.json' -g 'Cargo.toml' -g 'pyproject.toml'
+```
+
+If the output shows more apps, services, or package managers than the task is about, you are probably too high in the tree.
+
+## Codex CLI: AGENTS.md
+
+Codex reads `AGENTS.md` before work starts. It builds an instruction chain from global instructions and project instructions.
+
+| Scope | Location |
+|---|---|
+| Global | `~/.codex/AGENTS.md` or `~/.codex/AGENTS.override.md` |
+| Repo root | `AGENTS.md` in the Git root |
+| Subfolders | `AGENTS.md` or `AGENTS.override.md` closer to the work |
+| Alternatives | Configurable with `project_doc_fallback_filenames` |
+
+Codex reads from the root down toward your current folder. Instructions closer to the work appear later in the prompt and can refine broader rules. The default combined project-doc limit is 32 KiB.
+
+## Claude Code: CLAUDE.md and .claude/rules
+
+Claude Code reads `CLAUDE.md`, not `AGENTS.md`. If your repository already uses `AGENTS.md`, make `CLAUDE.md` import it:
+
+```md title="CLAUDE.md"
+@AGENTS.md
+
+## Claude Code
+- Use plan mode before large changes.
+- Use `/stats` to track usage.
+```
+
+Important locations:
+
+| Scope | Location |
+|---|---|
+| Project | `./CLAUDE.md` or `./.claude/CLAUDE.md` |
+| Local private | `./CLAUDE.local.md` and in `.gitignore` |
+| User | `~/.claude/CLAUDE.md` |
+| Rules | `.claude/rules/*.md` |
+| Auto memory | `~/.claude/projects/<project>/memory/` |
+| Managed policy | `/etc/claude-code/CLAUDE.md` on Linux/WSL |
+
+Use `.claude/rules/` when instructions only apply to part of the project. A rule can apply only to `src/api/**/*.ts`, for example.
+
+## Gemini CLI: GEMINI.md
+
+Gemini CLI uses `GEMINI.md` by default. It can read global context, workspace context, and just-in-time context when it works in subfolders.
+
+| Scope | Location |
+|---|---|
+| Global | `~/.gemini/GEMINI.md` |
+| Workspace | `GEMINI.md` in workspace folders and parents |
+| Just-in-time | `GEMINI.md` close to files or folders being accessed |
+| Alternate name | `context.fileName` in `settings.json` |
+
+Useful Gemini CLI commands:
+
+| Command | Use |
+|---|---|
+| `/memory show` | Show the combined context. |
+| `/memory reload` | Reload `GEMINI.md` files. |
+| `/memory add <text>` | Add global memory. |
+| `/stats model` | Show model and token usage. |
+
+## Monorepo model
+
+In a large workspace, keep the root file short. Put details closer to the app.
+
+```text
+workspace/
+  AGENTS.md              # short shared rules
+  apps/
+    website/
+      AGENTS.md          # website build, deploy, and content rules
+      CLAUDE.md
+      GEMINI.md
+    backend/
+      AGENTS.md          # API, tests, and migrations
+  services/
+    worker/
+      AGENTS.md
+```
+
+Good monorepo rules:
+
+- State which app is active in the prompt.
+- Have the agent identify the project root before edits.
+- Use app-specific build and test commands.
+- Keep secrets in `.env` and make sure they are ignored by Git.
+- Put long workflows in docs or skills, not one huge instruction file.
+
+## Multiple Agents Without Chaos
+
+If several agents work at the same time, give them separate ownership. The best pattern is one worktree and one branch per agent.
+
+```text
+../my-project-ai-docs      # agent works only in docs/
+../my-project-ai-ui        # agent works only in src/components/
+../my-project-ai-tests     # agent works only on tests/
+```
+
+Give each agent a prompt with:
+
+- exact folder or file group
+- what it may change
+- what it must not change
+- which checks to run
+- how to report the result
+
+Avoid two agents editing the same file at the same time unless one of them is review-only.
+
+## Worktrees for risky changes
+
+A Git worktree gives you a separate folder for a branch without disturbing your normal working tree.
+
+```bash
+git worktree add ../your-project-ai-fix -b ai/your-fix
+cd ../your-project-ai-fix
+```
+
+Use it when:
+
+- The AI will change many files.
+- You want to compare two solutions.
+- You want to test without mixing changes into your normal working tree.
+- You want multiple agents working on different branches.
+
+Clean up afterward:
+
+```bash
+cd ../your-project
+git worktree remove ../your-project-ai-fix
+```
+
+## Minimal shared instruction file
+
+```md title="AGENTS.md"
+# AGENTS.md
+
+## Project
+- Briefly state which app or service this is.
+- Describe where source, tests, docs, and scripts live.
+
+## Commands
+- Build: `npm run build`
+- Test: `npm test`
+- Preview: `npm run preview`
+
+## Rules
+- Start with `git status`.
+- Never print tokens, cookies, or API keys.
+- Prefer existing patterns before new abstractions.
+- Do not deploy without explicit instruction.
+
+## Done when
+- Relevant checks pass.
+- Diff has been reviewed.
+- The user gets changed files and test status.
+```
+
+<Aside type="caution" title="Secrets do not belong in instructions">
+Instruction files are sent as context. Never put API keys, tokens, cookies, private URLs, or customer data in `AGENTS.md`, `CLAUDE.md`, or `GEMINI.md`.
+</Aside>
+
+## Instruction Anti-Patterns
+
+| Anti-pattern | Better |
+|---|---|
+| "Be thorough" | "Read `src/routes`, `src/lib`, and `tests` before backend edits." |
+| "Make the UI nice" | "Use existing Starlight components and run `npm run build`." |
+| 300 lines of historical decisions | Short root file plus docs/skills for long workflows. |
+| Secrets or private tokens | Environment variables, secret manager, or login flow. |
+| Deploy command without a gate | "Deploy only after explicit user instruction." |
+
+## Sources
+
+Last checked: April 11, 2026.
+
+- [Codex AGENTS.md](https://developers.openai.com/codex/guides/agents-md)
+- [Claude Code memory](https://code.claude.com/docs/en/memory)
+- [Gemini CLI GEMINI.md](https://geminicli.com/docs/cli/gemini-md/)
+- [Gemini CLI quotas and pricing](https://geminicli.com/docs/resources/quota-and-pricing/)

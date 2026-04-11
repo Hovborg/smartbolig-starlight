@@ -1,0 +1,79 @@
+---
+title: AI værktøjer
+description: "En separat dansk sektion om AI-værktøjer, AI CLI'er og sikre agent-workflows."
+---
+
+import { Aside, Badge, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+<Badge text="Ny sektion" variant="note" /> <Badge text="AI" variant="success" />
+
+Denne del af SmartBolig.net handler om AI-værktøjer som en selvstændig kategori. Den er adskilt fra Home Assistant, ESP32, produkter og smart home-guides, så AI-indholdet ikke bliver blandet sammen med resten af siden.
+
+Første fokus er **AI CLI'er**: terminal-værktøjer som kan læse kode, forklare projekter, skrive ændringer og køre kommandoer med dine tilladelser.
+
+<Aside type="caution" title="Start sikkert">
+AI CLI'er kan få adgang til filer, terminalkommandoer og nogle gange netværk. Start altid i et Git-repo, tjek `git status`, og begynd med læse- eller forklaringsopgaver før du giver tilladelse til ændringer.
+</Aside>
+
+## Start her
+
+<CardGrid>
+  <LinkCard
+    title="AI CLI'er"
+    description="Overblik over Codex CLI, Claude Code og Gemini CLI."
+    href="/da/ai/ai-cli/"
+  />
+  <LinkCard
+    title="Codex CLI"
+    description="OpenAI's lokale coding agent i terminalen."
+    href="/da/ai/ai-cli/codex-kom-godt-i-gang/"
+  />
+  <LinkCard
+    title="Claude Code"
+    description="Anthropic Claude som terminal-agent med stærke workflows."
+    href="/da/ai/ai-cli/claude-code-kom-godt-i-gang/"
+  />
+  <LinkCard
+    title="Gemini CLI"
+    description="Googles open source AI-agent til terminalen."
+    href="/da/ai/ai-cli/gemini-cli-kom-godt-i-gang/"
+  />
+  <LinkCard
+    title="Priser og planer"
+    description="Abonnementer, API-priser, kvoter og cost-control for AI CLI'er."
+    href="/da/ai/ai-cli/priser-og-planer/"
+  />
+  <LinkCard
+    title="Projektmapper"
+    description="Hvor du skal placere instruktioner og starte din CLI i et repo."
+    href="/da/ai/ai-cli/projektmapper-og-workflows/"
+  />
+</CardGrid>
+
+## Hvad kommer der i AI-sektionen?
+
+<CardGrid>
+  <Card title="Starter guides" icon="rocket">
+    Installér værktøjerne, log ind, forstå permissions og lav din første sikre opgave.
+  </Card>
+  <Card title="Sammenligninger" icon="seti:config">
+    Hvornår giver Codex, Claude Code eller Gemini CLI bedst mening?
+  </Card>
+  <Card title="Sikkerhed" icon="lock">
+    Sandboxing, godkendelser, prompt injection, API-nøgler, Git-checkpoints og MCP-servere.
+  </Card>
+  <Card title="Agent-instruktioner" icon="document">
+    Sådan bruger du `AGENTS.md`, `CLAUDE.md` og `GEMINI.md` til stabile agent-workflows.
+  </Card>
+  <Card title="Priser og workflows" icon="seti:config">
+    Hvornår skal du bruge abonnement, API key, worktree, projektrod og spend limits?
+  </Card>
+</CardGrid>
+
+## Anbefalet rækkefølge
+
+1. Læs [AI CLI'er: kom godt i gang](/da/ai/ai-cli/)
+2. Vælg én CLI og lav en første læseopgave.
+3. Læs [sikkerhed og permissions](/da/ai/ai-cli/sikkerhed-og-permissions/) før du lader værktøjet ændre filer.
+4. Læs [priser og planer](/da/ai/ai-cli/priser-og-planer/), hvis du vil bruge API keys eller arbejde meget i store repos.
+5. Opret en projekt-instruktionsfil, når du har fundet et workflow der virker.

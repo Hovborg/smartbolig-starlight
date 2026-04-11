@@ -1,0 +1,210 @@
+---
+title: "Claude Code: getting started"
+description: Install Claude Code, sign in, and run your first safe terminal session.
+sidebar:
+  badge:
+    text: Start here
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
+
+<Badge text="Beginner" variant="success" /> <Badge text="15 min" variant="note" />
+
+Claude Code is Anthropic Claude as an agent in your terminal. It can read code, explain architecture, edit files, run commands, and help with longer workflows.
+
+## Requirements
+
+- macOS, Linux, Windows, or WSL
+- Git
+- A Claude account, Anthropic Console access, or another supported provider
+- A project you can test on
+
+## Install Claude Code
+
+Anthropic currently recommends the native installer.
+
+<Tabs>
+  <TabItem label="macOS/Linux/WSL">
+    ```bash
+    curl -fsSL https://claude.ai/install.sh | bash
+    claude --version
+    ```
+  </TabItem>
+  <TabItem label="PowerShell">
+    ```powershell
+    irm https://claude.ai/install.ps1 | iex
+    ```
+  </TabItem>
+  <TabItem label="CMD">
+    ```bat
+    curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+    ```
+  </TabItem>
+  <TabItem label="Homebrew/WinGet">
+    ```bash
+    brew install --cask claude-code
+    ```
+
+    ```powershell
+    winget install Anthropic.ClaudeCode
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="note" title="Updates">
+The native installer usually updates Claude Code automatically. Homebrew and WinGet installs are updated with `brew upgrade --cask claude-code` or `winget upgrade Anthropic.ClaudeCode`.
+</Aside>
+
+## Sign in
+
+Start Claude Code in a project:
+
+```bash
+cd your-project
+claude
+```
+
+Check auth status:
+
+```bash
+claude auth status
+```
+
+## First safe session
+
+<Steps>
+1. Check Git state:
+
+   ```bash
+   git status
+   ```
+
+2. Start Claude Code:
+
+   ```bash
+   claude
+   ```
+
+3. Send a planning task without edits:
+
+   ```text
+   Read the project and make a short plan for understanding it.
+   Do not change files and do not run commands yet.
+   ```
+</Steps>
+
+## When Claude Code Is Strongest
+
+<CardGrid>
+  <Card title="Long development flows" icon="document">
+    Claude Code is strong when the task needs dialogue, planning, follow-up fixes, and several rounds of testing.
+  </Card>
+  <Card title="Repository memory" icon="folder">
+    `CLAUDE.md`, imports, local rules, and memory make it easier to reuse project knowledge across sessions.
+  </Card>
+  <Card title="Team workflows" icon="branch">
+    Claude Code fits teams that also want hooks, skills, custom commands, CI/CD, Slack, or multiple developers.
+  </Card>
+</CardGrid>
+
+Good first analysis task:
+
+```text
+Read the repository as onboarding.
+Find entrypoints, build/test commands, deployment, data stores, and main risks.
+Do not make changes until I approve a concrete plan.
+```
+
+Good first write task:
+
+```text
+Make only the smallest necessary change.
+First explain which files you will edit and why.
+Run the relevant test/build afterward.
+Stop if you need to install a dependency, change Git state, or use the network.
+```
+
+## CLAUDE.md
+
+Claude Code reads `CLAUDE.md` for project memory and instructions. You can create one with `/init`.
+
+```md title="CLAUDE.md"
+# CLAUDE.md
+
+## Project rules
+- Explain the plan before editing files.
+- Use existing scripts in `package.json`.
+- Ask before network calls or deploys.
+
+## Verification
+- Run `npm run build` after changes.
+```
+
+You can import shared instructions with `@AGENTS.md` or other markdown files. Use that if the repository already has a shared agent file, so you do not maintain three different sources of truth.
+
+Practical split:
+
+| Need | Location |
+|---|---|
+| Shared repository rules | `CLAUDE.md` in the repository root |
+| Private notes | `CLAUDE.local.md` and `.gitignore` |
+| Area-specific rules | `.claude/rules/*.md` |
+| Personal defaults | `~/.claude/CLAUDE.md` |
+
+## Useful commands
+
+| Command | Use |
+|---|---|
+| `claude` | Start an interactive session |
+| `claude -p "..."` | Print/script mode |
+| `claude -c` | Continue latest conversation |
+| `claude auth status` | Check login |
+| `claude update` | Update the CLI |
+| `claude mcp` | Manage MCP servers |
+| `/cost` | Show token usage for API-based usage |
+| `/stats` | Show usage patterns for subscription-based usage |
+
+## Permissions
+
+Claude Code starts with safer permissions and asks before actions such as file edits, commands, and network access. Say no when you cannot see why an action is necessary.
+
+<Aside type="caution" title="Do not approve blindly">
+Always read the command before approving. This especially applies to commands that delete files, change Git state, install packages, or send data away from the machine.
+</Aside>
+
+## Script Mode and Automation
+
+`claude -p` is useful for short non-interactive tasks:
+
+```bash
+claude -p "Explain the biggest risks in this diff. Do not make changes."
+```
+
+Use it for reports, summaries, and CI-style checks. Use interactive Claude Code for larger changes, because you get better control over approvals, the plan, and stopping overly broad changes.
+
+## Cost in Practice
+
+Claude Code can run through a subscription or API usage. Watch especially for:
+
+- large repositories adding more context
+- long `CLAUDE.md` files and many rules increasing prompt size
+- hooks and tools triggering extra model and tool calls
+- `claude -p` becoming expensive in loops if the script sends a lot of input
+- Opus/Sonnet/Haiku needing to match task difficulty
+
+For everyday development, Sonnet is often the practical starting point. Use a stronger model for architecture, hard debugging, or high-risk review, and a cheaper model for repeated summaries.
+
+## Sources
+
+Last checked: April 11, 2026.
+
+- [Claude Code overview](https://code.claude.com/docs/en/overview)
+- [Claude Code quickstart](https://code.claude.com/docs/en/quickstart)
+- [Claude Code CLI reference](https://code.claude.com/docs/en/cli-reference)
+- [Claude Code security](https://code.claude.com/docs/en/security)
+- [Claude Code memory](https://code.claude.com/docs/en/memory)
+- [Claude Code permissions](https://code.claude.com/docs/en/permissions)
+- [Claude Code costs](https://code.claude.com/docs/en/costs)
+- [Claude Code hooks](https://code.claude.com/docs/en/hooks)
+- [Claude Code subagents](https://code.claude.com/docs/en/sub-agents)

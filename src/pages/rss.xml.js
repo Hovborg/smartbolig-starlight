@@ -1,37 +1,62 @@
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
+import { execFileSync } from 'node:child_process';
+
+const FALLBACK_DATE = new Date('2025-12-25T00:00:00.000Z');
+const EXCLUDED_SECTIONS = ['juridisk', 'om-os', 'kontakt', 'produkter'];
+
+function getSlug(doc) {
+  return doc.slug || doc.id;
+}
+
+function getGitLastModifiedDate(slug) {
+  try {
+    const filePath = `src/content/docs/${slug}.mdx`;
+    const value = execFileSync('git', ['log', '-1', '--format=%cI', '--', filePath], {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+
+    return value ? new Date(value) : FALLBACK_DATE;
+  } catch {
+    return FALLBACK_DATE;
+  }
+}
+
+function getPubDate(doc) {
+  const frontmatterDate = doc.data.date || doc.data.updated || doc.data.lastUpdated;
+  return frontmatterDate ? new Date(frontmatterDate) : getGitLastModifiedDate(getSlug(doc));
+}
 
 export async function GET(context) {
   // Get all docs from content collection
   const allDocs = await getCollection('docs');
-  
-  // Filter to only Danish guides (not index pages, not legal pages)
+
+  // Filter to only Danish guides, excluding indexes and non-guide sections.
   const guides = allDocs.filter(doc => {
-    const slug = doc.slug || doc.id;
-    return slug.startsWith('da/') && 
+    const slug = getSlug(doc);
+    return slug.startsWith('da/') &&
            !slug.endsWith('/index') &&
-           !slug.includes('juridisk') &&
-           !slug.includes('om-os') &&
+           !EXCLUDED_SECTIONS.some(section => slug.includes(`/${section}`)) &&
            doc.data.title;
   });
 
-  // Sort by title alphabetically
-  const sortedGuides = guides.sort((a, b) => 
-    a.data.title.localeCompare(b.data.title, 'da')
-  );
+  const sortedGuides = guides
+    .map((doc) => ({ doc, pubDate: getPubDate(doc) }))
+    .sort((a, b) => b.pubDate - a.pubDate);
 
   return rss({
     title: 'SmartBolig.net - Smart Home Guides',
     description: 'Danske guides til Home Assistant, ESP32, Zigbee og smart home automatisering',
     site: context.site || 'https://smartbolig.net',
     language: 'da',
-    items: sortedGuides.map((doc) => {
-      const slug = doc.slug || doc.id;
+    items: sortedGuides.map(({ doc, pubDate }) => {
+      const slug = getSlug(doc);
       return {
         title: doc.data.title,
         description: doc.data.description || '',
         link: `/${slug}/`,
-        pubDate: doc.data.date ? new Date(doc.data.date) : new Date(), // Use frontmatter date or build date
+        pubDate,
       };
     }),
     customData: `<language>da</language>`,

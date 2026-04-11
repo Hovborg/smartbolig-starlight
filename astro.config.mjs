@@ -310,6 +310,67 @@ export default defineConfig({
             },
           ],
         },
+        // ===== AI =====
+        {
+          label: "AI",
+          translations: { en: "AI" },
+          items: [
+            {
+              label: "Oversigt",
+              translations: { en: "Overview" },
+              link: "/ai/",
+            },
+            {
+              label: "AI CLI'er",
+              translations: { en: "AI CLIs" },
+              collapsed: false,
+              items: [
+                {
+                  label: "Kom godt i gang",
+                  translations: { en: "Getting Started" },
+                  link: "/ai/ai-cli/",
+                },
+                {
+                  label: "Codex CLI",
+                  link: "/ai/ai-cli/codex-kom-godt-i-gang/",
+                },
+                {
+                  label: "Claude Code",
+                  link: "/ai/ai-cli/claude-code-kom-godt-i-gang/",
+                },
+                {
+                  label: "Gemini CLI",
+                  link: "/ai/ai-cli/gemini-cli-kom-godt-i-gang/",
+                },
+                {
+                  label: "Priser og planer",
+                  translations: { en: "Pricing and Plans" },
+                  link: "/ai/ai-cli/priser-og-planer/",
+                },
+                {
+                  label: "Projektmapper",
+                  translations: { en: "Project Folders" },
+                  link: "/ai/ai-cli/projektmapper-og-workflows/",
+                },
+                {
+                  label: "Sammenligning",
+                  translations: { en: "Comparison" },
+                  link: "/ai/ai-cli/sammenligning/",
+                },
+                {
+                  label: "Sikkerhed",
+                  translations: { en: "Security" },
+                  link: "/ai/ai-cli/sikkerhed-og-permissions/",
+                },
+                {
+                  label: "Agent-instruktioner",
+                  translations: { en: "Agent Instructions" },
+                  link: "/ai/ai-cli/agent-instruktioner/",
+                },
+              ],
+            },
+          ],
+        },
         // ===== PRODUKTER =====
         {
           label: "Produkter",
@@ -573,41 +634,6 @@ export default defineConfig({
               }
             })();
           `,
-        },
-        // Schema.org Organization
-        {
-          tag: "script",
-          attrs: {
-            type: "application/ld+json",
-          },
-          content: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            "name": "SmartBolig.net",
-            "url": "https://smartbolig.net",
-            "logo": "https://smartbolig.net/images/og-image.png",
-            "description": "Dansk smart home ressourcecenter med guides til Home Assistant, ESP32, Zigbee og mere.",
-            "sameAs": ["https://github.com/Hovborg/smartbolig-starlight"]
-          }),
-        },
-        // Schema.org WebSite with SearchAction
-        {
-          tag: "script",
-          attrs: {
-            type: "application/ld+json",
-          },
-          content: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "WebSite",
-            "name": "SmartBolig.net",
-            "url": "https://smartbolig.net",
-            "inLanguage": ["da", "en"],
-            "potentialAction": {
-              "@type": "SearchAction",
-              "target": "https://smartbolig.net/da/?search={search_term_string}",
-              "query-input": "required name=search_term_string"
-            }
-          }),
         },
         // Open Graph / Social sharing
         {

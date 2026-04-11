@@ -1,0 +1,223 @@
+---
+title: "Gemini CLI: kom godt i gang"
+description: Installer Google Gemini CLI, vælg login-metode og lav din første sikre terminal-session.
+sidebar:
+  badge:
+    text: Start her
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
+
+<Badge text="Begynder" variant="success" /> <Badge text="15 min" variant="note" />
+
+Gemini CLI er Googles open source AI-agent til terminalen. Den kan læse filer, forstå store projekter, arbejde med værktøjer og køre kommandoer, afhængigt af dine indstillinger og tilladelser.
+
+## Hvad skal du bruge?
+
+- Node.js 20+
+- Git
+- En internetforbindelse
+- Google login, Gemini API key eller Vertex AI
+- macOS, Linux eller Windows
+
+Google anbefaler aktuelt macOS 15+, Windows 11 24H2+ eller Ubuntu 20.04+.
+
+## Installer Gemini CLI
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install -g @google/gemini-cli
+    ```
+
+    Tjek installationen:
+
+    ```bash
+    gemini --version
+    ```
+  </TabItem>
+  <TabItem label="npx">
+    Du kan prøve uden global installation:
+
+    ```bash
+    npx @google/gemini-cli
+    ```
+  </TabItem>
+  <TabItem label="Homebrew">
+    ```bash
+    brew install gemini-cli
+    ```
+  </TabItem>
+</Tabs>
+
+## Vælg login
+
+Start CLI'en:
+
+```bash
+gemini
+```
+
+De mest almindelige login-veje:
+
+| Metode | Bedst til |
+|---|---|
+| Google sign-in | Personlig konto, høj gratis startkvote og manuel CLI-brug |
+| `GEMINI_API_KEY` | Script mode, servere, CI og tydelig API-billing |
+| Vertex AI | Enterprise, Google Cloud-kvoter, governance og project-baseret billing |
+
+Eksempel med API key:
+
+```bash
+export GEMINI_API_KEY="din-api-key"
+gemini
+```
+
+Gem ikke API keys i guides, screenshots eller prompts.
+
+<Aside type="note" title="Vælg auth efter brug">
+Google sign-in er bedst til at lære værktøjet. API key er bedst når et script skal kunne køre uden browser-login. Vertex AI er bedst når organisationen allerede styrer adgang, kvoter og billing i Google Cloud.
+</Aside>
+
+## Din første sikre session
+
+<Steps>
+1. Gå ind i et Git-repo:
+
+   ```bash
+   cd dit-projekt
+   git status
+   ```
+
+2. Start Gemini CLI:
+
+   ```bash
+   gemini
+   ```
+
+3. Send en læseopgave:
+
+   ```text
+   Forklar denne mappe og lav en sikker læseplan.
+   Lav ingen ændringer og kør ingen kommandoer endnu.
+   ```
+
+4. Brug `/permissions` og `/tools` til at forstå hvad Gemini må gøre.
+</Steps>
+
+## Hvornår Gemini CLI er stærkest
+
+<CardGrid>
+  <Card title="Google-økosystem" icon="seti:config">
+    Vælg Gemini CLI når du allerede bruger Google, Gemini API, Vertex AI eller Google Workspace.
+  </Card>
+  <Card title="Gratis start" icon="rocket">
+    Google sign-in giver ifølge Gemini CLI docs en høj daglig request-kvote til personlig start.
+  </Card>
+  <Card title="Eksperimenter" icon="branch">
+    Checkpointing, worktrees, headless JSON/JSONL og sandboxing gør CLI'en stærk til test og automation.
+  </Card>
+</CardGrid>
+
+God første opgave:
+
+```text
+Læs repoet og forklar projektstruktur, build/test-kommandoer og risikable filer.
+Lav ingen ændringer og kør ingen kommandoer før jeg siger til.
+```
+
+God første ændringsopgave:
+
+```text
+Lav en lille ændring i én fil.
+Forklar først planen.
+Kør kun de test/build-kommandoer der allerede findes i repoet.
+Brug checkpointing eller Git, så ændringen kan rulles tilbage.
+```
+
+## GEMINI.md
+
+Gemini CLI bruger `GEMINI.md` som kontekstfil. Den kan ligge globalt i `~/.gemini/GEMINI.md` eller i projektet.
+
+```md title="GEMINI.md"
+# GEMINI.md
+
+## Projekt
+- Brug eksisterende scripts før du foreslår nye.
+- Lav små ændringer ad gangen.
+- Spørg før netværkskald eller installationer.
+
+## Verificering
+- Kør build/test efter kodeændringer.
+```
+
+Nyttige memory-kommandoer:
+
+| Kommando | Brug |
+|---|---|
+| `/memory show` | Se indlæst kontekst |
+| `/memory reload` | Genindlæs kontekstfiler |
+| `/memory add` | Tilføj ny memory |
+
+Gemini kan læse global, workspace og just-in-time kontekst. I store repos betyder det, at en `GEMINI.md` tæt på den mappe agenten arbejder i kan være bedre end én lang rodfil.
+
+## Nyttige kommandoer
+
+| Kommando | Brug |
+|---|---|
+| `/auth` | Skift eller tjek auth |
+| `/model` | Vælg Gemini-model |
+| `/permissions` | Se og ændr tilladelser |
+| `/plan` | Planlæg før ændringer |
+| `/resume` | Fortsæt en session |
+| `/stats` | Se usage og modelinfo |
+| `gemini -p "..."` | Kør en enkelt prompt |
+
+## Headless, checkpoints og worktrees
+
+Til scripts og automation kan Gemini køres non-interactive:
+
+```bash
+gemini -p "Opsummer denne diff og find konkrete risici. Lav ingen ændringer."
+```
+
+Brug headless/JSON-output når et andet script skal læse resultatet. Brug checkpointing når du vil kunne rulle filændringer tilbage fra en session. Brug worktrees eller almindelige Git worktrees når du vil teste flere løsninger parallelt.
+
+| Feature | Brug når |
+|---|---|
+| Headless mode | Du vil køre en prompt fra CI, cron eller et script. |
+| Checkpointing | Du vil lave en restore point før filændringer. |
+| Worktrees | Flere agents eller eksperimenter skal køre uden at blande diffs. |
+| Sandbox | Du analyserer ukendt kode eller scripts du ikke stoler på. |
+
+## Sandboxing
+
+Gemini CLI har officiel dokumentation for sandboxing med blandt andet macOS Seatbelt, Docker/Podman, Windows Native Sandbox, gVisor og LXC/LXD.
+
+<Aside type="tip" title="Praktisk regel">
+Hvis du beder Gemini om at analysere ukendt kode eller køre tredjeparts-kommandoer, så brug en container, VM eller et repo uden hemmeligheder.
+</Aside>
+
+## Fejlfinding
+
+| Problem | Løsning |
+|---|---|
+| Node er for gammel | Installer Node.js 20 eller nyere. |
+| Google Workspace-login fejler | Tjek om kontoen kræver Google Cloud project. |
+| API key virker ikke | Tjek at `GEMINI_API_KEY` er sat i den aktuelle shell. |
+| Kommandoer bliver afvist | Brug `/permissions` og godkend kun det nødvendige. |
+
+## Kilder
+
+Sidst tjekket: 11. april 2026.
+
+- [Gemini CLI GitHub](https://github.com/google-gemini/gemini-cli)
+- [Gemini CLI installation](https://geminicli.com/docs/get-started/installation/)
+- [Gemini CLI authentication](https://geminicli.com/docs/get-started/authentication/)
+- [Gemini CLI commands](https://geminicli.com/docs/reference/commands/)
+- [GEMINI.md context](https://geminicli.com/docs/cli/gemini-md/)
+- [Gemini CLI sandboxing](https://geminicli.com/docs/cli/sandbox/)
+- [Gemini CLI headless mode](https://geminicli.com/docs/cli/headless/)
+- [Gemini CLI checkpointing](https://geminicli.com/docs/cli/checkpointing/)
+- [Gemini CLI worktrees](https://geminicli.com/docs/cli/git-worktrees/)

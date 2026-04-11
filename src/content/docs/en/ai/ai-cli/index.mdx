@@ -1,0 +1,139 @@
+---
+title: "AI CLIs: getting started"
+description: Overview of Codex CLI, Claude Code, and Gemini CLI, and how to start safely.
+sidebar:
+  badge:
+    text: Start here
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+<Badge text="Beginner" variant="success" /> <Badge text="15 min" variant="note" />
+
+AI CLIs are terminal tools that act as local coding agents. They can read your project, propose changes, write files, and run commands. That makes them useful, but also worth starting with carefully.
+
+This section starts with three tools:
+
+- **Codex CLI** by OpenAI
+- **Claude Code** by Anthropic
+- **Gemini CLI** by Google
+
+## Shortest Path
+
+| If you... | Do this first |
+|---|---|
+| Have never used an AI CLI | Read this page, start in a test repository, and ask the tool to explain the project without changes. |
+| Already use ChatGPT/Codex | Start with [Codex CLI](/en/ai/ai-cli/codex-kom-godt-i-gang/) and run a local `/review` after the first change. |
+| Already use Claude | Start with [Claude Code](/en/ai/ai-cli/claude-code-kom-godt-i-gang/) and create a short `CLAUDE.md`. |
+| Already use Google/Gemini | Start with [Gemini CLI](/en/ai/ai-cli/gemini-cli-kom-godt-i-gang/) and choose your auth method before API automation. |
+| Want to compare them | Read [Codex vs Claude Code vs Gemini CLI](/en/ai/ai-cli/sammenligning/) after trying one small task. |
+
+## The First Hour
+
+1. Choose one tool. Do not start with all three at once.
+2. Use a real Git repository, preferably one where mistakes are cheap.
+3. Run `git status`, so you know what is already changed.
+4. Ask the CLI to explain the project without running commands.
+5. Let it propose test/build commands.
+6. Approve one small change.
+7. Run build/test and review the diff.
+
+<Aside type="caution" title="Do not start in the wrong folder">
+AI CLIs use the start folder as work and security context. If you start in all of `/home`, `Documents`, or a large workspace root, the agent can see too much, use more tokens, and edit the wrong place.
+</Aside>
+
+## 5 Terms to Know
+
+| Term | Meaning |
+|---|---|
+| Workspace | The folder the agent works from. Use the concrete project root. |
+| Sandbox | Technical limits on what commands can read, write, and access over the network. |
+| Approval | The prompt where you approve a command, file edit, or other action. |
+| Instruction file | `AGENTS.md`, `CLAUDE.md`, or `GEMINI.md`, used for stable project rules. |
+| Context | Everything the agent receives: prompt, files, instructions, logs, MCP data, and prior conversation. More context can help, but costs more. |
+
+## Quick comparison
+
+| Topic | Codex CLI | Claude Code | Gemini CLI |
+|---|---|---|---|
+| Command | `codex` | `claude` | `gemini` |
+| Install | npm or Homebrew | Native installer | npm, Homebrew, or npx |
+| Login | ChatGPT or OpenAI API key | Claude/Console or provider | Google sign-in, API key, or Vertex AI |
+| Instruction file | `AGENTS.md` | `CLAUDE.md` | `GEMINI.md` |
+| Script mode | `codex exec` | `claude -p` | `gemini -p` |
+| MCP | Yes | Yes | Yes |
+
+## Which one should you start with?
+
+<CardGrid>
+  <Card title="Start with Codex CLI" icon="rocket">
+    Good if you already use OpenAI, ChatGPT, Codex, `AGENTS.md`, code review, and local repositories.
+  </Card>
+  <Card title="Start with Claude Code" icon="document">
+    Good if you want strong conversation workflows, project memory, and clear permissions.
+  </Card>
+  <Card title="Start with Gemini CLI" icon="seti:config">
+    Good if you want an open source terminal agent with Google sign-in or a Gemini API key.
+  </Card>
+</CardGrid>
+
+## Safe baseline
+
+<Aside type="tip" title="Use this every time">
+Start with a task where the AI only explains the project. Allow edits only after you see that it understands the repository and permissions.
+</Aside>
+
+Before you start:
+
+1. Open a real Git repository.
+2. Run `git status`.
+3. Create a commit or branch if needed.
+4. Start your AI CLI.
+5. Ask it to read and explain first, not edit.
+
+Good first prompt:
+
+```text
+Explain this project from the repository files. Do not make changes.
+Tell me which test or build commands you would run, but do not run them yet.
+```
+
+## Starter guides
+
+<CardGrid>
+  <LinkCard
+    title="Codex CLI"
+    description="Install OpenAI Codex CLI and run your first safe session."
+    href="/en/ai/ai-cli/codex-kom-godt-i-gang/"
+  />
+  <LinkCard
+    title="Claude Code"
+    description="Install Claude Code and understand CLAUDE.md, permissions, and first prompts."
+    href="/en/ai/ai-cli/claude-code-kom-godt-i-gang/"
+  />
+  <LinkCard
+    title="Gemini CLI"
+    description="Install Gemini CLI, sign in with Google or API key, and get started."
+    href="/en/ai/ai-cli/gemini-cli-kom-godt-i-gang/"
+  />
+  <LinkCard
+    title="Pricing and plans"
+    description="Understand subscriptions, API keys, token prices, and how to avoid expensive surprises."
+    href="/en/ai/ai-cli/priser-og-planer/"
+  />
+  <LinkCard
+    title="Project folders and workflows"
+    description="Place AGENTS.md, CLAUDE.md, and GEMINI.md correctly, and start the CLI in the right folder."
+    href="/en/ai/ai-cli/projektmapper-og-workflows/"
+  />
+</CardGrid>
+
+## Sources
+
+Last checked: April 11, 2026.
+
+- [OpenAI Codex CLI docs](https://developers.openai.com/codex/cli)
+- [Claude Code docs](https://code.claude.com/docs/en/overview)
+- [Gemini CLI GitHub](https://github.com/google-gemini/gemini-cli)
+- [Gemini CLI docs](https://geminicli.com/docs/get-started/)

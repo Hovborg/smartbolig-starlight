@@ -1,0 +1,250 @@
+---
+title: Codex vs Claude Code vs Gemini CLI
+description: "En praktisk sammenligning af Codex CLI, Claude Code og Gemini CLI: styrker, svagheder, sikkerhed, priser og workflows."
+---
+
+import { Aside, Badge, Card, CardGrid } from '@astrojs/starlight/components';
+
+<Badge text="Sammenligning" variant="note" /> <Badge text="AI CLI" variant="success" />
+
+Codex CLI, Claude Code og Gemini CLI kan alle læse kode, foreslå ændringer, skrive filer og køre kommandoer. De overlapper, men de er ikke ens. Den rigtige første CLI afhænger især af dit økosystem, hvor meget automation du vil lave, og hvor stramt du vil styre permissions.
+
+<Aside type="tip" title="Kort konklusion">
+Start med Codex, hvis du allerede bruger OpenAI eller vil have stærk lokal review og sandboxing. Start med Claude Code, hvis du vil have den mest modne arbejdsflade på tværs af terminal, IDE, desktop, web og team-workflows. Start med Gemini CLI, hvis du vil have Google-login, gratis høj kvote, Gemini/Vertex AI eller et open source CLI med mange eksperimentelle workflows.
+</Aside>
+
+## Hurtig anbefaling
+
+<CardGrid>
+  <Card title="Codex CLI" icon="rocket">
+    Bedst som lokal coding agent med OpenAI-login, `AGENTS.md`, `/review`, sandbox/approval-profiler, Codex Cloud og script mode med `codex exec`.
+  </Card>
+  <Card title="Claude Code" icon="document">
+    Bedst til længere udviklingsforløb, samtale, memory, hooks, skills, subagents, CI/CD, Slack, desktop/web og teams der vil have et samlet agent-workflow.
+  </Card>
+  <Card title="Gemini CLI" icon="seti:config">
+    Bedst til Google-økosystemet, høj gratis startkvote, Gemini API/Vertex AI, hierarkisk `GEMINI.md`, checkpointing og worktree-baserede eksperimenter.
+  </Card>
+</CardGrid>
+
+## Korteste ærlige valg
+
+| Profil | Vælg først | Undgå at starte med |
+|---|---|---|
+| Du vil bare lære AI CLI'er | Gemini CLI eller Codex CLI | Tre værktøjer på én gang. |
+| Du vil lave seriøst arbejde i et Git-repo | Codex CLI | Full access før du har læst diff/approval-flow. |
+| Du vil have lange dialoger og projekt-memory | Claude Code | For mange hooks/regler fra dag ét. |
+| Du vil bruge Google Cloud eller Vertex AI | Gemini CLI | API keys uden budget og quota-overblik. |
+| Du vil have second opinion på kritiske diffs | Codex `/review` + Claude/Gemini read-only review | To agents der ændrer samme filer samtidig. |
+
+Pointen er ikke at vælge én CLI for altid. Start med én, lær dens permission-model, og brug derefter de andre som reviewere eller specialværktøjer.
+
+## Brug dem sammen
+
+En stærk praktisk model:
+
+1. Lad én CLI lave ændringen i en worktree.
+2. Kør build/test.
+3. Lad en anden CLI læse diffen uden at ændre filer.
+4. Bed review-agenten finde bugs, sikkerhed, manglende tests og edge cases.
+5. Lav rettelser manuelt eller send dem tilbage til den første CLI.
+
+Eksempel:
+
+```text
+Læs diffen som uafhængig reviewer.
+Fokusér på konkrete bugs, security, performance og manglende tests.
+Lav ingen ændringer og foreslå kun rettelser med filplacering.
+```
+
+## Hvilken skal du vælge?
+
+| Hvis du primært vil... | Første valg | Hvorfor |
+|---|---|---|
+| Have en stærk lokal agent i et Git-repo | Codex CLI | Gode defaults, OS-sandbox, read-only/auto/full access modes og lokal `/review`. |
+| Arbejde med lange opgaver og løbende dialog | Claude Code | Memory, plan/permission modes, hooks, skills, subagents og mange surfaces. |
+| Starte gratis med høj daglig kvote | Gemini CLI | Google-login giver ifølge docs 1.000 requests pr. bruger pr. dag på individual tier. |
+| Automatisere i scripts eller CI | Codex CLI eller Gemini CLI | `codex exec` og Gemini headless mode har gode non-interactive/JSON flows. Claude kan også køre `claude -p`, men vær opmærksom på tokenforbrug. |
+| Bruge Google Cloud, Vertex AI eller Gemini API | Gemini CLI | Auth, kvoter og pay-as-you-go passer naturligt til Google Cloud. |
+| Bruge ChatGPT/Codex Cloud/code review | Codex CLI | ChatGPT-planer inkluderer Codex, og CLI'en kan arbejde med lokale og cloud-baserede Codex tasks. |
+| Bruge Slack, GitHub/GitLab CI, web/desktop og team-processer | Claude Code | Claude Code er designet som et bredere agent-system, ikke kun en terminalkommando. |
+| Sammenligne outputs fra flere modeller | Brug to CLI'er | Lad én skrive ændringen og en anden læse diffen. Det fanger ofte andre fejl. |
+
+## Grundlæggende forskelle
+
+| Emne | Codex CLI | Claude Code | Gemini CLI |
+|---|---|---|---|
+| Leverandør | OpenAI | Anthropic | Google |
+| CLI-kommando | `codex` | `claude` | `gemini` |
+| Primær modelretning | GPT-5.4 og Codex-modeller | Claude-modeller, især Sonnet/Opus afhængigt af plan | Gemini-modeller via Google-login, API key eller Vertex AI |
+| Open source CLI | Ja, Codex CLI er open source og Rust-baseret | Nej, produkt/CLI distribueres af Anthropic | Ja, Gemini CLI er open source |
+| Typisk install | npm eller Homebrew | Native installer anbefales, Homebrew/WinGet findes | npm, Homebrew eller npx |
+| Bedste Windows-vej | WSL anbefales; native Windows er eksperimentelt | Windows understøttes via native installer/WinGet | Windows understøttes via Node/npm og sandbox-muligheder |
+| Login | ChatGPT eller OpenAI API key | Claude account, Anthropic Console eller tredjepartsprovider | Google-login, Gemini API key eller Vertex AI |
+| Projektinstruktioner | `AGENTS.md` | `CLAUDE.md`, `.claude/rules/`, auto memory | `GEMINI.md`, globale/workspace/JIT context files |
+| Non-interactive mode | `codex exec` | `claude -p` | `gemini -p` eller headless mode |
+| MCP | Ja | Ja | Ja |
+| Lokalt review | Indbygget `/review` for diff, branch, commit og uncommitted changes | Code review via Claude Code workflows, plugins og CI/CD-integrationer | Ikke samme fokuserede `/review`-flow som Codex; kan analysere diff via prompt |
+| Cloud/team-flade | Codex Cloud, GitHub code review og ChatGPT-workspace features afhængigt af plan | Terminal, IDE, desktop, web, Slack, CI/CD, scheduled tasks og Agent SDK | Google AI/Code Assist/Vertex AI, extensions, subagents og Google Cloud-ruter |
+| Forbrugsvisning | `/status` og Codex usage dashboard | `/cost` for API-brugere, `/stats` for abonnenter | `/stats model` |
+
+## Sikkerhed og permissions
+
+| Risiko | Codex CLI | Claude Code | Gemini CLI |
+|---|---|---|---|
+| Standardadgang | Codex anbefaler Auto i versionerede mapper og read-only i mapper uden Git. Netværk er som udgangspunkt slået fra for lokale kommandoer. | Claude Code har et permissions-system, hvor sensitive handlinger kræver godkendelse, og write access er afgrænset til startmappen og undermapper uden ekstra tilladelse. | Gemini spørger om tilladelse ved handlinger som filskrivning, kloning og shell-kommandoer. |
+| Sandbox | OS-sandbox: macOS Seatbelt, Linux sandbox og Windows/WSL-ruter. | Permission-baseret arkitektur og sandboxed bash tool kan bruges til isolation. | Flere sandbox-metoder: macOS Seatbelt, Docker/Podman, Windows native sandbox, gVisor og LXC/LXD. |
+| Fuld adgang | `--yolo` eller danger-full-access er stærkt risikabelt. | `--dangerously-skip-permissions` skal behandles som en risikotilstand. | Tool sandboxing kan slås fra, men bør kun ske i isolerede miljøer. |
+| Prompt injection | Web search bruger som default cached search i Codex CLI og live search kræver eksplicit valg eller full-access situationer. | Docs beskriver command blocklist, network approval, trust verification og command injection detection. | Brug sandboxing, trusted folders, `.geminiignore` og godkendelser ved eksternt indhold. |
+| God starttilstand | Read-only eller Auto i et rent Git-repo. | Plan/read-only-lignende start, godkend kun konkrete handlinger. | Google-login, start med læseopgave, aktiver checkpointing hvis du vil kunne restore. |
+
+<Aside type="caution" title="Ingen af dem er magiske sikkerhedslag">
+Alle tre kan lave dyre eller farlige ting, hvis du giver dem for bred adgang. Brug Git, worktrees, spend limits og læs diffen. Lad aldrig en agent arbejde frit i mapper med tokens, private nøgler eller kundedata.
+</Aside>
+
+## Styrker og svagheder
+
+### Codex CLI
+
+**Styrker**
+
+- Stærk lokal Git-workflow: `/review`, diff-læsning, branch/commit-review og transcript.
+- Tydelig sandbox/approval-model med konkrete flags som `--sandbox`, `--ask-for-approval`, `--full-auto` og `--yolo`.
+- God til OpenAI/ChatGPT-brugere, især når Codex Cloud og code review er relevant.
+- `codex exec` er velegnet til scripts, automation og CI-lignende brug.
+- `AGENTS.md` discovery fungerer godt i repos og monorepos.
+
+**Svagheder**
+
+- Windows er bedst via WSL, og native Windows bør behandles som mere eksperimentelt.
+- Fuld adgang er let at vælge, men bør kun bruges i isoleret runner/VM.
+- API key-brug giver ikke alle cloud-baserede Codex-features.
+
+### Claude Code
+
+**Styrker**
+
+- Meget bred produktflade: terminal, VS Code, JetBrains, desktop, web, Slack, CI/CD og scheduled tasks.
+- God til lange samtaler, planlægning, refactors, PR-arbejde og teams.
+- `CLAUDE.md`, `.claude/rules/`, auto memory, hooks, skills og custom commands giver stærk workflow-kontrol.
+- Kan pipe data ind med `claude -p` og bruge Unix-lignende flows.
+- Native installer auto-opdaterer på macOS/Linux/WSL.
+
+**Svagheder**
+
+- Mere “system” end simpel CLI, så der er flere koncepter at forstå.
+- Memory og hooks kan gøre konteksten stor, hvis de ikke vedligeholdes.
+- Non-interactive `-p` er stærkt, men docs gør opmærksom på, at visse trust checks ikke gælder på samme måde som i interaktiv brug.
+
+### Gemini CLI
+
+**Styrker**
+
+- Nem Google-start og generøs gratis kvote for Google-login.
+- God til Google/Gemini/Vertex AI workflows og pay-as-you-go via Gemini API key.
+- `GEMINI.md` har global, workspace og just-in-time kontekst, og filnavnet kan konfigureres.
+- Headless mode kan returnere JSON/JSONL med usage-statistik.
+- Checkpointing, worktrees, subagents, extensions og sandboxing giver mange avancerede muligheder.
+
+**Svagheder**
+
+- Flere features er markeret som eksperimentelle eller kræver manuel aktivering, f.eks. worktrees og checkpointing.
+- Google AI Plus er ikke listet som understøttet CLI paid tier i Gemini CLI docs.
+- Google Workspace-konti kan kræve Google Cloud project-konfiguration.
+
+## Instruktionsfiler
+
+| Behov | Codex CLI | Claude Code | Gemini CLI |
+|---|---|---|---|
+| Repo-regler | `AGENTS.md` | `CLAUDE.md` | `GEMINI.md` |
+| Globale regler | `~/.codex/AGENTS.md` | `~/.claude/CLAUDE.md` | `~/.gemini/GEMINI.md` |
+| Mappespecifikke regler | Nested `AGENTS.md` eller `AGENTS.override.md` | `.claude/rules/*.md` med path scope | Just-in-time `GEMINI.md` tæt på filer/mapper |
+| God monorepo-model | Kort root-fil og app-specifikke instruktioner | Root `CLAUDE.md` plus rules pr. område | Global/workspace/JIT context hierarchy |
+
+Læs også [projektmapper og workflows](/da/ai/ai-cli/projektmapper-og-workflows/) før du lægger lange instruktioner i et stort repo.
+
+## Prislogik
+
+Det er ikke kun månedsprisen der betyder noget. AI CLI-forbrug afhænger af:
+
+- Hvor stort repoet er.
+- Hvor meget kontekst instruktionsfiler og MCP-servere tilføjer.
+- Om agenten læser mange filer eller kører flere subagents.
+- Om du bruger subscription-limits, credits eller API pay-as-you-go.
+- Om du bruger dyre reasoning-modeller til rutineopgaver.
+
+Kort valg:
+
+| Situation | Bedste prismodel |
+|---|---|
+| Læring og manuel brug | Abonnement eller gratis tier. |
+| Mange små daglige terminalopgaver | Abonnement med inkluderet CLI-brug. |
+| CI, bots og automatisering | API key med spend limits og separate nøgler. |
+| Team og compliance | Business/Team/Enterprise med admin, SSO og usage reporting. |
+
+Se den separate side [priser, planer og API-priser](/da/ai/ai-cli/priser-og-planer/) for aktuelle tal.
+
+## Praktiske workflows
+
+### 1. Begynderflow
+
+1. Start i et rent Git-repo.
+2. Kør `git status`.
+3. Bed CLI'en forklare projektet uden at ændre filer.
+4. Lad den foreslå test/build-kommandoer.
+5. Giv først derefter lov til en lille ændring.
+
+### 2. To-agent review
+
+1. Brug Codex eller Claude Code til at lave en lille ændring.
+2. Kør build/test.
+3. Brug en anden CLI til at læse diffen.
+4. Bed review-agenten fokusere på bugs, sikkerhed og manglende tests.
+
+Eksempel:
+
+```text
+Læs denne diff som code reviewer. Find konkrete bugs, regressionsrisici og manglende tests.
+Lav ingen ændringer.
+```
+
+### 3. Worktree-flow til risikable ændringer
+
+Brug en separat worktree når agenten skal ændre mange filer.
+
+```bash
+git worktree add ../mit-projekt-ai -b ai/eksperiment
+cd ../mit-projekt-ai
+```
+
+Gemini har et eksperimentelt `--worktree` flow. Codex og Claude kan også bruges i almindelige Git worktrees.
+
+## Min anbefalede startpakke
+
+| Profil | Start med | Tilføj bagefter |
+|---|---|---|
+| Privat developer med ChatGPT | Codex CLI | Claude Code til lange planer eller Gemini CLI til second opinion. |
+| Privat developer med Google-konto | Gemini CLI | Codex eller Claude når du vil have stærkere review/agent workflows. |
+| Team der allerede bruger Claude | Claude Code | Codex som lokal reviewer på kritiske diffs. |
+| Team der bruger OpenAI/ChatGPT Business | Codex CLI | Claude Code eller Gemini CLI til alternative reviews. |
+| Google Cloud-team | Gemini CLI | Codex eller Claude til uafhængig kode-review. |
+
+## Kilder
+
+Sidst tjekket: 11. april 2026.
+
+- [OpenAI Codex CLI](https://developers.openai.com/codex/cli)
+- [Codex CLI features](https://developers.openai.com/codex/cli/features)
+- [Codex CLI reference](https://developers.openai.com/codex/cli/reference)
+- [Codex agent approvals og security](https://developers.openai.com/codex/agent-approvals-security)
+- [Claude Code overview](https://code.claude.com/docs/en/overview)
+- [Claude Code CLI reference](https://code.claude.com/docs/en/cli-reference)
+- [Claude Code security](https://code.claude.com/docs/en/security)
+- [Claude Code memory](https://code.claude.com/docs/en/memory)
+- [Gemini CLI quickstart](https://geminicli.com/docs/get-started/)
+- [Gemini CLI quota and pricing](https://geminicli.com/docs/resources/quota-and-pricing/)
+- [Gemini CLI GEMINI.md](https://geminicli.com/docs/cli/gemini-md/)
+- [Gemini CLI sandboxing](https://geminicli.com/docs/cli/sandbox/)
+- [Gemini CLI headless mode](https://geminicli.com/docs/cli/headless/)
+- [Gemini CLI worktrees](https://geminicli.com/docs/cli/git-worktrees/)
+- [Gemini CLI checkpointing](https://geminicli.com/docs/cli/checkpointing/)

@@ -1,0 +1,251 @@
+---
+title: "Codex CLI: kom godt i gang"
+description: Installer OpenAI Codex CLI, log ind og lav din første sikre opgave i terminalen.
+sidebar:
+  badge:
+    text: Start her
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
+
+<Badge text="Begynder" variant="success" /> <Badge text="15 min" variant="note" />
+
+Codex CLI er OpenAI's coding agent i terminalen. Den kan læse dit projekt, forklare kode, foreslå ændringer, redigere filer og køre kommandoer i den mappe du starter den fra.
+
+Brug denne guide til at installere Codex CLI og lave en første session uden at give for meget adgang for tidligt.
+
+<Aside type="caution" title="Kort sikkerhedsregel">
+Start i et Git-repo og begynd med en læseopgave. Brug ikke `--yolo` eller fuld adgang, før du forstår sandbox, approvals og konsekvenserne.
+</Aside>
+
+## Hvad skal du bruge?
+
+- macOS, Linux eller Windows via WSL
+- Node.js/npm eller Homebrew
+- Git
+- En ChatGPT-konto eller OpenAI API key
+- Et projekt du kan teste på
+
+OpenAI beskriver Windows-support som mulig, men den bedste Windows-oplevelse er via WSL.
+
+## Installer Codex CLI
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install -g @openai/codex
+    ```
+
+    Tjek installationen:
+
+    ```bash
+    codex --version
+    ```
+  </TabItem>
+  <TabItem label="Homebrew">
+    ```bash
+    brew install codex
+    ```
+
+    Tjek installationen:
+
+    ```bash
+    codex --version
+    ```
+  </TabItem>
+  <TabItem label="Windows/WSL">
+    Installer Node.js eller Homebrew i WSL, og kør derefter en af kommandoerne ovenfor inde i WSL.
+
+    ```bash
+    npm install -g @openai/codex
+    ```
+  </TabItem>
+</Tabs>
+
+## Log ind
+
+Start Codex i terminalen:
+
+```bash
+codex
+```
+
+Første gang bliver du bedt om at logge ind med ChatGPT eller en OpenAI API key. Hvis du bruger API key i terminalen, så gem den som miljøvariabel eller via Codex' login-flow. Skriv den ikke direkte i prompts.
+
+## Din første sikre session
+
+<Steps>
+1. Gå ind i et projekt:
+
+   ```bash
+   cd dit-projekt
+   ```
+
+2. Tjek at Git kan beskytte dig:
+
+   ```bash
+   git status
+   ```
+
+3. Start Codex:
+
+   ```bash
+   codex
+   ```
+
+4. Send en læseopgave først:
+
+   ```text
+   Forklar dette projekt ud fra filerne i repoet. Lav ingen ændringer.
+   Fortæl hvilke test- eller build-kommandoer du ville køre, men kør dem ikke endnu.
+   ```
+
+5. Bed først derefter om en lille ændring, hvis forklaringen er korrekt.
+</Steps>
+
+## Permissions og modeller
+
+Codex bruger sandboxing og approval prompts. Standardtilstanden er god for begyndere: Codex kan arbejde i projektmappen, men skal spørge ved mere risikable handlinger.
+
+Nyttige kommandoer inde i Codex:
+
+| Kommando | Brug |
+|---|---|
+| `/model` | Vælg model og reasoning-niveau |
+| `/permissions` | Skift mellem read-only, auto og mere fri adgang |
+| `/review` | Få en lokal kode-review af ændringer |
+| `/status` | Se aktiv mappe, sandbox og session |
+
+OpenAI anbefaler aktuelt `gpt-5.4` til de fleste Codex-opgaver. Du kan vælge model ved start:
+
+```bash
+codex --model gpt-5.4
+```
+
+## Tre gode Codex-workflows
+
+<CardGrid>
+  <Card title="Forklar repoet" icon="document">
+    Start read-only. Bed Codex finde build, test, deploy, datamodeller og risikable filer uden at ændre noget.
+  </Card>
+  <Card title="Lille ændring" icon="check">
+    Bed om én konkret ændring, lad Codex køre relevante checks, og læs diffen før commit.
+  </Card>
+  <Card title="Review før commit" icon="branch">
+    Brug `/review` på uncommitted changes, en commit eller en branch før du pusher.
+  </Card>
+</CardGrid>
+
+God første opgave efter installation:
+
+```text
+Find projektets build-, test- og lint-kommandoer.
+Forklar hvilke filer der styrer routing, deployment og miljøvariabler.
+Lav ingen ændringer.
+```
+
+God første skriveopgave:
+
+```text
+Ret kun den mindste nødvendige fejl i [fil eller komponent].
+Brug eksisterende patterns.
+Kør den relevante check.
+Stop og forklar hvis ændringen kræver en ny dependency eller deploy.
+```
+
+## Flags du faktisk bør kende
+
+| Flag eller kommando | Brug |
+|---|---|
+| `codex --cd path/to/app` | Start Codex i den rigtige projektmappe uden først at køre `cd`. |
+| `codex --add-dir ../shared` | Giv adgang til en ekstra mappe uden at åbne hele maskinen. |
+| `codex --sandbox read-only` | Læs og forklar uden filændringer. Godt til ukendt kode. |
+| `codex --full-auto` | Arbejd i workspace med approvals ved risikable handlinger. Brug i rene Git-repos. |
+| `codex --search` | Brug live web search når opgaven kræver aktuelle kilder. Behandl webindhold som ubetroet. |
+| `codex exec --json "..."` | Brug Codex i scripts med JSONL-events. |
+| `codex exec --output-last-message result.md "..."` | Gem den endelige opsummering til et script eller CI-job. |
+| `codex resume --last` | Fortsæt seneste session i samme projekt. |
+
+<Aside type="caution" title="Undgå yolo som default">
+`--yolo` og `--dangerously-bypass-approvals-and-sandbox` fjerner både approvals og sandbox. Brug det kun i en isoleret container, VM eller engangs-worktree uden secrets.
+</Aside>
+
+## AGENTS.md
+
+Codex læser `AGENTS.md` som projekt-instruktioner. Start simpelt:
+
+```md title="AGENTS.md"
+# AGENTS.md
+
+## Projekt
+- Kør `npm run build` efter ændringer i siden.
+- Brug eksisterende Starlight-komponenter før nye abstraheringer.
+- Lav ingen deploy uden eksplicit besked.
+
+## Done when
+- Build passerer.
+- Git diff er gennemgået.
+```
+
+Du kan også have globale instruktioner i `~/.codex/AGENTS.md`.
+
+Codex bygger instruktionerne i lag: globalt `AGENTS.md`, repoets `AGENTS.md` og eventuelle mere specifikke filer tættere på den mappe du startede i. Det betyder, at et monorepo kan have en kort rodfil og mere præcise regler i `apps/site/AGENTS.md`.
+
+Hold filen kort. OpenAI nævner selv, at store instruktionsfiler og mange MCP-servere kan øge kontekst og forbrug.
+
+## Script mode
+
+Til automationer eller engangsopgaver kan du bruge:
+
+```bash
+codex exec "Forklar de vigtigste risici i dette repo uden at ændre filer"
+```
+
+Script mode er bedst til opgaver med tydeligt output: rapporter, review, changelog, CI-triage eller gentagne checks. Hvis opgaven kan ændre filer, så sørg for rent Git-state, tydelige krav og enten sandbox eller en separat worktree.
+
+Eksempel på read-only review i automation:
+
+```bash
+codex exec \
+  --sandbox read-only \
+  --ask-for-approval never \
+  --output-last-message codex-review.md \
+  "Læs denne diff og find konkrete bugs, regressionsrisici og manglende tests. Lav ingen ændringer."
+```
+
+## Pris og forbrug i praksis
+
+Codex kan bruge ChatGPT-login med inkluderede limits eller API key med tokenbaseret betaling. Forbrug vokser især når:
+
+- prompten er bred
+- repoet er stort
+- `AGENTS.md` er lang
+- mange MCP-servere er aktiveret
+- du bruger subagents
+- agenten læser mange filer flere gange
+
+Til rutineopgaver kan `gpt-5.4-mini` give længere local-message limits end de tungere modeller. Brug `gpt-5.4` til svær debugging, arkitektur og ændringer med høj risiko.
+
+## Fejlfinding
+
+| Problem | Løsning |
+|---|---|
+| `codex: command not found` | Tjek at npm global bin eller Homebrew bin ligger i `PATH`. |
+| Login virker ikke | Kør `codex login` eller start `codex` igen og vælg login-metode. |
+| Windows opfører sig mærkeligt | Brug WSL og start Codex inde i Linux-mappen. |
+| Codex spørger hele tiden | Det er normalt i sikre modes. Brug `/permissions` når du forstår valget. |
+| Den vil bruge netværk | Godkend kun hvis opgaven reelt kræver det. |
+
+## Kilder
+
+Sidst tjekket: 11. april 2026.
+
+- [OpenAI Codex quickstart](https://developers.openai.com/codex/quickstart#setup)
+- [Codex CLI](https://developers.openai.com/codex/cli)
+- [Codex CLI features](https://developers.openai.com/codex/cli/features)
+- [Codex CLI reference](https://developers.openai.com/codex/cli/reference)
+- [AGENTS.md i Codex](https://developers.openai.com/codex/guides/agents-md)
+- [Agent approvals og security](https://developers.openai.com/codex/agent-approvals-security)
+- [Codex best practices](https://developers.openai.com/codex/learn/best-practices)
+- [Codex pricing](https://developers.openai.com/codex/pricing)

@@ -1,0 +1,202 @@
+---
+title: "Pricing, plans, and API prices"
+description: What Codex CLI, Claude Code, and Gemini CLI cost through subscriptions, API keys, and pay-as-you-go usage.
+---
+
+import { Aside, Badge, Card, CardGrid } from '@astrojs/starlight/components';
+
+<Badge text="Pricing" variant="note" /> <Badge text="AI CLI" variant="success" />
+
+AI CLIs can be paid for in two ways: through a fixed subscription where usage is included up to a limit, or through an API key where you pay for tokens, tool calls, and model choice.
+
+<Aside type="caution" title="Check before buying">
+Prices, models, quotas, and promotions change often. The numbers here were last checked on April 11, 2026 and are in USD before local taxes, VAT, and currency fees.
+</Aside>
+
+## Quick decision
+
+| Need | Typical choice |
+|---|---|
+| You want to learn the tool | Start with a free tier or small personal subscription. |
+| You use the CLI several times a week | Choose a plan with included CLI usage. |
+| You want automation, CI, or scripts | Use an API key with spend limits. |
+| You work in a team | Use a team or business plan with central billing, SSO, and admin controls. |
+| You work in large repositories | Set budgets, use cheaper models for routine work, and keep context small. |
+
+## What Drives Cost?
+
+| Driver | Why it matters | Practical control |
+|---|---|---|
+| Repository size | The agent may read many files and send more context. | Start in the specific app folder, not the whole workspace. |
+| Instruction files | Long `AGENTS.md`, `CLAUDE.md`, and `GEMINI.md` files are often sent as context. | Keep root files short and put details close to the subproject. |
+| MCP and tools | Each external tool can add descriptions, output, and extra calls. | Enable MCP servers only when the task needs them. |
+| Model choice | Stronger models cost more and often use more reasoning. | Use mini/Haiku/Flash for routine work and stronger models for hard tasks. |
+| Output length | Long reports and generated code cost output tokens. | Ask for concrete findings, patches, and short summaries. |
+| Automation | Loops, cron, and CI can spend without you watching. | Use separate API keys, budgets, rate limits, and logs. |
+
+Simple API rule:
+
+```text
+price = input tokens + cached input tokens + output tokens + tool calls
+```
+
+For CLI subscriptions, the practical rule is:
+
+```text
+usage = number of tasks * task size * model choice * extra tools/subagents
+```
+
+## OpenAI Codex and OpenAI API
+
+Codex can use ChatGPT login or an OpenAI API key. ChatGPT plans include Codex access across web, CLI, IDE, and sometimes cloud features. API key usage is best for automation and CI, but cloud features such as GitHub code review and Slack are not included.
+
+| Plan | Price | Codex relevance |
+|---|---:|---|
+| Free | $0/mo. | Quick test tasks and learning. |
+| Go | $8/mo. | Lightweight coding tasks. |
+| Plus | $20/mo. | Codex in web, CLI, IDE, and iOS, newer models, and credits. |
+| Pro | From $100/mo. | 5x or 20x higher limits than Plus and priority processing. |
+| Business | Pay as you go | Team workspace, admin controls, larger VMs, and credits. |
+| Enterprise/Edu | Contact sales | Enterprise controls, audit logs, retention, and data residency. |
+| API key | Token-based | Local Codex tasks in CLI/SDK/IDE, but no cloud code review. |
+
+### OpenAI API prices
+
+| Model | Input / 1M tokens | Cached input / 1M tokens | Output / 1M tokens |
+|---|---:|---:|---:|
+| GPT-5.4 | $2.50 | $0.25 | $15.00 |
+| GPT-5.4 mini | $0.75 | $0.075 | $4.50 |
+| GPT-5.4 nano | $0.20 | $0.02 | $1.25 |
+
+OpenAI states that these standard prices apply to context lengths under 270K. Data residency and regional processing can add a surcharge for models released after March 5, 2026.
+
+### Codex credits
+
+Codex credits let you continue after included limits. For new and existing Business customers and new Enterprise customers, OpenAI showed this token-based credit card:
+
+| Model | Input / 1M tokens | Cached input / 1M tokens | Output / 1M tokens |
+|---|---:|---:|---:|
+| GPT-5.4 | 62.50 credits | 6.250 credits | 375 credits |
+| GPT-5.4-mini | 18.75 credits | 1.875 credits | 113 credits |
+| GPT-5.3-Codex | 43.75 credits | 4.375 credits | 350 credits |
+| GPT-5.2 | 43.75 credits | 4.375 credits | 350 credits |
+
+Fast mode consumes 2x credits. GPT-5.3-Codex-Spark was a research preview for ChatGPT Pro and was not available in the API at launch.
+
+### Codex Included Limits
+
+OpenAI gives limits as ranges because they depend on task size and model. As a practical rule, large repositories, long prompts, and subagents use the allowance faster.
+
+| Plan | Example local messages per 5 hours |
+|---|---|
+| Plus | GPT-5.4: 20-100, GPT-5.4-mini: 60-350, GPT-5.3-Codex: 30-150 |
+| Pro 5x | GPT-5.4: 200-1000, GPT-5.4-mini: 600-3500, GPT-5.3-Codex: 300-1500 |
+| Pro 20x | GPT-5.4: 400-2000, GPT-5.4-mini: 1200-7000, GPT-5.3-Codex: 600-3000 |
+
+Cloud tasks and local messages can share the same five-hour window, and weekly limits can also apply.
+
+## Anthropic Claude Code and Claude API
+
+Claude Code can be used through Claude subscriptions or API token consumption. Claude Code shows token usage with `/cost` for API users. Pro and Max subscribers have usage included in their plan and should use `/stats` to understand usage patterns.
+
+| Plan | Price | Claude Code relevance |
+|---|---:|---|
+| Free | $0 | Try Claude in the app. |
+| Pro | $17/mo. annual or $20/mo. monthly | More usage, Claude Code, Claude Cowork, and Projects. |
+| Max | From $100/mo. | 5x or 20x more usage than Pro and higher output limits. |
+| Team standard | $20/seat/mo. annual or $25/mo. | Team features, Claude Code, SSO, and admin. |
+| Team premium | $100/seat/mo. annual or $125/mo. | 5x more usage than standard seats. |
+| Enterprise | $20/seat + API-rate usage | Enterprise controls, spend controls, audit logs, and retention. |
+| API | Token-based | Pay by model, input, output, cache, and tools. |
+
+Anthropic describes typical enterprise Claude Code costs as around $13 per developer per active day and $150-250 per developer per month, with large variation based on model, repository size, and usage pattern.
+
+### Claude API prices
+
+| Model | Input / 1M tokens | Output / 1M tokens | Cache write / 1M | Cache read / 1M |
+|---|---:|---:|---:|---:|
+| Opus 4.6 | $5 | $25 | $6.25 | $0.50 |
+| Sonnet 4.6 | $3 | $15 | $3.75 | $0.30 |
+| Haiku 4.5 | $1 | $5 | $1.25 | $0.10 |
+
+US-only inference costs 1.1x input and output prices. Claude web search costs $10 per 1,000 searches. Code execution includes 50 free hours daily per organization, then $0.05 per hour per container.
+
+## Gemini CLI, Google AI plans, and Gemini API
+
+Gemini CLI has several auth paths: Google login, Gemini API key, and Vertex AI. The right pricing model depends on the login method.
+
+| Auth or plan | Price or model | CLI quota in Gemini CLI docs |
+|---|---:|---:|
+| Google account, Gemini Code Assist individual | Free | 1,000 requests per user per day |
+| Google AI Pro | $19.99/mo. | 1,500 requests per user per day |
+| Google AI Ultra | $249.99/mo. | 2,000 requests per user per day |
+| Gemini API key, unpaid | Free tier | 250 requests per user per day, Flash only |
+| Gemini API key, paid | Pay as you go | Varies by pricing tier and token usage |
+| Vertex AI | Pay as you go | Varies by Google Cloud quota and model |
+| Workspace Code Assist Standard | Seat/license | 1,500 requests per user per day |
+| Workspace Code Assist Enterprise | Seat/license | 2,000 requests per user per day |
+
+Google AI Plus exists as a consumer subscription, but the Gemini CLI documentation says tiers that are not listed, including Google AI Plus, are not supported as a CLI paid tier.
+
+### Gemini API prices
+
+| Model and tier | Input / 1M tokens | Output / 1M tokens |
+|---|---:|---:|
+| Gemini 3.1 Pro Preview, Standard, under 200k prompt | $2.00 | $12.00 |
+| Gemini 3.1 Pro Preview, Standard, over 200k prompt | $4.00 | $18.00 |
+| Gemini 3.1 Pro Preview, Batch/Flex, under 200k prompt | $1.00 | $6.00 |
+| Gemini 3.1 Flash-Lite Preview, Standard text/image/video | $0.25 | $1.50 |
+| Gemini 3.1 Flash-Lite Preview, Batch/Flex text/image/video | $0.125 | $0.75 |
+| Gemini 3 Flash Preview, Standard text/image/video | $0.50 | $3.00 |
+| Gemini 3 Flash Preview, Batch/Flex text/image/video | $0.25 | $1.50 |
+
+Grounding with Google Search for Gemini 3 had 5,000 prompts per month included on the paid tier, then $14 per 1,000 search queries. Batch API can reduce token prices, but works best for tasks that can wait.
+
+## Practical Budget Choices
+
+| Profile | Starting budget | Why |
+|---|---|---|
+| New user | Free tier or one personal plan for a month | You learn workflows before wiring in API keys. |
+| Solo developer | Codex Plus/Pro, Claude Pro/Max, or Google AI Pro by ecosystem | Fixed monthly price is easier than token accounting. |
+| Automation | API key with a low spend limit | Scripts can otherwise spend heavily without you seeing it. |
+| Team | Business/Team/Enterprise | Central billing, SSO, audit, retention, and spend controls matter more than the lowest token price. |
+| Large repository | Subscription plus API fallback | Use the subscription for manual development and API keys for measured automation. |
+
+## USD and Local Checkout
+
+The English page shows USD because that is how most official pricing pages publish base prices. Treat these as pre-tax references and check checkout for:
+
+- VAT or local taxes
+- currency conversion
+- local price changes
+- enterprise discounts
+- promotions and temporary usage boosts
+
+## Avoid expensive surprises
+
+<CardGrid>
+  <Card title="Start with a subscription" icon="rocket">
+    For learning and manual use, fixed plans are easier to reason about than API usage.
+  </Card>
+  <Card title="Set spend limits" icon="seti:config">
+    API keys should always have budgets, rate limits, and separate keys for test, CI, and production.
+  </Card>
+  <Card title="Keep context small" icon="document">
+    Large instruction files, many MCP servers, and broad prompts consume more tokens.
+  </Card>
+  <Card title="Use a cheaper model first" icon="check">
+    Use mini, Haiku, or Flash for routine tasks and save the strongest models for hard changes.
+  </Card>
+</CardGrid>
+
+## Sources
+
+Last checked: April 11, 2026.
+
+- [OpenAI Codex pricing](https://developers.openai.com/codex/pricing)
+- [OpenAI API pricing](https://platform.openai.com/docs/pricing)
+- [Claude pricing](https://claude.com/pricing)
+- [Claude Code costs](https://code.claude.com/docs/en/costs)
+- [Gemini CLI quotas and pricing](https://geminicli.com/docs/resources/quota-and-pricing/)
+- [Google AI Pro and Ultra subscriptions](https://gemini.google/us/subscriptions/)
+- [Gemini API pricing](https://ai.google.dev/gemini-api/docs/pricing)

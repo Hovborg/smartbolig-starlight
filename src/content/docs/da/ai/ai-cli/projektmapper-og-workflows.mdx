@@ -1,0 +1,272 @@
+---
+title: "Projektmapper og workflows"
+description: "Sådan placerer du AGENTS.md, CLAUDE.md og GEMINI.md, og hvordan du starter AI CLI'er i den rigtige mappe."
+---
+
+import { Aside, Badge, Card, CardGrid, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
+
+<Badge text="Workflow" variant="note" /> <Badge text="Projektmapper" variant="success" />
+
+AI CLI'er arbejder ud fra den mappe du starter dem i. Det betyder, at projektrod, Git-status og instruktionsfiler betyder meget for både kvalitet, sikkerhed og pris.
+
+<Aside type="tip" title="Kort regel">
+Start altid CLI'en i det konkrete repo eller den konkrete app-mappe, du vil arbejde på. Start ikke i din hjemmemappe eller en hel workspace-rod, medmindre opgaven faktisk handler om hele workspacet.
+</Aside>
+
+## Anbefalet repo-struktur
+
+```text
+dit-projekt/
+  AGENTS.md
+  CLAUDE.md
+  GEMINI.md
+  .gitignore
+  package.json
+  src/
+  tests/
+  docs/
+  .claude/
+    rules/
+```
+
+Du behøver ikke alle tre instruktionsfiler fra dag et. Hvis du bruger flere CLI'er i samme repo, er det dog praktisk at have korte filer til hvert værktøj.
+
+## Startmappen er en sikkerhedsgrænse
+
+Startmappen afgør ofte:
+
+- hvilke filer agenten læser først
+- hvilke instruktioner der bliver indlæst
+- hvor filændringer forventes
+- hvor Git-status og diff bliver målt
+- hvor mange tokens der bruges på at forstå projektet
+
+Det rigtige valg er næsten altid den mindste mappe, der stadig indeholder nok kontekst til opgaven.
+
+| Forkert start | Bedre start |
+|---|---|
+| Hjemmemappen | Det konkrete Git-repo |
+| Hele workspace-roden | App- eller service-mappen |
+| Monorepo-root for en lille UI-fejl | Den relevante frontend-app |
+| Produktionsmappe med secrets | En ren worktree eller kopi uden secrets |
+
+## Hvor skal du starte CLI'en?
+
+| Situation | Startmappe |
+|---|---|
+| En almindelig app | Appens Git-root. |
+| Monorepo med mange apps | Den app eller service du ændrer. |
+| Tværgående refactor | Monorepo-root, men med meget præcis prompt. |
+| Dokumentationsopgave | Den mappe hvor docs og navigation bor. |
+| Risikabel ændring | En Git worktree eller separat branch. |
+
+Før hver session:
+
+<Steps>
+1. Gå til projektmappen.
+
+   ```bash
+   cd dit-projekt
+   ```
+
+2. Tjek Git-status.
+
+   ```bash
+   git status
+   ```
+
+3. Start med en læseopgave.
+
+   ```text
+   Forklar projektet og hvilke filer der styrer build, test og deployment. Lav ingen ændringer.
+   ```
+</Steps>
+
+## Hurtig mappetest
+
+Kør disse checks før du starter en agent:
+
+```bash
+pwd
+git status --short
+rg --files -g 'AGENTS.md' -g 'CLAUDE.md' -g 'GEMINI.md' -g 'package.json' -g 'Cargo.toml' -g 'pyproject.toml'
+```
+
+Hvis output viser flere apps, services eller package managers end opgaven handler om, står du sandsynligvis for højt i træet.
+
+## Codex CLI: AGENTS.md
+
+Codex læser `AGENTS.md` før arbejdet starter. Den bygger en instruktionskæde fra globale instruktioner og projektets instruktioner.
+
+| Scope | Placering |
+|---|---|
+| Global | `~/.codex/AGENTS.md` eller `~/.codex/AGENTS.override.md` |
+| Repo-root | `AGENTS.md` i Git-root |
+| Undermapper | `AGENTS.md` eller `AGENTS.override.md` tættere på arbejdet |
+| Alternativer | Kan konfigureres med `project_doc_fallback_filenames` |
+
+Codex læser fra roden ned mod din aktuelle mappe. Instruktioner tættere på arbejdet kommer senere i prompten og kan derfor præcisere bredere regler. Standardgrænsen for samlet projekt-dokumentation er 32 KiB.
+
+## Claude Code: CLAUDE.md og .claude/rules
+
+Claude Code læser `CLAUDE.md`, ikke `AGENTS.md`. Hvis repoet allerede bruger `AGENTS.md`, kan du lade `CLAUDE.md` importere den:
+
+```md title="CLAUDE.md"
+@AGENTS.md
+
+## Claude Code
+- Brug plan mode før store ændringer.
+- Brug `/stats` til at følge forbrug.
+```
+
+Vigtige placeringer:
+
+| Scope | Placering |
+|---|---|
+| Projekt | `./CLAUDE.md` eller `./.claude/CLAUDE.md` |
+| Lokalt privat | `./CLAUDE.local.md` og i `.gitignore` |
+| Bruger | `~/.claude/CLAUDE.md` |
+| Regler | `.claude/rules/*.md` |
+| Auto memory | `~/.claude/projects/<project>/memory/` |
+| Managed policy | `/etc/claude-code/CLAUDE.md` på Linux/WSL |
+
+Brug `.claude/rules/` når instruktioner kun gælder en del af projektet. En regel kan for eksempel kun gælde `src/api/**/*.ts`.
+
+## Gemini CLI: GEMINI.md
+
+Gemini CLI bruger `GEMINI.md` som standard. Den kan læse global kontekst, workspace-kontekst og just-in-time kontekst når den arbejder i undermapper.
+
+| Scope | Placering |
+|---|---|
+| Global | `~/.gemini/GEMINI.md` |
+| Workspace | `GEMINI.md` i workspace-mapper og forældre |
+| Just-in-time | `GEMINI.md` tæt på filer eller mapper der tilgås |
+| Alternativt navn | `context.fileName` i `settings.json` |
+
+Nyttige kommandoer i Gemini CLI:
+
+| Kommando | Brug |
+|---|---|
+| `/memory show` | Se den samlede kontekst. |
+| `/memory reload` | Genindlæs `GEMINI.md` filer. |
+| `/memory add <tekst>` | Tilføj global memory. |
+| `/stats model` | Se model- og tokenforbrug. |
+
+## Monorepo-model
+
+I et stort workspace bør rodfilen være kort. Læg detaljer tættere på appen.
+
+```text
+workspace/
+  AGENTS.md              # korte fælles regler
+  apps/
+    website/
+      AGENTS.md          # website build, deploy og indholdsregler
+      CLAUDE.md
+      GEMINI.md
+    backend/
+      AGENTS.md          # API, tests og migrations
+  services/
+    worker/
+      AGENTS.md
+```
+
+Gode monorepo-regler:
+
+- Skriv i prompten hvilken app der er aktiv.
+- Lad agenten identificere projektrod før ændringer.
+- Brug app-specifikke build- og testkommandoer.
+- Hold secrets i `.env` og sørg for at de er ignoreret af Git.
+- Læg lange workflows i docs eller skills, ikke i en kæmpe instruktionsfil.
+
+## Flere agents uden kaos
+
+Hvis flere agents arbejder samtidig, skal de have adskilte ansvarsområder. Det bedste mønster er én worktree og én branch pr. agent.
+
+```text
+../mit-projekt-ai-docs      # agent arbejder kun i docs/
+../mit-projekt-ai-ui        # agent arbejder kun i src/components/
+../mit-projekt-ai-tests     # agent arbejder kun med tests/
+```
+
+Giv hver agent en prompt med:
+
+- præcis mappe eller filgruppe
+- hvad den må ændre
+- hvad den ikke må ændre
+- hvilke checks den skal køre
+- hvordan resultatet skal rapporteres
+
+Undgå at to agents redigerer samme fil samtidig, medmindre én af dem kun laver review uden ændringer.
+
+## Worktrees til risikable ændringer
+
+En Git worktree giver en separat mappe til en branch uden at ødelægge din normale arbejdsmappe.
+
+```bash
+git worktree add ../dit-projekt-ai-fix -b ai/dit-fix
+cd ../dit-projekt-ai-fix
+```
+
+Brug det når:
+
+- AI'en skal ændre mange filer.
+- Du vil sammenligne to løsninger.
+- Du vil teste uden at blande ændringer ind i dit normale working tree.
+- Du vil lade flere agents arbejde på forskellige brancher.
+
+Ryd op bagefter:
+
+```bash
+cd ../dit-projekt
+git worktree remove ../dit-projekt-ai-fix
+```
+
+## Minimal fælles instruktionsfil
+
+```md title="AGENTS.md"
+# AGENTS.md
+
+## Projekt
+- Skriv kort hvilken app eller service dette er.
+- Beskriv hvor source, tests, docs og scripts ligger.
+
+## Kommandoer
+- Build: `npm run build`
+- Test: `npm test`
+- Preview: `npm run preview`
+
+## Regler
+- Start med `git status`.
+- Print aldrig tokens, cookies eller API keys.
+- Brug eksisterende patterns før nye abstraheringer.
+- Lav ingen deploy uden eksplicit besked.
+
+## Done when
+- Relevante checks passerer.
+- Diffen er gennemgået.
+- Brugeren får ændrede filer og teststatus.
+```
+
+<Aside type="caution" title="Secrets hører ikke hjemme i instruktioner">
+Instruktionsfiler bliver sendt med som kontekst. Læg aldrig API keys, tokens, cookies, private URLs eller kundedata i `AGENTS.md`, `CLAUDE.md` eller `GEMINI.md`.
+</Aside>
+
+## Anti-patterns i instruktionsfiler
+
+| Anti-pattern | Bedre |
+|---|---|
+| "Vær grundig" | "Læs `src/routes`, `src/lib` og `tests` før ændringer i backend." |
+| "Gør UI pænt" | "Brug eksisterende Starlight-komponenter og kør `npm run build`." |
+| 300 linjer med alle historiske beslutninger | Kort rodfil plus docs/skills for lange workflows. |
+| Secrets eller private tokens | Miljøvariabler, secret manager eller login-flow. |
+| Deploy-kommando uden gate | "Deploy kun efter eksplicit besked fra brugeren." |
+
+## Kilder
+
+Sidst tjekket: 11. april 2026.
+
+- [Codex AGENTS.md](https://developers.openai.com/codex/guides/agents-md)
+- [Claude Code memory](https://code.claude.com/docs/en/memory)
+- [Gemini CLI GEMINI.md](https://geminicli.com/docs/cli/gemini-md/)
+- [Gemini CLI quotas and pricing](https://geminicli.com/docs/resources/quota-and-pricing/)

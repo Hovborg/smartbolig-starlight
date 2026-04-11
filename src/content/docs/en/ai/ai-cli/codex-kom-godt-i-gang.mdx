@@ -1,0 +1,217 @@
+---
+title: "Codex CLI: getting started"
+description: Install OpenAI Codex CLI, sign in, and run your first safe task in the terminal.
+sidebar:
+  badge:
+    text: Start here
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
+
+<Badge text="Beginner" variant="success" /> <Badge text="15 min" variant="note" />
+
+Codex CLI is OpenAI's coding agent in the terminal. It can read your project, explain code, propose changes, edit files, and run commands in the directory where you start it.
+
+<Aside type="caution" title="Short safety rule">
+Start in a Git repository and begin with a read-only task. Do not use `--yolo` or full access until you understand sandboxing, approvals, and the consequences.
+</Aside>
+
+## Requirements
+
+- macOS, Linux, or Windows through WSL
+- Node.js/npm or Homebrew
+- Git
+- A ChatGPT account or OpenAI API key
+- A project you can test on
+
+OpenAI documents Windows support, but WSL is the best Windows path for most CLI workflows.
+
+## Install Codex CLI
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install -g @openai/codex
+    codex --version
+    ```
+  </TabItem>
+  <TabItem label="Homebrew">
+    ```bash
+    brew install codex
+    codex --version
+    ```
+  </TabItem>
+  <TabItem label="Windows/WSL">
+    Install Node.js or Homebrew inside WSL, then run:
+
+    ```bash
+    npm install -g @openai/codex
+    ```
+  </TabItem>
+</Tabs>
+
+## Sign in
+
+Start Codex:
+
+```bash
+codex
+```
+
+The first run prompts you to sign in with ChatGPT or an OpenAI API key. If you use an API key, store it through the CLI flow or an environment variable. Do not paste secrets into prompts.
+
+## First safe session
+
+<Steps>
+1. Enter a project:
+
+   ```bash
+   cd your-project
+   git status
+   ```
+
+2. Start Codex:
+
+   ```bash
+   codex
+   ```
+
+3. Send a read-only task:
+
+   ```text
+   Explain this project from the repository files. Do not make changes.
+   Tell me which test or build commands you would run, but do not run them yet.
+   ```
+
+4. Allow a small edit only after the explanation looks correct.
+</Steps>
+
+## Permissions, models, and AGENTS.md
+
+Codex uses sandboxing and approval prompts. Useful in-session commands:
+
+| Command | Use |
+|---|---|
+| `/model` | Choose model and reasoning level |
+| `/permissions` | Switch between read-only, auto, and broader access |
+| `/review` | Run a local code review |
+| `/status` | Show active directory, sandbox, and session |
+
+OpenAI currently recommends `gpt-5.4` for most Codex tasks:
+
+```bash
+codex --model gpt-5.4
+```
+
+## Three Good Codex Workflows
+
+<CardGrid>
+  <Card title="Explain the repository" icon="document">
+    Start read-only. Ask Codex to find build, test, deploy, data models, and risky files without changing anything.
+  </Card>
+  <Card title="Small change" icon="check">
+    Ask for one concrete change, let Codex run the relevant checks, and read the diff before committing.
+  </Card>
+  <Card title="Review before commit" icon="branch">
+    Use `/review` on uncommitted changes, a commit, or a branch before you push.
+  </Card>
+</CardGrid>
+
+Good first task after installation:
+
+```text
+Find the project's build, test, and lint commands.
+Explain which files control routing, deployment, and environment variables.
+Do not make changes.
+```
+
+Good first write task:
+
+```text
+Fix only the smallest necessary issue in [file or component].
+Use existing patterns.
+Run the relevant check.
+Stop and explain if the change requires a new dependency or deploy.
+```
+
+## Flags You Should Know
+
+| Flag or command | Use |
+|---|---|
+| `codex --cd path/to/app` | Start Codex in the right project folder without running `cd` first. |
+| `codex --add-dir ../shared` | Grant access to one extra folder without opening the whole machine. |
+| `codex --sandbox read-only` | Read and explain without file edits. Good for unknown code. |
+| `codex --full-auto` | Work in the workspace with approvals for riskier actions. Use in clean Git repos. |
+| `codex --search` | Use live web search when the task needs current sources. Treat web content as untrusted. |
+| `codex exec --json "..."` | Use Codex in scripts with JSONL events. |
+| `codex exec --output-last-message result.md "..."` | Save the final summary for a script or CI job. |
+| `codex resume --last` | Continue the latest session in the same project. |
+
+<Aside type="caution" title="Do not make yolo your default">
+`--yolo` and `--dangerously-bypass-approvals-and-sandbox` remove approvals and sandboxing. Use them only inside an isolated container, VM, or throwaway worktree without secrets.
+</Aside>
+
+Codex reads `AGENTS.md` as project instructions:
+
+```md title="AGENTS.md"
+# AGENTS.md
+
+## Project
+- Run `npm run build` after site changes.
+- Prefer existing Starlight components.
+- Do not deploy without an explicit instruction.
+
+## Done when
+- Build passes.
+- Git diff has been reviewed.
+```
+
+Codex layers instructions from global `AGENTS.md`, the repository `AGENTS.md`, and more specific files closer to the folder where you started. In a monorepo, that means a short root file plus precise rules in `apps/site/AGENTS.md` usually works better than one huge root file.
+
+Keep the file short. OpenAI notes that large instruction files and many MCP servers can increase context and usage.
+
+## Script Mode
+
+Use `codex exec` for automation or one-off tasks:
+
+```bash
+codex exec "Explain the main risks in this repo without changing files"
+```
+
+Script mode is best for tasks with clear output: reports, review, changelogs, CI triage, or repeated checks. If the task can edit files, keep Git clean and use sandboxing or a separate worktree.
+
+Example read-only review automation:
+
+```bash
+codex exec \
+  --sandbox read-only \
+  --ask-for-approval never \
+  --output-last-message codex-review.md \
+  "Read this diff and find concrete bugs, regression risks, and missing tests. Do not make changes."
+```
+
+## Cost in Practice
+
+Codex can use ChatGPT login with included limits or an API key with token-based billing. Usage grows especially when:
+
+- the prompt is broad
+- the repository is large
+- `AGENTS.md` is long
+- many MCP servers are enabled
+- you use subagents
+- the agent rereads many files
+
+For routine work, `gpt-5.4-mini` can stretch local-message limits further than heavier models. Use `gpt-5.4` for hard debugging, architecture, and high-risk changes.
+
+## Sources
+
+Last checked: April 11, 2026.
+
+- [OpenAI Codex quickstart](https://developers.openai.com/codex/quickstart#setup)
+- [Codex CLI](https://developers.openai.com/codex/cli)
+- [Codex CLI reference](https://developers.openai.com/codex/cli/reference)
+- [AGENTS.md in Codex](https://developers.openai.com/codex/guides/agents-md)
+- [Agent approvals and security](https://developers.openai.com/codex/agent-approvals-security)
+- [Codex best practices](https://developers.openai.com/codex/learn/best-practices)
+- [Codex pricing](https://developers.openai.com/codex/pricing)

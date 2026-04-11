@@ -1,0 +1,197 @@
+---
+title: "Gemini CLI: getting started"
+description: Install Google Gemini CLI, choose an auth method, and run your first safe terminal session.
+sidebar:
+  badge:
+    text: Start here
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
+
+<Badge text="Beginner" variant="success" /> <Badge text="15 min" variant="note" />
+
+Gemini CLI is Google's open source AI agent for the terminal. It can read files, understand large projects, use tools, and run commands depending on your settings and permissions.
+
+## Requirements
+
+- Node.js 20+
+- Git
+- Internet connection
+- Google sign-in, Gemini API key, or Vertex AI
+- macOS, Linux, or Windows
+
+Google currently recommends macOS 15+, Windows 11 24H2+, or Ubuntu 20.04+.
+
+## Install Gemini CLI
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install -g @google/gemini-cli
+    gemini --version
+    ```
+  </TabItem>
+  <TabItem label="npx">
+    Try it without a global install:
+
+    ```bash
+    npx @google/gemini-cli
+    ```
+  </TabItem>
+  <TabItem label="Homebrew">
+    ```bash
+    brew install gemini-cli
+    ```
+  </TabItem>
+</Tabs>
+
+## Choose auth
+
+Start the CLI:
+
+```bash
+gemini
+```
+
+Common auth options:
+
+| Method | Best for |
+|---|---|
+| Google sign-in | Personal accounts, high free starting quota, and manual CLI use |
+| `GEMINI_API_KEY` | Script mode, servers, CI, and clear API billing |
+| Vertex AI | Enterprise, Google Cloud quotas, governance, and project-based billing |
+
+Example with API key:
+
+```bash
+export GEMINI_API_KEY="your-api-key"
+gemini
+```
+
+Do not store API keys in screenshots, guides, or prompts.
+
+<Aside type="note" title="Choose auth by use case">
+Google sign-in is best for learning the tool. An API key is best when a script must run without browser login. Vertex AI is best when the organization already controls access, quotas, and billing in Google Cloud.
+</Aside>
+
+## First safe session
+
+<Steps>
+1. Enter a Git repo:
+
+   ```bash
+   cd your-project
+   git status
+   ```
+
+2. Start Gemini CLI:
+
+   ```bash
+   gemini
+   ```
+
+3. Send a read-only task:
+
+   ```text
+   Explain this folder and make a safe reading plan.
+   Do not make changes and do not run commands yet.
+   ```
+
+4. Use `/permissions` and `/tools` to understand what Gemini can do.
+</Steps>
+
+## When Gemini CLI Is Strongest
+
+<CardGrid>
+  <Card title="Google ecosystem" icon="seti:config">
+    Choose Gemini CLI when you already use Google, Gemini API, Vertex AI, or Google Workspace.
+  </Card>
+  <Card title="Free start" icon="rocket">
+    Google sign-in gives a high daily request quota for personal use according to the Gemini CLI docs.
+  </Card>
+  <Card title="Experiments" icon="branch">
+    Checkpointing, worktrees, headless JSON/JSONL, and sandboxing make the CLI strong for testing and automation.
+  </Card>
+</CardGrid>
+
+Good first task:
+
+```text
+Read the repository and explain project structure, build/test commands, and risky files.
+Do not make changes and do not run commands until I say so.
+```
+
+Good first change task:
+
+```text
+Make a small change in one file.
+Explain the plan first.
+Run only test/build commands that already exist in the repository.
+Use checkpointing or Git so the change can be rolled back.
+```
+
+## GEMINI.md
+
+Gemini CLI uses `GEMINI.md` as a context file. It can live globally in `~/.gemini/GEMINI.md` or inside the project.
+
+```md title="GEMINI.md"
+# GEMINI.md
+
+## Project
+- Use existing scripts before proposing new ones.
+- Make small changes at a time.
+- Ask before network calls or installations.
+
+## Verification
+- Run build/tests after code changes.
+```
+
+Gemini can read global, workspace, and just-in-time context. In large repositories, a `GEMINI.md` close to the folder being edited is often better than one long root file.
+
+## Useful commands
+
+| Command | Use |
+|---|---|
+| `/auth` | Change or check auth |
+| `/model` | Choose Gemini model |
+| `/permissions` | Inspect and change permissions |
+| `/plan` | Plan before editing |
+| `/resume` | Continue a session |
+| `/stats` | Show usage and model info |
+| `gemini -p "..."` | Run a single prompt |
+
+## Headless, Checkpoints, and Worktrees
+
+For scripts and automation, Gemini can run non-interactively:
+
+```bash
+gemini -p "Summarize this diff and find concrete risks. Do not make changes."
+```
+
+Use headless/JSON output when another script needs to read the result. Use checkpointing when you want a restore point before file edits. Use worktrees or normal Git worktrees when you want to test several solutions in parallel.
+
+| Feature | Use when |
+|---|---|
+| Headless mode | You want to run a prompt from CI, cron, or a script. |
+| Checkpointing | You want a restore point before file edits. |
+| Worktrees | Multiple agents or experiments need separate diffs. |
+| Sandbox | You analyze unknown code or scripts you do not trust. |
+
+<Aside type="tip" title="Sandbox risky work">
+If you ask Gemini to analyze unknown code or run third-party commands, use a container, VM, or a repository without secrets.
+</Aside>
+
+## Sources
+
+Last checked: April 11, 2026.
+
+- [Gemini CLI GitHub](https://github.com/google-gemini/gemini-cli)
+- [Gemini CLI installation](https://geminicli.com/docs/get-started/installation/)
+- [Gemini CLI authentication](https://geminicli.com/docs/get-started/authentication/)
+- [Gemini CLI commands](https://geminicli.com/docs/reference/commands/)
+- [GEMINI.md context](https://geminicli.com/docs/cli/gemini-md/)
+- [Gemini CLI sandboxing](https://geminicli.com/docs/cli/sandbox/)
+- [Gemini CLI headless mode](https://geminicli.com/docs/cli/headless/)
+- [Gemini CLI checkpointing](https://geminicli.com/docs/cli/checkpointing/)
+- [Gemini CLI worktrees](https://geminicli.com/docs/cli/git-worktrees/)

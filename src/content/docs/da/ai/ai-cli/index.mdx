@@ -1,0 +1,139 @@
+---
+title: "AI CLI'er: kom godt i gang"
+description: Overblik over Codex CLI, Claude Code og Gemini CLI, og hvordan du starter sikkert.
+sidebar:
+  badge:
+    text: Start her
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
+
+<Badge text="Begynder" variant="success" /> <Badge text="15 min" variant="note" />
+
+AI CLI'er er terminal-værktøjer, der fungerer som lokale coding agents. De kan læse dit projekt, foreslå ændringer, skrive filer og køre kommandoer. Det gør dem stærke, men også noget du skal starte med kontrolleret.
+
+Denne sektion starter med tre værktøjer:
+
+- **Codex CLI** fra OpenAI
+- **Claude Code** fra Anthropic
+- **Gemini CLI** fra Google
+
+## Korteste vej
+
+| Hvis du... | Gør dette først |
+|---|---|
+| Aldrig har brugt en AI CLI | Læs denne side, start i et test-repo og bed værktøjet forklare projektet uden ændringer. |
+| Allerede har ChatGPT/Codex | Start med [Codex CLI](/da/ai/ai-cli/codex-kom-godt-i-gang/) og lav en lokal `/review` efter første ændring. |
+| Allerede bruger Claude | Start med [Claude Code](/da/ai/ai-cli/claude-code-kom-godt-i-gang/) og opret en kort `CLAUDE.md`. |
+| Allerede bruger Google/Gemini | Start med [Gemini CLI](/da/ai/ai-cli/gemini-cli-kom-godt-i-gang/) og vælg login-metode før du laver API automation. |
+| Vil sammenligne dem | Læs [Codex vs Claude Code vs Gemini CLI](/da/ai/ai-cli/sammenligning/) efter du har prøvet én lille opgave. |
+
+## Den første time
+
+1. Vælg ét værktøj. Start ikke med alle tre på samme tid.
+2. Brug et rigtigt Git-repo, men helst et projekt hvor fejl er billige.
+3. Kør `git status`, så du ved hvad der allerede er ændret.
+4. Bed CLI'en forklare projektet uden at køre kommandoer.
+5. Lad den foreslå test/build-kommandoer.
+6. Giv lov til én lille ændring.
+7. Kør build/test og review diffen.
+
+<Aside type="caution" title="Start ikke i den forkerte mappe">
+AI CLI'er bruger startmappen som arbejds- og sikkerhedskontekst. Hvis du starter i hele `/home`, `Documents` eller en stor workspace-rod, kan agenten se for meget, bruge flere tokens og lave ændringer et forkert sted.
+</Aside>
+
+## 5 begreber du skal kende
+
+| Begreb | Betydning |
+|---|---|
+| Workspace | Den mappe agenten arbejder ud fra. Brug den konkrete projektrod. |
+| Sandbox | Teknisk begrænsning for hvad kommandoer må læse, skrive og nå på netværket. |
+| Approval | Prompten hvor du godkender en kommando, filændring eller anden handling. |
+| Instruktionsfil | `AGENTS.md`, `CLAUDE.md` eller `GEMINI.md`, som giver agenten faste projektregler. |
+| Context | Alt det agenten får med: prompt, filer, instruktioner, logs, MCP-data og tidligere samtale. Mere context kan give bedre svar, men koster mere. |
+
+## Hurtig sammenligning
+
+| Emne | Codex CLI | Claude Code | Gemini CLI |
+|---|---|---|---|
+| Kommando | `codex` | `claude` | `gemini` |
+| Installation | npm eller Homebrew | Native installer | npm, Homebrew eller npx |
+| Login | ChatGPT eller OpenAI API key | Claude/Console eller provider | Google sign-in, API key eller Vertex AI |
+| Instruktionsfil | `AGENTS.md` | `CLAUDE.md` | `GEMINI.md` |
+| Script mode | `codex exec` | `claude -p` | `gemini -p` |
+| MCP | Ja | Ja | Ja |
+
+## Hvilken skal du starte med?
+
+<CardGrid>
+  <Card title="Start med Codex CLI" icon="rocket">
+    Godt valg hvis du allerede arbejder med OpenAI, ChatGPT, Codex, `AGENTS.md`, code review og lokale repositories.
+  </Card>
+  <Card title="Start med Claude Code" icon="document">
+    Godt valg hvis du vil have stærke samtale-workflows, projekt-memory og en tydelig permission-model.
+  </Card>
+  <Card title="Start med Gemini CLI" icon="seti:config">
+    Godt valg hvis du vil prøve en open source terminal-agent med Google sign-in eller Gemini API key.
+  </Card>
+</CardGrid>
+
+## Sikker baseline
+
+<Aside type="tip" title="Brug denne regel hver gang">
+Start med en opgave hvor AI'en kun skal forklare projektet. Giv først lov til at ændre filer, når du har set at den forstår repoet og permissions.
+</Aside>
+
+Før du starter:
+
+1. Åbn et rigtigt Git-repo.
+2. Kør `git status`.
+3. Lav eventuelt et commit eller en branch.
+4. Start din AI CLI.
+5. Bed den først om at læse og forklare, ikke ændre.
+
+Et godt første prompt:
+
+```text
+Forklar dette projekt ud fra filerne i repoet. Lav ingen ændringer.
+Fortæl hvilke kommandoer du ville køre for at teste projektet, men kør dem ikke endnu.
+```
+
+## Starter guides
+
+<CardGrid>
+  <LinkCard
+    title="Codex CLI"
+    description="Installer OpenAI Codex CLI og lav din første sikre session."
+    href="/da/ai/ai-cli/codex-kom-godt-i-gang/"
+  />
+  <LinkCard
+    title="Claude Code"
+    description="Installer Claude Code og forstå CLAUDE.md, permissions og første prompt."
+    href="/da/ai/ai-cli/claude-code-kom-godt-i-gang/"
+  />
+  <LinkCard
+    title="Gemini CLI"
+    description="Installer Gemini CLI, log ind med Google eller API key, og kom i gang."
+    href="/da/ai/ai-cli/gemini-cli-kom-godt-i-gang/"
+  />
+  <LinkCard
+    title="Priser og planer"
+    description="Forstå abonnementer, API keys, tokenpriser og hvordan du undgår dyre overraskelser."
+    href="/da/ai/ai-cli/priser-og-planer/"
+  />
+  <LinkCard
+    title="Projektmapper og workflows"
+    description="Placér AGENTS.md, CLAUDE.md og GEMINI.md rigtigt, og start CLI'en i den rigtige mappe."
+    href="/da/ai/ai-cli/projektmapper-og-workflows/"
+  />
+</CardGrid>
+
+## Kilder
+
+Sidst tjekket: 11. april 2026.
+
+- [OpenAI Codex CLI docs](https://developers.openai.com/codex/cli)
+- [Claude Code docs](https://code.claude.com/docs/en/overview)
+- [Gemini CLI GitHub](https://github.com/google-gemini/gemini-cli)
+- [Gemini CLI docs](https://geminicli.com/docs/get-started/)

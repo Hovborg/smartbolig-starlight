@@ -1,0 +1,238 @@
+---
+title: "Claude Code: kom godt i gang"
+description: Installer Claude Code, log ind og lav din første sikre terminal-session.
+sidebar:
+  badge:
+    text: Start her
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
+
+<Badge text="Begynder" variant="success" /> <Badge text="15 min" variant="note" />
+
+Claude Code er Anthropic Claude som agent i terminalen. Den kan læse kode, forklare arkitektur, redigere filer, køre kommandoer og hjælpe med længere workflows.
+
+Claude Code har en tydelig permission-model. Det gør den god som første AI CLI, hvis du vil se og godkende handlinger undervejs.
+
+## Hvad skal du bruge?
+
+- macOS, Linux, Windows eller WSL
+- Git
+- En Claude-konto, Anthropic Console-adgang eller anden understøttet provider
+- Et projekt du kan teste på
+
+## Installer Claude Code
+
+Anthropic anbefaler den native installer som primær metode.
+
+<Tabs>
+  <TabItem label="macOS/Linux/WSL">
+    ```bash
+    curl -fsSL https://claude.ai/install.sh | bash
+    ```
+
+    Tjek installationen:
+
+    ```bash
+    claude --version
+    ```
+  </TabItem>
+  <TabItem label="PowerShell">
+    ```powershell
+    irm https://claude.ai/install.ps1 | iex
+    ```
+  </TabItem>
+  <TabItem label="CMD">
+    ```bat
+    curl -fsSL https://claude.ai/install.cmd -o install.cmd && install.cmd && del install.cmd
+    ```
+  </TabItem>
+  <TabItem label="Homebrew/WinGet">
+    ```bash
+    brew install --cask claude-code
+    ```
+
+    ```powershell
+    winget install Anthropic.ClaudeCode
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="note" title="Opdateringer">
+Native installer opdaterer typisk Claude Code automatisk. Homebrew og WinGet skal opdateres via `brew upgrade --cask claude-code` eller `winget upgrade Anthropic.ClaudeCode`.
+</Aside>
+
+## Log ind
+
+Start Claude Code i et projekt:
+
+```bash
+cd dit-projekt
+claude
+```
+
+Første gang bliver du guidet gennem login. Du kan tjekke auth-status med:
+
+```bash
+claude auth status
+```
+
+## Din første sikre session
+
+<Steps>
+1. Tjek Git-state:
+
+   ```bash
+   git status
+   ```
+
+2. Start Claude Code:
+
+   ```bash
+   claude
+   ```
+
+3. Send en plan-opgave uden ændringer:
+
+   ```text
+   Læs projektet og lav en kort plan for hvordan du ville forstå det.
+   Lav ingen filændringer og kør ingen kommandoer endnu.
+   ```
+
+4. Gennemgå planen.
+
+5. Giv kun tilladelse til konkrete handlinger, når de giver mening.
+</Steps>
+
+## Hvornår Claude Code er stærkest
+
+<CardGrid>
+  <Card title="Lange udviklingsforløb" icon="document">
+    Claude Code er god, når opgaven kræver dialog, planlægning, løbende rettelser og flere runder med test.
+  </Card>
+  <Card title="Repo-memory" icon="folder">
+    `CLAUDE.md`, imports, lokale regler og memory gør det lettere at genbruge projektviden på tværs af sessioner.
+  </Card>
+  <Card title="Team-workflows" icon="branch">
+    Claude Code passer godt til teams der også vil bruge hooks, skills, custom commands, CI/CD, Slack eller flere udviklere.
+  </Card>
+</CardGrid>
+
+God første analyseopgave:
+
+```text
+Læs repoet som onboarding.
+Find entrypoints, build/test-kommandoer, deployment, datalagre og vigtigste risici.
+Lav ingen ændringer før jeg godkender en konkret plan.
+```
+
+God første skriveopgave:
+
+```text
+Lav kun den mindste nødvendige ændring.
+Forklar først hvilke filer du vil ændre og hvorfor.
+Kør den relevante test/build bagefter.
+Stop hvis du skal installere en dependency, ændre Git-state eller bruge netværk.
+```
+
+## CLAUDE.md
+
+Claude Code læser `CLAUDE.md` som projekt-memory og instruktioner. Du kan oprette en med:
+
+```bash
+claude
+/init
+```
+
+Et simpelt eksempel:
+
+```md title="CLAUDE.md"
+# CLAUDE.md
+
+## Projektregler
+- Forklar planen før du ændrer filer.
+- Brug eksisterende scripts i `package.json`.
+- Kør build efter indholdsændringer.
+
+## Sikkerhed
+- Print aldrig hemmeligheder fra `.env`.
+- Spørg før netværkskald.
+```
+
+Du kan importere fælles instruktioner med `@AGENTS.md` eller andre markdown-filer. Brug det hvis repoet allerede har en fælles agentfil, så du ikke skal vedligeholde tre forskellige sandheder.
+
+Praktisk opdeling:
+
+| Behov | Placering |
+|---|---|
+| Fælles repo-regler | `CLAUDE.md` i repo-root |
+| Private noter | `CLAUDE.local.md` og `.gitignore` |
+| Delområde-regler | `.claude/rules/*.md` |
+| Personlige standarder | `~/.claude/CLAUDE.md` |
+
+## Nyttige kommandoer
+
+| Kommando | Brug |
+|---|---|
+| `claude` | Start interaktiv session |
+| `claude -p "..."` | Print/script mode til en enkelt opgave |
+| `claude -c` | Fortsæt seneste samtale |
+| `claude auth status` | Tjek login |
+| `claude update` | Opdater CLI'en |
+| `claude mcp` | Administrer MCP-servere |
+| `/cost` | Se tokenforbrug ved API-baseret brug |
+| `/stats` | Se brugsmønstre ved abonnementsbaseret brug |
+
+## Permissions
+
+Claude Code starter med sikre tilladelser og spørger før handlinger som filændringer, kommandoer og netværksadgang. Svar nej, hvis du ikke kan se hvorfor handlingen er nødvendig.
+
+<Aside type="caution" title="Undgå blind accept">
+Læs altid kommandoen før du godkender. Det gælder især commands der sletter filer, ændrer Git-state, installerer pakker eller sender data ud af maskinen.
+</Aside>
+
+## Script mode og automation
+
+`claude -p` er nyttig til korte, non-interactive opgaver:
+
+```bash
+claude -p "Forklar de største risici i denne diff. Lav ingen ændringer."
+```
+
+Brug den til rapporter, opsummeringer og CI-lignende checks. Brug interaktiv Claude Code til større ændringer, fordi du får bedre mulighed for at godkende handlinger, styre planen og stoppe en for bred ændring.
+
+## Pris og forbrug i praksis
+
+Claude Code kan køre via abonnement eller API-forbrug. Vær især opmærksom på:
+
+- store repos giver mere kontekst
+- lange `CLAUDE.md`-filer og mange regler øger promptstørrelsen
+- hooks og tools kan udløse ekstra model- og tool-kald
+- `claude -p` kan være dyrt i loops, hvis scriptet sender meget input
+- Opus/Sonnet/Haiku bør vælges efter opgavens sværhedsgrad
+
+Til daglig udvikling er Sonnet ofte det praktiske udgangspunkt. Brug en stærkere model til arkitektur, svær debugging eller højrisiko-review, og en billigere model til gentagne opsummeringer.
+
+## Fejlfinding
+
+| Problem | Løsning |
+|---|---|
+| `claude: command not found` | Genstart terminalen eller tjek `PATH`. |
+| Login fejler | Kør `claude auth status` og start login igen. |
+| Windows-kommando virker ikke | Tjek om du bruger PowerShell eller CMD. Kommandoerne er forskellige. |
+| Claude vil ændre for meget | Stop den og bed om en mindre, afgrænset opgave. |
+
+## Kilder
+
+Sidst tjekket: 11. april 2026.
+
+- [Claude Code overview](https://code.claude.com/docs/en/overview)
+- [Claude Code quickstart](https://code.claude.com/docs/en/quickstart)
+- [Claude Code CLI reference](https://code.claude.com/docs/en/cli-reference)
+- [Claude Code security](https://code.claude.com/docs/en/security)
+- [Claude Code memory](https://code.claude.com/docs/en/memory)
+- [Claude Code permissions](https://code.claude.com/docs/en/permissions)
+- [Claude Code costs](https://code.claude.com/docs/en/costs)
+- [Claude Code hooks](https://code.claude.com/docs/en/hooks)
+- [Claude Code subagents](https://code.claude.com/docs/en/sub-agents)
