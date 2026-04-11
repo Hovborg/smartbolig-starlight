@@ -9,7 +9,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "ai-news:draft": "node scripts/ai-news-publish.mjs --write",
-    "ai-news:validate": "node scripts/ai-news-validate.mjs"
+    "ai-news:validate": "node scripts/ai-news-validate.mjs",
+    "seo:validate": "node scripts/seo-validate.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.14",

@@ -28,9 +28,15 @@ jobs:
       
       - name: Install dependencies
         run: npm ci
+
+      - name: Validate AI News content
+        run: npm run ai-news:validate
       
       - name: Build
         run: npm run build
+
+      - name: Validate SEO metadata
+        run: npm run seo:validate
       
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
