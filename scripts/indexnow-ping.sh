@@ -2,9 +2,14 @@
 # IndexNow ping script for smartbolig.net
 # Run this after deployment to notify search engines of content updates
 
-INDEXNOW_KEY="a09aba2939b14bb7927e3849e0ea0ab4"
+INDEXNOW_KEY="${INDEXNOW_KEY:-$(find public -maxdepth 1 -name '*.txt' -print -quit | xargs -r basename | sed 's/\.txt$//')}"
 SITE_URL="https://smartbolig.net"
 SITEMAP_URL="${SITE_URL}/sitemap-index.xml"
+
+if [ -z "${INDEXNOW_KEY}" ]; then
+  echo "INDEXNOW_KEY is missing. Set it in the environment or keep the public key file in public/."
+  exit 1
+fi
 
 echo "Pinging IndexNow with sitemap..."
 
@@ -24,7 +29,14 @@ curl -s -X POST "https://api.indexnow.org/indexnow" \
       \"${SITE_URL}/da/esp32/\",
       \"${SITE_URL}/en/esp32/\",
       \"${SITE_URL}/da/produkter/\",
-      \"${SITE_URL}/en/produkter/\"
+      \"${SITE_URL}/en/produkter/\",
+      \"${SITE_URL}/da/ai/\",
+      \"${SITE_URL}/en/ai/\",
+      \"${SITE_URL}/da/ai/nyheder/\",
+      \"${SITE_URL}/en/ai/nyheder/\",
+      \"${SITE_URL}/en/ai/news/\",
+      \"${SITE_URL}/da/ai/ai-cli/\",
+      \"${SITE_URL}/en/ai/ai-cli/\"
     ]
   }"
 

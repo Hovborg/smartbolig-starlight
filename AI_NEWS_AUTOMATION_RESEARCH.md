@@ -5,6 +5,12 @@ Research date: 2026-04-11
 Scope: evaluate adding an "AI News" tab to SmartBolig.net where OpenClaw
 collects high-signal AI news once per day and publishes a curated page.
 
+Implementation status: first production version implemented on 2026-04-11.
+The public section lives under `src/content/docs/{da,en}/ai/nyheder/`.
+OpenClaw can install the daily PR-based job with
+`scripts/install-openclaw-ai-news-cron.sh`; GitHub Actions also has a manual
+`Draft AI News` workflow for fallback/manual drafting.
+
 ## Conclusion
 
 Yes, this is feasible and it is a good fit for the current setup.
@@ -220,14 +226,15 @@ Avoid:
 
 ## Recommended implementation plan
 
-1. Add `da/ai/nyheder/` and `en/ai/news/` content folders.
-2. Add sidebar links under AI.
-3. Add a public-safe article template.
-4. Add `scripts/ai-news-publish.mjs` in the site repo.
-5. Reuse OpenClaw AI Radar source pack, but write to the site repo.
-6. Add a new OpenClaw cron job: `smartbolig-ai-news-daily`.
-7. Start PR-based for 1-2 weeks.
-8. Only then consider direct publish to `main`.
+1. Add `da/ai/nyheder/` and `en/ai/nyheder/` content folders.
+2. Add English clean redirects for `/en/ai/news/`.
+3. Add sidebar links under AI.
+4. Add a public-safe article template.
+5. Add `scripts/ai-news-publish.mjs` in the site repo.
+6. Add `scripts/ai-news-validate.mjs` for source and secret checks.
+7. Add `scripts/install-openclaw-ai-news-cron.sh` for the daily OpenClaw PR job.
+8. Start PR-based for 1-2 weeks.
+9. Only then consider direct publish to `main`.
 
 ## Decision
 

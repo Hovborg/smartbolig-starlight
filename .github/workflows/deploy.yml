@@ -41,35 +41,65 @@ jobs:
           command: pages deploy dist --project-name=smartbolig-starlight
 
       - name: Ping IndexNow
+        env:
+          INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
         run: |
+          node <<'NODE' > indexnow-payload.json
+          const { execFileSync } = require('node:child_process');
+          const key = process.env.INDEXNOW_KEY;
+          if (!key) throw new Error('INDEXNOW_KEY is missing');
+
+          const urls = new Set([
+            'https://smartbolig.net/',
+            'https://smartbolig.net/da/',
+            'https://smartbolig.net/en/',
+            'https://smartbolig.net/da/home-assistant/',
+            'https://smartbolig.net/en/home-assistant/',
+            'https://smartbolig.net/da/esp32/',
+            'https://smartbolig.net/en/esp32/',
+            'https://smartbolig.net/da/produkter/',
+            'https://smartbolig.net/en/produkter/',
+            'https://smartbolig.net/da/ai/',
+            'https://smartbolig.net/en/ai/',
+            'https://smartbolig.net/da/ai/nyheder/',
+            'https://smartbolig.net/en/ai/nyheder/',
+            'https://smartbolig.net/en/ai/news/',
+            'https://smartbolig.net/da/ai/ai-cli/',
+            'https://smartbolig.net/en/ai/ai-cli/',
+            'https://smartbolig.net/da/ai/ai-cli/sammenligning/',
+            'https://smartbolig.net/en/ai/ai-cli/sammenligning/',
+            'https://smartbolig.net/da/ai/ai-cli/priser-og-planer/',
+            'https://smartbolig.net/en/ai/ai-cli/priser-og-planer/',
+          ]);
+
+          function contentFileToUrl(file) {
+            if (!file.startsWith('src/content/docs/') || !file.endsWith('.mdx')) return;
+            let slug = file.replace('src/content/docs/', '').replace(/\.mdx$/, '');
+            if (slug.endsWith('/index')) slug = slug.slice(0, -'/index'.length);
+            if (!slug) return;
+            urls.add(`https://smartbolig.net/${slug}/`);
+            if (slug.startsWith('en/ai/nyheder')) {
+              urls.add(`https://smartbolig.net/${slug.replace('en/ai/nyheder', 'en/ai/news')}/`);
+            }
+          }
+
+          try {
+            const base = execFileSync('git', ['rev-parse', 'HEAD^'], { encoding: 'utf8' }).trim();
+            const changed = execFileSync('git', ['diff', '--name-only', base, 'HEAD', '--', 'src/content/docs'], { encoding: 'utf8' });
+            for (const file of changed.split('\n').filter(Boolean)) contentFileToUrl(file);
+          } catch {
+            // Manual or first-run deploys still ping the stable section URLs above.
+          }
+
+          process.stdout.write(JSON.stringify({
+            host: 'smartbolig.net',
+            key,
+            keyLocation: `https://smartbolig.net/${key}.txt`,
+            urlList: [...urls].slice(0, 10000),
+          }));
+          NODE
+
           curl --fail-with-body -sS -X POST "https://api.indexnow.org/indexnow" \
             -H "Content-Type: application/json" \
-            -d '{
-              "host": "smartbolig.net",
-              "key": "${{ secrets.INDEXNOW_KEY }}",
-              "keyLocation": "https://smartbolig.net/${{ secrets.INDEXNOW_KEY }}.txt",
-              "urlList": [
-                "https://smartbolig.net/",
-                "https://smartbolig.net/da/",
-                "https://smartbolig.net/en/",
-                "https://smartbolig.net/da/home-assistant/",
-                "https://smartbolig.net/en/home-assistant/",
-                "https://smartbolig.net/da/esp32/",
-                "https://smartbolig.net/en/esp32/",
-                "https://smartbolig.net/da/produkter/",
-                "https://smartbolig.net/en/produkter/",
-                "https://smartbolig.net/da/ai/",
-                "https://smartbolig.net/en/ai/",
-                "https://smartbolig.net/da/ai/ai-cli/",
-                "https://smartbolig.net/en/ai/ai-cli/",
-                "https://smartbolig.net/da/ai/ai-cli/sammenligning/",
-                "https://smartbolig.net/en/ai/ai-cli/sammenligning/",
-                "https://smartbolig.net/da/ai/ai-cli/priser-og-planer/",
-                "https://smartbolig.net/en/ai/ai-cli/priser-og-planer/",
-                "https://smartbolig.net/da/home-assistant/elbil-opvarmning/",
-                "https://smartbolig.net/en/home-assistant/elbil-opvarmning/",
-                "https://smartbolig.net/da/home-assistant/fugtighed-alarm-affugter/",
-                "https://smartbolig.net/en/home-assistant/fugtighed-alarm-affugter/"
-              ]
-            }'
+            --data-binary @indexnow-payload.json
           echo "IndexNow ping sent!"

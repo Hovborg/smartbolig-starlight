@@ -321,6 +321,11 @@ export default defineConfig({
               link: "/ai/",
             },
             {
+              label: "AI-nyheder",
+              translations: { en: "AI News" },
+              link: "/ai/nyheder/",
+            },
+            {
               label: "AI CLI'er",
               translations: { en: "AI CLIs" },
               collapsed: false,

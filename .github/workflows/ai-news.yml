@@ -1,0 +1,96 @@
+name: Draft AI News
+
+on:
+  workflow_dispatch:
+    inputs:
+      date:
+        description: "News date in YYYY-MM-DD. Defaults to today in UTC."
+        required: false
+        type: string
+      allow_weak_signal:
+        description: "Create a low-signal issue instead of skipping the day."
+        required: false
+        default: false
+        type: boolean
+      force:
+        description: "Overwrite an existing issue for the same date."
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  draft:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      INPUT_DATE: ${{ inputs.date }}
+      INPUT_ALLOW_WEAK_SIGNAL: ${{ inputs.allow_weak_signal }}
+      INPUT_FORCE: ${{ inputs.force }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Draft AI news pages
+        run: |
+          DATE="${INPUT_DATE:-$(date -u +%F)}"
+          ARGS=(--write --date "$DATE" --days 10)
+          if [ "$INPUT_ALLOW_WEAK_SIGNAL" = "true" ]; then
+            ARGS+=(--allow-weak-signal)
+          fi
+          if [ "$INPUT_FORCE" = "true" ]; then
+            ARGS+=(--force)
+          fi
+          node scripts/ai-news-publish.mjs "${ARGS[@]}"
+          echo "AI_NEWS_DATE=$DATE" >> "$GITHUB_ENV"
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "has_changes=false" >> "$GITHUB_OUTPUT"
+            echo "No publishable AI news changes."
+          else
+            echo "has_changes=true" >> "$GITHUB_OUTPUT"
+            git status --short
+          fi
+
+      - name: Validate AI news
+        if: steps.changes.outputs.has_changes == 'true'
+        run: npm run ai-news:validate
+
+      - name: Build
+        if: steps.changes.outputs.has_changes == 'true'
+        run: npm run build
+
+      - name: Create pull request
+        if: steps.changes.outputs.has_changes == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          BRANCH="ai-news/${AI_NEWS_DATE}-${GITHUB_RUN_ID}"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$BRANCH"
+          git add src/content.config.ts src/content/docs src/pages public/_redirects package.json scripts .github/workflows
+          git commit -m "Draft AI news for ${AI_NEWS_DATE}"
+          git push --set-upstream origin "$BRANCH"
+          gh pr create \
+            --base main \
+            --head "$BRANCH" \
+            --title "Draft AI news for ${AI_NEWS_DATE}" \
+            --body "Daily AI News draft generated from official sources. Validation and build passed. Review the source links and wording before merge."

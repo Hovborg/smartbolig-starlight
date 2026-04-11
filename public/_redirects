@@ -1,6 +1,26 @@
 # English URL rewrites (200 = serve content at Danish path)
 # IMPORTANT: Specific rules MUST come BEFORE splat (*) rules!
 
+# AI
+/en/ai/news/ /en/ai/nyheder/ 200
+/en/ai/news /en/ai/nyheder/ 200
+/en/ai/news/:slug/ /en/ai/nyheder/:slug/ 200
+/en/ai/news/:slug /en/ai/nyheder/:slug/ 200
+/en/ai/ai-cli/getting-started/ /en/ai/ai-cli/ 200
+/en/ai/ai-cli/getting-started /en/ai/ai-cli/ 200
+/en/ai/ai-cli/pricing-and-plans/ /en/ai/ai-cli/priser-og-planer/ 200
+/en/ai/ai-cli/pricing-and-plans /en/ai/ai-cli/priser-og-planer/ 200
+/en/ai/ai-cli/project-folders/ /en/ai/ai-cli/projektmapper-og-workflows/ 200
+/en/ai/ai-cli/project-folders /en/ai/ai-cli/projektmapper-og-workflows/ 200
+/en/ai/ai-cli/project-folders-and-workflows/ /en/ai/ai-cli/projektmapper-og-workflows/ 200
+/en/ai/ai-cli/project-folders-and-workflows /en/ai/ai-cli/projektmapper-og-workflows/ 200
+/en/ai/ai-cli/comparison/ /en/ai/ai-cli/sammenligning/ 200
+/en/ai/ai-cli/comparison /en/ai/ai-cli/sammenligning/ 200
+/en/ai/ai-cli/security-and-permissions/ /en/ai/ai-cli/sikkerhed-og-permissions/ 200
+/en/ai/ai-cli/security-and-permissions /en/ai/ai-cli/sikkerhed-og-permissions/ 200
+/en/ai/ai-cli/agent-instructions/ /en/ai/ai-cli/agent-instruktioner/ 200
+/en/ai/ai-cli/agent-instructions /en/ai/ai-cli/agent-instruktioner/ 200
+
 # Products - specific rules first (with and without trailing slash)
 /en/products/presence-detection/ /en/produkter/tilstedevaerelse/ 200
 /en/products/presence-detection /en/produkter/tilstedevaerelse/ 200

@@ -1,0 +1,90 @@
+---
+title: "AI-nyheder, 11. april 2026"
+description: "Kurateret AI-overblik for 11. april 2026: OpenAI, Claude Code, Gemini CLI, API-priser og agent-workflows."
+date: 2026-04-11
+lastUpdated: 2026-04-11
+news:
+  signal: high
+  sources:
+    - https://github.com/openai/codex/releases/tag/rust-v0.120.0
+    - https://github.com/anthropics/claude-code/releases/tag/v2.1.101
+    - https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.1
+    - https://openai.com/index/cyberagent
+    - https://blog.google/innovation-and-ai/technology/developers-tools/introducing-flex-and-priority-inference/
+sidebar:
+  label: "11. april 2026"
+---
+
+import { Badge, Aside } from "@astrojs/starlight/components";
+
+<Badge text="AI Radar" variant="note" /> <Badge text="Høj signalværdi" variant="success" />
+
+Dagens stærkeste signaler kommer fra OpenAI Codex, Claude Code, Gemini CLI, OpenAI, Google AI. Fokus er release notes, CLI-agent ændringer og API-ændringer med praktisk betydning.
+
+<Aside type="caution" title="Kildeførst">
+Denne side må ikke kopiere lange tekststykker fra kilderne. Brug links, korte forklaringer og konkrete handlinger.
+</Aside>
+
+## Kort sagt
+
+- 5 officielle signaler blev udvalgt til denne udgave.
+- Prioriteten er AI CLI'er, coding agents, API-ændringer, modelændringer, pricing og sikkerhed.
+- Læs altid release notes før du opdaterer en CLI i et aktivt projekt.
+
+## Vigtigste nyt
+
+### 1. OpenAI Codex 0.120.0: bedre agent-feedback og sandbox-rettelser
+
+- Hvad skete der: Codex 0.120.0 blev udgivet 11. april 2026.
+- Hvorfor det betyder noget: release-noterne nævner blandt andet Realtime V2-streaming af baggrundsagenters fremdrift, tydeligere hook-aktivitet i TUI, MCP `outputSchema` i tool declarations og flere Windows/symlink-relaterede sandbox-rettelser.
+- Hvad bør du gøre: opdater først i et testrepo, især hvis du bruger Windows, symlinks, hooks, MCP-servere eller long-running Codex-runs.
+
+Kilde: [OpenAI Codex releases](https://github.com/openai/codex/releases/tag/rust-v0.120.0)
+
+### 2. Claude Code v2.1.101: team onboarding, certifikater og bedre fejlfeedback
+
+- Hvad skete der: Claude Code v2.1.101 blev udgivet 10. april 2026.
+- Hvorfor det betyder noget: release-noterne nævner en ny `/team-onboarding` kommando, OS CA certificate store trust som default, bedre rate-limit beskeder, mere robuste settings og forbedringer til remote-session flows.
+- Hvad bør du gøre: hvis Claude Code bruges i et team eller bag enterprise TLS-proxy, så læs noterne før rollout. Tjek også settings/hooks, hvis du har managed plugins eller custom hooks.
+
+Kilde: [Claude Code releases](https://github.com/anthropics/claude-code/releases/tag/v2.1.101)
+
+### 3. Gemini CLI v0.37.1: hold øje med hurtig CLI-releasekadence
+
+- Hvad skete der: Gemini CLI v0.37.1 blev udgivet 9. april 2026.
+- Hvorfor det betyder noget: Gemini CLI har stadig hyppige releases og nightlies. Det er godt for tempo, men betyder også at automatiserede workflows bør pinne versioner eller testes før opdatering.
+- Hvad bør du gøre: hvis du bruger Gemini CLI med API key, Vertex AI, checkpoints eller repo-automation, så kør en lille testopgave efter update før du slipper den løs i et vigtigt repo.
+
+Kilde: [Gemini CLI releases](https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.1)
+
+### 4. OpenAI case: Codex i større enterprise-workflows
+
+- Hvad skete der: OpenAI publicerede en CyberAgent-case om ChatGPT Enterprise og Codex.
+- Hvorfor det betyder noget: det er ikke en produkt-release, men det viser hvilke typer arbejdsflows OpenAI positionerer Codex imod: udvikling, intern produktivitet og agent-assisteret softwarearbejde.
+- Hvad bør du gøre: brug casen som inspiration, ikke som teknisk dokumentation. For implementering bør du stadig læse Codex docs og release notes.
+
+Kilde: [OpenAI News](https://openai.com/index/cyberagent)
+
+### 5. Google Gemini API: nye valg mellem pris og reliability
+
+- Hvad skete der: Google beskrev nye Flex og Priority tiers for Gemini API.
+- Hvorfor det betyder noget: API-brug handler ikke kun om modelvalg. Til batch, crawling, nyhedsopsamling og baggrundsjobs kan lavere pris være vigtigere end lav latency. Til brugerflows kan stabil svartid være vigtigere.
+- Hvad bør du gøre: del AI-automationer op efter behov. Brug billigere/batch-egnede veje til ikke-hastende jobs og mere pålidelige tiers til brugerrettede flows.
+
+Kilde: [Google AI Blog](https://blog.google/innovation-and-ai/technology/developers-tools/introducing-flex-and-priority-inference/)
+
+## Kildeoverblik
+
+| Område | Kilde | Dato |
+| --- | --- | --- |
+| OpenAI Codex | [0.120.0](https://github.com/openai/codex/releases/tag/rust-v0.120.0) | 11. apr. 2026 |
+| Claude Code | [v2.1.101](https://github.com/anthropics/claude-code/releases/tag/v2.1.101) | 10. apr. 2026 |
+| Gemini CLI | [Release v0.37.1](https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.1) | 9. apr. 2026 |
+| OpenAI | [CyberAgent moves faster with ChatGPT Enterprise and Codex](https://openai.com/index/cyberagent) | 9. apr. 2026 |
+| Google AI | [New ways to balance cost and reliability in the Gemini API](https://blog.google/innovation-and-ai/technology/developers-tools/introducing-flex-and-priority-inference/) | 2. apr. 2026 |
+
+## Redaktionsregler
+
+- Officielle kilder prioriteres over rygter og sociale medier.
+- Interne OpenClaw-rapporter, lokale filstier og private tokens må aldrig publiceres.
+- Hvis der ikke er nok signal, springes dagsudgaven over eller markeres tydeligt som lav signalværdi.
