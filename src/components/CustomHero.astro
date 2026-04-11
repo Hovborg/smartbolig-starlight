@@ -173,10 +173,13 @@ const {
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 20px;
     padding: 8px 20px;
-    display: flex;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(3, max-content);
+    gap: 18px;
+    align-items: center;
+    justify-content: center;
+    max-width: calc(100% - 24px);
     font-size: 0.8rem;
-    white-space: nowrap;
   }
 
   .badge-item {
@@ -184,6 +187,8 @@ const {
     align-items: center;
     gap: 6px;
     color: var(--sl-color-gray-2);
+    line-height: 1;
+    white-space: nowrap;
   }
 
   .badge-item strong {
@@ -200,9 +205,16 @@ const {
     }
 
     .custom-hero-image-badge {
-      gap: 12px;
+      width: calc(100% - 24px);
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
       padding: 6px 14px;
       font-size: 0.7rem;
+    }
+
+    .badge-item {
+      justify-content: center;
+      gap: 4px;
     }
   }
 </style>

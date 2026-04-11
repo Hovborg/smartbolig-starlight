@@ -40,7 +40,7 @@
     </g>
   </g>
 
-  <text x="200" y="116" font-family="system-ui, -apple-system, sans-serif" font-size="76" font-weight="600" fill="#1e293b">Smart</text>
-  <text x="404" y="116" font-family="system-ui, -apple-system, sans-serif" font-size="76" font-weight="700" fill="#15803d">Bolig</text>
-  <text x="620" y="116" font-family="system-ui, -apple-system, sans-serif" font-size="44" font-weight="400" fill="#64748b">.net</text>
+  <text x="200" y="116" font-family="system-ui, -apple-system, sans-serif" font-size="76" font-weight="600" fill="#1e293b">
+    <tspan>Smart</tspan><tspan dx="10" font-weight="700" fill="#15803d">Bolig</tspan><tspan dx="10" font-size="44" font-weight="400" fill="#64748b">.net</tspan>
+  </text>
 </svg>

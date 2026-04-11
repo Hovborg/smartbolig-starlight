@@ -30,7 +30,7 @@
     </g>
   </g>
 
-  <text x="100" y="58" font-family="system-ui, -apple-system, sans-serif" font-size="38" font-weight="600" fill="#1f2328">Smart</text>
-  <text x="202" y="58" font-family="system-ui, -apple-system, sans-serif" font-size="38" font-weight="700" fill="#1a7f37">Bolig</text>
-  <text x="310" y="58" font-family="system-ui, -apple-system, sans-serif" font-size="22" font-weight="400" fill="#656d76">.net</text>
+  <text x="100" y="58" font-family="system-ui, -apple-system, sans-serif" font-size="38" font-weight="600" fill="#1f2328">
+    <tspan>Smart</tspan><tspan dx="5" font-weight="700" fill="#1a7f37">Bolig</tspan><tspan dx="5" font-size="22" font-weight="400" fill="#656d76">.net</tspan>
+  </text>
 </svg>
