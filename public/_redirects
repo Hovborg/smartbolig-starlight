@@ -2,6 +2,8 @@
 # IMPORTANT: Specific rules MUST come BEFORE splat (*) rules!
 
 # AI
+/en/ai/news/rss.xml /en/ai/news/rss.xml 200
+/en/ai/news/rss.xml/ /en/ai/news/rss.xml 200
 /en/ai/news/ /en/ai/nyheder/ 200
 /en/ai/news /en/ai/nyheder/ 200
 /en/ai/news/:slug/ /en/ai/nyheder/:slug/ 200
