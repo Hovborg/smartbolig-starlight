@@ -45,6 +45,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Check AI news sources
+        run: npm run ai-news:source-health
+
       - name: Draft AI news pages
         run: |
           DATE="${INPUT_DATE:-$(date -u +%F)}"

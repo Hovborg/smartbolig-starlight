@@ -3,77 +3,12 @@ import { existsSync } from 'node:fs';
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { FEEDS, HIGH_SIGNAL_KEYWORDS, OFFICIAL_SOURCE_URLS } from './ai-news-sources.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const docsDir = path.join(rootDir, 'src/content/docs');
 const daNewsDir = path.join(docsDir, 'da/ai/nyheder');
 const enNewsDir = path.join(docsDir, 'en/ai/nyheder');
-
-const OFFICIAL_SOURCE_URLS = [
-  'https://openai.com/news/rss.xml',
-  'https://github.com/openai/codex/releases.atom',
-  'https://platform.openai.com/docs/changelog',
-  'https://www.anthropic.com/news',
-  'https://docs.anthropic.com/en/release-notes/claude-code',
-  'https://github.com/anthropics/claude-code/releases.atom',
-  'https://blog.google/technology/ai/rss/',
-  'https://ai.google.dev/gemini-api/docs/changelog',
-  'https://github.com/google-gemini/gemini-cli/releases.atom',
-  'https://github.com/openclaw/openclaw/releases',
-];
-
-const FEEDS = [
-  {
-    id: 'openai-codex',
-    name: 'OpenAI Codex releases',
-    url: 'https://github.com/openai/codex/releases.atom',
-    priority: 10,
-  },
-  {
-    id: 'claude-code',
-    name: 'Claude Code releases',
-    url: 'https://github.com/anthropics/claude-code/releases.atom',
-    priority: 10,
-  },
-  {
-    id: 'gemini-cli',
-    name: 'Gemini CLI releases',
-    url: 'https://github.com/google-gemini/gemini-cli/releases.atom',
-    priority: 9,
-  },
-  {
-    id: 'google-ai',
-    name: 'Google AI Blog',
-    url: 'https://blog.google/technology/ai/rss/',
-    priority: 7,
-  },
-  {
-    id: 'openai-news',
-    name: 'OpenAI News',
-    url: 'https://openai.com/news/rss.xml',
-    priority: 6,
-  },
-];
-
-const HIGH_SIGNAL_KEYWORDS = [
-  ['codex', 10],
-  ['claude code', 10],
-  ['gemini cli', 10],
-  ['agent', 7],
-  ['release', 7],
-  ['api', 7],
-  ['pricing', 7],
-  ['price', 7],
-  ['cost', 6],
-  ['security', 6],
-  ['sandbox', 6],
-  ['permission', 6],
-  ['deprecation', 6],
-  ['model', 5],
-  ['mcp', 5],
-  ['tool', 4],
-  ['workflow', 4],
-];
 
 function parseArgs(argv) {
   const args = new Map();
@@ -204,6 +139,7 @@ function providerLabel(sourceId) {
   if (sourceId === 'gemini-cli') return 'Gemini CLI';
   if (sourceId === 'google-ai') return 'Google AI';
   if (sourceId === 'openai-news') return 'OpenAI';
+  if (sourceId === 'openclaw') return 'OpenClaw';
   return 'AI';
 }
 
@@ -220,6 +156,9 @@ function impactDa(item) {
   if (item.source.id === 'google-ai') {
     return 'Gemini API-ændringer kan påvirke pris, latency, reliability og hvordan man designer automationer med budgetkontrol.';
   }
+  if (item.source.id === 'openclaw') {
+    return 'OpenClaw-ændringer kan påvirke lokale agent-workflows, cron-jobs, ACP-integrationer og hvordan automatiserede repo-opgaver styres.';
+  }
   return 'Værd at læse, men bør behandles som produkt- eller læringsnyt med lavere prioritet end konkrete release notes.';
 }
 
@@ -235,6 +174,9 @@ function impactEn(item) {
   }
   if (item.source.id === 'google-ai') {
     return 'Gemini API changes can affect cost, latency, reliability, and how you design budget-aware automation.';
+  }
+  if (item.source.id === 'openclaw') {
+    return 'OpenClaw changes can affect local agent workflows, cron jobs, ACP integrations, and how automated repository tasks are controlled.';
   }
   return 'Worth reading, but treat it as product or learning news with lower priority than concrete release notes.';
 }

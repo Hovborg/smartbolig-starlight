@@ -1,0 +1,77 @@
+export const OFFICIAL_SOURCE_URLS = [
+  'https://openai.com/news/rss.xml',
+  'https://github.com/openai/codex/releases.atom',
+  'https://platform.openai.com/docs/changelog',
+  'https://www.anthropic.com/news',
+  'https://code.claude.com/docs/en/changelog',
+  'https://github.com/anthropics/claude-code/releases.atom',
+  'https://blog.google/technology/ai/rss/',
+  'https://ai.google.dev/gemini-api/docs/changelog',
+  'https://github.com/google-gemini/gemini-cli/releases.atom',
+  'https://github.com/openclaw/openclaw/releases.atom',
+  'https://github.com/openclaw/openclaw/releases',
+];
+
+export const FEEDS = [
+  {
+    id: 'openai-codex',
+    name: 'OpenAI Codex releases',
+    url: 'https://github.com/openai/codex/releases.atom',
+    priority: 10,
+    critical: true,
+  },
+  {
+    id: 'claude-code',
+    name: 'Claude Code releases',
+    url: 'https://github.com/anthropics/claude-code/releases.atom',
+    priority: 10,
+    critical: true,
+  },
+  {
+    id: 'gemini-cli',
+    name: 'Gemini CLI releases',
+    url: 'https://github.com/google-gemini/gemini-cli/releases.atom',
+    priority: 9,
+    critical: true,
+  },
+  {
+    id: 'openclaw',
+    name: 'OpenClaw releases',
+    url: 'https://github.com/openclaw/openclaw/releases.atom',
+    priority: 8,
+  },
+  {
+    id: 'google-ai',
+    name: 'Google AI Blog',
+    url: 'https://blog.google/technology/ai/rss/',
+    priority: 7,
+  },
+  {
+    id: 'openai-news',
+    name: 'OpenAI News',
+    url: 'https://openai.com/news/rss.xml',
+    priority: 6,
+  },
+];
+
+export const HIGH_SIGNAL_KEYWORDS = [
+  ['codex', 10],
+  ['claude code', 10],
+  ['gemini cli', 10],
+  ['openclaw', 9],
+  ['agent', 7],
+  ['release', 7],
+  ['api', 7],
+  ['pricing', 7],
+  ['price', 7],
+  ['cost', 6],
+  ['security', 6],
+  ['sandbox', 6],
+  ['permission', 6],
+  ['deprecation', 6],
+  ['model', 5],
+  ['mcp', 5],
+  ['acp', 5],
+  ['tool', 4],
+  ['workflow', 4],
+];

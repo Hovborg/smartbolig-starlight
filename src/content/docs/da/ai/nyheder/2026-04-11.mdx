@@ -8,6 +8,7 @@ news:
   sources:
     - https://github.com/openai/codex/releases/tag/rust-v0.120.0
     - https://github.com/anthropics/claude-code/releases/tag/v2.1.101
+    - https://github.com/openclaw/openclaw/releases/tag/v2026.4.11-beta.1
     - https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.1
     - https://openai.com/index/cyberagent
     - https://blog.google/innovation-and-ai/technology/developers-tools/introducing-flex-and-priority-inference/
@@ -21,7 +22,7 @@ import { Badge, Aside } from "@astrojs/starlight/components";
 
 <p><strong>Publiceret:</strong> <time datetime="2026-04-11">11. april 2026</time> | <strong>Opdateret:</strong> <time datetime="2026-04-11">11. april 2026</time></p>
 
-Dagens stærkeste signaler kommer fra OpenAI Codex, Claude Code, Gemini CLI, OpenAI, Google AI. Fokus er release notes, CLI-agent ændringer og API-ændringer med praktisk betydning.
+Dagens stærkeste signaler kommer fra OpenAI Codex, Claude Code, OpenClaw, Gemini CLI, OpenAI, Google AI. Fokus er release notes, CLI-agent ændringer og API-ændringer med praktisk betydning.
 
 <Aside type="caution" title="Kildeførst">
 Denne side må ikke kopiere lange tekststykker fra kilderne. Brug links, korte forklaringer og konkrete handlinger.
@@ -29,7 +30,7 @@ Denne side må ikke kopiere lange tekststykker fra kilderne. Brug links, korte f
 
 ## Kort sagt
 
-- 5 officielle signaler blev udvalgt til denne udgave.
+- 6 officielle signaler blev udvalgt til denne udgave.
 - Prioriteten er AI CLI'er, coding agents, API-ændringer, modelændringer, pricing og sikkerhed.
 - Læs altid release notes før du opdaterer en CLI i et aktivt projekt.
 
@@ -51,7 +52,15 @@ Kilde: [OpenAI Codex releases](https://github.com/openai/codex/releases/tag/rust
 
 Kilde: [Claude Code releases](https://github.com/anthropics/claude-code/releases/tag/v2.1.101)
 
-### 3. Gemini CLI v0.37.1: hold øje med hurtig CLI-releasekadence
+### 3. OpenClaw 2026.4.11-beta.1: følg agent-runtime ændringer tæt
+
+- Hvad skete der: OpenClaw 2026.4.11-beta.1 blev udgivet 11. april 2026.
+- Hvorfor det betyder noget: OpenClaw bruges til lokale agent-workflows og daglige automationer. Selv små beta-ændringer kan påvirke cron-jobs, ACP-integrationer, permissions og hvordan repo-opgaver køres.
+- Hvad bør du gøre: læs release-noterne før du opdaterer en aktiv agent-runtime. Test især daglige cron-jobs, PR-workflows og lokale værktøjsintegrationer efter opdatering.
+
+Kilde: [OpenClaw releases](https://github.com/openclaw/openclaw/releases/tag/v2026.4.11-beta.1)
+
+### 4. Gemini CLI v0.37.1: hold øje med hurtig CLI-releasekadence
 
 - Hvad skete der: Gemini CLI v0.37.1 blev udgivet 9. april 2026.
 - Hvorfor det betyder noget: Gemini CLI har stadig hyppige releases og nightlies. Det er godt for tempo, men betyder også at automatiserede workflows bør pinne versioner eller testes før opdatering.
@@ -59,7 +68,7 @@ Kilde: [Claude Code releases](https://github.com/anthropics/claude-code/releases
 
 Kilde: [Gemini CLI releases](https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.1)
 
-### 4. OpenAI case: Codex i større enterprise-workflows
+### 5. OpenAI case: Codex i større enterprise-workflows
 
 - Hvad skete der: OpenAI publicerede en CyberAgent-case om ChatGPT Enterprise og Codex.
 - Hvorfor det betyder noget: det er ikke en produkt-release, men det viser hvilke typer arbejdsflows OpenAI positionerer Codex imod: udvikling, intern produktivitet og agent-assisteret softwarearbejde.
@@ -67,7 +76,7 @@ Kilde: [Gemini CLI releases](https://github.com/google-gemini/gemini-cli/release
 
 Kilde: [OpenAI News](https://openai.com/index/cyberagent)
 
-### 5. Google Gemini API: nye valg mellem pris og reliability
+### 6. Google Gemini API: nye valg mellem pris og reliability
 
 - Hvad skete der: Google beskrev nye Flex og Priority tiers for Gemini API.
 - Hvorfor det betyder noget: API-brug handler ikke kun om modelvalg. Til batch, crawling, nyhedsopsamling og baggrundsjobs kan lavere pris være vigtigere end lav latency. Til brugerflows kan stabil svartid være vigtigere.
@@ -81,6 +90,7 @@ Kilde: [Google AI Blog](https://blog.google/innovation-and-ai/technology/develop
 | --- | --- | --- |
 | OpenAI Codex | [0.120.0](https://github.com/openai/codex/releases/tag/rust-v0.120.0) | 11. apr. 2026 |
 | Claude Code | [v2.1.101](https://github.com/anthropics/claude-code/releases/tag/v2.1.101) | 10. apr. 2026 |
+| OpenClaw | [openclaw 2026.4.11-beta.1](https://github.com/openclaw/openclaw/releases/tag/v2026.4.11-beta.1) | 11. apr. 2026 |
 | Gemini CLI | [Release v0.37.1](https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.1) | 9. apr. 2026 |
 | OpenAI | [CyberAgent moves faster with ChatGPT Enterprise and Codex](https://openai.com/index/cyberagent) | 9. apr. 2026 |
 | Google AI | [New ways to balance cost and reliability in the Gemini API](https://blog.google/innovation-and-ai/technology/developers-tools/introducing-flex-and-priority-inference/) | 2. apr. 2026 |

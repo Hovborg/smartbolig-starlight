@@ -15,6 +15,8 @@ const officialDomains = [
   'developers.openai.com',
   'anthropic.com',
   'docs.anthropic.com',
+  'platform.claude.com',
+  'code.claude.com',
   'github.com/anthropics/claude-code',
   'github.com/openai/codex',
   'blog.google',

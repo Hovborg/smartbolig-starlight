@@ -36,12 +36,13 @@ Rules:
 Workflow:
 1. cd ${SITE_ROOT}
 2. Check git status and pull/rebase main if clean.
-3. Run: node scripts/ai-news-publish.mjs --write --date "\$(TZ=Europe/Copenhagen date +%F)" --days 10
-4. Run: npm run ai-news:validate
-5. Run: npm run build
-6. If there are no changes, stop and report that no public AI News draft was needed.
-7. If there are changes, create a branch named ai-news/\$(TZ=Europe/Copenhagen date +%F)-openclaw, commit the news files, push the branch, and create a GitHub PR against main.
-8. Keep the PR body concise: mention official sources, validation, build status, and that it needs editorial review before merge.
+3. Run: npm run ai-news:source-health
+4. Run: node scripts/ai-news-publish.mjs --write --date "\$(TZ=Europe/Copenhagen date +%F)" --days 10
+5. Run: npm run ai-news:validate
+6. Run: npm run build
+7. If there are no changes, stop and report that no public AI News draft was needed.
+8. If there are changes, create a branch named ai-news/\$(TZ=Europe/Copenhagen date +%F)-openclaw, commit the news files, push the branch, and create a GitHub PR against main.
+9. Keep the PR body concise: mention official sources, source health, validation, build status, and that it needs editorial review before merge.
 EOF
 )"
 
