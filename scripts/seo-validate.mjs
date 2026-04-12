@@ -10,6 +10,7 @@ const docsDir = path.join(rootDir, 'src/content/docs');
 const daNewsDir = path.join(docsDir, 'da/ai/nyheder');
 const enNewsDir = path.join(docsDir, 'en/ai/nyheder');
 const redirectsPath = path.join(rootDir, 'public/_redirects');
+const robotsPath = path.join(rootDir, 'public/robots.txt');
 const aiNewsImages = [
   'public/images/ai-news-og.png',
   'public/images/ai-news-og-16x9.png',
@@ -116,6 +117,23 @@ async function main() {
     }
   } else {
     fail(issues, redirectsPath, 'missing Cloudflare redirects file');
+  }
+
+  if (existsSync(robotsPath)) {
+    const robots = await readFile(robotsPath, 'utf8');
+    const requiredRobotRules = [
+      { needle: 'User-agent: Googlebot\nAllow: /', label: 'Googlebot allowed' },
+      { needle: 'User-agent: Bingbot\nAllow: /', label: 'Bingbot allowed' },
+      { needle: 'User-agent: ChatGPT-User\nAllow: /', label: 'ChatGPT user-request crawler allowed' },
+      { needle: 'User-agent: OAI-SearchBot\nAllow: /', label: 'OpenAI search crawler allowed' },
+      { needle: 'User-agent: PerplexityBot\nAllow: /', label: 'Perplexity answer crawler allowed' },
+      { needle: 'User-agent: GPTBot\nDisallow: /', label: 'OpenAI training crawler blocked' },
+      { needle: 'User-agent: Google-Extended\nDisallow: /', label: 'Google AI training opt-out' },
+      { needle: 'User-agent: CCBot\nDisallow: /', label: 'Common Crawl training crawler blocked' },
+    ];
+    for (const check of requiredRobotRules) requireText(issues, robotsPath, robots, check.needle, check.label);
+  } else {
+    fail(issues, robotsPath, 'missing robots.txt');
   }
 
   if (!latest || !enArticles.includes(`${latest}.mdx`)) {

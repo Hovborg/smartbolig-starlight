@@ -35,8 +35,9 @@ User-agent: Bingbot
 Allow: /
 Crawl-delay: 1
 
-# ===== AI CRAWLERS - BLOCKED =====
-# We do not permit AI training on our content
+# ===== AI CRAWLER POLICY =====
+# We allow search/retrieval crawlers that can send users to SmartBolig.net.
+# We do not permit bulk AI training or dataset collection on our content.
 # See our Terms of Use: https://smartbolig.net/da/juridisk/brugsvilkaar/
 
 # OpenAI training crawler blocked
@@ -50,7 +51,7 @@ Allow: /
 User-agent: OAI-SearchBot
 Allow: /
 
-# Anthropic - ALLOWED (we use Claude!)
+# Anthropic assistant/retrieval crawlers allowed
 User-agent: anthropic-ai
 Allow: /
 
