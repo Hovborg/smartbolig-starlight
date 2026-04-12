@@ -331,18 +331,6 @@ function renderIndex({ locale, entries }) {
   const description = isDa
     ? 'Dagligt kildebaseret overblik over OpenAI, Claude Code, Gemini CLI, API-priser og AI-agent workflows.'
     : 'Daily source-backed brief for OpenAI, Claude Code, Gemini CLI, API pricing, and AI-agent workflows.';
-  const baseHref = isDa ? '/da/ai/nyheder' : '/en/ai/nyheder';
-  const rssHref = isDa ? '/da/ai/nyheder/rss.xml' : '/en/ai/news/rss.xml';
-  const archiveCards = entries.slice(0, 12).map((entry) => {
-    const dateLabel = formatDate(entry.date, isDa ? 'da-DK' : 'en-US');
-    return `  <LinkCard
-    title="${isDa ? 'AI-nyheder' : 'AI News'}: ${dateLabel}"
-    description="${isDa ? 'Kurateret daglig udgave med officielle kilder.' : 'Curated daily issue with official sources.'}"
-    href="${baseHref}/${entry.date}/"
-  />`;
-  }).join('\n');
-
-  const sourceList = OFFICIAL_SOURCE_URLS.map((url) => `- [${url}](${url})`).join('\n');
 
   if (isDa) {
     return `---
@@ -353,45 +341,11 @@ sidebar:
   label: "AI-nyheder"
 ---
 
-import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
+import AiNewsFeed from "../../../../../components/AiNewsFeed.astro";
 
 AI-nyheder er SmartBolig.net's separate AI Radar: korte, kildebaserede opdateringer om AI CLI'er, coding agents, modeller, API-priser og sikkerhed.
 
-<Aside type="note" title="Ikke en rå nyhedsfeed">
-Siden publicerer kun når der er nok signal. Målet er færre, bedre opdateringer med officielle kilder og konkrete handlinger.
-</Aside>
-
-<CardGrid>
-  <Card title="Fokus">
-    OpenAI Codex, Claude Code, Gemini CLI, OpenClaw, modelændringer, API-priser, deprecations og agent-sikkerhed.
-  </Card>
-  <Card title="Publicering">
-    OpenClaw eller GitHub Actions laver et dagligt udkast. Build, validering og PR fungerer som publiceringsgate.
-  </Card>
-  <Card title="RSS">
-    Følg nyhederne via [AI News RSS](${rssHref}).
-  </Card>
-</CardGrid>
-
-## Seneste udgaver
-
-<CardGrid>
-${archiveCards || `  <Card title="Ingen udgaver endnu">
-    Første daglige udgave bliver publiceret når der er nok officielle signaler.
-  </Card>`}
-</CardGrid>
-
-## Kilder der overvåges
-
-${sourceList}
-
-## Redaktionsregler
-
-- Brug officielle kilder først.
-- Publicer ikke rygter, leaks eller tynde opsummeringer.
-- Kopier ikke lange passager fra kilder.
-- Publicer aldrig lokale OpenClaw-logs, filstier, tokens eller intern drift.
-- Skriv hvad læseren konkret bør holde øje med.
+<AiNewsFeed locale="da" />
 `;
   }
 
@@ -403,45 +357,11 @@ sidebar:
   label: "AI News"
 ---
 
-import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
+import AiNewsFeed from "../../../../../components/AiNewsFeed.astro";
 
 AI News is SmartBolig.net's separate AI Radar: short, source-backed updates about AI CLIs, coding agents, models, API pricing, and security.
 
-<Aside type="note" title="Not a raw news feed">
-This section publishes only when there is enough signal. The goal is fewer, better updates with official sources and concrete actions.
-</Aside>
-
-<CardGrid>
-  <Card title="Focus">
-    OpenAI Codex, Claude Code, Gemini CLI, OpenClaw, model changes, API pricing, deprecations, and agent security.
-  </Card>
-  <Card title="Publishing">
-    OpenClaw or GitHub Actions creates a daily draft. Build, validation, and PR review act as the publishing gate.
-  </Card>
-  <Card title="RSS">
-    Follow updates through [AI News RSS](${rssHref}).
-  </Card>
-</CardGrid>
-
-## Latest Issues
-
-<CardGrid>
-${archiveCards || `  <Card title="No issues yet">
-    The first daily issue will publish when there are enough official signals.
-  </Card>`}
-</CardGrid>
-
-## Watched Sources
-
-${sourceList}
-
-## Editorial Rules
-
-- Use official sources first.
-- Do not publish rumors, leaks, or thin summaries.
-- Do not copy long passages from sources.
-- Never publish local OpenClaw logs, file paths, tokens, or internal operations.
-- Explain what readers should concretely watch or do next.
+<AiNewsFeed locale="en" />
 `;
 }
 

@@ -6,54 +6,8 @@ sidebar:
   label: "AI-nyheder"
 ---
 
-import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
+import AiNewsFeed from "../../../../../components/AiNewsFeed.astro";
 
 AI-nyheder er SmartBolig.net's separate AI Radar: korte, kildebaserede opdateringer om AI CLI'er, coding agents, modeller, API-priser og sikkerhed.
 
-<Aside type="note" title="Ikke en rå nyhedsfeed">
-Siden publicerer kun når der er nok signal. Målet er færre, bedre opdateringer med officielle kilder og konkrete handlinger.
-</Aside>
-
-<CardGrid>
-  <Card title="Fokus">
-    OpenAI Codex, Claude Code, Gemini CLI, OpenClaw, modelændringer, API-priser, deprecations og agent-sikkerhed.
-  </Card>
-  <Card title="Publicering">
-    OpenClaw eller GitHub Actions laver et dagligt udkast. Build, validering og PR fungerer som publiceringsgate.
-  </Card>
-  <Card title="RSS">
-    Følg nyhederne via [AI News RSS](/da/ai/nyheder/rss.xml).
-  </Card>
-</CardGrid>
-
-## Seneste udgaver
-
-<CardGrid>
-  <LinkCard
-    title="AI-nyheder: 11. april 2026"
-    description="Kurateret daglig udgave med officielle kilder."
-    href="/da/ai/nyheder/2026-04-11/"
-  />
-</CardGrid>
-
-## Kilder der overvåges
-
-- [https://openai.com/news/rss.xml](https://openai.com/news/rss.xml)
-- [https://github.com/openai/codex/releases.atom](https://github.com/openai/codex/releases.atom)
-- [https://platform.openai.com/docs/changelog](https://platform.openai.com/docs/changelog)
-- [https://www.anthropic.com/news](https://www.anthropic.com/news)
-- [https://code.claude.com/docs/en/changelog](https://code.claude.com/docs/en/changelog)
-- [https://github.com/anthropics/claude-code/releases.atom](https://github.com/anthropics/claude-code/releases.atom)
-- [https://blog.google/technology/ai/rss/](https://blog.google/technology/ai/rss/)
-- [https://ai.google.dev/gemini-api/docs/changelog](https://ai.google.dev/gemini-api/docs/changelog)
-- [https://github.com/google-gemini/gemini-cli/releases.atom](https://github.com/google-gemini/gemini-cli/releases.atom)
-- [https://github.com/openclaw/openclaw/releases.atom](https://github.com/openclaw/openclaw/releases.atom)
-- [https://github.com/openclaw/openclaw/releases](https://github.com/openclaw/openclaw/releases)
-
-## Redaktionsregler
-
-- Brug officielle kilder først.
-- Publicer ikke rygter, leaks eller tynde opsummeringer.
-- Kopier ikke lange passager fra kilder.
-- Publicer aldrig lokale OpenClaw-logs, filstier, tokens eller intern drift.
-- Skriv hvad læseren konkret bør holde øje med.
+<AiNewsFeed locale="da" />

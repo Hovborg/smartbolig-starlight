@@ -1,0 +1,448 @@
+---
+import { getCollection } from "astro:content";
+import { FEEDS, OFFICIAL_SOURCE_URLS } from "../../scripts/ai-news-sources.mjs";
+
+type Locale = "da" | "en";
+type Signal = "high" | "medium" | "low";
+
+interface Props {
+  locale?: Locale;
+}
+
+const locale: Locale = Astro.props.locale === "en" ? "en" : "da";
+const isDa = locale === "da";
+const baseHref = isDa ? "/da/ai/nyheder" : "/en/ai/nyheder";
+const rssHref = isDa ? "/da/ai/nyheder/rss.xml" : "/en/ai/news/rss.xml";
+
+const docs = await getCollection("docs");
+
+const getSlug = (doc: (typeof docs)[number]) => doc.slug || doc.id;
+const getDate = (doc: (typeof docs)[number]) => {
+  const value = doc.data.date || doc.data.lastUpdated || new Date();
+  return value instanceof Date ? value : new Date(value);
+};
+
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat(isDa ? "da-DK" : "en-US", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(date);
+
+const sourceLabel = (url: string) => {
+  if (url.includes("openai/codex")) return "Codex";
+  if (url.includes("anthropics/claude-code") || url.includes("code.claude.com")) return "Claude Code";
+  if (url.includes("google-gemini/gemini-cli")) return "Gemini CLI";
+  if (url.includes("openclaw/openclaw")) return "OpenClaw";
+  if (url.includes("ai.google.dev") || url.includes("blog.google")) return "Google AI";
+  if (url.includes("openai.com") || url.includes("platform.openai.com")) return "OpenAI";
+  if (url.includes("anthropic.com")) return "Anthropic";
+  return "AI";
+};
+
+const signalText: Record<Signal, string> = isDa
+  ? { high: "Høj signalværdi", medium: "Middel signalværdi", low: "Lav signalværdi" }
+  : { high: "High signal", medium: "Medium signal", low: "Low signal" };
+
+const signalPriority: Record<Signal, number> = { high: 3, medium: 2, low: 1 };
+const issues = docs
+  .filter((doc) => {
+    const slug = getSlug(doc);
+    return slug.startsWith(`${locale}/ai/nyheder/`) && !slug.endsWith("/index") && doc.data.title;
+  })
+  .map((doc) => {
+    const slug = getSlug(doc);
+    const date = getDate(doc);
+    const signal = (doc.data.news?.signal || "medium") as Signal;
+    const sources = doc.data.news?.sources || [];
+    const providers = [...new Set(sources.map(sourceLabel))].sort();
+    return {
+      title: doc.data.title,
+      description: doc.data.description || "",
+      date,
+      dateString: date.toISOString().slice(0, 10),
+      href: `/${slug}/`,
+      signal,
+      sources,
+      providers,
+    };
+  })
+  .sort((a, b) => {
+    const dateCompare = b.date.getTime() - a.date.getTime();
+    if (dateCompare !== 0) return dateCompare;
+    return signalPriority[b.signal] - signalPriority[a.signal];
+  });
+
+const latest = issues[0];
+const highSignalCount = issues.filter((issue) => issue.signal === "high").length;
+const latestSourceCount = latest?.sources.length || 0;
+const totalSourceCount = OFFICIAL_SOURCE_URLS.length;
+
+const sourceGroups = [
+  {
+    label: "OpenAI",
+    urls: OFFICIAL_SOURCE_URLS.filter((url) => url.includes("openai") || url.includes("platform.openai")),
+  },
+  {
+    label: "Anthropic",
+    urls: OFFICIAL_SOURCE_URLS.filter((url) => url.includes("anthropic") || url.includes("claude.com")),
+  },
+  {
+    label: "Google",
+    urls: OFFICIAL_SOURCE_URLS.filter((url) => url.includes("google") || url.includes("gemini")),
+  },
+  {
+    label: "OpenClaw",
+    urls: OFFICIAL_SOURCE_URLS.filter((url) => url.includes("openclaw")),
+  },
+].filter((group) => group.urls.length > 0);
+
+const criticalFeeds = FEEDS.filter((feed) => feed.critical).map((feed) => feed.name);
+const copy = isDa
+  ? {
+      eyebrow: "AI Radar",
+      title: "Kildebaseret AI News-feed",
+      intro:
+        "Færre nyheder, mere signal. Feedet prioriterer officielle release notes, API-ændringer, pricing, sikkerhed og konkrete agent-workflows.",
+      latest: "Seneste udgave",
+      openLatest: "Åbn seneste udgave",
+      rss: "RSS-feed",
+      archive: "Arkiv",
+      noIssues: "Ingen publicerede udgaver endnu.",
+      sources: "Officielle kilder",
+      sourcesText:
+        "Kilderne er valgt efter driftssignal: først CLI releases og changelogs, derefter model/API-nyheder med praktisk effekt.",
+      issueCount: "udgave",
+      issueCountPlural: "udgaver",
+      highSignal: "høj-signal",
+      sourceCount: "kilder i seneste udgave",
+      monitoredCount: "officielle kilder overvåges",
+      primaryFeeds: "Kritiske feeds",
+      read: "Læs udgave",
+      source: "kilde",
+      sourcesPlural: "kilder",
+    }
+  : {
+      eyebrow: "AI Radar",
+      title: "Source-backed AI News feed",
+      intro:
+        "Fewer updates, higher signal. The feed prioritizes official release notes, API changes, pricing, security, and practical agent workflows.",
+      latest: "Latest issue",
+      openLatest: "Open latest issue",
+      rss: "RSS feed",
+      archive: "Archive",
+      noIssues: "No published issues yet.",
+      sources: "Official sources",
+      sourcesText:
+        "Sources are selected by operational signal: CLI releases and changelogs first, then model/API updates with practical impact.",
+      issueCount: "issue",
+      issueCountPlural: "issues",
+      highSignal: "high-signal",
+      sourceCount: "sources in latest issue",
+      monitoredCount: "official sources monitored",
+      primaryFeeds: "Critical feeds",
+      read: "Read issue",
+      source: "source",
+      sourcesPlural: "sources",
+    };
+
+const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural;
+---
+
+<section class="ai-news-feed" aria-labelledby="ai-news-feed-title">
+  <div class="feed-header">
+    <p class="feed-eyebrow">{copy.eyebrow}</p>
+    <h2 id="ai-news-feed-title">{copy.title}</h2>
+    <p>{copy.intro}</p>
+    <div class="feed-actions">
+      <a class="feed-action primary" href={latest?.href || baseHref}>{copy.openLatest}</a>
+      <a class="feed-action" href={rssHref}>{copy.rss}</a>
+    </div>
+  </div>
+
+  <div class="feed-stats" aria-label={isDa ? "AI News status" : "AI News status"}>
+    <div>
+      <strong>{issues.length}</strong>
+      <span>{issueLabel}</span>
+    </div>
+    <div>
+      <strong>{highSignalCount}</strong>
+      <span>{copy.highSignal}</span>
+    </div>
+    <div>
+      <strong>{latestSourceCount}</strong>
+      <span>{copy.sourceCount}</span>
+    </div>
+    <div>
+      <strong>{totalSourceCount}</strong>
+      <span>{copy.monitoredCount}</span>
+    </div>
+  </div>
+
+  {
+    latest ? (
+      <article class="latest-card">
+        <div class="issue-meta">
+          <span class={`signal signal-${latest.signal}`}>{signalText[latest.signal]}</span>
+          <time datetime={latest.dateString}>{formatDate(latest.date)}</time>
+          <span>
+            {latest.sources.length} {latest.sources.length === 1 ? copy.source : copy.sourcesPlural}
+          </span>
+        </div>
+        <h3>{copy.latest}: <a href={latest.href}>{latest.title}</a></h3>
+        <p>{latest.description}</p>
+        <div class="provider-strip" aria-label={isDa ? "Dækkede områder" : "Covered areas"}>
+          {latest.providers.map((provider) => <span>{provider}</span>)}
+        </div>
+      </article>
+    ) : (
+      <p class="empty-feed">{copy.noIssues}</p>
+    )
+  }
+
+  <div class="archive-panel">
+    <div class="section-heading">
+      <h2>{copy.archive}</h2>
+      <a href={rssHref}>{copy.rss}</a>
+    </div>
+    <div class="issue-list" role="list">
+      {issues.map((issue) => (
+        <article class="issue-row" role="listitem">
+          <div class="issue-row-main">
+            <div class="issue-meta">
+              <span class={`signal signal-${issue.signal}`}>{signalText[issue.signal]}</span>
+              <time datetime={issue.dateString}>{formatDate(issue.date)}</time>
+              <span>
+                {issue.sources.length} {issue.sources.length === 1 ? copy.source : copy.sourcesPlural}
+              </span>
+            </div>
+            <h3><a href={issue.href}>{issue.title}</a></h3>
+            <p>{issue.description}</p>
+          </div>
+          <a class="row-link" href={issue.href}>{copy.read}</a>
+        </article>
+      ))}
+    </div>
+  </div>
+
+  <details class="source-panel" open>
+    <summary>{copy.sources}</summary>
+    <p>{copy.sourcesText}</p>
+    <p class="critical-feeds">
+      <strong>{copy.primaryFeeds}:</strong> {criticalFeeds.join(", ")}
+    </p>
+    <div class="source-grid">
+      {sourceGroups.map((group) => (
+        <div class="source-group">
+          <h3>{group.label}</h3>
+          <ul>
+            {group.urls.map((url) => (
+              <li><a href={url}>{url.replace(/^https?:\/\//, "")}</a></li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+  </details>
+</section>
+
+<style>
+  .ai-news-feed {
+    display: grid;
+    gap: 1.25rem;
+    margin-top: 1.25rem;
+  }
+
+  .feed-header,
+  .latest-card,
+  .archive-panel,
+  .source-panel {
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--sl-color-bg-nav) 78%, transparent);
+    padding: clamp(1rem, 2vw, 1.5rem);
+  }
+
+  .feed-eyebrow,
+  .issue-meta {
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-sm);
+    font-weight: 700;
+    letter-spacing: 0;
+    margin: 0 0 0.5rem;
+  }
+
+  .feed-header h2,
+  .latest-card h3,
+  .section-heading h2,
+  .source-panel summary,
+  .source-group h3 {
+    margin-top: 0;
+  }
+
+  .feed-header p {
+    max-width: 68ch;
+  }
+
+  .feed-actions,
+  .provider-strip,
+  .issue-meta,
+  .section-heading {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .feed-action,
+  .row-link {
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+    color: var(--sl-color-text);
+    display: inline-flex;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0.7rem 0.9rem;
+    text-decoration: none;
+  }
+
+  .feed-action.primary {
+    background: var(--sl-color-accent);
+    border-color: var(--sl-color-accent);
+    color: var(--sl-color-black);
+  }
+
+  .feed-stats {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .feed-stats div {
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+    padding: 0.85rem;
+  }
+
+  .feed-stats strong {
+    display: block;
+    font-size: var(--sl-text-2xl);
+    line-height: 1;
+  }
+
+  .feed-stats span,
+  .latest-card p,
+  .issue-row p,
+  .source-panel p,
+  .source-group li {
+    color: var(--sl-color-gray-2);
+  }
+
+  .signal,
+  .provider-strip span {
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 999px;
+    display: inline-flex;
+    line-height: 1;
+    padding: 0.35rem 0.55rem;
+  }
+
+  .signal-high {
+    border-color: var(--sl-color-green-high);
+    color: var(--sl-color-green-high);
+  }
+
+  .signal-medium {
+    border-color: var(--sl-color-blue-high);
+    color: var(--sl-color-blue-high);
+  }
+
+  .signal-low {
+    border-color: var(--sl-color-orange-high);
+    color: var(--sl-color-orange-high);
+  }
+
+  .issue-list {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .issue-row {
+    align-items: start;
+    border-top: 1px solid var(--sl-color-gray-6);
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+    padding-top: 1rem;
+  }
+
+  .issue-row h3,
+  .issue-row p,
+  .latest-card p {
+    margin-bottom: 0;
+  }
+
+  .section-heading {
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+  }
+
+  .source-panel summary {
+    cursor: pointer;
+    font-size: var(--sl-text-h3);
+    font-weight: 700;
+  }
+
+  .critical-feeds {
+    margin-top: 0.25rem;
+  }
+
+  .source-grid {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 1rem;
+  }
+
+  .source-group {
+    border-top: 1px solid var(--sl-color-gray-6);
+    min-width: 0;
+    padding-top: 0.75rem;
+  }
+
+  .source-group ul {
+    display: grid;
+    gap: 0.4rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .source-group li {
+    list-style: none;
+  }
+
+  .source-group li::marker,
+  .source-group li::before {
+    content: "";
+    display: none;
+  }
+
+  .source-group a {
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 46rem) {
+    .feed-stats,
+    .source-grid,
+    .issue-row {
+      grid-template-columns: 1fr;
+    }
+
+    .row-link {
+      justify-content: center;
+      width: 100%;
+    }
+  }
+</style>
