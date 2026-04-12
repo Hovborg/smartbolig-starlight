@@ -41,6 +41,14 @@ const sourceLabel = (url: string) => {
   return "AI";
 };
 
+const extractHeadlines = (body: unknown) => {
+  if (typeof body !== "string") return [];
+  return [...body.matchAll(/^###\s+\d+\.\s+(.+)$/gm)]
+    .map((match) => match[1]?.trim())
+    .filter(Boolean)
+    .slice(0, 6);
+};
+
 const signalText: Record<Signal, string> = isDa
   ? { high: "Høj signalværdi", medium: "Middel signalværdi", low: "Lav signalværdi" }
   : { high: "High signal", medium: "Medium signal", low: "Low signal" };
@@ -66,6 +74,7 @@ const issues = docs
       signal,
       sources,
       providers,
+      headlines: extractHeadlines((doc as { body?: unknown }).body),
     };
   })
   .sort((a, b) => {
@@ -122,6 +131,7 @@ const copy = isDa
       read: "Læs udgave",
       source: "kilde",
       sourcesPlural: "kilder",
+      topStories: "Topnyheder",
     }
   : {
       eyebrow: "AI Radar",
@@ -145,6 +155,7 @@ const copy = isDa
       read: "Read issue",
       source: "source",
       sourcesPlural: "sources",
+      topStories: "Top stories",
     };
 
 const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural;
@@ -192,6 +203,14 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
         </div>
         <h3>{copy.latest}: <a href={latest.href}>{latest.title}</a></h3>
         <p>{latest.description}</p>
+        {latest.headlines.length > 0 && (
+          <div class="headline-digest" aria-label={copy.topStories}>
+            <strong>{copy.topStories}</strong>
+            <ul>
+              {latest.headlines.map((headline) => <li>{headline}</li>)}
+            </ul>
+          </div>
+        )}
         <div class="provider-strip" aria-label={isDa ? "Dækkede områder" : "Covered areas"}>
           {latest.providers.map((provider) => <span>{provider}</span>)}
         </div>
@@ -219,6 +238,11 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
             </div>
             <h3><a href={issue.href}>{issue.title}</a></h3>
             <p>{issue.description}</p>
+            {issue.headlines.length > 0 && (
+              <ul class="compact-headlines">
+                {issue.headlines.slice(0, 4).map((headline) => <li>{headline}</li>)}
+              </ul>
+            )}
           </div>
           <a class="row-link" href={issue.href}>{copy.read}</a>
         </article>
@@ -366,6 +390,30 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
   .issue-list {
     display: grid;
     gap: 0.75rem;
+  }
+
+  .headline-digest {
+    border-top: 1px solid var(--sl-color-gray-6);
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+
+  .headline-digest strong {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .headline-digest ul,
+  .compact-headlines {
+    display: grid;
+    gap: 0.35rem;
+    margin-bottom: 0;
+    padding-left: 1.2rem;
+  }
+
+  .headline-digest li,
+  .compact-headlines li {
+    color: var(--sl-color-gray-1);
   }
 
   .issue-row {
