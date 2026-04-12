@@ -10,7 +10,10 @@ type HeadEntry = {
 const siteUrl = "https://smartbolig.net";
 const pathname = Astro.url.pathname;
 const pageUrl = new URL(pathname, siteUrl).href;
-const logoUrl = `${siteUrl}/images/og-image.png`;
+const lang = pathname.startsWith("/en/") ? "en" : "da";
+const isNotFoundPage = /^\/(?:da\/|en\/)?404\/?$/.test(pathname);
+const defaultSocialImageUrl = `${siteUrl}/images/og-image.png`;
+const organizationLogoUrl = `${siteUrl}/brand/logo/logo-dark-1200x270.png`;
 const aiNewsSocialImageUrl = `${siteUrl}/images/ai-news-og.png`;
 const aiNewsSchemaImages = [
   { url: `${siteUrl}/images/ai-news-og-16x9.png`, width: 1200, height: 675 },
@@ -29,8 +32,14 @@ try {
 // Get page data with fallbacks for 404 page and custom Starlight head props.
 const entry = Astro.props.entry || starlightRoute?.entry;
 const lastUpdated = Astro.props.lastUpdated || starlightRoute?.lastUpdated;
-const title = entry?.data?.title || "SmartBolig.net";
-const description = entry?.data?.description || "Dansk guide til smart home";
+const title = entry?.data?.title || (isNotFoundPage
+  ? lang === "da" ? "404 - Side ikke fundet" : "404 - Page not found"
+  : "SmartBolig.net");
+const description = entry?.data?.description || (isNotFoundPage
+  ? lang === "da"
+    ? "Siden blev ikke fundet. Find SmartBolig.net guides fra forsiden."
+    : "Page not found. Find SmartBolig.net guides from the homepage."
+  : "Dansk guide til smart home");
 
 const toIsoDate = (...values: unknown[]) => {
   for (const value of values) {
@@ -41,14 +50,23 @@ const toIsoDate = (...values: unknown[]) => {
   return null;
 };
 
-// Determine language
-const lang = pathname.startsWith("/en/") ? "en" : "da";
 const languageCode = lang === "da" ? "da-DK" : "en-US";
+const openGraphLocale = lang === "da" ? "da_DK" : "en_US";
+const alternateOpenGraphLocale = lang === "da" ? "en_US" : "da_DK";
 const isAiNewsPage = /^\/(?:da|en)\/ai\/nyheder(?:\/|$)/.test(pathname);
 const isAiNewsArticle = /^\/(?:da|en)\/ai\/nyheder\/\d{4}-\d{2}-\d{2}\/?$/.test(pathname);
 const isAiNewsIndex = /^\/(?:da|en)\/ai\/nyheder\/?$/.test(pathname);
 const isHomePage = /^\/(?:da|en)\/?$/.test(pathname);
+const isContactPage = /^\/(?:da|en)\/kontakt\/?$/.test(pathname);
+const isAboutPage = /^\/(?:da|en)\/om-os\/?$/.test(pathname);
+const isLegalPage = /^\/(?:da|en)\/(?:juridisk|kontakt|om-os)(?:\/|$)/.test(pathname);
+const isSectionIndex = /^\/(?:da|en)\/(?:ai|automationer|esp32|home-assistant|juridisk|produkter|sikkerhed)\/?$/.test(pathname)
+  || /^\/(?:da|en)\/ai\/ai-cli\/?$/.test(pathname);
+const shouldRenderArticleSchema = Boolean(entry?.data && !isHomePage && !isSectionIndex && !isLegalPage && !isAiNewsIndex && !isNotFoundPage);
 const newsSources = Array.isArray(entry?.data?.news?.sources) ? entry.data.news.sources : [];
+const robotsContent = isNotFoundPage
+  ? "noindex, nofollow"
+  : "max-image-preview:large, max-snippet:-1, max-video-preview:-1, noai, noimageai";
 const defaultLanguagePath = pathname.startsWith("/en/") ? pathname.replace(/^\/en\//, "/da/") : pathname;
 const defaultLanguageUrl = new URL(defaultLanguagePath, siteUrl).href;
 const datePublished =
@@ -83,8 +101,16 @@ const addLink = (attrs: Record<string, string>) => {
   if (!exists) starlightHead.push({ tag: "link", attrs });
 };
 
-if (entry?.data) {
-  upsertMeta("property", "og:type", isHomePage || isAiNewsIndex ? "website" : "article");
+if (entry?.data || isNotFoundPage) {
+  upsertMeta("name", "description", description);
+  upsertMeta("property", "og:description", description);
+  upsertMeta("property", "og:type", isHomePage || isAiNewsIndex || isNotFoundPage ? "website" : "article");
+  upsertMeta("property", "og:locale", openGraphLocale);
+  upsertMeta("property", "og:locale:alternate", alternateOpenGraphLocale);
+  upsertMeta("property", "og:image:alt", "SmartBolig.net");
+  upsertMeta("name", "twitter:title", title);
+  upsertMeta("name", "twitter:description", description);
+  upsertMeta("name", "twitter:image:alt", "SmartBolig.net");
 }
 
 if (isAiNewsPage) {
@@ -97,6 +123,11 @@ if (isAiNewsPage) {
     lang === "da" ? "SmartBolig.net AI-nyheder" : "SmartBolig.net AI News"
   );
   upsertMeta("name", "twitter:image", aiNewsSocialImageUrl);
+  upsertMeta(
+    "name",
+    "twitter:image:alt",
+    lang === "da" ? "SmartBolig.net AI-nyheder" : "SmartBolig.net AI News"
+  );
   addLink({
     rel: "alternate",
     type: "application/rss+xml",
@@ -105,7 +136,7 @@ if (isAiNewsPage) {
   });
 }
 
-if (entry?.data) {
+if (entry?.data || isNotFoundPage) {
   addLink({
     rel: "alternate",
     hreflang: "x-default",
@@ -128,9 +159,9 @@ const organizationSchema = {
   url: siteUrl,
   logo: {
     "@type": "ImageObject",
-    url: logoUrl,
+    url: organizationLogoUrl,
     width: 1200,
-    height: 630
+    height: 270
   },
   description: lang === "da" 
     ? "Dansk guide til smart home med Home Assistant, ESP32 og Zigbee"
@@ -161,20 +192,60 @@ const websiteSchema = {
   }
 };
 
-// BreadcrumbList Schema for navigation
 const pathParts = pathname.split('/').filter(Boolean);
-const breadcrumbItems = pathParts.map((part, index) => {
-  const path = '/' + pathParts.slice(0, index + 1).join('/') + '/';
-  const name = index === pathParts.length - 1
-    ? title
-    : part.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-  return {
+const localizedPathParts = pathParts[0] === "da" || pathParts[0] === "en" ? pathParts.slice(1) : pathParts;
+const breadcrumbLabels: Record<string, Record<string, string>> = {
+  da: {
+    ai: "AI",
+    "ai-cli": "AI CLI'er",
+    nyheder: "AI-nyheder",
+    automationer: "Automationer",
+    esp32: "ESP32",
+    "home-assistant": "Home Assistant",
+    juridisk: "Juridisk",
+    produkter: "Produkter",
+    sikkerhed: "Sikkerhed",
+    kontakt: "Kontakt",
+    "om-os": "Om SmartBolig.net",
+  },
+  en: {
+    ai: "AI",
+    "ai-cli": "AI CLIs",
+    nyheder: "AI News",
+    automationer: "Automations",
+    esp32: "ESP32",
+    "home-assistant": "Home Assistant",
+    juridisk: "Legal",
+    produkter: "Products",
+    sikkerhed: "Security",
+    kontakt: "Contact",
+    "om-os": "About SmartBolig.net",
+  },
+};
+const formatBreadcrumbPart = (part: string) =>
+  breadcrumbLabels[lang]?.[part] || part.replace(/-/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+
+// BreadcrumbList Schema for navigation
+const breadcrumbItems = [
+  {
     "@type": "ListItem",
-    position: index + 1,
-    name: name,
-    item: `${siteUrl}${path}`
-  };
-});
+    position: 1,
+    name: lang === "da" ? "Forside" : "Home",
+    item: `${siteUrl}/${lang}/`,
+  },
+  ...localizedPathParts.map((part, index) => {
+    const path = `/${[lang, ...localizedPathParts.slice(0, index + 1)].join("/")}/`;
+    const isLast = index === localizedPathParts.length - 1;
+    const name = isLast ? title : formatBreadcrumbPart(part);
+
+    return {
+      "@type": "ListItem",
+      position: index + 2,
+      name,
+      item: `${siteUrl}${path}`
+    };
+  })
+];
 
 const breadcrumbSchema = breadcrumbItems.length > 0 ? {
   "@context": "https://schema.org",
@@ -182,18 +253,56 @@ const breadcrumbSchema = breadcrumbItems.length > 0 ? {
   itemListElement: breadcrumbItems
 } : null;
 
-const aiNewsKeywords = lang === "da"
-  ? ["AI-nyheder", "OpenAI Codex", "Claude Code", "Gemini CLI", "AI CLI", "API-priser"]
-  : ["AI News", "OpenAI Codex", "Claude Code", "Gemini CLI", "AI CLI", "API pricing"];
+const webPageType = isAiNewsIndex || isSectionIndex
+  ? "CollectionPage"
+  : isContactPage
+    ? "ContactPage"
+    : isAboutPage
+      ? "AboutPage"
+      : "WebPage";
 
 const defaultSchemaImage = {
   "@type": "ImageObject",
-  url: logoUrl,
+  url: defaultSocialImageUrl,
   width: 1200,
   height: 630
 };
 
-const articleSchema = entry?.data && !isAiNewsIndex ? {
+const webPageSchema = entry?.data || isNotFoundPage ? {
+  "@context": "https://schema.org",
+  "@type": webPageType,
+  "@id": `${pageUrl}#webpage`,
+  name: title,
+  description,
+  url: pageUrl,
+  inLanguage: languageCode,
+  dateModified: dateModified || datePublished,
+  isPartOf: {
+    "@id": `${siteUrl}/#website`
+  },
+  publisher: {
+    "@id": `${siteUrl}/#organization`
+  },
+  image: isAiNewsPage
+    ? aiNewsSchemaImages.map((image) => ({
+        "@type": "ImageObject",
+        ...image,
+      }))
+    : defaultSchemaImage,
+  ...(isAiNewsIndex && {
+    mainEntity: {
+      "@type": "DataFeed",
+      name: lang === "da" ? "SmartBolig.net AI-nyheder" : "SmartBolig.net AI News",
+      url: aiNewsRssHref,
+    },
+  }),
+} : null;
+
+const aiNewsKeywords = lang === "da"
+  ? ["AI-nyheder", "OpenAI Codex", "Claude Code", "Gemini CLI", "AI CLI", "API-priser"]
+  : ["AI News", "OpenAI Codex", "Claude Code", "Gemini CLI", "AI CLI", "API pricing"];
+
+const articleSchema = shouldRenderArticleSchema ? {
   "@context": "https://schema.org",
   "@type": isAiNewsArticle ? "NewsArticle" : "TechArticle",
   "@id": `${pageUrl}#article`,
@@ -231,44 +340,17 @@ const articleSchema = entry?.data && !isAiNewsIndex ? {
       }))
     : defaultSchemaImage,
   mainEntityOfPage: {
-    "@type": "WebPage",
-    "@id": pageUrl
+    "@id": `${pageUrl}#webpage`
   }
-} : null;
-
-const collectionPageSchema = entry?.data && isAiNewsIndex ? {
-  "@context": "https://schema.org",
-  "@type": "CollectionPage",
-  "@id": `${pageUrl}#webpage`,
-  name: title,
-  description,
-  url: pageUrl,
-  inLanguage: languageCode,
-  dateModified: dateModified || datePublished,
-  isPartOf: {
-    "@id": `${siteUrl}/#website`
-  },
-  publisher: {
-    "@id": `${siteUrl}/#organization`
-  },
-  image: aiNewsSchemaImages.map((image) => ({
-    "@type": "ImageObject",
-    ...image,
-  })),
-  mainEntity: {
-    "@type": "DataFeed",
-    name: lang === "da" ? "SmartBolig.net AI-nyheder" : "SmartBolig.net AI News",
-    url: aiNewsRssHref,
-  },
 } : null;
 
 // Combine all schemas
 const graphItems = [organizationSchema, websiteSchema];
+if (webPageSchema) {
+  graphItems.push(webPageSchema);
+}
 if (breadcrumbSchema) {
   graphItems.push(breadcrumbSchema);
-}
-if (collectionPageSchema) {
-  graphItems.push(collectionPageSchema);
 }
 if (articleSchema) {
   graphItems.push(articleSchema);
@@ -290,7 +372,7 @@ const combinedSchema = {
 )}
 
 <!-- Content Protection Meta Tags -->
-<meta name="robots" content="max-image-preview:large, max-snippet:-1, max-video-preview:-1, noai, noimageai" />
+<meta name="robots" content={robotsContent} />
 
 <!-- Copyright information -->
 <meta name="copyright" content="SmartBolig.net" />
