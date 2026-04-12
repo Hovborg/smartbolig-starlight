@@ -133,6 +133,14 @@ function yamlString(value) {
   return `"${String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
 }
 
+function slugifyHeading(value) {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^\p{Letter}\p{Number}\s-]/gu, '')
+    .replace(/\s+/g, '-');
+}
+
 function providerLabel(sourceId) {
   if (sourceId === 'openai-codex') return 'OpenAI Codex';
   if (sourceId === 'claude-code') return 'Claude Code';
@@ -206,6 +214,12 @@ function renderArticle({ locale, date, items, weakSignal }) {
   const signal = weakSignal ? 'low' : items.length >= 4 ? 'high' : 'medium';
   const sourceUrls = [...new Set(items.map((item) => item.url))];
 
+  const storyLinks = items.map((item, index) => {
+    const title = `${providerLabel(item.source.id)}: ${item.title}`;
+    const heading = `${index + 1}. ${title}`;
+    return `- [${title}](#${slugifyHeading(heading)})`;
+  }).join('\n');
+
   const headlineBlocks = items.map((item, index) => {
     const sourceDate = formatShortDate(item.published, isDa ? 'da-DK' : 'en-US');
     if (isDa) {
@@ -268,6 +282,10 @@ Denne side må ikke kopiere lange tekststykker fra kilderne. Brug links, korte f
 - Prioriteten er AI CLI'er, coding agents, API-ændringer, modelændringer, pricing og sikkerhed.
 - Læs altid release notes før du opdaterer en CLI i et aktivt projekt.
 
+## Nyhederne i dag
+
+${storyLinks || '- Ingen publicerbare nyheder i denne udgave.'}
+
 ## Vigtigste nyt
 
 ${headlineBlocks || 'Ingen høj-signal nyheder fra de overvågede officielle kilder.'}
@@ -305,6 +323,10 @@ This page must not copy long passages from sources. Use links, short explanation
 - ${items.length} official signals were selected for this issue.
 - The priority is AI CLIs, coding agents, API changes, model changes, pricing, and security.
 - Always read release notes before updating a CLI in an active project.
+
+## Today's News
+
+${storyLinks || '- No publishable news in this issue.'}
 
 ## Main Updates
 

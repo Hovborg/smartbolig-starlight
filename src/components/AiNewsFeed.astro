@@ -41,11 +41,25 @@ const sourceLabel = (url: string) => {
   return "AI";
 };
 
-const extractHeadlines = (body: unknown) => {
+const slugifyHeading = (value: string) =>
+  value
+    .trim()
+    .toLowerCase()
+    .replace(/[^\p{Letter}\p{Number}\s-]/gu, "")
+    .replace(/\s+/g, "-");
+
+const extractHeadlines = (body: unknown, issueHref: string) => {
   if (typeof body !== "string") return [];
-  return [...body.matchAll(/^###\s+\d+\.\s+(.+)$/gm)]
-    .map((match) => match[1]?.trim())
-    .filter(Boolean)
+  return [...body.matchAll(/^###\s+(.+)$/gm)]
+    .map((match) => {
+      const heading = match[1]?.trim() || "";
+      const title = heading.replace(/^\d+\.\s+/, "");
+      return {
+        title,
+        href: `${issueHref}#${slugifyHeading(heading)}`,
+      };
+    })
+    .filter((headline) => headline.title && headline.href)
     .slice(0, 6);
 };
 
@@ -65,16 +79,17 @@ const issues = docs
     const signal = (doc.data.news?.signal || "medium") as Signal;
     const sources = doc.data.news?.sources || [];
     const providers = [...new Set(sources.map(sourceLabel))].sort();
+    const href = `/${slug}/`;
     return {
       title: doc.data.title,
       description: doc.data.description || "",
       date,
       dateString: date.toISOString().slice(0, 10),
-      href: `/${slug}/`,
+      href,
       signal,
       sources,
       providers,
-      headlines: extractHeadlines((doc as { body?: unknown }).body),
+      headlines: extractHeadlines((doc as { body?: unknown }).body, href),
     };
   })
   .sort((a, b) => {
@@ -207,7 +222,9 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
           <div class="headline-digest" aria-label={copy.topStories}>
             <strong>{copy.topStories}</strong>
             <ul>
-              {latest.headlines.map((headline) => <li>{headline}</li>)}
+              {latest.headlines.map((headline) => (
+                <li><a href={headline.href}>{headline.title}</a></li>
+              ))}
             </ul>
           </div>
         )}
@@ -240,7 +257,9 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
             <p>{issue.description}</p>
             {issue.headlines.length > 0 && (
               <ul class="compact-headlines">
-                {issue.headlines.slice(0, 4).map((headline) => <li>{headline}</li>)}
+                {issue.headlines.slice(0, 4).map((headline) => (
+                  <li><a href={headline.href}>{headline.title}</a></li>
+                ))}
               </ul>
             )}
           </div>
@@ -412,7 +431,9 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
   }
 
   .headline-digest li,
-  .compact-headlines li {
+  .compact-headlines li,
+  .headline-digest a,
+  .compact-headlines a {
     color: var(--sl-color-gray-1);
   }
 
