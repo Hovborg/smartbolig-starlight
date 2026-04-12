@@ -41,6 +41,20 @@ const sourceLabel = (url: string) => {
   return "AI";
 };
 
+const sourceName = (url: string) => {
+  try {
+    const parsed = new URL(url);
+    const host = parsed.hostname.replace(/^www\./, "");
+    if (host === "github.com") {
+      const repo = parsed.pathname.split("/").filter(Boolean).slice(0, 2).join("/");
+      return repo ? `${host}/${repo}` : host;
+    }
+    return host;
+  } catch {
+    return url.replace(/^https?:\/\//, "");
+  }
+};
+
 const slugifyHeading = (value: string) =>
   value
     .trim()
@@ -48,15 +62,19 @@ const slugifyHeading = (value: string) =>
     .replace(/[^\p{Letter}\p{Number}\s-]/gu, "")
     .replace(/\s+/g, "-");
 
-const extractHeadlines = (body: unknown, issueHref: string) => {
+const extractHeadlines = (body: unknown, issueHref: string, sources: string[]) => {
   if (typeof body !== "string") return [];
   return [...body.matchAll(/^###\s+(.+)$/gm)]
-    .map((match) => {
+    .map((match, index) => {
       const heading = match[1]?.trim() || "";
       const title = heading.replace(/^\d+\.\s+/, "");
+      const sourceUrl = sources[index] || "";
       return {
         title,
         href: `${issueHref}#${slugifyHeading(heading)}`,
+        provider: sourceUrl ? sourceLabel(sourceUrl) : "AI",
+        sourceUrl,
+        sourceName: sourceUrl ? sourceName(sourceUrl) : "",
       };
     })
     .filter((headline) => headline.title && headline.href)
@@ -77,7 +95,9 @@ const issues = docs
     const slug = getSlug(doc);
     const date = getDate(doc);
     const signal = (doc.data.news?.signal || "medium") as Signal;
-    const sources = doc.data.news?.sources || [];
+    const sources = Array.isArray(doc.data.news?.sources)
+      ? doc.data.news.sources.filter((source): source is string => typeof source === "string")
+      : [];
     const providers = [...new Set(sources.map(sourceLabel))].sort();
     const href = `/${slug}/`;
     return {
@@ -89,7 +109,7 @@ const issues = docs
       signal,
       sources,
       providers,
-      headlines: extractHeadlines((doc as { body?: unknown }).body, href),
+      headlines: extractHeadlines((doc as { body?: unknown }).body, href, sources),
     };
   })
   .sort((a, b) => {
@@ -147,6 +167,9 @@ const copy = isDa
       source: "kilde",
       sourcesPlural: "kilder",
       topStories: "Topnyheder",
+      storyIntro: "Direkte genveje til de vigtigste opdateringer i seneste udgave.",
+      openStory: "Læs nyhed",
+      openSource: "Original kilde",
     }
   : {
       eyebrow: "AI Radar",
@@ -171,6 +194,9 @@ const copy = isDa
       source: "source",
       sourcesPlural: "sources",
       topStories: "Top stories",
+      storyIntro: "Direct shortcuts to the most important updates in the latest issue.",
+      openStory: "Read story",
+      openSource: "Original source",
     };
 
 const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural;
@@ -208,30 +234,51 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
 
   {
     latest ? (
-      <article class="latest-card">
-        <div class="issue-meta">
-          <span class={`signal signal-${latest.signal}`}>{signalText[latest.signal]}</span>
-          <time datetime={latest.dateString}>{formatDate(latest.date)}</time>
-          <span>
-            {latest.sources.length} {latest.sources.length === 1 ? copy.source : copy.sourcesPlural}
-          </span>
-        </div>
-        <h3>{copy.latest}: <a href={latest.href}>{latest.title}</a></h3>
-        <p>{latest.description}</p>
-        {latest.headlines.length > 0 && (
-          <div class="headline-digest" aria-label={copy.topStories}>
-            <strong>{copy.topStories}</strong>
-            <ul>
-              {latest.headlines.map((headline) => (
-                <li><a href={headline.href}>{headline.title}</a></li>
-              ))}
-            </ul>
+      <div class="latest-layout">
+        <article class="latest-card">
+          <div class="issue-meta">
+            <span class={`signal signal-${latest.signal}`}>{signalText[latest.signal]}</span>
+            <time datetime={latest.dateString}>{formatDate(latest.date)}</time>
+            <span>
+              {latest.sources.length} {latest.sources.length === 1 ? copy.source : copy.sourcesPlural}
+            </span>
           </div>
+          <h3>{copy.latest}: <a href={latest.href}>{latest.title}</a></h3>
+          <p>{latest.description}</p>
+          <div class="provider-strip" aria-label={isDa ? "Dækkede områder" : "Covered areas"}>
+            {latest.providers.map((provider) => <span>{provider}</span>)}
+          </div>
+        </article>
+
+        {latest.headlines.length > 0 && (
+          <section class="story-digest" aria-labelledby="ai-news-top-stories">
+            <div class="story-heading">
+              <div>
+                <p class="feed-eyebrow">{copy.eyebrow}</p>
+                <h2 id="ai-news-top-stories">{copy.topStories}</h2>
+              </div>
+              <p>{copy.storyIntro}</p>
+            </div>
+            <div class="story-list" role="list">
+              {latest.headlines.map((headline, index) => (
+                <article class="story-item" role="listitem">
+                  <a class="story-main" href={headline.href}>
+                    <span class="story-number">{String(index + 1).padStart(2, "0")}</span>
+                    <span class="story-provider">{headline.provider}</span>
+                    <strong>{headline.title}</strong>
+                    <span>{copy.openStory}</span>
+                    </a>
+                  {headline.sourceUrl && (
+                    <a class="source-link" href={headline.sourceUrl}>
+                      {copy.openSource}: {headline.sourceName}
+                    </a>
+                  )}
+                </article>
+              ))}
+            </div>
+          </section>
         )}
-        <div class="provider-strip" aria-label={isDa ? "Dækkede områder" : "Covered areas"}>
-          {latest.providers.map((provider) => <span>{provider}</span>)}
-        </div>
-      </article>
+      </div>
     ) : (
       <p class="empty-feed">{copy.noIssues}</p>
     )
@@ -258,7 +305,7 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
             {issue.headlines.length > 0 && (
               <ul class="compact-headlines">
                 {issue.headlines.slice(0, 4).map((headline) => (
-                  <li><a href={headline.href}>{headline.title}</a></li>
+                  <li><a href={headline.href}><span>{headline.provider}</span>{" "}{headline.title}</a></li>
                 ))}
               </ul>
             )}
@@ -300,6 +347,7 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
   .feed-header,
   .latest-card,
   .archive-panel,
+  .story-digest,
   .source-panel {
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 8px;
@@ -319,6 +367,7 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
   .feed-header h2,
   .latest-card h3,
   .section-heading h2,
+  .story-heading h2,
   .source-panel summary,
   .source-group h3 {
     margin-top: 0;
@@ -331,7 +380,8 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
   .feed-actions,
   .provider-strip,
   .issue-meta,
-  .section-heading {
+  .section-heading,
+  .story-heading {
     align-items: center;
     display: flex;
     flex-wrap: wrap;
@@ -362,6 +412,12 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
+  .latest-layout {
+    display: grid;
+    gap: 1rem;
+    grid-template-columns: minmax(16rem, 0.85fr) minmax(0, 1.35fr);
+  }
+
   .feed-stats div {
     border: 1px solid var(--sl-color-gray-5);
     border-radius: 8px;
@@ -377,6 +433,7 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
   .feed-stats span,
   .latest-card p,
   .issue-row p,
+  .story-heading p,
   .source-panel p,
   .source-group li {
     color: var(--sl-color-gray-2);
@@ -411,18 +468,85 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
     gap: 0.75rem;
   }
 
-  .headline-digest {
+  .story-digest {
+    align-content: start;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .story-heading {
+    justify-content: space-between;
+  }
+
+  .story-heading p {
+    flex: 1 1 18rem;
+    margin: 0;
+    max-width: 48ch;
+  }
+
+  .story-list {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .story-item {
     border-top: 1px solid var(--sl-color-gray-6);
-    margin-top: 1rem;
-    padding-top: 1rem;
+    display: grid;
+    gap: 0.35rem;
+    padding-top: 0.65rem;
   }
 
-  .headline-digest strong {
-    display: block;
-    margin-bottom: 0.5rem;
+  .story-main {
+    align-items: start;
+    color: var(--sl-color-text);
+    display: grid;
+    gap: 0.2rem 0.65rem;
+    grid-template-columns: 2.4rem minmax(0, 1fr);
+    text-decoration: none;
   }
 
-  .headline-digest ul,
+  .story-main:hover strong,
+  .story-main:focus-visible strong,
+  .source-link:hover,
+  .source-link:focus-visible {
+    text-decoration: underline;
+  }
+
+  .story-number {
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-xs);
+    font-weight: 800;
+    grid-row: span 3;
+    line-height: 1;
+    padding: 0.45rem 0.35rem;
+    text-align: center;
+  }
+
+  .story-provider {
+    color: var(--sl-color-accent-high);
+    font-size: var(--sl-text-xs);
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .story-main strong {
+    color: var(--sl-color-text);
+    overflow-wrap: anywhere;
+  }
+
+  .story-main span:last-child,
+  .source-link {
+    color: var(--sl-color-gray-2);
+    font-size: var(--sl-text-sm);
+  }
+
+  .source-link {
+    justify-self: start;
+  }
+
   .compact-headlines {
     display: grid;
     gap: 0.35rem;
@@ -430,11 +554,21 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
     padding-left: 1.2rem;
   }
 
-  .headline-digest li,
   .compact-headlines li,
-  .headline-digest a,
   .compact-headlines a {
     color: var(--sl-color-gray-1);
+  }
+
+  .compact-headlines a {
+    display: inline;
+  }
+
+  .compact-headlines span {
+    color: var(--sl-color-accent-high);
+    font-size: var(--sl-text-xs);
+    font-weight: 800;
+    margin-right: 0.35rem;
+    text-transform: uppercase;
   }
 
   .issue-row {
@@ -504,6 +638,7 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
 
   @media (max-width: 46rem) {
     .feed-stats,
+    .latest-layout,
     .source-grid,
     .issue-row {
       grid-template-columns: 1fr;

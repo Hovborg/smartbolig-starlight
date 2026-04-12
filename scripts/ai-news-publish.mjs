@@ -217,7 +217,8 @@ function renderArticle({ locale, date, items, weakSignal }) {
   const storyLinks = items.map((item, index) => {
     const title = `${providerLabel(item.source.id)}: ${item.title}`;
     const heading = `${index + 1}. ${title}`;
-    return `- [${title}](#${slugifyHeading(heading)})`;
+    const sourceText = isDa ? 'kilde' : 'source';
+    return `- [${title}](#${slugifyHeading(heading)}) · [${sourceText}](${item.url})`;
   }).join('\n');
 
   const headlineBlocks = items.map((item, index) => {
