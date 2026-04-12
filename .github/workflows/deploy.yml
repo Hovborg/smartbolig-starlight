@@ -65,7 +65,6 @@ jobs:
             'https://smartbolig.net/en/ai/',
             'https://smartbolig.net/da/ai/nyheder/',
             'https://smartbolig.net/en/ai/nyheder/',
-            'https://smartbolig.net/en/ai/news/',
             'https://smartbolig.net/da/ai/ai-cli/',
             'https://smartbolig.net/en/ai/ai-cli/',
             'https://smartbolig.net/da/ai/ai-cli/sammenligning/',
@@ -80,9 +79,6 @@ jobs:
             if (slug.endsWith('/index')) slug = slug.slice(0, -'/index'.length);
             if (!slug) return;
             urls.add(`https://smartbolig.net/${slug}/`);
-            if (slug.startsWith('en/ai/nyheder')) {
-              urls.add(`https://smartbolig.net/${slug.replace('en/ai/nyheder', 'en/ai/news')}/`);
-            }
           }
 
           try {

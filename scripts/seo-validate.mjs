@@ -258,7 +258,11 @@ async function main() {
   await validatePage(issues, path.join(distDir, 'en/ai/news/rss.xml'), {
     required: [
       { needle: '<atom:link href="https://smartbolig.net/en/ai/news/rss.xml" rel="self" type="application/rss+xml"/>', label: 'English AI News RSS self link' },
+      { needle: `https://smartbolig.net/en/ai/nyheder/${latest}/`, label: 'English AI News canonical article URL in RSS' },
       { needle: '<category>AI News</category>', label: 'AI News RSS category' },
+    ],
+    forbidden: [
+      { needle: `https://smartbolig.net/en/ai/news/${latest}/`, label: 'English AI News alias article URL in RSS' },
     ],
   });
 

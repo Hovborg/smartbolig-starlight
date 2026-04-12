@@ -34,7 +34,6 @@ curl -s -X POST "https://api.indexnow.org/indexnow" \
       \"${SITE_URL}/en/ai/\",
       \"${SITE_URL}/da/ai/nyheder/\",
       \"${SITE_URL}/en/ai/nyheder/\",
-      \"${SITE_URL}/en/ai/news/\",
       \"${SITE_URL}/da/ai/ai-cli/\",
       \"${SITE_URL}/en/ai/ai-cli/\"
     ]

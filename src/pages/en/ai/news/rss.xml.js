@@ -59,7 +59,7 @@ export async function GET(context) {
       return {
         title: doc.data.title,
         description: getDescription(doc),
-        link: `/${slug.replace('en/ai/nyheder/', 'en/ai/news/')}/`,
+        link: `/${slug}/`,
         pubDate: getPubDate(doc),
         categories: getCategories(doc),
       };
