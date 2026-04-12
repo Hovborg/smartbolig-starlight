@@ -1,5 +1,5 @@
 # robots.txt for smartbolig.net
-# Last updated: December 2025
+# Last updated: April 2026
 
 # ===== STANDARD CRAWLERS =====
 
@@ -39,12 +39,16 @@ Crawl-delay: 1
 # We do not permit AI training on our content
 # See our Terms of Use: https://smartbolig.net/da/juridisk/brugsvilkaar/
 
-# OpenAI
+# OpenAI training crawler blocked
 User-agent: GPTBot
 Disallow: /
 
+# OpenAI user-request and search crawlers allowed
 User-agent: ChatGPT-User
-Disallow: /
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
 
 # Anthropic - ALLOWED (we use Claude!)
 User-agent: anthropic-ai
@@ -75,9 +79,9 @@ Disallow: /
 User-agent: Applebot-Extended
 Disallow: /
 
-# Perplexity AI
+# Perplexity answer engine allowed
 User-agent: PerplexityBot
-Disallow: /
+Allow: /
 
 # Cohere AI
 User-agent: cohere-ai
