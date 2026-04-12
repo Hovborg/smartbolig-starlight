@@ -9,6 +9,7 @@ const distDir = path.join(rootDir, 'dist');
 const docsDir = path.join(rootDir, 'src/content/docs');
 const daNewsDir = path.join(docsDir, 'da/ai/nyheder');
 const enNewsDir = path.join(docsDir, 'en/ai/nyheder');
+const redirectsPath = path.join(rootDir, 'public/_redirects');
 const aiNewsImages = [
   'public/images/ai-news-og.png',
   'public/images/ai-news-og-16x9.png',
@@ -101,6 +102,20 @@ async function main() {
 
   for (const imagePath of aiNewsImages) {
     if (!existsSync(path.join(rootDir, imagePath))) fail(issues, path.join(rootDir, imagePath), 'missing AI News SEO image');
+  }
+
+  if (existsSync(redirectsPath)) {
+    const redirects = await readFile(redirectsPath, 'utf8');
+    for (const [index, line] of redirects.split('\n').entries()) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const isAllowedFeedSelfRule = trimmed === '/en/ai/news/rss.xml /en/ai/news/rss.xml 200';
+      if (trimmed.endsWith(' 200') && !isAllowedFeedSelfRule) {
+        fail(issues, redirectsPath, `line ${index + 1}: alias rule must be 301, not 200`);
+      }
+    }
+  } else {
+    fail(issues, redirectsPath, 'missing Cloudflare redirects file');
   }
 
   if (!latest || !enArticles.includes(`${latest}.mdx`)) {
