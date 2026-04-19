@@ -1,0 +1,95 @@
+---
+title: "AI-nyheder, 19. april 2026"
+description: "OpenAI rykker Codex ud i hele arbejdsflowet, Google flytter AI dybere ind i Chrome og Gemini, og agent-værktøjerne får vigtige driftsrettelser."
+date: 2026-04-19
+lastUpdated: 2026-04-19
+news:
+  signal: high
+  sources:
+    - https://openai.com/index/codex-for-almost-everything
+    - https://github.com/openclaw/openclaw/releases/tag/v2026.4.19-beta.2
+    - https://github.com/anthropics/claude-code/releases/tag/v2.1.114
+    - https://github.com/google-gemini/gemini-cli/releases/tag/v0.38.2
+    - https://github.com/openai/codex/releases/tag/rust-v0.122.0
+    - https://blog.google/products-and-platforms/products/search/ai-mode-chrome/
+    - https://blog.google/innovation-and-ai/products/gemini-app/personal-intelligence-nano-banana/
+    - https://blog.google/products-and-platforms/products/chrome/skills-in-chrome/
+sidebar:
+  label: "19. april 2026"
+---
+
+import { Badge, Aside } from "@astrojs/starlight/components";
+
+<Badge text="Høj signalværdi" variant="success" />
+
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <strong>Publiceret:</strong> <time datetime="2026-04-19">19. april 2026</time> | <strong>Opdateret:</strong> <time datetime="2026-04-19">19. april 2026</time> · 8 officielle kilder</p>
+
+OpenAI har gjort Codex mindre som et værktøj, man kalder på i terminalen, og mere som en arbejdsstation der kan følge med rundt i resten af udviklingsdagen. Det er dagens vigtigste AI-nyhed, fordi den peger på, hvor agent-værktøjer er på vej hen: væk fra isolerede chats og over mod faste workflows, browserarbejde, længerevarende opgaver og mere hukommelse mellem sessioner.
+
+Samtidig viser Google samme retning fra forbrugersiden. AI Mode i Chrome skal kunne ligge side om side med de websider, man læser, og Gemini får mere personlig kontekst i billedgenerering. De to spor er forskellige, men tendensen er den samme: AI flytter fra et separat vindue ind i de steder, hvor arbejdet allerede foregår.
+
+<Aside type="note" title="Kort vurdering">
+De store nyheder handler ikke om endnu en model på en benchmark. De handler om placering: AI-værktøjerne bliver mere integreret i browseren, desktoppen og de daglige automatiseringer. Det gør dem mere nyttige, men også mere følsomme over for permissions, privacy og versionsstyring.
+</Aside>
+
+## Hovedhistorien: Codex bliver bredere end kode
+
+OpenAI beskriver 16. april en større Codex-opdatering, hvor desktop-appen får computerbrug, web- og browserarbejde, billedgenerering, flere plugins, PR-review, terminalfaner, SSH til remote devboxes, automations og preview af memory. Det er ikke bare en ny knap i en app. Det er et forsøg på at samle flere trin i softwarearbejde i samme agentmiljø.
+
+For en udvikler eller teknisk hobbybruger betyder det, at Codex ikke kun skal skrive kode. Den skal også kunne kigge på resultatet, navigere i værktøjer, læse filer med previews, holde styr på længere planer og vende tilbage til opgaver senere. Det gør især frontend, dokumentation, test og review mere naturligt for en agent, fordi den ikke behøver stoppe ved grænsen mellem editor, browser og terminal.
+
+Det er stærkt, men det kræver disciplin. Når en agent kan se, klikke, bruge apps og huske præferencer, bliver opsætning vigtigere end prompten alene. Man bør have klare regler for, hvilke projekter agenten må arbejde i, hvilke kommandoer den må køre, og hvor den skal stoppe for menneskelig review.
+
+Kilde: [OpenAI: Codex for (almost) everything](https://openai.com/index/codex-for-almost-everything)
+
+## Driftsnyheder: OpenClaw retter agent-friktion
+
+OpenClaw 2026.4.19-beta.2 er mindre spektakulær, men praktisk vigtig. Releasen retter blandt andet brugsmåling på streaming requests mod OpenAI-kompatible backends, så context usage ikke bare ender på 0 procent. Den retter også nested agent lanes, så et langt nested run i én session ikke blokerer andre sessioner gennem gatewayen.
+
+Det er den slags rettelser, der betyder mest, når AI-agenter ikke bare bruges manuelt, men kører som cron-jobs, gateways eller faste workflows. Hvis statusvisning, usage-tal eller kø-adfærd er forkert, bliver det svært at stole på agenten i drift.
+
+Kilde: [OpenClaw: 2026.4.19-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.4.19-beta.2)
+
+## CLI-sporet: små releases, men værd at styre
+
+Claude Code v2.1.114 retter et crash i permission-dialogen, når en agent-teams teammate beder om tool-permission. Gemini CLI v0.38.2 er en patch-release fra 17. april. OpenAI Codex har også en rust-v0.122.0 tagget release fra 16. april.
+
+Ingen af de tre er en artikel værd alene for almindelige læsere. Samlet er de dog et godt billede på agent-markedet lige nu: værktøjerne bevæger sig hurtigt, og de små versioner kan ramme præcis de steder, hvor et team mærker friktion - permissions, reproducerbare runs, shell-adgang, MCP og automatisering.
+
+Min praktiske anbefaling er enkel: pin versioner på de maskiner, der laver rigtigt arbejde. Opdater først i et testprojekt, læs release notes, og gem hvilken CLI-version der blev brugt sammen med agent-instruktionerne. Det lyder kedeligt, men det er forskellen på et eksperiment og et værktøj man kan stole på.
+
+Kilder: [Claude Code v2.1.114](https://github.com/anthropics/claude-code/releases/tag/v2.1.114), [Gemini CLI v0.38.2](https://github.com/google-gemini/gemini-cli/releases/tag/v0.38.2), [OpenAI Codex rust-v0.122.0](https://github.com/openai/codex/releases/tag/rust-v0.122.0)
+
+## Google: AI rykker tættere på browseren og dine data
+
+Google har tre nyheder i samme uge, der hænger bedre sammen, end de først ser ud. AI Mode i Chrome får en side-by-side oplevelse, hvor man kan læse en webside og stille opfølgende spørgsmål uden at hoppe tilbage til en separat søgefane. Chrome får også Skills, hvor gentagne AI-prompts kan gemmes som små one-click workflows. Og Gemini-appen får personlig billedgenerering, hvor Google Photos og Personal Intelligence kan give modellen mere kontekst.
+
+Det er nyttigt, især for research, shopping, dokumentlæsning og kreative opgaver. Men det er også et klart privacy-signal: de bedste AI-oplevelser bliver mere personlige, fordi de kobles tættere til browserhistorik, tabs, filer, billeder og konto-kontekst. Google skriver, at Google Photos-koblingen er opt-in, og at Gemini-appen ikke direkte træner modeller på private Google Photos-biblioteker. Den slags forbehold bør man læse, før man slår funktionerne til.
+
+For SmartBolig-læsere er den praktiske vinkel, at browseren bliver et automation-lag. Hvis man allerede bruger Home Assistant, dokumentation, produktresearch eller lokale dashboards, kan AI i browseren blive nyttigt hurtigt. Men det bør aktiveres bevidst, ikke bare fordi knappen dukker op.
+
+Kilder: [Google: AI Mode in Chrome](https://blog.google/products-and-platforms/products/search/ai-mode-chrome/), [Google: personal images in Gemini](https://blog.google/innovation-and-ai/products/gemini-app/personal-intelligence-nano-banana/), [Google: Skills in Chrome](https://blog.google/products-and-platforms/products/chrome/skills-in-chrome/)
+
+## Hvad du bør gøre nu
+
+1. Test Codex desktop-opdateringen i et ufarligt projekt, før den får adgang til repos med rigtige ændringer.
+2. Pin Claude Code, Gemini CLI, Codex og OpenClaw-versioner på maskiner, der kører automatiske agentopgaver.
+3. Slå kun browser- og konto-nære AI-funktioner til, hvis du forstår hvilken kontekst de må bruge.
+4. Brug de nye værktøjer til review, research og gentagne opgaver først. Vent med fuld automation, indtil permissions og rollback er på plads.
+
+## Kilder og videre læsning
+
+| Område | Kilde | Dato |
+| --- | --- | --- |
+| OpenAI | [Codex for (almost) everything](https://openai.com/index/codex-for-almost-everything) | 16. apr. 2026 |
+| OpenClaw | [openclaw 2026.4.19-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.4.19-beta.2) | 19. apr. 2026 |
+| Claude Code | [v2.1.114](https://github.com/anthropics/claude-code/releases/tag/v2.1.114) | 18. apr. 2026 |
+| Gemini CLI | [Release v0.38.2](https://github.com/google-gemini/gemini-cli/releases/tag/v0.38.2) | 17. apr. 2026 |
+| OpenAI Codex | [rust-v0.122.0](https://github.com/openai/codex/releases/tag/rust-v0.122.0) | 16. apr. 2026 |
+| Google Search/Chrome | [AI Mode in Chrome](https://blog.google/products-and-platforms/products/search/ai-mode-chrome/) | 16. apr. 2026 |
+| Google Gemini | [Personalized images in Gemini](https://blog.google/innovation-and-ai/products/gemini-app/personal-intelligence-nano-banana/) | 16. apr. 2026 |
+| Google Chrome | [Skills in Chrome](https://blog.google/products-and-platforms/products/chrome/skills-in-chrome/) | 14. apr. 2026 |
+
+## Redaktionsnote
+
+Artiklen bygger på officielle kilder og egne formuleringer. Lange citater, kopieret brødtekst og private tekniske detaljer er fravalgt.
