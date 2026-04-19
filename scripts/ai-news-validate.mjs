@@ -98,10 +98,10 @@ function validateArticle(filePath, content, issues) {
 
   const urls = extractUrls(content);
   const officialCount = urls.filter(isOfficial).length;
-  const isWeakSignal = /signal:\s*low/.test(content) || /lav signalværdi|low signal/i.test(content);
+  const isWeakSignal = /signal:\s*low/.test(content);
 
   if (!isWeakSignal && officialCount < 2) {
-    fail(issues, filePath, 'needs at least two official source links unless marked low signal');
+    fail(issues, filePath, 'needs at least two official source links unless explicitly marked low in frontmatter');
   }
 
   if (!/Kilde:|Source:/.test(content)) {

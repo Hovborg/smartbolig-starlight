@@ -54,3 +54,46 @@ test('AI News draft renders as a blog-style article with a narrative lead and so
     await rm(tmp, { recursive: true, force: true });
   }
 });
+
+test('AI News copy is broad AI coverage, not only CLI release notes', async () => {
+  const tmp = await mkdtemp(path.join(tmpdir(), 'smartbolig-ai-news-broad-'));
+  const fixture = path.join(tmp, 'feed.atom');
+
+  await writeFile(fixture, `<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <entry>
+    <title>ChatGPT adds personal memory for everyday planning</title>
+    <link href="https://openai.com/index/test-chatgpt-memory" />
+    <updated>2026-04-19T06:00:00Z</updated>
+    <summary>Product update for a broader AI feature, not a command-line release.</summary>
+  </entry>
+</feed>
+`);
+
+  try {
+    const { stdout } = await execFileAsync(
+      process.execPath,
+      [
+        'scripts/ai-news-publish.mjs',
+        '--date',
+        '2026-04-19',
+        '--fixture',
+        fixture,
+        '--allow-weak-signal',
+        '--min-score',
+        '0',
+        '--max-items',
+        '1',
+      ],
+      { cwd: rootDir },
+    );
+
+    assert.match(stdout, /ChatGPT adds personal memory for everyday planning/);
+    assert.match(stdout, /modeller, produkter, ChatGPT, Claude, Gemini, API-priser, privacy og agent-workflows/);
+    assert.match(stdout, /AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed/);
+    assert.doesNotMatch(stdout, /Fokus er release notes, CLI-agent ændringer og API-ændringer/);
+    assert.doesNotMatch(stdout, /AI CLI'er, coding agents, API-brug, priser eller sikkerhed/);
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});

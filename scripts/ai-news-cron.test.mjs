@@ -49,6 +49,8 @@ process.exit(2);
     assert.ok(addCall, 'expected cron add to be called');
     assert.equal(addCall[addCall.indexOf('--tools') + 1], 'exec,read,write,web');
     assert.match(addCall[addCall.indexOf('--message') + 1], /npm run ai-news:source-health/);
+    assert.match(addCall[addCall.indexOf('--message') + 1], /products, models, consumer AI, browser AI, APIs, pricing, privacy, safety, security, smart-home relevance and agent workflows/);
+    assert.doesNotMatch(addCall[addCall.indexOf('--message') + 1], /OpenAI Codex releases, Anthropic Claude Code releases\/docs, Google AI\/Gemini docs, Gemini CLI releases, OpenClaw releases/);
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }
