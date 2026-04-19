@@ -70,6 +70,7 @@ async function main() {
       { needle: '"@type":"WebPage"', label: 'Danish home WebPage JSON-LD' },
       { needle: '"url":"https://smartbolig.net/brand/logo/logo-dark-1200x270.png","width":1200,"height":270', label: 'Organization logo JSON-LD' },
       { needle: '"name":"Forside"', label: 'Danish breadcrumb home label' },
+      { needle: 'href="/da/ai/nyheder/"', label: 'Danish home AI News link' },
     ],
     forbidden: [
       { needle: 'noindex', label: 'noindex robots directive' },
@@ -92,6 +93,7 @@ async function main() {
       { needle: '"@type":"WebPage"', label: 'English home WebPage JSON-LD' },
       { needle: '"url":"https://smartbolig.net/brand/logo/logo-dark-1200x270.png","width":1200,"height":270', label: 'Organization logo JSON-LD' },
       { needle: '"name":"Home"', label: 'English breadcrumb home label' },
+      { needle: 'href="/en/ai/nyheder/"', label: 'English home AI News link' },
     ],
     forbidden: [
       { needle: 'noindex', label: 'noindex robots directive' },
