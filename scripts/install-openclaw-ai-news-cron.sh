@@ -29,8 +29,8 @@ Current date: use Europe/Copenhagen date.
 
 Rules:
 - Work only in the SmartBolig site repo.
-- Use official sources first: OpenAI, OpenAI Codex releases, Anthropic Claude Code releases/docs, Google AI/Gemini docs, Gemini CLI releases, OpenClaw releases.
-- Publish only the strongest AI news. Skip the day if the signal is weak.
+- Use official sources first: OpenAI News, OpenAI model/product/API updates, Anthropic/Claude updates, Google AI/Gemini/Chrome updates, and then coding-agent release notes such as Codex, Claude Code, Gemini CLI and OpenClaw.
+- Publish only the strongest AI news across products, models, consumer AI, browser AI, APIs, pricing, privacy, safety, security, smart-home relevance and agent workflows. Skip the day if the signal is weak.
 - Write in a natural editorial blog-post style under SmartBolig.net, not as an AI-generated digest.
 - Do not copy source text. Use your own short synthesis and source links only.
 - Do not publish rumors, leaks, social recap posts, local OpenClaw report internals, private file paths, phone numbers, tokens, credentials, raw logs, or generator wording.

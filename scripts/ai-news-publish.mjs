@@ -93,16 +93,25 @@ function parseFeed(xml, source) {
 }
 
 function scoreItem(item) {
-  const haystack = `${item.source.name} ${item.title}`.toLowerCase();
+  const haystack = `${item.source.name} ${item.title} ${item.summary}`.toLowerCase();
   let score = item.source.priority;
+  const isReleaseFeed = ['openai-codex', 'claude-code', 'gemini-cli', 'openclaw'].includes(item.source.id);
 
   for (const [keyword, weight] of HIGH_SIGNAL_KEYWORDS) {
     if (haystack.includes(keyword)) score += weight;
   }
 
-  if (/\bv?\d+\.\d+\.\d+\b/.test(item.title)) score += 6;
+  if (/\bv?\d+\.\d+\.\d+\b/.test(item.title)) score += 1;
+  if (isReleaseFeed) score -= 4;
+  if (isReleaseFeed && !/\b(security|safety|pricing|deprecation|breaking|permission|privacy|usage|context|browser|model|agent|workflow|mcp|api)\b/i.test(haystack)) {
+    score -= 6;
+  }
   if (/\bnightly\b/i.test(item.title)) score -= 8;
   if (/\balpha\b/i.test(item.title)) score -= 4;
+  if (/\b(preview|beta|rc)\b/i.test(item.title)) score -= 3;
+  if (/\b(cherry-pick|patch version|dependency bump)\b/i.test(`${item.title} ${item.summary}`)) score -= 7;
+  if (/^release v?\d+\.\d+\.\d+/i.test(item.title)) score -= 4;
+  if (/^(v|rust-v)?\d+\.\d+\.\d+/i.test(item.title)) score -= 4;
   if (/\b(academy|customer success|research with chatgpt|data analysis)\b/i.test(item.title)) score -= 5;
 
   return score;
@@ -156,8 +165,9 @@ function providerLabel(sourceId) {
 }
 
 function impactDa(item) {
+  const haystack = `${item.title} ${item.summary}`.toLowerCase();
   if (item.source.id === 'openai-codex') {
-    return 'Codex CLI kan ændre agent-workflow, sandboxing, MCP-værktøjer og review-flow. Opdater først i et testrepo og læs release notes før produktionsarbejde.';
+    return 'Codex-ændringer kan påvirke agent-workflow, review, browserarbejde, sandboxing og MCP-værktøjer. Opdater først i et testrepo og læs release notes før produktionsarbejde.';
   }
   if (item.source.id === 'claude-code') {
     return 'Claude Code bruges ofte direkte i lokale repos. Nye features og rettelser kan påvirke permissions, team-workflows, hooks, rate-limit feedback og enterprise-netværk.';
@@ -166,17 +176,27 @@ function impactDa(item) {
     return 'Gemini CLI ændrer sig hurtigt. Tjek versionsnoter, især hvis du bruger API key, Vertex AI, checkpoints eller automatiserede agent-runs.';
   }
   if (item.source.id === 'google-ai') {
-    return 'Gemini API-ændringer kan påvirke pris, latency, reliability og hvordan man designer automationer med budgetkontrol.';
+    if (/\b(chrome|browser|search|tab|tabs)\b/.test(haystack)) {
+      return 'AI i browseren kan ændre research, produktvalg, dokumentlæsning og hvordan man bruger webbaserede smart-home dashboards.';
+    }
+    if (/\b(photo|photos|image|video|voice|audio|tts|gemini app)\b/.test(haystack)) {
+      return 'Personlige og multimodale AI-funktioner kan være nyttige, men bør vurderes på privacy, kontoadgang og kvalitet før de bruges fast.';
+    }
+    return 'Google AI-ændringer kan påvirke Gemini, Search, Chrome, API-brug og hvordan AI flytter ind i almindelige forbruger-workflows.';
   }
   if (item.source.id === 'openclaw') {
     return 'OpenClaw-ændringer kan påvirke lokale agent-workflows, cron-jobs, ACP-integrationer og hvordan automatiserede repo-opgaver styres.';
   }
-  return 'Værd at læse, men bør behandles som produkt- eller læringsnyt med lavere prioritet end konkrete release notes.';
+  if (/\b(chatgpt|codex|agent|browser|workflow|app|model|voice|image|video)\b/.test(haystack)) {
+    return 'Nyheden kan ændre, hvordan almindelige brugere og små teams bruger AI i hverdagen, ikke kun hvordan udviklere opdaterer værktøjer.';
+  }
+  return 'Værd at læse som bred AI-nyhed, især hvis den påvirker produkter, modeller, adgang, pris, privacy eller sikkerhed.';
 }
 
 function impactEn(item) {
+  const haystack = `${item.title} ${item.summary}`.toLowerCase();
   if (item.source.id === 'openai-codex') {
-    return 'Codex CLI changes can affect agent workflow, sandboxing, MCP tools, and review flows. Update in a test repository and read the release notes before production work.';
+    return 'Codex changes can affect agent workflow, review, browser work, sandboxing, and MCP tools. Update in a test repository and read the release notes before production work.';
   }
   if (item.source.id === 'claude-code') {
     return 'Claude Code is often used directly inside local repositories. New features and fixes can affect permissions, team workflows, hooks, rate-limit feedback, and enterprise networking.';
@@ -185,24 +205,33 @@ function impactEn(item) {
     return 'Gemini CLI changes quickly. Check release notes if you use API keys, Vertex AI, checkpoints, or automated agent runs.';
   }
   if (item.source.id === 'google-ai') {
-    return 'Gemini API changes can affect cost, latency, reliability, and how you design budget-aware automation.';
+    if (/\b(chrome|browser|search|tab|tabs)\b/.test(haystack)) {
+      return 'AI in the browser can change research, product choices, document reading, and how people use web-based smart-home dashboards.';
+    }
+    if (/\b(photo|photos|image|video|voice|audio|tts|gemini app)\b/.test(haystack)) {
+      return 'Personal and multimodal AI features can be useful, but should be evaluated for privacy, account access, and quality before routine use.';
+    }
+    return 'Google AI changes can affect Gemini, Search, Chrome, API usage, and how AI enters everyday consumer workflows.';
   }
   if (item.source.id === 'openclaw') {
     return 'OpenClaw changes can affect local agent workflows, cron jobs, ACP integrations, and how automated repository tasks are controlled.';
   }
-  return 'Worth reading, but treat it as product or learning news with lower priority than concrete release notes.';
+  if (/\b(chatgpt|codex|agent|browser|workflow|app|model|voice|image|video)\b/.test(haystack)) {
+    return 'The update can change how regular users and small teams use AI day to day, not just how developers update tools.';
+  }
+  return 'Worth reading as broad AI news, especially if it affects products, models, access, pricing, privacy, or security.';
 }
 
 function sourceSummaryDa(items) {
   const providers = [...new Set(items.map((item) => providerLabel(item.source.id)))];
   if (providers.length === 0) return 'Der var ingen stærke officielle signaler i den valgte periode.';
-  return `Dagens stærkeste signaler kommer fra ${providers.join(', ')}. Fokus er release notes, CLI-agent ændringer og API-ændringer med praktisk betydning.`;
+  return `Dagens stærkeste signaler kommer fra ${providers.join(', ')}. Fokus er de AI-nyheder, der kan mærkes i produkter, modeller, browser, agent-workflows, API'er, privacy, pris eller sikkerhed.`;
 }
 
 function sourceSummaryEn(items) {
   const providers = [...new Set(items.map((item) => providerLabel(item.source.id)))];
   if (providers.length === 0) return 'No strong official signals were found in the selected window.';
-  return `Today's strongest signals come from ${providers.join(', ')}. The focus is release notes, CLI-agent changes, and API updates with practical impact.`;
+  return `Today's strongest signals come from ${providers.join(', ')}. The focus is AI news that can be felt in products, models, browsers, agent workflows, APIs, privacy, pricing, or security.`;
 }
 
 function countLabel(count, locale) {
@@ -252,8 +281,8 @@ function renderStorySection({ items, locale }) {
   const isDa = locale === 'da';
   if (items.length === 0) {
     return isDa
-      ? 'Der var ingen publicerbare høj-signal nyheder fra de overvågede officielle kilder.'
-      : 'No publishable high-signal updates were found in the monitored official sources.';
+      ? 'Der var ingen publicerbare nyheder fra de overvågede officielle kilder.'
+      : 'No publishable updates were found in the monitored official sources.';
   }
 
   return items.map((item, index) => {
@@ -295,14 +324,14 @@ function renderTakeaways({ items, locale }) {
   if (isDa) {
     return [
       `- Artiklen bygger på ${countLabel(items.length, locale)} fra ${providers.join(', ')}.`,
-      "- Fokus er ændringer, der kan påvirke AI CLI'er, coding agents, API-brug, priser eller sikkerhed.",
+      '- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.',
       '- Opdater ikke aktive automatiseringer uden at læse originalkilden først.',
     ].join('\n');
   }
 
   return [
     `- This article is based on ${countLabel(items.length, locale)} from ${providers.join(', ')}.`,
-    '- The focus is changes that can affect AI CLIs, coding agents, API usage, pricing, or security.',
+    '- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.',
     '- Do not update active automations before reading the original source.',
   ].join('\n');
 }
@@ -312,8 +341,8 @@ function renderArticle({ locale, date, items, weakSignal }) {
   const formattedDate = formatDate(date, isDa ? 'da-DK' : 'en-US');
   const title = isDa ? `AI-nyheder, ${formattedDate}` : `AI News, ${formattedDate}`;
   const description = isDa
-    ? `Kurateret AI-overblik for ${formattedDate}: OpenAI, Claude Code, Gemini CLI, API-priser og agent-workflows.`
-    : `Curated AI brief for ${formattedDate}: OpenAI, Claude Code, Gemini CLI, API pricing, and agent workflows.`;
+    ? `Kurateret AI-overblik for ${formattedDate}: modeller, produkter, ChatGPT, Claude, Gemini, API-priser, privacy og agent-workflows.`
+    : `Curated AI brief for ${formattedDate}: models, products, ChatGPT, Claude, Gemini, API pricing, privacy, and agent workflows.`;
   const publishedMeta = isDa
     ? `<strong>Publiceret:</strong> <time datetime="${date}">${formattedDate}</time> | <strong>Opdateret:</strong> <time datetime="${date}">${formattedDate}</time>`
     : `<strong>Published:</strong> <time datetime="${date}">${formattedDate}</time> | <strong>Updated:</strong> <time datetime="${date}">${formattedDate}</time>`;
@@ -343,9 +372,7 @@ function renderArticle({ locale, date, items, weakSignal }) {
   if (isDa) {
     return `${frontmatter}
 
-import { Badge, Aside } from "@astrojs/starlight/components";
-
-<Badge text="${signal === 'high' ? 'Høj signalværdi' : signal === 'medium' ? 'Middel signalværdi' : 'Lav signalværdi'}" variant="${signal === 'high' ? 'success' : signal === 'medium' ? 'note' : 'caution'}" />
+import { Aside } from "@astrojs/starlight/components";
 
 <p class="ai-news-byline">Af SmartBolig.net Redaktionen · ${publishedMeta} · ${countLabel(items.length, locale)}</p>
 
@@ -365,9 +392,9 @@ ${renderTakeaways({ items, locale })}
 
 ## Hvad du bør gøre nu
 
-1. Læs originalkilden, før du opdaterer en CLI eller ændrer et agent-workflow.
-2. Test nye agent- eller API-versioner i et separat projekt, før de bruges i drift.
-3. Spring dagens udgave over, hvis kilderne ikke giver nok signal.
+1. Læs originalkilden, før du aktiverer en ny AI-funktion, ændrer modelvalg eller opdaterer et agent-workflow.
+2. Test nye modeller, apps, API'er og agent-versioner i et ufarligt projekt, før de bruges i drift.
+3. Vurder privacy, pris og rollback, før AI får adgang til browser, filer, billeder eller automatiseringer.
 
 ## Kilder og videre læsning
 
@@ -383,9 +410,7 @@ Artiklen bygger på officielle kilder og korte parafraser. Lange citater, kopier
 
   return `${frontmatter}
 
-import { Badge, Aside } from "@astrojs/starlight/components";
-
-<Badge text="${signal === 'high' ? 'High signal' : signal === 'medium' ? 'Medium signal' : 'Low signal'}" variant="${signal === 'high' ? 'success' : signal === 'medium' ? 'note' : 'caution'}" />
+import { Aside } from "@astrojs/starlight/components";
 
 <p class="ai-news-byline">By SmartBolig.net Editorial · ${publishedMeta} · ${countLabel(items.length, locale)}</p>
 
@@ -405,9 +430,9 @@ ${renderTakeaways({ items, locale })}
 
 ## What To Do Now
 
-1. Read the original source before updating a CLI or changing an agent workflow.
-2. Test new agent or API versions in a separate project before using them in operations.
-3. Skip the daily issue if the sources do not provide enough signal.
+1. Read the original source before enabling a new AI feature, changing model choice, or updating an agent workflow.
+2. Test new models, apps, APIs, and agent versions in a harmless project before using them in operations.
+3. Check privacy, pricing, and rollback before AI gets access to browsers, files, images, or automations.
 
 ## Sources and Further Reading
 
@@ -426,8 +451,8 @@ function renderIndex({ locale, entries }) {
   const latest = entries[0];
   const title = isDa ? 'AI-nyheder' : 'AI News';
   const description = isDa
-    ? 'Dagligt kildebaseret overblik over OpenAI, Claude Code, Gemini CLI, API-priser og AI-agent workflows.'
-    : 'Daily source-backed brief for OpenAI, Claude Code, Gemini CLI, API pricing, and AI-agent workflows.';
+    ? 'Dagligt kildebaseret overblik over de vigtigste AI-nyheder fra OpenAI, Anthropic, Google, modeller, produkter, API-priser, privacy og AI-agent workflows.'
+    : 'Daily source-backed brief for the most important AI news from OpenAI, Anthropic, Google, models, products, API pricing, privacy, and AI-agent workflows.';
 
   if (isDa) {
     return `---
@@ -440,7 +465,7 @@ sidebar:
 
 import AiNewsFeed from "../../../../../components/AiNewsFeed.astro";
 
-AI-nyheder fra SmartBolig.net er korte, redaktionelle artikler om AI CLI'er, coding agents, modeller, API-priser og sikkerhed. Fokus er officielle kilder, praktisk betydning og egne formuleringer.
+AI-nyheder fra SmartBolig.net er korte, redaktionelle artikler om de vigtigste AI-nyheder: modeller, ChatGPT, Claude, Gemini, AI i browseren, apps, API-priser, privacy, sikkerhed og agent-workflows. Fokus er officielle kilder, praktisk betydning og egne formuleringer.
 
 <AiNewsFeed locale="da" />
 `;
@@ -456,7 +481,7 @@ sidebar:
 
 import AiNewsFeed from "../../../../../components/AiNewsFeed.astro";
 
-SmartBolig.net AI News is a set of short editorial articles about AI CLIs, coding agents, models, API pricing, and security. The focus is official sources, practical impact, and original wording.
+SmartBolig.net AI News is a set of short editorial articles about the most important AI news: models, ChatGPT, Claude, Gemini, AI in the browser, apps, API pricing, privacy, security, and agent workflows. The focus is official sources, practical impact, and original wording.
 
 <AiNewsFeed locale="en" />
 `;
@@ -509,13 +534,19 @@ function selectItems(items) {
   const selected = [];
   const sourceCounts = new Map();
 
-  for (const item of [...byUrl.values()]
+  const candidates = [...byUrl.values()]
     .filter((item) => item.score >= minScore)
     .sort((a, b) => {
       if (b.score !== a.score) return b.score - a.score;
       return b.published - a.published;
-    })
-  ) {
+    });
+  const productSourceIds = new Set(['openai-news', 'google-ai']);
+  const orderedCandidates = [
+    ...candidates.filter((item) => productSourceIds.has(item.source.id)),
+    ...candidates.filter((item) => !productSourceIds.has(item.source.id)),
+  ];
+
+  for (const item of orderedCandidates) {
     const sourceCount = sourceCounts.get(item.source.id) || 0;
     if (sourceCount >= maxPerSource) continue;
     selected.push(item);
@@ -553,7 +584,7 @@ async function main() {
   const weakSignal = selected.length < 2;
 
   if (weakSignal && !allowWeakSignal) {
-    console.log(`No AI News draft written. Only ${selected.length} high-signal item(s) found for ${targetDate}.`);
+    console.log(`No AI News draft written. Only ${selected.length} publishable item(s) found for ${targetDate}.`);
     process.exit(0);
   }
 

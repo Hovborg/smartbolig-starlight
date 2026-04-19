@@ -30,6 +30,6 @@ test('public AI News copy avoids internal automation labels', async () => {
 
   for (const relativePath of [...staticFiles, ...contentFiles, ...rssFiles]) {
     const content = await readFile(path.join(rootDir, relativePath), 'utf8');
-    assert.doesNotMatch(content, /AI Radar|AI News-feed/i, `${relativePath} should not expose internal feed labels`);
+    assert.doesNotMatch(content, /AI Radar|AI News-feed|Høj signalværdi|Middel signalværdi|Lav signalværdi|High signal|Medium signal|Low signal/i, `${relativePath} should not expose internal feed labels`);
   }
 });

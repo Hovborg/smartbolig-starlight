@@ -81,10 +81,6 @@ const extractHeadlines = (body: unknown, issueHref: string, sources: string[]) =
     .slice(0, 6);
 };
 
-const signalText: Record<Signal, string> = isDa
-  ? { high: "Høj signalværdi", medium: "Middel signalværdi", low: "Lav signalværdi" }
-  : { high: "High signal", medium: "Medium signal", low: "Low signal" };
-
 const signalPriority: Record<Signal, number> = { high: 3, medium: 2, low: 1 };
 const issues = docs
   .filter((doc) => {
@@ -119,7 +115,6 @@ const issues = docs
   });
 
 const latest = issues[0];
-const highSignalCount = issues.filter((issue) => issue.signal === "high").length;
 const latestSourceCount = latest?.sources.length || 0;
 const totalSourceCount = OFFICIAL_SOURCE_URLS.length;
 
@@ -156,10 +151,9 @@ const copy = isDa
       noIssues: "Ingen publicerede artikler endnu.",
       sources: "Officielle kilder",
       sourcesText:
-        "Kilderne er valgt efter praktisk signal: først CLI releases og changelogs, derefter model/API-nyheder med konkret effekt.",
+        "Kilderne er valgt efter praktisk betydning: brede AI-produktnyheder først, derefter modeller, API'er, privacy, priser, sikkerhed og agent-workflows.",
       issueCount: "artikel",
       issueCountPlural: "artikler",
-      highSignal: "høj-signal",
       sourceCount: "kilder i seneste artikel",
       monitoredCount: "officielle kilder overvåges",
       primaryFeeds: "Primære kilder",
@@ -183,10 +177,9 @@ const copy = isDa
       noIssues: "No published articles yet.",
       sources: "Official sources",
       sourcesText:
-        "Sources are selected by practical signal: CLI releases and changelogs first, then model/API updates with concrete impact.",
+        "Sources are selected by practical impact: broad AI product news first, then models, APIs, privacy, pricing, security, and agent workflows.",
       issueCount: "article",
       issueCountPlural: "articles",
-      highSignal: "high-signal",
       sourceCount: "sources in latest article",
       monitoredCount: "official sources monitored",
       primaryFeeds: "Primary sources",
@@ -219,10 +212,6 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
       <span>{issueLabel}</span>
     </div>
     <div>
-      <strong>{highSignalCount}</strong>
-      <span>{copy.highSignal}</span>
-    </div>
-    <div>
       <strong>{latestSourceCount}</strong>
       <span>{copy.sourceCount}</span>
     </div>
@@ -237,7 +226,6 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
       <div class="latest-layout">
         <article class="latest-card">
           <div class="issue-meta">
-            <span class={`signal signal-${latest.signal}`}>{signalText[latest.signal]}</span>
             <time datetime={latest.dateString}>{formatDate(latest.date)}</time>
             <span>
               {latest.sources.length} {latest.sources.length === 1 ? copy.source : copy.sourcesPlural}
@@ -294,7 +282,6 @@ const issueLabel = issues.length === 1 ? copy.issueCount : copy.issueCountPlural
         <article class="issue-row" role="listitem">
           <div class="issue-row-main">
             <div class="issue-meta">
-              <span class={`signal signal-${issue.signal}`}>{signalText[issue.signal]}</span>
               <time datetime={issue.dateString}>{formatDate(issue.date)}</time>
               <span>
                 {issue.sources.length} {issue.sources.length === 1 ? copy.source : copy.sourcesPlural}
