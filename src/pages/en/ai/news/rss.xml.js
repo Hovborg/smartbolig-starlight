@@ -48,7 +48,7 @@ export async function GET(context) {
 
   return rss({
     title: 'SmartBolig.net - AI News',
-    description: 'Curated AI Radar for OpenAI, Claude Code, Gemini CLI, API pricing, and AI-agent workflows.',
+    description: 'Curated AI articles for OpenAI, Claude Code, Gemini CLI, API pricing, and AI-agent workflows.',
     site: context.site || 'https://smartbolig.net',
     language: 'en',
     xmlns: {
