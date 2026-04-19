@@ -37,6 +37,10 @@ const lookbackDays = Number(args.get('--days') || 10);
 const minScore = Number(args.get('--min-score') || 14);
 const maxItems = Number(args.get('--max-items') || 7);
 const maxPerSource = Number(args.get('--max-per-source') || 1);
+const fixturePaths = String(args.get('--fixture') || '')
+  .split(',')
+  .map((value) => value.trim())
+  .filter(Boolean);
 
 function decodeEntities(value) {
   return value
@@ -201,6 +205,108 @@ function sourceSummaryEn(items) {
   return `Today's strongest signals come from ${providers.join(', ')}. The focus is release notes, CLI-agent changes, and API updates with practical impact.`;
 }
 
+function countLabel(count, locale) {
+  if (locale === 'da') return count === 1 ? '1 officiel kilde' : `${count} officielle kilder`;
+  return count === 1 ? '1 official source' : `${count} official sources`;
+}
+
+function actionDa(item) {
+  if (item.source.id === 'openai-codex') {
+    return 'Test versionen i et separat repo, før du bruger den i workflows med auto-commit, MCP eller shell-adgang.';
+  }
+  if (item.source.id === 'claude-code') {
+    return 'Læs ændringerne for permissions og team-opsætning, før du opdaterer en maskine der arbejder direkte i produktionsrepos.';
+  }
+  if (item.source.id === 'gemini-cli') {
+    return 'Gem CLI-versionen sammen med projektets agent-instruktioner, så automatiske runs kan reproduceres.';
+  }
+  if (item.source.id === 'google-ai') {
+    return 'Tjek om ændringen påvirker budget, latency eller modelvalg, før den bliver del af en fast automation.';
+  }
+  if (item.source.id === 'openclaw') {
+    return 'Læs release notes før gateway eller cron-jobs opdateres, fordi runtime-ændringer hurtigt kan påvirke automatiserede opgaver.';
+  }
+  return 'Læs originalkilden og behandl nyheden som inspiration, indtil den har en konkret effekt på dit setup.';
+}
+
+function actionEn(item) {
+  if (item.source.id === 'openai-codex') {
+    return 'Test the version in a separate repository before using it in workflows with auto-commit, MCP, or shell access.';
+  }
+  if (item.source.id === 'claude-code') {
+    return 'Read the permission and team setup notes before updating a machine that works directly inside production repositories.';
+  }
+  if (item.source.id === 'gemini-cli') {
+    return 'Pin the CLI version alongside the project agent instructions so automated runs stay reproducible.';
+  }
+  if (item.source.id === 'google-ai') {
+    return 'Check whether the change affects budget, latency, or model choice before adding it to a fixed automation.';
+  }
+  if (item.source.id === 'openclaw') {
+    return 'Read release notes before updating gateways or cron jobs because runtime changes can quickly affect automated tasks.';
+  }
+  return 'Read the original source and treat the update as inspiration until it has a concrete effect on your setup.';
+}
+
+function renderStorySection({ items, locale }) {
+  const isDa = locale === 'da';
+  if (items.length === 0) {
+    return isDa
+      ? 'Der var ingen publicerbare høj-signal nyheder fra de overvågede officielle kilder.'
+      : 'No publishable high-signal updates were found in the monitored official sources.';
+  }
+
+  return items.map((item, index) => {
+    const sourceDate = formatShortDate(item.published, isDa ? 'da-DK' : 'en-US');
+    const provider = providerLabel(item.source.id);
+    if (isDa) {
+      return `### ${index + 1}. ${provider}: ${item.title}
+
+${item.source.name} publicerede opdateringen ${sourceDate}. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+
+For SmartBolig-læsere er den relevante vinkel: ${impactDa(item)}
+
+Det næste skridt er konkret: ${actionDa(item)}
+
+[Læs originalkilden hos ${item.source.name}](${item.url})`;
+    }
+
+    return `### ${index + 1}. ${provider}: ${item.title}
+
+${item.source.name} published the update on ${sourceDate}. It is an official source with practical impact for people using AI tools in real projects.
+
+For SmartBolig readers, the relevant angle is: ${impactEn(item)}
+
+The next step is concrete: ${actionEn(item)}
+
+[Read the original source at ${item.source.name}](${item.url})`;
+  }).join('\n\n');
+}
+
+function renderTakeaways({ items, locale }) {
+  const isDa = locale === 'da';
+  if (items.length === 0) {
+    return isDa
+      ? '- Ingen ændringer kræver handling i dag.'
+      : '- No changes require action today.';
+  }
+
+  const providers = [...new Set(items.map((item) => providerLabel(item.source.id)))];
+  if (isDa) {
+    return [
+      `- Artiklen bygger på ${countLabel(items.length, locale)} fra ${providers.join(', ')}.`,
+      "- Fokus er ændringer, der kan påvirke AI CLI'er, coding agents, API-brug, priser eller sikkerhed.",
+      '- Opdater ikke aktive automatiseringer uden at læse originalkilden først.',
+    ].join('\n');
+  }
+
+  return [
+    `- This article is based on ${countLabel(items.length, locale)} from ${providers.join(', ')}.`,
+    '- The focus is changes that can affect AI CLIs, coding agents, API usage, pricing, or security.',
+    '- Do not update active automations before reading the original source.',
+  ].join('\n');
+}
+
 function renderArticle({ locale, date, items, weakSignal }) {
   const isDa = locale === 'da';
   const formattedDate = formatDate(date, isDa ? 'da-DK' : 'en-US');
@@ -209,38 +315,10 @@ function renderArticle({ locale, date, items, weakSignal }) {
     ? `Kurateret AI-overblik for ${formattedDate}: OpenAI, Claude Code, Gemini CLI, API-priser og agent-workflows.`
     : `Curated AI brief for ${formattedDate}: OpenAI, Claude Code, Gemini CLI, API pricing, and agent workflows.`;
   const publishedMeta = isDa
-    ? `<p><strong>Publiceret:</strong> <time datetime="${date}">${formattedDate}</time> | <strong>Opdateret:</strong> <time datetime="${date}">${formattedDate}</time></p>`
-    : `<p><strong>Published:</strong> <time datetime="${date}">${formattedDate}</time> | <strong>Updated:</strong> <time datetime="${date}">${formattedDate}</time></p>`;
+    ? `<strong>Publiceret:</strong> <time datetime="${date}">${formattedDate}</time> | <strong>Opdateret:</strong> <time datetime="${date}">${formattedDate}</time>`
+    : `<strong>Published:</strong> <time datetime="${date}">${formattedDate}</time> | <strong>Updated:</strong> <time datetime="${date}">${formattedDate}</time>`;
   const signal = weakSignal ? 'low' : items.length >= 4 ? 'high' : 'medium';
   const sourceUrls = [...new Set(items.map((item) => item.url))];
-
-  const storyLinks = items.map((item, index) => {
-    const title = `${providerLabel(item.source.id)}: ${item.title}`;
-    const heading = `${index + 1}. ${title}`;
-    const sourceText = isDa ? 'kilde' : 'source';
-    return `- [${title}](#${slugifyHeading(heading)}) · [${sourceText}](${item.url})`;
-  }).join('\n');
-
-  const headlineBlocks = items.map((item, index) => {
-    const sourceDate = formatShortDate(item.published, isDa ? 'da-DK' : 'en-US');
-    if (isDa) {
-      return `### ${index + 1}. ${providerLabel(item.source.id)}: ${item.title}
-
-- Hvad skete der: ${item.source.name} publicerede denne opdatering ${sourceDate}.
-- Hvorfor det betyder noget: ${impactDa(item)}
-- Hvad bør du gøre: Læs kilden, opdater kontrolleret og hold øje med ændringer i permissions, pricing, API-brug og projektmapper.
-
-Kilde: [${item.source.name}](${item.url})`;
-    }
-
-    return `### ${index + 1}. ${providerLabel(item.source.id)}: ${item.title}
-
-- What happened: ${item.source.name} published this update on ${sourceDate}.
-- Why it matters: ${impactEn(item)}
-- What to do: Read the source, update carefully, and watch for changes in permissions, pricing, API usage, and project folders.
-
-Source: [${item.source.name}](${item.url})`;
-  }).join('\n\n');
 
   const sourceRows = items.map((item) => {
     const sourceDate = formatShortDate(item.published, isDa ? 'da-DK' : 'en-US');
@@ -267,41 +345,39 @@ Source: [${item.source.name}](${item.url})`;
 
 import { Badge, Aside } from "@astrojs/starlight/components";
 
-<Badge text="AI Radar" variant="note" /> <Badge text="${signal === 'high' ? 'Høj signalværdi' : signal === 'medium' ? 'Middel signalværdi' : 'Lav signalværdi'}" variant="${signal === 'high' ? 'success' : signal === 'medium' ? 'note' : 'caution'}" />
+<Badge text="${signal === 'high' ? 'Høj signalværdi' : signal === 'medium' ? 'Middel signalværdi' : 'Lav signalværdi'}" variant="${signal === 'high' ? 'success' : signal === 'medium' ? 'note' : 'caution'}" />
 
-${publishedMeta}
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · ${publishedMeta} · ${countLabel(items.length, locale)}</p>
 
-${weakSignal ? 'Der var ikke nok høj-signal nyheder til en fuld dagsudgave. Denne side er derfor en kort kildebaseret status, ikke en fyldartikel.' : sourceSummaryDa(items)}
+<p class="ai-news-lede">${weakSignal ? 'Der var ikke nok stærke nyheder til en fuld dagsudgave. Derfor er dette en kort kildebaseret artikel, ikke fyld for kalenderens skyld.' : sourceSummaryDa(items)}</p>
 
-<Aside type="caution" title="Kildeførst">
-Denne side må ikke kopiere lange tekststykker fra kilderne. Brug links, korte forklaringer og konkrete handlinger.
+<Aside type="note" title="Redaktionelt filter">
+SmartBolig.net vælger hellere færre nyheder med klare kilder end et langt nyhedsfeed. Artiklen bruger egne formuleringer og linker til originalkilderne.
 </Aside>
 
-## Kort sagt
+## Hovedhistorien
 
-- ${items.length} officielle signaler blev udvalgt til denne udgave.
-- Prioriteten er AI CLI'er, coding agents, API-ændringer, modelændringer, pricing og sikkerhed.
-- Læs altid release notes før du opdaterer en CLI i et aktivt projekt.
+${renderStorySection({ items, locale })}
 
-## Nyhederne i dag
+## Hvorfor det betyder noget
 
-${storyLinks || '- Ingen publicerbare nyheder i denne udgave.'}
+${renderTakeaways({ items, locale })}
 
-## Vigtigste nyt
+## Hvad du bør gøre nu
 
-${headlineBlocks || 'Ingen høj-signal nyheder fra de overvågede officielle kilder.'}
+1. Læs originalkilden, før du opdaterer en CLI eller ændrer et agent-workflow.
+2. Test nye agent- eller API-versioner i et separat projekt, før de bruges i drift.
+3. Spring dagens udgave over, hvis kilderne ikke giver nok signal.
 
-## Kildeoverblik
+## Kilder og videre læsning
 
 | Område | Kilde | Dato |
 | --- | --- | --- |
 ${sourceRows || '| AI | Ingen publicerbar kilde | - |'}
 
-## Redaktionsregler
+## Redaktionsnote
 
-- Officielle kilder prioriteres over rygter og sociale medier.
-- Interne OpenClaw-rapporter, lokale filstier og private tokens må aldrig publiceres.
-- Hvis der ikke er nok signal, springes dagsudgaven over eller markeres tydeligt som lav signalværdi.
+Artiklen bygger på officielle kilder og korte parafraser. Lange citater, kopieret brødtekst og private tekniske detaljer er fravalgt.
 `;
   }
 
@@ -309,41 +385,39 @@ ${sourceRows || '| AI | Ingen publicerbar kilde | - |'}
 
 import { Badge, Aside } from "@astrojs/starlight/components";
 
-<Badge text="AI Radar" variant="note" /> <Badge text="${signal === 'high' ? 'High signal' : signal === 'medium' ? 'Medium signal' : 'Low signal'}" variant="${signal === 'high' ? 'success' : signal === 'medium' ? 'note' : 'caution'}" />
+<Badge text="${signal === 'high' ? 'High signal' : signal === 'medium' ? 'Medium signal' : 'Low signal'}" variant="${signal === 'high' ? 'success' : signal === 'medium' ? 'note' : 'caution'}" />
 
-${publishedMeta}
+<p class="ai-news-byline">By SmartBolig.net Editorial · ${publishedMeta} · ${countLabel(items.length, locale)}</p>
 
-${weakSignal ? 'There were not enough high-signal updates for a full daily issue. This page is a short source-backed status, not filler content.' : sourceSummaryEn(items)}
+<p class="ai-news-lede">${weakSignal ? 'There were not enough strong updates for a full daily issue. This is a short source-backed article, not filler for the calendar.' : sourceSummaryEn(items)}</p>
 
-<Aside type="caution" title="Source first">
-This page must not copy long passages from sources. Use links, short explanations, and concrete actions.
+<Aside type="note" title="Editorial filter">
+SmartBolig.net prefers fewer updates with clear sources over a long news feed. The article uses original wording and links back to the source material.
 </Aside>
 
-## Short Version
+## Lead Story
 
-- ${items.length} official signals were selected for this issue.
-- The priority is AI CLIs, coding agents, API changes, model changes, pricing, and security.
-- Always read release notes before updating a CLI in an active project.
+${renderStorySection({ items, locale })}
 
-## Today's News
+## Why It Matters
 
-${storyLinks || '- No publishable news in this issue.'}
+${renderTakeaways({ items, locale })}
 
-## Main Updates
+## What To Do Now
 
-${headlineBlocks || 'No high-signal updates from the monitored official sources.'}
+1. Read the original source before updating a CLI or changing an agent workflow.
+2. Test new agent or API versions in a separate project before using them in operations.
+3. Skip the daily issue if the sources do not provide enough signal.
 
-## Source Overview
+## Sources and Further Reading
 
 | Area | Source | Date |
 | --- | --- | --- |
 ${sourceRows || '| AI | No publishable source | - |'}
 
-## Editorial Rules
+## Editorial Note
 
-- Official sources rank above rumors and social media.
-- Internal OpenClaw reports, local file paths, and private tokens must never be published.
-- If signal is weak, the daily issue is skipped or clearly marked as low signal.
+The article is based on official sources and short paraphrases. Long quotes, copied body text, and private technical details are deliberately avoided.
 `;
 }
 
@@ -366,7 +440,7 @@ sidebar:
 
 import AiNewsFeed from "../../../../../components/AiNewsFeed.astro";
 
-AI-nyheder er SmartBolig.net's separate AI Radar: korte, kildebaserede opdateringer om AI CLI'er, coding agents, modeller, API-priser og sikkerhed.
+AI-nyheder fra SmartBolig.net er korte, redaktionelle artikler om AI CLI'er, coding agents, modeller, API-priser og sikkerhed. Fokus er officielle kilder, praktisk betydning og egne formuleringer.
 
 <AiNewsFeed locale="da" />
 `;
@@ -382,13 +456,23 @@ sidebar:
 
 import AiNewsFeed from "../../../../../components/AiNewsFeed.astro";
 
-AI News is SmartBolig.net's separate AI Radar: short, source-backed updates about AI CLIs, coding agents, models, API pricing, and security.
+SmartBolig.net AI News is a set of short editorial articles about AI CLIs, coding agents, models, API pricing, and security. The focus is official sources, practical impact, and original wording.
 
 <AiNewsFeed locale="en" />
 `;
 }
 
 async function fetchItems() {
+  if (fixturePaths.length > 0) {
+    const source = FEEDS.find((feed) => feed.id === 'openai-codex') || FEEDS[0];
+    const results = [];
+    for (const fixturePath of fixturePaths) {
+      const xml = await readFile(path.resolve(fixturePath), 'utf8');
+      results.push(...parseFeed(xml, source));
+    }
+    return results;
+  }
+
   const results = [];
   for (const feed of FEEDS) {
     try {

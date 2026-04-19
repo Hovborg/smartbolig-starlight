@@ -6,6 +6,7 @@ JOB_NAME="${OPENCLAW_SMARTBOLIG_AI_NEWS_JOB_NAME:-smartbolig-ai-news-daily}"
 CRON_EXPR="${OPENCLAW_SMARTBOLIG_AI_NEWS_CRON:-20 7 * * *}"
 TZ_NAME="${OPENCLAW_SMARTBOLIG_AI_NEWS_TZ:-Europe/Copenhagen}"
 AGENT_ID="${OPENCLAW_SMARTBOLIG_AI_NEWS_AGENT:-main}"
+TOOLS="${OPENCLAW_SMARTBOLIG_AI_NEWS_TOOLS:-exec,read,write,web}"
 
 if ! command -v openclaw >/dev/null 2>&1; then
   echo "openclaw CLI was not found in PATH." >&2
@@ -29,7 +30,10 @@ Current date: use Europe/Copenhagen date.
 Rules:
 - Work only in the SmartBolig site repo.
 - Use official sources first: OpenAI, OpenAI Codex releases, Anthropic Claude Code releases/docs, Google AI/Gemini docs, Gemini CLI releases, OpenClaw releases.
-- Do not publish rumors, leaks, social recap posts, local OpenClaw report internals, private file paths, phone numbers, tokens, credentials, or raw logs.
+- Publish only the strongest AI news. Skip the day if the signal is weak.
+- Write in a natural editorial blog-post style under SmartBolig.net, not as an AI-generated digest.
+- Do not copy source text. Use your own short synthesis and source links only.
+- Do not publish rumors, leaks, social recap posts, local OpenClaw report internals, private file paths, phone numbers, tokens, credentials, raw logs, or generator wording.
 - Do not push directly to main.
 - If there is not enough signal, do not create filler content.
 
@@ -52,7 +56,8 @@ openclaw cron add \
   --tz "${TZ_NAME}" \
   --agent "${AGENT_ID}" \
   --timeout-seconds 1200 \
+  --tools "${TOOLS}" \
   --message "${message}" \
   --no-deliver >/dev/null
 
-echo "Installed OpenClaw cron job: ${JOB_NAME} (${CRON_EXPR}, ${TZ_NAME}, agent=${AGENT_ID})"
+echo "Installed OpenClaw cron job: ${JOB_NAME} (${CRON_EXPR}, ${TZ_NAME}, agent=${AGENT_ID}, tools=${TOOLS})"
