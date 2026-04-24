@@ -164,6 +164,24 @@ function providerLabel(sourceId) {
   return 'AI';
 }
 
+function imageSummary({ items, locale }) {
+  const isDa = locale === 'da';
+  const providers = [...new Set(items.map((item) => providerLabel(item.source.id)))];
+  const providerText = providers.length > 0 ? providers.join(', ') : isDa ? 'dagens AI-kilder' : "today's AI sources";
+  return isDa
+    ? `SmartBolig-hardwarevisual om dagens AI-nyheder fra ${providerText}`
+    : `SmartBolig hardware visual about today's AI news from ${providerText}`;
+}
+
+function imageCaption({ items, locale }) {
+  const isDa = locale === 'da';
+  const providers = [...new Set(items.map((item) => providerLabel(item.source.id)))];
+  const providerText = providers.length > 0 ? providers.join(', ') : isDa ? 'dagens AI-kilder' : "today's AI sources";
+  return isDa
+    ? `SmartBolig-hardware sat op til dagens AI-nyheder om ${providerText}.`
+    : `SmartBolig hardware arranged for today's AI news about ${providerText}.`;
+}
+
 function impactDa(item) {
   const haystack = `${item.title} ${item.summary}`.toLowerCase();
   if (item.source.id === 'openai-codex') {
@@ -297,7 +315,7 @@ For SmartBolig-læsere er den relevante vinkel: ${impactDa(item)}
 
 Det næste skridt er konkret: ${actionDa(item)}
 
-[Læs originalkilden hos ${item.source.name}](${item.url})`;
+Kilde: [${item.source.name}: ${item.title}](${item.url})`;
     }
 
     return `### ${index + 1}. ${provider}: ${item.title}
@@ -308,7 +326,7 @@ For SmartBolig readers, the relevant angle is: ${impactEn(item)}
 
 The next step is concrete: ${actionEn(item)}
 
-[Read the original source at ${item.source.name}](${item.url})`;
+Source: [${item.source.name}: ${item.title}](${item.url})`;
   }).join('\n\n');
 }
 
@@ -360,6 +378,10 @@ function renderArticle({ locale, date, items, weakSignal }) {
     `description: ${yamlString(description)}`,
     `date: ${date}`,
     `lastUpdated: ${date}`,
+    'heroImage:',
+    `  src: ${yamlString(`/images/ai-news/${date}.png`)}`,
+    `  alt: ${yamlString(imageSummary({ items, locale }))}`,
+    `  caption: ${yamlString(imageCaption({ items, locale }))}`,
     'news:',
     `  signal: ${signal}`,
     '  sources:',
