@@ -15,6 +15,13 @@ export const collections = {
 						sources: z.array(z.string().url()).optional(),
 					})
 					.optional(),
+				heroImage: z
+					.object({
+						src: z.string().startsWith('/images/'),
+						alt: z.string().min(1),
+						caption: z.string().optional(),
+					})
+					.optional(),
 			}),
 		}),
 	}),
