@@ -64,6 +64,23 @@ const isSectionIndex = /^\/(?:da|en)\/(?:ai|automationer|esp32|home-assistant|ju
   || /^\/(?:da|en)\/ai\/ai-cli\/?$/.test(pathname);
 const shouldRenderArticleSchema = Boolean(entry?.data && !isHomePage && !isSectionIndex && !isLegalPage && !isAiNewsIndex && !isNotFoundPage);
 const newsSources = Array.isArray(entry?.data?.news?.sources) ? entry.data.news.sources : [];
+const articleHeroImage = isAiNewsArticle ? entry?.data?.heroImage : null;
+const articleHeroImageSrc = typeof articleHeroImage?.src === "string" ? articleHeroImage.src : null;
+const articleHeroImageAlt = typeof articleHeroImage?.alt === "string" ? articleHeroImage.alt : null;
+const articleHeroImageUrl = articleHeroImageSrc ? new URL(articleHeroImageSrc, siteUrl).href : null;
+const articleHeroImageStem = articleHeroImageSrc?.replace(/\.[a-z0-9]+$/i, "");
+const articleHeroImageExt = articleHeroImageSrc?.match(/\.[a-z0-9]+$/i)?.[0] || "";
+const articleAiNewsSchemaImages = articleHeroImageUrl && articleHeroImageStem && articleHeroImageExt
+  ? [
+      { url: articleHeroImageUrl, width: 1200, height: 630 },
+      { url: `${siteUrl}${articleHeroImageStem}-16x9${articleHeroImageExt}`, width: 1200, height: 675 },
+      { url: `${siteUrl}${articleHeroImageStem}-4x3${articleHeroImageExt}`, width: 1200, height: 900 },
+      { url: `${siteUrl}${articleHeroImageStem}-1x1${articleHeroImageExt}`, width: 1200, height: 1200 },
+    ]
+  : null;
+const activeAiNewsSocialImageUrl = articleHeroImageUrl || aiNewsSocialImageUrl;
+const activeAiNewsSchemaImages = articleAiNewsSchemaImages || aiNewsSchemaImages;
+const activeAiNewsImageAlt = articleHeroImageAlt || (lang === "da" ? "SmartBolig.net AI-nyheder" : "SmartBolig.net AI News");
 const robotsContent = isNotFoundPage
   ? "noindex, nofollow"
   : "max-image-preview:large, max-snippet:-1, max-video-preview:-1, noai, noimageai";
@@ -114,20 +131,12 @@ if (entry?.data || isNotFoundPage) {
 }
 
 if (isAiNewsPage) {
-  upsertMeta("property", "og:image", aiNewsSocialImageUrl);
+  upsertMeta("property", "og:image", activeAiNewsSocialImageUrl);
   upsertMeta("property", "og:image:width", "1200");
   upsertMeta("property", "og:image:height", "630");
-  upsertMeta(
-    "property",
-    "og:image:alt",
-    lang === "da" ? "SmartBolig.net AI-nyheder" : "SmartBolig.net AI News"
-  );
-  upsertMeta("name", "twitter:image", aiNewsSocialImageUrl);
-  upsertMeta(
-    "name",
-    "twitter:image:alt",
-    lang === "da" ? "SmartBolig.net AI-nyheder" : "SmartBolig.net AI News"
-  );
+  upsertMeta("property", "og:image:alt", activeAiNewsImageAlt);
+  upsertMeta("name", "twitter:image", activeAiNewsSocialImageUrl);
+  upsertMeta("name", "twitter:image:alt", activeAiNewsImageAlt);
   addLink({
     rel: "alternate",
     type: "application/rss+xml",
@@ -284,7 +293,7 @@ const webPageSchema = entry?.data || isNotFoundPage ? {
     "@id": `${siteUrl}/#organization`
   },
   image: isAiNewsPage
-    ? aiNewsSchemaImages.map((image) => ({
+    ? activeAiNewsSchemaImages.map((image) => ({
         "@type": "ImageObject",
         ...image,
       }))
@@ -334,7 +343,7 @@ const articleSchema = shouldRenderArticleSchema ? {
     "@id": `${siteUrl}/#organization`
   },
   image: isAiNewsArticle
-    ? aiNewsSchemaImages.map((image) => ({
+    ? activeAiNewsSchemaImages.map((image) => ({
         "@type": "ImageObject",
         ...image,
       }))
