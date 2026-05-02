@@ -9,6 +9,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "ai-news:draft": "node scripts/ai-news-publish.mjs --write",
+    "ai-news:pending-images": "node scripts/ai-news-pending-images.mjs",
+    "ai-news:render-image": "node scripts/ai-news-render-image.mjs",
     "ai-news:source-health": "node scripts/ai-news-source-health.mjs",
     "ai-news:test": "node --test scripts/ai-news-*.test.mjs",
     "ai-news:validate": "node scripts/ai-news-validate.mjs",
