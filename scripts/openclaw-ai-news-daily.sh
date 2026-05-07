@@ -17,6 +17,8 @@ SYNC_ITEMS=(
   "scripts/ai-news-pending-images.test.mjs"
   "scripts/ai-news-post.test.mjs"
   "scripts/ai-news-public-copy.test.mjs"
+  "scripts/ai-news-comfyui-client.mjs"
+  "scripts/ai-news-comfyui-workflow.json"
   "scripts/ai-news-publish.mjs"
   "scripts/ai-news-render-image.mjs"
   "scripts/ai-news-source-health.mjs"
@@ -54,6 +56,38 @@ require_cmd() {
   fi
 }
 
+COMFYUI_SERVICE="${COMFYUI_SERVICE:-comfyui.service}"
+COMFYUI_READY_URL="${COMFYUI_READY_URL:-http://127.0.0.1:8188/system_stats}"
+COMFYUI_READY_TRIES="${COMFYUI_READY_TRIES:-30}"
+
+start_comfyui_if_available() {
+  if ! systemctl --user list-unit-files "${COMFYUI_SERVICE}" --no-legend 2>/dev/null | grep -q "${COMFYUI_SERVICE}"; then
+    echo "ComfyUI service not installed; AI image generation will fall back to procedural SVG."
+    return 0
+  fi
+  echo "Starting ${COMFYUI_SERVICE} for AI image generation ..."
+  systemctl --user start "${COMFYUI_SERVICE}" || {
+    echo "Failed to start ${COMFYUI_SERVICE}; continuing with procedural SVG fallback." >&2
+    return 0
+  }
+  for ((i=1; i<=COMFYUI_READY_TRIES; i++)); do
+    if curl -sf -m 2 "${COMFYUI_READY_URL}" >/dev/null 2>&1; then
+      echo "ComfyUI ready after ${i} probe(s)."
+      return 0
+    fi
+    sleep 2
+  done
+  echo "ComfyUI did not become ready within $((COMFYUI_READY_TRIES * 2))s; continuing with procedural SVG fallback." >&2
+  return 0
+}
+
+stop_comfyui() {
+  if systemctl --user is-active "${COMFYUI_SERVICE}" >/dev/null 2>&1; then
+    systemctl --user stop "${COMFYUI_SERVICE}" >/dev/null 2>&1 || true
+    echo "Stopped ${COMFYUI_SERVICE}."
+  fi
+}
+
 sync_site_to_workdir() {
   mkdir -p "$(dirname "${WORKDIR}")"
 
@@ -73,7 +107,15 @@ sync_site_to_workdir() {
   for item in "${SYNC_ITEMS[@]}"; do
     if [[ -d "${SITE_ROOT}/${item}" ]]; then
       mkdir -p "${WORKDIR}/${item}"
-      rsync -rlt --delete --no-perms "${SITE_ROOT}/${item}/" "${WORKDIR}/${item}/"
+      case "${item}" in
+        "src/content/docs/da/ai/nyheder"|"src/content/docs/en/ai/nyheder"|"public/images/ai-news")
+          # Append-only content dirs: never remove articles or images already merged on main.
+          rsync -rlt --no-perms "${SITE_ROOT}/${item}/" "${WORKDIR}/${item}/"
+          ;;
+        *)
+          rsync -rlt --delete --no-perms "${SITE_ROOT}/${item}/" "${WORKDIR}/${item}/"
+          ;;
+      esac
     elif [[ -f "${SITE_ROOT}/${item}" ]]; then
       mkdir -p "$(dirname "${WORKDIR}/${item}")"
       rsync -lt --no-perms "${SITE_ROOT}/${item}" "${WORKDIR}/${item}"
@@ -165,6 +207,10 @@ main() {
 
   npm ci
   npm run ai-news:source-health
+
+  start_comfyui_if_available
+  trap 'stop_comfyui' EXIT
+
   render_pending_images
   node scripts/ai-news-publish.mjs --write --date "${DATE}" --days 10
 
@@ -175,6 +221,10 @@ main() {
   fi
 
   render_pending_images
+
+  stop_comfyui
+  trap - EXIT
+
   npm run ai-news:validate
   node scripts/ai-news-pending-images.mjs --fail-on-pending
   npm run build
@@ -200,6 +250,8 @@ main() {
   git commit -m "Draft AI news for ${DATE}"
   git push --force-with-lease origin "${BRANCH}"
 
+  close_stale_ai_news_prs
+
   local body_file pr_url
   body_file="$(pr_body_file)"
   pr_url="$(gh pr list --repo "${REPO}" --head "${BRANCH}" --state open --json url --jq '.[0].url // ""')"
@@ -215,7 +267,24 @@ main() {
   fi
   rm -f "${body_file}"
 
-  echo "SmartBolig AI News automation finished: PR ${pr_url}"
+  if gh pr merge "${pr_url}" --repo "${REPO}" --squash --delete-branch >/dev/null; then
+    echo "SmartBolig AI News automation finished: PR ${pr_url} (auto-merged)"
+  else
+    echo "SmartBolig AI News automation finished: PR ${pr_url} (auto-merge failed — needs manual merge)" >&2
+  fi
+}
+
+close_stale_ai_news_prs() {
+  local stale_pr
+  while IFS= read -r stale_pr; do
+    [[ -n "${stale_pr}" ]] || continue
+    gh pr close "${stale_pr}" --repo "${REPO}" --delete-branch \
+      --comment "Closed automatically — superseded by ${BRANCH}" >/dev/null || true
+  done < <(
+    gh pr list --repo "${REPO}" --state open --json number,headRefName \
+      --jq '.[] | select(.headRefName | startswith("ai-news/")) | "\(.number) \(.headRefName)"' \
+      | awk -v current="${BRANCH}" '$2 != current { print $1 }'
+  )
 }
 
 main "$@"
