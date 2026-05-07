@@ -4,6 +4,9 @@ import { mkdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
+import { generateBackground, isReady, waitForReady } from './ai-news-comfyui-client.mjs';
+
+const AI_ENABLED = process.env.AI_NEWS_DISABLE_AI !== '1';
 
 const defaultRootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const variants = [
@@ -202,6 +205,83 @@ function renderSvg({ width, height, date, title, description, providers }) {
   `.trim();
 }
 
+function renderTextOverlaySvg({ width, height, date, title, description, providers }) {
+  const compact = height < 800;
+  const titleLines = wrapText(title || `AI-nyheder, ${formatDate(date)}`, compact ? 28 : 22, compact ? 3 : 4);
+  const descriptionLines = wrapText(description, compact ? 56 : 34, compact ? 2 : 4);
+  const titleSize = compact ? 60 : 66;
+  const left = 78;
+  const top = compact ? 92 : 124;
+  const chipY = top + (titleLines.length * titleSize * 1.16) + 38;
+  const descriptionY = chipY + 94;
+
+  return `
+<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+  <defs>
+    <linearGradient id="darken" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#000000" stop-opacity="0.35"/>
+      <stop offset="50%" stop-color="#000000" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.78"/>
+    </linearGradient>
+  </defs>
+  <rect width="${width}" height="${height}" fill="url(#darken)"/>
+  <rect x="${left}" y="${top - 56}" width="260" height="42" rx="21" fill="#0f172a" opacity="0.78"/>
+  <text x="${left + 22}" y="${top - 28}" font-size="20" font-weight="800" fill="#bfdbfe">SmartBolig.net AI News</text>
+  ${svgText(titleLines, { x: left, y: top + 26, size: titleSize })}
+  ${providers.map((provider, index) => chip(provider, index, left, chipY)).join('\n')}
+  ${svgText(descriptionLines, { x: left, y: descriptionY, size: compact ? 27 : 30, color: '#e5e7eb', weight: 500, lineHeight: 1.35 })}
+  <text x="${left}" y="${height - 72}" font-size="24" font-weight="800" fill="#bbf7d0">${xmlEscape(formatDate(date))}</text>
+</svg>
+  `.trim();
+}
+
+async function compositeWithAiBackground({ aiBgPath, variant, date, meta, providers, outputPath }) {
+  const overlaySvg = renderTextOverlaySvg({
+    width: variant.width,
+    height: variant.height,
+    date,
+    title: meta.title,
+    description: meta.description,
+    providers,
+  });
+  await sharp(aiBgPath)
+    .resize(variant.width, variant.height, { fit: 'cover', position: 'center' })
+    .composite([{ input: Buffer.from(overlaySvg), top: 0, left: 0 }])
+    .png()
+    .toFile(outputPath);
+}
+
+async function tryGenerateAiBackground({ date, meta, rootDir }) {
+  if (!AI_ENABLED) {
+    console.log('AI background disabled via AI_NEWS_DISABLE_AI=1 — falling back to procedural SVG.');
+    return null;
+  }
+  const ready = await isReady();
+  if (!ready) {
+    try {
+      console.log('Waiting for ComfyUI to be ready (start it via systemctl --user start comfyui.service first) ...');
+      await waitForReady();
+    } catch (error) {
+      console.warn(`AI background unavailable: ${error.message} — falling back to procedural SVG.`);
+      return null;
+    }
+  }
+  const aiBgDir = path.join(rootDir, '.ai-news-bg-cache');
+  await mkdir(aiBgDir, { recursive: true });
+  const aiBgPath = path.join(aiBgDir, `${date}.png`);
+  try {
+    await generateBackground({
+      title: meta.title,
+      date,
+      outPath: aiBgPath,
+    });
+    return aiBgPath;
+  } catch (error) {
+    console.warn(`AI background generation failed: ${error.message} — falling back to procedural SVG.`);
+    return null;
+  }
+}
+
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   const rootDir = path.resolve(String(args.get('--root') || defaultRootDir));
@@ -223,22 +303,30 @@ async function main() {
   const outputDir = path.join(rootDir, 'public/images/ai-news');
   await mkdir(outputDir, { recursive: true });
 
+  const allVariantsExist = !force && variants.every((variant) => existsSync(path.join(outputDir, `${date}${variant.suffix}.png`)));
+  const aiBgPath = allVariantsExist ? null : await tryGenerateAiBackground({ date, meta, rootDir });
+
   for (const variant of variants) {
     const outputPath = path.join(outputDir, `${date}${variant.suffix}.png`);
     if (!force && existsSync(outputPath)) {
       console.log(`kept ${path.relative(rootDir, outputPath)}`);
       continue;
     }
-    const svg = renderSvg({
-      width: variant.width,
-      height: variant.height,
-      date,
-      title: meta.title,
-      description: meta.description,
-      providers,
-    });
-    await sharp(Buffer.from(svg)).png().toFile(outputPath);
-    console.log(`wrote ${path.relative(rootDir, outputPath)}`);
+    if (aiBgPath) {
+      await compositeWithAiBackground({ aiBgPath, variant, date, meta, providers, outputPath });
+      console.log(`wrote ${path.relative(rootDir, outputPath)} (AI background)`);
+    } else {
+      const svg = renderSvg({
+        width: variant.width,
+        height: variant.height,
+        date,
+        title: meta.title,
+        description: meta.description,
+        providers,
+      });
+      await sharp(Buffer.from(svg)).png().toFile(outputPath);
+      console.log(`wrote ${path.relative(rootDir, outputPath)} (procedural SVG fallback)`);
+    }
   }
 }
 
