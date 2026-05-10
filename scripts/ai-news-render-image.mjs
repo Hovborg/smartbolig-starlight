@@ -266,7 +266,7 @@ async function tryGenerateAiBackground({ date, meta, rootDir }) {
       return null;
     }
   }
-  const aiBgDir = path.join(rootDir, '.ai-news-bg-cache');
+  const aiBgDir = process.env.AI_NEWS_BG_CACHE_DIR || '/tmp/ai-news-bg-cache';
   await mkdir(aiBgDir, { recursive: true });
   const aiBgPath = path.join(aiBgDir, `${date}.png`);
   try {
