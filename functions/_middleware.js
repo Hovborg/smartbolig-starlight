@@ -68,6 +68,8 @@ const EXACT_LEGACY_REDIRECTS = {
   '/en/automations': '/en/automationer/',
   '/en/security/': '/en/sikkerhed/',
   '/en/security': '/en/sikkerhed/',
+  '/en/ai/ai-cli/antigravity-getting-started/': '/en/ai/ai-cli/antigravity-cli-kom-godt-i-gang/',
+  '/en/ai/ai-cli/antigravity-getting-started': '/en/ai/ai-cli/antigravity-cli-kom-godt-i-gang/',
 };
 
 function ensureTrailingSlash(pathname) {
