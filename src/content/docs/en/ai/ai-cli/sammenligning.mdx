@@ -1,16 +1,16 @@
 ---
-title: Codex vs Claude Code vs Gemini CLI
-description: "A practical comparison of Codex CLI, Claude Code, and Gemini CLI: strengths, weaknesses, safety, pricing, and workflows."
+title: Codex vs Claude Code vs Gemini CLI vs Antigravity (agy)
+description: "A practical comparison of Codex CLI, Claude Code, Gemini CLI, and Antigravity CLI (agy): strengths, weaknesses, safety, pricing, and workflows."
 ---
 
 import { Aside, Badge, Card, CardGrid } from '@astrojs/starlight/components';
 
 <Badge text="Comparison" variant="note" /> <Badge text="AI CLI" variant="success" />
 
-Codex CLI, Claude Code, and Gemini CLI can all read code, propose changes, write files, and run commands. They overlap, but they are not the same product. The right first CLI depends mostly on your ecosystem, how much automation you want, and how tightly you want to control permissions.
+Codex CLI, Claude Code, Gemini CLI, and Antigravity CLI (agy) can all read code, propose changes, write files, and run commands. They overlap, but they are not the same product. The right first CLI depends mostly on your ecosystem, how much automation you want, and how tightly you want to control permissions.
 
 <Aside type="tip" title="Short answer">
-Start with Codex if you already use OpenAI or want strong local review and sandboxing. Start with Claude Code if you want the broadest agent workflow across terminal, IDE, desktop, web, and teams. Start with Gemini CLI if you want Google sign-in, a generous free quota, Gemini/Vertex AI, or an open source CLI with many experimental workflows.
+Start with Codex if you already use OpenAI or want strong local review and sandboxing. Start with Claude Code if you want the broadest agent workflow across terminal, IDE, desktop, web, and teams. Start with [Antigravity CLI (agy)](/en/ai/ai-cli/antigravity-cli-kom-godt-i-gang/) if you want Google sign-in and Gemini models — it is Google's successor to Gemini CLI, whose free access shuts down on June 18, 2026.
 </Aside>
 
 ## Quick Recommendation
@@ -23,7 +23,10 @@ Start with Codex if you already use OpenAI or want strong local review and sandb
     Best for longer development flows, conversation, memory, hooks, skills, subagents, CI/CD, Slack, desktop/web, and teams that want one agent workflow.
   </Card>
   <Card title="Gemini CLI" icon="seti:config">
-    Best for the Google ecosystem, high free starting quota, Gemini API/Vertex AI, hierarchical `GEMINI.md`, checkpointing, and worktree-based experiments. Note: the free access (Google sign-in), Google AI Pro, and Ultra shut down on June 18, 2026 — after that a paid Gemini API key or Code Assist Standard/Enterprise is required.
+    Best for Gemini API/Vertex AI and open source workflows. Note: the free access (Google sign-in), Google AI Pro, and Ultra shut down on June 18, 2026 — after that a paid Gemini API key or Code Assist Standard/Enterprise is required.
+  </Card>
+  <Card title="Antigravity CLI (agy)" icon="puzzle">
+    Google's successor to Gemini CLI. Best for fast, lightweight terminal use with Google sign-in: a single Go binary, millisecond startup, SSH-friendly, MCP support, and a shared agent engine with the Antigravity 2.0 desktop app.
   </Card>
 </CardGrid>
 
@@ -31,11 +34,12 @@ Start with Codex if you already use OpenAI or want strong local review and sandb
 
 | Profile | Choose first | Avoid starting with |
 |---|---|---|
-| You just want to learn AI CLIs | Gemini CLI or Codex CLI | Three tools at once. |
+| You just want to learn AI CLIs | agy or Codex CLI | Four tools at once. |
 | You want serious work in a Git repo | Codex CLI | Full access before you understand diff and approval flow. |
 | You want long dialogue and project memory | Claude Code | Too many hooks and rules on day one. |
-| You want Google Cloud or Vertex AI | Gemini CLI | API keys without budget and quota visibility. |
-| You want a second opinion on critical diffs | Codex `/review` plus Claude/Gemini read-only review | Two agents editing the same files at once. |
+| You want Google sign-in and Gemini models | Antigravity CLI (agy) | Gemini CLI — its free access shuts down June 18, 2026. |
+| You want Google Cloud or Vertex AI | Gemini CLI (with a paid API key) | API keys without budget and quota visibility. |
+| You want a second opinion on critical diffs | Codex `/review` plus Claude/agy read-only review | Two agents editing the same files at once. |
 
 The point is not to choose one CLI forever. Start with one, learn its permission model, then use the others as reviewers or specialist tools.
 
@@ -63,40 +67,40 @@ Do not make changes and suggest fixes only with file locations.
 |---|---|---|
 | Use a strong local agent in a Git repo | Codex CLI | Good defaults, OS sandboxing, read-only/auto/full-access modes, and local `/review`. |
 | Work through long tasks and ongoing dialogue | Claude Code | Memory, plan/permission modes, hooks, skills, subagents, and many surfaces. |
-| Start free with a high daily quota | Gemini CLI | Google sign-in gives 1,000 requests per user per day on the individual tier according to the docs. |
-| Automate through scripts or CI | Codex CLI or Gemini CLI | `codex exec` and Gemini headless mode have good non-interactive and JSON flows. Claude can also run `claude -p`, but watch token usage. |
-| Use Google Cloud, Vertex AI, or Gemini API | Gemini CLI | Auth, quotas, and pay-as-you-go fit naturally with Google Cloud. |
+| Use your Google account as login | Antigravity CLI (agy) | Google's actively developed CLI: Google sign-in, Gemini models, G1 credits, and fast startup. |
+| Automate through scripts or CI | Codex CLI or agy | `codex exec` and `agy -p` have good non-interactive flows. Claude can also run `claude -p`, but watch token usage. |
+| Use Google Cloud, Vertex AI, or Gemini API | Gemini CLI (with a paid API key) | Auth, quotas, and pay-as-you-go fit naturally with Google Cloud. |
 | Use ChatGPT, Codex Cloud, or code review | Codex CLI | ChatGPT plans include Codex, and the CLI can work with local and cloud Codex tasks. |
 | Use Slack, GitHub/GitLab CI, web/desktop, and team processes | Claude Code | Claude Code is designed as a broader agent system, not just a terminal command. |
 | Compare outputs from several models | Use two CLIs | Let one write the change and another read the diff. They often catch different issues. |
 
 ## Core Differences
 
-| Topic | Codex CLI | Claude Code | Gemini CLI |
-|---|---|---|---|
-| Provider | OpenAI | Anthropic | Google |
-| CLI command | `codex` | `claude` | `gemini` |
-| Primary model direction | GPT-5.5 and Codex models | Claude models, especially Sonnet/Opus depending on plan | Gemini models through Google sign-in, API key, or Vertex AI |
-| Open source CLI | Yes, Codex CLI is open source and Rust-based | No, product/CLI is distributed by Anthropic | Yes, Gemini CLI is open source |
-| Typical install | npm or Homebrew | Native installer recommended, Homebrew/WinGet available | npm, Homebrew, or npx |
-| Best Windows path | WSL recommended; native Windows is experimental | Windows supported through native installer/WinGet | Windows supported through Node/npm and sandbox options |
-| Login | ChatGPT or OpenAI API key | Claude account, Anthropic Console, or third-party provider | Google sign-in, Gemini API key, or Vertex AI |
-| Project instructions | `AGENTS.md` | `CLAUDE.md`, `.claude/rules/`, auto memory | `GEMINI.md`, global/workspace/JIT context files |
-| Non-interactive mode | `codex exec` | `claude -p` | `gemini -p` or headless mode |
-| MCP | Yes | Yes | Yes |
-| Local review | Built-in `/review` for diff, branch, commit, and uncommitted changes | Code review through Claude Code workflows, plugins, and CI/CD integrations | No focused `/review` flow like Codex; can analyze a diff via prompt |
-| Cloud/team surface | Codex Cloud, GitHub code review, and ChatGPT workspace features depending on plan | Terminal, IDE, desktop, web, Slack, CI/CD, scheduled tasks, and Agent SDK | Google AI/Code Assist/Vertex AI, extensions, subagents, and Google Cloud paths |
-| Usage view | `/status` and Codex usage dashboard | `/cost` for API users, `/stats` for subscribers | `/stats model` |
+| Topic | Codex CLI | Claude Code | Gemini CLI | Antigravity CLI (agy) |
+|---|---|---|---|---|
+| Provider | OpenAI | Anthropic | Google | Google |
+| CLI command | `codex` | `claude` | `gemini` | `agy` |
+| Primary model direction | GPT-5.5 and Codex models | Claude models, especially Sonnet/Opus depending on plan | Gemini models through Google sign-in, API key, or Vertex AI | Gemini models (Gemini 3.5 Flash by default) |
+| Open source CLI | Yes, Codex CLI is open source and Rust-based | No, product/CLI is distributed by Anthropic | Yes, Gemini CLI is open source | No, closed Go binary (only docs/releases on GitHub) |
+| Typical install | npm or Homebrew | Native installer recommended, Homebrew/WinGet available | npm, Homebrew, or npx | Official install script (curl/PowerShell) — no Node.js |
+| Best Windows path | WSL recommended; native Windows is experimental | Windows supported through native installer/WinGet | Windows supported through Node/npm and sandbox options | Native Windows through the official PowerShell/CMD script |
+| Login | ChatGPT or OpenAI API key | Claude account, Anthropic Console, or third-party provider | Google sign-in, Gemini API key, or Vertex AI | Google sign-in (stored in the system keyring) |
+| Project instructions | `AGENTS.md` | `CLAUDE.md`, `.claude/rules/`, auto memory | `GEMINI.md`, global/workspace/JIT context files | `.md` rule files via auto-discovery (convention still sparsely documented) |
+| Non-interactive mode | `codex exec` | `claude -p` | `gemini -p` or headless mode | `agy -p` |
+| MCP | Yes | Yes | Yes | Yes (`mcp_config.json`, same format) |
+| Local review | Built-in `/review` for diff, branch, commit, and uncommitted changes | Code review through Claude Code workflows, plugins, and CI/CD integrations | No focused `/review` flow like Codex; can analyze a diff via prompt | `/diff` shows the agent's changes; not a standalone review flow |
+| Cloud/team surface | Codex Cloud, GitHub code review, and ChatGPT workspace features depending on plan | Terminal, IDE, desktop, web, Slack, CI/CD, scheduled tasks, and Agent SDK | Google AI/Code Assist/Vertex AI, extensions, subagents, and Google Cloud paths | Antigravity 2.0 desktop app with shared engine and session export |
+| Usage view | `/status` and Codex usage dashboard | `/cost` for API users, `/stats` for subscribers | `/stats model` | `/credits` panel + credits in the status bar |
 
 ## Safety and Permissions
 
-| Risk | Codex CLI | Claude Code | Gemini CLI |
-|---|---|---|---|
-| Default access | Codex recommends Auto in version-controlled folders and read-only outside Git. Network access is off by default for local commands. | Claude Code uses a permission system where sensitive actions require approval, and write access is limited to the starting folder and its subfolders unless you grant more. | Gemini asks for permission for actions such as file writes, cloning, and shell commands. |
-| Sandbox | OS sandbox: macOS Seatbelt, Linux sandbox, and Windows/WSL paths. | Permission-based architecture and a sandboxed bash tool can provide isolation. | Several sandbox methods: macOS Seatbelt, Docker/Podman, Windows native sandbox, gVisor, and LXC/LXD. |
-| Full access | `--yolo` or danger-full-access is high risk. | `--dangerously-skip-permissions` should be treated as a risk mode. | Tool sandboxing can be disabled, but should only be done in isolated environments. |
-| Prompt injection | Web search defaults to cached search in Codex CLI, and live search requires explicit choice or a full-access situation. | Docs describe command blocklists, network approval, trust verification, and command injection detection. | Use sandboxing, trusted folders, `.geminiignore`, and approvals around external content. |
-| Good starting mode | Read-only or Auto in a clean Git repo. | Planning or read-only-style start, approving only concrete actions. | Google sign-in, a read-only first task, and checkpointing if you want restore points. |
+| Risk | Codex CLI | Claude Code | Gemini CLI | Antigravity CLI (agy) |
+|---|---|---|---|---|
+| Default access | Codex recommends Auto in version-controlled folders and read-only outside Git. Network access is off by default for local commands. | Claude Code uses a permission system where sensitive actions require approval, and write access is limited to the starting folder and its subfolders unless you grant more. | Gemini asks for permission for actions such as file writes, cloning, and shell commands. | agy asks for permission before file edits and commands; trusted workspaces can be defined in settings. |
+| Sandbox | OS sandbox: macOS Seatbelt, Linux sandbox, and Windows/WSL paths. | Permission-based architecture and a sandboxed bash tool can provide isolation. | Several sandbox methods: macOS Seatbelt, Docker/Podman, Windows native sandbox, gVisor, and LXC/LXD. | `--sandbox` flag with terminal restrictions and a "proceed-in-sandbox" permission mode. |
+| Full access | `--yolo` or danger-full-access is high risk. | `--dangerously-skip-permissions` should be treated as a risk mode. | Tool sandboxing can be disabled, but should only be done in isolated environments. | `--dangerously-skip-permissions` auto-approves everything — isolated environments only. |
+| Prompt injection | Web search defaults to cached search in Codex CLI, and live search requires explicit choice or a full-access situation. | Docs describe command blocklists, network approval, trust verification, and command injection detection. | Use sandboxing, trusted folders, `.geminiignore`, and approvals around external content. | Google's own docs explicitly warn about prompt injection and data exfiltration — use the sandbox and read approvals. |
+| Good starting mode | Read-only or Auto in a clean Git repo. | Planning or read-only-style start, approving only concrete actions. | Google sign-in, a read-only first task, and checkpointing if you want restore points. | Google sign-in, start in a Git repo with a read-only first task. |
 
 <Aside type="caution" title="None of these are magic safety layers">
 All three tools can do expensive or dangerous things if you give them broad access. Use Git, worktrees, spend limits, and diff review. Do not let an agent work freely in folders with tokens, private keys, or customer data.
@@ -151,6 +155,24 @@ All three tools can do expensive or dangerous things if you give them broad acce
 - Several features are marked experimental or require manual enabling, including worktrees and checkpointing.
 - Google AI Plus is not listed as a supported CLI paid tier in the Gemini CLI docs.
 - Google Workspace accounts can require Google Cloud project configuration.
+- **Most important:** free access, Google AI Pro, and Ultra shut down on June 18, 2026.
+
+### Antigravity CLI (agy)
+
+**Strengths**
+
+- A single self-contained Go binary: millisecond startup, low RAM usage, and no Node.js/npm dependencies.
+- Designed for SSH and keyboard-first work — including a login flow that works on headless servers.
+- Shares its agent engine with the Antigravity 2.0 desktop app; sessions can be exported and continued in the GUI.
+- MCP support with the same config format as Claude Code/Gemini CLI, plus a plugin system.
+- G1 credits let you continue when your Google account quota runs out (`/credits`).
+
+**Weaknesses**
+
+- Not open source — a closed binary, unlike Gemini CLI and Codex CLI.
+- Young (version 1.0.x): documentation is still sparse, e.g. the convention for project instruction files is not clearly documented.
+- Telemetry/data sharing is enabled by default (can be turned off in settings).
+- No built-in `/review` flow like Codex — only `/diff` over the agent's own changes.
 
 ## Instruction Files
 
@@ -160,6 +182,8 @@ All three tools can do expensive or dangerous things if you give them broad acce
 | Global rules | `~/.codex/AGENTS.md` | `~/.claude/CLAUDE.md` | `~/.gemini/GEMINI.md` |
 | Folder-specific rules | Nested `AGENTS.md` or `AGENTS.override.md` | `.claude/rules/*.md` with path scope | Just-in-time `GEMINI.md` close to files/folders |
 | Good monorepo model | Short root file and app-specific instructions | Root `CLAUDE.md` plus per-area rules | Global/workspace/JIT context hierarchy |
+
+**Antigravity CLI (agy):** the discovery system loads `.md` rule files and `rules.json`, but the convention (file names and locations) is not yet clearly documented by Google. For now: keep instructions short and test what agy actually picks up.
 
 Read [project folders and workflows](/en/ai/ai-cli/projektmapper-og-workflows/) before putting long instructions in a large repository.
 
@@ -223,15 +247,15 @@ Gemini has an experimental `--worktree` flow. Codex and Claude can also be used 
 
 | Profile | Start with | Add later |
 |---|---|---|
-| Solo developer with ChatGPT | Codex CLI | Claude Code for long plans or Gemini CLI for a second opinion. |
-| Solo developer with a Google account | Gemini CLI | Codex or Claude when you want stronger review or agent workflows. |
+| Solo developer with ChatGPT | Codex CLI | Claude Code for long plans or agy for a second opinion. |
+| Solo developer with a Google account | Antigravity CLI (agy) | Codex or Claude when you want stronger review or agent workflows. |
 | Team already using Claude | Claude Code | Codex as a local reviewer on critical diffs. |
-| Team using OpenAI/ChatGPT Business | Codex CLI | Claude Code or Gemini CLI for alternative reviews. |
-| Google Cloud team | Gemini CLI | Codex or Claude for independent code review. |
+| Team using OpenAI/ChatGPT Business | Codex CLI | Claude Code or agy for alternative reviews. |
+| Google Cloud team | Gemini CLI (paid API/Vertex AI) | Codex or Claude for independent code review. |
 
 ## Sources
 
-Last checked: April 11, 2026.
+Last checked: June 2, 2026.
 
 - [OpenAI Codex CLI](https://developers.openai.com/codex/cli)
 - [Codex CLI features](https://developers.openai.com/codex/cli/features)
@@ -248,3 +272,6 @@ Last checked: April 11, 2026.
 - [Gemini CLI headless mode](https://geminicli.com/docs/cli/headless/)
 - [Gemini CLI worktrees](https://geminicli.com/docs/cli/git-worktrees/)
 - [Gemini CLI checkpointing](https://geminicli.com/docs/cli/checkpointing/)
+- [Antigravity CLI on GitHub](https://github.com/google-antigravity/antigravity-cli)
+- [Antigravity CLI docs](https://antigravity.google/docs/cli-overview)
+- [Google's announcement about the transition from Gemini CLI](https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/)

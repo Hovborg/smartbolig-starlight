@@ -28,11 +28,11 @@ Denne sektion dækker fire værktøjer:
 | Allerede har ChatGPT/Codex | Start med [Codex CLI](/da/ai/ai-cli/codex-kom-godt-i-gang/) og lav en lokal `/review` efter første ændring. |
 | Allerede bruger Claude | Start med [Claude Code](/da/ai/ai-cli/claude-code-kom-godt-i-gang/) og opret en kort `CLAUDE.md`. |
 | Allerede bruger Google/Gemini | Start med [Antigravity CLI (agy)](/da/ai/ai-cli/antigravity-cli-kom-godt-i-gang/) — Gemini CLI's gratis adgang lukker 18. juni 2026. |
-| Vil sammenligne dem | Læs [Codex vs Claude Code vs Gemini CLI](/da/ai/ai-cli/sammenligning/) efter du har prøvet én lille opgave. |
+| Vil sammenligne dem | Læs [Codex vs Claude Code vs Gemini CLI vs agy](/da/ai/ai-cli/sammenligning/) efter du har prøvet én lille opgave. |
 
 ## Den første time
 
-1. Vælg ét værktøj. Start ikke med alle tre på samme tid.
+1. Vælg ét værktøj. Start ikke med alle fire på samme tid.
 2. Brug et rigtigt Git-repo, men helst et projekt hvor fejl er billige.
 3. Kør `git status`, så du ved hvad der allerede er ændret.
 4. Bed CLI'en forklare projektet uden at køre kommandoer.
@@ -56,14 +56,14 @@ AI CLI'er bruger startmappen som arbejds- og sikkerhedskontekst. Hvis du starter
 
 ## Hurtig sammenligning
 
-| Emne | Codex CLI | Claude Code | Gemini CLI |
-|---|---|---|---|
-| Kommando | `codex` | `claude` | `gemini` |
-| Installation | npm eller Homebrew | Native installer | npm, Homebrew eller npx |
-| Login | ChatGPT eller OpenAI API key | Claude/Console eller provider | Google sign-in, API key eller Vertex AI |
-| Instruktionsfil | `AGENTS.md` | `CLAUDE.md` | `GEMINI.md` |
-| Script mode | `codex exec` | `claude -p` | `gemini -p` |
-| MCP | Ja | Ja | Ja |
+| Emne | Codex CLI | Claude Code | Gemini CLI | Antigravity CLI (agy) |
+|---|---|---|---|---|
+| Kommando | `codex` | `claude` | `gemini` | `agy` |
+| Installation | npm eller Homebrew | Native installer | npm, Homebrew eller npx | Officielt install-script |
+| Login | ChatGPT eller OpenAI API key | Claude/Console eller provider | Google sign-in, API key eller Vertex AI | Google sign-in |
+| Instruktionsfil | `AGENTS.md` | `CLAUDE.md` | `GEMINI.md` | `.md`-regelfiler (auto-discovery) |
+| Script mode | `codex exec` | `claude -p` | `gemini -p` | `agy -p` |
+| MCP | Ja | Ja | Ja | Ja |
 
 ## Hvilken skal du starte med?
 
@@ -76,6 +76,9 @@ AI CLI'er bruger startmappen som arbejds- og sikkerhedskontekst. Hvis du starter
   </Card>
   <Card title="Start med Gemini CLI" icon="seti:config">
     Godt valg hvis du vil prøve en open source terminal-agent med Google sign-in eller Gemini API key. Bemærk: den gratis Google-login-adgang lukkes 18. juni 2026 — herefter kræves en betalt Gemini API-nøgle eller Code Assist Standard/Enterprise.
+  </Card>
+  <Card title="Start med Antigravity CLI (agy)" icon="puzzle">
+    Godt valg hvis du har en Google-konto og vil have en hurtig, letvægts agent. agy er Googles efterfølger til Gemini CLI — én binær, Google-login og MCP-understøttelse.
   </Card>
 </CardGrid>
 
