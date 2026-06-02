@@ -301,8 +301,10 @@ Poor indoor air quality can cause headaches, fatigue, concentration problems and
     
     esphome:
       name: airgradient-one
-      platform: ESP32
+    
+    esp32:
       board: esp32-c3-devkitm-1
+      variant: esp32c3
     
     wifi:
       ssid: !secret wifi_ssid
@@ -679,7 +681,7 @@ cards:
   <Card title="Smart Water" icon="rocket">
     Protect against water damage.
     
-    [See guide →](/en/products/smart-water/)
+    [See guide →](/en/produkter/smart-vand/)
   </Card>
   <Card title="ESP32 Projects" icon="seti:arduino">
     Build more sensors yourself.

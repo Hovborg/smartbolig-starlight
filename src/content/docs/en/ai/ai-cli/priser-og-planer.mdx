@@ -115,7 +115,7 @@ Anthropic describes typical enterprise Claude Code costs as around $13 per devel
 
 | Model | Input / 1M tokens | Output / 1M tokens | Cache write / 1M | Cache read / 1M |
 |---|---:|---:|---:|---:|
-| Opus 4.6 | $5 | $25 | $6.25 | $0.50 |
+| Opus 4.8 | $5 | $25 | $6.25 | $0.50 |
 | Sonnet 4.6 | $3 | $15 | $3.75 | $0.30 |
 | Haiku 4.5 | $1 | $5 | $1.25 | $0.10 |
 
@@ -124,6 +124,10 @@ US-only inference costs 1.1x input and output prices. Claude web search costs $1
 ## Gemini CLI, Google AI plans, and Gemini API
 
 Gemini CLI has several auth paths: Google login, Gemini API key, and Vertex AI. The right pricing model depends on the login method.
+
+<Aside type="caution" title="Important change on June 18, 2026">
+Google is shutting down Gemini CLI's free access (Google sign-in, Gemini Code Assist for individuals), Google AI Pro, and Google AI Ultra on June 18, 2026. After that, only paid Gemini API keys and Code Assist Standard/Enterprise licenses keep working with Gemini CLI. The free and consumer quotas below therefore only apply until that date. Google's successor is Antigravity CLI.
+</Aside>
 
 | Auth or plan | Price or model | CLI quota in Gemini CLI docs |
 |---|---:|---:|
@@ -142,13 +146,15 @@ Google AI Plus exists as a consumer subscription, but the Gemini CLI documentati
 
 | Model and tier | Input / 1M tokens | Output / 1M tokens |
 |---|---:|---:|
-| Gemini 3.1 Pro Preview, Standard, under 200k prompt | $2.00 | $12.00 |
-| Gemini 3.1 Pro Preview, Standard, over 200k prompt | $4.00 | $18.00 |
-| Gemini 3.1 Pro Preview, Batch/Flex, under 200k prompt | $1.00 | $6.00 |
-| Gemini 3.1 Flash-Lite Preview, Standard text/image/video | $0.25 | $1.50 |
-| Gemini 3.1 Flash-Lite Preview, Batch/Flex text/image/video | $0.125 | $0.75 |
-| Gemini 3 Flash Preview, Standard text/image/video | $0.50 | $3.00 |
-| Gemini 3 Flash Preview, Batch/Flex text/image/video | $0.25 | $1.50 |
+| Gemini 3.1 Pro, Standard, under 200k prompt | $2.00 | $12.00 |
+| Gemini 3.1 Pro, Standard, over 200k prompt | $4.00 | $18.00 |
+| Gemini 3.1 Pro, Batch/Flex, under 200k prompt | $1.00 | $6.00 |
+| Gemini 3.1 Flash-Lite, Standard text/image/video | $0.25 | $1.50 |
+| Gemini 3.1 Flash-Lite, Batch/Flex text/image/video | $0.125 | $0.75 |
+| Gemini 3 Flash, Standard text/image/video | $0.50 | $3.00 |
+| Gemini 3 Flash, Batch/Flex text/image/video | $0.25 | $1.50 |
+
+Gemini 3.5 Flash (launched May 2026) is now the latest Flash model. Check the official Gemini API pricing page for current 3.5 Flash prices.
 
 Grounding with Google Search for Gemini 3 had 5,000 prompts per month included on the paid tier, then $14 per 1,000 search queries. Batch API can reduce token prices, but works best for tasks that can wait.
 

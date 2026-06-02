@@ -186,19 +186,20 @@ number:
   - platform: ld2410
     timeout:
       name: "${friendly_name} Timeout"
-    
+
     max_move_distance_gate:
       name: "${friendly_name} Max Bevægelsesafstand"
-    
+
     max_still_distance_gate:
       name: "${friendly_name} Max Stillestående Afstand"
-    
-    # Gate 0-8 thresholds
-    g0_move_threshold:
-      name: "${friendly_name} G0 Bevægelse Threshold"
-    g0_still_threshold:
-      name: "${friendly_name} G0 Still Threshold"
-    # ... gentag for g1-g8
+
+    # Gate 0-8 thresholds (nu nestet pr. gate)
+    g0:
+      move_threshold:
+        name: "${friendly_name} G0 Bevægelse Threshold"
+      still_threshold:
+        name: "${friendly_name} G0 Still Threshold"
+    # ... gentag mønstret for g1-g8
 
 # Engineering mode switch
 switch:
@@ -257,32 +258,12 @@ uart:
   stop_bits: 1
 
 # LD2410
+# Bemærk: Siden ESPHome 2023.8 accepterer ld2410-hub-blokken kun id + uart_id.
+# Tuning (timeout, max afstande, gate thresholds) sker nu via number-entities
+# i runtime fra Home Assistant — se "Tuning via Home Assistant" ovenfor.
 ld2410:
   id: ld2410_sensor
   uart_id: ld2410_uart
-  # Optimerede indstillinger til toilet
-  timeout: 5s
-  max_move_distance: 3m
-  max_still_distance: 2.25m
-  # Gate thresholds (0 = tættest, 8 = længst væk)
-  g0_move_threshold: 50
-  g0_still_threshold: 20
-  g1_move_threshold: 50
-  g1_still_threshold: 20
-  g2_move_threshold: 40
-  g2_still_threshold: 20
-  g3_move_threshold: 40
-  g3_still_threshold: 30
-  g4_move_threshold: 40
-  g4_still_threshold: 40
-  g5_move_threshold: 40
-  g5_still_threshold: 40
-  g6_move_threshold: 30
-  g6_still_threshold: 40
-  g7_move_threshold: 30
-  g7_still_threshold: 40
-  g8_move_threshold: 30
-  g8_still_threshold: 40
 
 binary_sensor:
   - platform: ld2410

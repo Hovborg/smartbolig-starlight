@@ -304,34 +304,23 @@ Wall Display har et 5A relæ der kan styre lys eller andre enheder:
 
 ```yaml
 # Eksempel: Tænd/sluk loft-lys via relæet
-switch:
-  - platform: template
-    switches:
-      loft_lys_kokken:
-        friendly_name: "Loft Lys Køkken"
-        value_template: "{{ is_state('switch.shelly_wall_display', 'on') }}"
+template:
+  - switch:
+      - name: "Loft Lys Køkken"
+        state: "{{ is_state('switch.shelly_wall_display', 'on') }}"
         turn_on:
-          service: switch.turn_on
-          entity_id: switch.shelly_wall_display
+          - action: switch.turn_on
+            target:
+              entity_id: switch.shelly_wall_display
         turn_off:
-          service: switch.turn_off
-          entity_id: switch.shelly_wall_display
+          - action: switch.turn_off
+            target:
+              entity_id: switch.shelly_wall_display
 ```
 
 ## ⚙️ Avanceret: Termostat med Better Thermostat
 
-Kombiner Wall Display med Better Thermostat for intelligent varmestyring:
-
-```yaml
-# Se vores separate guide om Better Thermostat
-climate:
-  - platform: better_thermostat
-    name: "Køkken Better"
-    thermostat: climate.radiator_termostat_kokken
-    temperature_sensor: sensor.shelly_wall_display_temperature
-    window_sensors:
-      - binary_sensor.vindue_kokken
-```
+Kombiner Wall Display med Better Thermostat for intelligent varmestyring. Better Thermostat har ingen YAML-platform — den tilføjes via brugerfladen: Gå til **Indstillinger** → **Enheder og tjenester** → **Tilføj integration** og søg efter **Better Thermostat**. Brug Wall Displays temperatursensor (`sensor.shelly_wall_display_temperature`) som ekstern rumtemperatursensor i opsætningsguiden. Se vores [separate guide om Better Thermostat](/da/home-assistant/better-thermostat/) for detaljer.
 
 ## 📐 Optimal dashboard design
 

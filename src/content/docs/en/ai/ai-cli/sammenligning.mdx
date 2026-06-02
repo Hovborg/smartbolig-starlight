@@ -23,7 +23,7 @@ Start with Codex if you already use OpenAI or want strong local review and sandb
     Best for longer development flows, conversation, memory, hooks, skills, subagents, CI/CD, Slack, desktop/web, and teams that want one agent workflow.
   </Card>
   <Card title="Gemini CLI" icon="seti:config">
-    Best for the Google ecosystem, high free starting quota, Gemini API/Vertex AI, hierarchical `GEMINI.md`, checkpointing, and worktree-based experiments.
+    Best for the Google ecosystem, high free starting quota, Gemini API/Vertex AI, hierarchical `GEMINI.md`, checkpointing, and worktree-based experiments. Note: the free access (Google sign-in), Google AI Pro, and Ultra shut down on June 18, 2026 — after that a paid Gemini API key or Code Assist Standard/Enterprise is required.
   </Card>
 </CardGrid>
 
@@ -76,7 +76,7 @@ Do not make changes and suggest fixes only with file locations.
 |---|---|---|---|
 | Provider | OpenAI | Anthropic | Google |
 | CLI command | `codex` | `claude` | `gemini` |
-| Primary model direction | GPT-5.4 and Codex models | Claude models, especially Sonnet/Opus depending on plan | Gemini models through Google sign-in, API key, or Vertex AI |
+| Primary model direction | GPT-5.5 and Codex models | Claude models, especially Sonnet/Opus depending on plan | Gemini models through Google sign-in, API key, or Vertex AI |
 | Open source CLI | Yes, Codex CLI is open source and Rust-based | No, product/CLI is distributed by Anthropic | Yes, Gemini CLI is open source |
 | Typical install | npm or Homebrew | Native installer recommended, Homebrew/WinGet available | npm, Homebrew, or npx |
 | Best Windows path | WSL recommended; native Windows is experimental | Windows supported through native installer/WinGet | Windows supported through Node/npm and sandbox options |
@@ -109,7 +109,7 @@ All three tools can do expensive or dangerous things if you give them broad acce
 **Strengths**
 
 - Strong local Git workflow: `/review`, diff reading, branch/commit review, and transcript.
-- Clear sandbox and approval model with flags such as `--sandbox`, `--ask-for-approval`, `--full-auto`, and `--yolo`.
+- Clear sandbox and approval model with flags such as `--sandbox`, `--sandbox workspace-write`, `--ask-for-approval`, and `--yolo`.
 - Good for OpenAI/ChatGPT users, especially when Codex Cloud and code review matter.
 - `codex exec` works well for scripts, automation, and CI-style use.
 - `AGENTS.md` discovery works well in repositories and monorepos.

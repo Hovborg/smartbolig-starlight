@@ -76,7 +76,8 @@ sensor:
     esphome:
       name: ${device_name}
       friendly_name: ${friendly_name}
-      platform: ${platform}
+
+    esp32:
       board: ${board}
 
     wifi:
@@ -117,7 +118,6 @@ sensor:
     substitutions:
       device_name: stue-sensor
       friendly_name: "Stue Sensor"
-      platform: esp32
       board: esp32dev
 
     packages:
@@ -422,7 +422,7 @@ external_components:
 
 ### Skriv Din Egen Component
 
-```yaml
+```python
 # external_components/my_sensor/__init__.py
 import esphome.codegen as cg
 import esphome.config_validation as cv

@@ -272,9 +272,11 @@ automation:
               message: >
                 Temperatur: {{ states('sensor.meater_probe_internal_temp') }}°C
                 Tag det af varmen og lad det hvile.
-          - service: tts.google_say
-            entity_id: media_player.kitchen_speaker
+          - action: tts.speak
+            target:
+              entity_id: tts.google_translate_da_dk
             data:
+              media_player_entity_id: media_player.kitchen_speaker
               message: "Kødet er klar. Tag det af varmen nu."
     ```
   </TabItem>

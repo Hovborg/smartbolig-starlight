@@ -92,9 +92,9 @@ LED strips use A LOT of power:
 
     # LED Strip
     light:
-      - platform: neopixelbus
-        type: GRB
-        variant: WS2812
+      - platform: esp32_rmt_led_strip
+        rgb_order: GRB
+        chipset: WS2812
         pin: GPIO16
         num_leds: 60
         name: "LED Strip"
@@ -122,9 +122,9 @@ LED strips use A LOT of power:
 
     # LED Strip with effects
     light:
-      - platform: neopixelbus
-        type: GRB
-        variant: WS2812
+      - platform: esp32_rmt_led_strip
+        rgb_order: GRB
+        chipset: WS2812
         pin: GPIO16
         num_leds: 60
         name: "LED Strip"
@@ -151,9 +151,9 @@ LED strips use A LOT of power:
   <TabItem label="RGBW (SK6812)">
     ```yaml title="led-strip-rgbw.yaml"
     light:
-      - platform: neopixelbus
-        type: GRBW
-        variant: SK6812
+      - platform: esp32_rmt_led_strip
+        rgb_order: GRBW
+        chipset: SK6812
         pin: GPIO16
         num_leds: 60
         name: "LED Strip RGBW"
@@ -267,11 +267,11 @@ Want WLED? Flash it via [install.wled.me](https://install.wled.me) directly in b
   <Card title="🚶 Motion Sensor" icon="rocket">
     Turn on LED strip on motion.
     
-    [Build motion sensor →](/en/esp32/motion-sensor/)
+    [Build motion sensor →](/en/esp32/bevaegelsessensor/)
   </Card>
   <Card title="🤖 Automations" icon="setting">
     Advanced automations in Home Assistant.
     
-    [Learn automations →](/en/home-assistant/first-automation/)
+    [Learn automations →](/en/home-assistant/foerste-automation/)
   </Card>
 </CardGrid>

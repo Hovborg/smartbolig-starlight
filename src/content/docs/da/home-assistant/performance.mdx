@@ -229,16 +229,17 @@ Mange integrationer poller for ofte:
 
 ```yaml
 # configuration.yaml
-# Eksempel: Reduce polling for template sensorer
-sensor:
-  - platform: template
-    sensors:
-      daglig_forbrug:
-        friendly_name: "Dagligt Forbrug"
-        value_template: "{{ states('sensor.energi') }}"
-        # Opdater kun hvert 5. minut
-        scan_interval: 300
+# Eksempel: Template-sensor i moderne format
+template:
+  - sensor:
+      - name: "Daglig Forbrug"
+        unit_of_measurement: "kWh"
+        state: "{{ states('sensor.energi') | float(0) }}"
 ```
+
+<Aside type="caution">
+Template-sensorer understøtter **ikke** `scan_interval` — de opdaterer automatisk når deres kilde-entiteter ændrer sig, ikke på et fast interval. Vil du reducere polling, skal du gøre det på selve integrationen der leverer kilde-dataene.
+</Aside>
 
 ### Deaktiver Ubrugte Integrationer
 

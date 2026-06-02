@@ -207,9 +207,9 @@ uart:
 ld2410:
   id: ld2410_sensor
   uart_id: ld2410_uart
-  timeout: 5s
-  max_move_distance: 3m
-  max_still_distance: 2.25m
+  # Note: Since ESPHome 2023.8 the ld2410 hub block only accepts id + uart_id.
+  # Tuning (timeout, max distances, gate thresholds) is now done at runtime via
+  # the number entities in Home Assistant.
 
 binary_sensor:
   - platform: ld2410
@@ -332,6 +332,6 @@ automation:
   <Card title="⚡ Automations" icon="rocket">
     Create more automations based on presence.
     
-    [Your first automation →](/en/home-assistant/first-automation/)
+    [Your first automation →](/en/home-assistant/foerste-automation/)
   </Card>
 </CardGrid>

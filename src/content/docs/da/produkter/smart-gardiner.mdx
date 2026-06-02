@@ -132,8 +132,9 @@ graph TD
             event: sunrise
             offset: "00:15:00"
         condition:
-          - condition: workday
-            country: DK
+          - condition: state
+            entity_id: binary_sensor.workday
+            state: "on"
         action:
           - service: cover.open_cover
             entity_id: cover.ikea_fyrtur_sovevaerelse
@@ -381,8 +382,9 @@ automation:
         event: sunrise
         offset: "00:15:00"
     condition:
-      - condition: workday
-        country: DK
+      - condition: state
+        entity_id: binary_sensor.workday
+        state: "on"
     action:
       - service: cover.open_cover
         entity_id: 

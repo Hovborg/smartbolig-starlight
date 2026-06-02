@@ -45,7 +45,7 @@ OpenAI beskriver Windows-support som mulig, men den bedste Windows-oplevelse er 
   </TabItem>
   <TabItem label="Homebrew">
     ```bash
-    brew install codex
+    brew install --cask codex
     ```
 
     Tjek installationen:
@@ -117,10 +117,10 @@ Nyttige kommandoer inde i Codex:
 | `/review` | Få en lokal kode-review af ændringer |
 | `/status` | Se aktiv mappe, sandbox og session |
 
-OpenAI anbefaler aktuelt `gpt-5.4` til de fleste Codex-opgaver. Du kan vælge model ved start:
+OpenAI anbefaler aktuelt `gpt-5.5` til de fleste Codex-opgaver, og du kan også bare lade Codex bruge standardmodellen. Du kan vælge model ved start:
 
 ```bash
-codex --model gpt-5.4
+codex --model gpt-5.5
 ```
 
 ## Tre gode Codex-workflows
@@ -161,7 +161,7 @@ Stop og forklar hvis ændringen kræver en ny dependency eller deploy.
 | `codex --cd path/to/app` | Start Codex i den rigtige projektmappe uden først at køre `cd`. |
 | `codex --add-dir ../shared` | Giv adgang til en ekstra mappe uden at åbne hele maskinen. |
 | `codex --sandbox read-only` | Læs og forklar uden filændringer. Godt til ukendt kode. |
-| `codex --full-auto` | Arbejd i workspace med approvals ved risikable handlinger. Brug i rene Git-repos. |
+| `codex --sandbox workspace-write` | Arbejd i workspace med approvals ved risikable handlinger. Brug i rene Git-repos. |
 | `codex --search` | Brug live web search når opgaven kræver aktuelle kilder. Behandl webindhold som ubetroet. |
 | `codex exec --json "..."` | Brug Codex i scripts med JSONL-events. |
 | `codex exec --output-last-message result.md "..."` | Gem den endelige opsummering til et script eller CI-job. |
@@ -225,7 +225,7 @@ Codex kan bruge ChatGPT-login med inkluderede limits eller API key med tokenbase
 - du bruger subagents
 - agenten læser mange filer flere gange
 
-Til rutineopgaver kan `gpt-5.4-mini` give længere local-message limits end de tungere modeller. Brug `gpt-5.4` til svær debugging, arkitektur og ændringer med høj risiko.
+Til rutineopgaver kan `gpt-5.5-mini` give længere local-message limits end de tungere modeller. Brug `gpt-5.5` til svær debugging, arkitektur og ændringer med høj risiko.
 
 ## Fejlfinding
 

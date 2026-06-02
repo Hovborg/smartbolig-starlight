@@ -229,16 +229,17 @@ Many integrations poll too often:
 
 ```yaml
 # configuration.yaml
-# Example: Reduce polling for template sensors
-sensor:
-  - platform: template
-    sensors:
-      daily_consumption:
-        friendly_name: "Daily Consumption"
-        value_template: "{{ states('sensor.energy') }}"
-        # Update only every 5 minutes
-        scan_interval: 300
+# Example: Template sensor in modern format
+template:
+  - sensor:
+      - name: "Daily Consumption"
+        unit_of_measurement: "kWh"
+        state: "{{ states('sensor.energy') | float(0) }}"
 ```
+
+<Aside type="caution">
+Template sensors do **not** support `scan_interval` — they update automatically whenever their source entities change, not on a fixed interval. To reduce polling, do it on the integration that provides the source data instead.
+</Aside>
 
 ### Disable Unused Integrations
 
@@ -412,7 +413,7 @@ The `repack` option actually frees disk space by rebuilding the database. Withou
   <Card title="Backup & Security" icon="shield">
     Protect your optimized system.
     
-    [See guide →](/en/home-assistant/backup-security/)
+    [See guide →](/en/home-assistant/backup-sikkerhed/)
   </Card>
   <Card title="Dashboard Design" icon="laptop">
     Build fast, lightweight dashboards.

@@ -327,15 +327,6 @@ Better Thermostat kalibrerer automatisk din TRV baseret på forskellen mellem TR
 3. Better Thermostat beregner offset: -3°C
 4. Sender kalibrering til TRV
 
-### Manuel kalibrering
-
-```yaml
-# Tving genkalibrering via service
-service: better_thermostat.calibrate
-target:
-  entity_id: climate.stue_varme
-```
-
 ## 📊 Energi-overvågning
 
 Kombiner med Energy dashboard:
@@ -354,7 +345,7 @@ template:
         
       - name: "Daglig Varmetid Stue"
         state: >
-          {{ states('sensor.stue_varme_heating_time') | float / 60 | round(1) }}
+          {{ (states('sensor.stue_varme_heating_time') | float(0) / 60) | round(1) }}
         unit_of_measurement: "timer"
 ```
 

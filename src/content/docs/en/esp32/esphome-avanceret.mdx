@@ -21,7 +21,7 @@ This guide assumes you already have:
 - Basic experience with YAML
 - Knowledge of ESP32/ESP8266
 
-See [Getting Started](/en/esp32/getting-started/) first if you're new.
+See [Getting Started](/en/esp32/kom-godt-i-gang/) first if you're new.
 </Aside>
 
 ---
@@ -76,7 +76,8 @@ sensor:
     esphome:
       name: ${device_name}
       friendly_name: ${friendly_name}
-      platform: ${platform}
+
+    esp32:
       board: ${board}
 
     wifi:
@@ -117,7 +118,6 @@ sensor:
     substitutions:
       device_name: living-room-sensor
       friendly_name: "Living Room Sensor"
-      platform: esp32
       board: esp32dev
 
     packages:
@@ -422,7 +422,7 @@ external_components:
 
 ### Write Your Own Component
 
-```yaml
+```python
 # external_components/my_sensor/__init__.py
 import esphome.codegen as cg
 import esphome.config_validation as cv
@@ -555,7 +555,7 @@ sensor:
   <Card title="Temperature Sensor" icon="seti:arduino">
     Basic ESP32 project.
     
-    [See guide →](/en/esp32/temperature-sensor/)
+    [See guide →](/en/esp32/temperatur-sensor/)
   </Card>
   <Card title="mmWave Sensor" icon="rocket">
     Advanced presence detection.

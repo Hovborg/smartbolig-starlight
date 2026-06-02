@@ -115,7 +115,7 @@ Anthropic beskriver typiske enterprise-omkostninger for Claude Code som cirka 83
 
 | Model | Input / 1M tokens | Output / 1M tokens | Cache write / 1M | Cache read / 1M |
 |---|---:|---:|---:|---:|
-| Opus 4.6 | Ca. 32 kr. | Ca. 160 kr. | Ca. 40 kr. | Ca. 3,20 kr. |
+| Opus 4.8 | Ca. 32 kr. | Ca. 160 kr. | Ca. 40 kr. | Ca. 3,20 kr. |
 | Sonnet 4.6 | Ca. 19 kr. | Ca. 96 kr. | Ca. 24 kr. | Ca. 1,90 kr. |
 | Haiku 4.5 | Ca. 6,40 kr. | Ca. 32 kr. | Ca. 8 kr. | Ca. 0,64 kr. |
 
@@ -124,6 +124,10 @@ US-only inference koster 1.1x input- og outputpriser. Claude web search koster c
 ## Gemini CLI, Google AI-planer og Gemini API
 
 Gemini CLI har flere auth-veje: Google-login, Gemini API key og Vertex AI. Den rigtige prismodel afhænger af login-metoden.
+
+<Aside type="caution" title="Vigtig ændring pr. 18. juni 2026">
+Google lukker Gemini CLI's gratis adgang (Google-login, Gemini Code Assist for individuals), Google AI Pro og Google AI Ultra den 18. juni 2026. Herefter virker kun betalte Gemini API-nøgler og Code Assist Standard/Enterprise-licenser med Gemini CLI. De gratis og forbruger-baserede kvoter nedenfor gælder derfor kun frem til den dato. Googles efterfølger er Antigravity CLI.
+</Aside>
 
 | Auth eller plan | Pris eller model | CLI-kvote ifølge Gemini CLI docs |
 |---|---:|---:|
@@ -142,13 +146,15 @@ Google AI Plus findes som forbrugerabonnement, men Gemini CLI-dokumentationen si
 
 | Model og tier | Input / 1M tokens | Output / 1M tokens |
 |---|---:|---:|
-| Gemini 3.1 Pro Preview, Standard, under 200k prompt | Ca. 13 kr. | Ca. 77 kr. |
-| Gemini 3.1 Pro Preview, Standard, over 200k prompt | Ca. 26 kr. | Ca. 115 kr. |
-| Gemini 3.1 Pro Preview, Batch/Flex, under 200k prompt | Ca. 6,40 kr. | Ca. 38 kr. |
-| Gemini 3.1 Flash-Lite Preview, Standard text/image/video | Ca. 1,60 kr. | Ca. 9,60 kr. |
-| Gemini 3.1 Flash-Lite Preview, Batch/Flex text/image/video | Ca. 0,80 kr. | Ca. 4,80 kr. |
-| Gemini 3 Flash Preview, Standard text/image/video | Ca. 3,20 kr. | Ca. 19 kr. |
-| Gemini 3 Flash Preview, Batch/Flex text/image/video | Ca. 1,60 kr. | Ca. 9,60 kr. |
+| Gemini 3.1 Pro, Standard, under 200k prompt | Ca. 13 kr. | Ca. 77 kr. |
+| Gemini 3.1 Pro, Standard, over 200k prompt | Ca. 26 kr. | Ca. 115 kr. |
+| Gemini 3.1 Pro, Batch/Flex, under 200k prompt | Ca. 6,40 kr. | Ca. 38 kr. |
+| Gemini 3.1 Flash-Lite, Standard text/image/video | Ca. 1,60 kr. | Ca. 9,60 kr. |
+| Gemini 3.1 Flash-Lite, Batch/Flex text/image/video | Ca. 0,80 kr. | Ca. 4,80 kr. |
+| Gemini 3 Flash, Standard text/image/video | Ca. 3,20 kr. | Ca. 19 kr. |
+| Gemini 3 Flash, Batch/Flex text/image/video | Ca. 1,60 kr. | Ca. 9,60 kr. |
+
+Gemini 3.5 Flash (lanceret maj 2026) er nu den nyeste Flash-model. Tjek den officielle Gemini API-prisside for de aktuelle 3.5 Flash-priser.
 
 Grounding med Google Search for Gemini 3 havde 5.000 prompts pr. måned inkluderet på paid tier og derefter ca. 90 kr. pr. 1.000 search queries. Batch API kan reducere tokenprisen, men er bedst til opgaver der kan vente.
 

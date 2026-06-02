@@ -13,6 +13,10 @@ import { Aside, Badge, Card, CardGrid, Steps, TabItem, Tabs } from '@astrojs/sta
 
 Gemini CLI is Google's open source AI agent for the terminal. It can read files, understand large projects, use tools, and run commands depending on your settings and permissions.
 
+<Aside type="caution" title="Important change on June 18, 2026">
+Google is shutting down Gemini CLI's free access (Google sign-in), Google AI Pro, and Google AI Ultra on June 18, 2026. After that, Gemini CLI requires a paid Gemini API key or a Code Assist Standard/Enterprise license. Google's successor is Antigravity CLI.
+</Aside>
+
 ## Requirements
 
 - Node.js 20+
@@ -43,6 +47,8 @@ Google currently recommends macOS 15+, Windows 11 24H2+, or Ubuntu 20.04+.
     ```bash
     brew install gemini-cli
     ```
+
+    Note: this Homebrew formula is deprecated as of June 18, 2026, when Gemini CLI's free access is shut down (see the warning at the top).
   </TabItem>
 </Tabs>
 

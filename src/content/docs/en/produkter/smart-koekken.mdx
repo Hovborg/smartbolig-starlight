@@ -272,9 +272,11 @@ automation:
               message: >
                 Temperature: {{ states('sensor.meater_probe_internal_temp') }}°F
                 Remove from heat and let it rest.
-          - service: tts.google_say
-            entity_id: media_player.kitchen_speaker
+          - action: tts.speak
+            target:
+              entity_id: tts.google_translate_da_dk
             data:
+              media_player_entity_id: media_player.kitchen_speaker
               message: "The meat is ready. Remove it from heat now."
     ```
   </TabItem>
@@ -547,12 +549,12 @@ automation:
   <Card title="Smart Energy" icon="sun">
     Monitor kitchen power usage.
     
-    [See guide →](/en/products/energy-management/)
+    [See guide →](/en/produkter/energistyring/)
   </Card>
   <Card title="Smart Lighting" icon="rocket">
     Perfect light for cooking.
     
-    [See guide →](/en/products/smart-lighting/)
+    [See guide →](/en/produkter/smart-belysning/)
   </Card>
 </CardGrid>
 

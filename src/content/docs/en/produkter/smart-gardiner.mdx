@@ -131,7 +131,9 @@ graph TD
             event: sunrise
             offset: "00:15:00"
         condition:
-          - condition: workday
+          - condition: state
+            entity_id: binary_sensor.workday
+            state: "on"
         action:
           - service: cover.open_cover
             entity_id: cover.ikea_fyrtur_bedroom
@@ -379,7 +381,9 @@ automation:
         event: sunrise
         offset: "00:15:00"
     condition:
-      - condition: workday
+      - condition: state
+        entity_id: binary_sensor.workday
+        state: "on"
     action:
       - service: cover.open_cover
         entity_id: 
@@ -561,12 +565,12 @@ automation:
   <Card title="Smart Lighting" icon="sun">
     Combine blinds with lighting.
     
-    [See guide →](/en/products/smart-lighting/)
+    [See guide →](/en/produkter/smart-belysning/)
   </Card>
   <Card title="Smart Thermostats" icon="sun">
     Optimize temperature with blinds.
     
-    [See guide →](/en/products/smart-thermostats/)
+    [See guide →](/en/produkter/smart-termostater/)
   </Card>
 </CardGrid>
 

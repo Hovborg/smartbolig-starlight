@@ -557,9 +557,11 @@ automation:
       - service: media_player.media_pause
         entity_id: media_player.sonos_living_room
       # Announcement
-      - service: tts.google_translate_say
-        entity_id: media_player.sonos_living_room
+      - action: tts.speak
+        target:
+          entity_id: tts.google_translate_da_dk
         data:
+          media_player_entity_id: media_player.sonos_living_room
           message: "Someone is at the door"
       # Wait and resume
       - delay: "00:00:05"
@@ -645,12 +647,12 @@ automation:
   <Card title="Presence Sensors" icon="eye">
     Automate media based on location.
     
-    [See guide →](/en/products/presence-detection/)
+    [See guide →](/en/produkter/tilstedevaerelse/)
   </Card>
   <Card title="Smart Lighting" icon="sun">
     Sync lights with media.
     
-    [See guide →](/en/products/smart-lighting/)
+    [See guide →](/en/produkter/smart-belysning/)
   </Card>
 </CardGrid>
 

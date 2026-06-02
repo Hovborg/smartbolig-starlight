@@ -38,7 +38,7 @@ OpenAI documents Windows support, but WSL is the best Windows path for most CLI 
   </TabItem>
   <TabItem label="Homebrew">
     ```bash
-    brew install codex
+    brew install --cask codex
     codex --version
     ```
   </TabItem>
@@ -98,10 +98,10 @@ Codex uses sandboxing and approval prompts. Useful in-session commands:
 | `/review` | Run a local code review |
 | `/status` | Show active directory, sandbox, and session |
 
-OpenAI currently recommends `gpt-5.4` for most Codex tasks:
+OpenAI currently recommends `gpt-5.5` for most Codex tasks, and you can also just let Codex use the default model:
 
 ```bash
-codex --model gpt-5.4
+codex --model gpt-5.5
 ```
 
 ## Three Good Codex Workflows
@@ -142,7 +142,7 @@ Stop and explain if the change requires a new dependency or deploy.
 | `codex --cd path/to/app` | Start Codex in the right project folder without running `cd` first. |
 | `codex --add-dir ../shared` | Grant access to one extra folder without opening the whole machine. |
 | `codex --sandbox read-only` | Read and explain without file edits. Good for unknown code. |
-| `codex --full-auto` | Work in the workspace with approvals for riskier actions. Use in clean Git repos. |
+| `codex --sandbox workspace-write` | Work in the workspace with approvals for riskier actions. Use in clean Git repos. |
 | `codex --search` | Use live web search when the task needs current sources. Treat web content as untrusted. |
 | `codex exec --json "..."` | Use Codex in scripts with JSONL events. |
 | `codex exec --output-last-message result.md "..."` | Save the final summary for a script or CI job. |
@@ -202,7 +202,7 @@ Codex can use ChatGPT login with included limits or an API key with token-based 
 - you use subagents
 - the agent rereads many files
 
-For routine work, `gpt-5.4-mini` can stretch local-message limits further than heavier models. Use `gpt-5.4` for hard debugging, architecture, and high-risk changes.
+For routine work, `gpt-5.5-mini` can stretch local-message limits further than heavier models. Use `gpt-5.5` for hard debugging, architecture, and high-risk changes.
 
 ## Sources
 

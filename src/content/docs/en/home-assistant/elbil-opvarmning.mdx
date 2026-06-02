@@ -83,20 +83,16 @@ automation:
         above: 40
     action:
       # Turn on climate
-      - service: climate.set_preset_mode
+      - action: climate.turn_on
         target:
           entity_id: climate.car_climate
-        data:
-          preset_mode: "on"
       # Wait 15 minutes
       - delay:
           minutes: 15
       # Turn off again
-      - service: climate.set_preset_mode
+      - action: climate.turn_off
         target:
           entity_id: climate.car_climate
-        data:
-          preset_mode: "off"
 ```
 
 <Aside type="caution" title="Battery condition">
@@ -201,11 +197,9 @@ automation:
         entity_id: sensor.car_battery_level
         above: 30
     action:
-      - service: climate.set_preset_mode
+      - action: climate.turn_on
         target:
           entity_id: climate.car_climate
-        data:
-          preset_mode: "on"
       - service: notify.mobile_app_your_phone
         data:
           title: "Car is preheating"
@@ -214,11 +208,9 @@ automation:
             → Ready in 15 min
       - delay:
           minutes: 15
-      - service: climate.set_preset_mode
+      - action: climate.turn_off
         target:
           entity_id: climate.car_climate
-        data:
-          preset_mode: "off"
 ```
 
 ### 5. Seat Heaters When Cold
