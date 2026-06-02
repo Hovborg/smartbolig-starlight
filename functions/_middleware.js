@@ -40,25 +40,43 @@ const PRODUCT_SLUGS = new Set([
   'zigbee-sensorer',
 ]);
 
+const EXACT_LEGACY_REDIRECTS = {
+  '/index.html': '/da/',
+  '/index.xml': '/rss.xml',
+  '/da/index.xml': '/rss.xml',
+  '/en/index.xml': '/en/rss.xml',
+  '/sitemap.xml': '/sitemap-index.xml',
+  '/kontakt': '/da/kontakt/',
+  '/kontakt/': '/da/kontakt/',
+  '/produkter': '/da/produkter/',
+  '/produkter/': '/da/produkter/',
+  '/en/legal/privacy-policy/': '/en/juridisk/privatlivspolitik/',
+  '/en/legal/privacy-policy': '/en/juridisk/privatlivspolitik/',
+  '/en/legal/cookie-policy/': '/en/juridisk/cookiepolitik/',
+  '/en/legal/cookie-policy': '/en/juridisk/cookiepolitik/',
+  '/en/legal/terms-of-use/': '/en/juridisk/brugsvilkaar/',
+  '/en/legal/terms-of-use': '/en/juridisk/brugsvilkaar/',
+  '/en/legal/affiliate-disclosure/': '/en/juridisk/affiliate-disclosure/',
+  '/en/legal/affiliate-disclosure': '/en/juridisk/affiliate-disclosure/',
+  '/en/legal/': '/en/juridisk/',
+  '/en/legal': '/en/juridisk/',
+  '/en/about/': '/en/om-os/',
+  '/en/about': '/en/om-os/',
+  '/en/contact/': '/en/kontakt/',
+  '/en/contact': '/en/kontakt/',
+  '/en/automations/': '/en/automationer/',
+  '/en/automations': '/en/automationer/',
+  '/en/security/': '/en/sikkerhed/',
+  '/en/security': '/en/sikkerhed/',
+};
+
 function ensureTrailingSlash(pathname) {
   return pathname.endsWith('/') ? pathname : `${pathname}/`;
 }
 
 function getLegacyRedirectPath(pathname) {
-  const exact = {
-    '/index.html': '/da/',
-    '/index.xml': '/rss.xml',
-    '/da/index.xml': '/rss.xml',
-    '/en/index.xml': '/en/rss.xml',
-    '/sitemap.xml': '/sitemap-index.xml',
-    '/kontakt': '/da/kontakt/',
-    '/kontakt/': '/da/kontakt/',
-    '/produkter': '/da/produkter/',
-    '/produkter/': '/da/produkter/',
-  };
-
-  if (exact[pathname]) {
-    return exact[pathname];
+  if (EXACT_LEGACY_REDIRECTS[pathname]) {
+    return EXACT_LEGACY_REDIRECTS[pathname];
   }
 
   const unlocalizedProduct = pathname.match(/^\/produkter\/(.+)$/);
