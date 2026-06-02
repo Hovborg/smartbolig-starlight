@@ -1,0 +1,255 @@
+---
+title: "Antigravity CLI (agy): Getting Started"
+description: Install Google's Antigravity CLI (agy), sign in with your Google account, and run your first safe terminal session.
+sidebar:
+  badge:
+    text: New
+    variant: tip
+---
+
+import { Aside, Badge, Card, CardGrid, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
+
+<Badge text="Beginner" variant="success" /> <Badge text="15 min" variant="note" />
+
+Antigravity CLI (the command is `agy`) is Google's new AI agent for the terminal and the official successor to Gemini CLI. It can read your project, edit multiple files at once, run commands, and remember your conversations — straight from the terminal.
+
+`agy` shares its agent engine with **Antigravity 2.0** (Google's desktop app for AI development) but runs as a lightweight terminal app optimized for keyboard-driven work and SSH sessions.
+
+<Aside type="tip" title="The switch from Gemini CLI">
+Google is shutting down Gemini CLI's free access, Google AI Pro, and Google AI Ultra on **June 18, 2026**. Antigravity CLI is the official successor. If you use Gemini CLI today, now is the time to switch.
+</Aside>
+
+## How is agy different from Gemini CLI?
+
+| Topic | Gemini CLI | Antigravity CLI (agy) |
+|---|---|---|
+| Technology | Node.js-based (requires Node 20+) | A single self-contained Go binary — no Node.js |
+| Startup | Seconds | Milliseconds, low RAM usage |
+| Status | Free access shuts down June 18, 2026 | Google's actively developed CLI |
+| Agent engine | Its own | Shared with the Antigravity 2.0 desktop app |
+| Conversations | Sessions | Persistent history, exportable to the desktop app |
+
+## What do you need?
+
+- macOS, Linux, or Windows
+- A Google account
+- Git (recommended — always start inside a Git repo)
+- **No Node.js required** — agy is a single binary
+
+## Install agy
+
+<Tabs>
+  <TabItem label="macOS / Linux">
+    ```bash
+    curl -fsSL https://antigravity.google/cli/install.sh | bash
+    ```
+
+    The installer places the `agy` binary in `~/.local/bin/` and updates your PATH.
+
+    Verify the installation:
+
+    ```bash
+    agy --version
+    ```
+  </TabItem>
+  <TabItem label="Windows (PowerShell)">
+    ```powershell
+    irm https://antigravity.google/cli/install.ps1 | iex
+    ```
+
+    The binary is installed to `C:\Users\<YourUsername>\AppData\Local\agy\bin`.
+  </TabItem>
+  <TabItem label="Windows (CMD)">
+    ```cmd
+    curl -fsSL https://antigravity.google/cli/install.cmd -o install.cmd && install.cmd && del install.cmd
+    ```
+  </TabItem>
+</Tabs>
+
+Later updates are handled by the CLI itself:
+
+```bash
+agy update
+```
+
+If your shell cannot find `agy` after installation, repair the PATH setup:
+
+```bash
+agy install
+```
+
+## Sign in
+
+Start agy in a project folder:
+
+```bash
+cd your-project
+agy
+```
+
+Sign-in uses your Google account:
+
+- **Locally:** agy automatically opens your browser for Google Sign-In.
+- **Over SSH:** agy detects the SSH session and prints a login URL you open on your own machine.
+- **Sign out:** run `/logout` inside the CLI.
+
+The access token is stored securely in your system keyring, so you don't need to sign in every time.
+
+<Aside type="note" title="Quotas and G1 credits">
+agy uses your Google account's quota (Gemini 3.5 Flash is the default model). When the quota runs out, you can enable **G1 credits** as additional usage — check status and purchase via the `/credits` panel inside the CLI.
+</Aside>
+
+## Your first safe session
+
+<Steps>
+1. Enter a Git repo:
+
+   ```bash
+   cd your-project
+   git status
+   ```
+
+2. Start agy:
+
+   ```bash
+   agy
+   ```
+
+3. Give it a read-only task first:
+
+   ```text
+   Read this project and explain its structure.
+   Don't make any changes and don't run any commands yet.
+   ```
+
+4. agy asks for permission before editing files or running commands. Read what it wants to do before approving.
+</Steps>
+
+<Aside type="caution" title="Quick safety rule">
+Don't use `--dangerously-skip-permissions` until you understand what the agent can do. Start in a Git repo so all changes can be rolled back.
+</Aside>
+
+## When agy is strongest
+
+<CardGrid>
+  <Card title="Speed and lightness" icon="rocket">
+    A single Go binary that starts in milliseconds. No Node.js, no npm dependencies, low RAM usage.
+  </Card>
+  <Card title="SSH and remote work" icon="laptop">
+    Designed for keyboard-first work over SSH — including a login flow that works on headless servers.
+  </Card>
+  <Card title="The Google ecosystem" icon="seti:config">
+    Gemini models, Google sign-in, and a shared engine with Antigravity 2.0. Sessions can be exported to the desktop app.
+  </Card>
+  <Card title="MCP and plugins" icon="puzzle">
+    Supports MCP servers (same format as Claude Code and Gemini CLI) and has a plugin system.
+  </Card>
+</CardGrid>
+
+## Important flags and commands
+
+Verified with `agy --help` (version 1.0.3):
+
+| Flag/command | Use |
+|---|---|
+| `agy` | Start an interactive session |
+| `agy -p "..."` | Run a single prompt non-interactively and print the answer (headless/script use) |
+| `agy -c` | Continue the most recent conversation |
+| `agy --conversation <id>` | Resume a specific conversation |
+| `agy -i "..."` | Start interactively with an initial prompt |
+| `agy --add-dir <path>` | Add an extra directory to the workspace (repeatable) |
+| `agy --sandbox` | Run in a sandbox with terminal restrictions |
+| `agy update` | Update the CLI |
+| `agy changelog` | Show changes in recent versions |
+| `agy plugin list` | List installed plugins |
+
+Useful slash commands inside the CLI:
+
+| Command | Use |
+|---|---|
+| `/credits` | See quota/credit status and purchase G1 credits |
+| `/diff` | Review changes the agent has made |
+| `/changelog` | Show version history |
+| `/statusline` | Customize the status line |
+| `/logout` | Sign out and clear saved credentials |
+| `/help` | See all commands and shortcuts |
+
+## Configuration
+
+agy stores its configuration in `~/.gemini/antigravity-cli/`:
+
+```text
+~/.gemini/antigravity-cli/
+├── settings.json      # Model, color scheme, trusted workspaces, telemetry
+├── mcp_config.json    # MCP servers
+├── conversations/     # Saved conversations
+├── knowledge/         # The agent's knowledge about your projects
+├── plugins/           # Installed plugins
+└── keybindings.json   # Keyboard shortcuts
+```
+
+Example `settings.json`:
+
+```json
+{
+  "colorScheme": "dark",
+  "enableTelemetry": false,
+  "model": "Gemini 3.5 Flash (High)",
+  "trustedWorkspaces": [
+    "/home/you/projects"
+  ]
+}
+```
+
+<Aside type="note" title="Telemetry and your data">
+By default, Google collects interaction data to improve the product. You can turn this off with `"enableTelemetry": false` in settings.json or via the settings inside the CLI.
+</Aside>
+
+## MCP servers
+
+agy uses the same MCP format as Claude Code and Gemini CLI. Add servers in `~/.gemini/antigravity-cli/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "home-assistant": {
+      "command": "node",
+      "args": ["/path/to/ha-mcp/index.js"],
+      "env": {
+        "HA_URL": "http://homeassistant.local:8123"
+      }
+    }
+  }
+}
+```
+
+This means you can give agy access to your Home Assistant, your own databases, or other tools via MCP.
+
+## Sandbox and security
+
+agy has three access levels:
+
+| Level | What happens |
+|---|---|
+| Default | agy asks for permission before file changes and commands |
+| `--sandbox` | Commands run in a sandbox with terminal restrictions; "proceed-in-sandbox" auto-approves only commands inside the sandbox |
+| `--dangerously-skip-permissions` | Everything is auto-approved — only use in isolated environments |
+
+Good practice:
+
+1. Always start in a Git repo so changes can be rolled back
+2. Use the default level until you know the agent's behavior
+3. Use `--sandbox` when analyzing code you don't trust
+4. Never put API keys or passwords in prompts
+
+## Next steps
+
+- Compare with the other CLIs: [Codex vs Claude Code vs Gemini CLI](/en/ai/ai-cli/sammenligning/)
+- Learn to write good agent instructions: [Agent Instructions](/en/ai/ai-cli/agent-instruktioner/)
+- Understand security and permissions: [Security and Permissions](/en/ai/ai-cli/sikkerhed-og-permissions/)
+
+## Sources
+
+- [Official documentation](https://antigravity.google/docs/cli-overview)
+- [Antigravity CLI on GitHub](https://github.com/google-antigravity/antigravity-cli)
+- [Google's announcement about the transition from Gemini CLI](https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/)

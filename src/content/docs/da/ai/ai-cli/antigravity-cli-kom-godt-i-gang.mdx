@@ -1,0 +1,255 @@
+---
+title: "Antigravity CLI (agy): kom godt i gang"
+description: Installer Googles Antigravity CLI (agy), log ind med din Google-konto og lav din første sikre session i terminalen.
+sidebar:
+  badge:
+    text: Ny
+    variant: tip
+---
+
+import { Aside, Badge, Card, CardGrid, Steps, TabItem, Tabs } from '@astrojs/starlight/components';
+
+<Badge text="Begynder" variant="success" /> <Badge text="15 min" variant="note" />
+
+Antigravity CLI (kommandoen hedder `agy`) er Googles nye AI-agent til terminalen og den officielle efterfølger til Gemini CLI. Den kan læse dit projekt, redigere flere filer ad gangen, køre kommandoer og huske dine samtaler — direkte fra terminalen.
+
+`agy` deler agent-motor med **Antigravity 2.0** (Googles desktop-app til AI-udvikling), men kører som en letvægts terminal-app optimeret til tastatur-arbejde og SSH-sessioner.
+
+<Aside type="tip" title="Skiftet fra Gemini CLI">
+Google lukker Gemini CLI's gratis adgang, Google AI Pro og Google AI Ultra den **18. juni 2026**. Antigravity CLI er den officielle efterfølger. Hvis du bruger Gemini CLI i dag, er det nu du skal skifte.
+</Aside>
+
+## Hvad er forskellen på agy og Gemini CLI?
+
+| Emne | Gemini CLI | Antigravity CLI (agy) |
+|---|---|---|
+| Teknologi | Node.js-baseret (kræver Node 20+) | Én selvstændig Go-binær — ingen Node.js |
+| Opstart | Sekunder | Millisekunder, lavt RAM-forbrug |
+| Status | Gratis adgang lukker 18. juni 2026 | Googles aktivt udviklede CLI |
+| Agent-motor | Egen | Delt med Antigravity 2.0 desktop-appen |
+| Samtaler | Sessions | Persistent historik, kan eksporteres til desktop-appen |
+
+## Hvad skal du bruge?
+
+- macOS, Linux eller Windows
+- En Google-konto
+- Git (anbefalet — start altid i et Git-repo)
+- **Ingen Node.js påkrævet** — agy er én binær fil
+
+## Installer agy
+
+<Tabs>
+  <TabItem label="macOS / Linux">
+    ```bash
+    curl -fsSL https://antigravity.google/cli/install.sh | bash
+    ```
+
+    Installeren lægger `agy`-binæren i `~/.local/bin/` og opdaterer din PATH.
+
+    Tjek installationen:
+
+    ```bash
+    agy --version
+    ```
+  </TabItem>
+  <TabItem label="Windows (PowerShell)">
+    ```powershell
+    irm https://antigravity.google/cli/install.ps1 | iex
+    ```
+
+    Binæren installeres i `C:\Users\<DitBrugernavn>\AppData\Local\agy\bin`.
+  </TabItem>
+  <TabItem label="Windows (CMD)">
+    ```cmd
+    curl -fsSL https://antigravity.google/cli/install.cmd -o install.cmd && install.cmd && del install.cmd
+    ```
+  </TabItem>
+</Tabs>
+
+Senere opdateringer klares indefra CLI'en:
+
+```bash
+agy update
+```
+
+Hvis din shell ikke kan finde `agy` efter installation, kan du reparere PATH-opsætningen:
+
+```bash
+agy install
+```
+
+## Log ind
+
+Start agy i en projektmappe:
+
+```bash
+cd dit-projekt
+agy
+```
+
+Login foregår med din Google-konto:
+
+- **Lokalt:** agy åbner automatisk din browser til Google Sign-In.
+- **Via SSH:** agy opdager SSH-sessionen og printer en login-URL, du åbner på din egen maskine.
+- **Log ud:** kør `/logout` inde i CLI'en.
+
+Adgangstokenet gemmes sikkert i systemets keyring, så du ikke skal logge ind hver gang.
+
+<Aside type="note" title="Kvoter og G1-credits">
+agy bruger din Google-kontos kvote (Gemini 3.5 Flash er standardmodel). Når kvoten er brugt, kan du aktivere **G1-credits** som ekstra forbrug — se status og køb via `/credits`-panelet inde i CLI'en.
+</Aside>
+
+## Din første sikre session
+
+<Steps>
+1. Gå ind i et Git-repo:
+
+   ```bash
+   cd dit-projekt
+   git status
+   ```
+
+2. Start agy:
+
+   ```bash
+   agy
+   ```
+
+3. Giv den en ren læseopgave først:
+
+   ```text
+   Læs dette projekt og forklar strukturen.
+   Lav ingen ændringer og kør ingen kommandoer endnu.
+   ```
+
+4. agy spørger om lov, før den redigerer filer eller kører kommandoer. Læs hvad den vil gøre, før du godkender.
+</Steps>
+
+<Aside type="caution" title="Kort sikkerhedsregel">
+Brug ikke `--dangerously-skip-permissions`, før du forstår hvad agenten kan gøre. Start i et Git-repo, så alle ændringer kan rulles tilbage.
+</Aside>
+
+## Hvornår agy er stærkest
+
+<CardGrid>
+  <Card title="Hastighed og letvægt" icon="rocket">
+    Én Go-binær der starter på millisekunder. Ingen Node.js, ingen npm-afhængigheder, lavt RAM-forbrug.
+  </Card>
+  <Card title="SSH og fjernarbejde" icon="laptop">
+    Designet til keyboard-first arbejde over SSH — inklusiv login-flow der virker på headless servere.
+  </Card>
+  <Card title="Google-økosystemet" icon="seti:config">
+    Gemini-modeller, Google-login og delt motor med Antigravity 2.0. Sessioner kan eksporteres til desktop-appen.
+  </Card>
+  <Card title="MCP og plugins" icon="puzzle">
+    Understøtter MCP-servere (samme format som Claude Code og Gemini CLI) og har et plugin-system.
+  </Card>
+</CardGrid>
+
+## Vigtige flags og kommandoer
+
+Verificeret med `agy --help` (version 1.0.3):
+
+| Flag/kommando | Brug |
+|---|---|
+| `agy` | Start interaktiv session |
+| `agy -p "..."` | Kør én prompt non-interaktivt og print svaret (headless/script-brug) |
+| `agy -c` | Fortsæt seneste samtale |
+| `agy --conversation <id>` | Genoptag en bestemt samtale |
+| `agy -i "..."` | Start interaktivt med en prompt |
+| `agy --add-dir <sti>` | Tilføj ekstra mappe til workspace (kan gentages) |
+| `agy --sandbox` | Kør i sandbox med terminal-begrænsninger |
+| `agy update` | Opdater CLI'en |
+| `agy changelog` | Se ændringer i nyeste versioner |
+| `agy plugin list` | Se installerede plugins |
+
+Nyttige slash-kommandoer inde i CLI'en:
+
+| Kommando | Brug |
+|---|---|
+| `/credits` | Se kvote/credits-status og køb G1-credits |
+| `/diff` | Se ændringer agenten har lavet |
+| `/changelog` | Se versionshistorik |
+| `/statusline` | Tilpas statuslinjen |
+| `/logout` | Log ud og ryd gemte login-oplysninger |
+| `/help` | Se alle kommandoer og genveje |
+
+## Konfiguration
+
+agy gemmer sin konfiguration i `~/.gemini/antigravity-cli/`:
+
+```text
+~/.gemini/antigravity-cli/
+├── settings.json      # Model, farvetema, trusted workspaces, telemetri
+├── mcp_config.json    # MCP-servere
+├── conversations/     # Gemte samtaler
+├── knowledge/         # Agentens viden om dine projekter
+├── plugins/           # Installerede plugins
+└── keybindings.json   # Tastaturgenveje
+```
+
+Eksempel på `settings.json`:
+
+```json
+{
+  "colorScheme": "dark",
+  "enableTelemetry": false,
+  "model": "Gemini 3.5 Flash (High)",
+  "trustedWorkspaces": [
+    "/home/dig/projekter"
+  ]
+}
+```
+
+<Aside type="note" title="Telemetri og dine data">
+Som standard indsamler Google interaktionsdata for at forbedre produktet. Du kan slå det fra med `"enableTelemetry": false` i settings.json eller via indstillingerne i CLI'en.
+</Aside>
+
+## MCP-servere
+
+agy bruger samme MCP-format som Claude Code og Gemini CLI. Tilføj servere i `~/.gemini/antigravity-cli/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "home-assistant": {
+      "command": "node",
+      "args": ["/sti/til/ha-mcp/index.js"],
+      "env": {
+        "HA_URL": "http://homeassistant.local:8123"
+      }
+    }
+  }
+}
+```
+
+Det betyder, at du fx kan give agy adgang til dit Home Assistant, dine egne databaser eller andre værktøjer via MCP.
+
+## Sandbox og sikkerhed
+
+agy har tre adgangsniveauer:
+
+| Niveau | Hvad sker der |
+|---|---|
+| Standard | agy spørger om lov før filændringer og kommandoer |
+| `--sandbox` | Kommandoer kører i en sandbox med terminal-begrænsninger; "proceed-in-sandbox" auto-godkender kun kommandoer inde i sandboxen |
+| `--dangerously-skip-permissions` | Alt auto-godkendes — brug kun i isolerede miljøer |
+
+God praksis:
+
+1. Start altid i et Git-repo, så ændringer kan rulles tilbage
+2. Brug standard-niveauet, indtil du kender agentens adfærd
+3. Brug `--sandbox` når du analyserer kode, du ikke stoler på
+4. Gem aldrig API-nøgler eller passwords i prompts
+
+## Næste skridt
+
+- Sammenlign med de andre CLI'er: [Codex vs Claude Code vs Gemini CLI](/da/ai/ai-cli/sammenligning/)
+- Lær at skrive gode agent-instruktioner: [Agent-instruktioner](/da/ai/ai-cli/agent-instruktioner/)
+- Forstå sikkerhed og permissions: [Sikkerhed og permissions](/da/ai/ai-cli/sikkerhed-og-permissions/)
+
+## Kilder
+
+- [Officiel dokumentation](https://antigravity.google/docs/cli-overview)
+- [Antigravity CLI på GitHub](https://github.com/google-antigravity/antigravity-cli)
+- [Googles udmelding om overgangen fra Gemini CLI](https://developers.googleblog.com/an-important-update-transitioning-gemini-cli-to-antigravity-cli/)

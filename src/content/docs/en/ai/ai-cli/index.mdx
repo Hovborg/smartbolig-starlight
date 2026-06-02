@@ -13,11 +13,12 @@ import { Aside, Badge, Card, CardGrid, LinkCard } from '@astrojs/starlight/compo
 
 AI CLIs are terminal tools that act as local coding agents. They can read your project, propose changes, write files, and run commands. That makes them useful, but also worth starting with carefully.
 
-This section starts with three tools:
+This section covers four tools:
 
 - **Codex CLI** by OpenAI
 - **Claude Code** by Anthropic
 - **Gemini CLI** by Google
+- **Antigravity CLI (agy)** by Google — the successor to Gemini CLI
 
 ## Shortest Path
 
@@ -26,7 +27,7 @@ This section starts with three tools:
 | Have never used an AI CLI | Read this page, start in a test repository, and ask the tool to explain the project without changes. |
 | Already use ChatGPT/Codex | Start with [Codex CLI](/en/ai/ai-cli/codex-kom-godt-i-gang/) and run a local `/review` after the first change. |
 | Already use Claude | Start with [Claude Code](/en/ai/ai-cli/claude-code-kom-godt-i-gang/) and create a short `CLAUDE.md`. |
-| Already use Google/Gemini | Start with [Gemini CLI](/en/ai/ai-cli/gemini-cli-kom-godt-i-gang/) and choose your auth method before API automation. |
+| Already use Google/Gemini | Start with [Antigravity CLI (agy)](/en/ai/ai-cli/antigravity-cli-kom-godt-i-gang/) — Gemini CLI's free access shuts down June 18, 2026. |
 | Want to compare them | Read [Codex vs Claude Code vs Gemini CLI](/en/ai/ai-cli/sammenligning/) after trying one small task. |
 
 ## The First Hour
@@ -116,6 +117,11 @@ Tell me which test or build commands you would run, but do not run them yet.
     title="Gemini CLI"
     description="Install Gemini CLI, sign in with Google or API key, and get started."
     href="/en/ai/ai-cli/gemini-cli-kom-godt-i-gang/"
+  />
+  <LinkCard
+    title="Antigravity CLI (agy)"
+    description="Install Google's new agy CLI — the successor to Gemini CLI. A single fast binary with MCP support."
+    href="/en/ai/ai-cli/antigravity-cli-kom-godt-i-gang/"
   />
   <LinkCard
     title="Pricing and plans"

@@ -353,6 +353,10 @@ export default defineConfig({
                   link: "/ai/ai-cli/gemini-cli-kom-godt-i-gang/",
                 },
                 {
+                  label: "Antigravity CLI (agy)",
+                  link: "/ai/ai-cli/antigravity-cli-kom-godt-i-gang/",
+                },
+                {
                   label: "Priser og planer",
                   translations: { en: "Pricing and Plans" },
                   link: "/ai/ai-cli/priser-og-planer/",
