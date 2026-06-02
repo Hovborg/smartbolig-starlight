@@ -54,6 +54,40 @@ git push origin main
 
 ---
 
+## 🤖 Daglig AI-news automation
+
+AI-nyhedssektionen opdateres dagligt kl. 07:20 af `scripts/openclaw-ai-news-daily.sh`,
+som henter officielle kilder, genererer artikler (da+en), bygger, validerer og
+auto-merger en PR.
+
+**Anbefalet setup (systemd user timer):**
+
+```bash
+bash scripts/install-systemd-ai-news-timer.sh
+```
+
+Det installerer:
+
+| Unit | Funktion |
+|------|----------|
+| `smartbolig-ai-news.timer` | Kører dagligt kl. 07:20 (Persistent — indhenter missede kørsler) |
+| `smartbolig-ai-news.service` | Kører hele pipeline-scriptet |
+| `smartbolig-ai-news-failure.service` | Opretter et GitHub-issue hvis kørslen fejler |
+
+Drift-kommandoer:
+
+```bash
+systemctl --user list-timers smartbolig-ai-news.timer   # næste kørsel
+systemctl --user start smartbolig-ai-news.service       # kør manuelt nu
+journalctl --user -u smartbolig-ai-news.service -e      # se logs
+```
+
+> **Legacy:** `scripts/install-openclaw-ai-news-cron.sh` (OpenClaw cron-job) er det
+> tidligere setup. Det krævede at agent-harnesset eksponerede et exec-tool og gik i
+> stykker ved harness-ændringer — brug systemd-timeren i stedet.
+
+---
+
 ## 📊 Statistik
 
 - 172 sider (dansk + engelsk)

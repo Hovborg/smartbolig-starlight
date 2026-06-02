@@ -20,6 +20,10 @@ export default defineConfig({
       },
       // Galaxy theme plugin
       plugins: [starlightThemeGalaxy()],
+      // The custom 404 page lives at src/pages/404.astro — disable Starlight's
+      // built-in 404 route so the two don't collide (collision becomes a hard
+      // error in future Astro versions).
+      disable404Route: true,
       // Custom components
       // Note: the custom 404 page lives at src/pages/404.astro ("NotFound" is
       // not a valid Starlight component-override key and would be silently ignored).
