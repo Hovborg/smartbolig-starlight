@@ -23,9 +23,18 @@ function getGitLastModifiedDate(slug) {
   }
 }
 
+function toValidDate(value) {
+  // Starlight allows `lastUpdated: true` (meaning "use git date") — a boolean
+  // is not a date, and new Date(true) would silently produce 1970-01-01.
+  if (!value || typeof value === 'boolean') return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 function getPubDate(doc) {
-  const frontmatterDate = doc.data.date || doc.data.updated || doc.data.lastUpdated;
-  return frontmatterDate ? new Date(frontmatterDate) : getGitLastModifiedDate(getSlug(doc));
+  const frontmatterDate =
+    toValidDate(doc.data.date) || toValidDate(doc.data.updated) || toValidDate(doc.data.lastUpdated);
+  return frontmatterDate || getGitLastModifiedDate(getSlug(doc));
 }
 
 export async function GET(context) {

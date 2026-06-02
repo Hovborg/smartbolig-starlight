@@ -21,10 +21,11 @@ export default defineConfig({
       // Galaxy theme plugin
       plugins: [starlightThemeGalaxy()],
       // Custom components
+      // Note: the custom 404 page lives at src/pages/404.astro ("NotFound" is
+      // not a valid Starlight component-override key and would be silently ignored).
       components: {
         Head: "./src/components/Head.astro",
         Footer: "./src/components/Footer.astro",
-        NotFound: "./src/components/NotFound.astro",
         MarkdownContent: "./src/components/MarkdownContent.astro",
         SiteTitle: "./src/components/SiteTitle.astro",
       },
@@ -690,25 +691,24 @@ export default defineConfig({
             content: "https://smartbolig.net/images/og-image.png",
           },
         },
-        // Deferred third-party scripts loader (improves LCP)
+        // Deferred third-party scripts loader (improves LCP).
+        // GDPR/ePrivacy: Cookiebot loads first; GA4 is only loaded AFTER the
+        // visitor has given statistics-consent (CookiebotOnConsentReady/OnAccept).
+        // Never load measurement scripts before consent is established.
         {
           tag: "script",
           content: `
             (function() {
-              function loadDeferredScripts() {
-                // Cookiebot
-                var cb = document.createElement('script');
-                cb.id = 'Cookiebot';
-                cb.src = 'https://consent.cookiebot.com/uc.js';
-                cb.setAttribute('data-cbid', '97aa135b-54bd-4bf5-8bc5-9994966ebab6');
-                cb.setAttribute('data-blockingmode', 'auto');
-                document.head.appendChild(cb);
+              var gaLoaded = false;
 
-                // Google Analytics 4
+              function loadGoogleAnalytics() {
+                if (gaLoaded) return;
+                if (!window.Cookiebot || !window.Cookiebot.consent || !window.Cookiebot.consent.statistics) return;
+                gaLoaded = true;
+
                 var ga = document.createElement('script');
                 ga.async = true;
                 ga.src = 'https://www.googletagmanager.com/gtag/js?id=G-78F6DLB00Z';
-                ga.setAttribute('data-cookieconsent', 'statistics');
                 document.head.appendChild(ga);
 
                 window.dataLayer = window.dataLayer || [];
@@ -717,10 +717,23 @@ export default defineConfig({
                 gtag('config', 'G-78F6DLB00Z');
               }
 
+              function loadCookiebot() {
+                var cb = document.createElement('script');
+                cb.id = 'Cookiebot';
+                cb.src = 'https://consent.cookiebot.com/uc.js';
+                cb.setAttribute('data-cbid', '97aa135b-54bd-4bf5-8bc5-9994966ebab6');
+                cb.setAttribute('data-blockingmode', 'auto');
+                document.head.appendChild(cb);
+              }
+
+              // GA4 loads only when consent is known AND statistics is accepted.
+              window.addEventListener('CookiebotOnConsentReady', loadGoogleAnalytics);
+              window.addEventListener('CookiebotOnAccept', loadGoogleAnalytics);
+
               if (document.readyState === 'complete') {
-                setTimeout(loadDeferredScripts, 0);
+                setTimeout(loadCookiebot, 0);
               } else {
-                window.addEventListener('load', loadDeferredScripts);
+                window.addEventListener('load', loadCookiebot);
               }
             })();
           `,

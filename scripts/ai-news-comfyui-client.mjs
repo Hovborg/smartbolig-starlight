@@ -59,9 +59,23 @@ export async function waitForReady({ logger = console, timeoutMs = READY_TIMEOUT
   throw new Error(`ComfyUI did not become ready within ${timeoutMs / 1000}s at ${COMFY_BASE}`);
 }
 
+// Per-request timeout so a stalled HTTP call can never hang past the
+// outer GEN_TIMEOUT_MS deadline (which is only checked between iterations).
+const REQUEST_TIMEOUT_MS = Number(process.env.COMFYUI_REQUEST_TIMEOUT_MS || 15_000);
+
 async function loadWorkflow(prompt, negativePrompt, seed) {
   const raw = await readFile(WORKFLOW_PATH, 'utf8');
-  const workflow = JSON.parse(raw);
+  let workflow;
+  try {
+    workflow = JSON.parse(raw);
+  } catch (error) {
+    throw new Error(`Workflow JSON at ${WORKFLOW_PATH} is not valid JSON: ${error.message}`);
+  }
+  for (const nodeId of ['3', '6', '7']) {
+    if (!workflow[nodeId]?.inputs) {
+      throw new Error(`Workflow JSON at ${WORKFLOW_PATH} is missing expected node '${nodeId}'`);
+    }
+  }
   workflow['6'].inputs.text = prompt;
   workflow['7'].inputs.text = negativePrompt;
   workflow['3'].inputs.seed = seed;
@@ -73,6 +87,7 @@ async function submitPrompt(workflow) {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ prompt: workflow }),
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
   if (!res.ok) throw new Error(`ComfyUI /prompt returned ${res.status}: ${await res.text()}`);
   const body = await res.json();
@@ -83,11 +98,17 @@ async function submitPrompt(workflow) {
 async function pollHistory(promptId) {
   const deadline = Date.now() + GEN_TIMEOUT_MS;
   while (Date.now() < deadline) {
-    const res = await fetch(`${COMFY_BASE}/history/${promptId}`);
-    if (res.ok) {
-      const body = await res.json();
-      const entry = body[promptId];
-      if (entry && entry.outputs) return entry.outputs;
+    try {
+      const res = await fetch(`${COMFY_BASE}/history/${promptId}`, {
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      });
+      if (res.ok) {
+        const body = await res.json();
+        const entry = body[promptId];
+        if (entry && entry.outputs) return entry.outputs;
+      }
+    } catch {
+      // Transient poll failure (timeout/network) — retry until the deadline.
     }
     await sleep(1500);
   }
@@ -111,7 +132,9 @@ async function downloadImage(image, outPath) {
     subfolder: image.subfolder || '',
     type: image.type || 'output',
   });
-  const res = await fetch(`${COMFY_BASE}/view?${params.toString()}`);
+  const res = await fetch(`${COMFY_BASE}/view?${params.toString()}`, {
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+  });
   if (!res.ok) throw new Error(`ComfyUI /view returned ${res.status}`);
   const buffer = Buffer.from(await res.arrayBuffer());
   await mkdir(path.dirname(outPath), { recursive: true });

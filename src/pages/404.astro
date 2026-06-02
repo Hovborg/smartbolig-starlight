@@ -1,10 +1,12 @@
 ---
 /**
  * Custom 404 page for SmartBolig.net
- * Overrides Starlight's default 404 component
+ *
+ * Lives in src/pages/ so Astro emits dist/404.html, which Cloudflare Pages
+ * serves automatically for unknown paths. (A Starlight `components.NotFound`
+ * override is NOT a valid Starlight option — that approach silently does
+ * nothing, which is why this is a standalone page instead.)
  */
-import type { Props } from '@astrojs/starlight/props';
-import CallToAction from '@astrojs/starlight/components/CallToAction.astro';
 
 // Detect language from URL
 const lang = Astro.url.pathname.startsWith('/en/') ? 'en' : 'da';
@@ -13,6 +15,8 @@ const content = {
   da: {
     title: '404 - Side ikke fundet',
     heading: 'Siden blev ikke fundet',
+    // NB: metaDescription matches what scripts/seo-validate.mjs requires verbatim.
+    metaDescription: 'Siden blev ikke fundet. Find SmartBolig.net guides fra forsiden.',
     description: 'Beklager! Den side du leder efter eksisterer ikke, er blevet flyttet, eller er midlertidigt utilgængelig.',
     homeLink: 'Gå til forsiden',
     haLink: 'Home Assistant',
@@ -32,6 +36,7 @@ const content = {
   en: {
     title: '404 - Page not found',
     heading: 'Page not found',
+    metaDescription: 'Page not found. Find SmartBolig.net guides from the homepage.',
     description: 'Sorry! The page you are looking for does not exist, has been moved, or is temporarily unavailable.',
     homeLink: 'Go to homepage',
     haLink: 'Home Assistant',
@@ -51,6 +56,18 @@ const content = {
 };
 
 const t = content[lang];
+
+// Minimal WebPage schema so the 404 page keeps valid structured data
+// (scripts/seo-validate.mjs requires a WebPage JSON-LD on dist/404.html).
+const webPageSchema = {
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: t.title,
+  description: t.metaDescription,
+  url: "https://smartbolig.net/404/",
+  inLanguage: lang === "en" ? "en-US" : "da-DK",
+};
+const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c");
 ---
 
 <!DOCTYPE html>
@@ -59,9 +76,14 @@ const t = content[lang];
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{t.title} | SmartBolig.net</title>
+    <meta name="description" content={t.metaDescription}>
     <meta name="robots" content="noindex, nofollow">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content={`${t.title} | SmartBolig.net`}>
+    <meta property="og:description" content={t.metaDescription}>
     <link rel="icon" href="/favicon.ico" sizes="32x32">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <script type="application/ld+json" set:html={webPageSchemaJson} />
     <style>
         * {
             margin: 0;

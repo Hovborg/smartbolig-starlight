@@ -2,14 +2,20 @@
 # https://securityheaders.com
 
 /*
+  # Remove broad CORS if a zone/default rule added it elsewhere
+  ! Access-Control-Allow-Origin
+  
   # Prevent clickjacking
   X-Frame-Options: SAMEORIGIN
   
   # Prevent MIME type sniffing
   X-Content-Type-Options: nosniff
+  X-Permitted-Cross-Domain-Policies: none
   
   # Control referrer information
   Referrer-Policy: strict-origin-when-cross-origin
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-site
   
   # Restrict browser features
   Permissions-Policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
@@ -17,8 +23,8 @@
   # Force HTTPS (HSTS)
   Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
   
-  # XSS Protection (legacy browsers)
-  X-XSS-Protection: 1; mode=block
+  # Disable legacy XSS auditors; CSP is the active XSS mitigation
+  X-XSS-Protection: 0
   
   # Content Security Policy
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://consent.cookiebot.com https://consentcdn.cookiebot.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.ezoic.net https://pagead2.googlesyndication.com https://www.googleadservices.com https://adservice.google.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google https://tpc.googlesyndication.com https://*.googlesyndication.com https://giscus.app; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://consent.cookiebot.com https://consentcdn.cookiebot.com https://www.google-analytics.com https://analytics.google.com https://*.ezoic.net https://*.googlesyndication.com https://pagead2.googlesyndication.com https://giscus.app; frame-src 'self' https://consentcdn.cookiebot.com https://www.google.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://*.googlesyndication.com https://giscus.app; object-src 'none'; base-uri 'self'; form-action 'self';
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://consent.cookiebot.com https://consentcdn.cookiebot.com https://www.googletagmanager.com https://www.google-analytics.com https://cdn.ezoic.net https://pagead2.googlesyndication.com https://www.googleadservices.com https://adservice.google.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google https://tpc.googlesyndication.com https://*.googlesyndication.com https://giscus.app; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://consent.cookiebot.com https://consentcdn.cookiebot.com https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://*.ezoic.net https://*.googlesyndication.com https://pagead2.googlesyndication.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google https://giscus.app; frame-src 'self' https://consentcdn.cookiebot.com https://www.google.com https://googleads.g.doubleclick.net https://tpc.googlesyndication.com https://*.googlesyndication.com https://ep2.adtrafficquality.google https://giscus.app; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self';

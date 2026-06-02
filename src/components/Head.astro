@@ -89,9 +89,6 @@ const defaultLanguageUrl = new URL(defaultLanguagePath, siteUrl).href;
 const datePublished =
   toIsoDate(entry?.data?.date, entry?.data?.lastUpdated, lastUpdated) || "2024-01-01T00:00:00.000Z";
 const dateModified = toIsoDate(entry?.data?.updated, entry?.data?.lastUpdated, lastUpdated, entry?.data?.date);
-const searchUrl = lang === "da"
-  ? `${siteUrl}/da/?search={search_term_string}`
-  : `${siteUrl}/en/?search={search_term_string}`;
 const aiNewsRssHref = lang === "da" ? `${siteUrl}/da/ai/nyheder/rss.xml` : `${siteUrl}/en/ai/news/rss.xml`;
 
 const starlightHead = (starlightRoute?.head ?? []) as HeadEntry[];
@@ -180,7 +177,9 @@ const organizationSchema = {
   ]
 };
 
-// WebSite Schema with SearchAction
+// WebSite Schema
+// Note: no SearchAction — site search is client-side (Pagefind), so there is
+// no URL-queryable search endpoint a SearchAction could legitimately point to.
 const websiteSchema = {
   "@context": "https://schema.org",
   "@type": "WebSite",
@@ -190,15 +189,8 @@ const websiteSchema = {
   publisher: {
     "@id": `${siteUrl}/#organization`
   },
-  inLanguage: [languageCode],
-  potentialAction: {
-    "@type": "SearchAction",
-    target: {
-      "@type": "EntryPoint",
-      urlTemplate: searchUrl
-    },
-    "query-input": "required name=search_term_string"
-  }
+  // The site entity itself is bilingual regardless of which page is rendered.
+  inLanguage: ["da-DK", "en-US"]
 };
 
 const pathParts = pathname.split('/').filter(Boolean);
@@ -369,6 +361,11 @@ const combinedSchema = {
   "@context": "https://schema.org",
   "@graph": graphItems
 };
+
+// Escape "<" as the unicode sequence < so content that flows in from
+// external sources (e.g. AI-news source URLs) can never break out of the
+// JSON-LD <script> block. JSON.stringify does NOT escape "</script>" on its own.
+const combinedSchemaJson = JSON.stringify(combinedSchema).replace(/</g, "\\u003c");
 ---
 
 <Default {...Astro.props} />
@@ -387,4 +384,4 @@ const combinedSchema = {
 <meta name="copyright" content="SmartBolig.net" />
 <meta name="author" content="SmartBolig.net" />
 
-<script type="application/ld+json" set:html={JSON.stringify(combinedSchema)} />
+<script type="application/ld+json" set:html={combinedSchemaJson} />

@@ -10,14 +10,35 @@ interface Props {
   secondaryText?: string;
 }
 
+// Locale-aware defaults so the component also works on /en/ pages without
+// every caller having to pass explicit props.
+const lang = Astro.url.pathname.startsWith("/en/") ? "en" : "da";
+const defaults = lang === "en"
+  ? {
+      title: "Build your <span class='highlight'>smart home</span> with in-depth guides",
+      tagline: "50+ in-depth guides for Home Assistant, ESP32 and automation. Everything tested on real setups.",
+      primaryLink: "/en/home-assistant/kom-godt-i-gang/",
+      primaryText: "Get started",
+      secondaryLink: "/en/home-assistant/",
+      secondaryText: "See all guides",
+    }
+  : {
+      title: "Byg dit <span class='highlight'>smarte hjem</span> med danske guides",
+      tagline: "50+ dybdegående guides til Home Assistant, ESP32 og automatisering. Alt testet på rigtige opsætninger.",
+      primaryLink: "/da/home-assistant/kom-godt-i-gang/",
+      primaryText: "Kom i gang",
+      secondaryLink: "/da/home-assistant/",
+      secondaryText: "Se alle guides",
+    };
+
 const {
-  title = "Byg dit <span class='highlight'>smarte hjem</span> med danske guides",
-  tagline = "50+ dybdegående guides til Home Assistant, ESP32 og automatisering. Alt testet på rigtige opsætninger.",
+  title = defaults.title,
+  tagline = defaults.tagline,
   image = "/images/hero/front.webp",
-  primaryLink = "/da/home-assistant/kom-godt-i-gang/",
-  primaryText = "Kom i gang",
-  secondaryLink = "/da/home-assistant/",
-  secondaryText = "Se alle guides",
+  primaryLink = defaults.primaryLink,
+  primaryText = defaults.primaryText,
+  secondaryLink = defaults.secondaryLink,
+  secondaryText = defaults.secondaryText,
 } = Astro.props;
 ---
 

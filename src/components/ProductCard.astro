@@ -22,14 +22,14 @@ interface Props {
   image?: string;
   price?: string;
   rating?: number;
-  store?: 'proshop' | 'amazon' | 'aliexpress';
+  store?: 'proshop' | 'specialkamera' | 'amazon' | 'aliexpress';
   url?: string;
   badge?: string;
 }
 
 const { name, image, price, rating, store, url, badge } = Astro.props;
 
-// Affiliate configurations
+// Affiliate configurations (kept in sync with AffiliateLink.astro)
 const affiliateConfig = {
   proshop: {
     partnerId: '55881',
@@ -37,13 +37,19 @@ const affiliateConfig = {
     baseUrl: 'https://www.partner-ads.com/dk/klikbanner.php',
     name: 'Proshop',
   },
+  specialkamera: {
+    partnerId: '55881',
+    bannerId: '65506',
+    baseUrl: 'https://www.partner-ads.com/dk/klikbanner.php',
+    name: 'Specialkamera',
+  },
   amazon: { partnerId: '', bannerId: '', baseUrl: '', name: 'Amazon' },
   aliexpress: { partnerId: '', bannerId: '', baseUrl: '', name: 'AliExpress' },
 };
 
 function generateAffiliateUrl(productUrl: string, storeName: string): string {
-  if (storeName === 'proshop') {
-    const config = affiliateConfig.proshop;
+  if (storeName === 'proshop' || storeName === 'specialkamera') {
+    const config = affiliateConfig[storeName];
     const encodedUrl = encodeURIComponent(productUrl);
     return `${config.baseUrl}?partnerid=${config.partnerId}&bannerid=${config.bannerId}&htmlurl=${encodedUrl}`;
   }

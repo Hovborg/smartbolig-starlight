@@ -6,7 +6,13 @@ function getSlug(doc) {
 }
 
 function getPubDate(doc) {
-  return doc.data.date || doc.data.lastUpdated || new Date();
+  // lastUpdated can be a boolean in Starlight frontmatter — only accept real dates.
+  for (const value of [doc.data.date, doc.data.lastUpdated]) {
+    if (!value || typeof value === 'boolean') continue;
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime())) return date;
+  }
+  return new Date();
 }
 
 function sourceLabel(url) {
@@ -21,18 +27,18 @@ function sourceLabel(url) {
 }
 
 function getCategories(doc) {
+  // Note: the internal editorial "signal" score is deliberately NOT exposed
+  // in the public feed — only source labels carry value for subscribers.
   const categories = new Set(['AI News']);
   for (const source of doc.data.news?.sources || []) {
     categories.add(sourceLabel(source));
   }
-  categories.add(`${doc.data.news?.signal || 'medium'} signal`);
   return [...categories];
 }
 
 function getDescription(doc) {
   const sourceCount = doc.data.news?.sources?.length || 0;
-  const signal = doc.data.news?.signal || 'medium';
-  const suffix = `Signal: ${signal}. Officielle kilder: ${sourceCount}.`;
+  const suffix = `Officielle kilder: ${sourceCount}.`;
   return [doc.data.description, suffix].filter(Boolean).join(' ');
 }
 

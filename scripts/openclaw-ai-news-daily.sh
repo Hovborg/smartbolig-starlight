@@ -225,6 +225,9 @@ main() {
   stop_comfyui
   trap - EXIT
 
+  # Full validation gate before anything can reach the auto-merge below:
+  # unit tests + content validation + image check + production build + SEO check.
+  npm run ai-news:test
   npm run ai-news:validate
   node scripts/ai-news-pending-images.mjs --fail-on-pending
   npm run build
@@ -254,6 +257,8 @@ main() {
 
   local body_file pr_url
   body_file="$(pr_body_file)"
+  # Clean up the temp body file even if a gh command below fails (set -e).
+  trap 'rm -f "${body_file}"' EXIT
   pr_url="$(gh pr list --repo "${REPO}" --head "${BRANCH}" --state open --json url --jq '.[0].url // ""')"
   if [[ -n "${pr_url}" ]]; then
     gh pr edit "${pr_url}" --repo "${REPO}" --body-file "${body_file}" >/dev/null
@@ -266,6 +271,7 @@ main() {
       --body-file "${body_file}")"
   fi
   rm -f "${body_file}"
+  trap - EXIT
 
   if gh pr merge "${pr_url}" --repo "${REPO}" --squash --delete-branch >/dev/null; then
     echo "SmartBolig AI News automation finished: PR ${pr_url} (auto-merged)"

@@ -1,0 +1,5 @@
+Contact: https://smartbolig.net/da/kontakt/
+Expires: 2027-06-02T00:00:00Z
+Canonical: https://smartbolig.net/.well-known/security.txt
+Preferred-Languages: da, en
+Policy: https://smartbolig.net/da/juridisk/brugsvilkaar/

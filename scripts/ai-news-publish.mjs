@@ -33,6 +33,13 @@ const writeFiles = args.has('--write');
 const force = args.has('--force');
 const allowWeakSignal = args.has('--allow-weak-signal');
 const targetDate = args.get('--date') || process.env.AI_NEWS_DATE || new Date().toISOString().slice(0, 10);
+
+// The date becomes part of output filenames — reject anything that is not a
+// plain YYYY-MM-DD value (prevents path traversal via --date / AI_NEWS_DATE).
+if (!/^\d{4}-\d{2}-\d{2}$/.test(String(targetDate))) {
+  console.error(`Invalid date value: ${JSON.stringify(targetDate)}. Expected YYYY-MM-DD.`);
+  process.exit(1);
+}
 const lookbackDays = Number(args.get('--days') || 10);
 const minScore = Number(args.get('--min-score') || 14);
 const maxItems = Number(args.get('--max-items') || 7);
@@ -72,12 +79,27 @@ function readTag(block, tagName) {
 function readLink(block) {
   const textLink = readTag(block, 'link');
   if (textLink) return textLink;
-  const href = block.match(/<link\b[^>]*href=["']([^"']+)["'][^>]*>/i);
+  // Prefer rel="alternate" (the article URL); Atom entries may list rel="self"
+  // (the feed URL) first. Links without rel default to alternate per the Atom spec.
+  const linkTags = [...block.matchAll(/<link\b[^>]*>/gi)].map((match) => match[0]);
+  const preferred = linkTags.find((tag) => /rel=["']alternate["']/i.test(tag))
+    || linkTags.find((tag) => !/\brel=/i.test(tag))
+    || linkTags[0];
+  const href = preferred?.match(/href=["']([^"']+)["']/i);
   return href ? decodeEntities(href[1]) : '';
 }
 
+function neutralizeCdata(xml) {
+  // Entity-escape CDATA contents before splitting the feed into item blocks,
+  // so a literal "</item>" inside CDATA cannot terminate the surrounding
+  // <item> element prematurely (which silently dropped the item).
+  return xml.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, (_, inner) =>
+    inner.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
+}
+
 function parseFeed(xml, source) {
-  const blocks = xml.match(/<item\b[\s\S]*?<\/item>|<entry\b[\s\S]*?<\/entry>/gi) || [];
+  const safeXml = neutralizeCdata(xml);
+  const blocks = safeXml.match(/<item\b[\s\S]*?<\/item>|<entry\b[\s\S]*?<\/entry>/gi) || [];
   return blocks.map((block) => {
     const publishedRaw = readTag(block, 'pubDate') || readTag(block, 'published') || readTag(block, 'updated');
     const published = new Date(publishedRaw);
@@ -144,6 +166,22 @@ function formatShortDate(date, locale) {
 
 function yamlString(value) {
   return `"${String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
+}
+
+function sanitizeUrl(url) {
+  // Feed URLs flow into YAML frontmatter, Markdown links, and JSON-LD.
+  // Only allow http(s) URLs and percent-encode characters that could break
+  // out of those contexts (quotes, angle brackets, parentheses, whitespace).
+  const value = String(url ?? '').trim();
+  if (!/^https?:\/\//i.test(value)) return '';
+  // encodeURIComponent leaves ' ( ) untouched, so percent-encode explicitly.
+  return value.replace(/[<>"'()\\\s]/g, (char) =>
+    `%${char.charCodeAt(0).toString(16).toUpperCase().padStart(2, '0')}`);
+}
+
+function sanitizeLinkText(value) {
+  // Markdown link labels and table cells must not contain brackets or pipes.
+  return String(value ?? '').replace(/[\[\]]/g, '').replace(/\|/g, '-');
 }
 
 function slugifyHeading(value) {
@@ -315,7 +353,7 @@ For SmartBolig-læsere er den relevante vinkel: ${impactDa(item)}
 
 Det næste skridt er konkret: ${actionDa(item)}
 
-Kilde: [${item.source.name}: ${item.title}](${item.url})`;
+Kilde: [${sanitizeLinkText(`${item.source.name}: ${item.title}`)}](${sanitizeUrl(item.url)})`;
     }
 
     return `### ${index + 1}. ${provider}: ${item.title}
@@ -326,7 +364,7 @@ For SmartBolig readers, the relevant angle is: ${impactEn(item)}
 
 The next step is concrete: ${actionEn(item)}
 
-Source: [${item.source.name}: ${item.title}](${item.url})`;
+Source: [${sanitizeLinkText(`${item.source.name}: ${item.title}`)}](${sanitizeUrl(item.url)})`;
   }).join('\n\n');
 }
 
@@ -365,11 +403,14 @@ function renderArticle({ locale, date, items, weakSignal }) {
     ? `<strong>Publiceret:</strong> <time datetime="${date}">${formattedDate}</time> | <strong>Opdateret:</strong> <time datetime="${date}">${formattedDate}</time>`
     : `<strong>Published:</strong> <time datetime="${date}">${formattedDate}</time> | <strong>Updated:</strong> <time datetime="${date}">${formattedDate}</time>`;
   const signal = weakSignal ? 'low' : items.length >= 4 ? 'high' : 'medium';
-  const sourceUrls = [...new Set(items.map((item) => item.url))];
+  // Keep one source URL per story in the same order as the rendered ### headings,
+  // so AiNewsFeed.astro's positional headline->source mapping stays aligned even
+  // when two stories share the same URL. Do not dedupe here.
+  const sourceUrls = items.map((item) => item.url);
 
   const sourceRows = items.map((item) => {
     const sourceDate = formatShortDate(item.published, isDa ? 'da-DK' : 'en-US');
-    return `| ${providerLabel(item.source.id)} | [${item.title}](${item.url}) | ${sourceDate} |`;
+    return `| ${providerLabel(item.source.id)} | [${sanitizeLinkText(item.title)}](${sanitizeUrl(item.url)}) | ${sourceDate} |`;
   }).join('\n');
 
   const frontmatter = [
@@ -385,7 +426,9 @@ function renderArticle({ locale, date, items, weakSignal }) {
     'news:',
     `  signal: ${signal}`,
     '  sources:',
-    ...sourceUrls.map((url) => `    - ${url}`),
+    // Quote + sanitize: feed URLs must never be able to break YAML parsing or
+    // carry markup into downstream consumers (AiNewsFeed, JSON-LD citations).
+    ...sourceUrls.map((url) => `    - ${yamlString(sanitizeUrl(url))}`),
     'sidebar:',
     `  label: ${yamlString(formattedDate)}`,
     '---',
@@ -528,6 +571,8 @@ async function fetchItems() {
           'User-Agent': 'SmartBolig AI News Bot (+https://smartbolig.net/da/ai/nyheder/)',
           Accept: 'application/rss+xml, application/atom+xml, text/xml;q=0.9, */*;q=0.5',
         },
+        // A stalled upstream server must not hang the whole publish pipeline.
+        signal: AbortSignal.timeout(20_000),
       });
       if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
       const xml = await response.text();

@@ -16,8 +16,8 @@ Sitemap: https://smartbolig.net/sitemap-index.xml
 # AI News English: https://smartbolig.net/en/ai/news/rss.xml
 
 # Disallow internal/admin paths
+# Note: /_astro/ (JS/CSS bundles) must stay crawlable so Googlebot can render pages.
 Disallow: /api/
-Disallow: /_astro/
 Disallow: /pagefind/
 
 # Crawl-delay for polite crawling
@@ -109,12 +109,8 @@ Disallow: /
 User-agent: omgilibot
 Disallow: /
 
-# Scrapers and archivers
-User-agent: ia_archiver
-Disallow: /
-
-User-agent: archive.org_bot
-Disallow: /
+# Internet Archive / Wayback Machine is allowed (covered by the default
+# "User-agent: *" Allow rule) so the site keeps a public history.
 
 # ===== DATA MINERS - BLOCKED =====
 

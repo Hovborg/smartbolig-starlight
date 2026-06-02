@@ -43,6 +43,9 @@ jobs:
         run: npx --yes wrangler@4.81.1 pages deploy dist --project-name=smartbolig-starlight
 
       - name: Ping IndexNow
+        # The site is already deployed at this point — a failed search-engine
+        # ping (e.g. missing key or IndexNow API hiccup) must not fail the run.
+        continue-on-error: true
         env:
           INDEXNOW_KEY: ${{ secrets.INDEXNOW_KEY }}
         run: |

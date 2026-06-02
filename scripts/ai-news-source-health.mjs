@@ -88,7 +88,11 @@ for (const result of badReferenceUrls) {
 const failedCritical = feedResults.filter((result) => result.feed.critical && !result.ok);
 const workingFeeds = feedResults.filter((result) => result.ok);
 
-if (failedCritical.length > 0 || workingFeeds.length < 4) {
+// Quorum scales with the number of configured feeds (at most 2 may be down)
+// instead of a hardcoded count that silently loosens when feeds are added.
+const requiredWorkingFeeds = Math.max(2, feedResults.length - 2);
+
+if (failedCritical.length > 0 || workingFeeds.length < requiredWorkingFeeds) {
   console.error('AI News source health failed.');
   if (failedCritical.length > 0) {
     console.error(`Critical feeds failing: ${failedCritical.map((result) => result.feed.id).join(', ')}`);

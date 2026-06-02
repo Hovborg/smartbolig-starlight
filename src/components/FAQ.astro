@@ -18,12 +18,18 @@ interface FAQItem {
 interface Props {
   questions?: FAQItem[];
   items?: FAQItem[];
+  /** Optional heading override; defaults to a locale-aware heading. */
+  title?: string;
 }
 
-const { questions, items } = Astro.props;
+const { questions, items, title } = Astro.props;
 
 // Support both 'questions' and 'items' prop names
 const faqItems = questions || items || [];
+
+// Locale-aware heading (same URL-based detection as Head.astro / 404.astro).
+const lang = Astro.url.pathname.startsWith('/en/') ? 'en' : 'da';
+const heading = title ?? (lang === 'en' ? 'Frequently Asked Questions' : 'Ofte stillede spørgsmål');
 
 // Generate Schema.org FAQPage structured data
 const faqSchema = {
@@ -40,10 +46,11 @@ const faqSchema = {
 };
 ---
 
-<script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
+{/* Escape "<" so content can never break out of the JSON-LD script block. */}
+<script type="application/ld+json" set:html={JSON.stringify(faqSchema).replace(/</g, "\\u003c")} />
 
 <div class="faq-section">
-  <h2>Ofte stillede spørgsmål</h2>
+  <h2>{heading}</h2>
   <dl class="faq-list">
     {faqItems.map((item) => (
       <div class="faq-item">
