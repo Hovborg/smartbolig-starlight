@@ -385,3 +385,11 @@ const combinedSchemaJson = JSON.stringify(combinedSchema).replace(/</g, "\\u003c
 <meta name="author" content="SmartBolig.net" />
 
 <script type="application/ld+json" set:html={combinedSchemaJson} />
+
+<style is:global>
+  /* Starlight's LinkCard description defaults to --sl-color-gray-3, which is
+     too dim against the dark card background. Lift it one step. */
+  .sl-link-card .description {
+    color: var(--sl-color-gray-2) !important;
+  }
+</style>

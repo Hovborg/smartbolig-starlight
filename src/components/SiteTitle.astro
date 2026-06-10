@@ -56,4 +56,19 @@ const { siteTitle, siteTitleHref } = Astro.locals.starlightRoute;
 		object-fit: contain;
 		object-position: 0 50%;
 	}
+	/* The logo is a full wordmark (800x180 SVG with "SmartBolig.net" baked in).
+	   On narrow screens the fixed 4rem height makes it ~284px wide, which gets
+	   clipped mid-word by the header controls. Let it shrink instead. */
+	@media (max-width: 50rem) {
+		img {
+			height: 3.25rem !important;
+			max-width: 100% !important;
+			min-width: 0;
+		}
+	}
+	@media (max-width: 26rem) {
+		img {
+			height: 2.75rem !important;
+		}
+	}
 </style>
