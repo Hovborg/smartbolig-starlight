@@ -47,4 +47,5 @@ const howToSchema = {
 };
 ---
 
-<script type="application/ld+json" set:html={JSON.stringify(howToSchema)} />
+{/* Escape "<" so content can never break out of the JSON-LD script block. */}
+<script type="application/ld+json" set:html={JSON.stringify(howToSchema).replace(/</g, "\\u003c")} />

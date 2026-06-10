@@ -68,7 +68,9 @@ const extractHeadlines = (body: unknown, issueHref: string, sources: string[]) =
     .map((match, index) => {
       const heading = match[1]?.trim() || "";
       const title = heading.replace(/^\d+\.\s+/, "");
-      const sourceUrl = sources[index] || "";
+      const rawSourceUrl = sources[index] || "";
+      // Only http(s) URLs may reach href= — frontmatter can be hand-edited.
+      const sourceUrl = /^https?:\/\//i.test(rawSourceUrl) ? rawSourceUrl : "";
       return {
         title,
         href: `${issueHref}#${slugifyHeading(heading)}`,

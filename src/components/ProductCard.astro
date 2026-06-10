@@ -29,6 +29,9 @@ interface Props {
 
 const { name, image, price, rating, store, url, badge } = Astro.props;
 
+// Locale-aware UI text (same URL-based detection as FAQ.astro / Head.astro).
+const lang = Astro.url.pathname.startsWith('/en/') ? 'en' : 'da';
+
 // Affiliate configurations (kept in sync with AffiliateLink.astro)
 const affiliateConfig = {
   proshop: {
@@ -77,7 +80,7 @@ const stars = rating ? '★'.repeat(rating) + '☆'.repeat(5 - rating) : null;
     <h3 class="product-name">{name}</h3>
 
     {stars && (
-      <div class="product-rating" title={`${rating} ud af 5 stjerner`}>
+      <div class="product-rating" title={lang === 'en' ? `${rating} out of 5 stars` : `${rating} ud af 5 stjerner`}>
         {stars}
       </div>
     )}
@@ -96,7 +99,7 @@ const stars = rating ? '★'.repeat(rating) + '☆'.repeat(5 - rating) : null;
           rel="noopener sponsored"
           class="product-buy-btn"
         >
-          Køb hos {affiliateConfig[store].name} →
+          {lang === 'en' ? 'Buy at' : 'Køb hos'} {affiliateConfig[store].name} →
         </a>
       )}
     </div>

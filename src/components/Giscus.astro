@@ -6,7 +6,7 @@ const pathname = Astro.url.pathname;
 const locale = Astro.currentLocale || (pathname.startsWith('/en/') ? 'en' : 'da');
 const isSplashPage = pathname.match(/^\/(da|en)\/?$/);
 const isLegalPage = pathname.includes('/juridisk/');
-const isIndexPage = pathname.endsWith('/index') || pathname.match(/\/(home-assistant|esp32|produkter|automationer|sikkerhed)\/?$/);
+const isIndexPage = pathname.endsWith('/index') || pathname.match(/\/(home-assistant|esp32|produkter|automationer|sikkerhed|ai|ai-cli|nyheder)\/?$/);
 const isUtilityPage = pathname.includes('/404') || pathname.includes('/kontakt') || pathname.includes('/om-os');
 const title = locale === 'en' ? 'Comments' : 'Kommentarer';
 

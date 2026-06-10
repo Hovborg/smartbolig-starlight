@@ -140,9 +140,10 @@ function scoreItem(item) {
 }
 
 function dateWindow(dateString, days) {
+  // Cover `days` whole UTC days, ending on (and including) the target date.
   const end = new Date(`${dateString}T23:59:59.999Z`);
-  const start = new Date(end);
-  start.setUTCDate(start.getUTCDate() - days);
+  const start = new Date(`${dateString}T00:00:00.000Z`);
+  start.setUTCDate(start.getUTCDate() - (days - 1));
   return { start, end };
 }
 
@@ -560,10 +561,11 @@ async function fetchItems() {
       const xml = await readFile(path.resolve(fixturePath), 'utf8');
       results.push(...parseFeed(xml, source));
     }
-    return results;
+    return { items: results, failedFeeds: [] };
   }
 
   const results = [];
+  const failedFeeds = [];
   for (const feed of FEEDS) {
     try {
       const response = await fetch(feed.url, {
@@ -578,10 +580,11 @@ async function fetchItems() {
       const xml = await response.text();
       results.push(...parseFeed(xml, feed));
     } catch (error) {
+      failedFeeds.push(feed);
       console.warn(`Could not fetch ${feed.name}: ${error.message}`);
     }
   }
-  return results;
+  return { items: results, failedFeeds };
 }
 
 function selectItems(items) {
@@ -646,7 +649,17 @@ async function writeIfChanged(filePath, content) {
 }
 
 async function main() {
-  const rawItems = await fetchItems();
+  const { items: rawItems, failedFeeds } = await fetchItems();
+
+  // A day where every critical feed is down must fail loudly — exit 0 would be
+  // indistinguishable from a legitimately quiet news day.
+  const criticalFeeds = FEEDS.filter((feed) => feed.critical);
+  const failedCritical = failedFeeds.filter((feed) => feed.critical);
+  if (criticalFeeds.length > 0 && failedCritical.length === criticalFeeds.length) {
+    console.error(`All critical feeds failed (${failedCritical.map((feed) => feed.name).join(', ')}). Aborting instead of treating this as a quiet news day.`);
+    process.exit(1);
+  }
+
   const selected = selectItems(rawItems);
   const weakSignal = selected.length < 2;
 

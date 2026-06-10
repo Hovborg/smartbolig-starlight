@@ -46,8 +46,12 @@ const faqSchema = {
 };
 ---
 
-{/* Escape "<" so content can never break out of the JSON-LD script block. */}
-<script type="application/ld+json" set:html={JSON.stringify(faqSchema).replace(/</g, "\\u003c")} />
+{/* Escape "<" so content can never break out of the JSON-LD script block.
+    Skip the schema entirely when there are no items — Google's Rich Results
+    validator rejects an empty FAQPage. */}
+{faqItems.length > 0 && (
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema).replace(/</g, "\\u003c")} />
+)}
 
 <div class="faq-section">
   <h2>{heading}</h2>

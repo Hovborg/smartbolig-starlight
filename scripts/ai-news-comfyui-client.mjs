@@ -90,13 +90,19 @@ async function submitPrompt(workflow) {
     signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
   if (!res.ok) throw new Error(`ComfyUI /prompt returned ${res.status}: ${await res.text()}`);
-  const body = await res.json();
+  let body;
+  try {
+    body = await res.json();
+  } catch (error) {
+    throw new Error(`ComfyUI /prompt responded with unparseable JSON: ${error.message}`);
+  }
   if (!body.prompt_id) throw new Error(`ComfyUI /prompt response missing prompt_id: ${JSON.stringify(body)}`);
   return body.prompt_id;
 }
 
 async function pollHistory(promptId) {
   const deadline = Date.now() + GEN_TIMEOUT_MS;
+  let lastError;
   while (Date.now() < deadline) {
     try {
       const res = await fetch(`${COMFY_BASE}/history/${promptId}`, {
@@ -106,13 +112,18 @@ async function pollHistory(promptId) {
         const body = await res.json();
         const entry = body[promptId];
         if (entry && entry.outputs) return entry.outputs;
+      } else {
+        lastError = new Error(`ComfyUI /history returned ${res.status}`);
       }
-    } catch {
-      // Transient poll failure (timeout/network) — retry until the deadline.
+    } catch (error) {
+      // Transient poll failure (timeout/network) — retry until the deadline,
+      // but keep the error so a permanent failure shows up in the timeout.
+      lastError = error;
     }
     await sleep(1500);
   }
-  throw new Error(`ComfyUI generation timed out after ${GEN_TIMEOUT_MS / 1000}s`);
+  const suffix = lastError ? ` (last poll error: ${lastError.message})` : '';
+  throw new Error(`ComfyUI generation timed out after ${GEN_TIMEOUT_MS / 1000}s${suffix}`);
 }
 
 function findOutputImage(outputs, promptId) {

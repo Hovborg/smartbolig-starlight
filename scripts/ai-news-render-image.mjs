@@ -62,7 +62,7 @@ function frontmatter(content) {
     for (const line of lines.slice(sourceIndex + 1)) {
       if (/^\S/.test(line)) break;
       const source = line.match(/^\s+-\s+(.+?)\s*$/);
-      if (source) sources.push(source[1]);
+      if (source) sources.push(source[1].replace(/^["']|["']$/g, ''));
     }
   }
 

@@ -8,8 +8,11 @@
  * nothing, which is why this is a standalone page instead.)
  */
 
-// Detect language from URL
-const lang = Astro.url.pathname.startsWith('/en/') ? 'en' : 'da';
+// This page is built ONCE as static dist/404.html, so Astro.url.pathname is
+// always "/404" at build time — URL-based language detection can never see
+// "/en/". Danish is therefore the build-time default, and the inline script
+// at the bottom swaps the copy to English at runtime for /en/* paths.
+const lang = 'da';
 
 const content = {
   da: {
@@ -199,18 +202,18 @@ const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c")
     <div class="container">
         <div class="emoji">🏠</div>
         <div class="error-code">404</div>
-        <h1>{t.heading}</h1>
-        <p>{t.description}</p>
+        <h1 id="nf-heading">{t.heading}</h1>
+        <p id="nf-description">{t.description}</p>
 
         <div class="links">
-            <a href={t.homePath}>🏠 {t.homeLink}</a>
-            <a href={t.haPath} class="secondary">{t.haLink}</a>
-            <a href={t.espPath} class="secondary">{t.espLink}</a>
+            <a id="nf-home" href={t.homePath}>🏠 {t.homeLink}</a>
+            <a id="nf-ha" href={t.haPath} class="secondary">{t.haLink}</a>
+            <a id="nf-esp" href={t.espPath} class="secondary">{t.espLink}</a>
         </div>
 
         <div class="popular">
-            <h2>{t.popularTitle}</h2>
-            <div class="popular-links">
+            <h2 id="nf-popular-title">{t.popularTitle}</h2>
+            <div class="popular-links" id="nf-popular-links">
                 {t.guides.map(guide => (
                     <a href={guide.href}>{guide.text}</a>
                 ))}
@@ -218,8 +221,40 @@ const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c")
         </div>
 
         <div class="lang-switch">
-            <a href={t.langSwitch.href}>{t.langSwitch.flag} {t.langSwitch.text}</a>
+            <a id="nf-lang-switch" href={t.langSwitch.href}>{t.langSwitch.flag} {t.langSwitch.text}</a>
         </div>
     </div>
+
+    <script is:inline define:vars={{ en: content.en }}>
+        // dist/404.html is served for every unknown path; swap the static
+        // Danish copy to English at runtime when the visitor came from /en/*.
+        if (location.pathname.startsWith('/en/')) {
+            document.documentElement.lang = 'en';
+            document.title = en.title + ' | SmartBolig.net';
+            const set = (id, apply) => {
+                const el = document.getElementById(id);
+                if (el) apply(el);
+            };
+            set('nf-heading', (el) => { el.textContent = en.heading; });
+            set('nf-description', (el) => { el.textContent = en.description; });
+            set('nf-home', (el) => { el.href = en.homePath; el.textContent = '🏠 ' + en.homeLink; });
+            set('nf-ha', (el) => { el.href = en.haPath; el.textContent = en.haLink; });
+            set('nf-esp', (el) => { el.href = en.espPath; el.textContent = en.espLink; });
+            set('nf-popular-title', (el) => { el.textContent = en.popularTitle; });
+            set('nf-popular-links', (el) => {
+                const links = el.querySelectorAll('a');
+                en.guides.forEach((guide, index) => {
+                    if (links[index]) {
+                        links[index].href = guide.href;
+                        links[index].textContent = guide.text;
+                    }
+                });
+            });
+            set('nf-lang-switch', (el) => {
+                el.href = en.langSwitch.href;
+                el.textContent = en.langSwitch.flag + ' ' + en.langSwitch.text;
+            });
+        }
+    </script>
 </body>
 </html>

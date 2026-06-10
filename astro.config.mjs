@@ -765,12 +765,21 @@ export default defineConfig({
             href: "https://smartbolig.net/en/rss.xml",
           },
         },
-        // Google AdSense (deferred for better LCP)
+        // Google AdSense (deferred for better LCP).
+        // GDPR/ePrivacy: AdSense sets advertising cookies, so it must only
+        // load AFTER the visitor has given marketing-consent via Cookiebot
+        // (same pattern as the GA4 loader above).
         {
           tag: "script",
           content: `
             (function() {
+              var adsLoaded = false;
+
               function loadAdSense() {
+                if (adsLoaded) return;
+                if (!window.Cookiebot || !window.Cookiebot.consent || !window.Cookiebot.consent.marketing) return;
+                adsLoaded = true;
+
                 var ads = document.createElement('script');
                 ads.async = true;
                 ads.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1259715054941263';
@@ -778,13 +787,8 @@ export default defineConfig({
                 document.head.appendChild(ads);
               }
 
-              if (document.readyState === 'complete') {
-                setTimeout(loadAdSense, 100);
-              } else {
-                window.addEventListener('load', function() {
-                  setTimeout(loadAdSense, 100);
-                });
-              }
+              window.addEventListener('CookiebotOnConsentReady', loadAdSense);
+              window.addEventListener('CookiebotOnAccept', loadAdSense);
             })();
           `,
         },
