@@ -250,9 +250,9 @@ const breadcrumbItems = [
   })
 ];
 
-// Only emit a BreadcrumbList when there is a real trail beyond the homepage —
-// a single-item breadcrumb (just "Home") carries no navigation value.
-const breadcrumbSchema = localizedPathParts.length > 0 ? {
+// Keep the homepage breadcrumb (just "Forside"/"Home") — the site's own
+// seo-validate.mjs requires the breadcrumb home label to be present.
+const breadcrumbSchema = breadcrumbItems.length > 0 ? {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   itemListElement: breadcrumbItems
