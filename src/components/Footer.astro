@@ -19,6 +19,7 @@ const translations = {
     privacy: 'Privatlivspolitik',
     affiliate: 'Affiliate Disclosure',
     noReproduction: 'Indhold må ikke kopieres uden skriftlig tilladelse.',
+    legalNav: 'Juridiske links',
   },
   en: {
     copyright: `© ${currentYear} SmartBolig.net - All rights reserved`,
@@ -26,6 +27,7 @@ const translations = {
     privacy: 'Privacy Policy',
     affiliate: 'Affiliate Disclosure',
     noReproduction: 'Content may not be copied without written permission.',
+    legalNav: 'Legal links',
   },
 };
 
@@ -46,7 +48,7 @@ const basePath = locale === 'en' ? '/en' : '/da';
       <p class="copyright-text">{t.copyright}</p>
       <p class="no-reproduction">{t.noReproduction}</p>
     </div>
-    <nav class="legal-links">
+    <nav class="legal-links" aria-label={t.legalNav}>
       <a href={`${basePath}/juridisk/brugsvilkaar/`}>{t.terms}</a>
       <span class="separator">|</span>
       <a href={`${basePath}/juridisk/privatlivspolitik/`}>{t.privacy}</a>
@@ -95,7 +97,7 @@ const basePath = locale === 'en' ? '/en' : '/da';
 
   .no-reproduction {
     font-size: var(--sl-text-xs);
-    color: var(--sl-color-gray-4);
+    color: var(--sl-color-gray-3);
     margin: 0.5rem 0 0 0;
   }
 
@@ -116,6 +118,12 @@ const basePath = locale === 'en' ? '/en' : '/da';
   .legal-links a:hover {
     color: var(--sl-color-white);
     text-decoration: underline;
+  }
+
+  .legal-links a:focus-visible {
+    outline: 2px solid var(--sl-color-white);
+    outline-offset: 2px;
+    border-radius: 2px;
   }
 
   .separator {

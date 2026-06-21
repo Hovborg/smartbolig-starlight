@@ -81,14 +81,20 @@ const articleAiNewsSchemaImages = articleHeroImageUrl && articleHeroImageStem &&
 const activeAiNewsSocialImageUrl = articleHeroImageUrl || aiNewsSocialImageUrl;
 const activeAiNewsSchemaImages = articleAiNewsSchemaImages || aiNewsSchemaImages;
 const activeAiNewsImageAlt = articleHeroImageAlt || (lang === "da" ? "SmartBolig.net AI-nyheder" : "SmartBolig.net AI News");
+const socialImageAlt = lang === "da"
+  ? "SmartBolig.net — dansk guide til smart home med Home Assistant og ESP32"
+  : "SmartBolig.net — smart home guides for Home Assistant and ESP32";
 const robotsContent = isNotFoundPage
   ? "noindex, nofollow"
-  : "max-image-preview:large, max-snippet:-1, max-video-preview:-1, noai, noimageai";
+  : "max-image-preview:large, max-snippet:-1, max-video-preview:-1";
 const defaultLanguagePath = pathname.startsWith("/en/") ? pathname.replace(/^\/en\//, "/da/") : pathname;
 const defaultLanguageUrl = new URL(defaultLanguagePath, siteUrl).href;
-const datePublished =
-  toIsoDate(entry?.data?.date, entry?.data?.lastUpdated, lastUpdated) || "2024-01-01T00:00:00.000Z";
 const dateModified = toIsoDate(entry?.data?.updated, entry?.data?.lastUpdated, lastUpdated, entry?.data?.date);
+// Prefer a real date; never fabricate one. Falls back to the git-derived
+// modified date, and is omitted from schema entirely when nothing is known
+// (JSON.stringify drops undefined values).
+const datePublished =
+  toIsoDate(entry?.data?.date, entry?.data?.lastUpdated, lastUpdated) || dateModified || undefined;
 const aiNewsRssHref = lang === "da" ? `${siteUrl}/da/ai/nyheder/rss.xml` : `${siteUrl}/en/ai/news/rss.xml`;
 
 const starlightHead = (starlightRoute?.head ?? []) as HeadEntry[];
@@ -121,10 +127,10 @@ if (entry?.data || isNotFoundPage) {
   upsertMeta("property", "og:type", isHomePage || isAiNewsIndex || isNotFoundPage ? "website" : "article");
   upsertMeta("property", "og:locale", openGraphLocale);
   upsertMeta("property", "og:locale:alternate", alternateOpenGraphLocale);
-  upsertMeta("property", "og:image:alt", "SmartBolig.net");
+  upsertMeta("property", "og:image:alt", socialImageAlt);
   upsertMeta("name", "twitter:title", title);
   upsertMeta("name", "twitter:description", description);
-  upsertMeta("name", "twitter:image:alt", "SmartBolig.net");
+  upsertMeta("name", "twitter:image:alt", socialImageAlt);
 }
 
 if (isAiNewsPage) {
@@ -142,13 +148,9 @@ if (isAiNewsPage) {
   });
 }
 
-if (entry?.data || isNotFoundPage) {
-  addLink({
-    rel: "alternate",
-    hreflang: "x-default",
-    href: defaultLanguageUrl,
-  });
-}
+// NOTE: Starlight already emits the full hreflang set (da / en / x-default)
+// for localized pages, so we do not add another x-default here — a duplicate
+// x-default is malformed and can make Google ignore the whole alternate set.
 
 if (isAiNewsArticle) {
   upsertMeta("property", "article:published_time", datePublished);
@@ -248,7 +250,9 @@ const breadcrumbItems = [
   })
 ];
 
-const breadcrumbSchema = breadcrumbItems.length > 0 ? {
+// Only emit a BreadcrumbList when there is a real trail beyond the homepage —
+// a single-item breadcrumb (just "Home") carries no navigation value.
+const breadcrumbSchema = localizedPathParts.length > 0 ? {
   "@context": "https://schema.org",
   "@type": "BreadcrumbList",
   itemListElement: breadcrumbItems
@@ -385,6 +389,15 @@ const combinedSchemaJson = JSON.stringify(combinedSchema).replace(/</g, "\\u003c
 <meta name="author" content="SmartBolig.net" />
 
 <script type="application/ld+json" set:html={combinedSchemaJson} />
+
+<!-- Remember the visitor's current language so the root (/) geo-redirect in
+     functions/_middleware.js honours their choice on the next visit. This is a
+     strictly-functional preference cookie (no consent required). -->
+<script define:vars={{ lang }}>
+  try {
+    document.cookie = "preferred-lang=" + lang + ";path=/;max-age=31536000;SameSite=Lax";
+  } catch (e) {}
+</script>
 
 <style is:global>
   /* Starlight's LinkCard description defaults to --sl-color-gray-3, which is

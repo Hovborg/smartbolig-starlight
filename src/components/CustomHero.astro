@@ -1,30 +1,36 @@
 ---
-// CustomHero.astro - Hero C design med billede i ramme
+// CustomHero.astro — homepage hero (markup only).
+// All styling lives in HomeStyles.astro (global, home-only) under .home-hero*.
 interface Props {
   title?: string;
   tagline?: string;
   image?: string;
+  imageAlt?: string;
+  badge?: string;
   primaryLink?: string;
   primaryText?: string;
   secondaryLink?: string;
   secondaryText?: string;
 }
 
-// Locale-aware defaults so the component also works on /en/ pages without
-// every caller having to pass explicit props.
+// Locale-aware defaults so the hero also works on /en/ without explicit props.
 const lang = Astro.url.pathname.startsWith("/en/") ? "en" : "da";
 const defaults = lang === "en"
   ? {
       title: "Build your <span class='highlight'>smart home</span> with in-depth guides",
-      tagline: "50+ in-depth guides for Home Assistant, ESP32 and automation. Everything tested on real setups.",
+      tagline: "50+ in-depth guides for Home Assistant, ESP32 and automation — every one tested on a real setup.",
+      badge: "New guides every week",
+      imageAlt: "Illustration of a smart home: a Home Assistant dashboard with temperature, lighting and security controls.",
       primaryLink: "/en/home-assistant/kom-godt-i-gang/",
       primaryText: "Get started",
       secondaryLink: "/en/home-assistant/",
-      secondaryText: "See all guides",
+      secondaryText: "Browse all guides",
     }
   : {
       title: "Byg dit <span class='highlight'>smarte hjem</span> med danske guides",
-      tagline: "50+ dybdegående guides til Home Assistant, ESP32 og automatisering. Alt testet på rigtige opsætninger.",
+      tagline: "50+ dybdegående guides til Home Assistant, ESP32 og automatisering — alle testet på en rigtig opsætning.",
+      badge: "Nye guides hver uge",
+      imageAlt: "Illustration af et smart hjem: et Home Assistant-dashboard med temperatur, lys og sikkerhed.",
       primaryLink: "/da/home-assistant/kom-godt-i-gang/",
       primaryText: "Kom i gang",
       secondaryLink: "/da/home-assistant/",
@@ -35,6 +41,8 @@ const {
   title = defaults.title,
   tagline = defaults.tagline,
   image = "/images/hero/front.webp",
+  imageAlt = defaults.imageAlt,
+  badge = defaults.badge,
   primaryLink = defaults.primaryLink,
   primaryText = defaults.primaryText,
   secondaryLink = defaults.secondaryLink,
@@ -42,205 +50,34 @@ const {
 } = Astro.props;
 ---
 
-<section class="custom-hero">
-  <div class="custom-hero-container">
-    <div class="custom-hero-grid">
-      <div class="custom-hero-text">
-        <h1 set:html={title} />
-        <p class="custom-hero-tagline">{tagline}</p>
-        <div class="custom-hero-buttons">
-          <a href={primaryLink} class="custom-hero-btn custom-hero-btn-primary">{primaryText}</a>
-          <a href={secondaryLink} class="custom-hero-btn custom-hero-btn-secondary">{secondaryText}</a>
-        </div>
+<section class="home-hero" aria-labelledby="home-hero-title">
+  <div class="home-hero__inner">
+    <div class="home-hero__text home-reveal">
+      <span class="home-hero__badge"><span class="dot" aria-hidden="true"></span>{badge}</span>
+      <h1 id="home-hero-title" set:html={title} />
+      <p class="home-hero__tagline">{tagline}</p>
+      <div class="home-hero__cta">
+        <a href={primaryLink} class="home-btn home-btn--primary">{primaryText}</a>
+        <a href={secondaryLink} class="home-btn home-btn--ghost">{secondaryText}</a>
       </div>
-      <div class="custom-hero-image-wrapper">
-        <div class="custom-hero-image-frame">
-          <img src={image} alt="Smart home illustration" loading="eager" />
-        </div>
-        <div class="custom-hero-image-badge">
-          <div class="badge-item"><strong>50+</strong> Guides</div>
-          <div class="badge-item"><strong>100%</strong> Dansk</div>
-          <div class="badge-item"><strong>0</strong> Cloud</div>
-        </div>
+    </div>
+    <div class="home-hero__media home-reveal home-reveal-2">
+      <div class="home-hero__frame">
+        <img
+          src={image}
+          alt={imageAlt}
+          width="1535"
+          height="1023"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </div>
+      <div class="home-hero__stats" aria-hidden="true">
+        <div class="home-hero__stat"><b>50+</b><span>Guides</span></div>
+        <div class="home-hero__stat"><b>100%</b><span>Dansk</span></div>
+        <div class="home-hero__stat"><b>0</b><span>Cloud</span></div>
       </div>
     </div>
   </div>
 </section>
-
-<style>
-  /* Hide default Starlight hero when custom hero is present on the page */
-  :global(.sl-container:has(.custom-hero) > .hero) {
-    display: none !important;
-  }
-
-  .custom-hero {
-    padding: 60px 0 80px;
-    position: relative;
-  }
-
-  .custom-hero::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 100%;
-    background:
-      radial-gradient(ellipse at 30% 0%, rgba(6, 182, 212, 0.08) 0%, transparent 50%),
-      radial-gradient(ellipse at 70% 100%, rgba(63, 185, 80, 0.06) 0%, transparent 50%);
-    pointer-events: none;
-  }
-
-  .custom-hero-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px;
-  }
-
-  .custom-hero-grid {
-    display: grid;
-    grid-template-columns: 1fr 1.1fr;
-    gap: 60px;
-    align-items: center;
-  }
-
-  @media (max-width: 900px) {
-    .custom-hero-grid {
-      grid-template-columns: 1fr;
-      gap: 40px;
-    }
-  }
-
-  .custom-hero-text h1 {
-    font-size: 2.75rem;
-    font-weight: 700;
-    margin-bottom: 20px;
-    line-height: 1.15;
-    color: var(--sl-color-white);
-  }
-
-  .custom-hero-text h1 :global(.highlight) {
-    color: #06b6d4;
-  }
-
-  .custom-hero-tagline {
-    font-size: 1.15rem;
-    color: var(--sl-color-gray-2);
-    margin-bottom: 32px;
-    line-height: 1.6;
-  }
-
-  .custom-hero-buttons {
-    display: flex;
-    gap: 12px;
-    flex-wrap: wrap;
-  }
-
-  .custom-hero-btn {
-    padding: 14px 28px;
-    border-radius: 8px;
-    font-size: 1rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: all 0.2s;
-  }
-
-  .custom-hero-btn-primary {
-    background: #06b6d4;
-    color: white;
-  }
-
-  .custom-hero-btn-primary:hover {
-    background: #0891b2;
-    transform: translateY(-2px);
-  }
-
-  .custom-hero-btn-secondary {
-    background: var(--sl-color-gray-6);
-    color: var(--sl-color-white);
-    border: 1px solid var(--sl-color-gray-5);
-  }
-
-  .custom-hero-btn-secondary:hover {
-    border-color: #06b6d4;
-  }
-
-  /* Hero image with frame */
-  .custom-hero-image-wrapper {
-    position: relative;
-  }
-
-  .custom-hero-image-frame {
-    background: var(--sl-color-gray-6);
-    border: 1px solid rgba(6, 182, 212, 0.25);
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow:
-      0 25px 80px rgba(0, 0, 0, 0.4),
-      0 0 60px rgba(6, 182, 212, 0.08);
-  }
-
-  .custom-hero-image-frame img {
-    width: 100%;
-    height: auto;
-    border-radius: 10px;
-    display: block;
-    /* The illustration is dark and blends into the page background —
-       lift it slightly so the hero has a clear focal point. */
-    filter: brightness(1.12) contrast(1.06) saturate(1.08);
-  }
-
-  .custom-hero-image-badge {
-    position: absolute;
-    bottom: -12px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--sl-color-gray-6);
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 20px;
-    padding: 8px 20px;
-    display: grid;
-    grid-template-columns: repeat(3, max-content);
-    gap: 18px;
-    align-items: center;
-    justify-content: center;
-    max-width: calc(100% - 24px);
-    font-size: 0.8rem;
-  }
-
-  .badge-item {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    color: var(--sl-color-gray-2);
-    line-height: 1;
-    white-space: nowrap;
-  }
-
-  .badge-item strong {
-    color: #06b6d4;
-  }
-
-  @media (max-width: 600px) {
-    .custom-hero-text h1 {
-      font-size: 2rem;
-    }
-
-    .custom-hero-tagline {
-      font-size: 1rem;
-    }
-
-    .custom-hero-image-badge {
-      width: calc(100% - 24px);
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
-      padding: 6px 14px;
-      font-size: 0.7rem;
-    }
-
-    .badge-item {
-      justify-content: center;
-      gap: 4px;
-    }
-  }
-</style>

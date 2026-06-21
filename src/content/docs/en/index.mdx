@@ -3,274 +3,158 @@ title: Smart Home Guide - Home Assistant, ESP32 & Zigbee Tutorials
 description: The most complete guide to smart home. Learn Home Assistant, ESP32 and automation with easy-to-follow tutorials.
 template: splash
 lastUpdated: false
-hero:
-  tagline: ""
-  actions: []
 ---
 
 import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
+import HomeStyles from "../../../components/HomeStyles.astro";
 import CustomHero from "../../../components/CustomHero.astro";
 
-<CustomHero
-  title="Build your <span class='highlight'>smart home</span> with expert guides"
-  tagline="50+ in-depth guides for Home Assistant, ESP32 and automation. All tested on real setups."
-  image="/images/hero/front.webp"
-  primaryLink="/en/home-assistant/kom-godt-i-gang/"
-  primaryText="Get Started"
-  secondaryLink="/en/home-assistant/"
-  secondaryText="Browse Guides"
-/>
+<HomeStyles />
 
-## Core Areas
+<CustomHero />
 
-<CardGrid stagger>
-  <Card title="Home Assistant" icon="setting">
-    Setup, backup, dashboards and integrations that work in practice. [Go to Home Assistant →](/en/home-assistant/)
-  </Card>
-  <Card title="ESP32 & ESPHome" icon="rocket">
-    Build your own sensors and switches with copy-ready ESPHome configurations. [See ESP32 guides →](/en/esp32/)
-  </Card>
-  <Card title="Products" icon="seti:salesforce">
-    Recommendations for hubs, sensors and equipment that work with HA. [See products →](/en/produkter/)
-  </Card>
-  <LinkCard
-    title="AI News"
-    description="Short editorial AI news about models, ChatGPT, Claude, Gemini, privacy, API pricing, and agent workflows."
-    href="/en/ai/nyheder/"
-  />
-</CardGrid>
+<div class="home-trust">
+  <div class="home-trust__item"><div class="home-trust__big">50+</div><div class="home-trust__label">In-depth guides</div></div>
+  <div class="home-trust__item"><div class="home-trust__big">100%</div><div class="home-trust__label">Hands-on tested</div></div>
+  <div class="home-trust__item"><div class="home-trust__big">0</div><div class="home-trust__label">Cloud dependency</div></div>
+  <div class="home-trust__item"><div class="home-trust__big">Local</div><div class="home-trust__label">Control &amp; privacy</div></div>
+</div>
 
----
+<section class="home-section">
+  <span class="home-eyebrow">Get started</span>
+  <h2 class="home-h2">Three steps to your smart home</h2>
+  <p class="home-lead">New to smart home? Follow the recommended order — from installation to your first automation.</p>
+  <div class="home-steps">
+    <div class="home-step">
+      <div class="home-step__num" aria-hidden="true">1</div>
+      <h3>Choose your platform</h3>
+      <p>Install Home Assistant on a Raspberry Pi, Proxmox or Docker — whatever suits you. <a href="/en/home-assistant/kom-godt-i-gang/">Get started →</a></p>
+    </div>
+    <div class="home-step">
+      <div class="home-step__num" aria-hidden="true">2</div>
+      <h3>Add devices</h3>
+      <p>Zigbee2MQTT for IKEA, Aqara and Sonoff — or WiFi and Matter for local control. <a href="/en/home-assistant/zigbee2mqtt/">Set up Zigbee →</a></p>
+    </div>
+    <div class="home-step">
+      <div class="home-step__num" aria-hidden="true">3</div>
+      <h3>Automate</h3>
+      <p>Start with a simple automation and build from there as you get comfortable. <a href="/en/home-assistant/foerste-automation/">Build your first →</a></p>
+    </div>
+  </div>
+</section>
 
-## Installation - Choose Your Platform
+<section class="home-section">
+  <span class="home-eyebrow">Core areas</span>
+  <h2 class="home-h2">Find your starting point</h2>
+  <p class="home-lead">Four tracks — whether you want to control, build, buy right, or follow AI.</p>
+  <div class="home-cats">
+    <a class="home-cat home-cat--ha" href="/en/home-assistant/">
+      <span class="home-cat__icon" aria-hidden="true">🏠</span>
+      <h3>Home Assistant</h3>
+      <p>Setup, dashboards, backup and integrations that work in practice.</p>
+      <span class="home-cat__go">Go to Home Assistant →</span>
+    </a>
+    <a class="home-cat home-cat--esp" href="/en/esp32/">
+      <span class="home-cat__icon" aria-hidden="true">🔧</span>
+      <h3>ESP32 &amp; ESPHome</h3>
+      <p>Build your own sensors and switches with copy-ready ESPHome configs.</p>
+      <span class="home-cat__go">See ESP32 guides →</span>
+    </a>
+    <a class="home-cat home-cat--prod" href="/en/produkter/">
+      <span class="home-cat__icon" aria-hidden="true">🛒</span>
+      <h3>Products &amp; gear</h3>
+      <p>Recommendations for hubs, sensors and equipment that work well with HA.</p>
+      <span class="home-cat__go">See products →</span>
+    </a>
+    <a class="home-cat home-cat--ai" href="/en/ai/nyheder/">
+      <span class="home-cat__icon" aria-hidden="true">🤖</span>
+      <h3>AI news</h3>
+      <p>Short editorial news on AI models, ChatGPT, Claude, Gemini and agent workflows.</p>
+      <span class="home-cat__go">Read AI news →</span>
+    </a>
+  </div>
+</section>
 
-<CardGrid>
-  <LinkCard
-    title="Raspberry Pi"
-    description="The classic method - perfect for beginners"
-    href="/en/home-assistant/raspberry-pi-installation/"
-  />
-  <LinkCard
-    title="Proxmox VM"
-    description="Home server with snapshots and enterprise backup"
-    href="/en/home-assistant/proxmox-installation/"
-  />
-  <LinkCard
-    title="Docker"
-    description="For NAS and existing servers"
-    href="/en/home-assistant/docker-installation/"
-  />
-</CardGrid>
+<div class="home-band">
+  <section class="home-section" style="margin-block:0">
+    <span class="home-eyebrow">Most read</span>
+    <h2 class="home-h2">Popular guides</h2>
+    <CardGrid>
+      <LinkCard title="Getting Started" description="Complete introduction to Home Assistant" href="/en/home-assistant/kom-godt-i-gang/" />
+      <LinkCard title="First Automation" description="Create a simple time-based automation with UI" href="/en/home-assistant/foerste-automation/" />
+      <LinkCard title="Washing Machine Notification" description="Get notified when the laundry is done" href="/en/home-assistant/vaskemaskine-notification/" />
+      <LinkCard title="Shelly Wall Display" description="Touchscreen with HA dashboards, sensors and relay" href="/en/home-assistant/shelly-wall-display/" />
+      <LinkCard title="Better Thermostat" description="Intelligent heating control with external sensor" href="/en/home-assistant/better-thermostat/" />
+      <LinkCard title="Dashboard Design" description="Build beautiful and functional dashboards" href="/en/home-assistant/dashboard-design/" />
+    </CardGrid>
+  </section>
+</div>
 
----
+<section class="home-section">
+  <span class="home-eyebrow">Install &amp; protocols</span>
+  <h2 class="home-h2">Get the foundation in place</h2>
+  <CardGrid>
+    <LinkCard title="Raspberry Pi" description="The classic method — perfect for beginners" href="/en/home-assistant/raspberry-pi-installation/" />
+    <LinkCard title="Proxmox VM" description="Home server with snapshots and enterprise backup" href="/en/home-assistant/proxmox-installation/" />
+    <LinkCard title="Docker" description="For NAS and existing servers" href="/en/home-assistant/docker-installation/" />
+    <LinkCard title="Zigbee2MQTT" description="One dongle for all Zigbee devices — IKEA, Aqara, Sonoff etc." href="/en/home-assistant/zigbee2mqtt/" />
+    <LinkCard title="Thread & Matter" description="The future of smart home — setup and best practices" href="/en/home-assistant/thread-matter/" />
+    <LinkCard title="WiFi Devices" description="Shelly, Tasmota and ESPHome — local control without cloud" href="/en/home-assistant/wifi-enheder/" />
+    <LinkCard title="Z-Wave" description="Robust protocol with long range and no interference" href="/en/home-assistant/z-wave/" />
+    <LinkCard title="Electricity Price Integration" description="Real-time electricity prices and automatic optimization" href="/en/home-assistant/elpris-integration/" />
+    <LinkCard title="Node-RED" description="Visual programming for advanced automations" href="/en/home-assistant/node-red/" />
+  </CardGrid>
+</section>
 
-## Protocols & Integrations
+<div class="home-band">
+  <section class="home-section" style="margin-block:0">
+    <span class="home-eyebrow">Build it yourself</span>
+    <h2 class="home-h2">ESP32 projects</h2>
+    <CardGrid>
+      <LinkCard title="Getting Started" description="Your first ESP32 with ESPHome — from unboxing to sensor" href="/en/esp32/kom-godt-i-gang/" />
+      <LinkCard title="Temperature Sensor" description="DHT22/BME280 with ESPHome — perfect beginner project" href="/en/esp32/temperatur-sensor/" />
+      <LinkCard title="Motion Sensor" description="PIR sensor for automatic light control" href="/en/esp32/bevaegelsessensor/" />
+      <LinkCard title="LED Strip" description="Addressable WS2812B with effects and colors" href="/en/esp32/led-strip/" />
+      <LinkCard title="LD2410 mmWave" description="Radar sensor that detects stationary people" href="/en/esp32/ld2410-mmwave/" />
+      <LinkCard title="Advanced ESPHome" description="Lambdas, custom components and advanced configurations" href="/en/esp32/esphome-avanceret/" />
+    </CardGrid>
+  </section>
+</div>
 
-<CardGrid>
-  <LinkCard
-    title="Zigbee2MQTT"
-    description="One dongle for all Zigbee devices - IKEA, Aqara, Sonoff etc."
-    href="/en/home-assistant/zigbee2mqtt/"
-  />
-  <LinkCard
-    title="Thread & Matter"
-    description="The future of smart home - setup and best practices"
-    href="/en/home-assistant/thread-matter/"
-  />
-  <LinkCard
-    title="WiFi Devices"
-    description="Shelly, Tasmota and ESPHome - local control without cloud"
-    href="/en/home-assistant/wifi-enheder/"
-  />
-  <LinkCard
-    title="Z-Wave"
-    description="Robust protocol with long range and no interference"
-    href="/en/home-assistant/z-wave/"
-  />
-  <LinkCard
-    title="Electricity Price Integration"
-    description="Real-time electricity prices and automatic optimization"
-    href="/en/home-assistant/elpris-integration/"
-  />
-  <LinkCard
-    title="Node-RED"
-    description="Visual programming for advanced automations"
-    href="/en/home-assistant/node-red/"
-  />
-</CardGrid>
+<section class="home-section">
+  <span class="home-eyebrow">Buy right</span>
+  <h2 class="home-h2">Product categories</h2>
+  <CardGrid>
+    <LinkCard title="Zigbee Coordinators" description="Sonoff, SLZB-06, Conbee — choose the right one for your setup" href="/en/produkter/zigbee-koordinatorer/" />
+    <LinkCard title="Zigbee Sensors" description="Temperature, motion, door/window, air quality and more" href="/en/produkter/zigbee-sensorer/" />
+    <LinkCard title="WiFi Devices" description="Shelly relays, plugs and sensors for your existing network" href="/en/produkter/wifi-enheder/" />
+    <LinkCard title="Smart Lighting" description="Bulbs, strips and switches for intelligent lighting control" href="/en/produkter/smart-belysning/" />
+    <LinkCard title="Smart Thermostats" description="Save on heating with intelligent temperature control" href="/en/produkter/smart-termostater/" />
+    <LinkCard title="Presence Detection" description="PIR, mmWave radar and Bluetooth for precise detection" href="/en/produkter/tilstedevaerelse/" />
+    <LinkCard title="Smart Security" description="Cameras, locks, alarms and access control" href="/en/produkter/smart-sikkerhed/" />
+    <LinkCard title="Energy Management" description="Monitoring, optimization and tracking of your power usage" href="/en/produkter/energistyring/" />
+  </CardGrid>
+  <Aside type="tip" title="More categories">
+    See all product categories including kitchen, garden, pool, pets and much more on the [product overview →](/en/produkter/)
+  </Aside>
+</section>
 
----
+<section class="home-section">
+  <span class="home-eyebrow">More</span>
+  <h2 class="home-h2">More resources</h2>
+  <CardGrid>
+    <LinkCard title="HACS" description="Home Assistant Community Store — extensions and integrations" href="/en/home-assistant/hacs/" />
+    <LinkCard title="Backup & Security" description="Protect your setup with automatic backups" href="/en/home-assistant/backup-sikkerhed/" />
+    <LinkCard title="Troubleshooting" description="Solve the most common problems" href="/en/home-assistant/fejlfinding/" />
+    <LinkCard title="Glossary" description="Explanations of smart home terms" href="/en/home-assistant/glossar/" />
+  </CardGrid>
+</section>
 
-## Product Categories
-
-<CardGrid>
-  <LinkCard
-    title="Zigbee Coordinators"
-    description="Sonoff, SLZB-06, Conbee - choose the right one for your setup"
-    href="/en/produkter/zigbee-koordinatorer/"
-  />
-  <LinkCard
-    title="Zigbee Sensors"
-    description="Temperature, motion, door/window, air quality and more"
-    href="/en/produkter/zigbee-sensorer/"
-  />
-  <LinkCard
-    title="WiFi Devices"
-    description="Shelly relays, plugs and sensors for your existing network"
-    href="/en/produkter/wifi-enheder/"
-  />
-  <LinkCard
-    title="Smart Lighting"
-    description="Bulbs, strips and switches for intelligent lighting control"
-    href="/en/produkter/smart-belysning/"
-  />
-  <LinkCard
-    title="Smart Thermostats"
-    description="Save on heating with intelligent temperature control"
-    href="/en/produkter/smart-termostater/"
-  />
-  <LinkCard
-    title="Presence Detection"
-    description="PIR, mmWave radar and Bluetooth for precise detection"
-    href="/en/produkter/tilstedevaerelse/"
-  />
-  <LinkCard
-    title="Smart Security"
-    description="Cameras, locks, alarms and access control"
-    href="/en/produkter/smart-sikkerhed/"
-  />
-  <LinkCard
-    title="Energy Management"
-    description="Monitoring, optimization and tracking of your power usage"
-    href="/en/produkter/energistyring/"
-  />
-</CardGrid>
-
-<Aside type="tip" title="More Categories">
-  See all product categories including kitchen, garden, pool, pets and much more on the [product overview →](/en/produkter/)
-</Aside>
-
----
-
-## ESP32 Projects
-
-<CardGrid>
-  <LinkCard
-    title="Getting Started"
-    description="Your first ESP32 with ESPHome - from unboxing to sensor"
-    href="/en/esp32/kom-godt-i-gang/"
-  />
-  <LinkCard
-    title="Temperature Sensor"
-    description="DHT22/BME280 with ESPHome - perfect beginner project"
-    href="/en/esp32/temperatur-sensor/"
-  />
-  <LinkCard
-    title="Motion Sensor"
-    description="PIR sensor for automatic light control"
-    href="/en/esp32/bevaegelsessensor/"
-  />
-  <LinkCard
-    title="LED Strip"
-    description="Addressable WS2812B with effects and colors"
-    href="/en/esp32/led-strip/"
-  />
-  <LinkCard
-    title="LD2410 mmWave"
-    description="Radar sensor that detects stationary people"
-    href="/en/esp32/ld2410-mmwave/"
-  />
-  <LinkCard
-    title="Advanced ESPHome"
-    description="Lambdas, custom components and advanced configurations"
-    href="/en/esp32/esphome-avanceret/"
-  />
-</CardGrid>
-
----
-
-## Popular Guides
-
-<CardGrid>
-  <LinkCard
-    title="Getting Started"
-    description="Complete introduction to Home Assistant"
-    href="/en/home-assistant/kom-godt-i-gang/"
-  />
-  <LinkCard
-    title="First Automation"
-    description="Create a simple time-based automation with UI"
-    href="/en/home-assistant/foerste-automation/"
-  />
-  <LinkCard
-    title="Washing Machine Notification"
-    description="Get notified when the laundry is done"
-    href="/en/home-assistant/vaskemaskine-notification/"
-  />
-  <LinkCard
-    title="Shelly Wall Display"
-    description="Touchscreen with HA dashboards, sensors and relay"
-    href="/en/home-assistant/shelly-wall-display/"
-  />
-  <LinkCard
-    title="Better Thermostat"
-    description="Intelligent heating control with external sensor"
-    href="/en/home-assistant/better-thermostat/"
-  />
-  <LinkCard
-    title="Dashboard Design"
-    description="Build beautiful and functional dashboards"
-    href="/en/home-assistant/dashboard-design/"
-  />
-</CardGrid>
-
----
-
-## More Resources
-
-<CardGrid>
-  <LinkCard
-    title="HACS"
-    description="Home Assistant Community Store - extensions and integrations"
-    href="/en/home-assistant/hacs/"
-  />
-  <LinkCard
-    title="Backup & Security"
-    description="Protect your setup with automatic backups"
-    href="/en/home-assistant/backup-sikkerhed/"
-  />
-  <LinkCard
-    title="Troubleshooting"
-    description="Solve the most common problems"
-    href="/en/home-assistant/fejlfinding/"
-  />
-  <LinkCard
-    title="Glossary"
-    description="Explanations of smart home terms"
-    href="/en/home-assistant/glossar/"
-  />
-</CardGrid>
-
----
-
-## Quick Start Path
-
-<Aside type="note" title="Recommended order">
-  1. **Choose platform**: Raspberry Pi (easy), Proxmox (advanced), or Docker (existing server).
-  2. **Add Zigbee**: Zigbee2MQTT for sensors and switches from IKEA, Aqara etc.
-  3. **Build your own devices**: ESP32 with ESPHome for temperature, motion, LED strips.
-  4. **Automate**: Start with simple automations and expand gradually.
-</Aside>
-
----
-
-## About SmartBolig.net
-
-<Aside type="tip" title="Quality Content">
-  All guides are tested on real setups. We focus on **local control** - no cloud dependency, your data stays at home.
-</Aside>
-
-- Use the **search field** at the top to quickly find guides
-- **Copy code blocks** directly – they're ready to use
-- Content in both Danish and English
-- Focus on privacy and local control
+<div class="home-cta">
+  <h2>Ready to build your smart home?</h2>
+  <p>Start with our complete introduction to Home Assistant — focused on local control and privacy, tested on real setups.</p>
+  <div class="home-hero__cta" style="justify-content:center">
+    <a href="/en/home-assistant/kom-godt-i-gang/" class="home-btn home-btn--primary">Get started with Home Assistant</a>
+    <a href="/en/home-assistant/" class="home-btn home-btn--ghost">Browse all guides</a>
+  </div>
+</div>

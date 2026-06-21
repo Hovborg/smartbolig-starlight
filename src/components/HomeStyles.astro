@@ -1,0 +1,262 @@
+---
+// HomeStyles.astro — homepage design system.
+// Rendered ONLY on the splash homepage (imported by da/en index.mdx), so this
+// global CSS never loads on guide pages. Namespaced under .home-* to be safe.
+// Replaces the old "7 identical card grids" look with a varied vertical rhythm.
+---
+
+<style is:global>
+  :root {
+    --home-accent: #22d3ee;          /* cyan  — Home Assistant */
+    --home-accent-strong: #06b6d4;
+    --home-green: #3fb950;           /* ESP32 / hardware */
+    --home-amber: #f4a533;           /* products */
+    --home-violet: #a78bfa;          /* AI */
+    --home-card: #161b22;
+    --home-border: rgba(255, 255, 255, 0.09);
+    --home-border-hover: rgba(34, 211, 238, 0.45);
+    --home-dim: var(--sl-color-gray-2);
+  }
+
+  /* Splash pages give the content a max-width; let our sections own the width */
+  .sl-markdown-content :is(.home-hero, .home-section, .home-band, .home-cta) {
+    margin-top: 0;
+  }
+
+  /* The custom hero <h1> is the single page heading. Starlight still emits a
+     duplicate page-title <h1 id="_top"> in its own content-panel on splash
+     pages — hide that panel (home-only CSS) so there is exactly one h1 in the
+     DOM/accessibility tree. */
+  .content-panel:has(> .sl-container > h1#_top) {
+    display: none;
+  }
+
+  /* ===== HERO ============================================================ */
+  .home-hero {
+    position: relative;
+    padding: 56px 0 72px;
+  }
+  .home-hero::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 28% -10%, rgba(34, 211, 238, 0.12) 0%, transparent 52%),
+      radial-gradient(ellipse at 78% 110%, rgba(63, 185, 80, 0.08) 0%, transparent 55%);
+    pointer-events: none;
+  }
+  .home-hero__inner {
+    position: relative;
+    max-width: 1120px;
+    margin-inline: auto;
+    padding-inline: 24px;
+    display: grid;
+    grid-template-columns: 1fr 1.05fr;
+    gap: 56px;
+    align-items: center;
+  }
+  .home-hero__badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--home-dim);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--home-border);
+    border-radius: 999px;
+    padding: 6px 14px;
+    margin-bottom: 22px;
+  }
+  .home-hero__badge .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--home-green);
+    box-shadow: 0 0 0 3px rgba(63, 185, 80, 0.2);
+  }
+  .home-hero h1 {
+    font-size: clamp(2.1rem, 5vw, 3.1rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    color: var(--sl-color-white);
+    margin: 0 0 20px;
+  }
+  .home-hero h1 .highlight {
+    background: linear-gradient(120deg, #67e8f9 0%, var(--home-accent-strong) 55%, #3fb950 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .home-hero__tagline {
+    font-size: 1.15rem;
+    line-height: 1.6;
+    color: var(--home-dim);
+    margin: 0 0 30px;
+    max-width: 48ch;
+  }
+  .home-hero__cta { display: flex; gap: 12px; flex-wrap: wrap; }
+
+  .home-hero__media { position: relative; }
+  .home-hero__frame {
+    background: var(--home-card);
+    border: 1px solid rgba(34, 211, 238, 0.22);
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45), 0 0 60px rgba(34, 211, 238, 0.08);
+  }
+  .home-hero__frame img {
+    width: 100%; height: auto; display: block;
+    border-radius: 11px;
+    filter: brightness(1.12) contrast(1.06) saturate(1.08);
+  }
+  .home-hero__stats {
+    position: absolute;
+    left: 50%;
+    bottom: -22px;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0;
+    background: #11161d;
+    border: 1px solid var(--home-border);
+    border-radius: 14px;
+    padding: 10px 6px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+  }
+  .home-hero__stat { padding: 0 18px; text-align: center; }
+  .home-hero__stat + .home-hero__stat { border-left: 1px solid var(--home-border); }
+  .home-hero__stat b {
+    display: block;
+    font-size: 1.15rem;
+    font-weight: 800;
+    /* lighter cyan → passes AA on dark chip (old #06b6d4 failed ~2.9:1) */
+    color: #67e8f9;
+    line-height: 1.1;
+  }
+  .home-hero__stat span { font-size: 0.72rem; color: var(--home-dim); }
+
+  /* ===== shared section scaffolding ===================================== */
+  .home-section { max-width: 1120px; margin: 76px auto; padding-inline: 24px; }
+  .home-band { position: relative; padding-block: 72px; }
+  .home-band::before {
+    content: "";
+    position: absolute; inset: 0; left: 50%;
+    width: 100vw; transform: translateX(-50%);
+    background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.04));
+    border-block: 1px solid var(--home-border);
+    z-index: -1;
+  }
+  .home-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em;
+    text-transform: uppercase; color: var(--home-accent); margin-bottom: 14px;
+  }
+  .home-eyebrow::before { content: ""; width: 22px; height: 2px; background: var(--home-accent); border-radius: 2px; }
+  .home-h2 {
+    font-size: clamp(1.6rem, 3.4vw, 2.1rem); font-weight: 700; line-height: 1.15;
+    color: var(--sl-color-white); margin: 0 0 12px; letter-spacing: -0.01em;
+  }
+  .home-lead { font-size: 1.05rem; line-height: 1.6; color: var(--home-dim); max-width: 62ch; margin: 0 0 34px; }
+
+  /* ===== "Start her" steps ============================================== */
+  .home-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+  .home-step {
+    position: relative; background: var(--home-card); border: 1px solid var(--home-border);
+    border-radius: 16px; padding: 28px 24px; transition: border-color 0.2s, transform 0.2s;
+  }
+  .home-step__num {
+    display: flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: 10px; font-weight: 800; font-size: 1.05rem;
+    color: #06222b; background: linear-gradient(135deg, #2dd4ee, var(--home-accent-strong)); margin-bottom: 16px;
+  }
+  .home-step h3 { font-size: 1.15rem; font-weight: 700; color: var(--sl-color-white); margin: 0 0 8px; }
+  .home-step p { font-size: 0.95rem; line-height: 1.55; color: var(--home-dim); margin: 0; }
+  .home-step:not(:last-child)::after {
+    content: "→"; position: absolute; right: -16px; top: 50%; transform: translateY(-50%);
+    color: var(--home-accent); font-size: 1.2rem; font-weight: 700;
+  }
+
+  /* ===== category tiles (color-coded) ================================== */
+  .home-cats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+  .home-cat {
+    --c: var(--home-accent);
+    position: relative; display: block; background: var(--home-card); border: 1px solid var(--home-border);
+    border-radius: 18px; padding: 28px; text-decoration: none; overflow: hidden;
+    transition: border-color 0.2s, transform 0.2s;
+  }
+  .home-cat::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--c); }
+  .home-cat::after {
+    content: ""; position: absolute; top: -40%; right: -20%; width: 220px; height: 220px;
+    background: radial-gradient(circle, color-mix(in srgb, var(--c) 22%, transparent) 0%, transparent 70%);
+    pointer-events: none; opacity: 0.7; transition: opacity 0.2s;
+  }
+  .home-cat__icon { font-size: 1.7rem; line-height: 1; margin-bottom: 14px; display: block; }
+  .home-cat h3 { font-size: 1.25rem; font-weight: 700; color: var(--sl-color-white); margin: 0 0 8px; }
+  .home-cat p { font-size: 0.95rem; line-height: 1.55; color: var(--home-dim); margin: 0 0 16px; }
+  .home-cat__go { font-size: 0.9rem; font-weight: 700; color: var(--c); }
+  .home-cat--ha { --c: var(--home-accent); }
+  .home-cat--esp { --c: var(--home-green); }
+  .home-cat--prod { --c: var(--home-amber); }
+  .home-cat--ai { --c: var(--home-violet); }
+
+  /* ===== trust strip =================================================== */
+  .home-trust { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; max-width: 1120px; margin-inline: auto; padding-inline: 24px; }
+  .home-trust__item { text-align: center; }
+  .home-trust__big {
+    font-size: 2.2rem; font-weight: 800; line-height: 1; margin-bottom: 6px;
+    background: linear-gradient(135deg, #67e8f9, var(--home-accent-strong));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .home-trust__label { font-size: 0.92rem; color: var(--home-dim); }
+
+  /* ===== closing CTA =================================================== */
+  .home-cta {
+    position: relative; max-width: 1120px; margin: 84px auto; padding: 48px 40px;
+    border-radius: 24px; text-align: center; overflow: hidden;
+    background: radial-gradient(ellipse at 50% 0%, rgba(34,211,238,0.16) 0%, transparent 60%), linear-gradient(180deg, #11202a, #0f1620);
+    border: 1px solid rgba(34, 211, 238, 0.3);
+  }
+  .home-cta h2 { font-size: clamp(1.5rem, 3.2vw, 2rem); font-weight: 700; color: var(--sl-color-white); margin: 0 0 12px; }
+  .home-cta p { font-size: 1.05rem; color: var(--home-dim); margin: 0 auto 28px; max-width: 52ch; }
+
+  /* ===== shared button ================================================= */
+  .home-btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 14px 28px;
+    border-radius: 10px; font-size: 1rem; font-weight: 700; text-decoration: none;
+    transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s;
+  }
+  .home-btn--primary {
+    /* darkened cyan + near-black text → ~8:1 (old white-on-cyan was ~2.7:1) */
+    background: linear-gradient(135deg, #2dd4ee, var(--home-accent-strong)); color: #06222b;
+  }
+  .home-btn--primary:hover { box-shadow: 0 8px 28px rgba(34, 211, 238, 0.35); }
+  .home-btn--ghost { background: rgba(255,255,255,0.04); color: var(--sl-color-white); border: 1px solid var(--home-border); }
+  .home-btn--ghost:hover { border-color: var(--home-border-hover); }
+  .home-btn:focus-visible { outline: 3px solid #7dd3fc; outline-offset: 3px; }
+
+  /* ===== motion (guarded) ============================================== */
+  @media (prefers-reduced-motion: no-preference) {
+    .home-step:hover, .home-cat:hover { transform: translateY(-4px); border-color: var(--home-border-hover); }
+    .home-cat:hover::after { opacity: 1; }
+    .home-btn--primary:hover { transform: translateY(-2px); }
+    .home-reveal { opacity: 0; transform: translateY(14px); animation: home-rise 0.6s cubic-bezier(0.22,1,0.36,1) forwards; }
+    .home-reveal-2 { animation-delay: 0.08s; }
+    .home-reveal-3 { animation-delay: 0.16s; }
+    @keyframes home-rise { to { opacity: 1; transform: none; } }
+  }
+
+  /* ===== responsive =================================================== */
+  @media (max-width: 900px) {
+    .home-hero__inner { grid-template-columns: 1fr; gap: 44px; }
+  }
+  @media (max-width: 860px) {
+    .home-steps { grid-template-columns: 1fr; }
+    .home-step:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -16px; transform: translateX(50%); }
+    .home-trust { grid-template-columns: repeat(2, 1fr); gap: 28px; }
+  }
+  @media (max-width: 620px) {
+    .home-cats { grid-template-columns: 1fr; }
+    .home-section { margin-block: 56px; }
+    .home-cta { padding: 36px 22px; margin-inline: 16px; }
+    .home-hero__stat { padding: 0 12px; }
+  }
+</style>

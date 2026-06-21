@@ -3,274 +3,158 @@ title: Smart Home Guiden - Home Assistant, ESP32 & Zigbee på Dansk
 description: Danmarks mest komplette guide til smart home. Lær Home Assistant, ESP32 og automatisering med letforståelige tutorials på dansk.
 template: splash
 lastUpdated: false
-hero:
-  tagline: ""
-  actions: []
 ---
 
 import { Card, CardGrid, LinkCard, Aside } from "@astrojs/starlight/components";
+import HomeStyles from "../../../components/HomeStyles.astro";
 import CustomHero from "../../../components/CustomHero.astro";
 
-<CustomHero
-  title="Byg dit <span class='highlight'>smarte hjem</span> med danske guides"
-  tagline="50+ dybdegående guides til Home Assistant, ESP32 og automatisering. Alt testet på rigtige opsætninger."
-  image="/images/hero/front.webp"
-  primaryLink="/da/home-assistant/kom-godt-i-gang/"
-  primaryText="Kom i gang"
-  secondaryLink="/da/home-assistant/"
-  secondaryText="Se alle guides"
-/>
+<HomeStyles />
 
-## Kerneområder
+<CustomHero />
 
-<CardGrid stagger>
-  <Card title="Home Assistant" icon="setting">
-    Opsætning, backup, dashboards og integrationer der virker i praksis. [Gå til Home Assistant →](/da/home-assistant/)
-  </Card>
-  <Card title="ESP32 & ESPHome" icon="rocket">
-    Byg dine egne sensorer og kontakter med ESPHome-konfigurationer du kan kopiere. [Se ESP32 guides →](/da/esp32/)
-  </Card>
-  <Card title="Produkter" icon="seti:salesforce">
-    Anbefalinger til hubbe, sensorer og udstyr der spiller med HA. [Se produkter →](/da/produkter/)
-  </Card>
-  <LinkCard
-    title="AI-nyheder"
-    description="Korte redaktionelle nyheder om AI-modeller, ChatGPT, Claude, Gemini, privacy, API-priser og agent-workflows."
-    href="/da/ai/nyheder/"
-  />
-</CardGrid>
+<div class="home-trust">
+  <div class="home-trust__item"><div class="home-trust__big">50+</div><div class="home-trust__label">Dybdegående guides</div></div>
+  <div class="home-trust__item"><div class="home-trust__big">100%</div><div class="home-trust__label">Dansk indhold</div></div>
+  <div class="home-trust__item"><div class="home-trust__big">0</div><div class="home-trust__label">Cloud-afhængighed</div></div>
+  <div class="home-trust__item"><div class="home-trust__big">Lokal</div><div class="home-trust__label">Kontrol &amp; privatliv</div></div>
+</div>
 
----
+<section class="home-section">
+  <span class="home-eyebrow">Kom godt i gang</span>
+  <h2 class="home-h2">Tre trin til dit smarte hjem</h2>
+  <p class="home-lead">Ny til smart home? Følg den anbefalede rækkefølge — fra installation til din første automation.</p>
+  <div class="home-steps">
+    <div class="home-step">
+      <div class="home-step__num" aria-hidden="true">1</div>
+      <h3>Vælg din platform</h3>
+      <p>Installér Home Assistant på Raspberry Pi, Proxmox eller Docker — vælg det der passer dig. <a href="/da/home-assistant/kom-godt-i-gang/">Kom godt i gang →</a></p>
+    </div>
+    <div class="home-step">
+      <div class="home-step__num" aria-hidden="true">2</div>
+      <h3>Tilføj enheder</h3>
+      <p>Zigbee2MQTT til IKEA, Aqara og Sonoff — eller WiFi og Matter til lokal kontrol. <a href="/da/home-assistant/zigbee2mqtt/">Opsæt Zigbee →</a></p>
+    </div>
+    <div class="home-step">
+      <div class="home-step__num" aria-hidden="true">3</div>
+      <h3>Automatisér</h3>
+      <p>Start med en simpel automation og byg videre, efterhånden som du bliver fortrolig. <a href="/da/home-assistant/foerste-automation/">Lav din første →</a></p>
+    </div>
+  </div>
+</section>
 
-## Installation - Vælg din platform
+<section class="home-section">
+  <span class="home-eyebrow">Kerneområder</span>
+  <h2 class="home-h2">Find dit udgangspunkt</h2>
+  <p class="home-lead">Fire spor — uanset om du vil styre, bygge, købe rigtigt eller følge med i AI.</p>
+  <div class="home-cats">
+    <a class="home-cat home-cat--ha" href="/da/home-assistant/">
+      <span class="home-cat__icon" aria-hidden="true">🏠</span>
+      <h3>Home Assistant</h3>
+      <p>Opsætning, dashboards, backup og integrationer der virker i praksis.</p>
+      <span class="home-cat__go">Gå til Home Assistant →</span>
+    </a>
+    <a class="home-cat home-cat--esp" href="/da/esp32/">
+      <span class="home-cat__icon" aria-hidden="true">🔧</span>
+      <h3>ESP32 &amp; ESPHome</h3>
+      <p>Byg dine egne sensorer og kontakter med kopiérbare ESPHome-konfigurationer.</p>
+      <span class="home-cat__go">Se ESP32-guides →</span>
+    </a>
+    <a class="home-cat home-cat--prod" href="/da/produkter/">
+      <span class="home-cat__icon" aria-hidden="true">🛒</span>
+      <h3>Produkter &amp; udstyr</h3>
+      <p>Anbefalinger til hubbe, sensorer og udstyr der spiller godt sammen med HA.</p>
+      <span class="home-cat__go">Se produkter →</span>
+    </a>
+    <a class="home-cat home-cat--ai" href="/da/ai/nyheder/">
+      <span class="home-cat__icon" aria-hidden="true">🤖</span>
+      <h3>AI-nyheder</h3>
+      <p>Korte danske nyheder om AI-modeller, ChatGPT, Claude, Gemini og agent-workflows.</p>
+      <span class="home-cat__go">Læs AI-nyheder →</span>
+    </a>
+  </div>
+</section>
 
-<CardGrid>
-  <LinkCard
-    title="Raspberry Pi"
-    description="Den klassiske metode - perfekt for begyndere"
-    href="/da/home-assistant/raspberry-pi-installation/"
-  />
-  <LinkCard
-    title="Proxmox VM"
-    description="Hjemmeserver med snapshots og enterprise backup"
-    href="/da/home-assistant/proxmox-installation/"
-  />
-  <LinkCard
-    title="Docker"
-    description="For NAS og eksisterende servere"
-    href="/da/home-assistant/docker-installation/"
-  />
-</CardGrid>
+<div class="home-band">
+  <section class="home-section" style="margin-block:0">
+    <span class="home-eyebrow">Mest læste</span>
+    <h2 class="home-h2">Populære guides</h2>
+    <CardGrid>
+      <LinkCard title="Kom godt i gang" description="Komplet introduktion til Home Assistant" href="/da/home-assistant/kom-godt-i-gang/" />
+      <LinkCard title="Første automation" description="Lav en simpel tidsbaseret automation med UI" href="/da/home-assistant/foerste-automation/" />
+      <LinkCard title="Vaskemaskine-notifikation" description="Få besked når vasken er færdig" href="/da/home-assistant/vaskemaskine-notification/" />
+      <LinkCard title="Shelly Wall Display" description="Touchskærm med HA-dashboards, sensorer og relæ" href="/da/home-assistant/shelly-wall-display/" />
+      <LinkCard title="Better Thermostat" description="Intelligent varmestyring med ekstern sensor" href="/da/home-assistant/better-thermostat/" />
+      <LinkCard title="Dashboard-design" description="Byg flotte og funktionelle dashboards" href="/da/home-assistant/dashboard-design/" />
+    </CardGrid>
+  </section>
+</div>
 
----
+<section class="home-section">
+  <span class="home-eyebrow">Installation &amp; protokoller</span>
+  <h2 class="home-h2">Få fundamentet på plads</h2>
+  <CardGrid>
+    <LinkCard title="Raspberry Pi" description="Den klassiske metode — perfekt for begyndere" href="/da/home-assistant/raspberry-pi-installation/" />
+    <LinkCard title="Proxmox VM" description="Hjemmeserver med snapshots og enterprise backup" href="/da/home-assistant/proxmox-installation/" />
+    <LinkCard title="Docker" description="For NAS og eksisterende servere" href="/da/home-assistant/docker-installation/" />
+    <LinkCard title="Zigbee2MQTT" description="Én dongle til alle Zigbee-enheder — IKEA, Aqara, Sonoff m.fl." href="/da/home-assistant/zigbee2mqtt/" />
+    <LinkCard title="Thread & Matter" description="Fremtidens smart home-standard — opsætning og best practices" href="/da/home-assistant/thread-matter/" />
+    <LinkCard title="WiFi-enheder" description="Shelly, Tasmota og ESPHome — lokal kontrol uden cloud" href="/da/home-assistant/wifi-enheder/" />
+    <LinkCard title="Z-Wave" description="Robust protokol med lang rækkevidde og ingen interferens" href="/da/home-assistant/z-wave/" />
+    <LinkCard title="Elpris-integration" description="Realtids elpriser og automatisk optimering af forbrug" href="/da/home-assistant/elpris-integration/" />
+    <LinkCard title="Node-RED" description="Visuel programmering til avancerede automationer" href="/da/home-assistant/node-red/" />
+  </CardGrid>
+</section>
 
-## Protokoller & Integrationer
+<div class="home-band">
+  <section class="home-section" style="margin-block:0">
+    <span class="home-eyebrow">Byg selv</span>
+    <h2 class="home-h2">ESP32-projekter</h2>
+    <CardGrid>
+      <LinkCard title="Kom godt i gang" description="Din første ESP32 med ESPHome — fra udpakning til sensor" href="/da/esp32/kom-godt-i-gang/" />
+      <LinkCard title="Temperatursensor" description="DHT22/BME280 med ESPHome — perfekt begynderprojekt" href="/da/esp32/temperatur-sensor/" />
+      <LinkCard title="Bevægelsessensor" description="PIR-sensor til automatisk lysstyring" href="/da/esp32/bevaegelsessensor/" />
+      <LinkCard title="LED-strip" description="Adresserbar WS2812B med effekter og farver" href="/da/esp32/led-strip/" />
+      <LinkCard title="LD2410 mmWave" description="Radarsensor der detekterer stillestående personer" href="/da/esp32/ld2410-mmwave/" />
+      <LinkCard title="Avanceret ESPHome" description="Lambdas, custom components og avancerede konfigurationer" href="/da/esp32/esphome-avanceret/" />
+    </CardGrid>
+  </section>
+</div>
 
-<CardGrid>
-  <LinkCard
-    title="Zigbee2MQTT"
-    description="Én dongle til alle Zigbee enheder - IKEA, Aqara, Sonoff m.fl."
-    href="/da/home-assistant/zigbee2mqtt/"
-  />
-  <LinkCard
-    title="Thread & Matter"
-    description="Fremtidens smart home standard - opsætning og best practices"
-    href="/da/home-assistant/thread-matter/"
-  />
-  <LinkCard
-    title="WiFi Enheder"
-    description="Shelly, Tasmota og ESPHome - lokal kontrol uden cloud"
-    href="/da/home-assistant/wifi-enheder/"
-  />
-  <LinkCard
-    title="Z-Wave"
-    description="Robust protokol med lang rækkevidde og ingen interferens"
-    href="/da/home-assistant/z-wave/"
-  />
-  <LinkCard
-    title="Elpris Integration"
-    description="Realtids elpriser og automatisk optimering af forbrug"
-    href="/da/home-assistant/elpris-integration/"
-  />
-  <LinkCard
-    title="Node-RED"
-    description="Visuel programmering til avancerede automationer"
-    href="/da/home-assistant/node-red/"
-  />
-</CardGrid>
+<section class="home-section">
+  <span class="home-eyebrow">Køb rigtigt</span>
+  <h2 class="home-h2">Produktkategorier</h2>
+  <CardGrid>
+    <LinkCard title="Zigbee-koordinatorer" description="Sonoff, SLZB-06, Conbee — vælg den rigtige til dit setup" href="/da/produkter/zigbee-koordinatorer/" />
+    <LinkCard title="Zigbee-sensorer" description="Temperatur, bevægelse, dør/vindue, luftkvalitet m.m." href="/da/produkter/zigbee-sensorer/" />
+    <LinkCard title="WiFi-enheder" description="Shelly-relæer, stik og sensorer til dit eksisterende netværk" href="/da/produkter/wifi-enheder/" />
+    <LinkCard title="Smart belysning" description="Pærer, strips og kontakter til intelligent lysstyring" href="/da/produkter/smart-belysning/" />
+    <LinkCard title="Smart termostater" description="Spar på varmen med intelligent temperaturkontrol" href="/da/produkter/smart-termostater/" />
+    <LinkCard title="Tilstedeværelse" description="PIR, mmWave-radar og Bluetooth til præcis detektion" href="/da/produkter/tilstedevaerelse/" />
+    <LinkCard title="Smart sikkerhed" description="Kameraer, låse, alarmer og adgangskontrol" href="/da/produkter/smart-sikkerhed/" />
+    <LinkCard title="Energistyring" description="Måling, optimering og overvågning af dit elforbrug" href="/da/produkter/energistyring/" />
+  </CardGrid>
+  <Aside type="tip" title="Flere kategorier">
+    Se alle produktkategorier inkl. køkken, have, pool, kæledyr og meget mere på [produktoversigten →](/da/produkter/)
+  </Aside>
+</section>
 
----
+<section class="home-section">
+  <span class="home-eyebrow">Mere</span>
+  <h2 class="home-h2">Flere ressourcer</h2>
+  <CardGrid>
+    <LinkCard title="HACS" description="Home Assistant Community Store — udvidelser og integrationer" href="/da/home-assistant/hacs/" />
+    <LinkCard title="Backup & sikkerhed" description="Beskyt din opsætning med automatiske backups" href="/da/home-assistant/backup-sikkerhed/" />
+    <LinkCard title="Fejlfinding" description="Løs de mest almindelige problemer" href="/da/home-assistant/fejlfinding/" />
+    <LinkCard title="Ordliste" description="Forklaringer på smart home-begreber" href="/da/home-assistant/glossar/" />
+  </CardGrid>
+</section>
 
-## Produktkategorier
-
-<CardGrid>
-  <LinkCard
-    title="Zigbee Koordinatorer"
-    description="Sonoff, SLZB-06, Conbee - vælg den rigtige til dit setup"
-    href="/da/produkter/zigbee-koordinatorer/"
-  />
-  <LinkCard
-    title="Zigbee Sensorer"
-    description="Temperatur, bevægelse, dør/vindue, luftkvalitet m.m."
-    href="/da/produkter/zigbee-sensorer/"
-  />
-  <LinkCard
-    title="WiFi Enheder"
-    description="Shelly relæer, stik og sensorer til dit eksisterende netværk"
-    href="/da/produkter/wifi-enheder/"
-  />
-  <LinkCard
-    title="Smart Belysning"
-    description="Pærer, strips og kontakter til intelligent lysstyring"
-    href="/da/produkter/smart-belysning/"
-  />
-  <LinkCard
-    title="Smart Termostater"
-    description="Spar på varmen med intelligent temperaturkontrol"
-    href="/da/produkter/smart-termostater/"
-  />
-  <LinkCard
-    title="Tilstedeværelse"
-    description="PIR, mmWave radar og Bluetooth til præcis detektion"
-    href="/da/produkter/tilstedevaerelse/"
-  />
-  <LinkCard
-    title="Smart Sikkerhed"
-    description="Kameraer, låse, alarmer og adgangskontrol"
-    href="/da/produkter/smart-sikkerhed/"
-  />
-  <LinkCard
-    title="Energistyring"
-    description="Måling, optimering og overvågning af dit elforbrug"
-    href="/da/produkter/energistyring/"
-  />
-</CardGrid>
-
-<Aside type="tip" title="Flere kategorier">
-  Se alle produktkategorier inkl. køkken, have, pool, kæledyr og meget mere på [produktoversigten →](/da/produkter/)
-</Aside>
-
----
-
-## ESP32 Projekter
-
-<CardGrid>
-  <LinkCard
-    title="Kom godt i gang"
-    description="Din første ESP32 med ESPHome - fra udpakning til sensor"
-    href="/da/esp32/kom-godt-i-gang/"
-  />
-  <LinkCard
-    title="Temperatur Sensor"
-    description="DHT22/BME280 med ESPHome - perfekt begynderprojekt"
-    href="/da/esp32/temperatur-sensor/"
-  />
-  <LinkCard
-    title="Bevægelsessensor"
-    description="PIR sensor til automatisk lysstyring"
-    href="/da/esp32/bevaegelsessensor/"
-  />
-  <LinkCard
-    title="LED Strip"
-    description="Adresserbar WS2812B med effekter og farver"
-    href="/da/esp32/led-strip/"
-  />
-  <LinkCard
-    title="LD2410 mmWave"
-    description="Radar sensor der detekterer stillestående personer"
-    href="/da/esp32/ld2410-mmwave/"
-  />
-  <LinkCard
-    title="Avanceret ESPHome"
-    description="Lambdas, custom components og avancerede konfigurationer"
-    href="/da/esp32/esphome-avanceret/"
-  />
-</CardGrid>
-
----
-
-## Populære Guides
-
-<CardGrid>
-  <LinkCard
-    title="Kom godt i gang"
-    description="Komplet introduktion til Home Assistant"
-    href="/da/home-assistant/kom-godt-i-gang/"
-  />
-  <LinkCard
-    title="Første automation"
-    description="Lav en simpel tidsbaseret automation med UI"
-    href="/da/home-assistant/foerste-automation/"
-  />
-  <LinkCard
-    title="Vaskemaskine Notifikation"
-    description="Få besked når vasken er færdig"
-    href="/da/home-assistant/vaskemaskine-notification/"
-  />
-  <LinkCard
-    title="Shelly Wall Display"
-    description="Touchskærm med HA dashboards, sensorer og relæ"
-    href="/da/home-assistant/shelly-wall-display/"
-  />
-  <LinkCard
-    title="Better Thermostat"
-    description="Intelligent varmestyring med ekstern sensor"
-    href="/da/home-assistant/better-thermostat/"
-  />
-  <LinkCard
-    title="Dashboard Design"
-    description="Byg flotte og funktionelle dashboards"
-    href="/da/home-assistant/dashboard-design/"
-  />
-</CardGrid>
-
----
-
-## Flere ressourcer
-
-<CardGrid>
-  <LinkCard
-    title="HACS"
-    description="Home Assistant Community Store - udvidelser og integrationer"
-    href="/da/home-assistant/hacs/"
-  />
-  <LinkCard
-    title="Backup & Sikkerhed"
-    description="Beskyt din opsætning med automatiske backups"
-    href="/da/home-assistant/backup-sikkerhed/"
-  />
-  <LinkCard
-    title="Fejlfinding"
-    description="Løs de mest almindelige problemer"
-    href="/da/home-assistant/fejlfinding/"
-  />
-  <LinkCard
-    title="Ordliste"
-    description="Forklaringer på smart home begreber"
-    href="/da/home-assistant/glossar/"
-  />
-</CardGrid>
-
----
-
-## Kom hurtigt i gang
-
-<Aside type="note" title="Anbefalet rækkefølge">
-  1. **Vælg platform**: Raspberry Pi (nemt), Proxmox (avanceret), eller Docker (eksisterende server).
-  2. **Tilføj Zigbee**: Zigbee2MQTT til sensorer og kontakter fra IKEA, Aqara m.fl.
-  3. **Byg egne enheder**: ESP32 med ESPHome til temperatur, bevægelse, LED strips.
-  4. **Automatiser**: Start med simple automationer og udvid efterhånden.
-</Aside>
-
----
-
-## Om SmartBolig.net
-
-<Aside type="tip" title="Dansk kvalitet">
-  Alle guides er skrevet på dansk og testet på rigtige opsætninger. Vi fokuserer på **lokal kontrol** - ingen cloud-afhængighed, dine data bliver hjemme.
-</Aside>
-
-- Brug **søgefeltet** i toppen til hurtigt at finde guides
-- **Kopiér kodeblokke** direkte – de er klar til brug
-- Alt indhold på dansk med danske priser og forhandlere
-- Fokus på privatliv og lokal kontrol
+<div class="home-cta">
+  <h2>Klar til at bygge dit smarte hjem?</h2>
+  <p>Start med vores komplette introduktion til Home Assistant — på dansk, med fokus på lokal kontrol og privatliv, testet på rigtige opsætninger.</p>
+  <div class="home-hero__cta" style="justify-content:center">
+    <a href="/da/home-assistant/kom-godt-i-gang/" class="home-btn home-btn--primary">Kom i gang med Home Assistant</a>
+    <a href="/da/home-assistant/" class="home-btn home-btn--ghost">Se alle guides</a>
+  </div>
+</div>
