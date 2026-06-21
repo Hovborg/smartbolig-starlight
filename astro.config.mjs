@@ -699,52 +699,42 @@ export default defineConfig({
             content: "https://smartbolig.net/images/og-image.png",
           },
         },
-        // Deferred third-party scripts loader (improves LCP).
-        // GDPR/ePrivacy: Cookiebot loads first; GA4 is only loaded AFTER the
-        // visitor has given statistics-consent (CookiebotOnConsentReady/OnAccept).
-        // Never load measurement scripts before consent is established.
+        // Google Consent Mode v2 + Google tags.
+        // GDPR/ePrivacy: consent defaults to DENIED for every storage type, so
+        // GA4 and AdSense run without cookies until the visitor consents.
+        // Google's own certified CMP (AdSense -> Privacy & messaging) renders the
+        // consent banner and calls gtag('consent','update',...) on acceptance.
+        // This inline block MUST run before gtag.js / adsbygoogle.js below.
         {
           tag: "script",
           content: `
-            (function() {
-              var gaLoaded = false;
-
-              function loadGoogleAnalytics() {
-                if (gaLoaded) return;
-                if (!window.Cookiebot || !window.Cookiebot.consent || !window.Cookiebot.consent.statistics) return;
-                gaLoaded = true;
-
-                var ga = document.createElement('script');
-                ga.async = true;
-                ga.src = 'https://www.googletagmanager.com/gtag/js?id=G-78F6DLB00Z';
-                document.head.appendChild(ga);
-
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                gtag('config', 'G-78F6DLB00Z');
-              }
-
-              function loadCookiebot() {
-                var cb = document.createElement('script');
-                cb.id = 'Cookiebot';
-                cb.src = 'https://consent.cookiebot.com/uc.js';
-                cb.setAttribute('data-cbid', '97aa135b-54bd-4bf5-8bc5-9994966ebab6');
-                cb.setAttribute('data-blockingmode', 'auto');
-                document.head.appendChild(cb);
-              }
-
-              // GA4 loads only when consent is known AND statistics is accepted.
-              window.addEventListener('CookiebotOnConsentReady', loadGoogleAnalytics);
-              window.addEventListener('CookiebotOnAccept', loadGoogleAnalytics);
-
-              if (document.readyState === 'complete') {
-                setTimeout(loadCookiebot, 0);
-              } else {
-                window.addEventListener('load', loadCookiebot);
-              }
-            })();
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            // Consent Mode v2 — deny all storage until the CMP updates it.
+            gtag('consent', 'default', {
+              ad_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
+              analytics_storage: 'denied',
+              functionality_storage: 'denied',
+              personalization_storage: 'denied',
+              security_storage: 'granted',
+              wait_for_update: 500
+            });
+            // Cookieless URL passthrough + ad data redaction while consent is denied.
+            gtag('set', 'url_passthrough', true);
+            gtag('set', 'ads_data_redaction', true);
+            gtag('js', new Date());
+            gtag('config', 'G-78F6DLB00Z');
           `,
+        },
+        // GA4 tag — Consent Mode keeps it cookieless until consent is granted.
+        {
+          tag: "script",
+          attrs: {
+            async: true,
+            src: "https://www.googletagmanager.com/gtag/js?id=G-78F6DLB00Z",
+          },
         },
         // RSS Feed auto-discovery
         {
@@ -765,32 +755,18 @@ export default defineConfig({
             href: "https://smartbolig.net/en/rss.xml",
           },
         },
-        // Google AdSense (deferred for better LCP).
-        // GDPR/ePrivacy: AdSense sets advertising cookies, so it must only
-        // load AFTER the visitor has given marketing-consent via Cookiebot
-        // (same pattern as the GA4 loader above).
+        // Google AdSense — loaded on every page so Google's certified CMP
+        // (AdSense -> Privacy & messaging) can render the consent message.
+        // Consent Mode (default DENIED above) keeps ads non-personalised and
+        // cookieless until the visitor consents. The published GDPR message in
+        // the AdSense dashboard is what triggers the banner.
         {
           tag: "script",
-          content: `
-            (function() {
-              var adsLoaded = false;
-
-              function loadAdSense() {
-                if (adsLoaded) return;
-                if (!window.Cookiebot || !window.Cookiebot.consent || !window.Cookiebot.consent.marketing) return;
-                adsLoaded = true;
-
-                var ads = document.createElement('script');
-                ads.async = true;
-                ads.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1259715054941263';
-                ads.crossOrigin = 'anonymous';
-                document.head.appendChild(ads);
-              }
-
-              window.addEventListener('CookiebotOnConsentReady', loadAdSense);
-              window.addEventListener('CookiebotOnAccept', loadAdSense);
-            })();
-          `,
+          attrs: {
+            async: true,
+            src: "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-1259715054941263",
+            crossorigin: "anonymous",
+          },
         },
       ],
       // Disable credits
