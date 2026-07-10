@@ -1,0 +1,245 @@
+---
+title: ESPHome Bluetooth Proxy til Home Assistant
+description: Udvid Home Assistants BLE-dækning med en ESP32 via Wi-Fi, Ethernet eller PoE, og fejlfind aktive forbindelser, placering og hukommelse.
+sidebar:
+  badge:
+    text: ESPHome
+    variant: note
+---
+
+import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+En ESPHome Bluetooth Proxy placerer en fjern BLE-radio tæt på dine enheder og
+sender data til Home Assistant over netværket. Den er særlig nyttig, når Home
+Assistant kører i en VM, et rack, en kælder eller et metalskab.
+
+<Aside type="note" title="Kun Bluetooth Low Energy">
+Proxyen understøtter BLE, ikke klassisk Bluetooth-lyd. Den gør heller ikke en
+ukendt enhed kompatibel; Home Assistant skal stadig have en integration, der
+forstår enhedens protokol.
+</Aside>
+
+## Sådan virker proxyen
+
+```text
+BLE-enhed ⇄ ESP32 Bluetooth Proxy ⇄ Wi-Fi/Ethernet ⇄ Home Assistant
+```
+
+- **Passive advertisements** er små udsendelser fra eksempelvis sensorer. De
+  kræver ikke en vedvarende forbindelse og tæller ikke som et aktivt slot.
+- **Active GATT connections** bruges, når Home Assistant skal læse eller skrive
+  data gennem en rigtig forbindelse. Hver samtidig forbindelse bruger et
+  `connection_slots`-slot og hukommelse på ESP32'en.
+- Flere proxies kan rapportere samme advertisement. Home Assistants Bluetooth-
+  lag samler dem og kan vælge den bedste vej.
+
+## Hvornår en proxy hjælper
+
+Brug en proxy når:
+
+- USB Bluetooth ikke kan placeres tæt på enhederne;
+- signalet skal gennem etager eller tykke vægge;
+- USB passthrough i en VM er ustabilt;
+- du vil have flere geografiske modtagepunkter;
+- BLE-enheder ofte bliver `Unavailable` på grund af rækkevidde.
+
+En proxy hjælper ikke, hvis enheden bruger klassisk Bluetooth, kræver en
+proprietær gateway uden Home Assistant-integration, eller har en protokol som
+ESPHome/Home Assistant ikke kan afkode.
+
+## Vælg Wi-Fi, Ethernet eller PoE
+
+| Forbindelse | Fordel | Ulempe |
+|---|---|---|
+| Wi-Fi | Billig og nem placering | Wi-Fi og BLE deler 2,4 GHz-radioen |
+| Ethernet | Stabil netværksvej og mindre radiokonkurrence | Kræver kabel og kompatibelt board |
+| PoE | Ét kabel til strøm og netværk | Dyrere hardware og korrekt PoE-udstyr |
+
+Til passive temperatursensorer er en almindelig ESP32 på Wi-Fi ofte nok. Til
+flere aktive låse, termostater eller andre vedvarende GATT-forbindelser kan
+Ethernet/PoE være mere stabilt. Et eksternt antenneboard hjælper kun, hvis
+antenne, placering og konfiguration er korrekte.
+
+## Hurtigste vej: færdigt ESPHome-projekt
+
+ESPHome har en officiel ready-made Bluetooth Proxy installer, som kan flashes
+med WebSerial i en understøttet Chromium-browser.
+
+<Steps>
+1. Tilslut ESP32 til computeren med et datakabel.
+2. Åbn ESPHomes officielle **Ready-Made Projects**.
+3. Vælg **Bluetooth proxy** og det præcise board.
+4. Flash enheden og giv den Wi-Fi-oplysninger.
+5. Åbn Home Assistant og acceptér den fundne ESPHome-enhed.
+6. Navngiv proxyen efter placering, eksempelvis `bt-proxy-stue`.
+</Steps>
+
+Vælg aldrig et “næsten identisk” Ethernet-board. Forkerte PHY- og pin-værdier
+kan forhindre netværket i at starte.
+
+## Manuel ESPHome YAML til Wi-Fi
+
+Denne minimale konfiguration bruger ESP-IDF og holder credentials i
+`secrets.yaml`:
+
+```yaml title="bt-proxy-stue.yaml"
+substitutions:
+  name: bt-proxy-stue
+  friendly_name: Bluetooth Proxy Stue
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+esp32_ble_tracker:
+
+bluetooth_proxy:
+  active: true
+  cache_services: true
+  connection_slots: 3
+```
+
+Kontrollér board-ID'et mod ESPHomes dokumentation. `active: true` tillader
+aktive forbindelser; passiv scanning virker også. De aktuelle officielle
+defaults kan ændres mellem ESPHome-versioner, så eksplicitte værdier gør denne
+guides valg tydelige.
+
+## Adoptér og verificér i Home Assistant
+
+Efter flash:
+
+1. Kontrollér at ESPHome-loggen viser Wi-Fi/Ethernet, API og BLE tracker uden
+   genstartsloop.
+2. Acceptér den fundne ESPHome-integration i Home Assistant.
+3. Gå til **Indstillinger → Enheder og tjenester → Bluetooth** og se adaptere
+   og diagnostics.
+4. Flyt en kendt understøttet BLE-sensor tæt på proxyen.
+5. Kontrollér at nye advertisements ses, og at enhedens integration opdaterer.
+6. Test en aktiv kommando, hvis enheden kræver GATT.
+
+RSSI alene beviser ikke, at en aktiv forbindelse virker. Verificér både
+opdagelse, tilstandsopdatering og en eventuel kommando.
+
+## Aktive forbindelser og connection_slots
+
+`connection_slots` er grænsen for samtidige aktive GATT-forbindelser. Det er
+ikke det maksimale antal passive sensorer.
+
+- En enhed med permanent forbindelse kan optage et slot hele tiden.
+- En sensor, der kun forbinder kort, frigiver slottet igen.
+- Flere slots bruger mere RAM; den officielle dokumentation anbefaler normalt
+  ikke mere end fem, og standardvalget er lavere.
+- Ethernet-proxies kan ofte håndtere et ekstra slot, fordi netværket ikke deler
+  Wi-Fi-radioen, men RAM-grænsen gælder stadig.
+
+Øg ikke slots for at løse dårlig rækkevidde. Kontrollér først hvilke enheder der
+holder aktive forbindelser, og om flere proxies er en bedre arkitektur.
+
+## Placering og flere proxies
+
+- Placér proxyen tæt på BLE-enhederne, ikke nødvendigvis tæt på Home Assistant.
+- Undgå rack, router, switch, USB 3-støj, metal og kraftige strømforsyninger.
+- ESPHomes dokumentation anbefaler god afstand til andet netværksudstyr; cirka
+  tre meter er et nyttigt testudgangspunkt, når omgivelserne tillader det.
+- Brug placeringsnavne og kortlæg hvilken proxy der ser enheden bedst.
+- Tilføj én proxy ad gangen og mål stabilitet før næste.
+
+En Ethernet- eller PoE-proxy med ekstern antenne kan være bedst i et vanskeligt
+område, men korrekt fysisk placering er vigtigere end flest mulige noder.
+
+## Sikker framework- og partition-migration
+
+ESP-IDF anbefales til Bluetooth Proxy. Meget gamle enheder eller skift fra
+Arduino kan have en anden partitionstabel. En almindelig OTA-opdatering ændrer
+ikke altid partitionstabellen.
+
+Før migration:
+
+1. Gem den fungerende YAML og secrets-navne.
+2. Sørg for fysisk adgang og et datakabel.
+3. Kontrollér det præcise board og flashmetoden i ESPHome-dokumentationen.
+4. Udfør en seriel flash, hvis den anbefalede partitionsmigration kræver det.
+5. Verificér API, OTA og BLE efter genstart.
+
+Start ikke en risikabel framework-migration på en utilgængelig loft- eller
+udendørsenhed uden en fysisk recovery-plan.
+
+## Ressourcekonflikter
+
+Bluetooth scanning og aktive forbindelser bruger RAM og radiotid. Stabiliteten
+kan falde, hvis samme ESP32 også kører:
+
+- web server;
+- voice assistant eller andre audio-komponenter;
+- mange BLE clients;
+- for mange connection slots;
+- aggressiv logging eller tunge displays.
+
+Hvis proxyen genstarter, reducer den til den officielle minimale konfiguration.
+Tilføj derefter én funktion ad gangen.
+
+## Fejlfinding
+
+### Ingen BLE-enheder opdages
+
+Kontrollér `esp32_ble_tracker`, API-forbindelse, afstand, strømforsyning og at
+enheden faktisk bruger BLE advertisements. Se om Home Assistant registrerer
+proxyen som Bluetooth-adapter.
+
+### Enheden ses, men kan ikke styres
+
+Det passive signal virker, men en aktiv GATT-forbindelse kan mangle. Kontrollér
+integrationens understøttelse, ledige slots, RSSI og om en anden enhed holder
+forbindelserne åbne.
+
+### Proxyen mister Wi-Fi
+
+Wi-Fi og BLE deler radio. Gå tilbage til standard scan-parametre, forbedr
+Wi-Fi-signalet, fjern webserver/tunge komponenter eller test Ethernet.
+
+### Genstarter og hukommelsesfejl
+
+Brug ESP-IDF, reducer slots, fjern webserver og audio, og kontrollér
+partitionstabellen. Gem bootloggen; en watchdog, brownout og out-of-memory er
+forskellige fejl.
+
+### Home Assistant vælger en dårlig vej
+
+Kontrollér Bluetooth diagnostics og RSSI over tid. Flyt proxyen, undgå
+interferens og verificér at alle proxies har stabil API-forbindelse.
+
+<CardGrid>
+  <Card title="ESPHome fra bunden" icon="rocket">
+    Se [kom godt i gang med ESP32](/da/esp32/kom-godt-i-gang/).
+  </Card>
+  <Card title="Tilstedeværelse" icon="setting">
+    Se [LD2410 mmWave-guiden](/da/esp32/ld2410-mmwave/).
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+- [ESPHome Bluetooth Proxy](https://esphome.io/components/bluetooth_proxy/)
+- [ESPHome Ready-Made Projects](https://esphome.io/projects/)
+- [ESP32 BLE Tracker](https://esphome.io/components/esp32_ble_tracker/)
+- [Bluetooth i Home Assistant](https://www.home-assistant.io/integrations/bluetooth/)
+
