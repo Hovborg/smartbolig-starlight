@@ -28,3 +28,26 @@ test("daily news automation keeps append-only content and image boundaries", asy
   }
   assert.ok(source.includes("Append-only content dirs"));
 });
+
+test("homepages use the shared portal and avoid unsupported claims", async () => {
+  for (const locale of ["da", "en"]) {
+    const home = await read(`src/content/docs/${locale}/index.mdx`);
+    assert.match(home, new RegExp(`<HomePortal locale=["']${locale}["']`));
+    assert.doesNotMatch(home, /100%|0 Cloud|hver uge|every week/i);
+    assert.equal((home.match(/<CustomHero/g) || []).length, 1);
+  }
+});
+
+test("shared portal exposes five intentional paths", async () => {
+  const portal = await read("src/components/HomePortal.astro");
+  for (const key of ["home-assistant", "automationer", "esp32", "produkter", "ai"]) {
+    assert.ok(portal.includes(`key: "${key}"`), `missing portal path: ${key}`);
+  }
+});
+
+test("homepage hero uses factual bilingual defaults without duplicate statistics", async () => {
+  const hero = await read("src/components/CustomHero.astro");
+  assert.match(hero, /Independent, practical guides/);
+  assert.match(hero, /Uafhængige, praktiske guides/);
+  assert.doesNotMatch(hero, /home-hero__stats|100%|0 Cloud|every week|hver uge/i);
+});

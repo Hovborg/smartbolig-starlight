@@ -1,0 +1,198 @@
+---
+type Locale = "da" | "en";
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const isDa = locale === "da";
+
+const copy = isDa
+  ? {
+      pathEyebrow: "Find den rigtige vej",
+      pathTitle: "Hvad vil du gøre smartere?",
+      pathIntro: "Vælg det spor, der matcher dit projekt. Hver indgang samler de vigtigste guides ét sted.",
+      newEyebrow: "Ny i smart home?",
+      newTitle: "Fra første installation til en automation, der virker",
+      newIntro: "Følg en rolig rækkefølge og undgå de klassiske blindgyder.",
+      startLink: "/da/start-her/",
+      startText: "Følg hele startruten",
+      recommendedEyebrow: "Udvalgt til dig",
+      recommendedTitle: "Guides, der løser rigtige behov",
+      recommendedIntro: "Begynd med et gennemprøvet fundament, og byg videre i dit eget tempo.",
+      newsEyebrow: "Nyt fra AI-verdenen",
+      newsTitle: "Seneste AI-nyheder",
+      newsArchive: "Se alle AI-nyheder",
+      trustEyebrow: "Sådan arbejder SmartBolig.net",
+      trustTitle: "Praktisk før smart salgssnak",
+      closeTitle: "Klar til at tage første skridt?",
+      closeText: "Start med den guidede rute, eller gå direkte til Home Assistant-biblioteket.",
+      closePrimary: "Start her",
+      closeSecondary: "Se Home Assistant-guides",
+    }
+  : {
+      pathEyebrow: "Choose the right route",
+      pathTitle: "What do you want to make smarter?",
+      pathIntro: "Choose the path that matches your project. Each entry collects the most useful guides in one place.",
+      newEyebrow: "New to smart homes?",
+      newTitle: "From first install to an automation that works",
+      newIntro: "Follow a calm sequence and avoid the common dead ends.",
+      startLink: "/en/start-here/",
+      startText: "Follow the complete start route",
+      recommendedEyebrow: "Selected for you",
+      recommendedTitle: "Guides that solve real needs",
+      recommendedIntro: "Begin with a dependable foundation and build at your own pace.",
+      newsEyebrow: "Fresh from the AI world",
+      newsTitle: "Latest AI news",
+      newsArchive: "Browse all AI news",
+      trustEyebrow: "How SmartBolig.net works",
+      trustTitle: "Practical guidance before smart-home hype",
+      closeTitle: "Ready to take the first step?",
+      closeText: "Use the guided route, or go straight to the Home Assistant library.",
+      closePrimary: "Start here",
+      closeSecondary: "Browse Home Assistant guides",
+    };
+
+const labels = isDa
+  ? {
+      "home-assistant": ["Home Assistant", "Installér, integrér og vedligehold hjernen i dit smarte hjem.", "Åbn Home Assistant"],
+      automationer: ["Automationer", "Gør hverdagen lettere med pålidelig logik og konkrete eksempler.", "Se automationer"],
+      esp32: ["ESP32 & ESPHome", "Byg lokale sensorer og enheder med konfigurationer, du kan forstå.", "Byg med ESPHome"],
+      produkter: ["Produkter & udstyr", "Vælg kompatibelt udstyr ud fra funktion og lokal kontrol.", "Find udstyr"],
+      ai: ["AI i praksis", "Følg værktøjer, modeller og workflows med fokus på reel anvendelse.", "Udforsk AI"],
+    }
+  : {
+      "home-assistant": ["Home Assistant", "Install, integrate and maintain the brain of your smart home.", "Open Home Assistant"],
+      automationer: ["Automations", "Make daily life easier with reliable logic and practical examples.", "Explore automations"],
+      esp32: ["ESP32 & ESPHome", "Build local sensors and devices with configurations you can understand.", "Build with ESPHome"],
+      produkter: ["Products & gear", "Choose compatible hardware based on function and local control.", "Find equipment"],
+      ai: ["Practical AI", "Follow tools, models and workflows with a focus on real-world use.", "Explore AI"],
+    };
+
+const paths = [
+  { key: "home-assistant", href: `/${locale}/home-assistant/`, accent: "cyan", number: "01" },
+  { key: "automationer", href: `/${locale}/automationer/`, accent: "blue", number: "02" },
+  { key: "esp32", href: `/${locale}/esp32/`, accent: "green", number: "03" },
+  { key: "produkter", href: `/${locale}/produkter/`, accent: "amber", number: "04" },
+  { key: "ai", href: `/${locale}/ai/`, accent: "violet", number: "05" },
+] as const;
+
+const steps = isDa
+  ? [
+      ["Vælg platform", "Find den installation, der passer til dit hjem og dit ambitionsniveau."],
+      ["Forbind enheder", "Start med én protokol og byg et stabilt netværk uden unødige skyer."],
+      ["Automatisér sikkert", "Lav din første automation og få backup på plads fra begyndelsen."],
+    ]
+  : [
+      ["Choose a platform", "Find the installation that fits your home and your ambitions."],
+      ["Connect devices", "Start with one protocol and build a stable network without unnecessary clouds."],
+      ["Automate safely", "Create your first automation and establish backups from day one."],
+    ];
+
+const guides = isDa
+  ? [
+      ["Kom godt i gang med Home Assistant", "Et samlet overblik før du vælger installation.", "/da/home-assistant/kom-godt-i-gang/", "Start"],
+      ["Zigbee2MQTT", "Saml Zigbee-enheder lokalt på tværs af producenter.", "/da/home-assistant/zigbee2mqtt/", "Enheder"],
+      ["Din første automation", "Byg en enkel automation og forstå hvert trin.", "/da/home-assistant/foerste-automation/", "Automation"],
+      ["Backup & sikkerhed", "Beskyt opsætningen før du gør den større.", "/da/home-assistant/backup-sikkerhed/", "Sikkerhed"],
+      ["Dashboard-design", "Skab et overskueligt dashboard, der fungerer i hverdagen.", "/da/home-assistant/dashboard-design/", "Design"],
+      ["Fejlfinding", "Find årsagen systematisk, når noget ikke virker.", "/da/home-assistant/fejlfinding/", "Drift"],
+    ]
+  : [
+      ["Getting started with Home Assistant", "Get the full picture before choosing an installation.", "/en/home-assistant/kom-godt-i-gang/", "Start"],
+      ["Zigbee2MQTT", "Bring Zigbee devices from different brands together locally.", "/en/home-assistant/zigbee2mqtt/", "Devices"],
+      ["Your first automation", "Build a simple automation and understand every step.", "/en/home-assistant/foerste-automation/", "Automation"],
+      ["Backup & security", "Protect your setup before making it larger.", "/en/home-assistant/backup-sikkerhed/", "Security"],
+      ["Dashboard design", "Create a clear dashboard that works in daily life.", "/en/home-assistant/dashboard-design/", "Design"],
+      ["Troubleshooting", "Find the cause systematically when something fails.", "/en/home-assistant/fejlfinding/", "Operations"],
+    ];
+
+const trust = isDa
+  ? [
+      ["Konkret", "Guides med trin, konfigurationer og tydelige næste handlinger."],
+      ["Lokal først", "Lokal kontrol og privatliv vægtes, når det giver praktisk mening."],
+      ["Gennemsigtig", "Kilder, affiliate-oplysninger og kontakt til rettelser er synlige."],
+    ]
+  : [
+      ["Concrete", "Guides with steps, configurations and clear next actions."],
+      ["Local first", "Local control and privacy are prioritised where practical."],
+      ["Transparent", "Sources, affiliate disclosures and corrections contact are visible."],
+    ];
+---
+
+<main class="home-portal">
+  <section class="home-section home-paths" aria-labelledby="home-paths-title">
+    <div class="home-section__heading">
+      <p class="home-eyebrow">{copy.pathEyebrow}</p>
+      <h2 id="home-paths-title">{copy.pathTitle}</h2>
+      <p>{copy.pathIntro}</p>
+    </div>
+    <div class="home-path-grid">
+      {paths.map(({ key, href, accent, number }, index) => {
+        const [title, description, action] = labels[key];
+        return (
+          <a class={`home-path home-path--${accent} ${index === 0 ? "home-path--featured" : ""}`} href={href}>
+            <span class="home-path__number" aria-hidden="true">{number}</span>
+            <h3>{title}</h3>
+            <p>{description}</p>
+            <span class="home-path__action">{action}<span aria-hidden="true"> →</span></span>
+          </a>
+        );
+      })}
+    </div>
+  </section>
+
+  <section class="home-section home-start" aria-labelledby="home-start-title">
+    <div class="home-section__heading">
+      <p class="home-eyebrow">{copy.newEyebrow}</p>
+      <h2 id="home-start-title">{copy.newTitle}</h2>
+      <p>{copy.newIntro}</p>
+    </div>
+    <ol class="home-step-list">
+      {steps.map(([title, description], index) => (
+        <li><span>{String(index + 1).padStart(2, "0")}</span><div><h3>{title}</h3><p>{description}</p></div></li>
+      ))}
+    </ol>
+    <a class="home-text-link" href={copy.startLink}>{copy.startText}<span aria-hidden="true"> →</span></a>
+  </section>
+
+  <section class="home-section" aria-labelledby="home-guides-title">
+    <div class="home-section__heading">
+      <p class="home-eyebrow">{copy.recommendedEyebrow}</p>
+      <h2 id="home-guides-title">{copy.recommendedTitle}</h2>
+      <p>{copy.recommendedIntro}</p>
+    </div>
+    <div class="home-guide-grid">
+      {guides.map(([title, description, href, tag]) => (
+        <article class="home-guide"><span>{tag}</span><h3><a href={href}>{title}</a></h3><p>{description}</p></article>
+      ))}
+    </div>
+  </section>
+
+  <section class="home-section home-news-shell" aria-labelledby="home-news-title">
+    <div class="home-section__heading">
+      <p class="home-eyebrow">{copy.newsEyebrow}</p>
+      <h2 id="home-news-title">{copy.newsTitle}</h2>
+      <a class="home-text-link" href={`/${locale}/ai/nyheder/`}>{copy.newsArchive}<span aria-hidden="true"> →</span></a>
+    </div>
+    <slot name="latest-news" />
+  </section>
+
+  <section class="home-section home-method" aria-labelledby="home-method-title">
+    <div class="home-section__heading">
+      <p class="home-eyebrow">{copy.trustEyebrow}</p>
+      <h2 id="home-method-title">{copy.trustTitle}</h2>
+    </div>
+    <div class="home-method-grid">{trust.map(([title, description]) => <div><h3>{title}</h3><p>{description}</p></div>)}</div>
+  </section>
+
+  <section class="home-cta" aria-labelledby="home-cta-title">
+    <h2 id="home-cta-title">{copy.closeTitle}</h2>
+    <p>{copy.closeText}</p>
+    <div class="home-actions">
+      <a class="home-btn home-btn--primary" href={copy.startLink}>{copy.closePrimary}</a>
+      <a class="home-btn home-btn--ghost" href={`/${locale}/home-assistant/`}>{copy.closeSecondary}</a>
+    </div>
+  </section>
+</main>
