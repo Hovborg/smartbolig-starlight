@@ -1,0 +1,250 @@
+---
+title: Energy Dashboard i Home Assistant
+description: Byg et pålideligt Energy Dashboard med elnet, solceller, batteri, gas, vand, apparater og elbil uden at være bundet til ét land eller én udbyder.
+sidebar:
+  badge:
+    text: Energi
+    variant: success
+---
+
+import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+Home Assistants Energy Dashboard samler forbrug og produktion over tid. Et flot
+dashboard er dog kun nyttigt, hvis sensorerne måler det rigtige. Start med én
+verificeret elnetmåler og tilføj først solceller, batteri, gas, vand, apparater,
+elbil og priser, når grundlaget stemmer.
+
+<Aside type="caution" title="Mål før du automatiserer">
+En forkert enhed, fortegn eller dobbeltregistrering kan få automatiseringer til
+at flytte forbrug til det forkerte tidspunkt. Sammenlign altid med en fysisk
+måler eller leverandørens afregningsdata.
+</Aside>
+
+## Forstå effekt, energi, pris og omkostning
+
+| Størrelse | Typisk enhed | Hvad den fortæller |
+|---|---|---|
+| Effekt | W eller kW | Hvor hurtigt energi bruges eller produceres lige nu |
+| Energi | Wh eller kWh | Akkumuleret mængde over en periode |
+| Pris | valuta/kWh | Pris pr. energienhed |
+| Omkostning | valuta | Energi ganget med relevant pris/tarif |
+
+En sensor på 2.000 W er et øjebliksbillede. En sensor på 12.345 kWh er normalt
+en løbende tæller. Energy Dashboard forventer energisensorer med korrekte
+enheder, `device_class` og `state_class`, så Home Assistant kan bygge
+langtidsstatistik.
+
+Brug ikke en effektsensor direkte som energi. Hvis kilden kun leverer kompatibel
+effekt, kan Home Assistants Integral/Riemann sum-integration beregne energi over
+tid. Kontrollér metode, tidsenhed og fortegn mod den officielle dokumentation;
+integration af støj eller huller kan skabe afvigelser.
+
+## Forudsætninger og datakvalitet
+
+Før en sensor tilføjes, kontrollér i **Udviklerværktøjer → Tilstande** og
+**Indstillinger → Enheder og tjenester → Statistik**:
+
+- enheden er W/kW for effekt eller Wh/kWh for energi;
+- `device_class` er `power`, `energy`, `gas` eller `water` efter målingen;
+- `state_class` passer til løbende måling eller total;
+- værdien opdaterer stabilt og har ingen hyppige `unknown`/`unavailable`;
+- tælleren stiger som forventet eller dokumenterer gyldige fald/resets;
+- import, eksport, produktion, opladning og afladning er separate størrelser.
+
+Home Assistant kan reparere visse statistikmetadata, men du skal forstå hvorfor
+en advarsel opstår, før du ændrer enhed eller sum.
+
+## Trin 1: konfigurér elnetforbrug
+
+<Steps>
+1. **Find en kumulativ importsensor**
+
+   Vælg måleren, der repræsenterer energi købt fra elnettet. Brug ikke summen af
+   alle smart plugs som erstatning for hovedmåleren.
+
+2. **Kontrollér enhed og statistik**
+
+   Sammenlign ændringen over en time eller dag med elmåleren. Bekræft at en
+   genstart ikke nulstiller sensoren uventet.
+
+3. **Tilføj den under Energy-konfigurationen**
+
+   Gå til **Indstillinger → Dashboards → Energy** og vælg grid consumption.
+
+4. **Vent på statistik**
+
+   Energy-data vises ikke nødvendigvis øjeblikkeligt. Vent på næste statistik-
+   periode og kontrollér grafen.
+
+5. **Validér mindst et døgn**
+
+   Sammenlign dashboardets døgnforbrug med en uafhængig målerkilde.
+</Steps>
+
+Har du separat eksport til elnettet, tilføj den som grid return. En negativ
+nettosensor er ikke altid en sikker erstatning for separate import- og
+eksporttællere; følg integrationens dokumenterede semantik.
+
+## Trin 2: tilføj solproduktion
+
+Tilføj inverterens kumulative produktionsenergi. Kontrollér om integrationen
+rapporterer hele anlægget, én inverter, én fase eller én streng. Flere kilder
+skal have tydelige navne, eksempelvis `Tag øst` og `Tag vest`.
+
+Undgå dobbeltregistrering:
+
+- tilføj ikke både total produktion og alle delsummer som separate fulde kilder;
+- brug ikke grid-eksport som solproduktion — egetforbrug mangler;
+- kontrollér tidszone og dagligt reset på leverandørens sensorer.
+
+## Trin 3: tilføj hjemmebatteri
+
+Et batteri kræver normalt separate energisensorer for:
+
+- energi ind i batteriet (**charge**);
+- energi ud af batteriet (**discharge**).
+
+State of charge i procent er nyttigt til drift, men erstatter ikke energi ind og
+ud i Energy Dashboard. Kontrollér fortegn og retning: nogle invertere leverer
+negative værdier for afladning, mens dashboardet forventer separate positive
+tællere.
+
+## Trin 4: tilføj gas og vand
+
+Gas og vand er valgfri lag. Brug en kumulativ volumen med en understøttet enhed
+og korrekt device class. En pulsmåler skal bevare totalen gennem genstart og må
+ikke tælle samme puls to gange.
+
+Validér:
+
+- én fysisk målerenhed svarer til den konfigurerede omregning;
+- totalen stiger monotont bortset fra dokumenterede målerskift/resets;
+- tidsperioden i dashboardet matcher den sammenlignede aflæsning.
+
+## Trin 5: apparater og elbil
+
+Individual devices viser, hvor energien bruges. Tilføj energisensoren fra et
+smart plug eller en undermåler, ikke kun dens aktuelle wattværdi.
+
+For en elbil kan du bruge en dedikeret EV-lader- eller undermåler. Navngiv kilden
+så den ikke forveksles med bilens batteriprocent. Hvis laderen allerede indgår i
+hovedmåleren, er den et del-forbrug — den skal ikke lægges oven i grid totalen.
+
+## Regionale priser og tariffer er valgfrie
+
+Energy Dashboard kan bruge en fast pris, en prisentitet eller omkostningsdata fra
+en integration. **Regionale prisintegrationer er valgfrie** og varierer efter
+land, marked, valuta, netselskab og kontrakt.
+
+Vælg i dit område en integration, der dokumenterer:
+
+- om prisen er spotpris, samlet pris eller kun én komponent;
+- valuta og pris pr. kWh;
+- tidsopløsning og tidszone;
+- afgifter, netbetaling, moms og eksportbetaling;
+- håndtering af negative priser og skiftende tariffer.
+
+Brug ikke en spotpris som “samlet omkostning”, hvis transport og afgifter
+mangler. Danske brugere kan som et valgfrit eksempel fortsætte med
+[elpris-integrationen](/da/home-assistant/elpris-integration/); hovedguiden
+kræver den ikke.
+
+## Flere kilder og tydelige navne
+
+Home Assistant understøtter flere grid-, sol-, batteri-, vand- og gaskilder.
+Navngiv dem efter funktion og placering:
+
+- `Grid import – hus`
+- `Grid export – hus`
+- `Solproduktion – garage`
+- `Vand – have`
+- `EV-lader – carport`
+
+Home Assistant 2026.6 forbedrede visning af navne for flere kilder. Gode navne
+gør både kort, grafer og statistikfejl lettere at forstå.
+
+## Validér data før næste lag
+
+Brug en fast kontrolrutine:
+
+1. Aflæs den fysiske måler og Home Assistant på samme tidspunkt.
+2. Vent en kendt periode, gerne et døgn.
+3. Sammenlign ændringen, ikke kun de absolutte totaler.
+4. Beregn forskellen i procent og forklar forventede tab eller måleintervaller.
+5. Kontrollér grafer omkring genstart, midnat og perioder uden netværk.
+6. Tilføj først næste datakilde, når den nuværende er troværdig.
+
+Små forskelle kan skyldes afrunding og opdateringsinterval. Store eller voksende
+forskelle peger på forkert enhed, fortegn, kilde eller dobbeltregistrering.
+
+## Automatisér først på troværdige målinger
+
+Når data er valideret, kan de bruges til eksempelvis:
+
+- oplad elbil ved soloverskud;
+- flyt varmt vand til billige eller solrige timer;
+- advar om unormalt højt standbyforbrug;
+- stop vanding ved usædvanligt vandforbrug;
+- begræns samlet effekt under en netgrænse.
+
+Indfør grænser, minimumsvarighed, hysterese og fallback ved `unavailable`. En
+enkelt forkert pris eller sensorværdi må ikke starte dyrt eller skadeligt udstyr.
+
+## Privatliv og lokalitet
+
+Energy Dashboard kører i Home Assistant, men datakilden kan være cloudbaseret.
+En måler-, inverter- eller bilintegration kan sende forbrug til producenten.
+Læs integrationens IoT class og privatlivsvilkår. Foretræk lokale API'er, når de
+er stabile og understøttede, men beskriv ikke clouddata som lokale.
+
+## Fejlfinding
+
+### Sensoren kan ikke vælges
+
+Kontrollér enhed, device class, state class og langtidsstatistik. Se den konkrete
+fejl under statistik; ændr ikke metadata tilfældigt for at få sensoren på listen.
+
+### Grafen viser dobbelt forbrug
+
+Kontrollér om samme energi findes som både hovedmåler og ekstra grid-kilde, eller
+om en total og dens delsummer alle er tilføjet. Individual devices er underposter,
+ikke ekstra grid-import.
+
+### Værdier bliver negative
+
+Afgør om negativt fortegn betyder eksport/afladning eller er en sensorfejl.
+Energy Dashboard fungerer bedst med dokumenterede separate retninger.
+
+### Der er huller efter unavailable
+
+Undersøg integration, netværk og recorder/statistik. Fyld ikke automatisk huller
+med nul; nul betyder målt intet forbrug, ikke manglende data.
+
+### Totalen nulstilles
+
+Brug en sensor og state class, der understøtter dokumenterede resets, eller en
+Utility Meter/integration der bevarer periodetotal korrekt. Kontrollér effekten
+på langtidsstatistik før gamle data korrigeres.
+
+### Pris og omkostning stemmer ikke
+
+Sammenlign valuta, enhed, tidszone, moms, netbetaling, afgifter og eksportpris.
+Dashboard og faktura kan have forskellige afregningsperioder.
+
+<CardGrid>
+  <Card title="Elpriser" icon="setting">
+    Se det [valgfrie danske elpris-eksempel](/da/home-assistant/elpris-integration/).
+  </Card>
+  <Card title="Automationer" icon="rocket">
+    Fortsæt med [din første automation](/da/home-assistant/foerste-automation/).
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+- [Home energy management](https://www.home-assistant.io/docs/energy/)
+- [Energy-integrationen](https://www.home-assistant.io/integrations/energy/)
+- [Integral (Riemann sum)](https://www.home-assistant.io/integrations/integration/)
+- [Utility Meter](https://www.home-assistant.io/integrations/utility_meter/)
+- [Home Assistant 2026.6 release notes](https://www.home-assistant.io/blog/2026/06/03/release-20266/)
+
