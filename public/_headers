@@ -1,9 +1,6 @@
 # Security Headers for smartbolig.net
 # https://securityheaders.com
 
-/pagefind/*
-  Cache-Control: no-cache, must-revalidate
-
 /*
   # Remove broad CORS if a zone/default rule added it elsewhere
   ! Access-Control-Allow-Origin
