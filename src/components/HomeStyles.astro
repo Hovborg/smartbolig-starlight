@@ -212,9 +212,15 @@
   .home-guide p { margin: 0; color: var(--home-muted); line-height: 1.55; }
 
   .home-news-shell { padding-block: clamp(2rem, 5vw, 3.5rem); border-block: 1px solid var(--home-line); }
-  .home-news-shell .home-section__heading { display: flex; max-width: none; align-items: end; justify-content: space-between; gap: 1.5rem; }
-  .home-news-shell .home-section__heading .home-eyebrow { position: absolute; }
-  .home-news-shell .home-section__heading h2 { padding-top: 1.6rem; }
+  .home-news-shell .home-section__heading {
+    display: grid;
+    max-width: none;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.6rem 1.5rem;
+    align-items: end;
+  }
+  .home-news-shell .home-section__heading .home-eyebrow { grid-column: 1 / -1; margin-bottom: 0; }
+  .home-news-shell .home-section__heading .home-text-link { grid-column: 2; grid-row: 2; }
   .home-news-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; }
   .home-news-card { display: flex; min-height: 245px; flex-direction: column; padding: 1.4rem; border: 1px solid var(--home-line); border-radius: var(--home-radius); background: var(--home-panel); }
   .home-news-card--lead { background: linear-gradient(145deg, rgba(216,180,254,0.09), rgba(255,255,255,0.025)); border-color: rgba(216,180,254,0.28); }
@@ -278,7 +284,8 @@
     .home-hero__inner { gap: 2.5rem; }
     .home-hero h1 { font-size: clamp(2.35rem, 12vw, 3.25rem); }
     .home-path-grid, .home-guide-grid, .home-news-grid, .home-method-grid { grid-template-columns: 1fr; }
-    .home-news-shell .home-section__heading { align-items: start; flex-direction: column; }
+    .home-news-shell .home-section__heading { grid-template-columns: 1fr; align-items: start; }
+    .home-news-shell .home-section__heading .home-text-link { grid-column: 1; grid-row: auto; }
     .home-path, .home-path--featured, .home-path--featured + .home-path { grid-column: auto; min-height: 0; }
     .home-start { padding: 1.4rem; }
     .home-actions, .home-hero__cta { align-items: stretch; flex-direction: column; }
