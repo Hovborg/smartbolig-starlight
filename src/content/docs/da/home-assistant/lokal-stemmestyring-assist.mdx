@@ -1,0 +1,212 @@
+---
+title: Lokal stemmestyring med Home Assistant Assist
+description: Byg og verificér en lokal dansk Assist-pipeline med Speech-to-Phrase eller Whisper, Piper, Companion-appen og valgfri voice-hardware.
+sidebar:
+  badge:
+    text: Lokal
+    variant: success
+---
+
+import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+Home Assistant Assist kan forstå en kommando, finde den rigtige enhed og svare
+med tale. En fuldt lokal pipeline holder lyd, tekst og handling på dit eget
+udstyr. Start på telefonen; tilføj først en fast voice-satellit, når hele
+pipelinekæden virker.
+
+<Aside type="caution" title="Lokal betyder hele kæden">
+En lokal mikrofon gør ikke opsætningen lokal, hvis talegenkendelse, tekst-til-
+tale eller en valgfri AI-agent bruger en cloudtjeneste. Kontrollér hvert led.
+</Aside>
+
+## Arkitektur og valg
+
+En lokal samtale følger denne kæde:
+
+```text
+Mikrofon → wake word/tryk → tale-til-tekst → Assist-intent → handling → Piper → højttaler
+```
+
+| Del | Lokalt valg | Hvornår det passer |
+|---|---|---|
+| Tale-til-tekst | Speech-to-Phrase | Hurtige, kendte smart-home-sætninger på beskedent hardware |
+| Tale-til-tekst | Whisper | Mere fleksibel tale, men større CPU/GPU-krav og typisk højere ventetid |
+| Intent | Home Assistants indbyggede samtaleagent | Forudsigelig styring af eksponerede enheder |
+| Tekst-til-tale | Piper | Lokal generering af stemmen |
+| Input/output | Companion-app | Bedste første test uden ekstra hardware |
+| Fast satellit | Home Assistant Voice eller ESPHome voice-enhed | Håndfri brug i et rum efter pipeline-test |
+
+En LLM-baseret samtaleagent er ikke nødvendig for almindelig lys-, klima- eller
+mediestyring. Tilføjer du en cloudbaseret agent, er den del ikke længere lokal.
+
+## Forudsætninger og realistisk hardware
+
+Du skal have:
+
+- Home Assistant OS eller en installation, hvor Wyoming-tjenesterne kan køres;
+- en opdateret Companion-app på Android eller iOS;
+- en mikrofon og højttaler — telefonen er nok til første test;
+- ledig CPU og RAM til Speech-to-Phrase/Whisper og Piper;
+- korrekte områder, enhedsnavne og sprog i Home Assistant.
+
+Speech-to-Phrase er normalt det letteste lokale udgangspunkt til styring af
+hjemmet. Whisper kan forstå friere formuleringer, men en langsom maskine kan give
+så lang svartid, at oplevelsen bliver dårlig. Mål ventetiden på dit eget udstyr.
+
+## Installér Speech-to-Phrase eller Whisper og Piper
+
+<Steps>
+1. **Åbn app-butikken i Home Assistant**
+
+   Gå til **Indstillinger → Apps**. Navnet kan være **Add-ons** på ældre versioner.
+
+2. **Installér én tale-til-tekst-motor**
+
+   Begynd med Speech-to-Phrase til almindelig lokal boligstyring. Vælg Whisper,
+   hvis du har behov for friere tale og hardware til det.
+
+3. **Installér Piper**
+
+   Vælg en stemme og et sprog, som findes i den installerede version. Antag ikke
+   at alle sprog og stemmer har samme kvalitet.
+
+4. **Start tjenesterne og læs loggene**
+
+   Begge skal blive kørende uden gentagne genstarter eller modelindlæsningsfejl.
+</Steps>
+
+Hvis du ikke bruger Home Assistant OS, kan Wyoming-komponenter køres separat.
+Følg den officielle arkitektur; eksponér ikke Wyoming-porte direkte på internettet.
+
+## Opret den lokale Assist-pipeline
+
+Gå til **Indstillinger → Stemmeassistenter**, opret en ny assistent og vælg:
+
+- dansk eller det ønskede lokale sprog;
+- Home Assistants indbyggede samtaleagent;
+- Speech-to-Phrase eller Whisper som tale-til-tekst;
+- Piper som tekst-til-tale.
+
+Gem pipeline med et tydeligt navn som `Lokal dansk`. Hold den adskilt fra en
+eventuel cloudpipeline, så du kan se præcis hvilken der testes.
+
+## Eksponér og navngiv kun det nødvendige
+
+Assist kan kun styre relevante eksponerede enheder. Gennemgå eksponering under
+stemmeassistentens indstillinger.
+
+- Eksponér først ét lys i ét korrekt navngivet område.
+- Brug korte, unikke navne: `Loftlys` i området `Køkken` er bedre end
+  `Zigbee2MQTT device 0x54ef`.
+- Tilføj aliases for naturlige alternative navne.
+- Undgå to enheder med samme navn i samme område.
+- Eksponér ikke låse, garageporte, alarmer eller andre sikkerhedskritiske
+  handlinger, før du har forstået platformens bekræftelses- og adgangsmodel.
+
+<Aside type="tip" title="Test lille før du skalerer">
+Få “tænd loftlyset i køkkenet” til at virke stabilt, før du eksponerer hele huset.
+</Aside>
+
+## Verificér pipeline på telefonen
+
+Åbn Assist i Companion-appen og test disse fem grænser separat:
+
+1. **Lyd ind:** Kan appen høre et tydeligt signal uden forvrængning?
+2. **Transskription:** Matcher teksten det, du sagde?
+3. **Intent:** Valgte Assist den rigtige handling og enhed?
+4. **Home Assistant-handling:** Ændrede den rigtige entitet faktisk tilstand?
+5. **Svar:** Afspillede Piper et forståeligt svar?
+
+Hvis et trin fejler, reparér det trin før det næste. Et forkert lysvalg løses
+ikke ved at skifte mikrofon, og manglende lyd løses ikke med flere aliases.
+
+## Dansk sprog og gode kommandoer
+
+Brug korrekte danske område- og enhedsnavne og test de indbyggede sætninger i
+den Home Assistant-version, du kører. Sprogunderstøttelse udvikler sig løbende;
+den officielle sprogoversigt er facit for aktuelle sætninger.
+
+Begynd med konkrete kommandoer:
+
+- “Tænd loftlyset i køkkenet.”
+- “Sluk lyset i stuen.”
+- “Sæt temperaturen i kontoret til 21 grader.”
+
+Hvis en formulering ikke forstås, kontrollér først transskriptionen, derefter
+eksponering, navn, område og aliases. Opret kun custom sentences, når den
+indbyggede model ikke dækker det konkrete behov.
+
+## Tilføj Home Assistant Voice eller en ESPHome-satellit
+
+Når telefontesten er stabil, kan du tilføje dedikeret hardware.
+
+### Home Assistant Voice
+
+Følg enhedens onboarding-guide, vælg den verificerede lokale pipeline og test i
+samme rum. Bekræft wake word, mikrofon, højttaler og pipeline hver for sig.
+
+### ESPHome voice assistant
+
+ESPHome-enheder med mikrofon kan streame lyd til Assist. Audio bruger meget RAM
+og CPU på enheden. Kombinér ikke voice, Bluetooth Proxy, webserver og mange andre
+komponenter ukritisk på samme ESP32; officielle ESPHome-dokumenter advarer især
+om ressourcekonflikter mellem audio og BLE.
+
+## Privatliv og netværksgrænser
+
+En lokal standardpipeline kan behandle tale og svar hjemme. Følgende kan ændre
+grænsen:
+
+- Home Assistant Cloud tale-til-tekst eller tekst-til-tale;
+- en ekstern LLM/conversation agent;
+- cloudbaserede enheder, som kommandoen styrer;
+- fjernlogs eller overvågning, du selv har konfigureret.
+
+Dokumentér valgene, beskyt mikrofonen fysisk, og giv kun enheden adgang til de
+tjenester, den behøver.
+
+## Fejlfinding trin for trin
+
+### Ingen lyd registreres
+
+Kontrollér mikrofontilladelse, valgt input, fysisk mute, gain og satellittens
+logs. Test mikrofonen uden wake word, hvis hardwaren tillader det.
+
+### Wake word reagerer ikke
+
+Bekræft at wake-word-motoren kører det rigtige sted, at modellen er valgt, og at
+en manuel tryk-for-at-tale-test virker. Pipelinefejl efter wake word er et andet
+problem end selve wake-word-detektionen.
+
+### Transskriptionen er forkert eller langsom
+
+Sammenlign Speech-to-Phrase og Whisper på samme hardware og sætning. Kontrollér
+CPU/RAM, baggrundsstøj, sprog og modelstørrelse. Mål tid til tekst i stedet for
+kun den samlede svartid.
+
+### Den forkerte enhed styres
+
+Gennemgå eksponering, område, navn og aliases. Fjern dubletter og test med
+områdeangivelse. Se intent/debug-informationen før du ændrer tale-til-tekst.
+
+### Der kommer ingen stemme tilbage
+
+Kontrollér Piper-log, valgt voice, outputenhed og lydstyrke. Hvis teksten vises,
+men ingen lyd kommer, virker intent-delen sandsynligvis allerede.
+
+<CardGrid>
+  <Card title="ESPHome" icon="rocket">
+    Se [ESPHome-guides](/da/esp32/) før du bygger egen satellit.
+  </Card>
+  <Card title="Sikkerhed" icon="lock">
+    Gennemgå [smart-home-sikkerhed](/da/sikkerhed/).
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+- [Assist i Home Assistant](https://www.home-assistant.io/voice_control/)
+- [Opsæt en fuldt lokal voice-assistent](https://www.home-assistant.io/voice_control/voice_remote_local_assistant/)
+- [Eksponér enheder til Assist](https://www.home-assistant.io/voice_control/voice_remote_expose_devices/)
+- [ESPHome Voice Assistant](https://esphome.io/components/voice_assistant/)
+
