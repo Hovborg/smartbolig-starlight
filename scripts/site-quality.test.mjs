@@ -51,3 +51,30 @@ test("homepage hero uses factual bilingual defaults without duplicate statistics
   assert.match(hero, /Uafhængige, praktiske guides/);
   assert.doesNotMatch(hero, /home-hero__stats|100%|0 Cloud|every week|hver uge/i);
 });
+
+test("homepage news selector is read-only, bounded and deterministic", async () => {
+  const source = await read("src/lib/home-news.ts");
+  assert.match(source, /export function selectLatestNews/);
+  assert.match(source, /slice\(0, limit\)/);
+  assert.doesNotMatch(source, /writeFile|mkdir|rmSync|unlink|fetch\(/);
+});
+
+test("homepage news component links to archive and RSS in both locales", async () => {
+  const source = await read("src/components/HomeLatestNews.astro");
+  for (const href of [
+    "/da/ai/nyheder/",
+    "/en/ai/nyheder/",
+    "/da/ai/nyheder/rss.xml",
+    "/en/ai/news/rss.xml",
+  ]) {
+    assert.ok(source.includes(href), `missing news destination: ${href}`);
+  }
+});
+
+test("both homepages compose the isolated latest-news component", async () => {
+  for (const locale of ["da", "en"]) {
+    const home = await read(`src/content/docs/${locale}/index.mdx`);
+    assert.match(home, /import HomeLatestNews/);
+    assert.match(home, new RegExp(`<HomeLatestNews slot=["']latest-news["'] locale=["']${locale}["']`));
+  }
+});
