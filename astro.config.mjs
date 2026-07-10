@@ -1,7 +1,6 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
-import starlightThemeGalaxy from "starlight-theme-galaxy";
 import tailwindcss from "@tailwindcss/vite";
 
 // https://astro.build/config
@@ -18,8 +17,25 @@ export default defineConfig({
         replacesTitle: true,
         alt: "SmartBolig logo",
       },
-      // Galaxy theme plugin
-      plugins: [starlightThemeGalaxy()],
+      // Galaxy visual system is wired explicitly so our accessible theme
+      // switch can replace the package override without plugin warnings.
+      customCss: ["starlight-theme-galaxy/styles/index.css"],
+      expressiveCode: {
+        themes: ["github-dark-high-contrast", "light-plus"],
+        frames: { extractFileNameFromCode: false },
+        styleOverrides: {
+          borderRadius: "0.4rem",
+          borderColor: "var(--fb-code-block-bg-color)",
+          codeBackground: "var(--fb-code-block-bg-color)",
+          frames: {
+            shadowColor: "var(--sl-shadow-sm)",
+            editorActiveTabIndicatorTopColor: "unset",
+            editorActiveTabIndicatorBottomColor: "var(--sl-color-gray-3)",
+            editorTabBarBorderBottomColor: "var(--fb-code-block-bg-color)",
+            frameBoxShadowCssValue: "unset",
+          },
+        },
+      },
       // The custom 404 page lives at src/pages/404.astro — disable Starlight's
       // built-in 404 route so the two don't collide (collision becomes a hard
       // error in future Astro versions).
@@ -28,10 +44,13 @@ export default defineConfig({
       // Note: the custom 404 page lives at src/pages/404.astro ("NotFound" is
       // not a valid Starlight component-override key and would be silently ignored).
       components: {
+        Header: "starlight-theme-galaxy/overrides/GalaxyHeader.astro",
         Head: "./src/components/Head.astro",
         Footer: "./src/components/Footer.astro",
         MarkdownContent: "./src/components/MarkdownContent.astro",
         SiteTitle: "./src/components/SiteTitle.astro",
+        SkipLink: "./src/components/SkipLink.astro",
+        ThemeSelect: "./src/components/ThemeSelect.astro",
       },
       // Social links
       social: [

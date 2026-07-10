@@ -1,0 +1,84 @@
+---
+title: Start her - din sikre vej ind i smart home
+description: Følg seks overskuelige trin fra valg og installation af Home Assistant til enheder, automationer, backup og næste projekt.
+sidebar:
+  label: Start her
+---
+
+import { Aside, Card, CardGrid, Steps } from "@astrojs/starlight/components";
+
+## Byg et smart hjem på et stærkt fundament
+
+Du behøver ikke købe alt på én gang. Begynd med en stabil platform, forbind få
+enheder, og lav én automation, som løser et konkret behov. Denne rute samler de
+guider, du skal bruge, i den rækkefølge de giver mest mening.
+
+<Aside type="tip" title="Et godt første mål">
+Få Home Assistant installeret, tilføj én enhed, og lav en simpel automation.
+Udvid først opsætningen, når de tre dele fungerer stabilt.
+</Aside>
+
+<Steps>
+1. **Vælg din platform**
+
+   Overvej hvor meget du vil vedligeholde selv. En dedikeret Home Assistant
+   Green eller Raspberry Pi er enkel; Proxmox passer til en hjemmeserver;
+   Docker passer til dig, der allerede driver containere.
+
+2. **Installér Home Assistant**
+
+   Følg én installationsmetode helt til ende, og kontrollér at du kan åbne
+   Home Assistant lokalt, før du tilføjer ekstra integrationer.
+
+3. **Vælg én enhedsprotokol**
+
+   Zigbee er ofte et stærkt udgangspunkt til sensorer og knapper. Wi-Fi kan
+   være praktisk til enkelte enheder, mens Matter og Thread kræver lidt mere
+   planlægning.
+
+4. **Lav din første automation**
+
+   Vælg en lille opgave med tydelig trigger og handling. Det gør fejlfinding
+   nemmere og giver et mønster, du kan genbruge.
+
+5. **Sikr og sikkerhedskopiér**
+
+   Opret automatiske backups, beskyt adgang udefra, og dokumentér de vigtigste
+   enheder, før opsætningen vokser.
+
+6. **Byg videre med et formål**
+
+   Vælg derefter dashboards, energi, ESPHome eller mere avancerede automationer
+   ud fra et behov i hjemmet — ikke kun fordi en enhed findes.
+</Steps>
+
+## Dine seks næste handlinger
+
+<CardGrid>
+  <Card title="1. Forstå Home Assistant" icon="information">
+    Få overblik over platformen og de vigtigste valg i [Kom godt i gang med Home Assistant](/da/home-assistant/kom-godt-i-gang/).
+  </Card>
+  <Card title="2. Vælg installation" icon="setting">
+    Sammenlign [Raspberry Pi](/da/home-assistant/raspberry-pi-installation/), [Proxmox](/da/home-assistant/proxmox-installation/) og [Docker](/da/home-assistant/docker-installation/).
+  </Card>
+  <Card title="3. Forbind enheder" icon="puzzle">
+    Begynd med [Zigbee2MQTT](/da/home-assistant/zigbee2mqtt/), eller læs om [Wi-Fi-enheder](/da/home-assistant/wifi-enheder/) og [Thread & Matter](/da/home-assistant/thread-matter/).
+  </Card>
+  <Card title="4. Automatisér" icon="rocket">
+    Byg [din første automation](/da/home-assistant/foerste-automation/) og lær at skelne mellem trigger, betingelse og handling.
+  </Card>
+  <Card title="5. Beskyt opsætningen" icon="approve-check-circle">
+    Følg guiden til [backup og sikkerhed](/da/home-assistant/backup-sikkerhed/), før hjemmet bliver afhængigt af systemet.
+  </Card>
+  <Card title="6. Vælg næste projekt" icon="open-book">
+    Fortsæt med [dashboard-design](/da/home-assistant/dashboard-design/), [energistyring](/da/produkter/energistyring/) eller [ESP32 & ESPHome](/da/esp32/).
+  </Card>
+</CardGrid>
+
+## Når noget ikke virker
+
+Ændr én ting ad gangen og kontrollér den aktuelle tilstand, før du nulstiller
+eller geninstallerer. Brug [fejlfindingsguiden](/da/home-assistant/fejlfinding/)
+til at arbejde systematisk med logs, integrationer og enheder.
+
+**Næste skridt:** [Åbn introduktionen til Home Assistant →](/da/home-assistant/kom-godt-i-gang/)

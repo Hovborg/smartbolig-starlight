@@ -1,0 +1,59 @@
+---
+import { getCollection } from "astro:content";
+import { selectLatestNews, type NewsDocument, type NewsLocale } from "../lib/home-news";
+
+interface Props {
+  locale: NewsLocale;
+}
+
+const { locale } = Astro.props;
+const isDa = locale === "da";
+const docs = await getCollection("docs");
+const latest = selectLatestNews(docs as unknown as NewsDocument[], locale);
+const archiveHref = isDa ? "/da/ai/nyheder/" : "/en/ai/nyheder/";
+const rssHref = isDa ? "/da/ai/nyheder/rss.xml" : "/en/ai/news/rss.xml";
+const copy = isDa
+  ? {
+      read: "Læs artiklen",
+      archive: "Alle AI-nyheder",
+      rss: "Følg via RSS",
+      empty: "Der er ingen publicerede AI-nyheder endnu.",
+    }
+  : {
+      read: "Read article",
+      archive: "All AI news",
+      rss: "Follow via RSS",
+      empty: "There are no published AI news articles yet.",
+    };
+
+const formatDate = (date: Date) =>
+  new Intl.DateTimeFormat(isDa ? "da-DK" : "en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "UTC",
+  }).format(date);
+---
+
+<div class="home-latest-news">
+  {
+    latest.length > 0 ? (
+      <div class="home-news-grid">
+        {latest.map((item, index) => (
+          <article class={`home-news-card ${index === 0 ? "home-news-card--lead" : ""}`}>
+            <time datetime={item.dateString}>{formatDate(item.date)}</time>
+            <h3><a href={item.href}>{item.title}</a></h3>
+            <p>{item.description}</p>
+            <a class="home-news-card__link" href={item.href}>{copy.read}<span aria-hidden="true"> →</span></a>
+          </article>
+        ))}
+      </div>
+    ) : (
+      <p class="home-news-empty">{copy.empty}</p>
+    )
+  }
+  <div class="home-news-actions">
+    <a href={archiveHref}>{copy.archive}</a>
+    <a href={rssHref}>{copy.rss}</a>
+  </div>
+</div>

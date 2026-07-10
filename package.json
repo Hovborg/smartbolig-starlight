@@ -14,16 +14,17 @@
     "ai-news:source-health": "node scripts/ai-news-source-health.mjs",
     "ai-news:test": "node --test scripts/ai-news-*.test.mjs",
     "ai-news:validate": "node scripts/ai-news-validate.mjs",
+    "site:test": "node --test scripts/site-quality.test.mjs",
     "seo:validate": "node scripts/seo-validate.mjs"
   },
   "dependencies": {
-    "@astrojs/rss": "^4.0.18",
-    "@astrojs/starlight": "^0.39.2",
-    "@tailwindcss/vite": "^4.3.0",
-    "astro": "^6.3.1",
-    "sharp": "^0.34.5",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/starlight": "^0.39.3",
+    "@tailwindcss/vite": "^4.3.2",
+    "astro": "^6.4.8",
+    "sharp": "^0.35.3",
     "starlight-theme-galaxy": "^0.8.0",
-    "tailwindcss": "^4.3.0"
+    "tailwindcss": "^4.3.2"
   },
   "allowScripts": {
     "esbuild@0.27.7": true,

@@ -24,7 +24,7 @@ Sitet er tilgængeligt på både dansk og engelsk.
 - **Framework:** [Astro Starlight](https://starlight.astro.build/)
 - **Hosting:** [Cloudflare Pages](https://pages.cloudflare.com/)
 - **Sprog:** Dansk (primær) + Engelsk
-- **Styling:** Custom dark theme (IBRACORP-inspireret)
+- **Styling:** Custom responsivt portaldesign med lys og mørk tilstand
 
 ---
 
@@ -46,10 +46,19 @@ src/content/docs/
 
 Sitet deployes automatisk til Cloudflare Pages ved push til `main` branch.
 
+Deployment-workflowet stopper før publicering, hvis en kvalitets-, nyheds-,
+indholds-, sikkerheds-, build- eller SEO-kontrol fejler. Kør den samme centrale
+kontrol lokalt før push:
+
 ```bash
-git add .
-git commit -m "Beskrivelse"
-git push origin main
+npm ci
+npm run site:test
+npm run ai-news:test
+npm run ai-news:validate
+python3 scripts/content-audit.py
+npm audit --omit=dev --audit-level=high
+npm run build
+npm run seo:validate
 ```
 
 ---
@@ -88,12 +97,12 @@ journalctl --user -u smartbolig-ai-news.service -e      # se logs
 
 ---
 
-## 📊 Statistik
+## 🧭 Portalstruktur
 
-- 172 sider (dansk + engelsk)
-- 22 produktkategorier
-- 32 custom SVG diagrammer
-- Pagefind søgning med 21.000+ ord indexeret
+- Dansk og engelsk forside med fem tydelige indgange
+- Guidet startrute på `/da/start/` og `/en/start/`
+- Automatisk visning af de tre seneste AI-nyheder på forsiden
+- Pagefind-søgning på tværs af guides og nyheder
 
 ---
 

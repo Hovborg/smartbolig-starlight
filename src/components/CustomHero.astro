@@ -17,24 +17,24 @@ interface Props {
 const lang = Astro.url.pathname.startsWith("/en/") ? "en" : "da";
 const defaults = lang === "en"
   ? {
-      title: "Build your <span class='highlight'>smart home</span> with in-depth guides",
-      tagline: "50+ in-depth guides for Home Assistant, ESP32 and automation — every one tested on a real setup.",
-      badge: "New guides every week",
+      title: "A smarter home you can understand and control",
+      tagline: "Practical guides to Home Assistant, ESPHome and automation — with local control and privacy in focus.",
+      badge: "Independent, practical guides",
       imageAlt: "Illustration of a smart home: a Home Assistant dashboard with temperature, lighting and security controls.",
-      primaryLink: "/en/home-assistant/kom-godt-i-gang/",
-      primaryText: "Get started",
+      primaryLink: "/en/start/",
+      primaryText: "Start here",
       secondaryLink: "/en/home-assistant/",
-      secondaryText: "Browse all guides",
+      secondaryText: "Explore guides",
     }
   : {
-      title: "Byg dit <span class='highlight'>smarte hjem</span> med danske guides",
-      tagline: "50+ dybdegående guides til Home Assistant, ESP32 og automatisering — alle testet på en rigtig opsætning.",
-      badge: "Nye guides hver uge",
+      title: "Et smartere hjem, du selv forstår og styrer",
+      tagline: "Praktiske guides til Home Assistant, ESPHome og automation — med lokal kontrol og privatliv i fokus.",
+      badge: "Uafhængige, praktiske guides",
       imageAlt: "Illustration af et smart hjem: et Home Assistant-dashboard med temperatur, lys og sikkerhed.",
-      primaryLink: "/da/home-assistant/kom-godt-i-gang/",
-      primaryText: "Kom i gang",
+      primaryLink: "/da/start/",
+      primaryText: "Start her",
       secondaryLink: "/da/home-assistant/",
-      secondaryText: "Se alle guides",
+      secondaryText: "Find guides",
     };
 
 const {
@@ -54,7 +54,7 @@ const {
   <div class="home-hero__inner">
     <div class="home-hero__text home-reveal">
       <span class="home-hero__badge"><span class="dot" aria-hidden="true"></span>{badge}</span>
-      <h1 id="home-hero-title" set:html={title} />
+      <h1 id="home-hero-title">{title}</h1>
       <p class="home-hero__tagline">{tagline}</p>
       <div class="home-hero__cta">
         <a href={primaryLink} class="home-btn home-btn--primary">{primaryText}</a>
@@ -72,11 +72,6 @@ const {
           fetchpriority="high"
           decoding="async"
         />
-      </div>
-      <div class="home-hero__stats" aria-hidden="true">
-        <div class="home-hero__stat"><b>50+</b><span>Guides</span></div>
-        <div class="home-hero__stat"><b>100%</b><span>Dansk</span></div>
-        <div class="home-hero__stat"><b>0</b><span>Cloud</span></div>
       </div>
     </div>
   </div>
