@@ -1,0 +1,84 @@
+---
+title: Start here - a dependable route into smart homes
+description: Follow six clear steps from choosing and installing Home Assistant to devices, automations, backups and your next project.
+sidebar:
+  label: Start here
+---
+
+import { Aside, Card, CardGrid, Steps } from "@astrojs/starlight/components";
+
+# Build your smart home on a dependable foundation
+
+You do not need to buy everything at once. Begin with a stable platform,
+connect a few devices, and create one automation that solves a real need. This
+route collects the guides you need in the order that makes the most sense.
+
+<Aside type="tip" title="A useful first milestone">
+Install Home Assistant, add one device, and create one simple automation. Only
+expand the setup when all three parts work reliably.
+</Aside>
+
+<Steps>
+1. **Choose your platform**
+
+   Decide how much maintenance you want to own. A dedicated Home Assistant
+   Green or Raspberry Pi is straightforward; Proxmox suits a home server;
+   Docker suits people who already operate containers.
+
+2. **Install Home Assistant**
+
+   Follow one installation route to completion and confirm that Home Assistant
+   opens locally before adding extra integrations.
+
+3. **Choose one device protocol**
+
+   Zigbee is often a strong starting point for sensors and buttons. Wi-Fi can
+   be practical for individual devices, while Matter and Thread need a little
+   more planning.
+
+4. **Create your first automation**
+
+   Pick a small task with a clear trigger and action. It is easier to debug and
+   gives you a pattern you can reuse.
+
+5. **Secure and back up the system**
+
+   Create automatic backups, protect remote access, and document key devices
+   before the setup becomes larger.
+
+6. **Expand with a purpose**
+
+   Choose dashboards, energy, ESPHome or more advanced automations based on a
+   need in your home — not simply because a device exists.
+</Steps>
+
+## Your next six actions
+
+<CardGrid>
+  <Card title="1. Understand Home Assistant" icon="information">
+    Learn the platform and its main decisions in [Getting started with Home Assistant](/en/home-assistant/kom-godt-i-gang/).
+  </Card>
+  <Card title="2. Choose an installation" icon="setting">
+    Compare [Raspberry Pi](/en/home-assistant/raspberry-pi-installation/), [Proxmox](/en/home-assistant/proxmox-installation/) and [Docker](/en/home-assistant/docker-installation/).
+  </Card>
+  <Card title="3. Connect devices" icon="puzzle">
+    Begin with [Zigbee2MQTT](/en/home-assistant/zigbee2mqtt/), or learn about [Wi-Fi devices](/en/home-assistant/wifi-enheder/) and [Thread & Matter](/en/home-assistant/thread-matter/).
+  </Card>
+  <Card title="4. Automate" icon="rocket">
+    Build [your first automation](/en/home-assistant/foerste-automation/) and understand triggers, conditions and actions.
+  </Card>
+  <Card title="5. Protect the setup" icon="approve-check-circle">
+    Follow the [backup and security guide](/en/home-assistant/backup-sikkerhed/) before your home depends on the system.
+  </Card>
+  <Card title="6. Choose the next project" icon="open-book">
+    Continue with [dashboard design](/en/home-assistant/dashboard-design/), [energy management](/en/produkter/energistyring/) or [ESP32 & ESPHome](/en/esp32/).
+  </Card>
+</CardGrid>
+
+## When something fails
+
+Change one thing at a time and inspect the current state before resetting or
+reinstalling. Use the [troubleshooting guide](/en/home-assistant/fejlfinding/)
+to work systematically with logs, integrations and devices.
+
+**Next step:** [Open the Home Assistant introduction →](/en/home-assistant/kom-godt-i-gang/)

@@ -78,3 +78,26 @@ test("both homepages compose the isolated latest-news component", async () => {
     assert.match(home, new RegExp(`<HomeLatestNews slot=["']latest-news["'] locale=["']${locale}["']`));
   }
 });
+
+test("start pages have matching six-step journeys", async () => {
+  const [da, en] = await Promise.all([
+    read("src/content/docs/da/start.mdx"),
+    read("src/content/docs/en/start.mdx"),
+  ]);
+  assert.equal((da.match(/<Card title=/g) || []).length, 6);
+  assert.equal((en.match(/<Card title=/g) || []).length, 6);
+  for (const source of [da, en]) {
+    assert.match(source, /home-assistant/);
+    assert.match(source, /backup-sikkerhed/);
+    assert.doesNotMatch(source, /target=["']_blank/);
+  }
+});
+
+test("start-page actions use locale-correct canonical routes", async () => {
+  const da = await read("src/content/docs/da/start.mdx");
+  const en = await read("src/content/docs/en/start.mdx");
+  assert.match(da, /\/da\/home-assistant\/kom-godt-i-gang\//);
+  assert.match(en, /\/en\/home-assistant\/kom-godt-i-gang\//);
+  assert.doesNotMatch(da, /\/en\//);
+  assert.doesNotMatch(en, /\/da\//);
+});

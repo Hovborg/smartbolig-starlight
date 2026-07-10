@@ -24,7 +24,7 @@ and live-site smoke tests all pass.
 They need one low-friction route from “I am new” to choosing a Home Assistant
 installation method, adding devices, and creating a first automation. The
 homepage gives them a prominent start action and links to a dedicated
-`start-her`/`start-here` page that explains the sequence without overloading the
+localized `/start/` page that explains the sequence without overloading the
 homepage.
 
 ### Experienced Home Assistant and ESPHome users
@@ -73,8 +73,11 @@ fixed publishing cadence unless the cadence is programmatically true.
 
 ### New start pages
 
-- `/da/start-her/`: Danish guided entry point.
-- `/en/start-here/`: English equivalent.
+- `/da/start/`: Danish guided entry point.
+- `/en/start/`: English equivalent.
+
+The shared slug is intentional: Starlight pairs translations by document ID.
+Different locale slugs create an automatic fallback route and duplicate content.
 
 Each page explains platform choice, installation, first integrations, device
 protocols, first automation, backup/security, and recommended next steps. It
@@ -254,4 +257,3 @@ The redesign succeeds when:
 8. Mobile, keyboard and accessibility checks pass without material issues.
 9. The final commit is on GitHub and the successful production deployment is
    verified on `https://smartbolig.net`.
-

@@ -27,7 +27,7 @@
 - `src/components/HomePortal.astro`: reusable path, guide, trust and closing-action markup.
 - `src/components/HomeLatestNews.astro`: read-only selection/rendering of the three newest news entries.
 - `src/components/HomeStyles.astro`: all homepage-only visual rules and responsive behavior.
-- `src/content/docs/da/start-her.mdx`, `src/content/docs/en/start-here.mdx`: guided onboarding pages linking to canonical guides.
+- `src/content/docs/da/start.mdx`, `src/content/docs/en/start.mdx`: guided onboarding pages linking to canonical guides.
 - `src/components/Head.astro`: the single metadata and JSON-LD boundary.
 - `scripts/site-quality.test.mjs`: source-level homepage, locale, news-isolation and security assertions.
 - `scripts/seo-validate.mjs`: production-output metadata assertions.
@@ -173,7 +173,7 @@ const defaults = lang === "en" ? {
   title: "A smarter home you can understand and control",
   tagline: "Practical guides to Home Assistant, ESPHome and automation — with local control and privacy in focus.",
   badge: "Independent, practical guides",
-  primaryLink: "/en/start-here/",
+  primaryLink: "/en/start/",
   primaryText: "Start here",
   secondaryLink: "/en/home-assistant/",
   secondaryText: "Explore guides",
@@ -181,7 +181,7 @@ const defaults = lang === "en" ? {
   title: "Et smartere hjem, du selv forstår og styrer",
   tagline: "Praktiske guides til Home Assistant, ESPHome og automation — med lokal kontrol og privatliv i fokus.",
   badge: "Uafhængige, praktiske guides",
-  primaryLink: "/da/start-her/",
+  primaryLink: "/da/start/",
   primaryText: "Start her",
   secondaryLink: "/da/home-assistant/",
   secondaryText: "Find guides",
@@ -339,22 +339,22 @@ git commit -m "feat: surface latest news without touching automation"
 ### Task 4: Add bilingual guided start pages
 
 **Files:**
-- Create: `src/content/docs/da/start-her.mdx`
-- Create: `src/content/docs/en/start-here.mdx`
+- Create: `src/content/docs/da/start.mdx`
+- Create: `src/content/docs/en/start.mdx`
 - Modify: `scripts/site-quality.test.mjs`
 - Test: `scripts/site-quality.test.mjs`
 
 **Interfaces:**
 - Consumes: existing canonical installation, integration, automation and security guide URLs.
-- Produces: `/da/start-her/` and `/en/start-here/` with matching six-step structures.
+- Produces: `/da/start/` and `/en/start/` with matching six-step structures.
 
 - [ ] **Step 1: Add failing locale-parity and link tests**
 
 ```js
 test("start pages have matching six-step journeys", async () => {
   const [da, en] = await Promise.all([
-    read("src/content/docs/da/start-her.mdx"),
-    read("src/content/docs/en/start-here.mdx"),
+    read("src/content/docs/da/start.mdx"),
+    read("src/content/docs/en/start.mdx"),
   ]);
   assert.equal((da.match(/<Card title=/g) || []).length, 6);
   assert.equal((en.match(/<Card title=/g) || []).length, 6);
@@ -389,12 +389,12 @@ Use natural English copy while retaining the repository’s existing English can
 - [ ] **Step 4: Verify links, routes and content output**
 
 Run: `npm run site:test && python3 scripts/content-audit.py && npm run build`  
-Expected: PASS and generated `dist/da/start-her/index.html` plus `dist/en/start-here/index.html`.
+Expected: PASS and generated `dist/da/start/index.html` plus `dist/en/start/index.html`.
 
 - [ ] **Step 5: Commit the guided journeys**
 
 ```bash
-git add src/content/docs/da/start-her.mdx src/content/docs/en/start-here.mdx scripts/site-quality.test.mjs
+git add src/content/docs/da/start.mdx src/content/docs/en/start.mdx scripts/site-quality.test.mjs
 git commit -m "feat: add guided smart-home start journeys"
 ```
 
@@ -414,7 +414,7 @@ git commit -m "feat: add guided smart-home start journeys"
 
 - [ ] **Step 1: Extend the production SEO validator before metadata changes**
 
-Add validation cases for `dist/da/index.html`, `dist/en/index.html`, `dist/da/start-her/index.html`, and `dist/en/start-here/index.html`:
+Add validation cases for `dist/da/index.html`, `dist/en/index.html`, `dist/da/start/index.html`, and `dist/en/start/index.html`:
 
 ```js
 await validatePage(issues, path.join(distDir, "da/index.html"), {
@@ -438,10 +438,10 @@ Mirror locale assertions for English and require breadcrumb/start-page metadata.
 Add start-page recognition and breadcrumb labels:
 
 ```ts
-const isStartPage = /^\/(?:da\/start-her|en\/start-here)\/?$/.test(pathname);
+const isStartPage = /^\/(?:da|en)\/start\/?$/.test(pathname);
 // labels
-"start-her": "Start her",
-"start-here": "Start here",
+start: lang === "da" ? "Start her" : "Start here",
+
 ```
 
 Keep `webPageType` as `WebPage`, keep organization/website entities, and ensure the page’s `isPartOf`, `inLanguage`, canonical and reciprocal alternates remain Starlight-compatible. Do not add fake `Review`, `Rating`, `FAQPage` or author credentials.
@@ -452,7 +452,7 @@ Add source tests asserting `NewsArticle`, `citation`, date-specific images and A
 
 - [ ] **Step 4: Verify generated SEO, sitemap and routes**
 
-Run: `npm run build && npm run seo:validate && rg -n "start-her|start-here" dist/sitemap-0.xml`  
+Run: `npm run build && npm run seo:validate && rg -n "(?:da|en)/start" dist/sitemap-0.xml`
 Expected: validator PASS; both new canonical routes appear in the sitemap.
 
 - [ ] **Step 5: Commit metadata improvements**
@@ -593,7 +593,7 @@ Run: `npm run preview -- --host 127.0.0.1 --port 4321` in a persistent local pro
 Check:
 
 - `/da/`, `/en/`
-- `/da/start-her/`, `/en/start-here/`
+- `/da/start/`, `/en/start/`
 - `/da/ai/nyheder/`
 - the newest Danish and English daily news article
 - `/da/home-assistant/kom-godt-i-gang/`
@@ -690,8 +690,8 @@ Verify with live HTTP and browser evidence:
 ```bash
 curl -fsSI https://smartbolig.net/da/
 curl -fsSI https://smartbolig.net/en/
-curl -fsSI https://smartbolig.net/da/start-her/
-curl -fsSI https://smartbolig.net/en/start-here/
+curl -fsSI https://smartbolig.net/da/start/
+curl -fsSI https://smartbolig.net/en/start/
 curl -fsS https://smartbolig.net/sitemap-index.xml
 curl -fsS https://smartbolig.net/robots.txt
 ```
