@@ -113,6 +113,20 @@ def check_javascript(code):
         path = f.name
     try:
         r = subprocess.run(["node", "--check", path], capture_output=True, text=True, timeout=10)
+        # Node-RED Function nodes intentionally use a top-level `return msg;`.
+        # Node's module parser rejects that even though the snippet is valid in
+        # Node-RED, so retry only that specific parser error inside a function.
+        if r.returncode != 0 and "Illegal return statement" in r.stderr:
+            Path(path).write_text(
+                f"function __node_red_example__() {{\n{code}\n}}\n",
+                encoding="utf-8",
+            )
+            r = subprocess.run(
+                ["node", "--check", path],
+                capture_output=True,
+                text=True,
+                timeout=10,
+            )
         if r.returncode != 0:
             first = r.stderr.strip().replace(path, "<block>").splitlines()
             return next((l for l in first if l.strip()), "syntax error")
@@ -211,7 +225,7 @@ def main():
 
     total = len(code_issues) + len(link_issues) + len(image_issues)
     print(f"\nTOTAL ISSUES: {total}")
-    return 0
+    return 1 if total else 0
 
 
 if __name__ == "__main__":
