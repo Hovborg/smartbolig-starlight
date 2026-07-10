@@ -101,3 +101,12 @@ test("start-page actions use locale-correct canonical routes", async () => {
   assert.doesNotMatch(da, /\/en\//);
   assert.doesNotMatch(en, /\/da\//);
 });
+
+test("head metadata treats start pages as pages and preserves AI news schema", async () => {
+  const head = await read("src/components/Head.astro");
+  assert.match(head, /const isStartPage =/);
+  assert.match(head, /!isStartPage/);
+  for (const invariant of ["NewsArticle", "citation", "datePublished", "aiNewsRssHref"]) {
+    assert.ok(head.includes(invariant), `missing AI news schema invariant: ${invariant}`);
+  }
+});
