@@ -131,6 +131,8 @@ test("head metadata treats start pages as pages and preserves AI news schema", a
 
 test("Cloudflare headers retain the security contract", async () => {
   const headers = await read("public/_headers");
+  const packageJson = JSON.parse(await read("package.json"));
+  const finalizeBuild = await read("scripts/finalize-build.mjs");
   for (const value of [
     "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload",
     "X-Content-Type-Options: nosniff",
@@ -145,6 +147,10 @@ test("Cloudflare headers retain the security contract", async () => {
   }
   assert.match(headers, /script-src[^;]*'wasm-unsafe-eval'/);
   assert.doesNotMatch(headers, /(?:^|\s)'unsafe-eval'(?:\s|;)/);
+  assert.match(headers, /\/pagefind\/\*\s+Cache-Control: no-cache, must-revalidate/);
+  assert.match(packageJson.scripts.build, /finalize-build\.mjs/);
+  assert.match(finalizeBuild, /pagefind-worker\.js/);
+  assert.match(finalizeBuild, /CSP permits Pagefind WebAssembly/);
 });
 
 test("deploy runs every local quality gate before publishing", async () => {
