@@ -143,6 +143,8 @@ test("Cloudflare headers retain the security contract", async () => {
   ]) {
     assert.ok(headers.includes(value), `missing security header invariant: ${value}`);
   }
+  assert.match(headers, /script-src[^;]*'wasm-unsafe-eval'/);
+  assert.doesNotMatch(headers, /(?:^|\s)'unsafe-eval'(?:\s|;)/);
 });
 
 test("deploy runs every local quality gate before publishing", async () => {
