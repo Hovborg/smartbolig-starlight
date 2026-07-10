@@ -23,12 +23,32 @@ jobs:
         with:
           node-version: '24'
           cache: 'npm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
       
       - name: Install dependencies
         run: npm ci
 
+      - name: Install content-audit dependency
+        run: python3 -m pip install --disable-pip-version-check PyYAML==6.0.3
+
+      - name: Test site invariants
+        run: npm run site:test
+
+      - name: Test AI News automation
+        run: npm run ai-news:test
+
       - name: Validate AI News content
         run: npm run ai-news:validate
+
+      - name: Audit guide content
+        run: python3 scripts/content-audit.py
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
       
       - name: Build
         run: npm run build

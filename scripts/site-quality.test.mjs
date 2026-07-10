@@ -110,3 +110,34 @@ test("head metadata treats start pages as pages and preserves AI news schema", a
     assert.ok(head.includes(invariant), `missing AI news schema invariant: ${invariant}`);
   }
 });
+
+test("Cloudflare headers retain the security contract", async () => {
+  const headers = await read("public/_headers");
+  for (const value of [
+    "Strict-Transport-Security: max-age=31536000; includeSubDomains; preload",
+    "X-Content-Type-Options: nosniff",
+    "Referrer-Policy: strict-origin-when-cross-origin",
+    "Permissions-Policy:",
+    "Content-Security-Policy:",
+    "frame-ancestors 'self'",
+    "object-src 'none'",
+    "base-uri 'self'",
+  ]) {
+    assert.ok(headers.includes(value), `missing security header invariant: ${value}`);
+  }
+});
+
+test("deploy runs every local quality gate before publishing", async () => {
+  const workflow = await read(".github/workflows/deploy.yml");
+  for (const command of [
+    "npm run site:test",
+    "npm run ai-news:test",
+    "npm run ai-news:validate",
+    "python3 scripts/content-audit.py",
+    "npm run build",
+    "npm run seo:validate",
+    "npm audit --omit=dev --audit-level=high",
+  ]) {
+    assert.ok(workflow.includes(command), `missing pre-deploy gate: ${command}`);
+  }
+});
