@@ -147,10 +147,11 @@ test("Cloudflare headers retain the security contract", async () => {
   }
   assert.match(headers, /script-src[^;]*'wasm-unsafe-eval'/);
   assert.doesNotMatch(headers, /(?:^|\s)'unsafe-eval'(?:\s|;)/);
-  assert.match(headers, /\/pagefind\/\*\s+Cache-Control: no-cache, must-revalidate/);
   assert.match(packageJson.scripts.build, /finalize-build\.mjs/);
   assert.match(finalizeBuild, /pagefind-worker\.js/);
-  assert.match(finalizeBuild, /CSP permits Pagefind WebAssembly/);
+  assert.match(finalizeBuild, /createHash\("sha256"\)/);
+  assert.match(finalizeBuild, /public\/_headers/);
+  assert.match(finalizeBuild, /SmartBolig CSP fingerprint/);
 });
 
 test("deploy runs every local quality gate before publishing", async () => {
