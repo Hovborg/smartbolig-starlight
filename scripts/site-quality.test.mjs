@@ -147,6 +147,8 @@ test("Cloudflare headers retain the security contract", async () => {
 
 test("deploy runs every local quality gate before publishing", async () => {
   const workflow = await read(".github/workflows/deploy.yml");
+  assert.match(workflow, /pull_request:\s*\n\s+branches:\s*\[main\]/);
+  assert.equal((workflow.match(/github\.event_name != 'pull_request'/g) || []).length, 2);
   for (const command of [
     "npm run site:test",
     "npm run ai-news:test",
