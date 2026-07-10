@@ -69,6 +69,18 @@ test("homepage hero uses factual bilingual defaults without duplicate statistics
   assert.doesNotMatch(hero, /home-hero__stats|100%|0 Cloud|every week|hver uge/i);
 });
 
+test("latest-news heading keeps its eyebrow in normal layout flow", async () => {
+  const styles = await read("src/components/HomeStyles.astro");
+  assert.doesNotMatch(
+    styles,
+    /\.home-news-shell \.home-section__heading \.home-eyebrow\s*\{[^}]*position:\s*absolute/s,
+  );
+  assert.match(
+    styles,
+    /\.home-news-shell \.home-section__heading \.home-eyebrow\s*\{[^}]*grid-column:\s*1\s*\/\s*-1/s,
+  );
+});
+
 test("homepage news selector is read-only, bounded and deterministic", async () => {
   const source = await read("src/lib/home-news.ts");
   assert.match(source, /export function selectLatestNews/);
