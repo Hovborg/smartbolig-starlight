@@ -45,6 +45,23 @@ test("shared portal exposes five intentional paths", async () => {
   }
 });
 
+test("homepage keeps a single main landmark and a visible skip-link target", async () => {
+  const [portal, skipLink, themeSelect, styles, config] = await Promise.all([
+    read("src/components/HomePortal.astro"),
+    read("src/components/SkipLink.astro"),
+    read("src/components/ThemeSelect.astro"),
+    read("src/components/HomeStyles.astro"),
+    read("astro.config.mjs"),
+  ]);
+  assert.doesNotMatch(portal, /<\/?main\b/);
+  assert.match(skipLink, /home-hero-title/);
+  assert.match(skipLink, /["']_top["']/);
+  assert.match(config, /SkipLink:\s*["']\.\/src\/components\/SkipLink\.astro["']/);
+  assert.match(themeSelect, /aria-label=\{label\}/);
+  assert.match(config, /ThemeSelect:\s*["']\.\/src\/components\/ThemeSelect\.astro["']/);
+  assert.match(styles, /html\[data-theme=["']light["']\]/);
+});
+
 test("homepage hero uses factual bilingual defaults without duplicate statistics", async () => {
   const hero = await read("src/components/CustomHero.astro");
   assert.match(hero, /Independent, practical guides/);
@@ -89,6 +106,7 @@ test("start pages have matching six-step journeys", async () => {
   for (const source of [da, en]) {
     assert.match(source, /home-assistant/);
     assert.match(source, /backup-sikkerhed/);
+    assert.doesNotMatch(source, /^# /m);
     assert.doesNotMatch(source, /target=["']_blank/);
   }
 });

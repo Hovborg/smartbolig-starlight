@@ -20,6 +20,27 @@
     --home-width: 1120px;
   }
 
+  html[data-theme="light"] {
+    --home-panel: #ffffff;
+    --home-panel-strong: #f3f7f9;
+    --home-line: rgba(23, 33, 43, 0.17);
+    --home-line-strong: rgba(8, 121, 138, 0.55);
+    --home-text: #17212b;
+    --home-muted: #526474;
+    --home-cyan: #08798a;
+    --home-blue: #1769aa;
+    --home-green: #147d4f;
+    --home-amber: #805500;
+    --home-violet: #7048a8;
+  }
+  html[data-theme="light"] .home-path { background: linear-gradient(145deg, #fff, #f5f9fa); }
+  html[data-theme="light"] .home-guide,
+  html[data-theme="light"] .home-news-card,
+  html[data-theme="light"] .home-method-grid > div { background: var(--home-panel); }
+  html[data-theme="light"] .home-news-card--lead { background: linear-gradient(145deg, #f7f0ff, #fff); }
+  html[data-theme="light"] .home-cta { background: linear-gradient(135deg, #eefbfc, #f4f8fa); }
+  html[data-theme="light"] .home-btn--ghost { background: #fff; }
+
   .sl-markdown-content :is(.home-hero, .home-portal, .home-section, .home-cta) { margin-top: 0; }
   .content-panel:has(> .sl-container > h1#_top) { display: none; }
 
