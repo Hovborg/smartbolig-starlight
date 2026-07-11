@@ -87,6 +87,23 @@ test("latest-news heading keeps its eyebrow in normal layout flow", async () => 
   );
 });
 
+test("homepage renders the image-led editorial rail directly after the hero", async () => {
+  const [portal, hero, news, daHome, enHome] = await Promise.all([
+    read("src/components/HomePortal.astro"),
+    read("src/components/CustomHero.astro"),
+    read("src/components/HomeLatestNews.astro"),
+    read("src/content/docs/da/index.mdx"),
+    read("src/content/docs/en/index.mdx"),
+  ]);
+
+  assert.match(daHome, /<HomeLatestNews slot="editorial-news" locale="da"/);
+  assert.match(enHome, /<HomeLatestNews slot="editorial-news" locale="en"/);
+  assert.ok(portal.indexOf('slot name="editorial-news"') < portal.indexOf('class="home-section home-paths"'));
+  assert.match(hero, /<picture>/);
+  assert.match(hero, /smart-home-editorial-1440\.avif 1440w/);
+  assert.match(news, /home-news-card__media/);
+});
+
 test("homepage news selector is read-only, bounded and deterministic", async () => {
   const source = await read("src/lib/home-news.ts");
   assert.match(source, /export function selectLatestNews/);
@@ -141,7 +158,7 @@ test("both homepages compose the isolated latest-news component", async () => {
   for (const locale of ["da", "en"]) {
     const home = await read(`src/content/docs/${locale}/index.mdx`);
     assert.match(home, /import HomeLatestNews/);
-    assert.match(home, new RegExp(`<HomeLatestNews slot=["']latest-news["'] locale=["']${locale}["']`));
+    assert.match(home, new RegExp(`<HomeLatestNews slot=["']editorial-news["'] locale=["']${locale}["']`));
   }
 });
 

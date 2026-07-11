@@ -41,10 +41,24 @@ const formatDate = (date: Date) =>
       <div class="home-news-grid">
         {latest.map((item, index) => (
           <article class={`home-news-card ${index === 0 ? "home-news-card--lead" : ""}`}>
-            <time datetime={item.dateString}>{formatDate(item.date)}</time>
-            <h3><a href={item.href}>{item.title}</a></h3>
-            <p>{item.description}</p>
-            <a class="home-news-card__link" href={item.href}>{copy.read}<span aria-hidden="true"> →</span></a>
+            {item.image && (
+              <a class="home-news-card__media" href={item.href} tabindex="-1" aria-hidden="true">
+                <img
+                  src={item.image.src}
+                  alt=""
+                  width="1200"
+                  height="675"
+                  loading={index === 0 ? "eager" : "lazy"}
+                  decoding="async"
+                />
+              </a>
+            )}
+            <div class="home-news-card__body">
+              <time datetime={item.dateString}>{formatDate(item.date)}</time>
+              <h3><a href={item.href}>{item.title}</a></h3>
+              <p>{item.description}</p>
+              <a class="home-news-card__link" href={item.href}>{copy.read}<span aria-hidden="true"> →</span></a>
+            </div>
           </article>
         ))}
       </div>

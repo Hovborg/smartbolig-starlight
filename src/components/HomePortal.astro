@@ -122,6 +122,15 @@ const trust = isDa
 ---
 
 <div class="home-portal">
+  <section class="home-section home-news-shell" aria-labelledby="home-news-title">
+    <div class="home-section__heading">
+      <p class="home-eyebrow">{copy.newsEyebrow}</p>
+      <h2 id="home-news-title">{copy.newsTitle}</h2>
+      <a class="home-text-link" href={`/${locale}/ai/nyheder/`}>{copy.newsArchive}<span aria-hidden="true"> →</span></a>
+    </div>
+    <slot name="editorial-news" />
+  </section>
+
   <section class="home-section home-paths" aria-labelledby="home-paths-title">
     <div class="home-section__heading">
       <p class="home-eyebrow">{copy.pathEyebrow}</p>
@@ -168,15 +177,6 @@ const trust = isDa
         <article class="home-guide"><span>{tag}</span><h3><a href={href}>{title}</a></h3><p>{description}</p></article>
       ))}
     </div>
-  </section>
-
-  <section class="home-section home-news-shell" aria-labelledby="home-news-title">
-    <div class="home-section__heading">
-      <p class="home-eyebrow">{copy.newsEyebrow}</p>
-      <h2 id="home-news-title">{copy.newsTitle}</h2>
-      <a class="home-text-link" href={`/${locale}/ai/nyheder/`}>{copy.newsArchive}<span aria-hidden="true"> →</span></a>
-    </div>
-    <slot name="latest-news" />
   </section>
 
   <section class="home-section home-method" aria-labelledby="home-method-title">
