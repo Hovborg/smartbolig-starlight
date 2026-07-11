@@ -1,0 +1,246 @@
+---
+title: Home Assistant Energy Dashboard
+description: Build a trustworthy Energy Dashboard for grid, solar, battery, gas, water, appliances and EV charging without depending on one country or provider.
+sidebar:
+  badge:
+    text: Energy
+    variant: success
+---
+
+import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+Home Assistant's Energy Dashboard brings consumption and production together
+over time. A polished dashboard is only useful when its sensors measure the
+right thing. Begin with one verified grid meter; add solar, battery, gas, water,
+appliances, EV charging and prices only after the baseline agrees.
+
+<Aside type="caution" title="Measure before automating">
+A wrong unit, sign or duplicate source can move flexible consumption to the
+wrong time. Always compare against a physical meter or provider settlement data.
+</Aside>
+
+## Understand power, energy, price and cost
+
+| Quantity | Typical unit | Meaning |
+|---|---|---|
+| Power | W or kW | Rate of consumption or production right now |
+| Energy | Wh or kWh | Accumulated quantity over time |
+| Price | currency/kWh | Price per unit of energy |
+| Cost | currency | Energy multiplied by the relevant price/tariff |
+
+A 2,000 W sensor is an instant reading. A 12,345 kWh sensor is normally a
+running total. Energy Dashboard expects energy sensors with correct units,
+`device_class` and `state_class` so Home Assistant can create long-term
+statistics.
+
+Do not use a power sensor directly as energy. If a source provides compatible
+instantaneous power only, Home Assistant's Integral/Riemann sum integration can
+derive energy over time. Validate method, time unit and sign against official
+documentation; integrating noisy or missing samples can create drift.
+
+## Prerequisites and entity quality
+
+Before adding a sensor, inspect **Developer tools → States** and
+**Settings → Devices & services → Statistics**:
+
+- W/kW is used for power and Wh/kWh for energy;
+- `device_class` is `power`, `energy`, `gas` or `water` as appropriate;
+- `state_class` matches a measurement or accumulating total;
+- updates are stable without frequent `unknown` or `unavailable` states;
+- totals increase as documented or handle legitimate resets;
+- import, export, production, charge and discharge are distinct quantities.
+
+Home Assistant can repair some statistics metadata, but understand the warning
+before changing units or sums.
+
+## Step 1: configure grid consumption
+
+<Steps>
+1. **Find a cumulative import sensor**
+
+   Select the meter representing energy purchased from the grid. Do not use the
+   sum of smart plugs as a substitute for the main meter.
+
+2. **Check units and statistics**
+
+   Compare its change over an hour or day with the physical meter. Confirm a
+   restart does not reset it unexpectedly.
+
+3. **Add it to Energy configuration**
+
+   Open **Settings → Dashboards → Energy** and choose grid consumption.
+
+4. **Wait for statistics**
+
+   Energy data is not always immediate. Wait for the next statistics period and
+   inspect the graph.
+
+5. **Validate for at least one day**
+
+   Compare dashboard daily consumption with an independent meter source.
+</Steps>
+
+If you have separate export, add it as grid return. A negative net sensor is not
+always a safe replacement for separate import and export totals; follow the
+integration's documented semantics.
+
+## Step 2: add solar production
+
+Add the inverter's cumulative production energy. Determine whether it represents
+the whole array, one inverter, one phase or one string. Give multiple sources
+clear names such as `East roof` and `West roof`.
+
+Avoid duplicate counting:
+
+- do not add both a total and all of its components as full sources;
+- grid export is not total solar production because self-consumption is absent;
+- verify timezone and daily-reset behaviour of vendor sensors.
+
+## Step 3: add a home battery
+
+A battery normally needs separate energy sensors for:
+
+- energy into the battery (**charge**);
+- energy out of the battery (**discharge**).
+
+State of charge in percent is useful operationally but does not replace charge
+and discharge energy. Check sign and direction: some inverters report discharge
+as negative power while the dashboard expects separate positive totals.
+
+## Step 4: add gas and water
+
+Gas and water are optional layers. Use cumulative volume in a supported unit
+and the correct device class. A pulse meter must retain its total through reboot
+and must not count one pulse twice.
+
+Validate:
+
+- each physical pulse matches the configured conversion;
+- the total increases monotonically except documented replacement/reset events;
+- the dashboard period matches the meter reading you compare.
+
+## Step 5: appliances and EV charging
+
+Individual devices explain where energy went. Add an energy sensor from a smart
+plug or submeter, not only its current watt reading.
+
+For an EV, use a dedicated charger or submeter energy total. Name it so it is
+not confused with vehicle battery percentage. When charging already passes
+through the main meter, it is a sub-consumer and must not be added to grid import.
+
+## Regional prices and tariffs are optional
+
+Energy Dashboard can use a fixed price, price entity or cost data supplied by
+an integration. **Regional price integrations are optional** and vary with
+country, market, currency, network operator and contract.
+
+Choose a local integration that documents:
+
+- whether the value is spot price, all-in price or one component;
+- currency and price per kWh;
+- resolution and timezone;
+- taxes, network charges, fees and export compensation;
+- negative prices and changing tariff periods.
+
+Do not label spot price as total cost when delivery and taxes are absent. The
+main workflow requires no national provider or tariff model.
+
+## Multiple sources and clear names
+
+Home Assistant supports multiple grid, solar, battery, water and gas sources.
+Name them by function and location:
+
+- `Grid import – house`
+- `Grid export – house`
+- `Solar production – garage`
+- `Water – garden`
+- `EV charger – carport`
+
+Home Assistant 2026.6 improved naming for multi-source dashboards. Good names
+make cards, graphs and statistics warnings easier to understand.
+
+## Validate data before adding another layer
+
+Use a repeatable control:
+
+1. Read the physical meter and Home Assistant at the same time.
+2. Wait a known period, preferably a day.
+3. Compare the change, not only absolute totals.
+4. Calculate percentage difference and explain expected loss or sampling gaps.
+5. Inspect graphs around reboot, midnight and network outages.
+6. Add another source only when the current one is trustworthy.
+
+Small differences can come from rounding and update intervals. Large or growing
+differences point to units, sign, source choice or duplicate counting.
+
+## Automate only from trustworthy measurements
+
+After validation, data can drive actions such as:
+
+- charge an EV from surplus solar;
+- heat water during cheap or sunny periods;
+- warn about abnormal standby consumption;
+- stop irrigation after unusual water use;
+- limit total power below a grid threshold.
+
+Use thresholds, minimum duration, hysteresis and an `unavailable` fallback. One
+bad price or sensor sample must not start expensive or harmful equipment.
+
+## Privacy and locality
+
+Energy Dashboard runs in Home Assistant, but a source can be cloud-backed. A
+meter, inverter or vehicle integration may send consumption to its vendor.
+Review integration IoT class and privacy terms. Prefer stable supported local
+APIs where available, but never describe cloud data as local.
+
+## Troubleshooting
+
+### The sensor cannot be selected
+
+Check unit, device class, state class and long-term statistics. Read the exact
+statistics issue rather than changing metadata randomly to make it appear.
+
+### The graph shows double consumption
+
+Check whether the same energy appears as two grid sources or whether both a
+total and its components were added. Individual devices are breakdowns, not
+extra grid import.
+
+### Values become negative
+
+Determine whether the sign means export/discharge or a sensor error. The Energy
+Dashboard is easiest to reason about with documented separate directions.
+
+### Gaps appear after unavailable states
+
+Inspect integration, network and recorder/statistics health. Do not fill missing
+samples with zero automatically: zero means measured no use, not missing data.
+
+### The total resets
+
+Use a sensor and state class that supports documented resets, or a Utility Meter
+that preserves the period total correctly. Check long-term statistics before
+editing historical data.
+
+### Price and cost disagree
+
+Compare currency, unit, timezone, tax, delivery charges, fees and export price.
+Dashboard and bill may use different settlement periods.
+
+<CardGrid>
+  <Card title="Automations" icon="rocket">
+    Continue with [your first automation](/en/home-assistant/foerste-automation/).
+  </Card>
+  <Card title="Troubleshooting" icon="setting">
+    Read [Home Assistant troubleshooting](/en/home-assistant/fejlfinding/).
+  </Card>
+</CardGrid>
+
+## Official sources
+
+- [Home energy management](https://www.home-assistant.io/docs/energy/)
+- [Energy integration](https://www.home-assistant.io/integrations/energy/)
+- [Integral (Riemann sum)](https://www.home-assistant.io/integrations/integration/)
+- [Utility Meter](https://www.home-assistant.io/integrations/utility_meter/)
+- [Home Assistant 2026.6 release notes](https://www.home-assistant.io/blog/2026/06/03/release-20266/)
+

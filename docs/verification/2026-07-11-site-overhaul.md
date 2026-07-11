@@ -7,6 +7,8 @@
 - Page metadata, structured data, sitemap and Cloudflare security headers
 - Dependency remediation and deployment quality gates
 - Responsive, theme, keyboard, language and search checks
+- Four bilingual guide pairs: Matter/Thread 2026, local Assist, ESPHome
+  Bluetooth Proxy and an internationally applicable Energy Dashboard
 
 ## Automated gates
 
@@ -47,6 +49,35 @@ Verified interactions and invariants:
 Giscus may log an expected 404 while looking up a discussion that does not yet
 exist. Its own client identifies that state as “Discussion not found” and will
 create the discussion only if a visitor submits a comment or reaction.
+
+## Four-guide series checks
+
+The eight locale pages were checked at 390×844 and 1440×1000. For every page,
+Chromium returned HTTP 200, found one `main` and one visible H1, matched the
+document language, exposed a canonical URL plus three hreflang alternates, and
+reported no document-level horizontal overflow.
+
+The four guide types each render a semantic HTML table in both languages. A
+browser regression found that the first build displayed GitHub-flavoured
+Markdown table syntax as literal pipe characters. The fix enables
+`remark-gfm` in Astro, adds it as a direct dependency and protects the setup
+with a site-quality test. The rebuilt pages contain one `<table>` each and no
+literal table separator text.
+
+Pagefind checks against the production build returned the intended guide as
+the first result for all four representative terms:
+
+| Search term | First result |
+|---|---|
+| `matter.js` | `/en/home-assistant/thread-matter/` |
+| `Speech-to-Phrase` | `/en/home-assistant/local-voice-assist/` |
+| `bluetooth proxy` | `/en/esp32/bluetooth-proxy/` |
+| `energy dashboard` | `/en/home-assistant/energy-dashboard/` |
+
+The Energy guide was also checked for scope: it supports grid consumption,
+solar, batteries, gas, water, appliances and EV charging without requiring a
+Danish provider or referring to DK1/DK2. Regional prices and tariffs are an
+optional layer, not a prerequisite.
 
 ## Protected automation boundaries
 

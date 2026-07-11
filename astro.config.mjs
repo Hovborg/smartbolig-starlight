@@ -2,10 +2,16 @@
 import { defineConfig } from "astro/config";
 import starlight from "@astrojs/starlight";
 import tailwindcss from "@tailwindcss/vite";
+import remarkGfm from "remark-gfm";
 
 // https://astro.build/config
 export default defineConfig({
   site: "https://smartbolig.net",
+
+  // Starlight's MDX pipeline does not enable GFM tables by default.
+  markdown: {
+    remarkPlugins: [remarkGfm],
+  },
 
   integrations: [
     starlight({
@@ -139,6 +145,15 @@ export default defineConfig({
                 {
                   label: "Better Thermostat",
                   link: "/home-assistant/better-thermostat/",
+                },
+                {
+                  label: "Lokal stemmestyring",
+                  translations: { en: "Local Voice Assist" },
+                  link: "/home-assistant/local-voice-assist/",
+                },
+                {
+                  label: "Energy Dashboard",
+                  link: "/home-assistant/energy-dashboard/",
                 },
               ],
             },
@@ -303,6 +318,10 @@ export default defineConfig({
                   label: "ESPHome Avanceret",
                   translations: { en: "ESPHome Advanced" },
                   link: "/esp32/esphome-avanceret/",
+                },
+                {
+                  label: "Bluetooth Proxy",
+                  link: "/esp32/bluetooth-proxy/",
                 },
               ],
             },

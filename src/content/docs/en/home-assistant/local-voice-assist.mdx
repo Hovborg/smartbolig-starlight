@@ -1,0 +1,211 @@
+---
+title: Fully local voice control with Home Assistant Assist
+description: Build and verify a local Assist pipeline with Speech-to-Phrase or Whisper, Piper, the Companion app and optional dedicated voice hardware.
+sidebar:
+  badge:
+    text: Local
+    variant: success
+---
+
+import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+Home Assistant Assist can understand a command, select the correct device and
+answer with speech. A fully local pipeline keeps audio, text and actions on your
+own systems. Start with your phone and add a room satellite only after the whole
+pipeline works.
+
+<Aside type="caution" title="Local means the complete chain">
+A local microphone does not make the system local when speech recognition,
+text-to-speech or an optional AI agent calls a cloud service. Check every stage.
+</Aside>
+
+## Architecture and choices
+
+A local interaction follows this chain:
+
+```text
+Microphone → wake word/button → speech-to-text → Assist intent → action → Piper → speaker
+```
+
+| Stage | Local choice | Best fit |
+|---|---|---|
+| Speech-to-text | Speech-to-Phrase | Fast known home-control sentences on modest hardware |
+| Speech-to-text | Whisper | More flexible speech with higher CPU/GPU demand and usually more latency |
+| Intent | Built-in Home Assistant conversation agent | Predictable control of exposed entities |
+| Text-to-speech | Piper | Local speech generation |
+| Input/output | Companion app | Best first test without extra hardware |
+| Room satellite | Home Assistant Voice or ESPHome voice device | Hands-free use after pipeline validation |
+
+An LLM conversation agent is not required for normal lighting, climate or media
+control. If you add a cloud agent, that stage is no longer local.
+
+## Prerequisites and realistic hardware
+
+You need:
+
+- Home Assistant OS or an installation able to host Wyoming services;
+- a current Android or iOS Companion app;
+- a microphone and speaker — the phone is enough for the first test;
+- spare CPU and RAM for Speech-to-Phrase/Whisper and Piper;
+- sensible areas, entity names and language settings.
+
+Speech-to-Phrase is usually the lightest local starting point for home control.
+Whisper understands freer speech, but slow hardware can make the experience
+unusable. Measure latency on your system.
+
+## Install Speech-to-Phrase or Whisper and Piper
+
+<Steps>
+1. **Open the Home Assistant app store**
+
+   Go to **Settings → Apps**. Older releases may call this **Add-ons**.
+
+2. **Install one speech-to-text engine**
+
+   Start with Speech-to-Phrase for ordinary home control. Choose Whisper when
+   you need freer language and have sufficient hardware.
+
+3. **Install Piper**
+
+   Select a voice and language available in your installed version. Voice and
+   language quality is not identical across every option.
+
+4. **Start both services and inspect logs**
+
+   They must remain running without model-load errors or restart loops.
+</Steps>
+
+On non-OS installations, Wyoming components can run separately. Follow the
+official architecture and never expose Wyoming ports directly to the internet.
+
+## Create the local Assist pipeline
+
+Open **Settings → Voice assistants**, create an assistant and choose:
+
+- your desired local language;
+- the built-in Home Assistant conversation agent;
+- Speech-to-Phrase or Whisper for speech-to-text;
+- Piper for text-to-speech.
+
+Give it a clear name such as `Local English`. Keep it separate from any cloud
+pipeline so you always know what you are testing.
+
+## Expose and name only what you need
+
+Assist controls relevant exposed entities. Review exposure in the voice
+assistant settings.
+
+- Expose one light in one correctly named area first.
+- Prefer short unique names: `Ceiling light` in `Kitchen`, not a hardware ID.
+- Add aliases for natural alternative names.
+- Avoid duplicate names in the same area.
+- Do not expose locks, garage doors, alarms or other security-sensitive actions
+  until you understand the platform's confirmation and access model.
+
+<Aside type="tip" title="Prove a small setup first">
+Make “turn on the kitchen ceiling light” reliable before exposing the whole home.
+</Aside>
+
+## Verify the pipeline on your phone
+
+Open Assist in the Companion app and test five boundaries separately:
+
+1. **Audio input:** Is the signal clear and free of clipping?
+2. **Transcription:** Does the text match what you said?
+3. **Intent:** Did Assist select the correct action and entity?
+4. **Home Assistant action:** Did the real entity change state?
+5. **Response:** Did Piper play an understandable reply?
+
+Fix a failing stage before moving on. A wrong light choice is not fixed by a
+new microphone, and missing audio is not fixed by adding aliases.
+
+## Language, names and useful commands
+
+Use correct area and entity names for your selected language and test sentences
+supported by your current Home Assistant version. Language support evolves; the
+official language table is authoritative.
+
+Start with concrete commands:
+
+- “Turn on the kitchen ceiling light.”
+- “Turn off the living room lights.”
+- “Set the office temperature to 21 degrees.”
+
+When a phrase fails, check transcription, exposure, name, area and aliases in
+that order. Add custom sentences only for a real gap in built-in support.
+
+## Add Home Assistant Voice or an ESPHome satellite
+
+Once phone testing is stable, add dedicated hardware.
+
+### Home Assistant Voice
+
+Follow its onboarding flow, select the pipeline you already verified, and test
+in the intended room. Confirm wake word, microphone, speaker and pipeline as
+separate stages.
+
+### ESPHome voice assistant
+
+ESPHome microphone devices can stream audio to Assist. Audio consumes
+significant RAM and CPU. Do not casually combine voice, Bluetooth Proxy, web
+server and many other components on one ESP32; official ESPHome documentation
+warns about resource conflicts between audio and BLE.
+
+## Privacy and network boundaries
+
+A standard local pipeline can process speech and responses at home. The
+boundary changes when you use:
+
+- Home Assistant Cloud speech-to-text or text-to-speech;
+- an external LLM/conversation agent;
+- cloud-backed devices controlled by the command;
+- remote logging or monitoring you configured yourself.
+
+Document those choices, provide a physical mute control where possible, and
+grant each device only the network access it needs.
+
+## Troubleshooting stage by stage
+
+### No audio is detected
+
+Check microphone permission, selected input, physical mute, gain and satellite
+logs. Test without a wake word when the hardware supports push-to-talk.
+
+### Wake word does not react
+
+Confirm where wake-word detection runs, which model is selected, and whether a
+manual push-to-talk test works. A downstream pipeline failure is not the same as
+a wake-word detection failure.
+
+### Transcription is wrong or slow
+
+Compare Speech-to-Phrase and Whisper with the same sentence and hardware. Check
+CPU/RAM, background noise, language and model size. Measure time to transcription
+rather than only total response time.
+
+### The wrong device is controlled
+
+Review exposure, area, name and aliases. Remove duplicates and test with an
+explicit area. Inspect intent/debug information before replacing speech-to-text.
+
+### There is text but no spoken response
+
+Inspect Piper logs, selected voice, output device and volume. If response text
+appears, the intent stage probably already works.
+
+<CardGrid>
+  <Card title="ESPHome" icon="rocket">
+    Read the [ESPHome guides](/en/esp32/) before building a satellite.
+  </Card>
+  <Card title="Security" icon="lock">
+    Review [smart-home security](/en/sikkerhed/).
+  </Card>
+</CardGrid>
+
+## Official sources
+
+- [Assist in Home Assistant](https://www.home-assistant.io/voice_control/)
+- [Set up a fully local voice assistant](https://www.home-assistant.io/voice_control/voice_remote_local_assistant/)
+- [Expose devices to Assist](https://www.home-assistant.io/voice_control/voice_remote_expose_devices/)
+- [ESPHome Voice Assistant](https://esphome.io/components/voice_assistant/)
+

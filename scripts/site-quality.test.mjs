@@ -132,6 +132,70 @@ test("start-page actions use locale-correct canonical routes", async () => {
   assert.doesNotMatch(en, /\/da\//);
 });
 
+test("four-guide series stays bilingual, complete and globally scoped", async () => {
+  const guidePairs = [
+    ["src/content/docs/da/home-assistant/thread-matter.mdx", "src/content/docs/en/home-assistant/thread-matter.mdx"],
+    ["src/content/docs/da/home-assistant/local-voice-assist.mdx", "src/content/docs/en/home-assistant/local-voice-assist.mdx"],
+    ["src/content/docs/da/esp32/bluetooth-proxy.mdx", "src/content/docs/en/esp32/bluetooth-proxy.mdx"],
+    ["src/content/docs/da/home-assistant/energy-dashboard.mdx", "src/content/docs/en/home-assistant/energy-dashboard.mdx"],
+  ];
+  const sources = await Promise.all(guidePairs.flat().map(read));
+
+  for (const source of sources) {
+    assert.equal((source.match(/^title:/gm) || []).length, 1);
+    assert.equal((source.match(/^description:/gm) || []).length, 1);
+    assert.ok((source.match(/^## /gm) || []).length >= 5);
+    assert.match(source, /## (?:Officielle kilder|Official sources)/);
+    assert.match(source, /https:\/\//);
+    assert.doesNotMatch(source, /^# /m);
+  }
+
+  const config = await read("astro.config.mjs");
+  for (const route of [
+    "/home-assistant/local-voice-assist/",
+    "/esp32/bluetooth-proxy/",
+    "/home-assistant/energy-dashboard/",
+  ]) {
+    assert.ok(config.includes(route), `missing guide route: ${route}`);
+  }
+
+  for (const source of sources.slice(0, 2)) {
+    for (const term of ["matter.js", /Matter\s+1\.5\.1/, /Thread\s+1\.4/, /migrat/i, /visuali/i, /commission/i, /troubleshoot|fejlfinding/i]) {
+      assert.match(source, term instanceof RegExp ? term : new RegExp(term.replace(".", "\\.")));
+    }
+  }
+  for (const source of sources.slice(2, 4)) {
+    for (const term of ["Speech-to-Phrase", "Whisper", "Piper", /expos|eksponer/i, /pipeline/i, /troubleshoot|fejlfinding/i]) {
+      assert.match(source, term instanceof RegExp ? term : new RegExp(term));
+    }
+  }
+  for (const source of sources.slice(4, 6)) {
+    for (const term of ["bluetooth_proxy", "esp-idf", "connection_slots", /passive/i, /active|aktiv/i, /troubleshoot|fejlfinding/i]) {
+      assert.match(source, term instanceof RegExp ? term : new RegExp(term));
+    }
+  }
+  for (const source of sources.slice(6, 8)) {
+    for (const term of [/grid|elnet/i, /solar|solceller/i, /battery|batteri/i, /gas/i, /water|vand/i, /EV|elbil/i, /long-term statistics|langtidsstatistik/i, /power.*energy|effekt.*energi/is, /troubleshoot|fejlfinding/i]) {
+      assert.match(source, term);
+    }
+    assert.match(source, /regional(?:e)? (?:price|pris).*(?:optional|valgfr)/is);
+  }
+
+  const englishEnergy = sources[7];
+  assert.doesNotMatch(englishEnergy, /Energi Data Service|\bDK1\b|\bDK2\b/);
+});
+
+test("Astro renders the guides' GitHub-flavoured Markdown tables", async () => {
+  const [config, packageJson] = await Promise.all([
+    read("astro.config.mjs"),
+    read("package.json"),
+  ]);
+
+  assert.match(config, /import remarkGfm from ["']remark-gfm["']/);
+  assert.match(config, /markdown:\s*\{[\s\S]*remarkPlugins:\s*\[remarkGfm\]/);
+  assert.equal(JSON.parse(packageJson).dependencies["remark-gfm"], "^4.0.1");
+});
+
 test("head metadata treats start pages as pages and preserves AI news schema", async () => {
   const head = await read("src/components/Head.astro");
   assert.match(head, /const isStartPage =/);

@@ -1,0 +1,242 @@
+---
+title: ESPHome Bluetooth Proxy for Home Assistant
+description: Extend Home Assistant BLE coverage with an ESP32 over Wi-Fi, Ethernet or PoE, and troubleshoot active connections, placement and memory.
+sidebar:
+  badge:
+    text: ESPHome
+    variant: note
+---
+
+import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+An ESPHome Bluetooth Proxy places a remote BLE radio near your devices and
+forwards data to Home Assistant over the network. It is especially useful when
+Home Assistant runs in a VM, rack, basement or metal enclosure.
+
+<Aside type="note" title="Bluetooth Low Energy only">
+The proxy supports BLE, not classic Bluetooth audio. It does not make an
+unknown device compatible; Home Assistant still needs an integration that
+understands the device protocol.
+</Aside>
+
+## How the proxy works
+
+```text
+BLE device ⇄ ESP32 Bluetooth Proxy ⇄ Wi-Fi/Ethernet ⇄ Home Assistant
+```
+
+- **Passive advertisements** are small broadcasts from devices such as sensors.
+  They need no persistent connection and do not consume an active slot.
+- **Active GATT connections** let Home Assistant read or write through a real
+  connection. Each simultaneous connection consumes a `connection_slots` slot
+  and ESP32 memory.
+- Multiple proxies may hear the same advertisement. Home Assistant aggregates
+  them and can select the best path.
+
+## When a proxy helps
+
+Use one when:
+
+- a USB adapter cannot be placed near the devices;
+- signals must cross floors or thick walls;
+- VM USB passthrough is unreliable;
+- you need several geographic receiving points;
+- BLE devices become unavailable because of range.
+
+It cannot help when a device uses classic Bluetooth, requires an unsupported
+proprietary gateway or speaks a protocol ESPHome/Home Assistant cannot decode.
+
+## Choose Wi-Fi, Ethernet or PoE
+
+| Connection | Advantage | Trade-off |
+|---|---|---|
+| Wi-Fi | Inexpensive and easy to place | Wi-Fi and BLE share the 2.4 GHz radio |
+| Ethernet | Stable network path with less radio contention | Requires cabling and a compatible board |
+| PoE | One cable for power and network | More expensive hardware and correct PoE equipment |
+
+A regular Wi-Fi ESP32 is often enough for passive temperature sensors. Ethernet
+or PoE can be more stable for several active locks, thermostats or persistent
+GATT links. An external antenna only helps when antenna, placement and
+configuration are correct.
+
+## Fast path: ready-made ESPHome project
+
+ESPHome provides an official ready-made Bluetooth Proxy installer using
+WebSerial in a supported Chromium browser.
+
+<Steps>
+1. Connect the ESP32 with a data-capable USB cable.
+2. Open ESPHome's official **Ready-Made Projects** page.
+3. Choose **Bluetooth proxy** and the exact board.
+4. Flash it and provide Wi-Fi credentials.
+5. Open Home Assistant and accept the discovered ESPHome device.
+6. Name it by location, for example `bt-proxy-living-room`.
+</Steps>
+
+Never select a “nearly identical” Ethernet board. Wrong PHY and pin settings
+can prevent networking from starting.
+
+## Manual ESPHome YAML for Wi-Fi
+
+This minimal configuration uses ESP-IDF and stores credentials in
+`secrets.yaml`:
+
+```yaml title="bt-proxy-living-room.yaml"
+substitutions:
+  name: bt-proxy-living-room
+  friendly_name: Bluetooth Proxy Living Room
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+
+esp32:
+  board: esp32dev
+  framework:
+    type: esp-idf
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+logger:
+
+api:
+  encryption:
+    key: !secret api_encryption_key
+
+ota:
+  - platform: esphome
+    password: !secret ota_password
+
+esp32_ble_tracker:
+
+bluetooth_proxy:
+  active: true
+  cache_services: true
+  connection_slots: 3
+```
+
+Confirm the board ID in ESPHome documentation. `active: true` enables active
+connections while passive scanning also remains available. Official defaults
+can change between ESPHome releases, so explicit values document this guide's
+choices.
+
+## Adopt and verify in Home Assistant
+
+After flashing:
+
+1. Confirm ESPHome logs show stable Wi-Fi/Ethernet, API and BLE tracker states.
+2. Accept the discovered ESPHome integration in Home Assistant.
+3. Open **Settings → Devices & services → Bluetooth** and inspect adapters and
+   diagnostics.
+4. Place one known supported BLE sensor near the proxy.
+5. Confirm advertisements appear and its integration updates.
+6. Test an active command when the device requires GATT.
+
+RSSI alone does not prove active control. Verify discovery, state updates and a
+real command where applicable.
+
+## Active connections and connection_slots
+
+`connection_slots` limits simultaneous active GATT connections, not passive
+sensor count.
+
+- A persistent device can hold one slot continuously.
+- A periodic sensor releases its slot after disconnecting.
+- More slots consume more RAM; official documentation generally recommends no
+  more than five and uses a lower default.
+- Ethernet proxies can often handle another slot because networking does not
+  share the Wi-Fi radio, but the memory limit still applies.
+
+Do not increase slots to solve poor range. Identify persistent connections and
+consider multiple well-placed proxies instead.
+
+## Placement and multiple proxies
+
+- Place the proxy near BLE devices, not necessarily near Home Assistant.
+- Avoid racks, routers, switches, USB 3 noise, metal and noisy power supplies.
+- ESPHome recommends good separation from network equipment; roughly three
+  metres is a useful test baseline where the room permits it.
+- Name proxies by location and identify which one sees each device best.
+- Add one proxy at a time and measure stability.
+
+Ethernet/PoE with an external antenna may help difficult locations, but correct
+placement matters more than deploying the largest number of nodes.
+
+## Safe framework and partition migration
+
+ESP-IDF is recommended for Bluetooth Proxy. Very old devices or a switch from
+Arduino may involve a different partition table, and ordinary OTA does not
+always replace it.
+
+Before migration:
+
+1. Save the working YAML and secret names.
+2. Ensure physical access and a data cable.
+3. Confirm exact board and flash method in ESPHome documentation.
+4. Use serial flashing when the documented partition migration requires it.
+5. Verify API, OTA and BLE after reboot.
+
+Do not start a risky framework migration on an inaccessible device without a
+physical recovery plan.
+
+## Resource conflicts
+
+Bluetooth scanning and active links consume RAM and radio time. Stability can
+drop when the same ESP32 also hosts:
+
+- web server;
+- voice assistant or other audio components;
+- many BLE clients;
+- excessive connection slots;
+- heavy logging or displays.
+
+On resets, reduce the device to the official minimal configuration, then add
+one feature at a time.
+
+## Troubleshooting
+
+### No BLE devices are discovered
+
+Check `esp32_ble_tracker`, API connectivity, distance, power supply and whether
+the target actually broadcasts BLE advertisements. Confirm Home Assistant lists
+the proxy as a Bluetooth adapter.
+
+### The device is visible but cannot be controlled
+
+Passive reception works, but active GATT may not. Check integration support,
+free slots, RSSI and whether another device holds connections open.
+
+### The proxy loses Wi-Fi
+
+Wi-Fi and BLE share a radio. Return to default scan parameters, improve Wi-Fi,
+remove web server/heavy components or test Ethernet.
+
+### Resets and memory errors
+
+Use ESP-IDF, reduce slots, remove web/audio features and verify the partition
+table. Preserve the boot log: watchdog, brownout and out-of-memory failures are
+different root causes.
+
+### Home Assistant selects a poor path
+
+Inspect Bluetooth diagnostics and RSSI over time. Move the proxy, remove
+interference and verify every proxy has a stable API connection.
+
+<CardGrid>
+  <Card title="ESPHome basics" icon="rocket">
+    Start with [ESP32 and ESPHome](/en/esp32/kom-godt-i-gang/).
+  </Card>
+  <Card title="Presence" icon="setting">
+    Continue with the [LD2410 mmWave guide](/en/esp32/ld2410-mmwave/).
+  </Card>
+</CardGrid>
+
+## Official sources
+
+- [ESPHome Bluetooth Proxy](https://esphome.io/components/bluetooth_proxy/)
+- [ESPHome Ready-Made Projects](https://esphome.io/projects/)
+- [ESP32 BLE Tracker](https://esphome.io/components/esp32_ble_tracker/)
+- [Bluetooth in Home Assistant](https://www.home-assistant.io/integrations/bluetooth/)
+
