@@ -60,10 +60,15 @@ test("homepage keeps a single main landmark and a visible skip-link target", asy
 });
 
 test("homepage hero uses factual bilingual defaults without duplicate statistics", async () => {
-  const hero = await read("src/components/CustomHero.astro");
+  const [hero, head] = await Promise.all([
+    read("src/components/CustomHero.astro"),
+    read("src/components/Head.astro"),
+  ]);
   assert.match(hero, /Independent, practical guides/);
   assert.match(hero, /Uafhængige, praktiske guides/);
   assert.doesNotMatch(hero, /home-hero__stats|100%|0 Cloud|every week|hver uge/i);
+  assert.doesNotMatch(head, /images\/hero\/front\.webp/);
+  assert.doesNotMatch(head, /rel="preload"\s+as="image"/);
 });
 
 test("homepage hero has a complete responsive AVIF and WebP image family", () => {

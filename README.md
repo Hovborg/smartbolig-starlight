@@ -103,10 +103,17 @@ journalctl --user -u smartbolig-ai-news.service -e      # se logs
 
 ## 🧭 Portalstruktur
 
-- Dansk og engelsk forside med fem tydelige indgange
+- Dansk og engelsk forside med en billedbåret smart-home hero og fem tydelige indgange
 - Guidet startrute på `/da/start/` og `/en/start/`
-- Automatisk visning af de tre seneste AI-nyheder på forsiden
+- Tidlig editorial rail med de tre seneste AI-nyheder, valgt read-only fra content collection
 - Pagefind-søgning på tværs af guides og nyheder
+
+Hero-masteren ligger under `src/assets/homepage/`. Generér de seks responsive
+AVIF/WebP-filer efter en ændring af masteren med:
+
+```bash
+npm run images:home
+```
 
 Aktuelle guideforløb omfatter blandt andet:
 
