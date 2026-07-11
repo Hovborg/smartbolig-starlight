@@ -1,48 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-SITE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REPO="${OPENCLAW_SMARTBOLIG_AI_NEWS_REPO:-Hovborg/smartbolig-starlight}"
 WORKDIR="${OPENCLAW_SMARTBOLIG_AI_NEWS_WORKDIR:-${HOME}/.openclaw/workspaces/smartbolig-starlight-ai-news}"
 DATE="${AI_NEWS_DATE:-$(TZ=Europe/Copenhagen date +%F)}"
 BRANCH="${OPENCLAW_SMARTBOLIG_AI_NEWS_BRANCH:-ai-news/${DATE}-openclaw}"
 DRY_RUN="${OPENCLAW_SMARTBOLIG_AI_NEWS_DRY_RUN:-0}"
-
-SYNC_ITEMS=(
-  ".github/workflows/ai-news.yml"
-  "package.json"
-  "package-lock.json"
-  "scripts/ai-news-cron.test.mjs"
-  "scripts/ai-news-pending-images.mjs"
-  "scripts/ai-news-pending-images.test.mjs"
-  "scripts/ai-news-post.test.mjs"
-  "scripts/ai-news-public-copy.test.mjs"
-  "scripts/ai-news-comfyui-client.mjs"
-  "scripts/ai-news-comfyui-workflow.json"
-  "scripts/ai-news-publish.mjs"
-  "scripts/ai-news-render-image.mjs"
-  "scripts/ai-news-source-health.mjs"
-  "scripts/ai-news-sources.mjs"
-  "scripts/ai-news-validate.mjs"
-  "scripts/install-openclaw-ai-news-cron.sh"
-  "scripts/openclaw-ai-news-daily.sh"
-  "scripts/seo-validate.mjs"
-  "src/components/AiNewsFeed.astro"
-  "src/components/Head.astro"
-  "src/components/MarkdownContent.astro"
-  "src/content.config.ts"
-  "src/content/docs/da/ai/nyheder"
-  "src/content/docs/en/ai/nyheder"
-  "src/pages/da/ai/nyheder/rss.xml.js"
-  "src/pages/en/ai/news/rss.xml.js"
-  "src/pages/en/ai/nyheder/rss.xml.js"
-  "public/images/ai-news"
-  "public/images/ai-news-og.png"
-  "public/images/ai-news-og-16x9.png"
-  "public/images/ai-news-og-4x3.png"
-  "public/images/ai-news-og-1x1.png"
-  "public/images/ai-news-og.svg"
-)
 
 if [[ "${1:-}" == "--dry-run" ]]; then
   DRY_RUN="1"
@@ -103,35 +66,6 @@ sync_site_to_workdir() {
   git switch main >/dev/null
   git reset --hard origin/main >/dev/null
   git switch -C "${BRANCH}" >/dev/null
-
-  for item in "${SYNC_ITEMS[@]}"; do
-    if [[ -d "${SITE_ROOT}/${item}" ]]; then
-      mkdir -p "${WORKDIR}/${item}"
-      case "${item}" in
-        "src/content/docs/da/ai/nyheder"|"src/content/docs/en/ai/nyheder"|"public/images/ai-news")
-          # Append-only content dirs: never remove articles or images already merged on main.
-          rsync -rlt --no-perms "${SITE_ROOT}/${item}/" "${WORKDIR}/${item}/"
-          ;;
-        *)
-          rsync -rlt --delete --no-perms "${SITE_ROOT}/${item}/" "${WORKDIR}/${item}/"
-          ;;
-      esac
-    elif [[ -f "${SITE_ROOT}/${item}" ]]; then
-      mkdir -p "$(dirname "${WORKDIR}/${item}")"
-      rsync -lt --no-perms "${SITE_ROOT}/${item}" "${WORKDIR}/${item}"
-    else
-      echo "Skipping missing sync item: ${item}" >&2
-    fi
-  done
-
-  for item in "${SYNC_ITEMS[@]}"; do
-    if [[ -d "${WORKDIR}/${item}" ]]; then
-      find "${WORKDIR}/${item}" -type f -exec chmod 0644 {} +
-    elif [[ -f "${WORKDIR}/${item}" ]]; then
-      chmod 0644 "${WORKDIR}/${item}"
-    fi
-  done
-  chmod 0755 scripts/openclaw-ai-news-daily.sh
 }
 
 pending_dates() {
@@ -191,7 +125,6 @@ main() {
   require_cmd git
   require_cmd node
   require_cmd npm
-  require_cmd rsync
 
   if ! gh auth status >/dev/null 2>&1; then
     echo "GitHub CLI is not authenticated; cannot create AI News PR." >&2
@@ -199,7 +132,7 @@ main() {
   fi
 
   echo "SmartBolig AI News automation started for ${DATE}."
-  echo "Source: ${SITE_ROOT}"
+  echo "Source: origin/main from ${REPO}"
   echo "Workdir: ${WORKDIR}"
 
   sync_site_to_workdir

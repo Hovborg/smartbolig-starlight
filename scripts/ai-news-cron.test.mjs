@@ -63,3 +63,12 @@ process.exit(2);
     await rm(tmp, { recursive: true, force: true });
   }
 });
+
+test('daily AI News starts from origin/main without overlaying stale site files', async () => {
+  const runner = await readFile(path.join(rootDir, 'scripts/openclaw-ai-news-daily.sh'), 'utf8');
+
+  assert.match(runner, /git reset --hard origin\/main/);
+  assert.doesNotMatch(runner, /SYNC_ITEMS=/);
+  assert.doesNotMatch(runner, /rsync .*SITE_ROOT/);
+  assert.doesNotMatch(runner, /for item in "\$\{SYNC_ITEMS\[@\]\}"/);
+});
