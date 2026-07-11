@@ -20,5 +20,8 @@ pnpm-debug.log*
 # local agent/editor config
 .claude/
 
+# Daily AI News machine-readable handoff (runtime only)
+.ai-news-result.json
+
 # macOS-specific files
 .DS_Store

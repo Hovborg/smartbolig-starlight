@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
@@ -98,6 +98,35 @@ test('AI News copy is broad AI coverage, not only CLI release notes', async () =
     assert.match(stdout, /AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed/);
     assert.doesNotMatch(stdout, /Fokus er release notes, CLI-agent ændringer og API-ændringer/);
     assert.doesNotMatch(stdout, /AI CLI'er, coding agents, API-brug, priser eller sikkerhed/);
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
+
+test('a weak day writes an atomic machine-readable skip result', async () => {
+  const tmp = await mkdtemp(path.join(tmpdir(), 'smartbolig-ai-news-skip-'));
+  const fixture = path.join(tmp, 'feed.atom');
+  const resultPath = path.join(tmp, '.ai-news-result.json');
+  await writeFile(fixture, `<?xml version="1.0"?><feed><entry><title>Release v0.0.1</title><link href="https://example.com/release-v0.0.1"/><updated>2026-04-19T06:00:00Z</updated><summary>Minor patch.</summary></entry></feed>`);
+
+  try {
+    const { stdout } = await execFileAsync(process.execPath, [
+      'scripts/ai-news-publish.mjs',
+      '--date', '2026-04-19',
+      '--fixture', fixture,
+      '--min-score', '999',
+    ], {
+      cwd: rootDir,
+      env: { ...process.env, AI_NEWS_RESULT_PATH: resultPath },
+    });
+    const result = JSON.parse(await readFile(resultPath, 'utf8'));
+    assert.match(stdout, /AI_NEWS_STATUS=skip/);
+    assert.deepEqual(result, {
+      status: 'skip',
+      date: '2026-04-19',
+      reason: 'No novel candidate met the editorial score threshold.',
+      files: [],
+    });
   } finally {
     await rm(tmp, { recursive: true, force: true });
   }

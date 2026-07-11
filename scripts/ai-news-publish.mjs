@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { existsSync } from 'node:fs';
-import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { FEEDS, HIGH_SIGNAL_KEYWORDS, OFFICIAL_SOURCE_URLS } from './ai-news-sources.mjs';
@@ -51,6 +51,18 @@ const fixturePaths = String(args.get('--fixture') || '')
   .split(',')
   .map((value) => value.trim())
   .filter(Boolean);
+const resultPath = process.env.AI_NEWS_RESULT_PATH
+  || (writeFiles ? path.join(rootDir, '.ai-news-result.json') : '');
+
+async function writeResult(result) {
+  if (resultPath) {
+    await mkdir(path.dirname(resultPath), { recursive: true });
+    const temporaryPath = `${resultPath}.${process.pid}.tmp`;
+    await writeFile(temporaryPath, `${JSON.stringify(result, null, 2)}\n`, 'utf8');
+    await rename(temporaryPath, resultPath);
+  }
+  console.log(`AI_NEWS_STATUS=${result.status}${result.reason ? ` reason=${result.reason}` : ''}`);
+}
 
 function scoreItem(item) {
   const haystack = `${item.source.name} ${item.title} ${item.summary}`.toLowerCase();
@@ -265,12 +277,17 @@ async function main() {
   const weakSignal = selected.length < 2;
 
   if (editorial.status !== 'publish') {
-    console.log(`No AI News draft written for ${targetDate}: ${editorial.reason}.`);
+    await writeResult({ status: 'skip', date: targetDate, reason: editorial.reason, files: [] });
     process.exit(0);
   }
 
   if (weakSignal && !allowWeakSignal) {
-    console.log(`No AI News draft written for ${targetDate}: ${editorial.reason || `only ${selected.length} publishable item(s)`}.`);
+    await writeResult({
+      status: 'skip',
+      date: targetDate,
+      reason: `Only ${selected.length} publishable item(s) passed; at least 2 are required.`,
+      files: [],
+    });
     process.exit(0);
   }
 
@@ -301,6 +318,12 @@ async function main() {
     const rel = path.relative(rootDir, result.path);
     console.log(`${result.changed ? 'wrote' : 'kept'} ${rel}${result.reason ? ` (${result.reason})` : ''}`);
   }
+  await writeResult({
+    status: 'publish',
+    date: targetDate,
+    reason: 'Editorial package accepted.',
+    files: writes.filter((result) => result.changed).map((result) => path.relative(rootDir, result.path)),
+  });
 }
 
 main().catch((error) => {
