@@ -1,7 +1,7 @@
 # SmartBolig homepage and AI editorial redesign
 
 **Date:** 2026-07-11  
-**Status:** Approved direction; written-spec review pending  
+**Status:** Approved by user on 2026-07-11
 **Repository:** `Hovborg/smartbolig-starlight`  
 **Base:** `main` at `bfe6256` after AI News source-of-truth repair (PR #87)
 
