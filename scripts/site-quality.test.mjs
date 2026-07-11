@@ -17,16 +17,11 @@ test("content audit understands Node-RED snippets and fails on real issues", asy
   assert.match(source, /return 1 if total else 0/);
 });
 
-test("daily news automation keeps append-only content and image boundaries", async () => {
+test("daily news automation cannot overlay origin/main with a stale local site", async () => {
   const source = await read("scripts/openclaw-ai-news-daily.sh");
-  for (const path of [
-    "src/content/docs/da/ai/nyheder",
-    "src/content/docs/en/ai/nyheder",
-    "public/images/ai-news",
-  ]) {
-    assert.ok(source.includes(path), `missing protected path: ${path}`);
-  }
-  assert.ok(source.includes("Append-only content dirs"));
+  assert.match(source, /git reset --hard origin\/main/);
+  assert.doesNotMatch(source, /SYNC_ITEMS=/);
+  assert.doesNotMatch(source, /rsync .*SITE_ROOT/);
 });
 
 test("homepages use the shared portal and avoid unsupported claims", async () => {
