@@ -37,7 +37,7 @@ Add a test with this route matrix:
 ```js
 const guidePairs = [
   ["src/content/docs/da/home-assistant/thread-matter.mdx", "src/content/docs/en/home-assistant/thread-matter.mdx"],
-  ["src/content/docs/da/home-assistant/lokal-stemmestyring-assist.mdx", "src/content/docs/en/home-assistant/local-voice-assist.mdx"],
+    ["src/content/docs/da/home-assistant/local-voice-assist.mdx", "src/content/docs/en/home-assistant/local-voice-assist.mdx"],
   ["src/content/docs/da/esp32/bluetooth-proxy.mdx", "src/content/docs/en/esp32/bluetooth-proxy.mdx"],
   ["src/content/docs/da/home-assistant/energy-dashboard.mdx", "src/content/docs/en/home-assistant/energy-dashboard.mdx"],
 ];
@@ -101,7 +101,7 @@ git commit -m "docs: update Matter and Thread guide for 2026"
 ### Task 3: Add the fully local Assist guide pair
 
 **Files:**
-- Create: `src/content/docs/da/home-assistant/lokal-stemmestyring-assist.mdx`
+- Create: `src/content/docs/da/home-assistant/local-voice-assist.mdx`
 - Create: `src/content/docs/en/home-assistant/local-voice-assist.mdx`
 - Test: `scripts/site-quality.test.mjs`
 
@@ -126,7 +126,7 @@ Expose only necessary entities, use areas/aliases, avoid exposing locks or secur
 Run `npm run site:test` and `python3 scripts/content-audit.py`, then:
 
 ```bash
-git add src/content/docs/da/home-assistant/lokal-stemmestyring-assist.mdx src/content/docs/en/home-assistant/local-voice-assist.mdx
+git add src/content/docs/da/home-assistant/local-voice-assist.mdx src/content/docs/en/home-assistant/local-voice-assist.mdx
 git commit -m "docs: add fully local Assist guides"
 ```
 

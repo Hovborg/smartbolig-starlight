@@ -135,7 +135,7 @@ test("start-page actions use locale-correct canonical routes", async () => {
 test("four-guide series stays bilingual, complete and globally scoped", async () => {
   const guidePairs = [
     ["src/content/docs/da/home-assistant/thread-matter.mdx", "src/content/docs/en/home-assistant/thread-matter.mdx"],
-    ["src/content/docs/da/home-assistant/lokal-stemmestyring-assist.mdx", "src/content/docs/en/home-assistant/local-voice-assist.mdx"],
+    ["src/content/docs/da/home-assistant/local-voice-assist.mdx", "src/content/docs/en/home-assistant/local-voice-assist.mdx"],
     ["src/content/docs/da/esp32/bluetooth-proxy.mdx", "src/content/docs/en/esp32/bluetooth-proxy.mdx"],
     ["src/content/docs/da/home-assistant/energy-dashboard.mdx", "src/content/docs/en/home-assistant/energy-dashboard.mdx"],
   ];
@@ -152,7 +152,6 @@ test("four-guide series stays bilingual, complete and globally scoped", async ()
 
   const config = await read("astro.config.mjs");
   for (const route of [
-    "/home-assistant/lokal-stemmestyring-assist/",
     "/home-assistant/local-voice-assist/",
     "/esp32/bluetooth-proxy/",
     "/home-assistant/energy-dashboard/",
@@ -161,7 +160,7 @@ test("four-guide series stays bilingual, complete and globally scoped", async ()
   }
 
   for (const source of sources.slice(0, 2)) {
-    for (const term of ["matter.js", "Matter 1.5.1", "Thread 1.4", /migrat/i, /visuali/i, /commission/i, /troubleshoot|fejlfinding/i]) {
+    for (const term of ["matter.js", /Matter\s+1\.5\.1/, /Thread\s+1\.4/, /migrat/i, /visuali/i, /commission/i, /troubleshoot|fejlfinding/i]) {
       assert.match(source, term instanceof RegExp ? term : new RegExp(term.replace(".", "\\.")));
     }
   }

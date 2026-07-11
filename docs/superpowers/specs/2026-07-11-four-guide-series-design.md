@@ -70,7 +70,7 @@ current guide. Preserve their canonical URLs.
 
 ### New routes
 
-- `/da/home-assistant/lokal-stemmestyring-assist/`
+- `/da/home-assistant/local-voice-assist/`
 - `/en/home-assistant/local-voice-assist/`
 
 ### Required coverage

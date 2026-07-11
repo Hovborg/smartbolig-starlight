@@ -140,6 +140,15 @@ export default defineConfig({
                   label: "Better Thermostat",
                   link: "/home-assistant/better-thermostat/",
                 },
+                {
+                  label: "Lokal stemmestyring",
+                  translations: { en: "Local Voice Assist" },
+                  link: "/home-assistant/local-voice-assist/",
+                },
+                {
+                  label: "Energy Dashboard",
+                  link: "/home-assistant/energy-dashboard/",
+                },
               ],
             },
             // Protokoller gruppe
@@ -303,6 +312,10 @@ export default defineConfig({
                   label: "ESPHome Avanceret",
                   translations: { en: "ESPHome Advanced" },
                   link: "/esp32/esphome-avanceret/",
+                },
+                {
+                  label: "Bluetooth Proxy",
+                  link: "/esp32/bluetooth-proxy/",
                 },
               ],
             },
