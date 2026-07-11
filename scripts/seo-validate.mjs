@@ -103,38 +103,6 @@ async function main() {
     ],
   });
 
-  await validatePage(issues, path.join(distDir, 'da/start/index.html'), {
-    required: [
-      { needle: '<link rel="canonical" href="https://smartbolig.net/da/start/"', label: 'Danish start canonical URL' },
-      { needle: '<link rel="alternate" hreflang="da" href="https://smartbolig.net/da/start/"', label: 'Danish start hreflang self' },
-      { needle: '<link rel="alternate" hreflang="en" href="https://smartbolig.net/en/start/"', label: 'Danish start English alternate' },
-      { needle: '<meta property="og:locale" content="da_DK"', label: 'Danish start Open Graph locale' },
-      { needle: '"@type":"WebPage"', label: 'Danish start WebPage JSON-LD' },
-      { needle: '"name":"Start her"', label: 'Danish start breadcrumb label' },
-    ],
-    forbidden: [
-      { needle: 'noindex', label: 'Danish start noindex directive' },
-      { needle: '"@type":"TechArticle"', label: 'TechArticle on Danish start page' },
-      { needle: 'https://smartbolig.net/da/start/#article', label: 'Danish start article schema' },
-    ],
-  });
-
-  await validatePage(issues, path.join(distDir, 'en/start/index.html'), {
-    required: [
-      { needle: '<link rel="canonical" href="https://smartbolig.net/en/start/"', label: 'English start canonical URL' },
-      { needle: '<link rel="alternate" hreflang="da" href="https://smartbolig.net/da/start/"', label: 'English start Danish alternate' },
-      { needle: '<link rel="alternate" hreflang="en" href="https://smartbolig.net/en/start/"', label: 'English start hreflang self' },
-      { needle: '<meta property="og:locale" content="en_US"', label: 'English start Open Graph locale' },
-      { needle: '"@type":"WebPage"', label: 'English start WebPage JSON-LD' },
-      { needle: '"name":"Start here"', label: 'English start breadcrumb label' },
-    ],
-    forbidden: [
-      { needle: 'noindex', label: 'English start noindex directive' },
-      { needle: '"@type":"TechArticle"', label: 'TechArticle on English start page' },
-      { needle: 'https://smartbolig.net/en/start/#article', label: 'English start article schema' },
-    ],
-  });
-
   for (const imagePath of aiNewsImages) {
     if (!existsSync(path.join(rootDir, imagePath))) fail(issues, path.join(rootDir, imagePath), 'missing AI News SEO image');
   }
@@ -331,8 +299,6 @@ async function main() {
     const sitemap = await readFile(sitemapPath, 'utf8');
     requireText(issues, sitemapPath, sitemap, `https://smartbolig.net/da/ai/nyheder/${latest}/`, 'Danish AI News article in sitemap');
     requireText(issues, sitemapPath, sitemap, `https://smartbolig.net/en/ai/nyheder/${latest}/`, 'English AI News article in sitemap');
-    requireText(issues, sitemapPath, sitemap, 'https://smartbolig.net/da/start/', 'Danish start page in sitemap');
-    requireText(issues, sitemapPath, sitemap, 'https://smartbolig.net/en/start/', 'English start page in sitemap');
   } else if (!existsSync(sitemapPath)) {
     fail(issues, sitemapPath, 'missing sitemap');
   }

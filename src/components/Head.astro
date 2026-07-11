@@ -57,13 +57,12 @@ const isAiNewsPage = /^\/(?:da|en)\/ai\/nyheder(?:\/|$)/.test(pathname);
 const isAiNewsArticle = /^\/(?:da|en)\/ai\/nyheder\/\d{4}-\d{2}-\d{2}\/?$/.test(pathname);
 const isAiNewsIndex = /^\/(?:da|en)\/ai\/nyheder\/?$/.test(pathname);
 const isHomePage = /^\/(?:da|en)\/?$/.test(pathname);
-const isStartPage = /^\/(?:da|en)\/start\/?$/.test(pathname);
 const isContactPage = /^\/(?:da|en)\/kontakt\/?$/.test(pathname);
 const isAboutPage = /^\/(?:da|en)\/om-os\/?$/.test(pathname);
 const isLegalPage = /^\/(?:da|en)\/(?:juridisk|kontakt|om-os)(?:\/|$)/.test(pathname);
 const isSectionIndex = /^\/(?:da|en)\/(?:ai|automationer|esp32|home-assistant|juridisk|produkter|sikkerhed)\/?$/.test(pathname)
   || /^\/(?:da|en)\/ai\/ai-cli\/?$/.test(pathname);
-const shouldRenderArticleSchema = Boolean(entry?.data && !isHomePage && !isStartPage && !isSectionIndex && !isLegalPage && !isAiNewsIndex && !isNotFoundPage);
+const shouldRenderArticleSchema = Boolean(entry?.data && !isHomePage && !isSectionIndex && !isLegalPage && !isAiNewsIndex && !isNotFoundPage);
 const newsSources = Array.isArray(entry?.data?.news?.sources) ? entry.data.news.sources : [];
 const articleHeroImage = isAiNewsArticle ? entry?.data?.heroImage : null;
 const articleHeroImageSrc = typeof articleHeroImage?.src === "string" ? articleHeroImage.src : null;
@@ -125,7 +124,7 @@ const addLink = (attrs: Record<string, string>) => {
 if (entry?.data || isNotFoundPage) {
   upsertMeta("name", "description", description);
   upsertMeta("property", "og:description", description);
-  upsertMeta("property", "og:type", isHomePage || isStartPage || isAiNewsIndex || isNotFoundPage ? "website" : "article");
+  upsertMeta("property", "og:type", isHomePage || isAiNewsIndex || isNotFoundPage ? "website" : "article");
   upsertMeta("property", "og:locale", openGraphLocale);
   upsertMeta("property", "og:locale:alternate", alternateOpenGraphLocale);
   upsertMeta("property", "og:image:alt", socialImageAlt);
@@ -209,7 +208,6 @@ const breadcrumbLabels: Record<string, Record<string, string>> = {
     juridisk: "Juridisk",
     produkter: "Produkter",
     sikkerhed: "Sikkerhed",
-    start: "Start her",
     kontakt: "Kontakt",
     "om-os": "Om SmartBolig.net",
   },
@@ -223,7 +221,6 @@ const breadcrumbLabels: Record<string, Record<string, string>> = {
     juridisk: "Legal",
     produkter: "Products",
     sikkerhed: "Security",
-    start: "Start here",
     kontakt: "Contact",
     "om-os": "About SmartBolig.net",
   },
@@ -242,9 +239,7 @@ const breadcrumbItems = [
   ...localizedPathParts.map((part, index) => {
     const path = `/${[lang, ...localizedPathParts.slice(0, index + 1)].join("/")}/`;
     const isLast = index === localizedPathParts.length - 1;
-    const name = isLast
-      ? isStartPage ? breadcrumbLabels[lang]?.start || title : title
-      : formatBreadcrumbPart(part);
+    const name = isLast ? title : formatBreadcrumbPart(part);
 
     return {
       "@type": "ListItem",
