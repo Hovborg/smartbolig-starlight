@@ -4,7 +4,8 @@ import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { FEEDS, HIGH_SIGNAL_KEYWORDS, OFFICIAL_SOURCE_URLS } from './ai-news-sources.mjs';
-import { fetchCandidates, parseFeed } from './lib/ai-news-discovery.mjs';
+import { canonicalizeUrl, fetchCandidates, parseFeed } from './lib/ai-news-discovery.mjs';
+import { selectEditorialPackage } from './lib/ai-news-editorial.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const docsDir = path.join(rootDir, 'src/content/docs');
@@ -519,7 +520,7 @@ async function fetchItems() {
   return { items, failedFeeds };
 }
 
-function selectItems(items) {
+function scoreCandidates(items) {
   const { start, end } = dateWindow(targetDate, lookbackDays);
   const byUrl = new Map();
 
@@ -533,30 +534,50 @@ function selectItems(items) {
     if (!existing || existing.score < score) byUrl.set(item.url, scored);
   }
 
-  const selected = [];
-  const sourceCounts = new Map();
-
-  const candidates = [...byUrl.values()]
-    .filter((item) => item.score >= minScore)
-    .sort((a, b) => {
-      if (b.score !== a.score) return b.score - a.score;
-      return b.published - a.published;
-    });
+  const candidates = [...byUrl.values()].sort((a, b) => {
+    if (b.score !== a.score) return b.score - a.score;
+    return b.published - a.published;
+  });
   const productSourceIds = new Set(['openai-news', 'google-ai']);
-  const orderedCandidates = [
+  return [
     ...candidates.filter((item) => productSourceIds.has(item.source.id)),
     ...candidates.filter((item) => !productSourceIds.has(item.source.id)),
   ];
+}
 
-  for (const item of orderedCandidates) {
-    const sourceCount = sourceCounts.get(item.source.id) || 0;
-    if (sourceCount >= maxPerSource) continue;
-    selected.push(item);
-    sourceCounts.set(item.source.id, sourceCount + 1);
-    if (selected.length >= maxItems) break;
+function parseYamlString(value) {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value.replace(/^['"]|['"]$/g, '');
   }
+}
 
-  return selected;
+async function loadRecentHistory(days = 14) {
+  if (!existsSync(daNewsDir)) return [];
+  const { start, end } = dateWindow(targetDate, days);
+  const names = await readdir(daNewsDir);
+  const history = [];
+
+  for (const name of names) {
+    const match = name.match(/^(\d{4}-\d{2}-\d{2})\.mdx$/);
+    if (!match || match[1] === targetDate) continue;
+    const date = new Date(`${match[1]}T12:00:00Z`);
+    if (date < start || date > end) continue;
+    const content = await readFile(path.join(daNewsDir, name), 'utf8');
+    const frontmatter = content.match(/^---\s*\n([\s\S]*?)\n---/)?.[1] || '';
+    const titleRaw = frontmatter.match(/^title:\s*(.+)$/m)?.[1] || '';
+    const title = parseYamlString(titleRaw);
+    const storyFingerprint = frontmatter.match(/^\s*storyFingerprint:\s*['"]?([a-f0-9]{64})/m)?.[1];
+    const sourceSetFingerprint = frontmatter.match(/^\s*sourceSetFingerprint:\s*['"]?([a-f0-9]{64})/m)?.[1];
+    const canonicalUrls = [...frontmatter.matchAll(/^\s*-\s*["']?(https?:\/\/[^\s"']+)/gm)]
+      .map((sourceMatch) => canonicalizeUrl(sourceMatch[1]))
+      .filter(Boolean);
+    for (const canonicalUrl of canonicalUrls.length > 0 ? canonicalUrls : ['']) {
+      history.push({ title, canonicalUrl, storyFingerprint, sourceSetFingerprint, date: match[1] });
+    }
+  }
+  return history;
 }
 
 async function listEntries() {
@@ -592,11 +613,19 @@ async function main() {
     process.exit(1);
   }
 
-  const selected = selectItems(rawItems);
+  const candidates = scoreCandidates(rawItems);
+  const history = await loadRecentHistory();
+  const editorial = selectEditorialPackage(candidates, history, {
+    minScore,
+    maxItems,
+    maxPerSource,
+    duplicateThreshold: 0.72,
+  });
+  const selected = editorial.status === 'publish' ? editorial.items : [];
   const weakSignal = selected.length < 2;
 
   if (weakSignal && !allowWeakSignal) {
-    console.log(`No AI News draft written. Only ${selected.length} publishable item(s) found for ${targetDate}.`);
+    console.log(`No AI News draft written for ${targetDate}: ${editorial.reason || `only ${selected.length} publishable item(s)`}.`);
     process.exit(0);
   }
 
