@@ -44,8 +44,10 @@ test('AI News draft renders as a blog-style article with a narrative lead and so
 
     assert.match(stdout, /OpenAI Codex 9\.9\.9 improves review workflows/);
     assert.match(stdout, /heroImage:\n  src: "\/images\/ai-news\/2026-04-19\.png"/);
-    assert.match(stdout, /alt: "SmartBolig-hardwarevisual/);
-    assert.match(stdout, /caption: "SmartBolig-hardware/);
+    assert.match(stdout, /alt: "Redaktionelt AI-nyhedsbillede/);
+    assert.match(stdout, /caption: "Redaktionelt AI-nyhedsbillede/);
+    assert.match(stdout, /editorialVersion: 2/);
+    assert.match(stdout, /storyFingerprint: "[a-f0-9]{64}"/);
     assert.match(stdout, /<p class="ai-news-byline">/);
     assert.match(stdout, /## Hovedhistorien/);
     assert.match(stdout, /## Hvorfor det betyder noget/);
