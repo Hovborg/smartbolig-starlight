@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { selectLatestNews } from "../src/lib/home-news.ts";
@@ -63,6 +64,15 @@ test("homepage hero uses factual bilingual defaults without duplicate statistics
   assert.match(hero, /Independent, practical guides/);
   assert.match(hero, /Uafhængige, praktiske guides/);
   assert.doesNotMatch(hero, /home-hero__stats|100%|0 Cloud|every week|hver uge/i);
+});
+
+test("homepage hero has a complete responsive AVIF and WebP image family", () => {
+  for (const width of [640, 960, 1440]) {
+    for (const format of ["avif", "webp"]) {
+      const asset = `public/images/hero/smart-home-editorial-${width}.${format}`;
+      assert.ok(existsSync(new URL(`../${asset}`, import.meta.url)), `missing hero asset: ${asset}`);
+    }
+  }
 });
 
 test("latest-news heading keeps its eyebrow in normal layout flow", async () => {
