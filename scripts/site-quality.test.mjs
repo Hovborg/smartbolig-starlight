@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
+import { selectLatestNews } from "../src/lib/home-news.ts";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
@@ -81,6 +82,37 @@ test("homepage news selector is read-only, bounded and deterministic", async () 
   assert.match(source, /export function selectLatestNews/);
   assert.match(source, /slice\(0, limit\)/);
   assert.doesNotMatch(source, /writeFile|mkdir|rmSync|unlink|fetch\(/);
+});
+
+test("homepage news selector exposes optional editorial image metadata", () => {
+  const items = selectLatestNews([
+    {
+      id: "da/ai/nyheder/2026-07-11",
+      data: {
+        title: "Concrete story",
+        description: "A source-backed update.",
+        date: "2026-07-11",
+        heroImage: {
+          src: "/images/ai-news/2026-07-11-16x9.webp",
+          alt: "Concrete AI story image",
+        },
+      },
+    },
+    {
+      id: "da/ai/nyheder/2026-07-10",
+      data: {
+        title: "Text-only story",
+        description: "A valid legacy entry.",
+        date: "2026-07-10",
+      },
+    },
+  ], "da");
+
+  assert.deepEqual(items[0].image, {
+    src: "/images/ai-news/2026-07-11-16x9.webp",
+    alt: "Concrete AI story image",
+  });
+  assert.equal(items[1].image, null);
 });
 
 test("homepage news component links to archive and RSS in both locales", async () => {
