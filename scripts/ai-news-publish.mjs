@@ -4,6 +4,7 @@ import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { FEEDS, HIGH_SIGNAL_KEYWORDS, OFFICIAL_SOURCE_URLS } from './ai-news-sources.mjs';
+import { fetchCandidates, parseFeed } from './lib/ai-news-discovery.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const docsDir = path.join(rootDir, 'src/content/docs');
@@ -48,71 +49,6 @@ const fixturePaths = String(args.get('--fixture') || '')
   .split(',')
   .map((value) => value.trim())
   .filter(Boolean);
-
-function decodeEntities(value) {
-  return value
-    .replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, '$1')
-    .replace(/&#x([0-9a-f]+);/gi, (_, hex) => String.fromCodePoint(Number.parseInt(hex, 16)))
-    .replace(/&#([0-9]+);/g, (_, dec) => String.fromCodePoint(Number.parseInt(dec, 10)))
-    .replace(/&amp;/g, '&')
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'")
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>');
-}
-
-function stripHtml(value = '') {
-  return decodeEntities(value)
-    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
-    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function readTag(block, tagName) {
-  const match = block.match(new RegExp(`<${tagName}\\b[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'i'));
-  return match ? stripHtml(match[1]) : '';
-}
-
-function readLink(block) {
-  const textLink = readTag(block, 'link');
-  if (textLink) return textLink;
-  // Prefer rel="alternate" (the article URL); Atom entries may list rel="self"
-  // (the feed URL) first. Links without rel default to alternate per the Atom spec.
-  const linkTags = [...block.matchAll(/<link\b[^>]*>/gi)].map((match) => match[0]);
-  const preferred = linkTags.find((tag) => /rel=["']alternate["']/i.test(tag))
-    || linkTags.find((tag) => !/\brel=/i.test(tag))
-    || linkTags[0];
-  const href = preferred?.match(/href=["']([^"']+)["']/i);
-  return href ? decodeEntities(href[1]) : '';
-}
-
-function neutralizeCdata(xml) {
-  // Entity-escape CDATA contents before splitting the feed into item blocks,
-  // so a literal "</item>" inside CDATA cannot terminate the surrounding
-  // <item> element prematurely (which silently dropped the item).
-  return xml.replace(/<!\[CDATA\[([\s\S]*?)\]\]>/g, (_, inner) =>
-    inner.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'));
-}
-
-function parseFeed(xml, source) {
-  const safeXml = neutralizeCdata(xml);
-  const blocks = safeXml.match(/<item\b[\s\S]*?<\/item>|<entry\b[\s\S]*?<\/entry>/gi) || [];
-  return blocks.map((block) => {
-    const publishedRaw = readTag(block, 'pubDate') || readTag(block, 'published') || readTag(block, 'updated');
-    const published = new Date(publishedRaw);
-    return {
-      source,
-      title: readTag(block, 'title'),
-      url: readLink(block),
-      summary: readTag(block, 'description') || readTag(block, 'summary') || readTag(block, 'content'),
-      published,
-      publishedRaw,
-    };
-  }).filter((item) => item.title && item.url && !Number.isNaN(item.published.getTime()));
-}
 
 function scoreItem(item) {
   const haystack = `${item.source.name} ${item.title} ${item.summary}`.toLowerCase();
@@ -564,27 +500,23 @@ async function fetchItems() {
     return { items: results, failedFeeds: [] };
   }
 
-  const results = [];
   const failedFeeds = [];
-  for (const feed of FEEDS) {
-    try {
-      const response = await fetch(feed.url, {
-        headers: {
-          'User-Agent': 'SmartBolig AI News Bot (+https://smartbolig.net/da/ai/nyheder/)',
-          Accept: 'application/rss+xml, application/atom+xml, text/xml;q=0.9, */*;q=0.5',
-        },
-        // A stalled upstream server must not hang the whole publish pipeline.
-        signal: AbortSignal.timeout(20_000),
-      });
-      if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
-      const xml = await response.text();
-      results.push(...parseFeed(xml, feed));
-    } catch (error) {
+  const { start, end } = dateWindow(targetDate, lookbackDays);
+  const items = await fetchCandidates(FEEDS, fetch, {
+    onFeedError(feed, error) {
       failedFeeds.push(feed);
       console.warn(`Could not fetch ${feed.name}: ${error.message}`);
-    }
-  }
-  return { items: results, failedFeeds };
+    },
+    onArticleError(candidate, error) {
+      console.warn(`Could not deep-read ${candidate.canonicalUrl}: ${error.message}`);
+    },
+    shouldFetchArticle(candidate) {
+      if (candidate.published < start || candidate.published > end) return false;
+      const daysOld = Math.max(0, (end.getTime() - candidate.published.getTime()) / 86_400_000);
+      return scoreItem(candidate) + Math.max(0, 8 - Math.floor(daysOld)) >= minScore;
+    },
+  });
+  return { items, failedFeeds };
 }
 
 function selectItems(items) {
