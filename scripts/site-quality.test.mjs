@@ -185,6 +185,17 @@ test("four-guide series stays bilingual, complete and globally scoped", async ()
   assert.doesNotMatch(englishEnergy, /Energi Data Service|\bDK1\b|\bDK2\b/);
 });
 
+test("Astro renders the guides' GitHub-flavoured Markdown tables", async () => {
+  const [config, packageJson] = await Promise.all([
+    read("astro.config.mjs"),
+    read("package.json"),
+  ]);
+
+  assert.match(config, /import remarkGfm from ["']remark-gfm["']/);
+  assert.match(config, /markdown:\s*\{[\s\S]*remarkPlugins:\s*\[remarkGfm\]/);
+  assert.equal(JSON.parse(packageJson).dependencies["remark-gfm"], "^4.0.1");
+});
+
 test("head metadata treats start pages as pages and preserves AI news schema", async () => {
   const head = await read("src/components/Head.astro");
   assert.match(head, /const isStartPage =/);

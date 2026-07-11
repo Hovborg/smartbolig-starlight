@@ -1,6 +1,8 @@
 # 🏠 smartbolig.net
 
-Et dansk smart home tutorial website med fokus på Home Assistant og ESP32.
+Et tosproget smart home-guideunivers med fokus på Home Assistant, ESPHome og
+lokale automationer. Indholdet findes på dansk og engelsk og er skrevet til et
+internationalt publikum, når emnet ikke er landespecifikt.
 
 **Live site:** https://smartbolig.net
 
@@ -8,12 +10,14 @@ Et dansk smart home tutorial website med fokus på Home Assistant og ESP32.
 
 ## 📖 Om projektet
 
-smartbolig.net hjælper danske brugere med at komme i gang med smart home teknologi. Fokus er på:
+smartbolig.net hjælper både danske og internationale læsere med at bygge et
+overskueligt og driftssikkert smart home. Fokus er på:
 
 - **Home Assistant** - Installation, konfiguration og automationer
 - **ESP32/ESPHome** - DIY sensorer og enheder
 - **Produktguides** - Anbefalinger til smart home udstyr
-- **Lokalt fokus** - Løsninger der virker uden cloud-afhængighed
+- **Lokal kontrol** - Løsninger der kan holde centrale funktioner i hjemmet
+- **International anvendelighed** - Generelle guides kræver ikke danske tjenester
 
 Sitet er tilgængeligt på både dansk og engelsk.
 
@@ -103,6 +107,14 @@ journalctl --user -u smartbolig-ai-news.service -e      # se logs
 - Guidet startrute på `/da/start/` og `/en/start/`
 - Automatisk visning af de tre seneste AI-nyheder på forsiden
 - Pagefind-søgning på tværs af guides og nyheder
+
+Aktuelle guideforløb omfatter blandt andet:
+
+- Matter og Thread i Home Assistant 2026
+- lokal Home Assistant Assist med Speech-to-Phrase/Whisper og Piper
+- ESPHome Bluetooth Proxy på Wi-Fi, Ethernet eller PoE
+- Home Assistant Energy Dashboard med international opsætning til elnet,
+  solceller, batteri, gas, vand, apparater og elbil
 
 ---
 
