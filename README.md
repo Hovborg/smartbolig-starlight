@@ -103,10 +103,27 @@ journalctl --user -u smartbolig-ai-news.service -e      # se logs
 
 ## 🧭 Portalstruktur
 
-- Dansk og engelsk forside med fem tydelige indgange
-- Guidet startrute på `/da/start/` og `/en/start/`
-- Automatisk visning af de tre seneste AI-nyheder på forsiden
-- Pagefind-søgning på tværs af guides og nyheder
+Forsiden er en redaktionel "smart-home field guide" bygget af små komponenter
+under `src/components/home/`, orkestreret af `HomePortal.astro` og styret af den
+typede DA/EN copy-model i `src/lib/home-copy.ts`:
+
+1. Kort hero med ét løfte, én primær CTA og et responsivt AVIF/WebP-billede
+2. Kompakt målnavigator med begynderspor til `/start/` og fem indgange
+3. Feltguide med sidens eneste nummerserie (etape 1–3)
+4. Udvalgte guides som lead-artikel plus kompakt liste
+5. Trust-sektion med efterprøvelige links (kilder, privatliv, affiliate, rettelser)
+6. Kompakt AI-nyhedsmodul lavt på siden, valgt read-only fra content collection
+7. Afsluttende CTA, der ikke gentager startruten
+
+Al homepage-CSS er scoped til `.home-*` i `HomeStyles.astro`. Pagefind-søgning
+dækker fortsat guides og nyheder.
+
+Hero-masteren ligger under `src/assets/homepage/`. Generér de seks responsive
+AVIF/WebP-filer efter en ændring af masteren med:
+
+```bash
+npm run images:home
+```
 
 Aktuelle guideforløb omfatter blandt andet:
 

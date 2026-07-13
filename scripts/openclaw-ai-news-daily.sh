@@ -141,12 +141,30 @@ main() {
   npm ci
   npm run ai-news:source-health
 
+  AI_NEWS_RESULT_PATH="${WORKDIR}/.ai-news-result.json" \
+    node scripts/ai-news-publish.mjs --write --date "${DATE}" --days 10
+
+  local ai_news_status
+  ai_news_status="$(node --input-type=module -e '
+    import { readFile } from "node:fs/promises";
+    const result = JSON.parse(await readFile(process.argv[1], "utf8"));
+    if (!result || !["publish", "skip"].includes(result.status)) process.exit(2);
+    process.stdout.write(result.status);
+  ' "${WORKDIR}/.ai-news-result.json")"
+
+  if [[ "${ai_news_status}" == "skip" ]]; then
+    echo "AI_NEWS_STATUS=skip: no article, image, commit, push, or PR will be created."
+    return 0
+  fi
+  if [[ "${ai_news_status}" != "publish" ]]; then
+    echo "Invalid AI News status: ${ai_news_status}" >&2
+    return 1
+  fi
+
   start_comfyui_if_available
   trap 'stop_comfyui' EXIT
 
   render_pending_images
-  node scripts/ai-news-publish.mjs --write --date "${DATE}" --days 10
-
   if [[ -f "src/content/docs/da/ai/nyheder/${DATE}.mdx" ]]; then
     node scripts/ai-news-render-image.mjs --date "${DATE}"
   else

@@ -1,4 +1,6 @@
 ---
+// Read-only adapter over the docs collection: renders the three latest AI News
+// entries as a compact editorial list. Selection logic stays in home-news.ts.
 import { getCollection } from "astro:content";
 import { selectLatestNews, type NewsDocument, type NewsLocale } from "../lib/home-news";
 
@@ -14,13 +16,11 @@ const archiveHref = isDa ? "/da/ai/nyheder/" : "/en/ai/nyheder/";
 const rssHref = isDa ? "/da/ai/nyheder/rss.xml" : "/en/ai/news/rss.xml";
 const copy = isDa
   ? {
-      read: "Læs artiklen",
       archive: "Alle AI-nyheder",
       rss: "Følg via RSS",
       empty: "Der er ingen publicerede AI-nyheder endnu.",
     }
   : {
-      read: "Read article",
       archive: "All AI news",
       rss: "Follow via RSS",
       empty: "There are no published AI news articles yet.",
@@ -38,16 +38,28 @@ const formatDate = (date: Date) =>
 <div class="home-latest-news">
   {
     latest.length > 0 ? (
-      <div class="home-news-grid">
-        {latest.map((item, index) => (
-          <article class={`home-news-card ${index === 0 ? "home-news-card--lead" : ""}`}>
+      <ul class="home-news-list">
+        {latest.map((item) => (
+          <li class="home-news-row">
             <time datetime={item.dateString}>{formatDate(item.date)}</time>
-            <h3><a href={item.href}>{item.title}</a></h3>
-            <p>{item.description}</p>
-            <a class="home-news-card__link" href={item.href}>{copy.read}<span aria-hidden="true"> →</span></a>
-          </article>
+            <div class="home-news-row__text">
+              <h3><a href={item.href}>{item.title}</a></h3>
+              <p>{item.description}</p>
+            </div>
+            {item.image && (
+              <img
+                class="home-news-row__thumb"
+                src={item.image.src}
+                alt=""
+                width="160"
+                height="90"
+                loading="lazy"
+                decoding="async"
+              />
+            )}
+          </li>
         ))}
-      </div>
+      </ul>
     ) : (
       <p class="home-news-empty">{copy.empty}</p>
     )

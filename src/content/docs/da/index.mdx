@@ -5,13 +5,11 @@ template: splash
 lastUpdated: false
 ---
 
-import CustomHero from "../../../components/CustomHero.astro";
 import HomeLatestNews from "../../../components/HomeLatestNews.astro";
 import HomePortal from "../../../components/HomePortal.astro";
 import HomeStyles from "../../../components/HomeStyles.astro";
 
 <HomeStyles />
-<CustomHero />
 <HomePortal locale="da">
-  <HomeLatestNews slot="latest-news" locale="da" />
+  <HomeLatestNews slot="editorial-news" locale="da" />
 </HomePortal>

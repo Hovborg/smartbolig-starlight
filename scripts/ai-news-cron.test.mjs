@@ -72,3 +72,16 @@ test('daily AI News starts from origin/main without overlaying stale site files'
   assert.doesNotMatch(runner, /rsync .*SITE_ROOT/);
   assert.doesNotMatch(runner, /for item in "\$\{SYNC_ITEMS\[@\]\}"/);
 });
+
+test('daily AI News returns before images and GitHub when the publisher reports skip', async () => {
+  const runner = await readFile(path.join(rootDir, 'scripts/openclaw-ai-news-daily.sh'), 'utf8');
+  const publishAt = runner.indexOf('node scripts/ai-news-publish.mjs');
+  const statusAt = runner.indexOf('AI_NEWS_STATUS');
+  const comfyAt = runner.indexOf('start_comfyui_if_available', runner.indexOf('main()'));
+  const githubAt = runner.indexOf('gh pr create');
+
+  assert.ok(publishAt >= 0 && statusAt > publishAt, 'runner must read status after publishing');
+  assert.ok(statusAt < comfyAt, 'skip status must be handled before image services start');
+  assert.ok(statusAt < githubAt, 'skip status must be handled before GitHub writes');
+  assert.match(runner, /AI_NEWS_STATUS=skip[\s\S]*return 0/);
+});

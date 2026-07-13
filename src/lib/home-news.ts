@@ -8,6 +8,11 @@ export interface NewsDocument {
     description?: string;
     date?: Date | string;
     lastUpdated?: Date | string | boolean;
+    heroImage?: {
+      src?: string;
+      alt?: string;
+      caption?: string;
+    };
   };
 }
 
@@ -17,6 +22,7 @@ export interface HomeNewsItem {
   href: string;
   date: Date;
   dateString: string;
+  image: { src: string; alt: string } | null;
 }
 
 export function selectLatestNews(
@@ -33,12 +39,14 @@ export function selectLatestNews(
       const slug = entry.slug || entry.id;
       const rawDate = entry.data.date || entry.data.lastUpdated;
       const date = rawDate && typeof rawDate !== "boolean" ? new Date(rawDate) : new Date(Number.NaN);
+      const hero = entry.data.heroImage;
       return {
         title: entry.data.title || "",
         description: entry.data.description || "",
         href: `/${slug}/`,
         date,
         dateString: Number.isNaN(date.getTime()) ? "" : date.toISOString().slice(0, 10),
+        image: hero?.src && hero?.alt ? { src: hero.src, alt: hero.alt } : null,
       };
     })
     .filter((entry) => entry.dateString)

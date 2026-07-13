@@ -1,0 +1,35 @@
+---
+// Editorial guide selection: one lead feature plus three compact rows.
+import type { HomeFeaturedGuidesCopy } from "../../lib/home-copy";
+
+interface Props {
+  copy: HomeFeaturedGuidesCopy;
+}
+
+const { copy } = Astro.props;
+---
+
+<section class="home-section home-featured" aria-labelledby="home-featured-title">
+  <div class="home-section__heading">
+    <p class="home-eyebrow">{copy.eyebrow}</p>
+    <h2 id="home-featured-title">{copy.title}</h2>
+  </div>
+  <div class="home-featured__layout">
+    <article class="home-featured__lead">
+      <p class="home-tag">{copy.lead.tag}</p>
+      <h3><a href={copy.lead.href}>{copy.lead.title}</a></h3>
+      <p>{copy.lead.description}</p>
+    </article>
+    <ul class="home-featured__list">
+      {copy.more.map((guide) => (
+        <li>
+          <article>
+            <p class="home-tag">{guide.tag}</p>
+            <h3><a href={guide.href}>{guide.title}</a></h3>
+            <p>{guide.description}</p>
+          </article>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>

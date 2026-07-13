@@ -19,6 +19,7 @@ export const FEEDS = [
     url: 'https://openai.com/news/rss.xml',
     priority: 10,
     critical: true,
+    primary: true,
   },
   {
     id: 'google-ai',
@@ -26,30 +27,35 @@ export const FEEDS = [
     url: 'https://blog.google/technology/ai/rss/',
     priority: 9,
     critical: true,
+    primary: true,
   },
   {
     id: 'openai-codex',
     name: 'OpenAI Codex releases',
     url: 'https://github.com/openai/codex/releases.atom',
     priority: 4,
+    primary: true,
   },
   {
     id: 'claude-code',
     name: 'Claude Code releases',
     url: 'https://github.com/anthropics/claude-code/releases.atom',
     priority: 3,
+    primary: true,
   },
   {
     id: 'gemini-cli',
     name: 'Gemini CLI releases',
     url: 'https://github.com/google-gemini/gemini-cli/releases.atom',
     priority: 2,
+    primary: true,
   },
   {
     id: 'openclaw',
     name: 'OpenClaw releases',
     url: 'https://github.com/openclaw/openclaw/releases.atom',
     priority: 3,
+    primary: true,
   },
 ];
 
