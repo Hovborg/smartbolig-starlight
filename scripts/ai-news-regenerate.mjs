@@ -13,6 +13,7 @@ import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { canonicalizeUrl, stripHtml } from './lib/ai-news-discovery.mjs';
+import { isOfficialUrl } from './lib/ai-news-official.mjs';
 import { generateIssueCopy } from './lib/ai-news-llm.mjs';
 import { sourceSetFingerprint } from './lib/ai-news-editorial.mjs';
 import { renderIssue, renderRepeatIssue } from './lib/ai-news-render.mjs';
@@ -91,6 +92,9 @@ function parseSourceTable(content) {
 }
 
 async function fetchSourceMaterial(item) {
+  // Source tables are repo content, but still only ever fetch verified
+  // official HTTPS URLs (security review H-2: no arbitrary deep-reading).
+  if (!isOfficialUrl(item.canonicalUrl)) return;
   try {
     const response = await fetch(item.canonicalUrl, {
       headers: {

@@ -67,6 +67,30 @@ test("renderIssue neutralizes MDX and Markdown control characters from feeds", (
   assert.match(output, /story%28bad%29/);
 });
 
+// Regression for security review H-1 (docs/verification/2026-07-13-security-review.md):
+// these exact payloads previously survived safeText() and rendered as an active
+// javascript: link and a remote tracking image via Astro's Markdown processor.
+test("renderIssue neutralizes active Markdown links, images, and code from feed text", () => {
+  const hostile = {
+    ...item,
+    summary: "[click](javascript:alert(document.domain)) ![track](https://attacker.invalid/pixel) `rm -rf`",
+    bodyText: "",
+  };
+  const output = renderIssue({
+    locale: "en",
+    date: "2026-07-11",
+    editorialPackage: selectEditorialPackage([hostile], []),
+  });
+
+  assert.doesNotMatch(output, /\[click\]\(javascript:/);
+  assert.doesNotMatch(output, /!\[track\]\(/);
+  assert.doesNotMatch(output, /\]\(\s*javascript:/i);
+  assert.doesNotMatch(output, /`rm -rf`/);
+  // The words themselves must survive as plain text.
+  assert.match(output, /click/);
+  assert.match(output, /track/);
+});
+
 test("renderIssue uses validated LLM copy and escapes it like feed text", () => {
   const editorialPackage = selectEditorialPackage([item], []);
   const copy = {

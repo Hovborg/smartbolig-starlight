@@ -3,29 +3,16 @@ import { existsSync } from 'node:fs';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { isOfficialUrl } from './lib/ai-news-official.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const docsDir = path.join(rootDir, 'src/content/docs');
 const daNewsDir = path.join(docsDir, 'da/ai/nyheder');
 const enNewsDir = path.join(docsDir, 'en/ai/nyheder');
 
-const officialDomains = [
-  'openai.com',
-  'platform.openai.com',
-  'developers.openai.com',
-  'anthropic.com',
-  'docs.anthropic.com',
-  'platform.claude.com',
-  'code.claude.com',
-  'github.com/anthropics/claude-code',
-  'github.com/openai/codex',
-  'blog.google',
-  'ai.google.dev',
-  'github.com/google-gemini/gemini-cli',
-  'github.com/openclaw/openclaw',
-];
-
 const forbiddenPatterns = [
+  { label: 'active javascript/data/vbscript link', pattern: /\]\(\s*(?:javascript|data|vbscript):/i },
+  { label: 'markdown image from untrusted content', pattern: /!\[[^\]]*\]\(/ },
   { label: 'OpenAI-style API key', pattern: /\bsk-[A-Za-z0-9_-]{20,}\b/ },
   { label: 'GitHub token', pattern: /\bgh[psu]_[A-Za-z0-9_]{20,}\b/ },
   { label: 'Slack token', pattern: /\bxox[baprs]-[A-Za-z0-9-]{20,}\b/ },
@@ -58,7 +45,7 @@ function extractUrls(content) {
 }
 
 function isOfficial(url) {
-  return officialDomains.some((domain) => url.includes(domain));
+  return isOfficialUrl(url);
 }
 
 function validateArticle(filePath, content, issues) {

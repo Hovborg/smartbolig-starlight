@@ -85,3 +85,13 @@ test('daily AI News returns before images and GitHub when the publisher reports 
   assert.ok(statusAt < githubAt, 'skip status must be handled before GitHub writes');
   assert.match(runner, /AI_NEWS_STATUS=skip[\s\S]*return 0/);
 });
+
+// Regression for security review M-1
+// (docs/verification/2026-07-13-security-review.md): LLM-drafted content must
+// never reach main without a human editorial gate, so the daily runner may
+// create and update PRs but must not merge them.
+test('the daily runner never auto-merges its own PR', async () => {
+  const script = await readFile(path.join(rootDir, 'scripts/openclaw-ai-news-daily.sh'), 'utf8');
+  assert.doesNotMatch(script, /gh pr merge/);
+  assert.match(script, /editorial review/i);
+});

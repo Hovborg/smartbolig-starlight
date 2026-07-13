@@ -146,7 +146,11 @@ SmartBolig.net AI News is a set of short editorial articles about the most impor
 
 async function fetchItems() {
   if (fixturePaths.length > 0) {
-    const source = FEEDS.find((feed) => feed.id === 'openai-codex') || FEEDS[0];
+    // Fixtures are trusted local test input, but parseFeed still enforces its
+    // per-source host allowlist — so the fixture source accepts every official
+    // feed host instead of only its own.
+    const base = FEEDS.find((feed) => feed.id === 'openai-codex') || FEEDS[0];
+    const source = { ...base, extraHosts: FEEDS.map((feed) => new URL(feed.url).hostname) };
     const results = [];
     for (const fixturePath of fixturePaths) {
       const xml = await readFile(path.resolve(fixturePath), 'utf8');

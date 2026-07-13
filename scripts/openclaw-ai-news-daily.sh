@@ -153,6 +153,8 @@ main() {
   # AI_NEWS_LLM=1 asks headless Claude Code to draft unique editorial copy per
   # story; on any failure the deterministic template takes over automatically,
   # so the run never blocks on the LLM layer. Set AI_NEWS_LLM=0 to disable.
+  # The invocation is tool-free and settings-free (see scripts/lib/ai-news-llm.mjs
+  # and security review C-1), and the resulting PR is never auto-merged.
   AI_NEWS_RESULT_PATH="${WORKDIR}/.ai-news-result.json" \
   AI_NEWS_LLM="${AI_NEWS_LLM:-1}" \
     node scripts/ai-news-publish.mjs --write --date "${DATE}" --days 10
@@ -237,11 +239,10 @@ main() {
   rm -f "${body_file}"
   trap - EXIT
 
-  if gh pr merge "${pr_url}" --repo "${REPO}" --squash --delete-branch >/dev/null; then
-    echo "SmartBolig AI News automation finished: PR ${pr_url} (auto-merged)"
-  else
-    echo "SmartBolig AI News automation finished: PR ${pr_url} (auto-merge failed — needs manual merge)" >&2
-  fi
+  # Security review M-1 (docs/verification/2026-07-13-security-review.md):
+  # the draft contains text derived from external feeds, so it must never
+  # reach main without a human editorial review. No auto-merge.
+  echo "SmartBolig AI News automation finished: PR ${pr_url} (awaiting editorial review — merge manually)"
 }
 
 close_stale_ai_news_prs() {
