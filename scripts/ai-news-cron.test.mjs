@@ -102,9 +102,8 @@ test('the systemd installer describes a PR-only editorial review workflow', asyn
   const callsFile = path.join(tmp, 'systemctl-calls.jsonl');
   const unitDir = path.join(tmp, 'units');
 
-  await writeFile(fakeSystemctl, `#!/usr/bin/env node
-const fs = require('node:fs');
-fs.appendFileSync(process.env.SYSTEMCTL_FAKE_CALLS, JSON.stringify(process.argv.slice(2)) + '\\n');
+  await writeFile(fakeSystemctl, `#!/usr/bin/env bash
+printf '%s\\n' "$*" >> "\${SYSTEMCTL_FAKE_CALLS}"
 `);
   await chmod(fakeSystemctl, 0o755);
 
@@ -125,13 +124,10 @@ fs.appendFileSync(process.env.SYSTEMCTL_FAKE_CALLS, JSON.stringify(process.argv.
     assert.match(service, /publish \+ PR \+ editorial review/i);
     assert.match(service, /PR awaiting separate editorial review/i);
 
-    const calls = (await readFile(callsFile, 'utf8'))
-      .trim()
-      .split('\n')
-      .map((line) => JSON.parse(line));
+    const calls = (await readFile(callsFile, 'utf8')).trim().split('\n');
     assert.deepEqual(calls, [
-      ['--user', 'daemon-reload'],
-      ['--user', 'enable', '--now', 'smartbolig-ai-news.timer'],
+      '--user daemon-reload',
+      '--user enable --now smartbolig-ai-news.timer',
     ]);
   } finally {
     await rm(tmp, { recursive: true, force: true });
