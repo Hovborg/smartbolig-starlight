@@ -12,7 +12,7 @@ import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/sta
 <Badge text="Advanced" variant="caution" /> <Badge text="30 min" variant="note" /> <Badge text="Free" variant="success" />
 
 
-Proxmox is a fantastic platform to run Home Assistant OS. You get full VM isolation, snapshots, backup, and the ability to run other services on the same hardware.
+Proxmox is a fantastic platform for running Home Assistant OS. You get full VM isolation, snapshots, backups, and the option to run other services on the same hardware.
 
 ![Proxmox + Home Assistant architecture](/images/guides/proxmox-installation/architecture.svg)
 
@@ -28,8 +28,8 @@ Proxmox is a fantastic platform to run Home Assistant OS. You get full VM isolat
 | Add-ons support | ✅ Full | ✅ Full | ❌ Separate |
 
 <Aside type="tip" title="Recommended for">
-- Those who already have a Proxmox server
-- Those who want to run Home Assistant alongside other services
+- Those who already run a Proxmox server
+- Those who want Home Assistant alongside other services
 - Those who want enterprise-grade backup and restore
 </Aside>
 
@@ -39,66 +39,75 @@ Proxmox is a fantastic platform to run Home Assistant OS. You get full VM isolat
 - ✅ At least 2 CPU cores available
 - ✅ At least 4 GB RAM available
 - ✅ At least 32 GB storage (SSD recommended)
-- ✅ Access to Proxmox shell (SSH or web console)
+- ✅ Access to the Proxmox shell (SSH or web console)
 
 ## 🚀 Method 1: Community Helper Script (Recommended)
 
 The easiest method uses the official community script from [community-scripts.github.io/ProxmoxVE](https://community-scripts.github.io/ProxmoxVE/).
 
 <Aside type="note" title="Open Source">
-The Proxmox VE Helper Scripts are open source and community-maintained. Check out the [GitHub repository](https://github.com/community-scripts/ProxmoxVE) for all available scripts.
+The Proxmox VE Helper Scripts are open source and community-maintained. See the [GitHub repository](https://github.com/community-scripts/ProxmoxVE) for all available scripts.
 </Aside>
 
 <Steps>
-1. **Log into Proxmox shell**
+1. **Log in to the Proxmox shell**
    
-   SSH to your Proxmox server or use Shell in web interface:
+   SSH to your Proxmox server or use Shell in the web interface:
    ```bash
    ssh root@YOUR-PROXMOX-IP
    ```
 
-2. **Run installation script**
+2. **Run the installation script**
    
    ```bash
    bash -c "$(wget -qLO - https://github.com/community-scripts/ProxmoxVE/raw/main/vm/haos-vm.sh)"
    ```
 
-3. **Follow installation wizard**
+3. **Follow the installation wizard**
    
    The script will ask about:
-   - **VM ID**: Choose an available number (e.g., `100`)
+   - **VM ID**: Pick an unused number (e.g. `100`)
    - **Machine Type**: Choose `q35` (modern, better performance)
    - **BIOS**: Choose `OVMF (UEFI)` - required for HAOS
    - **Disk size**: Minimum `32GB`, recommended `64GB+`
    - **CPU cores**: Minimum `2`, recommended `4`
    - **RAM**: Minimum `4096MB`, recommended `4096-8192MB`
    - **Bridge**: Your network bridge (typically `vmbr0`)
-   - **MAC address**: Accept auto-generated
-   - **VLAN**: Leave empty unless you use VLAN
+   - **MAC address**: Accept the auto-generated one
+   - **VLAN**: Leave empty unless you use VLANs
    - **Start after creation**: `Yes`
 
-4. **Wait for installation**
+4. **Wait for the installation**
    
-   The script downloads HAOS image and creates the VM. This takes 2-5 minutes.
+   The script downloads the HAOS image and creates the VM. This takes 2-5 minutes.
 
-5. **Find IP address**
+5. **Find the IP address**
    
-   When VM is started, find IP via:
+   Once the VM has started, find its IP via:
    ```bash
-   # In Proxmox shell
+   # In the Proxmox shell
    qm guest cmd VMID network-get-interfaces
    ```
    Or check your router's DHCP list.
 </Steps>
 
-## 🔧 Method 2: Manual Installation
+<Aside type="note" title="Script features">
+The script automatically configures:
+- UEFI boot with an EFI disk
+- VirtIO SCSI controller (best performance)
+- CPU type `host` (full CPU feature support)
+- QEMU Guest Agent
+- Optimal disk cache settings
+</Aside>
+
+## 🔧 Method 2: Manual installation
 
 If you prefer full control, you can install manually.
 
-### Download HAOS image
+### Download the HAOS image
 
 <Steps>
-1. **Find latest version**
+1. **Find the latest version**
    
    Go to [Home Assistant OS releases](https://github.com/home-assistant/operating-system/releases) and find the latest `qcow2` file for KVM/Proxmox.
 
@@ -108,7 +117,7 @@ If you prefer full control, you can install manually.
    # SSH to Proxmox
    cd /var/lib/vz/template/iso/
    
-   # Download latest HAOS (replace VERSION with current)
+   # Download latest HAOS (replace VERSION with the current one)
    wget https://github.com/home-assistant/operating-system/releases/download/VERSION/haos_ova-VERSION.qcow2.xz
    
    # Extract
@@ -116,13 +125,13 @@ If you prefer full control, you can install manually.
    ```
 </Steps>
 
-### Create VM manually
+### Create the VM manually
 
 <Steps>
-1. **Create VM without disk**
+1. **Create a VM without a disk**
    
    ```bash
-   # Replace VMID with your desired ID (e.g., 100)
+   # Replace VMID with your desired ID (e.g. 100)
    qm create VMID \
      --name haos \
      --memory 4096 \
@@ -136,33 +145,35 @@ If you prefer full control, you can install manually.
      --onboot 1
    ```
 
-2. **Add EFI disk**
+2. **Add an EFI disk**
    
    ```bash
    qm set VMID --efidisk0 local-lvm:1,efitype=4m
    ```
 
-3. **Import HAOS disk**
+3. **Import the HAOS disk**
    
    ```bash
-   # Import qcow2 to VM
+   # Import qcow2 into the VM
    qm importdisk VMID /var/lib/vz/template/iso/haos_ova-VERSION.qcow2 local-lvm
    
-   # Attach disk to VM
+   # Attach the disk to the VM
    qm set VMID --scsi0 local-lvm:vm-VMID-disk-1,cache=writethrough,discard=on,ssd=1
    
    # Set boot order
    qm set VMID --boot order=scsi0
    ```
 
-4. **Start VM**
+4. **Start the VM**
    
    ```bash
    qm start VMID
    ```
 </Steps>
 
-## ⚙️ Recommended VM Settings
+## ⚙️ Recommended VM settings
+
+### Optimal configuration
 
 | Setting | Value | Explanation |
 |---------|-------|-------------|
@@ -170,36 +181,90 @@ If you prefer full control, you can install manually.
 | **BIOS** | `OVMF (UEFI)` | Required for HAOS |
 | **CPU Type** | `host` | Full CPU support |
 | **CPU Cores** | `2-4` | 2 minimum, 4 recommended |
-| **RAM** | `4096-8192 MB` | 4GB minimum |
+| **RAM** | `4096-8192 MB` | 4 GB minimum |
 | **SCSI Controller** | `VirtIO SCSI` | Best disk performance |
 | **Disk Cache** | `Write through` | Safe, good performance |
 | **Network** | `VirtIO` | Best network performance |
 | **QEMU Agent** | `Enabled` | Snapshots, IP display |
+
+### Example configuration file
+
+```ini title="/etc/pve/qemu-server/VMID.conf"
+agent: 1
+bios: ovmf
+boot: order=scsi0
+cores: 4
+cpu: host
+efidisk0: local-lvm:vm-VMID-disk-0,efitype=4m,size=4M
+machine: q35
+memory: 4096
+name: haos
+net0: virtio=XX:XX:XX:XX:XX:XX,bridge=vmbr0
+onboot: 1
+ostype: l26
+scsi0: local-lvm:vm-VMID-disk-1,cache=writethrough,discard=on,size=32G,ssd=1
+scsihw: virtio-scsi-pci
+```
 
 ## 🔌 USB Passthrough (Zigbee/Z-Wave)
 
 To use USB devices (Zigbee coordinator, Z-Wave stick) in Home Assistant:
 
 <Steps>
-1. **Find USB device ID**
+1. **Find the USB device ID**
    
    ```bash
-   # On Proxmox host
+   # On the Proxmox host
    lsusb
    ```
-
-2. **Add to VM**
    
-   ```bash
-   # Format: vendor:product (from lsusb output)
-   qm set VMID --usb0 host=1a86:55d4
+   Example output:
+   ```
+   Bus 002 Device 003: ID 1a86:55d4 QinHeng Electronics SONOFF Zigbee 3.0 USB Dongle Plus V2
    ```
 
-3. **Restart VM**
+2. **Add it to the VM**
+   
+   ```bash
+   # Format: vendor:product (from the lsusb output)
+   qm set VMID --usb0 host=1a86:55d4
+   ```
+   
+   Or via the web interface:
+   - Select the VM → **Hardware** → **Add** → **USB Device**
+   - Select **Use USB Vendor/Device ID**
+   - Pick your device from the list
+
+3. **Restart the VM**
    
    ```bash
    qm reboot VMID
    ```
+</Steps>
+
+<Aside type="caution" title="USB passthrough tip">
+Use the **Vendor/Device ID** rather than a **USB Port**. That way it keeps working even if you plug the USB device into a different port.
+</Aside>
+
+## 💾 Expand the disk size
+
+If you run out of space:
+
+<Steps>
+1. **Expand in Proxmox**
+   
+   Via the CLI:
+   ```bash
+   qm resize VMID scsi0 +50G
+   ```
+   
+   Or via the web interface:
+   - VM → **Hardware** → Select the disk → **Resize**
+
+2. **Expand in Home Assistant**
+   
+   HAOS expands automatically on the next reboot, or:
+   - **Settings** → **System** → **Storage** → **Resize**
 </Steps>
 
 ## 📸 Backup and Snapshots
@@ -219,14 +284,101 @@ qm rollback VMID pre-upgrade
 qm delsnapshot VMID pre-upgrade
 ```
 
-<Aside type="danger" title="Before updates">
+<Aside type="tip" title="Snapshot best practice">
+Always take a snapshot BEFORE major Home Assistant updates. Give it a descriptive name, e.g. `pre-2024.12-upgrade`.
+</Aside>
+
+### Backups (full)
+
+For disaster recovery:
+
+```bash
+# Manual backup
+vzdump VMID --compress zstd --storage local --mode snapshot
+
+# List backups
+ls /var/lib/vz/dump/
+```
+
+Or schedule automatic backups via **Datacenter** → **Backup** in the web interface.
+
+## 🌐 First-time setup
+
+<Steps>
+1. **Open Home Assistant**
+   
+   Go to `http://HAOS-IP:8123` in your browser.
+   
+   <Aside type="note">
+   The first boot takes 5-20 minutes. You will see "Preparing Home Assistant" until it is ready.
+   </Aside>
+
+2. **Create a user**
+   
+   - Choose a username and a strong password
+   - Store the password in a password manager!
+
+3. **Configure your home**
+   
+   - Name your home
+   - Set your location (for sunrise/sunset)
+   - Pick your time zone
+
+4. **Update everything**
+   
+   Go to **Settings** → **System** → **Updates** and install all available updates.
+</Steps>
+
+## 🔧 Troubleshooting
+
+<Aside type="tip" title="VM won't start?">
+**Check these things:**
+1. Is the BIOS set to `OVMF (UEFI)`? HAOS requires UEFI.
+2. Is the boot order correct? It should be `scsi0` or `virtio0`.
+3. Do you have enough RAM? Minimum 4 GB, recommended 4-8 GB.
+4. Check the task log in the Proxmox web interface or `journalctl -u pvedaemon`
+</Aside>
+
+<Aside type="tip" title="No network?">
+**Try these fixes:**
+1. Check that the bridge is correct (typically `vmbr0`)
+2. Check that the VLAN settings match your network
+3. Try restarting the VM
+4. Check the firewall rules on Proxmox
+</Aside>
+
+<Aside type="tip" title="USB device not working?">
+**Check:**
+1. Was the USB passthrough added correctly?
+2. Restart the VM after adding the USB device
+3. Check `dmesg` on Proxmox for USB errors
+4. Try a different USB port on the host
+</Aside>
+
+<Aside type="tip" title="Slow performance?">
+**Optimizations:**
+1. Use `cache=writethrough` on the disk
+2. Use `cpu: host` instead of `kvm64`
+3. Enable `discard=on,ssd=1` on the disk
+4. Increase RAM to 4-8 GB
+</Aside>
+
+## 🔄 Updating HAOS
+
+Home Assistant is updated through the web interface:
+
+1. **Settings** → **System** → **Updates**
+2. Click **Update** on the available updates
+3. Wait for the restart
+
+<Aside type="danger" title="Before updating">
 ALWAYS take a snapshot before major updates:
 ```bash
 qm snapshot VMID pre-upgrade-$(date +%Y%m%d) --vmstate 1
 ```
 </Aside>
 
-## 🚀 Next Steps
+## 🚀 Next steps
 
 <CardGrid>
   <Card title="⚡ First automation" icon="rocket">

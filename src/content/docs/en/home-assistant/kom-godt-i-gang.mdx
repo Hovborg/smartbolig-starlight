@@ -1,115 +1,185 @@
 ---
 title: Getting Started with Home Assistant
-description: Complete beginner's guide to Home Assistant - what it is, what you need, and how to get started.
+description: A complete introduction to Home Assistant. Learn what it is and how to get started.
+sidebar:
+  badge:
+    text: Start here
+    variant: success
 ---
 
-# Getting Started with Home Assistant
+import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
+import FAQ from '../../../../components/FAQ.astro';
 
-Home Assistant is an open-source platform that lets you control and automate your entire smart home from one place. This guide gets you started.
+<Badge text="Beginner" variant="success" /> <Badge text="15 min read" variant="note" />
 
+
+Home Assistant is one of the most widely used open source platforms for home automation. This guide gives you a complete overview of what Home Assistant is and how to get started.
+
+## 🤔 What is Home Assistant?
 
 ![Home Assistant overview](/images/guides/ha-overview-hero-en.png)
 
-## What is Home Assistant?
+Home Assistant is **free software** that brings all your smart home devices together in one app. Think of it as the "brain" of your smart home.
 
-Home Assistant is:
-- **Free and open source** - No monthly fees or cloud dependency
-- **Local control** - Your data stays at home
-- **Highly compatible** - Works with 2000+ integrations
-- **Powerful automations** - From simple to advanced
+### What can it do?
 
-## What do you need?
+- 🔌 **Connect over 2,000 integrations** - IKEA, Philips Hue, Sonos, and many more
+- 🤖 **Build automations** - "Turn on the lights at sunset"
+- 📊 **Visualize data** - Graphs of power consumption, temperature, and more
+- 🔒 **Keep your data local** - No cloud, no tracking
 
-### Hardware (choose one)
+### Architecture overview
 
-| Option | Pros | Cons | Price |
-|--------|------|------|-------|
-| **Raspberry Pi 4/5** | Easy to start | Limited power | ~$80 |
-| **Mini PC** | More power, reliable | Higher price | ~$150-300 |
-| **Proxmox/VM** | Best for home servers | Requires knowledge | Varies |
-| **Docker** | Use existing server | More complex | Free |
+![Home Assistant architecture](/images/guides/kom-godt-i-gang-ha/arkitektur-en.svg)
 
-### Recommended starter kit
+## 💻 What do you need?
 
-- Raspberry Pi 4 (4GB) or Pi 5
-- 32GB+ SD card (or SSD via USB)
-- Power supply (official)
-- Ethernet cable (recommended)
-- Zigbee coordinator (e.g., Sonoff ZBDongle-P)
+Home Assistant can run in many different ways. Here are the three most popular:
 
-## Installation Methods
+| Platform | Approx. price | Difficulty | Best for |
+|----------|---------------|------------|----------|
+| **Raspberry Pi** | ~$100 | Easy | Beginners |
+| **Proxmox VM** | Free* | Medium | Existing servers |
+| **Docker** | Free* | Advanced | Experienced users |
 
-### 1. Home Assistant OS (Recommended)
+*Requires existing hardware
 
-The easiest way - a complete operating system with everything included.
+## 🚀 Choose your installation method
 
-**Best for:** Beginners, dedicated hardware
+### 1. Raspberry Pi (recommended for beginners)
 
-[Raspberry Pi Installation Guide →](/en/home-assistant/raspberry-pi-installation/)
+**What:** Home Assistant OS on a dedicated Raspberry Pi.
 
-### 2. Home Assistant Container (Docker)
+| Pros | Cons |
+|------|------|
+| ✅ Everything works out of the box | ❌ Needs dedicated hardware |
+| ✅ One-click updates | ❌ Less powerful than a PC |
+| ✅ Full add-on support | ❌ SD cards wear out |
+| ✅ Low power draw (~5W) | |
 
-Run Home Assistant in a Docker container.
+**Hardware you will need:**
 
-**Best for:** Existing servers, NAS devices
+| Part | Approx. price |
+|------|---------------|
+| Raspberry Pi 4/5 (4GB) | $70 |
+| Official power supply | $15 |
+| 32GB+ SD card or SSD | $15 |
+| **Total** | **~$100** |
 
-[Docker Installation Guide →](/en/home-assistant/docker-installation/)
+<Card title="🍓 Install on Raspberry Pi" icon="rocket">
+  The classic route - perfect for beginners.
+  
+  [Follow the Raspberry Pi guide →](/en/home-assistant/raspberry-pi-installation/)
+</Card>
 
-### 3. Home Assistant Core
+---
 
-Manual installation in Python virtual environment.
+### 2. Proxmox VM (recommended for home servers)
 
-**Best for:** Advanced users, custom setups
+**What:** Home Assistant OS in a virtual machine on Proxmox VE.
 
-## First Steps After Installation
+| Pros | Cons |
+|------|------|
+| ✅ Snapshots - roll back with one click | ❌ Requires Proxmox experience |
+| ✅ Full add-on support | ❌ USB passthrough can be tricky |
+| ✅ Run other VMs/containers alongside it | |
+| ✅ Enterprise-grade backup and restore | |
+| ✅ Easy resource scaling | |
 
-### 1. Create your account
+**Requirements:**
+- Proxmox VE 8.x+ installed
+- 2+ spare CPU cores
+- 4+ GB free RAM
+- 32+ GB storage
 
-When you first access Home Assistant at `http://homeassistant.local:8123`:
+<Card title="🖥️ Install on Proxmox" icon="server">
+  Perfect if you already run a home server with Proxmox.
+  
+  [Follow the Proxmox guide →](/en/home-assistant/proxmox-installation/)
+</Card>
 
-1. Create your user account
-2. Set your home location (for sun-based automations)
-3. Choose which devices to auto-discover
+---
 
-### 2. Explore the interface
+### 3. Docker Container (for experienced users)
 
-- **Overview** - Your main dashboard
-- **Settings** - Configuration and integrations
-- **Automations** - Create rules and triggers
-- **Developer Tools** - Debug and test
+**What:** Home Assistant Container on an existing Linux server or NAS.
 
-### 3. Add your first device
+| Pros | Cons |
+|------|------|
+| ✅ Runs alongside your other software | ❌ No Supervisor/add-ons |
+| ✅ Full control over the system | ❌ Requires Docker experience |
+| ✅ Low resource usage | ❌ Manual setup of MQTT and similar services |
+| ✅ Great for a NAS (Synology, QNAP) | |
 
-The easiest devices to start with:
-- Smart plugs (measure power consumption)
-- Temperature sensors
-- Motion sensors
-- Smart bulbs
+<Card title="🐳 Install with Docker" icon="setting">
+  For those who already run Docker.
+  
+  [Follow the Docker guide →](/en/home-assistant/docker-installation/)
+</Card>
 
-## Next Steps
+---
 
-Once Home Assistant is running:
+## 📊 Comparing the installation methods
 
-1. [Set up Zigbee2MQTT](/en/home-assistant/zigbee2mqtt/) for Zigbee devices
-2. [Create your first automation](/en/home-assistant/foerste-automation/)
-3. [Build an ESP32 sensor](/en/esp32/temperatur-sensor/)
+| Feature | Raspberry Pi | Proxmox VM | Docker |
+|---------|-------------|------------|--------|
+| **Difficulty** | ⭐ Easy | ⭐⭐ Medium | ⭐⭐⭐ Advanced |
+| **Supervisor/add-ons** | ✅ Full | ✅ Full | ❌ No |
+| **Snapshots** | ❌ No | ✅ Yes | ❌ No |
+| **Resource usage** | Low | Medium | Low |
+| **Updates** | Auto | Auto | Manual |
+| **Backup** | Via HA | Via Proxmox | Manual |
+| **Other services** | ❌ No | ✅ Yes | ✅ Yes |
+| **USB devices** | ✅ Direct | ⚠️ Passthrough | ⚠️ Mount |
 
-## Common Issues
+<Aside type="tip" title="Not sure which one to pick?">
+- **Completely new to smart home?** → Raspberry Pi
+- **Already have a Proxmox server?** → Proxmox VM
+- **Have a NAS or Docker server?** → Docker
+- **Just want to try it out?** → Raspberry Pi
+</Aside>
 
-### Can't access Home Assistant?
+## 🎯 Next steps
 
-- Check if the device is powered on
-- Try `http://homeassistant.local:8123` or `http://<IP>:8123`
-- Wait 5-10 minutes after first boot
+<CardGrid>
+  <Card title="🍓 Raspberry Pi" icon="rocket">
+    The classic route for beginners.
+    
+    [Raspberry Pi guide →](/en/home-assistant/raspberry-pi-installation/)
+  </Card>
+  <Card title="🖥️ Proxmox VM" icon="server">
+    For existing home servers.
+    
+    [Proxmox guide →](/en/home-assistant/proxmox-installation/)
+  </Card>
+  <Card title="🐳 Docker" icon="setting">
+    For experienced users running Docker.
+    
+    [Docker guide →](/en/home-assistant/docker-installation/)
+  </Card>
+</CardGrid>
 
-### Slow performance?
+## ❓ FAQ
 
-- Use SSD instead of SD card
-- Ensure adequate power supply
-- Consider upgrading to more powerful hardware
-
-## Resources
-
-- [Official Documentation](https://www.home-assistant.io/docs/)
-- [Community Forum](https://community.home-assistant.io/)
-- [Discord](https://discord.gg/home-assistant)
+<FAQ items={[
+  {
+    question: "Does Home Assistant cost anything?",
+    answer: "No! Home Assistant is 100% free and open source. There is an optional cloud service (Nabu Casa) for remote access at about $6.50/month, but it is not required."
+  },
+  {
+    question: "Can I control my devices when I'm away from home?",
+    answer: "Yes, but it takes some extra setup. You can use Nabu Casa (easiest, about $6.50/month), a VPN to your home network, or a Cloudflare Tunnel (free, requires configuration)."
+  },
+  {
+    question: "Will my IKEA/Philips/Sonos devices work?",
+    answer: "Yes! Home Assistant has over 2,000 integrations. Most popular smart home devices are supported directly."
+  },
+  {
+    question: "Do I need to know how to code?",
+    answer: "No! Most things can be done through the user interface. YAML is used for advanced configuration, but it is easy to learn."
+  },
+  {
+    question: "Can I switch platforms later?",
+    answer: "Yes! Home Assistant has backup and restore built in. You can easily move from a Raspberry Pi to Proxmox, or the other way around, by restoring a backup."
+  }
+]} />

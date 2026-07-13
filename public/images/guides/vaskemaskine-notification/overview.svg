@@ -64,7 +64,7 @@
     
     <!-- Step 2 -->
     <rect x="150" y="40" width="100" height="35" rx="5" fill="#f59e0b"/>
-    <text x="200" y="55" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold" font-family="system-ui">Power < 5W</text>
+    <text x="200" y="55" text-anchor="middle" fill="#fff" font-size="9" font-weight="bold" font-family="system-ui">Power &lt; 5W</text>
     <text x="200" y="68" text-anchor="middle" fill="#fff" font-size="8" font-family="system-ui">i 3 min</text>
     
     <!-- Arrow 2 -->

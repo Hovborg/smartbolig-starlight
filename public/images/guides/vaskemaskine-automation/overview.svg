@@ -76,7 +76,7 @@
     <text x="90" y="95" text-anchor="middle" fill="#64748b" font-size="8" font-family="system-ui">>10W</text>
     <text x="90" y="105" text-anchor="middle" fill="#64748b" font-size="8" font-family="system-ui">1 min</text>
     
-    <text x="170" y="95" text-anchor="middle" fill="#64748b" font-size="8" font-family="system-ui"><5W</text>
+    <text x="170" y="95" text-anchor="middle" fill="#64748b" font-size="8" font-family="system-ui">&lt;5W</text>
     <text x="170" y="105" text-anchor="middle" fill="#64748b" font-size="8" font-family="system-ui">3 min</text>
     
     <text x="250" y="95" text-anchor="middle" fill="#64748b" font-size="8" font-family="system-ui">Dør</text>

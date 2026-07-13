@@ -23,7 +23,7 @@ Proxmox er en fantastisk platform til at køre Home Assistant OS. Du får fuld V
 | Snapshots | ✅ Et klik | ❌ Nej | ❌ Nej |
 | Live backup | ✅ Ja | ⚠️ Manuelt | ⚠️ Manuelt |
 | Hardware passthrough | ✅ USB, PCIe | ✅ Direkte | ⚠️ Begrænset |
-| Ressource skalering | ✅ Nemt | ❌ Fast hardware | ✅ Ja |
+| Ressourceskalering | ✅ Nemt | ❌ Fast hardware | ✅ Ja |
 | Andre VMs/containers | ✅ Ubegrænset | ❌ Nej | ✅ Ja |
 | Add-ons support | ✅ Fuld | ✅ Fuld | ❌ Separat |
 
@@ -36,7 +36,7 @@ Proxmox er en fantastisk platform til at køre Home Assistant OS. Du får fuld V
 ## 📋 Forudsætninger
 
 - ✅ Proxmox VE 8.x eller nyere installeret
-- ✅ Mindst 2 CPU kerner ledige
+- ✅ Mindst 2 CPU-kerner ledige
 - ✅ Mindst 4 GB RAM ledigt
 - ✅ Mindst 32 GB storage (SSD anbefales)
 - ✅ Adgang til Proxmox shell (SSH eller web console)
@@ -69,8 +69,8 @@ Proxmox VE Helper Scripts er open source og vedligeholdes af community. Se [GitH
    - **VM ID**: Vælg et ledigt nummer (f.eks. `100`)
    - **Machine Type**: Vælg `q35` (moderne, bedre performance)
    - **BIOS**: Vælg `OVMF (UEFI)` - påkrævet for HAOS
-   - **Disk størrelse**: Minimum `32GB`, anbefalet `64GB+`
-   - **CPU kerner**: Minimum `2`, anbefalet `4`
+   - **Diskstørrelse**: Minimum `32GB`, anbefalet `64GB+`
+   - **CPU-kerner**: Minimum `2`, anbefalet `4`
    - **RAM**: Minimum `4096MB`, anbefalet `4096-8192MB`
    - **Bridge**: Dit netværksbridge (typisk `vmbr0`)
    - **MAC adresse**: Accepter auto-genereret
@@ -88,7 +88,7 @@ Proxmox VE Helper Scripts er open source og vedligeholdes af community. Se [GitH
    # I Proxmox shell
    qm guest cmd VMID network-get-interfaces
    ```
-   Eller tjek din router's DHCP-liste.
+   Eller tjek din routers DHCP-liste.
 </Steps>
 
 <Aside type="note" title="Script features">
@@ -182,12 +182,12 @@ Hvis du foretrækker fuld kontrol, kan du installere manuelt.
 | **CPU Type** | `host` | Fuld CPU support |
 | **CPU Cores** | `2-4` | 2 minimum, 4 anbefalet |
 | **RAM** | `4096-8192 MB` | 4GB minimum |
-| **SCSI Controller** | `VirtIO SCSI` | Bedste disk performance |
+| **SCSI Controller** | `VirtIO SCSI` | Bedste diskperformance |
 | **Disk Cache** | `Write through` | Sikker, god performance |
-| **Network** | `VirtIO` | Bedste netværks performance |
-| **QEMU Agent** | `Enabled` | Snapshots, IP visning |
+| **Network** | `VirtIO` | Bedste netværksperformance |
+| **QEMU Agent** | `Enabled` | Snapshots, IP-visning |
 
-### Eksempel konfigurationsfil
+### Eksempel på konfigurationsfil
 
 ```ini title="/etc/pve/qemu-server/VMID.conf"
 agent: 1
@@ -246,7 +246,7 @@ For at bruge USB-enheder (Zigbee coordinator, Z-Wave stick) i Home Assistant:
 Brug **Vendor/Device ID** i stedet for **USB Port**. Så virker det selvom du sætter USB-enheden i en anden port.
 </Aside>
 
-## 💾 Udvid disk størrelse
+## 💾 Udvid diskstørrelsen
 
 Hvis du løber tør for plads:
 
@@ -285,7 +285,7 @@ qm delsnapshot VMID pre-upgrade
 ```
 
 <Aside type="tip" title="Snapshot best practice">
-Tag altid et snapshot FØR større Home Assistant opdateringer. Navngiv det beskrivende, f.eks. `pre-2024.12-upgrade`.
+Tag altid et snapshot FØR større Home Assistant-opdateringer. Navngiv det beskrivende, f.eks. `pre-2024.12-upgrade`.
 </Aside>
 
 ### Backup (fulde)
@@ -335,8 +335,8 @@ Eller sæt automatisk backup op via **Datacenter** → **Backup** i web-interfac
 **Tjek disse ting:**
 1. Er BIOS sat til `OVMF (UEFI)`? HAOS kræver UEFI.
 2. Er boot order korrekt? Skal være `scsi0` eller `virtio0`.
-3. Har du nok RAM? Minimum 2GB, anbefalet 4GB.
-4. Tjek Proxmox logs: `journalctl -u pve-manager`
+3. Har du nok RAM? Minimum 4 GB, anbefalet 4-8 GB.
+4. Tjek task-loggen i Proxmox web-interfacet eller `journalctl -u pvedaemon`
 </Aside>
 
 <Aside type="tip" title="Ingen netværk?">

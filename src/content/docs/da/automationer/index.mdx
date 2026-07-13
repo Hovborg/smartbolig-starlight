@@ -50,7 +50,7 @@ TRIGGER  →  BETINGELSE  →  HANDLING
 |------------|---------|----------|
 | Lys ved solnedgang | Sol går ned | Tænd stuelys |
 | Godmorgen rutine | Kl. 07:00 på hverdage | Tænd lys, start kaffe |
-| Velkomst hjem | Person ankommer | Tænd lys, lås op |
+| Velkomst hjem | Person ankommer | Tænd lys og varme |
 | Godnat | Kl. 23:00 | Sluk alt, lås døre |
 
 ### 🔔 Notifikationer
@@ -66,20 +66,20 @@ TRIGGER  →  BETINGELSE  →  HANDLING
 | Automation | Trigger | Handling |
 |------------|---------|----------|
 | Adaptivt lys | Tid på dagen | Juster farvetemperatur |
-| Ferie tilstand | Ingen hjemme 24h+ | Simuler tilstedeværelse |
+| Ferietilstand | Ingen hjemme 24h+ | Simuler tilstedeværelse |
 | Energi overvågning | Høj effekt | Log og advar |
 
 ## 🔧 Nyttige værktøjer
 
 ### Hjælpere (Helpers)
 
-Gå til **Indstillinger** → **Enheder** → **Hjælpere** for at oprette:
+Gå til **Indstillinger** → **Enheder og tjenester** → **Hjælpere** for at oprette:
 
 | Hjælper | Brug til |
 |---------|----------|
-| **Input Boolean** | Ferie tilstand, gæste tilstand |
-| **Input Number** | Temperatur grænser, timer |
-| **Input Select** | Hus tilstand (hjemme/væk/sover) |
+| **Input Boolean** | Ferietilstand, gæstetilstand |
+| **Input Number** | Temperaturgrænser, timere |
+| **Input Select** | Hustilstand (hjemme/væk/sover) |
 | **Timer** | Countdown til handlinger |
 
 ### Scener
@@ -91,7 +91,7 @@ Kombinér flere handlinger:
   entities:
     light.stue:
       state: on
-      brightness_pct: 40
+      brightness: 102
       color_temp: 400
     light.tv_baggrund:
       state: on

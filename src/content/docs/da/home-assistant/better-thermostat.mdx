@@ -43,11 +43,11 @@ Ved at bruge en ekstern sensor og vinduesdetektion kan du typisk spare 15-25% p�
 | **Vinduessensor** | Aqara, Sonoff, Shelly | ⭐ Valgfri |
 | **Home Assistant** | Med HACS installeret | ✅ Ja |
 
-### Fra dit setup
+### Et typisk udgangspunkt
 
-Baseret på din Home Assistant har du allerede:
+Guiden tager udgangspunkt i en opsætning, mange allerede har:
 - **Shelly TRV** radiator-termostater i stuen
-- **Shelly Wall Display** med temperatursensor
+- **Shelly Wall Display** eller anden enhed med temperatursensor
 - Flere temperatursensorer rundt i huset
 
 ## 🔧 Installation
@@ -85,24 +85,20 @@ Ved oprettelse skal du angive:
 
 ### Avancerede indstillinger
 
-```yaml
-# Disse kan justeres via UI efter oprettelse:
+Efter oprettelse kan du justere disse under **Indstillinger** → **Enheder og tjenester** → **Better Thermostat** → **Konfigurer**:
 
-# Temperatur offsets
-outdoor_sensor: sensor.openweathermap_temperature
-window_open_timeout: 30  # sekunder før reaktion på åbent vindue
-
-# Presets (standard værdier)
-eco_temp: 19
-comfort_temp: 21
-boost_temp: 24
-away_temp: 16
-sleep_temp: 18
-```
+| Indstilling | Intern nøgle | Funktion |
+|-------------|--------------|----------|
+| **Outdoor Sensor** | `outdoor_sensor` | Udetemperatur, fx `sensor.openweathermap_temperature` |
+| **Off Temperature** | `off_temperature` | Udetemperatur hvor varmen slås helt fra |
+| **Window Delay** | `window_off_delay` | Sekunder før reaktion på åbent vindue (fx 30) |
+| **Window Delay After** | `window_off_delay_after` | Sekunder før varmen genoptages efter lukket vindue |
+| **Tolerance** | `tolerance` | Tilladt afvigelse før termostaten regulerer |
+| **Presets** | `presets` | Vælg hvilke presets (eco, comfort, away osv.) der skal være aktive |
 
 ## 📊 Eksempel: Stue med 2 radiatorer
 
-Her er et komplet eksempel fra dit setup med stuen der har 2 Shelly TRV'er:
+Her er et komplet eksempel med en stue, der har 2 Shelly TRV'er:
 
 ### Trin 1: Opret Better Thermostat for rum
 
@@ -266,19 +262,20 @@ Better Thermostat kan automatisk stoppe opvarmning når et vindue åbnes:
 
 ```yaml
 # Konfigureres ved oprettelse eller via Options
-window_sensor: binary_sensor.vindue_stue
-window_delay: 30  # Vent 30 sek før reaktion
+window_sensors: binary_sensor.vindue_stue
+window_off_delay: 30        # Vent 30 sek. før varmen stoppes
+window_off_delay_after: 0   # Genoptag varmen straks når vinduet lukkes
 ```
 
-### Uden sensor (temperatur-baseret)
+### Uden sensor (temperaturbaseret)
 
-Better Thermostat kan detektere åbne vinduer via pludseligt temperaturfald:
+Better Thermostat har ikke indbygget temperaturfaldsdetektion. Mangler du en fysisk sensor, kan du i stedet oprette en **virtuel vinduessensor**, der skifter til "on" ved et pludseligt temperaturfald:
 
-```yaml
-# Aktiveres i Options
-window_detection_method: temperature_drop
-window_detection_threshold: 0.5  # °C fald over kort tid
-```
+<Steps>
+1. Installer community-blueprintet [Window open detection by temperature](https://community.home-assistant.io/t/window-open-detection-by-temperature/506653)
+2. Opret en automation fra blueprintet med din rumtemperatursensor og en input_boolean som "vindue"
+3. Vælg input_boolean/binary_sensor som **Window Sensor** i Better Thermostat
+</Steps>
 
 ## 📱 Dashboard Card
 
@@ -342,11 +339,16 @@ template:
           {% else %}
             Idle
           {% endif %}
-        
-      - name: "Daglig Varmetid Stue"
-        state: >
-          {{ (states('sensor.stue_varme_heating_time') | float(0) / 60) | round(1) }}
-        unit_of_measurement: "timer"
+
+# history_stats måler hvor længe status-sensoren har stået på "Varmer" i dag
+sensor:
+  - platform: history_stats
+    name: "Daglig Varmetid Stue"
+    entity_id: sensor.stue_varme_status
+    state: "Varmer"
+    type: time   # Resultat i timer
+    start: "{{ today_at() }}"
+    end: "{{ now() }}"
 ```
 
 ## 🔧 Fejlfinding
@@ -365,7 +367,7 @@ template:
 </Aside>
 
 <Aside type="tip" title="Vindues-detektion virker ikke?">
-- Øg `window_delay` til 60 sekunder
+- Øg `window_off_delay` til 60 sekunder
 - Verificer at sensor entity er korrekt
 - Tjek at sensor rapporterer "on" når vindue er åbent
 </Aside>

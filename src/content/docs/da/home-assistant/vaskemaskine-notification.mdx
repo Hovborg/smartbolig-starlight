@@ -104,12 +104,9 @@ automation:
         below: 5
         for:
           minutes: 3
-    condition:
-      # Kun hvis den har kørt (ikke ved opstart)
-      - condition: numeric_state
-        entity_id: sensor.vaskemaskine_power
-        above: 10
-        # Har været over 10W inden for de sidste 30 min
+    # Ingen condition nødvendig: numeric_state-triggeren fyrer kun,
+    # når forbruget krydser fra over 5W til under 5W og bliver der i 3 min.
+    # Ved genstart fyrer den derfor ikke af sig selv.
     action:
       - service: notify.mobile_app_din_telefon
         data:

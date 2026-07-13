@@ -273,15 +273,9 @@ logger:
     # homeassistant.components.automation: debug
 ```
 
-### Deaktiver Unødvendige Features
+### Fjern ubrugte integrationer
 
-```yaml
-# configuration.yaml
-# Kun hvis du ikke bruger dem:
-discovery:           # Automatisk opdagelse
-zeroconf:           # mDNS
-ssdp:               # UPnP discovery
-```
+Tomme nøgler som `zeroconf:` eller `ssdp:` i `configuration.yaml` aktiverer integrationerne — de deaktiverer dem ikke, og `discovery` findes slet ikke længere i Home Assistant. Vil du spare ressourcer, så fjern i stedet integrationer, du ikke bruger, under **Indstillinger → Enheder & Tjenester**, og afinstaller HACS-integrationer, der bare samler støv.
 
 ### Raspberry Pi Specifikt
 
