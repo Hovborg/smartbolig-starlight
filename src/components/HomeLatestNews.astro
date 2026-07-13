@@ -33,6 +33,10 @@ const formatDate = (date: Date) =>
     year: "numeric",
     timeZone: "UTC",
   }).format(date);
+
+// ai-news-thumbs.mjs renders a 320x180 WebP next to every base PNG at build
+// time, so the 160x90 list thumb never loads the full 1200x630 hero image.
+const thumbSrc = (src: string) => src.replace(/\.png$/, "-thumb.webp");
 ---
 
 <div class="home-latest-news">
@@ -49,7 +53,7 @@ const formatDate = (date: Date) =>
             {item.image && (
               <img
                 class="home-news-row__thumb"
-                src={item.image.src}
+                src={thumbSrc(item.image.src)}
                 alt=""
                 width="160"
                 height="90"
