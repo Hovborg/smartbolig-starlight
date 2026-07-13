@@ -50,7 +50,7 @@ TRIGGER  →  CONDITION  →  ACTION
 |------------|---------|--------|
 | Lights at sunset | Sun goes down | Turn on living room lights |
 | Good morning routine | 7:00 AM on weekdays | Turn on lights, start coffee |
-| Welcome home | Person arrives | Turn on lights, unlock door |
+| Welcome home | Person arrives | Turn on lights and heating |
 | Good night | 11:00 PM | Turn off everything, lock doors |
 
 ### 🔔 Notifications
@@ -73,7 +73,7 @@ TRIGGER  →  CONDITION  →  ACTION
 
 ### Helpers
 
-Go to **Settings** → **Devices** → **Helpers** to create:
+Go to **Settings** → **Devices & services** → **Helpers** to create:
 
 | Helper | Use for |
 |--------|---------|
@@ -91,7 +91,7 @@ Combine multiple actions:
   entities:
     light.living_room:
       state: on
-      brightness_pct: 40
+      brightness: 102
       color_temp: 400
     light.tv_backlight:
       state: on

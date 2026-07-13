@@ -125,6 +125,14 @@ AVIF/WebP-filer efter en ændring af masteren med:
 npm run images:home
 ```
 
+Forsidens nyhedsliste bruger små WebP-thumbnails (`-thumb.webp`) ved siden af
+AI-nyhedernes hero-PNG'er. De genereres automatisk som første trin i
+`npm run build`; kør dem manuelt med:
+
+```bash
+npm run images:news-thumbs
+```
+
 Aktuelle guideforløb omfatter blandt andet:
 
 - Matter og Thread i Home Assistant 2026
