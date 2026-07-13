@@ -32,14 +32,14 @@ mkdir -p "${UNIT_DIR}"
 
 cat > "${UNIT_DIR}/smartbolig-ai-news.service" <<EOF
 [Unit]
-Description=SmartBolig AI News daily automation (publish + PR + auto-merge)
+Description=SmartBolig AI News daily automation (publish + PR + editorial review)
 # Notify via GitHub issue if the run fails, so silent breakage can't go unnoticed.
 OnFailure=smartbolig-ai-news-failure.service
 
 [Service]
 Type=oneshot
 # The script is self-contained: sync -> npm ci -> source-health -> publish ->
-# ComfyUI images -> tests/validate/build -> commit -> push -> PR -> auto-merge.
+# ComfyUI images -> tests/validate/build -> commit -> push -> PR awaiting separate editorial review.
 ExecStart=${RUNNER}
 Environment=HOME=${HOME}
 Environment=PATH=/usr/bin:${HOME}/.local/bin:${HOME}/.npm-global/bin:/usr/local/bin:/bin
