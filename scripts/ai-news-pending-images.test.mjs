@@ -16,7 +16,7 @@ async function writeArticle(root, date) {
 title: "AI-nyheder, ${date}"
 description: "Test"
 heroImage:
-  src: "/images/ai-news/${date}.png"
+  src: "/images/ai-news/${date}.jpg"
   alt: "SmartBolig hardware visual"
   caption: "SmartBolig hardware."
 ---
@@ -35,8 +35,8 @@ test('AI News image scanner leaves missing ComfyUI output pending without crashi
 
   assert.match(stdout, /Pending AI News article images/);
   assert.match(stdout, /2026-04-20/);
-  assert.match(stdout, /public\/images\/ai-news\/2026-04-20\.png/);
-  assert.match(stdout, /public\/images\/ai-news\/2026-04-20-16x9\.png/);
+  assert.match(stdout, /public\/images\/ai-news\/2026-04-20\.jpg/);
+  assert.match(stdout, /public\/images\/ai-news\/2026-04-20-16x9\.jpg/);
 });
 
 test('AI News image scanner reports clean when all date-specific variants exist', async () => {
@@ -45,7 +45,7 @@ test('AI News image scanner reports clean when all date-specific variants exist'
   const imageDir = path.join(tmp, 'public/images/ai-news');
   await mkdir(imageDir, { recursive: true });
   for (const suffix of ['', '-16x9', '-4x3', '-1x1']) {
-    await writeFile(path.join(imageDir, `2026-04-20${suffix}.png`), 'test image placeholder');
+    await writeFile(path.join(imageDir, `2026-04-20${suffix}.jpg`), 'test image placeholder');
   }
 
   const { stdout } = await execFileAsync('node', ['scripts/ai-news-pending-images.mjs', '--root', tmp], {

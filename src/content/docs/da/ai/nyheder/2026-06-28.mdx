@@ -4,14 +4,18 @@ description: "Kurateret AI-overblik for 28. juni 2026: modeller, produkter, Chat
 date: 2026-06-28
 lastUpdated: 2026-06-28
 heroImage:
-  src: "/images/ai-news/2026-06-28.png"
-  alt: "SmartBolig-hardwarevisual om dagens AI-nyheder fra OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI"
-  caption: "SmartBolig-hardware sat op til dagens AI-nyheder om OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI."
+  src: "/images/ai-news/2026-06-28.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI"
+  caption: "Redaktionelt AI-nyhedsbillede om OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI"
 news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "8beb215a80a4a0d5a0e38c0df6f21f56046f3e4ea4eeefa439e3251f4b021c97"
+  sourceSetFingerprint: "bfbe798618eeae4bcc6d8aba19f01060ee05caa189334cceff324814a4d0c729"
   signal: high
   sources:
     - "https://openai.com/index/previewing-gpt-5-6-sol"
-    - "https://blog.google/products-and-platforms/products/search/google-finance-updates-june-2026/"
+    - "https://blog.google/products-and-platforms/products/search/google-finance-updates-june-2026"
     - "https://github.com/openclaw/openclaw/releases/tag/v2026.6.9"
     - "https://github.com/anthropics/claude-code/releases/tag/v2.1.195"
     - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.49.0"
@@ -21,88 +25,101 @@ sidebar:
 
 import { Aside } from "@astrojs/starlight/components";
 
-<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <strong>Publiceret:</strong> <time datetime="2026-06-28">28. juni 2026</time> | <strong>Opdateret:</strong> <time datetime="2026-06-28">28. juni 2026</time> · 5 officielle kilder</p>
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-06-28">28. juni 2026</time> · 5 udvalgte kilder</p>
 
-<p class="ai-news-lede">Dagens stærkeste signaler kommer fra OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI. Fokus er de AI-nyheder, der kan mærkes i produkter, modeller, browser, agent-workflows, API'er, privacy, pris eller sikkerhed.</p>
+<p class="ai-news-lede">Dagens optegnelse ledes af en konkret opdatering fra Google Finance, mens flere velkendte AI-værktøjer denne gang kun leverer bare versionsnumre uden forklaring. OpenAI har desuden løftet sløret for et nyt modelnavn, men uden yderligere detaljer at gå videre på.</p>
 
-<Aside type="note" title="Redaktionelt filter">
-SmartBolig.net vælger hellere færre nyheder med klare kilder end et langt nyhedsfeed. Artiklen bruger egne formuleringer og linker til originalkilderne.
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
 </Aside>
 
-## Hovedhistorien
+## Dagens historier
 
 ### 1. OpenAI: Previewing GPT-5.6 Sol: a next-generation model
 
-OpenAI News publicerede opdateringen 26. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenAI offentliggjorde opdateringen 25. jun. 2026. OpenAI har offentliggjort en forhåndsvisningsside med titlen 'Previewing GPT-5.6 Sol: a next-generation model', dateret 25. juni 2026. Kildematerialet indeholder hverken resumé eller brødtekst, så der er ingen konkrete oplysninger om modellens egenskaber eller lanceringstidspunkt at gengive.
 
-For SmartBolig-læsere er den relevante vinkel: Nyheden kan ændre, hvordan almindelige brugere og små teams bruger AI i hverdagen, ikke kun hvordan udviklere opdaterer værktøjer.
 
-Det næste skridt er konkret: Læs originalkilden og behandl nyheden som inspiration, indtil den har en konkret effekt på dit setup.
+**Hvorfor det er relevant:** For nu er det kun navnet GPT-5.6 Sol, der er bekræftet, så brugere kan ikke basere beslutninger om skift af model eller abonnement på denne meddelelse endnu.
 
-Kilde: [OpenAI News: Previewing GPT-5.6 Sol: a next-generation model](https://openai.com/index/previewing-gpt-5-6-sol)
+**Sådan verificerer du det:** Tjek OpenAIs egen annonceringsside for GPT-5.6 Sol for at se, om der er tilføjet en fuld beskrivelse, pris eller tilgængelighed siden denne meddelelse.
+
+**Usikkerhed:** Det er uvist, hvornår modellen lanceres, hvilke funktioner den adskiller sig med, og om den indgår i eksisterende abonnementer eller bliver en ny betalt tier.
+
+Kilde: [Previewing GPT-5.6 Sol: a next-generation model](https://openai.com/index/previewing-gpt-5-6-sol)
 
 ### 2. Google AI: Our latest Google Finance upgrades, including a new app
 
-Google AI Blog publicerede opdateringen 25. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Google AI offentliggjorde opdateringen 24. jun. 2026. Google har opdateret Google Finance og lancerer samtidig en ny Android-app, mens tjenesten forlader betastadiet. Opdateringen tilføjer blandt andet en portefølje-funktion, ifølge Googles egen beskrivelse.
 
-For SmartBolig-læsere er den relevante vinkel: Google AI-ændringer kan påvirke Gemini, Search, Chrome, API-brug og hvordan AI flytter ind i almindelige forbruger-workflows.
+> Kort kildeuddrag: The new Google Finance is coming out of beta and launching a new Android app. Google Finance updates: New app,…
 
-Det næste skridt er konkret: Tjek om ændringen påvirker budget, latency eller modelvalg, før den bliver del af en fast automation.
+**Hvorfor det er relevant:** Med en dedikeret app i stedet for kun webadgang kan brugere, der følger investeringer ved siden af deres smart home-opsætning, nu samle beholdninger ét sted i porteføljefunktionen.
 
-Kilde: [Google AI Blog: Our latest Google Finance upgrades, including a new app](https://blog.google/products-and-platforms/products/search/google-finance-updates-june-2026/)
+**Sådan verificerer du det:** Søg efter Google Finance i Google Play for at se, om appen er tilgængelig i din region, og sammenlign porteføljefunktionen med den, du allerede bruger.
+
+**Usikkerhed:** Kilden nævner ikke, om appen kommer til iOS, hvilke lande der får adgang først, eller om betafunktioner forsvinder for brugere af den gamle version.
+
+Kilde: [Our latest Google Finance upgrades, including a new app](https://blog.google/products-and-platforms/products/search/google-finance-updates-june-2026)
 
 ### 3. OpenClaw: openclaw 2026.6.9
 
-OpenClaw releases publicerede opdateringen 27. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenClaw offentliggjorde opdateringen 26. jun. 2026. OpenClaw-projektet har udgivet version 2026.6.9 på GitHub, dateret 26. juni 2026. Selve udgivelsessiden indeholder kun GitHubs standardnavigation i det indsamlede materiale, så der er ingen changelog eller beskrivelse af konkrete ændringer at referere.
 
-For SmartBolig-læsere er den relevante vinkel: OpenClaw-ændringer kan påvirke lokale agent-workflows, cron-jobs, ACP-integrationer og hvordan automatiserede repo-opgaver styres.
+> Kort kildeuddrag: Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 - Release openclaw 2026.6.9 · openclaw/openclaw Release…
 
-Det næste skridt er konkret: Læs release notes før gateway eller cron-jobs opdateres, fordi runtime-ændringer hurtigt kan påvirke automatiserede opgaver.
+**Hvorfor det er relevant:** Brugere af OpenClaw som personlig AI-assistent kan opdatere til den nye version, men uden en kendt ændringsliste er det ikke muligt at vurdere, om opdateringen retter fejl, ændrer adfærd eller kræver ny konfiguration.
 
-Kilde: [OpenClaw releases: openclaw 2026.6.9](https://github.com/openclaw/openclaw/releases/tag/v2026.6.9)
+**Sådan verificerer du det:** Åbn udgivelsesnoterne for 2026.6.9 direkte på OpenClaws GitHub-side, før du opdaterer en opsætning, der kører i produktion.
+
+**Usikkerhed:** Det er ukendt, hvad der konkret er ændret, om der er brydende ændringer, og om opdateringen er markeret som stabil eller eksperimentel.
+
+Kilde: [openclaw 2026.6.9](https://github.com/openclaw/openclaw/releases/tag/v2026.6.9)
 
 ### 4. Claude Code: v2.1.195
 
-Claude Code releases publicerede opdateringen 26. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Claude Code offentliggjorde opdateringen 25. jun. 2026. Version 2.1.195 af Claude Code er udkommet på GitHub den 25. juni 2026, ifølge udgivelsessiden. Det tilgængelige kildemateriale gengiver dog kun sidens generelle navigationsmenu og ikke selve udgivelsesnoterne, så opdateringens indhold er ikke beskrevet her.
 
-For SmartBolig-læsere er den relevante vinkel: Claude Code bruges ofte direkte i lokale repos. Nye features og rettelser kan påvirke permissions, team-workflows, hooks, rate-limit feedback og enterprise-netværk.
+> Kort kildeuddrag: Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster…
 
-Det næste skridt er konkret: Læs ændringerne for permissions og team-opsætning, før du opdaterer en maskine der arbejder direkte i produktionsrepos.
+**Hvorfor det er relevant:** For udviklere, der bruger Claude Code til daglige kodeopgaver, betyder udgivelsen kun, at et nyt versionsnummer findes; hvad det ændrer i praksis, kan ikke afgøres ud fra denne kilde.
 
-Kilde: [Claude Code releases: v2.1.195](https://github.com/anthropics/claude-code/releases/tag/v2.1.195)
+**Sådan verificerer du det:** Slå version 2.1.195 op i Claude Codes egen changelog, og sammenlign med den version, du selv kører via 'claude --version', før du opdaterer.
+
+**Usikkerhed:** Det fremgår ikke, om opdateringen indeholder sikkerhedsrettelser, nye kommandoer eller ændringer, der kræver justering af eksisterende workflows.
+
+Kilde: [v2.1.195](https://github.com/anthropics/claude-code/releases/tag/v2.1.195)
 
 ### 5. Gemini CLI: Release v0.49.0
 
-Gemini CLI releases publicerede opdateringen 25. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Gemini CLI offentliggjorde opdateringen 24. jun. 2026. Gemini CLI nåede version 0.49.0 den 24. juni 2026 ifølge udgivelsen på GitHub. Som med flere andre kilder i dagens udgave bestod det skrabede materiale udelukkende af navigationsmenuen, ikke af selve ændringsnoterne.
 
-For SmartBolig-læsere er den relevante vinkel: Gemini CLI ændrer sig hurtigt. Tjek versionsnoter, især hvis du bruger API key, Vertex AI, checkpoints eller automatiserede agent-runs.
+> Kort kildeuddrag: An open-source AI agent that brings the power of Gemini directly into your terminal. - Release Release v0.49.0 · google-gemini/gemini-cli…
 
-Det næste skridt er konkret: Gem CLI-versionen sammen med projektets agent-instruktioner, så automatiske runs kan reproduceres.
+**Hvorfor det er relevant:** Terminal-brugere af Gemini CLI får adgang til en opdateret pakke, men uden ændringsliste forbliver effekten på egne scripts og kommandoer et gætværk indtil videre.
 
-Kilde: [Gemini CLI releases: Release v0.49.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.49.0)
+**Sådan verificerer du det:** Kør gemini --version efter opdatering, og hold øje med Gemini CLI's egen udgivelsesside for at se, hvad 0.49.0 faktisk indeholder.
+
+**Usikkerhed:** Om opdateringen retter fejl, tilføjer funktioner eller ændrer autentificering, fremgår ikke af kilden.
+
+Kilde: [Release v0.49.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.49.0)
 
 ## Hvorfor det betyder noget
 
-- Artiklen bygger på 5 officielle kilder fra OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI.
 - Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
-- Opdater ikke aktive automatiseringer uden at læse originalkilden først.
-
-## Hvad du bør gøre nu
-
-1. Læs originalkilden, før du aktiverer en ny AI-funktion, ændrer modelvalg eller opdaterer et agent-workflow.
-2. Test nye modeller, apps, API'er og agent-versioner i et ufarligt projekt, før de bruges i drift.
-3. Vurder privacy, pris og rollback, før AI får adgang til browser, filer, billeder eller automatiseringer.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
 
 ## Kilder og videre læsning
 
-| Område | Kilde | Dato |
+| Udgiver | Kilde | Dato |
 | --- | --- | --- |
-| OpenAI | [Previewing GPT-5.6 Sol: a next-generation model](https://openai.com/index/previewing-gpt-5-6-sol) | 26. jun. 2026 |
-| Google AI | [Our latest Google Finance upgrades, including a new app](https://blog.google/products-and-platforms/products/search/google-finance-updates-june-2026/) | 25. jun. 2026 |
-| OpenClaw | [openclaw 2026.6.9](https://github.com/openclaw/openclaw/releases/tag/v2026.6.9) | 27. jun. 2026 |
-| Claude Code | [v2.1.195](https://github.com/anthropics/claude-code/releases/tag/v2.1.195) | 26. jun. 2026 |
-| Gemini CLI | [Release v0.49.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.49.0) | 25. jun. 2026 |
+| OpenAI | [Previewing GPT-5.6 Sol: a next-generation model](https://openai.com/index/previewing-gpt-5-6-sol) | 25. jun. 2026 |
+| Google AI | [Our latest Google Finance upgrades, including a new app](https://blog.google/products-and-platforms/products/search/google-finance-updates-june-2026) | 24. jun. 2026 |
+| OpenClaw | [openclaw 2026.6.9](https://github.com/openclaw/openclaw/releases/tag/v2026.6.9) | 26. jun. 2026 |
+| Claude Code | [v2.1.195](https://github.com/anthropics/claude-code/releases/tag/v2.1.195) | 25. jun. 2026 |
+| Gemini CLI | [Release v0.49.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.49.0) | 24. jun. 2026 |
 
 ## Redaktionsnote
 
-Artiklen bygger på officielle kilder og korte parafraser. Lange citater, kopieret brødtekst og private tekniske detaljer er fravalgt.
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.

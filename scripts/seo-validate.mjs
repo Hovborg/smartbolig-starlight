@@ -174,10 +174,10 @@ async function main() {
     fail(issues, daNewsDir, 'missing mirrored AI News daily issue');
   } else {
     const latestAiNewsImages = [
-      `public/images/ai-news/${latest}.png`,
-      `public/images/ai-news/${latest}-16x9.png`,
-      `public/images/ai-news/${latest}-4x3.png`,
-      `public/images/ai-news/${latest}-1x1.png`,
+      `public/images/ai-news/${latest}.jpg`,
+      `public/images/ai-news/${latest}-16x9.jpg`,
+      `public/images/ai-news/${latest}-4x3.jpg`,
+      `public/images/ai-news/${latest}-1x1.jpg`,
     ];
     for (const imagePath of latestAiNewsImages) {
       if (!existsSync(path.join(rootDir, imagePath))) {
@@ -193,9 +193,9 @@ async function main() {
         { needle: '<meta property="og:locale" content="da_DK"', label: 'Danish Open Graph locale' },
         { needle: '<meta property="og:locale:alternate" content="en_US"', label: 'Danish alternate Open Graph locale' },
         { needle: '<meta property="og:type" content="article"', label: 'article Open Graph type' },
-        { needle: `<meta property="og:image" content="https://smartbolig.net/images/ai-news/${latest}.png"`, label: 'date-specific AI News Open Graph image' },
+        { needle: `<meta property="og:image" content="https://smartbolig.net/images/ai-news/${latest}.jpg"`, label: 'date-specific AI News Open Graph image' },
         { needle: 'ai-news-hero', label: 'visible AI News article image figure' },
-        { needle: `src="/images/ai-news/${latest}.png"`, label: 'visible date-specific AI News article image source' },
+        { needle: `src="/images/ai-news/${latest}.jpg"`, label: 'visible date-specific AI News article image source' },
         { needle: '<meta name="twitter:title"', label: 'Twitter title' },
         { needle: '<meta name="twitter:description"', label: 'Twitter description' },
         { needle: `<meta property="article:published_time" content="${latest}T00:00:00.000Z"`, label: 'article published time' },
@@ -206,7 +206,7 @@ async function main() {
         { needle: '"@type":"NewsArticle"', label: 'NewsArticle JSON-LD' },
         { needle: `"mainEntityOfPage":{"@id":"https://smartbolig.net/da/ai/nyheder/${latest}/#webpage"`, label: 'article WebPage reference' },
         { needle: `"datePublished":"${latest}T00:00:00.000Z"`, label: 'JSON-LD datePublished' },
-        { needle: `"url":"https://smartbolig.net/images/ai-news/${latest}-16x9.png"`, label: 'date-specific AI News 16:9 structured-data image' },
+        { needle: `"url":"https://smartbolig.net/images/ai-news/${latest}-16x9.jpg"`, label: 'date-specific AI News 16:9 structured-data image' },
         { needle: '"citation":[', label: 'source citations in JSON-LD' },
         { needle: '"name":"Forside"', label: 'Danish breadcrumb home label' },
         { needle: '"name":"AI-nyheder"', label: 'Danish breadcrumb AI News label' },
@@ -227,9 +227,9 @@ async function main() {
         { needle: '<meta property="og:locale" content="en_US"', label: 'English Open Graph locale' },
         { needle: '<meta property="og:locale:alternate" content="da_DK"', label: 'English alternate Open Graph locale' },
         { needle: '<meta property="og:type" content="article"', label: 'article Open Graph type' },
-        { needle: `<meta property="og:image" content="https://smartbolig.net/images/ai-news/${latest}.png"`, label: 'date-specific AI News Open Graph image' },
+        { needle: `<meta property="og:image" content="https://smartbolig.net/images/ai-news/${latest}.jpg"`, label: 'date-specific AI News Open Graph image' },
         { needle: 'ai-news-hero', label: 'visible AI News article image figure' },
-        { needle: `src="/images/ai-news/${latest}.png"`, label: 'visible date-specific AI News article image source' },
+        { needle: `src="/images/ai-news/${latest}.jpg"`, label: 'visible date-specific AI News article image source' },
         { needle: '<meta name="twitter:title"', label: 'Twitter title' },
         { needle: '<meta name="twitter:description"', label: 'Twitter description' },
         { needle: `<meta property="article:published_time" content="${latest}T00:00:00.000Z"`, label: 'article published time' },
@@ -240,7 +240,7 @@ async function main() {
         { needle: '"@type":"NewsArticle"', label: 'NewsArticle JSON-LD' },
         { needle: `"mainEntityOfPage":{"@id":"https://smartbolig.net/en/ai/nyheder/${latest}/#webpage"`, label: 'article WebPage reference' },
         { needle: `"datePublished":"${latest}T00:00:00.000Z"`, label: 'JSON-LD datePublished' },
-        { needle: `"url":"https://smartbolig.net/images/ai-news/${latest}-16x9.png"`, label: 'date-specific AI News 16:9 structured-data image' },
+        { needle: `"url":"https://smartbolig.net/images/ai-news/${latest}-16x9.jpg"`, label: 'date-specific AI News 16:9 structured-data image' },
         { needle: '"citation":[', label: 'source citations in JSON-LD' },
         { needle: '"name":"Home"', label: 'English breadcrumb home label' },
         { needle: '"name":"AI News"', label: 'English breadcrumb AI News label' },

@@ -73,6 +73,24 @@ AI-nyhedssektionen opdateres dagligt kl. 07:20 af `scripts/openclaw-ai-news-dail
 som henter officielle kilder, genererer artikler (da+en), bygger, validerer og
 auto-merger en PR.
 
+Pipelinen (v3):
+
+- **Kilder:** OpenAI News, Google AI Blog og Anthropic News (HTML-listing — Anthropic
+  har ingen RSS) plus release-feeds for Codex, Claude Code, Gemini CLI og OpenClaw.
+- **Redaktionelt lag:** dedup på URL-, emne- og kildesæt-fingerprints mod de sidste
+  14 dages udgaver, score-tærskel og krav om primær kilde.
+- **Tekst:** `AI_NEWS_LLM=1` (standard i automatikken) beder headless Claude Code om
+  unik per-historie-analyse (hvad/hvorfor/verificér/usikkerhed) ud fra kildeteksten;
+  ved enhver fejl falder pipelinen tilbage til den deterministiske skabelon, så
+  publiceringen aldrig blokerer. Frontmatter-feltet `news.copySource` viser hvilket
+  lag der skrev teksten.
+- **Billeder:** hero- og og:image-varianter genereres som JPEG (mozjpeg, ~100-300 KB);
+  forsiden bruger 320×180 WebP-thumbs.
+- **Arkivvedligehold:** `node scripts/ai-news-regenerate.mjs` kan genopbygge ældre
+  udgaver med v3-rendereren ud fra hver artikels egen kildetabel (`--dry-run`,
+  `--date`, `--no-llm`). Dage uden nye kilder renderes som ærlige
+  gentagelses-udgaver med `signal: low`.
+
 **Anbefalet setup (systemd user timer):**
 
 ```bash

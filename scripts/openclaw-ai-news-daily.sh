@@ -98,10 +98,19 @@ render_pending_images() {
 }
 
 pr_body_file() {
-  local file
+  local file copy_source
+  copy_source="$(node --input-type=module -e '
+    import { readFile } from "node:fs/promises";
+    try {
+      const result = JSON.parse(await readFile(process.argv[1], "utf8"));
+      process.stdout.write(result.copySource || "unknown");
+    } catch { process.stdout.write("unknown"); }
+  ' "${WORKDIR}/.ai-news-result.json" 2>/dev/null || echo unknown)"
   file="$(mktemp)"
   cat >"${file}" <<EOF
 Automated SmartBolig AI News draft for ${DATE}.
+
+Editorial copy source: ${copy_source} (llm = unique per-story analysis via headless Claude; template = deterministic fallback).
 
 Checks run:
 - npm run ai-news:source-health
@@ -141,7 +150,11 @@ main() {
   npm ci
   npm run ai-news:source-health
 
+  # AI_NEWS_LLM=1 asks headless Claude Code to draft unique editorial copy per
+  # story; on any failure the deterministic template takes over automatically,
+  # so the run never blocks on the LLM layer. Set AI_NEWS_LLM=0 to disable.
   AI_NEWS_RESULT_PATH="${WORKDIR}/.ai-news-result.json" \
+  AI_NEWS_LLM="${AI_NEWS_LLM:-1}" \
     node scripts/ai-news-publish.mjs --write --date "${DATE}" --days 10
 
   local ai_news_status

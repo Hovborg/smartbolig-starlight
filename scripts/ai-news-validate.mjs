@@ -104,7 +104,7 @@ function validateArticle(filePath, content, issues) {
     fail(issues, filePath, 'needs at least two official source links unless explicitly marked low in frontmatter');
   }
 
-  if (!/Kilde:|Source:/.test(content)) {
+  if (!/\b(?:kilde|source):/i.test(content)) {
     fail(issues, filePath, 'missing explicit source labels');
   }
 }

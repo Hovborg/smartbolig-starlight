@@ -12,7 +12,7 @@ function decodeEntities(value = "") {
     .replace(/&gt;/g, ">");
 }
 
-function stripHtml(value = "") {
+export function stripHtml(value = "") {
   return decodeEntities(value)
     .replace(/<script[\s\S]*?<\/script>/gi, " ")
     .replace(/<style[\s\S]*?<\/style>/gi, " ")
@@ -79,6 +79,40 @@ export function parseFeed(xml, source) {
   }).filter((item) => item.title && item.canonicalUrl && !Number.isNaN(item.published.getTime()));
 }
 
+// Parses an HTML news listing (used for publishers without RSS, e.g.
+// www.anthropic.com/news): anchors to article slugs with an inline <time>
+// and a heading. Undated anchors are skipped — they cannot be date-windowed.
+export function parseHtmlListing(html, source) {
+  const base = new URL(source.url);
+  const seen = new Set();
+  const items = [];
+  const anchors = String(html).matchAll(/<a\b[^>]*href="(\/news\/[a-z0-9][a-z0-9-]*)"[^>]*>([\s\S]*?)<\/a>/gi);
+
+  for (const [, href, inner] of anchors) {
+    const title = stripHtml(inner.match(/<h[2-4][^>]*>([\s\S]*?)<\/h[2-4]>/i)?.[1] || "");
+    const publishedRaw = stripHtml(inner.match(/<time[^>]*>([\s\S]*?)<\/time>/i)?.[1] || "");
+    const published = new Date(publishedRaw);
+    const url = new URL(href, base).toString();
+    const canonicalUrl = canonicalizeUrl(url);
+    if (!title || !canonicalUrl || Number.isNaN(published.getTime()) || seen.has(canonicalUrl)) continue;
+    seen.add(canonicalUrl);
+    items.push({
+      source,
+      sourceId: source.id,
+      sourceName: source.name,
+      primary: Boolean(source.primary ?? source.critical),
+      title,
+      url,
+      canonicalUrl,
+      summary: "",
+      published,
+      publishedRaw,
+      bodyText: "",
+    });
+  }
+  return items;
+}
+
 async function fetchText(fetchImpl, url, headers) {
   const response = await fetchImpl(url, {
     headers,
@@ -93,11 +127,16 @@ export async function fetchCandidates(feeds, fetchImpl = fetch, options = {}) {
   for (const feed of feeds) {
     let parsed;
     try {
-      const xml = await fetchText(fetchImpl, feed.url, {
+      const body = await fetchText(fetchImpl, feed.url, {
         "User-Agent": "SmartBolig AI News Bot (+https://smartbolig.net/da/ai/nyheder/)",
-        Accept: "application/rss+xml, application/atom+xml, text/xml;q=0.9, */*;q=0.5",
+        Accept: feed.kind === "html-listing"
+          ? "text/html, application/xhtml+xml;q=0.9, */*;q=0.5"
+          : "application/rss+xml, application/atom+xml, text/xml;q=0.9, */*;q=0.5",
       });
-      parsed = parseFeed(xml, feed);
+      parsed = feed.kind === "html-listing" ? parseHtmlListing(body, feed) : parseFeed(body, feed);
+      if (feed.kind === "html-listing" && parsed.length === 0) {
+        throw new Error("HTML listing yielded no dated articles (markup may have changed)");
+      }
     } catch (error) {
       options.onFeedError?.(feed, error);
       continue;

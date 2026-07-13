@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { FEEDS, HIGH_SIGNAL_KEYWORDS, OFFICIAL_SOURCE_URLS } from './ai-news-sources.mjs';
 import { canonicalizeUrl, fetchCandidates, parseFeed } from './lib/ai-news-discovery.mjs';
 import { selectEditorialPackage } from './lib/ai-news-editorial.mjs';
+import { generateIssueCopy } from './lib/ai-news-llm.mjs';
 import { renderIssue } from './lib/ai-news-render.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -35,6 +36,7 @@ const args = parseArgs(process.argv.slice(2));
 const writeFiles = args.has('--write');
 const force = args.has('--force');
 const allowWeakSignal = args.has('--allow-weak-signal');
+const llmEnabled = args.has('--llm') || process.env.AI_NEWS_LLM === '1';
 const targetDate = args.get('--date') || process.env.AI_NEWS_DATE || new Date().toISOString().slice(0, 10);
 
 // The date becomes part of output filenames — reject anything that is not a
@@ -190,7 +192,7 @@ function scoreCandidates(items) {
     if (b.score !== a.score) return b.score - a.score;
     return b.published - a.published;
   });
-  const productSourceIds = new Set(['openai-news', 'google-ai']);
+  const productSourceIds = new Set(['openai-news', 'google-ai', 'anthropic-news']);
   return [
     ...candidates.filter((item) => productSourceIds.has(item.source.id)),
     ...candidates.filter((item) => !productSourceIds.has(item.source.id)),
@@ -291,10 +293,22 @@ async function main() {
     process.exit(0);
   }
 
+  // Unique editorial prose via headless Claude when enabled; the deterministic
+  // template remains the always-available fallback so publishing never blocks.
+  let copy = null;
+  if (llmEnabled) {
+    try {
+      copy = await generateIssueCopy({ date: targetDate, items: selected });
+      console.log('LLM editorial copy accepted.');
+    } catch (error) {
+      console.warn(`LLM editorial copy unavailable (${error.message}); using template copy.`);
+    }
+  }
+
   const daPath = path.join(daNewsDir, `${targetDate}.mdx`);
   const enPath = path.join(enNewsDir, `${targetDate}.mdx`);
-  const daArticle = renderIssue({ locale: 'da', date: targetDate, editorialPackage: editorial });
-  const enArticle = renderIssue({ locale: 'en', date: targetDate, editorialPackage: editorial });
+  const daArticle = renderIssue({ locale: 'da', date: targetDate, editorialPackage: editorial, copy });
+  const enArticle = renderIssue({ locale: 'en', date: targetDate, editorialPackage: editorial, copy });
 
   if (!writeFiles) {
     console.log(daArticle);
@@ -322,6 +336,7 @@ async function main() {
     status: 'publish',
     date: targetDate,
     reason: 'Editorial package accepted.',
+    copySource: copy ? 'llm' : 'template',
     files: writes.filter((result) => result.changed).map((result) => path.relative(rootDir, result.path)),
   });
 }

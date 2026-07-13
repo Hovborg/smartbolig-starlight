@@ -42,7 +42,7 @@ function extractHeroImageSrc(content) {
 }
 
 function expectedImagePaths(date) {
-  return imageSuffixes.map((suffix) => `public/images/ai-news/${date}${suffix}.png`);
+  return imageSuffixes.map((suffix) => `public/images/ai-news/${date}${suffix}.jpg`);
 }
 
 async function findPendingImages({ rootDir, dateFilter }) {
@@ -63,7 +63,7 @@ async function findPendingImages({ rootDir, dateFilter }) {
     const article = path.relative(rootDir, articlePath);
     const content = await readFile(articlePath, 'utf8');
     const heroSrc = extractHeroImageSrc(content);
-    const expectedSrc = `/images/ai-news/${date}.png`;
+    const expectedSrc = `/images/ai-news/${date}.jpg`;
     if (!heroSrc) continue;
 
     const problems = [];

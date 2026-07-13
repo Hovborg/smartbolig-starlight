@@ -247,7 +247,7 @@ async function compositeWithAiBackground({ aiBgPath, variant, date, meta, provid
   await sharp(aiBgPath)
     .resize(variant.width, variant.height, { fit: 'cover', position: 'center' })
     .composite([{ input: Buffer.from(overlaySvg), top: 0, left: 0 }])
-    .png()
+    .jpeg({ quality: 82, mozjpeg: true })
     .toFile(outputPath);
 }
 
@@ -303,11 +303,11 @@ async function main() {
   const outputDir = path.join(rootDir, 'public/images/ai-news');
   await mkdir(outputDir, { recursive: true });
 
-  const allVariantsExist = !force && variants.every((variant) => existsSync(path.join(outputDir, `${date}${variant.suffix}.png`)));
+  const allVariantsExist = !force && variants.every((variant) => existsSync(path.join(outputDir, `${date}${variant.suffix}.jpg`)));
   const aiBgPath = allVariantsExist ? null : await tryGenerateAiBackground({ date, meta, rootDir });
 
   for (const variant of variants) {
-    const outputPath = path.join(outputDir, `${date}${variant.suffix}.png`);
+    const outputPath = path.join(outputDir, `${date}${variant.suffix}.jpg`);
     if (!force && existsSync(outputPath)) {
       console.log(`kept ${path.relative(rootDir, outputPath)}`);
       continue;
@@ -324,7 +324,7 @@ async function main() {
         description: meta.description,
         providers,
       });
-      await sharp(Buffer.from(svg)).png().toFile(outputPath);
+      await sharp(Buffer.from(svg)).jpeg({ quality: 82, mozjpeg: true }).toFile(outputPath);
       console.log(`wrote ${path.relative(rootDir, outputPath)} (procedural SVG fallback)`);
     }
   }

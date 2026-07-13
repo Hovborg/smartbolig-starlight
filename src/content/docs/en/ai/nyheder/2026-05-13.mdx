@@ -1,108 +1,125 @@
 ---
-title: "AI News, May 13, 2026"
-description: "Curated AI brief for May 13, 2026: models, products, ChatGPT, Claude, Gemini, API pricing, privacy, and agent workflows."
+title: "AI News, 13 May 2026"
+description: "Curated AI brief for 13 May 2026: models, products, ChatGPT, Claude, Gemini, API pricing, privacy, and agent workflows."
 date: 2026-05-13
 lastUpdated: 2026-05-13
 heroImage:
-  src: "/images/ai-news/2026-05-13.png"
-  alt: "SmartBolig hardware visual about today's AI news from OpenAI, Google AI, OpenClaw, Gemini CLI, Claude Code"
-  caption: "SmartBolig hardware arranged for today's AI news about OpenAI, Google AI, OpenClaw, Gemini CLI, Claude Code."
+  src: "/images/ai-news/2026-05-13.jpg"
+  alt: "Editorial AI news image about OpenAI, Google AI, OpenClaw, Gemini CLI, Claude Code"
+  caption: "Editorial AI news image about OpenAI, Google AI, OpenClaw, Gemini CLI, Claude Code"
 news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "d92c0719c968894d81bf8b0d0d95bcba53b92246cf0ac5759e4ca5eaf8012ceb"
+  sourceSetFingerprint: "bfbe798618eeae4bcc6d8aba19f01060ee05caa189334cceff324814a4d0c729"
   signal: high
   sources:
-    - https://openai.com/index/autoscout24
-    - https://blog.google/innovation-and-ai/technology/developers-tools/event-driven-webhooks/
-    - https://github.com/openclaw/openclaw/releases/tag/v2026.5.12-beta.4
-    - https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0
-    - https://github.com/anthropics/claude-code/releases/tag/v2.1.139
+    - "https://openai.com/index/autoscout24"
+    - "https://blog.google/innovation-and-ai/technology/developers-tools/event-driven-webhooks"
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.5.12-beta.4"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.139"
 sidebar:
-  label: "May 13, 2026"
+  label: "13 May 2026"
 ---
 
 import { Aside } from "@astrojs/starlight/components";
 
-<p class="ai-news-byline">By SmartBolig.net Editorial · <strong>Published:</strong> <time datetime="2026-05-13">May 13, 2026</time> | <strong>Updated:</strong> <time datetime="2026-05-13">May 13, 2026</time> · 5 official sources</p>
+<p class="ai-news-byline">By SmartBolig.net Editorial · <time datetime="2026-05-13">13 May 2026</time> · 5 selected sources</p>
 
-<p class="ai-news-lede">Today's strongest signals come from OpenAI, Google AI, OpenClaw, Gemini CLI, Claude Code. The focus is AI news that can be felt in products, models, browsers, agent workflows, APIs, privacy, pricing, or security.</p>
+<p class="ai-news-lede">Today's most substantial change is that Google has added event-driven webhooks to the Gemini API, letting long-running jobs push a notification instead of forcing you to poll for status. The rest of the issue is thinner: an OpenAI customer story with no concrete details, plus new version releases for OpenClaw, Gemini CLI and Claude Code where the source material shows no actual changelog.</p>
 
-<Aside type="note" title="Editorial filter">
-SmartBolig.net prefers fewer updates with clear sources over a long news feed. The article uses original wording and links back to the source material.
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
 </Aside>
 
-## Lead Story
+## Today's Stories
 
 ### 1. OpenAI: AutoScout24 scales engineering with AI-powered workflows
 
-OpenAI News published the update on May 12, 2026. It is an official source with practical impact for people using AI tools in real projects.
+**What changed:** OpenAI published the update on 11 May 2026. The source is only the headline of an OpenAI customer story stating that the German car marketplace AutoScout24 is scaling its engineering with AI-powered workflows, published on 11 May 2026. No summary or body text was captured, so what specifically changed in their tooling or process is not shown.
 
-For SmartBolig readers, the relevant angle is: The update can change how regular users and small teams use AI day to day, not just how developers update tools.
 
-The next step is concrete: Read the original source and treat the update as inspiration until it has a concrete effect on your setup.
+**Why it matters:** Without details on which tasks or tools are involved, there is no specific practical takeaway to draw for someone using AI tools at home — the story only signals that another large company uses AI in its engineering.
 
-Source: [OpenAI News: AutoScout24 scales engineering with AI-powered workflows](https://openai.com/index/autoscout24)
+**How to verify it:** Look up the AutoScout24 story on OpenAI's customer page yourself to see whether more detail has been published beyond the headline.
+
+**Uncertainty:** The source material has no summary or body content, so it is unclear which specific tools, models or workflows are involved, or whether any results were measured by OpenAI or by AutoScout24 itself.
+
+Source: [AutoScout24 scales engineering with AI-powered workflows](https://openai.com/index/autoscout24)
 
 ### 2. Google AI: Reduce friction and latency for long-running jobs with Webhooks in Gemini API
 
-Google AI Blog published the update on May 4, 2026. It is an official source with practical impact for people using AI tools in real projects.
+**What changed:** Google AI published the update on 3 May 2026. Google has introduced event-driven webhooks in the Gemini API, so the API can push a notification when a long-running job finishes instead of requiring the calling program to repeatedly poll for status.
 
-For SmartBolig readers, the relevant angle is: Google AI changes can affect Gemini, Search, Chrome, API usage, and how AI enters everyday consumer workflows.
+> Short source excerpt: Event-Driven Webhooks are a push-based notification system that eliminates the need for inefficient polling. Event-Driven Webhooks in the Gemini API…
 
-The next step is concrete: Check whether the change affects budget, latency, or model choice before adding it to a fixed automation.
+**Why it matters:** If you or your scripts use the Gemini API for tasks that take time, such as batch generation or analysis inside a home-automation setup, this means fewer unnecessary API calls, less delay before your system reacts, and potentially lower usage, because you no longer need a loop that keeps asking for status.
 
-Source: [Google AI Blog: Reduce friction and latency for long-running jobs with Webhooks in Gemini API](https://blog.google/innovation-and-ai/technology/developers-tools/event-driven-webhooks/)
+**How to verify it:** Check the Gemini API documentation on webhooks and set up a test endpoint for a long-running job before wiring it into a production script.
+
+**Uncertainty:** The source does not show which job types support webhooks, how the endpoint is authenticated, whether the feature is available in all regions, or whether it carries any additional cost.
+
+Source: [Reduce friction and latency for long-running jobs with Webhooks in Gemini API](https://blog.google/innovation-and-ai/technology/developers-tools/event-driven-webhooks)
 
 ### 3. OpenClaw: openclaw 2026.5.12-beta.4
 
-OpenClaw releases published the update on May 13, 2026. It is an official source with practical impact for people using AI tools in real projects.
+**What changed:** OpenClaw published the update on 12 May 2026. OpenClaw released version 2026.5.12-beta.4 on 12 May 2026. The captured source material is only GitHub's standard page navigation around the release — no actual changelog was included, so we cannot say what specifically changed in this beta.
 
-For SmartBolig readers, the relevant angle is: OpenClaw changes can affect local agent workflows, cron jobs, ACP integrations, and how automated repository tasks are controlled.
+> Short source excerpt: Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 - Release openclaw 2026.5.12-beta.4 · openclaw/openclaw Release…
 
-The next step is concrete: Read release notes before updating gateways or cron jobs because runtime changes can quickly affect automated tasks.
+**Why it matters:** Without a changelog there is nothing concrete to weigh if you are considering updating your personal AI assistant — the only certain fact is that a new beta build exists.
 
-Source: [OpenClaw releases: openclaw 2026.5.12-beta.4](https://github.com/openclaw/openclaw/releases/tag/v2026.5.12-beta.4)
+**How to verify it:** Open OpenClaw's release page on GitHub and read the actual changelog for 2026.5.12-beta.4 yourself before updating a running installation.
+
+**Uncertainty:** It is a beta release, so stability, which bugs were fixed, and whether it requires changes to your setup are not shown by the available material at all.
+
+Source: [openclaw 2026.5.12-beta.4](https://github.com/openclaw/openclaw/releases/tag/v2026.5.12-beta.4)
 
 ### 4. Gemini CLI: Release v0.42.0
 
-Gemini CLI releases published the update on May 12, 2026. It is an official source with practical impact for people using AI tools in real projects.
+**What changed:** Gemini CLI published the update on 11 May 2026. Google released Gemini CLI version 0.42.0 on 11 May 2026. As with the other GitHub sources in this issue, the captured text content is only the page's standard navigation, without the actual list of changes for the version.
 
-For SmartBolig readers, the relevant angle is: Gemini CLI changes quickly. Check release notes if you use API keys, Vertex AI, checkpoints, or automated agent runs.
+> Short source excerpt: An open-source AI agent that brings the power of Gemini directly into your terminal. - Release Release v0.42.0 · google-gemini/gemini-cli…
 
-The next step is concrete: Pin the CLI version alongside the project agent instructions so automated runs stay reproducible.
+**Why it matters:** Without a change list, there is no way to say whether this version fixes bugs, changes commands, or affects existing terminal workflows you have built around Gemini CLI.
 
-Source: [Gemini CLI releases: Release v0.42.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0)
+**How to verify it:** Check the changelog and release notes for v0.42.0 on Gemini CLI's GitHub page yourself before updating any script or automation that depends on the CLI.
+
+**Uncertainty:** It is unclear whether the update contains breaking changes, new commands, or only minor fixes, because the actual change content is not part of the source material.
+
+Source: [Release v0.42.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0)
 
 ### 5. Claude Code: v2.1.139
 
-Claude Code releases published the update on May 11, 2026. It is an official source with practical impact for people using AI tools in real projects.
+**What changed:** Claude Code published the update on 10 May 2026. Anthropic released Claude Code version 2.1.139 on 10 May 2026. The available source material is again only GitHub's page navigation, without the actual description of what changed in this version.
 
-For SmartBolig readers, the relevant angle is: Claude Code is often used directly inside local repositories. New features and fixes can affect permissions, team workflows, hooks, rate-limit feedback, and enterprise networking.
+> Short source excerpt: Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster…
 
-The next step is concrete: Read the permission and team setup notes before updating a machine that works directly inside production repositories.
+**Why it matters:** Since the content of the update is unknown, we cannot say whether it affects your existing Claude Code workflows, git integrations, or other routines you have set up.
 
-Source: [Claude Code releases: v2.1.139](https://github.com/anthropics/claude-code/releases/tag/v2.1.139)
+**How to verify it:** Check the release page for v2.1.139 in the anthropics/claude-code repository on GitHub for the full change list before updating in an environment you depend on.
+
+**Uncertainty:** Whether the update contains security fixes, new features, or only minor adjustments is not shown in the text content that was retrieved.
+
+Source: [v2.1.139](https://github.com/anthropics/claude-code/releases/tag/v2.1.139)
 
 ## Why It Matters
 
-- This article is based on 5 official sources from OpenAI, Google AI, OpenClaw, Gemini CLI, Claude Code.
 - The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
-- Do not update active automations before reading the original source.
-
-## What To Do Now
-
-1. Read the original source before enabling a new AI feature, changing model choice, or updating an agent workflow.
-2. Test new models, apps, APIs, and agent versions in a harmless project before using them in operations.
-3. Check privacy, pricing, and rollback before AI gets access to browsers, files, images, or automations.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
 
 ## Sources and Further Reading
 
-| Area | Source | Date |
+| Publisher | Source | Date |
 | --- | --- | --- |
-| OpenAI | [AutoScout24 scales engineering with AI-powered workflows](https://openai.com/index/autoscout24) | May 12, 2026 |
-| Google AI | [Reduce friction and latency for long-running jobs with Webhooks in Gemini API](https://blog.google/innovation-and-ai/technology/developers-tools/event-driven-webhooks/) | May 4, 2026 |
-| OpenClaw | [openclaw 2026.5.12-beta.4](https://github.com/openclaw/openclaw/releases/tag/v2026.5.12-beta.4) | May 13, 2026 |
-| Gemini CLI | [Release v0.42.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0) | May 12, 2026 |
-| Claude Code | [v2.1.139](https://github.com/anthropics/claude-code/releases/tag/v2.1.139) | May 11, 2026 |
+| OpenAI | [AutoScout24 scales engineering with AI-powered workflows](https://openai.com/index/autoscout24) | 11 May 2026 |
+| Google AI | [Reduce friction and latency for long-running jobs with Webhooks in Gemini API](https://blog.google/innovation-and-ai/technology/developers-tools/event-driven-webhooks) | 3 May 2026 |
+| OpenClaw | [openclaw 2026.5.12-beta.4](https://github.com/openclaw/openclaw/releases/tag/v2026.5.12-beta.4) | 12 May 2026 |
+| Gemini CLI | [Release v0.42.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0) | 11 May 2026 |
+| Claude Code | [v2.1.139](https://github.com/anthropics/claude-code/releases/tag/v2.1.139) | 10 May 2026 |
 
 ## Editorial Note
 
-The article is based on official sources and short paraphrases. Long quotes, copied body text, and private technical details are deliberately avoided.
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.
