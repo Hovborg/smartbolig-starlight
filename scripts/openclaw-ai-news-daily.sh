@@ -191,7 +191,7 @@ main() {
   stop_comfyui
   trap - EXIT
 
-  # Full validation gate before anything can reach the auto-merge below:
+  # Full validation gate before a draft can be pushed to an editorial-review PR:
   # unit tests + content validation + image check + production build + SEO check.
   npm run ai-news:test
   npm run ai-news:validate

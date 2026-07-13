@@ -71,7 +71,8 @@ npm run seo:validate
 
 AI-nyhedssektionen opdateres dagligt kl. 07:20 af `scripts/openclaw-ai-news-daily.sh`,
 som henter officielle kilder, genererer artikler (da+en), bygger, validerer og
-auto-merger en PR.
+åbner en PR. Generatoren merger aldrig sin egen PR: en separat Claude/Codex-session
+skal læse udkastet, kontrollere kilderne og vente på grønne checks før merge.
 
 Pipelinen (v3):
 
@@ -102,7 +103,7 @@ Det installerer:
 | Unit | Funktion |
 |------|----------|
 | `smartbolig-ai-news.timer` | Kører dagligt kl. 07:20 (Persistent — indhenter missede kørsler) |
-| `smartbolig-ai-news.service` | Kører hele pipeline-scriptet |
+| `smartbolig-ai-news.service` | Kører pipeline-scriptet og åbner en PR til redaktionelt review |
 | `smartbolig-ai-news-failure.service` | Opretter et GitHub-issue hvis kørslen fejler |
 
 Drift-kommandoer:

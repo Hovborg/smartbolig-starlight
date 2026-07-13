@@ -95,3 +95,45 @@ test('the daily runner never auto-merges its own PR', async () => {
   assert.doesNotMatch(script, /gh pr merge/);
   assert.match(script, /editorial review/i);
 });
+
+test('the systemd installer describes a PR-only editorial review workflow', async () => {
+  const tmp = await mkdtemp(path.join(tmpdir(), 'smartbolig-ai-news-systemd-'));
+  const fakeSystemctl = path.join(tmp, 'systemctl');
+  const callsFile = path.join(tmp, 'systemctl-calls.jsonl');
+  const unitDir = path.join(tmp, 'units');
+
+  await writeFile(fakeSystemctl, `#!/usr/bin/env node
+const fs = require('node:fs');
+fs.appendFileSync(process.env.SYSTEMCTL_FAKE_CALLS, JSON.stringify(process.argv.slice(2)) + '\\n');
+`);
+  await chmod(fakeSystemctl, 0o755);
+
+  try {
+    await execFileAsync('bash', ['scripts/install-systemd-ai-news-timer.sh'], {
+      cwd: rootDir,
+      env: {
+        ...process.env,
+        PATH: `${tmp}:/usr/bin:/bin`,
+        SMARTBOLIG_AI_NEWS_SYSTEMCTL: fakeSystemctl,
+        SMARTBOLIG_AI_NEWS_UNIT_DIR: unitDir,
+        SYSTEMCTL_FAKE_CALLS: callsFile,
+      },
+    });
+
+    const service = await readFile(path.join(unitDir, 'smartbolig-ai-news.service'), 'utf8');
+    assert.doesNotMatch(service, /auto-merge/i);
+    assert.match(service, /publish \+ PR \+ editorial review/i);
+    assert.match(service, /PR awaiting separate editorial review/i);
+
+    const calls = (await readFile(callsFile, 'utf8'))
+      .trim()
+      .split('\n')
+      .map((line) => JSON.parse(line));
+    assert.deepEqual(calls, [
+      ['--user', 'daemon-reload'],
+      ['--user', 'enable', '--now', 'smartbolig-ai-news.timer'],
+    ]);
+  } finally {
+    await rm(tmp, { recursive: true, force: true });
+  }
+});
