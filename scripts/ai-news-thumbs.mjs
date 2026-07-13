@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Generates small WebP thumbnails for AI News hero images so the homepage
-// news list never ships the full 1200x630 PNGs. Idempotent: runs before
+// news list never ships the full 1200x630 heroes. Idempotent: runs before
 // `astro build` and only renders thumbs that are missing or stale.
 import { readdir, stat } from "node:fs/promises";
 import path from "node:path";
@@ -9,7 +9,7 @@ import sharp from "sharp";
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 const imageDir = path.join(rootDir, "public/images/ai-news");
-const BASE_IMAGE = /^\d{4}-\d{2}-\d{2}\.png$/;
+const BASE_IMAGE = /^\d{4}-\d{2}-\d{2}\.(?:jpg|png)$/;
 const THUMB_WIDTH = 320;
 const THUMB_HEIGHT = 180;
 
@@ -18,7 +18,7 @@ let generated = 0;
 
 for (const entry of entries.filter((name) => BASE_IMAGE.test(name)).sort()) {
   const source = path.join(imageDir, entry);
-  const target = path.join(imageDir, entry.replace(/\.png$/, "-thumb.webp"));
+  const target = path.join(imageDir, entry.replace(/\.(?:jpg|png)$/, "-thumb.webp"));
 
   try {
     const [sourceStat, targetStat] = await Promise.all([stat(source), stat(target)]);
