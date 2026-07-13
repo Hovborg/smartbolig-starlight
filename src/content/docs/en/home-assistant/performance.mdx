@@ -273,15 +273,9 @@ logger:
     # homeassistant.components.automation: debug
 ```
 
-### Disable Unnecessary Features
+### Remove unused integrations
 
-```yaml
-# configuration.yaml
-# Only if you don't use them:
-discovery:           # Auto discovery
-zeroconf:           # mDNS
-ssdp:               # UPnP discovery
-```
+Empty keys like `zeroconf:` or `ssdp:` in `configuration.yaml` enable those integrations — they do not disable them, and `discovery` no longer exists in Home Assistant at all. To actually save resources, remove integrations you don't use under **Settings → Devices & Services**, and uninstall HACS integrations that are just collecting dust.
 
 ### Raspberry Pi Specific
 

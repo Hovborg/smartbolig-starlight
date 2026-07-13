@@ -237,10 +237,11 @@ Full Topic: %prefix%/%topic%/
 Tasmota has native integration via MQTT Discovery:
 
 <Steps>
-1. **Enable MQTT Discovery** in Tasmota:
+1. **Keep the default setting** in Tasmota:
    ```
-   SetOption19 1
+   SetOption19 0
    ```
+   The official Tasmota integration uses Tasmota's own discovery and requires `SetOption19 0` (the default). `SetOption19 1` switches to legacy MQTT discovery and removes devices from the integration.
 
 2. **Install Tasmota integration** in Home Assistant:
    - Settings → Devices & Services → Add Integration
