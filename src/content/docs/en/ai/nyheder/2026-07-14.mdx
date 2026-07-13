@@ -1,0 +1,78 @@
+---
+title: "AI News, 14 July 2026"
+description: "Curated AI brief for 14 July 2026: models, products, ChatGPT, Claude, Gemini, API pricing, privacy, and agent workflows."
+date: 2026-07-14
+lastUpdated: 2026-07-14
+heroImage:
+  src: "/images/ai-news/2026-07-14.jpg"
+  alt: "Editorial AI news image about Claude Code releases, OpenAI News"
+  caption: "Editorial AI news image about Claude Code releases, OpenAI News"
+news:
+  editorialVersion: 3
+  copySource: template
+  storyFingerprint: "a5674eb540ebaefbe71cb575f119a3df9568c36b6d7507e28e208c5dc0c8fc45"
+  sourceSetFingerprint: "f8c9a86462ea6fcc374ca2c5494a8811dbe010514b1ff9471b44e103c98d9d8b"
+  signal: medium
+  sources:
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.207"
+    - "https://openai.com/index/chatgpt-for-your-most-ambitious-work"
+sidebar:
+  label: "14 July 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline">By SmartBolig.net Editorial · <time datetime="2026-07-14">14 July 2026</time> · 2 selected sources</p>
+
+<p class="ai-news-lede">This issue prioritises documented change over volume. Each story separates source evidence, practical relevance, a verification point, and uncertainty.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. Claude Code releases: v2.1.207
+
+**What changed:** Claude Code releases published the update on 11 Jul 2026. What's changed Auto mode is now available without CLAUDE&#95;CODE&#95;ENABLE&#95;AUTO&#95;MODE opt-in on Bedrock, Vertex AI, and Foundry; disable via disableAutoMode in settings Fixed the terminal freezing and keystrokes lagging while streaming responses containing very long lists, tables, paragraphs, or code blocks Fixed remote managed settings from a non-interactive run &#40; claude -p , the SDK&#41; being permanently recorded as consented without ever showing the security consent dialog Fixed spurious prompt-injection warnings triggered by benign system-generated conversation updates Fixed the auto-updater overwriting a custom launcher script or symlink at ~/.local/bin/claude on every release; /doctor now reports an externally managed launcher Fixed compound commands with cd prompting for permission when the only output redirect was to /dev/null Fixed the transcript jumping above the start of the answer when a response finishes streaming Fixed extensions.worktreeConfig being left in the repo's .git/config &#40;breaking go-git tools like tea &#41; after the last worktree.sparsePaths worktree was removed Fixed malformed bracket patterns in rules globs, skill paths, .ignore , and .worktreeinclude breaking file reads, file suggestions, and worktree creation Fixed a crash loop in agent teams where a malformed teammate mailbox message caused repeated errors every second until the mailbox file was manually deleted Fixed background sessions auto-named by accepting a plan not showing that name on their agent-view row Fixed background sessions that entered a git worktree resuming blank after a cold reopen from the agent list Fixed Remote Control task status updates being lost when the connection recovered from a network interruption or credential refresh Fixed Remote Control sessions hosted by the desktop app not showing background agent and workflow progress on mobile and web Fixed Deep research runs labeling every Fetch-phase agent "unknown" — chips now show the source hostname Fixed Bedrock repeatedly requesting fresh AWS SSO credentials from IAM Identity Center on every API request Improved agent view: pasting the same text again now expands the collapsed &#91;Pasted text #N&#93; placeholder instead of adding a second one Improved agent view: blocked session peeks now lead with the question and show a worded staleness clock &#40; waiting 3m &#41; instead of the same timestamp twice Changed Bedrock, Vertex, and Claude Platform on AWS to default to Claude Opus 4.8 Changed auto mode to no longer read autoMode from .claude/settings.local.json &#40;repo-resident&#41;; use ~/.claude/settings.json instead Fixed an indefinite hang on Windows when AWS credential resolution stalls &#40;e.g. a stuck credential&#95;process &#41;: the 60-second stall guard now fires instead of waiting forever. Plugin hooks/monitors/MCP headersHelper: $&#123;user&#95;config.&#42;&#125; in shell-form commands is now rejected &#40;shell-injection fix&#41;. Hooks: use exec form &#40; args array&#41; or $CLAUDE&#95;PLUGIN&#95;OPTION&#95; ; monitors and headersHelper: read the value inside the script &#40;config file or the server's env block&#41;. Plugin option values &#40; pluginConfigs &#41; are no longer read from project-level .claude/settings.json ; only user, --settings , and managed settings are honored Fixed /usage-credits amount inputs silently stripping malformed values &#40;e.g. a pasted timestamp&#41; to digits; malformed amounts are now rejected with an error, and amounts over $1,000 require a typed confirmation
+
+> Short source excerpt: What's changed Auto mode is now available without CLAUDE&#95;CODE&#95;ENABLE&#95;AUTO&#95;MODE opt-in on Bedrock, Vertex AI, and Foundry; disable via disableAutoMode in…
+
+**Why it matters:** This matters when an AI assistant can read sensors or trigger home actions: narrower permissions and visible approval reduce the impact of a wrong decision.
+
+**How to verify it:** Verify in a test environment that the agent can perform the allowed action, is stopped at a sensitive action, and leaves a useful log.
+
+**Uncertainty:** The source documents the change but may not show long-term behavior in a home environment. Stability and edge cases remain uncertain.
+
+Source: [v2.1.207](https://github.com/anthropics/claude-code/releases/tag/v2.1.207)
+
+### 2. OpenAI News: ChatGPT is now a partner for your most ambitious work
+
+**What changed:** OpenAI News published the update on 9 Jul 2026. ChatGPT Work is an agent that can take action across your apps and files, stay with a project for hours if needed, and turn a goal into finished work.
+
+> Short source excerpt: ChatGPT Work is an agent that can take action across your apps and files, stay with a project for hours…
+
+**Why it matters:** Its practical value depends on solving a concrete task better without expanding access, cloud dependency, or operational risk.
+
+**How to verify it:** Compare before and after on the same task, measuring outcome, latency, cost, and rollback before using the change in operations.
+
+**Uncertainty:** The source documents the change but may not show long-term behavior in a home environment. Stability and edge cases remain uncertain.
+
+Source: [ChatGPT is now a partner for your most ambitious work](https://openai.com/index/chatgpt-for-your-most-ambitious-work)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| Claude Code releases | [v2.1.207](https://github.com/anthropics/claude-code/releases/tag/v2.1.207) | 11 Jul 2026 |
+| OpenAI News | [ChatGPT is now a partner for your most ambitious work](https://openai.com/index/chatgpt-for-your-most-ambitious-work) | 9 Jul 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.
