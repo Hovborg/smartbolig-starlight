@@ -1,6 +1,6 @@
 ---
 title: Better Thermostat - Intelligent Heating Control
-description: Complete guide to Better Thermostat in Home Assistant. Save energy with smart calibration, window detection and external temperature sensor.
+description: Complete guide to Better Thermostat in Home Assistant. Save energy with smart calibration, window detection and an external temperature sensor.
 ---
 
 import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
@@ -10,29 +10,31 @@ import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/sta
 
 Better Thermostat is a HACS integration that makes your "dumb" radiator thermostats smart. It uses an external temperature sensor, window sensors and weather data to optimize heating and save energy.
 
-![Better Thermostat overview](/images/guides/better-thermostat/overview.svg)
-
 <Aside type="note" title="Open Source">
-Better Thermostat is open source! Check out the [Better Thermostat GitHub](https://github.com/KartoffelToby/better_thermostat) for documentation and feature requests.
+Better Thermostat is open source! See [Better Thermostat on GitHub](https://github.com/KartoffelToby/better_thermostat) for documentation and feature requests.
 </Aside>
 
 ## 🤔 Why Better Thermostat?
 
-Radiator thermostats (TRV) measure temperature directly at the radiator - which is typically 2-5°C warmer than the rest of the room. Better Thermostat solves this:
+![Better Thermostat overview](/images/guides/better-thermostat/overview.svg)
 
-| Problem | Better Thermostat Solution |
+Radiator thermostats (TRVs) measure the temperature right at the radiator - typically 2-5°C warmer than the rest of the room. Better Thermostat solves this:
+
+| Problem | Better Thermostat solution |
 |---------|---------------------------|
-| **Wrong temperature** | Uses external sensor for real room temperature |
-| **Open window = waste** | Automatic stop on open window |
+| **Wrong temperature** | Uses an external sensor for the real room temperature |
+| **Open window = waste** | Stops heating automatically when a window opens |
 | **Manual adjustment** | Presets: Eco, Comfort, Away, Boost |
-| **Multiple radiators** | Group TRVs in same room |
+| **Multiple radiators** | Group TRVs in the same room |
 | **Calibration** | Automatic offset calibration |
 
 <Aside type="tip" title="Energy savings">
-By using an external sensor and window detection, you can typically save 15-25% on heating bills!
+With an external sensor and window detection you can typically save 15-25% on your heating bill!
 </Aside>
 
 ## 📦 What You Need
+
+### Hardware (you probably already own some of it)
 
 | Component | Examples | Required? |
 |-----------|----------|-----------|
@@ -40,6 +42,13 @@ By using an external sensor and window detection, you can typically save 15-25% 
 | **Temperature sensor** | Shelly Wall Display, Aqara, IKEA Vindstyrka | ✅ Recommended |
 | **Window sensor** | Aqara, Sonoff, Shelly | ⭐ Optional |
 | **Home Assistant** | With HACS installed | ✅ Yes |
+
+### A typical starting point
+
+The guide assumes a setup many people already have:
+- **Shelly TRV** radiator thermostats in the living room
+- **Shelly Wall Display** or another device with a temperature sensor
+- Several temperature sensors around the house
 
 ## 🔧 Installation
 
@@ -57,43 +66,99 @@ By using an external sensor and window detection, you can typically save 15-25% 
 <Steps>
 1. Go to **Settings** → **Devices & services**
 2. Click **Add integration**
-3. Search **Better Thermostat**
+3. Search for **Better Thermostat**
 4. Follow the setup wizard
 </Steps>
 
 ## ⚙️ Configuration
 
-### Basic Setup
+### Basic setup
 
-When creating you need to specify:
+When creating the thermostat you specify:
 
 | Field | Description | Example |
 |-------|-------------|---------|
-| **Name** | Name of thermostat | "Living Room Better" |
+| **Name** | Name of the thermostat | "Living Room Better" |
 | **Thermostat** | Your existing TRV | `climate.shelly_trv_living_room` |
-| **Temperature Sensor** | External room sensor | `sensor.living_room_temperature` |
+| **Temperature Sensor** | External room temperature sensor | `sensor.shelly_wall_display_temperature` |
 | **Window Sensor** | Window sensor (optional) | `binary_sensor.window_living_room` |
+
+### Advanced settings
+
+After creation you can adjust these under **Settings** → **Devices & services** → **Better Thermostat** → **Configure**:
+
+| Setting | Internal key | Function |
+|---------|--------------|----------|
+| **Outdoor Sensor** | `outdoor_sensor` | Outdoor temperature, e.g. `sensor.openweathermap_temperature` |
+| **Off Temperature** | `off_temperature` | Outdoor temperature at which heating switches off entirely |
+| **Window Delay** | `window_off_delay` | Seconds before reacting to an open window (e.g. 30) |
+| **Window Delay After** | `window_off_delay_after` | Seconds before heating resumes after the window closes |
+| **Tolerance** | `tolerance` | Allowed deviation before the thermostat regulates |
+| **Presets** | `presets` | Choose which presets (eco, comfort, away, etc.) are active |
+
+## 📊 Example: Living Room with 2 Radiators
+
+Here is a complete example with a living room that has 2 Shelly TRVs:
+
+### Step 1: Create a Better Thermostat for the room
+
+<Steps>
+1. **Add integration** → Better Thermostat
+2. **Name**: "Living Room Heating"
+3. **Thermostat**: Select both TRVs (grouping)
+   - `climate.shelly_trv_living_room_1`
+   - `climate.shelly_trv_living_room_2`
+4. **Temperature Sensor**: `sensor.shelly_wall_display_temperature`
+5. **Window Sensor**: `binary_sensor.window_living_room` (if you have one)
+</Steps>
+
+### Step 2: Verify entities
+
+After creation you get:
+
+```yaml
+# New climate entity
+climate.living_room_heating:
+  current_temperature: 21.5°C  # From the Wall Display
+  target_temperature: 21°C
+  preset_mode: comfort
+  
+# Attributes
+hvac_action: heating
+window_open: false
+```
 
 ## 🎯 Presets and Schedules
 
-### Standard Presets
+### Standard presets
 
-| Preset | Default Temp | Usage |
-|--------|--------------|-------|
+| Preset | Default temp | Use case |
+|--------|--------------|----------|
 | **None** | 20°C | Default |
 | **Eco** | 19°C | Energy saving |
-| **Comfort** | 21°C | Home and active |
-| **Boost** | 24°C | Quick heating |
+| **Comfort** | 21°C | At home and active |
+| **Boost** | 24°C | Quick heat-up |
 | **Away** | 16°C | Not home |
 | **Sleep** | 18°C | Night |
 
+### Adjust preset temperatures
+
+```yaml
+# Via automation or service call
+service: climate.set_temperature
+target:
+  entity_id: climate.living_room_heating
+data:
+  temperature: 22
+```
+
 ## 🤖 Automations
 
-### Switch Preset Based on Presence
+### Switch preset based on presence
 
 ```yaml
 automation:
-  - alias: "Heating: Away when no one home"
+  - alias: "Heating: Away when nobody home"
     trigger:
       - platform: state
         entity_id: group.people_home
@@ -106,6 +171,7 @@ automation:
           entity_id: 
             - climate.living_room_heating
             - climate.bedroom_heating
+            - climate.office_heating
         data:
           preset_mode: away
 
@@ -124,7 +190,7 @@ automation:
           preset_mode: comfort
 ```
 
-### Night Mode
+### Night mode
 
 ```yaml
 automation:
@@ -141,7 +207,7 @@ automation:
         data:
           preset_mode: sleep
 
-  - alias: "Heating: Comfort in morning"
+  - alias: "Heating: Comfort in the morning"
     trigger:
       - platform: time
         at: "06:30:00"
@@ -159,25 +225,57 @@ automation:
           preset_mode: comfort
 ```
 
+### Boost on office presence
+
+```yaml
+automation:
+  - alias: "Office: Boost on presence"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.office_presence
+        to: "on"
+    condition:
+      - condition: numeric_state
+        entity_id: sensor.office_temperature
+        below: 20
+    action:
+      - service: climate.set_preset_mode
+        target:
+          entity_id: climate.office_heating
+        data:
+          preset_mode: boost
+      # Switch to comfort after 30 min
+      - delay:
+          minutes: 30
+      - service: climate.set_preset_mode
+        target:
+          entity_id: climate.office_heating
+        data:
+          preset_mode: comfort
+```
+
 ## 🪟 Window Detection
 
 Better Thermostat can automatically stop heating when a window opens:
 
-### With Physical Sensor
+### With a physical sensor
 
 ```yaml
-window_sensor: binary_sensor.window_living_room
-window_delay: 30  # Wait 30 sec before reacting
+# Configured at creation or via Options
+window_sensors: binary_sensor.window_living_room
+window_off_delay: 30        # Wait 30 sec before stopping the heat
+window_off_delay_after: 0   # Resume heating immediately when the window closes
 ```
 
-### Without Sensor (Temperature-based)
+### Without a sensor (temperature-based)
 
-Better Thermostat can detect open windows via sudden temperature drop:
+Better Thermostat has no built-in temperature-drop detection. If you lack a physical sensor, you can instead create a **virtual window sensor** that switches to "on" after a sudden temperature drop:
 
-```yaml
-window_detection_method: temperature_drop
-window_detection_threshold: 0.5  # °C drop over short time
-```
+<Steps>
+1. Install the community blueprint [Window open detection by temperature](https://community.home-assistant.io/t/window-open-detection-by-temperature/506653)
+2. Create an automation from the blueprint using your room temperature sensor and an input_boolean as the "window"
+3. Select the input_boolean/binary_sensor as **Window Sensor** in Better Thermostat
+</Steps>
 
 ## 📱 Dashboard Card
 
@@ -187,42 +285,116 @@ Install the matching UI card to see extra info:
 
 <Steps>
 1. Open **HACS** → **Frontend**
-2. Search **Better Thermostat UI Card**
-3. Install and restart browser
+2. Search for **Better Thermostat UI Card**
+3. Install and reload your browser
 </Steps>
 
 ```yaml
+# Lovelace card configuration
 type: custom:better-thermostat-ui-card
 entity: climate.living_room_heating
 eco_temperature: 19
 disable_window: false
+disable_summer: false
+```
+
+### Standard Thermostat Card
+
+```yaml
+type: thermostat
+entity: climate.living_room_heating
+features:
+  - type: climate-preset-modes
+    preset_modes:
+      - eco
+      - comfort
+      - boost
+      - away
+      - sleep
 ```
 
 ## 🔧 Calibration
 
 Better Thermostat automatically calibrates your TRV based on the difference between the TRV's built-in sensor and your external sensor.
 
-### How It Works
+### How it works
 
-1. TRV measures 24°C (at radiator)
-2. External sensor measures 21°C (in room)
-3. Better Thermostat calculates offset: -3°C
-4. Sends calibration to TRV
+1. The TRV measures 24°C (at the radiator)
+2. The external sensor measures 21°C (in the room)
+3. Better Thermostat calculates the offset: -3°C
+4. Sends the calibration to the TRV
+
+## 📊 Energy Monitoring
+
+Combine with the Energy dashboard:
+
+```yaml
+# Add to configuration.yaml
+template:
+  - sensor:
+      - name: "Living Room Heating Status"
+        state: >
+          {% if is_state_attr('climate.living_room_heating', 'hvac_action', 'heating') %}
+            Heating
+          {% else %}
+            Idle
+          {% endif %}
+
+# history_stats measures how long the status sensor has been "Heating" today
+sensor:
+  - platform: history_stats
+    name: "Daily Heating Time Living Room"
+    entity_id: sensor.living_room_heating_status
+    state: "Heating"
+    type: time   # Result in hours
+    start: "{{ today_at() }}"
+    end: "{{ now() }}"
+```
 
 ## 🔧 Troubleshooting
 
 <Aside type="tip" title="TRV not responding?">
-1. Check that TRV is online in Home Assistant
-2. Verify that Better Thermostat uses correct entity
-3. Check that TRV supports temperature calibration
-4. Restart Better Thermostat integration
+1. Check that the TRV is online in Home Assistant
+2. Verify that Better Thermostat uses the correct entity
+3. Check that the TRV supports temperature calibration
+4. Restart the Better Thermostat integration
 </Aside>
 
 <Aside type="tip" title="Temperature jumping?">
-- Reduce update frequency on external sensor
+- Reduce the update frequency of the external sensor
 - Enable "smooth temperature" in Options
-- Check sensor isn't affected by sun/draft
+- Check that the sensor isn't affected by sun/draft
 </Aside>
+
+<Aside type="tip" title="Window detection not working?">
+- Increase `window_off_delay` to 60 seconds
+- Verify that the sensor entity is correct
+- Check that the sensor reports "on" when the window is open
+</Aside>
+
+## 🚀 Advanced: Multiple Rooms
+
+### Recommended structure
+
+```
+climate.living_room_heating → Shelly TRV x2 + Wall Display temp
+climate.bedroom_heating     → Shelly TRV + Aqara temp sensor
+climate.office_heating      → Shelly TRV + LD2410 temp (ESP32)
+climate.bathroom_heating    → Shelly TRV + Wall Display temp
+```
+
+### Group all Better Thermostats
+
+```yaml
+# groups.yaml
+heating_all_rooms:
+  name: "All rooms heating"
+  entities:
+    - climate.living_room_heating
+    - climate.bedroom_heating
+    - climate.office_heating
+    - climate.bathroom_heating
+```
 
 ## 📈 Next Steps
 
@@ -235,6 +407,6 @@ Better Thermostat automatically calibrates your TRV based on the difference betw
   <Card title="📊 LD2410 mmWave" icon="seti:config">
     Combine presence with heating control.
     
-    [Build presence sensor →](/en/esp32/ld2410-mmwave/)
+    [Build a presence sensor →](/en/esp32/ld2410-mmwave/)
   </Card>
 </CardGrid>

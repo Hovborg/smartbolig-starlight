@@ -18,7 +18,7 @@ Denne guide viser dig hvordan du installerer integrationen, opretter sensorer ti
 
 ## Hvad får du?
 
-- 📊 **Timepriser** for i dag og i morgen (efter kl. 13)
+- 📊 **Spotpriser** for i dag og i morgen (offentliggøres ca. kl. 13) - siden oktober 2025 i 15-minutters opløsning
 - 💰 **Samlede priser** inkl. alle tariffer og afgifter
 - 📈 **Grafer** der viser prisudvikling
 - 🔮 **5-dages prognose** via Carnot.dk
@@ -97,11 +97,11 @@ Efter installation har du disse sensorer:
 | `sensor.energi_data_service` | Aktuel elpris inkl. afgifter |
 | `sensor.energi_data_service_forecast` | Prognose for kommende dage |
 
-Sensoren har også **attributter** med alle timepriser for i dag og i morgen.
+Sensoren har også **attributter** med alle dagens priser (`raw_today` og `raw_tomorrow`). Efter Nord Pools skift til 15-minutters opløsning i oktober 2025 kan listerne indeholde op til 96 punkter pr. dag i stedet for 24 - hvert punkt har sit eget tidsstempel, så kortene herunder virker uændret.
 
-## Dashboard Kort
+## Dashboard-kort
 
-Nu kommer det sjove - lad os lave nogle flotte dashboard kort!
+Med sensorerne på plads kan du bygge dashboard-kort, der viser priserne som graf og statistik.
 
 ### 1. Installer ApexCharts Card
 
@@ -193,10 +193,10 @@ title: Dagens elpriser
 content: |
   | Statistik | Pris |
   |-----------|------|
-  | 🟢 Laveste | {{ state_attr('sensor.energi_data_service', 'min_price') | round(2) }} kr/kWh |
-  | 🔴 Højeste | {{ state_attr('sensor.energi_data_service', 'max_price') | round(2) }} kr/kWh |
-  | 📊 Gennemsnit | {{ state_attr('sensor.energi_data_service', 'average_price') | round(2) }} kr/kWh |
-  | ⏰ Aktuel | {{ states('sensor.energi_data_service') | round(2) }} kr/kWh |
+  | 🟢 Laveste | {{ state_attr('sensor.energi_data_service', 'today_min')['price'] | round(2) }} kr/kWh |
+  | 🔴 Højeste | {{ state_attr('sensor.energi_data_service', 'today_max')['price'] | round(2) }} kr/kWh |
+  | 📊 Gennemsnit | {{ state_attr('sensor.energi_data_service', 'today_mean') | round(2) }} kr/kWh |
+  | ⏰ Aktuel | {{ states('sensor.energi_data_service') | float(0) | round(2) }} kr/kWh |
 ```
 
 ## Live Omkostninger baseret på Watt-forbrug
@@ -221,7 +221,7 @@ template:
           {{ cost_per_hour | round(2) }}
         attributes:
           power_w: "{{ states('sensor.dit_power_sensor') | float(0) | round(0) }}"
-          price_kwh: "{{ states('sensor.energi_data_service') | float(2) }}"
+          price_kwh: "{{ states('sensor.energi_data_service') | float(0) | round(2) }}"
           description: "Omkostning hvis nuværende forbrug fortsætter i en time"
 ```
 
@@ -229,7 +229,7 @@ template:
 Erstat `sensor.dit_power_sensor` med din faktiske strømmåler-sensor, f.eks. fra en Shelly EM, P1-dongle eller lignende.
 </Aside>
 
-### Dashboard Kort for Live Omkostning
+### Dashboard-kort for live omkostning
 
 ```yaml
 type: custom:mushroom-entity-card
@@ -313,7 +313,7 @@ template:
         device_class: monetary
         state: >
           {% set kwh = states('sensor.dagligt_energiforbrug') | float(0) %}
-          {% set avg_price = state_attr('sensor.energi_data_service', 'average_price') | float(2) %}
+          {% set avg_price = state_attr('sensor.energi_data_service', 'today_mean') | float(0) %}
           {{ (kwh * avg_price) | round(2) }}
           
       - name: "Månedlig Elomkostning"
@@ -322,7 +322,7 @@ template:
         device_class: monetary
         state: >
           {% set kwh = states('sensor.maanedligt_energiforbrug') | float(0) %}
-          {% set avg_price = state_attr('sensor.energi_data_service', 'average_price') | float(2) %}
+          {% set avg_price = state_attr('sensor.energi_data_service', 'today_mean') | float(0) %}
           {{ (kwh * avg_price) | round(2) }}
           
       - name: "Årlig Elomkostning"
@@ -331,11 +331,11 @@ template:
         device_class: monetary
         state: >
           {% set kwh = states('sensor.aarligt_energiforbrug') | float(0) %}
-          {% set avg_price = state_attr('sensor.energi_data_service', 'average_price') | float(2) %}
+          {% set avg_price = state_attr('sensor.energi_data_service', 'today_mean') | float(0) %}
           {{ (kwh * avg_price) | round(2) }}
 ```
 
-## Alt-i-ét Dashboard Kort
+## Alt-i-ét dashboard-kort
 
 Her er et samlet kort der viser alt på ét sted:
 
@@ -452,7 +452,8 @@ automation:
       - service: switch.turn_on
         target:
           entity_id: switch.vaskemaskine
-      - service: notify.mobile_app
+      # Erstat "din_telefon" med navnet på din egen enhed i companion-appen
+      - service: notify.mobile_app_din_telefon
         data:
           title: "Vaskemaskine tændt"
           message: "Elprisen er nu {{ states('sensor.energi_data_service') }} kr/kWh"
