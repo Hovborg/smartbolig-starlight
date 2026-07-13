@@ -1,110 +1,111 @@
 ---
 title: ESP32 & ESPHome
-description: Build your own smart home sensors and devices with ESP32 and ESPHome. Copy-ready configurations.
+description: Build your own smart home devices with ESP32 and ESPHome. Sensors, switches, and automations you made yourself.
+sidebar:
+  badge:
+    text: Popular
+    variant: tip
 ---
 
-import { Aside, LinkCard } from '@astrojs/starlight/components';
+import { Card, CardGrid, LinkCard, Aside, Badge } from "@astrojs/starlight/components";
 
-Build your own smart home devices with the ESP32 microcontroller and ESPHome. Cheap, flexible, and fully integrated with Home Assistant.
+<Badge text="Beginner-friendly" variant="success" /> <Badge text="From $5" variant="note" />
 
-![ESP32 + ESPHome + Home Assistant](/images/guides/kom-godt-i-gang-esp32/overview.svg)
+The ESP32 is a small microcontroller that costs under $8 and connects to your WiFi. With ESPHome you can build your own sensors, switches, and displays - no programming required.
 
 <Aside type="note" title="Open Source">
-ESPHome is open source! Check out the [ESPHome GitHub](https://github.com/esphome/esphome) for documentation, issues, and contributions.
+ESPHome is open source! See [ESPHome on GitHub](https://github.com/esphome/esphome) for documentation and examples.
 </Aside>
 
-## Why ESP32 + ESPHome?
+## Why ESP32?
 
-| Advantage | Description |
-|-----------|-------------|
-| **Cheap** | ESP32 boards cost ~$5-15 |
-| **Wireless** | Built-in WiFi and Bluetooth |
-| **Easy** | ESPHome uses simple YAML config |
-| **Local** | Direct integration with Home Assistant |
-| **Flexible** | Thousands of supported sensors |
+<CardGrid>
+  <Card title="💰 Cheap" icon="rocket">
+    Boards cost $4-8. Sensors under $3.
+  </Card>
+  <Card title="🔧 Flexible" icon="setting">
+    Hundreds of compatible sensors and modules.
+  </Card>
+  <Card title="🏠 Local" icon="approve-check">
+    No cloud, no subscriptions, full control.
+  </Card>
+  <Card title="🎓 Educational" icon="document">
+    You learn as you go and get exactly what you need.
+  </Card>
+</CardGrid>
 
-## 🌡️ Sensors
+## 🚀 Start here
 
-| Guide | Description |
-|-------|-------------|
-| [Temperature Sensor](/en/esp32/temperatur-sensor/) | DHT22/DS18B20 temperature & humidity |
-| [Motion Sensor](/en/esp32/bevaegelsessensor/) | PIR sensor for presence detection |
-| [LD2410 mmWave](/en/esp32/ld2410-mmwave/) | Radar-based presence detection |
+<CardGrid>
+  <LinkCard
+    title="📘 Getting started"
+    description="Install ESPHome and flash your first ESP32"
+    href="/en/esp32/kom-godt-i-gang/"
+  />
+</CardGrid>
 
-## 💡 Projects
+## 🔥 Popular projects
 
-| Guide | Description |
-|-------|-------------|
-| [LED Strip Control](/en/esp32/led-strip/) | Addressable RGB LED strips |
-| [Bluetooth Proxy](/en/esp32/bluetooth-proxy/) | Extend Home Assistant BLE coverage over Wi-Fi, Ethernet or PoE |
+<CardGrid>
+  <LinkCard
+    title="📡 LD2410 mmWave Presence"
+    description="Detect motionless people with radar"
+    href="/en/esp32/ld2410-mmwave/"
+  />
+  <LinkCard
+    title="🌡️ Temperature sensor"
+    description="DHT22 temperature and humidity sensor"
+    href="/en/esp32/temperatur-sensor/"
+  />
+  <LinkCard
+    title="🚶 Motion sensor"
+    description="PIR sensor for motion detection"
+    href="/en/esp32/bevaegelsessensor/"
+  />
+  <LinkCard
+    title="💡 LED strip control"
+    description="Addressable LED strip with ESPHome"
+    href="/en/esp32/led-strip/"
+  />
+  <LinkCard
+    title="Bluetooth Proxy"
+    description="Extend Home Assistant's BLE coverage over Wi-Fi, Ethernet, or PoE"
+    href="/en/esp32/bluetooth-proxy/"
+  />
+</CardGrid>
 
-<LinkCard
-  title="ESPHome Bluetooth Proxy"
-  description="Flash, place and troubleshoot a reliable remote BLE adapter"
-  href="/en/esp32/bluetooth-proxy/"
-/>
+## 📊 Project overview
 
-## Getting Started with ESPHome
+| Project | Difficulty | Time | Approx. price |
+|---------|------------|------|---------------|
+| [LD2410 mmWave Presence](/en/esp32/ld2410-mmwave/) | ⭐⭐ Medium | 45 min | $15-30 |
+| [Temperature sensor](/en/esp32/temperatur-sensor/) | ⭐ Easy | 30 min | $10 |
+| [Motion sensor](/en/esp32/bevaegelsessensor/) | ⭐ Easy | 20 min | $10 |
+| [LED strip](/en/esp32/led-strip/) | ⭐⭐ Medium | 45 min | $25 |
+| [Bluetooth Proxy](/en/esp32/bluetooth-proxy/) | ⭐⭐ Medium | 30 min | Depends on board |
 
-### 1. Install ESPHome in Home Assistant
+<Aside type="tip" title="Recommended first project">
+**LD2410 mmWave** is perfect for the bathroom - it detects you even when you sit completely still, so the light doesn't switch off while you're on the toilet!
+</Aside>
 
-Go to **Settings → Add-ons → Add-on Store** and install **ESPHome**.
+## 🛒 What do you need?
 
-### 2. Create your first device
+<Aside type="tip" title="Starter kit (~$15)">
+- **ESP32-WROOM-32 DevKit** - Recommended for beginners
+- **USB cable** (micro-USB or USB-C)
+- **Home Assistant** running on your server
+</Aside>
 
-1. Open ESPHome dashboard
-2. Click **+ New Device**
-3. Choose your ESP32 board
-4. Flash via USB the first time
+### Recommended boards
 
-### 3. Basic configuration
+| Board | Price | Best for |
+|-------|-------|----------|
+| ESP32-WROOM-32 DevKit | $5-8 | Beginners |
+| ESP32-C3 Super Mini | $4 | Small projects |
+| ESP32-S3 | $8 | Displays, camera |
+| D1 Mini (ESP8266) | $4 | Simple sensors |
 
-```yaml
-esphome:
-  name: my-sensor
-  friendly_name: My Sensor
-
-esp32:
-  board: esp32dev
-
-wifi:
-  ssid: "YourWiFi"
-  password: "YourPassword"
-
-api:
-  encryption:
-    key: "your-api-key"
-
-ota:
-  platform: esphome
-```
-
-## Recommended Hardware
-
-### ESP32 Boards
-
-| Board | Price | Notes |
-|-------|-------|-------|
-| ESP32-WROOM-32 | ~$5 | Standard, reliable |
-| ESP32-C3 | ~$4 | Smaller, lower power |
-| ESP32-S3 | ~$8 | More GPIO, USB-C |
-
-### Useful Sensors
-
-| Sensor | Use | Price |
-|--------|-----|-------|
-| DHT22 | Temperature/humidity | ~$3 |
-| DS18B20 | Waterproof temperature | ~$2 |
-| PIR HC-SR501 | Motion detection | ~$1 |
-| LD2410 | mmWave presence | ~$5 |
-| BH1750 | Light level | ~$2 |
-
-## Tips
-
-:::tip[Start simple]
-Begin with a temperature sensor - it's the easiest project and teaches you the basics.
-:::
-
-:::caution[Power supply]
-Always use a quality 5V power supply. Many issues come from insufficient power.
-:::
+<Aside type="note" title="Where to buy?">
+- **Fast:** Amazon or a local electronics retailer (Danish readers: Proshop, av-cables.dk, elektronik-lavpris.dk)
+- **Cheap:** AliExpress (2-3 weeks delivery)
+</Aside>

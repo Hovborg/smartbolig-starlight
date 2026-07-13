@@ -1,6 +1,6 @@
 ---
-title: Temperatur sensor med ESP32
-description: Byg en præcis temperatur og fugtighed sensor med ESP32 og DHT22. Komplet guide.
+title: Temperatursensor med ESP32
+description: Byg en præcis temperatur- og fugtighedssensor med ESP32 og DHT22. Komplet guide.
 sidebar:
   badge:
     text: Populær
@@ -13,7 +13,7 @@ import { Steps, Aside, Card, CardGrid, Tabs, TabItem, Badge } from '@astrojs/sta
 
 ![ESP32 Temperatur Sensor](/images/guides/esp32-temp-hero.png)
 
-En temperatur/fugtighed sensor er det **perfekte første projekt**. Billigt, nemt og utrolig nyttigt til at overvåge dit hjem.
+En temperatur-/fugtighedssensor er et godt sted at starte: tre ledninger, en håndfuld linjer YAML, og du har live-målinger fra rummet i Home Assistant. Komponenterne koster omkring 70 kr.
 
 ## 📋 Forudsætninger
 
@@ -56,8 +56,12 @@ Ny til ESP32? Start med vores [Kom godt i gang guide](/da/esp32/kom-godt-i-gang/
 3. **Sort ledning (GND/-)** → ESP32 **GND** pin
 </Steps>
 
-<Aside type="danger" title="⚠️ Brug kun 3.3V!">
-DHT22 kører på 3.3V. Brug **IKKE 5V** - det kan ødelægge sensoren permanent!
+<Aside type="note" title="Pull-up-modstand">
+Bruger du en nøgen 4-bens DHT22, skal der sidde en 10 kΩ modstand (pull-up) mellem DATA og 3.3V for stabile aflæsninger. De fleste 3-bens moduler på breakout-print har modstanden indbygget, så der rækker de tre ledninger.
+</Aside>
+
+<Aside type="danger" title="Forsyn sensoren fra 3.3V">
+DHT22 tåler i sig selv 3,3-5,5 V, men ESP32'ens GPIO-ben er **ikke 5V-tolerante**. Forsyner du sensoren fra 5V, følger datalinjen med op og kan beskadige ESP32'en. Brug derfor 3.3V-benet.
 </Aside>
 
 ## ⚙️ ESPHome Konfiguration
@@ -98,8 +102,25 @@ wifi:
 ```
 
 <Aside type="tip" title="Kalibrering">
-Hvis temperaturen viser forkert, juster `offset` værdien. F.eks. `offset: -1.5` trækker 1.5°C fra målingen.
+Hvis temperaturen viser forkert, så sammenlign med et termometer du stoler på, og juster `offset`-værdien. F.eks. trækker `offset: -1.5` 1.5°C fra målingen, mens en positiv værdi lægger til.
 </Aside>
+
+### Alternativ: DS18B20 (vandtæt)
+
+Skal du måle udendørs eller i væske, er en vandtæt DS18B20 et bedre valg end DHT22. Den bruger 1-wire og kræver en 4,7 kΩ pull-up-modstand mellem DATA og 3.3V:
+
+```yaml title="DS18B20 i stedet for DHT22"
+one_wire:
+  - platform: gpio
+    pin: GPIO4
+
+sensor:
+  - platform: dallas_temp
+    name: "Stue Temperatur"
+    update_interval: 60s
+```
+
+Med kun én sensor på bussen behøver du ikke angive `address`. Bemærk at DS18B20 kun måler temperatur, ikke fugtighed.
 
 ## 📤 Upload til ESP32
 
@@ -164,10 +185,11 @@ title: Stue Klima
 
 <Aside type="tip" title="Sensor viser 'Unavailable'?">
 **Tjek disse ting:**
-1. Er ledningerne sat rigtigt i? (VCC→3.3V, ikke 5V!)
+1. Er ledningerne sat rigtigt i? (VCC→3.3V)
 2. Er GPIO-pin korrekt i konfigurationen?
-3. Prøv en anden GPIO pin (f.eks. GPIO5)
-4. Tjek ESPHome logs for fejlbeskeder
+3. Nøgen sensor: sidder 10 kΩ pull-up-modstanden mellem DATA og 3.3V?
+4. Prøv en anden GPIO-pin (f.eks. GPIO5)
+5. Tjek ESPHome-loggen for fejlbeskeder
 </Aside>
 
 <Aside type="tip" title="Temperatur virker forkert?">
@@ -199,36 +221,38 @@ humidity:
 | **Placering** | Undgå direkte sollys, radiatorer og vinduer |
 | **Højde** | Placer i ~1.5m højde for rum-temperatur |
 | **Luftcirkulation** | Ikke i hjørner eller bag møbler |
-| **Opdateringsinterval** | 60s er fint - hurtigere slider sensoren |
+| **Opdateringsinterval** | 60s er fint, DHT22 kan højst aflæses hvert 2. sekund |
 
-## 🚀 Næste skridt
-
-<CardGrid>
-  <Card title="🚶 Bevægelsessensor" icon="rocket">
-    Tilføj en PIR sensor til at detektere bevægelse.
-    
-    [Byg bevægelsessensor →](/da/esp32/bevaegelsessensor/)
-  </Card>
-  <Card title="💡 LED Strip" icon="setting">
-    Styr adresserbare RGB LEDs baseret på temperatur.
-    
-    [Byg LED strip →](/da/esp32/led-strip/)
-  </Card>
-</CardGrid>
-
-## 🤖 Automation idéer
+## 🤖 Automationsidéer
 
 ```yaml title="Eksempel: Advar ved høj fugtighed"
 automation:
-  - alias: "Høj fugtighed alarm"
+  - alias: "Alarm ved høj fugtighed"
     trigger:
       - platform: numeric_state
         entity_id: sensor.stue_fugtighed
         above: 70
         for: "00:30:00"
     action:
-      - service: notify.mobile_app
+      - service: notify.mobile_app_din_telefon  # udskift med din egen enheds notify-tjeneste
         data:
           title: "⚠️ Høj fugtighed"
           message: "Fugtigheden i stuen er {{ states('sensor.stue_fugtighed') }}%"
 ```
+
+Udskift `notify.mobile_app_din_telefon` med navnet på din egen telefons notify-tjeneste - du finder det under **Udviklerværktøjer** → **Handlinger**.
+
+## 🚀 Næste skridt
+
+<CardGrid>
+  <Card title="🚶 Bevægelsessensor" icon="rocket">
+    Tilføj en PIR-sensor til at detektere bevægelse.
+    
+    [Byg bevægelsessensor →](/da/esp32/bevaegelsessensor/)
+  </Card>
+  <Card title="💡 LED Strip" icon="setting">
+    Styr adresserbare RGB-LED'er baseret på temperatur.
+    
+    [Byg LED strip →](/da/esp32/led-strip/)
+  </Card>
+</CardGrid>
