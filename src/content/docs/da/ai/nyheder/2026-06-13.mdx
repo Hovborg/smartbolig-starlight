@@ -4,14 +4,18 @@ description: "Kurateret AI-overblik for 13. juni 2026: modeller, produkter, Chat
 date: 2026-06-13
 lastUpdated: 2026-06-13
 heroImage:
-  src: "/images/ai-news/2026-06-13.png"
-  alt: "SmartBolig-hardwarevisual om dagens AI-nyheder fra OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI"
-  caption: "SmartBolig-hardware sat op til dagens AI-nyheder om OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI."
+  src: "/images/ai-news/2026-06-13.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI"
+  caption: "Redaktionelt AI-nyhedsbillede om OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI"
 news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "13d10d732e1813b35b454caf0754f70d2468e34d4b919eba1c2ab2d01012480d"
+  sourceSetFingerprint: "bfbe798618eeae4bcc6d8aba19f01060ee05caa189334cceff324814a4d0c729"
   signal: high
   sources:
     - "https://openai.com/index/endava-frontiers"
-    - "https://blog.google/innovation-and-ai/infrastructure-and-cloud/global-network/virginia-community-investments/"
+    - "https://blog.google/innovation-and-ai/infrastructure-and-cloud/global-network/virginia-community-investments"
     - "https://github.com/openclaw/openclaw/releases/tag/v2026.6.6"
     - "https://github.com/anthropics/claude-code/releases/tag/v2.1.172"
     - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.47.0-preview.0"
@@ -21,88 +25,101 @@ sidebar:
 
 import { Aside } from "@astrojs/starlight/components";
 
-<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <strong>Publiceret:</strong> <time datetime="2026-06-13">13. juni 2026</time> | <strong>Opdateret:</strong> <time datetime="2026-06-13">13. juni 2026</time> · 5 officielle kilder</p>
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-06-13">13. juni 2026</time> · 5 udvalgte kilder</p>
 
-<p class="ai-news-lede">Dagens stærkeste signaler kommer fra OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI. Fokus er de AI-nyheder, der kan mærkes i produkter, modeller, browser, agent-workflows, API'er, privacy, pris eller sikkerhed.</p>
+<p class="ai-news-lede">Dagens stof er usædvanligt tyndt: det eneste indslag med egentligt indhold er Googles annoncering af nye investeringer i lokalsamfund og energiprogrammer i Virginia. De tre værktøjsnyheder om Claude Code, Gemini CLI og OpenClaw er alle bare versionsnumre uden tilgængelige udgivelsesnoter, og kilden om OpenAI og Endava rummer kun en titel og en dato.</p>
 
-<Aside type="note" title="Redaktionelt filter">
-SmartBolig.net vælger hellere færre nyheder med klare kilder end et langt nyhedsfeed. Artiklen bruger egne formuleringer og linker til originalkilderne.
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
 </Aside>
 
-## Hovedhistorien
+## Dagens historier
 
 ### 1. OpenAI: How Endava is redesigning software delivery around AI agents
 
-OpenAI News publicerede opdateringen 4. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenAI offentliggjorde opdateringen 3. jun. 2026. Kildeteksten til OpenAIs artikel om Endava og AI-agenter i softwareudvikling indeholder kun titel og udgivelsesdato — selve artikelteksten er ikke tilgængelig, så der er ingen konkrete ændringer at referere.
 
-For SmartBolig-læsere er den relevante vinkel: Nyheden kan ændre, hvordan almindelige brugere og små teams bruger AI i hverdagen, ikke kun hvordan udviklere opdaterer værktøjer.
 
-Det næste skridt er konkret: Læs originalkilden og behandl nyheden som inspiration, indtil den har en konkret effekt på dit setup.
+**Hvorfor det er relevant:** Uden faktisk indhold kan historien ikke sige noget om hvordan agent-baseret softwareudvikling fungerer i praksis eller hvad det ville betyde for dit eget setup.
 
-Kilde: [OpenAI News: How Endava is redesigning software delivery around AI agents](https://openai.com/index/endava-frontiers)
+**Sådan verificerer du det:** Slå selv artiklen op hos OpenAI under titlen om Endava og AI-agenter, og læs den fulde tekst før du bruger den til noget.
+
+**Usikkerhed:** Det er ukendt hvad artiklen faktisk beskriver — om det er en kundehistorie, en produktnyhed, eller om den overhovedet har relevans for mindre opsætninger.
+
+Kilde: [How Endava is redesigning software delivery around AI agents](https://openai.com/index/endava-frontiers)
 
 ### 2. Google AI: Our new community investments in Virginia support local jobs and expand energy affordability.
 
-Google AI Blog publicerede opdateringen 11. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Google AI offentliggjorde opdateringen 10. jun. 2026. Google har annonceret nye investeringer i lokalsamfund i Virginia rettet mod arbejdsstyrkeudvikling og mere overkommelig energi i delstaten.
 
-For SmartBolig-læsere er den relevante vinkel: Google AI-ændringer kan påvirke Gemini, Search, Chrome, API-brug og hvordan AI flytter ind i almindelige forbruger-workflows.
+> Kort kildeuddrag: We’re helping build the state’s next-generation workforce and investing in energy programs. Google announces new community investments in Virginia Skip…
 
-Det næste skridt er konkret: Tjek om ændringen påvirker budget, latency eller modelvalg, før den bliver del af en fast automation.
+**Hvorfor det er relevant:** Historien handler om Googles investeringer i infrastruktur og lokalsamfund omkring datacentre, ikke om ændringer i noget konkret AI-produkt — den har derfor ingen direkte betydning for hvordan du bruger Gemini eller andre Google-værktøjer derhjemme.
 
-Kilde: [Google AI Blog: Our new community investments in Virginia support local jobs and expand energy affordability.](https://blog.google/innovation-and-ai/infrastructure-and-cloud/global-network/virginia-community-investments/)
+**Sådan verificerer du det:** Læs Googles egen omtale på The Keyword-bloggen for at se hvilke konkrete programmer og beløb investeringerne dækker.
+
+**Usikkerhed:** Kildeteksten oplyser ikke beløb, konkrete programnavne eller en tidsramme for hvornår investeringerne træder i kraft.
+
+Kilde: [Our new community investments in Virginia support local jobs and expand energy affordability.](https://blog.google/innovation-and-ai/infrastructure-and-cloud/global-network/virginia-community-investments)
 
 ### 3. OpenClaw: openclaw 2026.6.6
 
-OpenClaw releases publicerede opdateringen 12. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenClaw offentliggjorde opdateringen 11. jun. 2026. OpenClaw har udgivet version 2026.6.6, men kildeteksten indeholder ingen changelog — kun GitHub's standardnavigation og projektets generelle beskrivelse som personlig AI-assistent.
 
-For SmartBolig-læsere er den relevante vinkel: OpenClaw-ændringer kan påvirke lokale agent-workflows, cron-jobs, ACP-integrationer og hvordan automatiserede repo-opgaver styres.
+> Kort kildeuddrag: Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 - Release openclaw 2026.6.6 · openclaw/openclaw Release…
 
-Det næste skridt er konkret: Læs release notes før gateway eller cron-jobs opdateres, fordi runtime-ændringer hurtigt kan påvirke automatiserede opgaver.
+**Hvorfor det er relevant:** Uden en liste over ændringer er det ikke muligt at vide om opdateringen retter fejl, ændrer adfærd, eller påvirker en eksisterende installation.
 
-Kilde: [OpenClaw releases: openclaw 2026.6.6](https://github.com/openclaw/openclaw/releases/tag/v2026.6.6)
+**Sådan verificerer du det:** Åbn release-siden for openclaw 2026.6.6 på GitHub og læs selve changelog-afsnittet, som ikke var med i denne kilde.
+
+**Usikkerhed:** Det er ukendt om opgraderingen kræver handling, ændrer konfiguration, eller blot er en mindre vedligeholdelsesudgivelse.
+
+Kilde: [openclaw 2026.6.6](https://github.com/openclaw/openclaw/releases/tag/v2026.6.6)
 
 ### 4. Claude Code: v2.1.172
 
-Claude Code releases publicerede opdateringen 10. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Claude Code offentliggjorde opdateringen 9. jun. 2026. Claude Code er udgivet i version 2.1.172, men kildeteksten mangler selve udgivelsesnoterne — kun GitHub's menu og produktets generelle beskrivelse kom med.
 
-For SmartBolig-læsere er den relevante vinkel: Claude Code bruges ofte direkte i lokale repos. Nye features og rettelser kan påvirke permissions, team-workflows, hooks, rate-limit feedback og enterprise-netværk.
+> Kort kildeuddrag: Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster…
 
-Det næste skridt er konkret: Læs ændringerne for permissions og team-opsætning, før du opdaterer en maskine der arbejder direkte i produktionsrepos.
+**Hvorfor det er relevant:** Uden konkrete udgivelsesnoter kan du ikke vide om opdateringen ændrer kommandoer, rettigheder eller adfærd du er afhængig af i dit terminal-workflow.
 
-Kilde: [Claude Code releases: v2.1.172](https://github.com/anthropics/claude-code/releases/tag/v2.1.172)
+**Sådan verificerer du det:** Tjek release-siden for Claude Code v2.1.172 direkte på GitHub for at se den fulde liste over ændringer.
+
+**Usikkerhed:** Det vides ikke om opdateringen indeholder fejlrettelser, nye kommandoer, eller ændringer der kræver hurtig opgradering.
+
+Kilde: [v2.1.172](https://github.com/anthropics/claude-code/releases/tag/v2.1.172)
 
 ### 5. Gemini CLI: Release v0.47.0-preview.0
 
-Gemini CLI releases publicerede opdateringen 10. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Gemini CLI offentliggjorde opdateringen 9. jun. 2026. Gemini CLI har fået en preview-udgivelse, v0.47.0-preview.0, men kildeteksten indeholder ikke selve udgivelsesnoterne — kun GitHub's standardnavigation kom med.
 
-For SmartBolig-læsere er den relevante vinkel: Gemini CLI ændrer sig hurtigt. Tjek versionsnoter, især hvis du bruger API key, Vertex AI, checkpoints eller automatiserede agent-runs.
+> Kort kildeuddrag: An open-source AI agent that brings the power of Gemini directly into your terminal. - Release Release v0.47.0-preview.0 · google-gemini/gemini-cli…
 
-Det næste skridt er konkret: Gem CLI-versionen sammen med projektets agent-instruktioner, så automatiske runs kan reproduceres.
+**Hvorfor det er relevant:** Preview-status betyder typisk at udgivelsen ikke er stabil nok til produktion, men uden noterne er det uklart hvad der konkret er ændret eller hvor risikabelt en opgradering er.
 
-Kilde: [Gemini CLI releases: Release v0.47.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.47.0-preview.0)
+**Sådan verificerer du det:** Se release-siden for Gemini CLI v0.47.0-preview.0 på GitHub for den fulde changelog, før du opgraderer et miljø du er afhængig af.
+
+**Usikkerhed:** Det er ukendt hvilke funktioner der er nye, om der er breaking changes, og hvor lang tid der går før udgivelsen bliver stabil.
+
+Kilde: [Release v0.47.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.47.0-preview.0)
 
 ## Hvorfor det betyder noget
 
-- Artiklen bygger på 5 officielle kilder fra OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI.
 - Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
-- Opdater ikke aktive automatiseringer uden at læse originalkilden først.
-
-## Hvad du bør gøre nu
-
-1. Læs originalkilden, før du aktiverer en ny AI-funktion, ændrer modelvalg eller opdaterer et agent-workflow.
-2. Test nye modeller, apps, API'er og agent-versioner i et ufarligt projekt, før de bruges i drift.
-3. Vurder privacy, pris og rollback, før AI får adgang til browser, filer, billeder eller automatiseringer.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
 
 ## Kilder og videre læsning
 
-| Område | Kilde | Dato |
+| Udgiver | Kilde | Dato |
 | --- | --- | --- |
-| OpenAI | [How Endava is redesigning software delivery around AI agents](https://openai.com/index/endava-frontiers) | 4. jun. 2026 |
-| Google AI | [Our new community investments in Virginia support local jobs and expand energy affordability.](https://blog.google/innovation-and-ai/infrastructure-and-cloud/global-network/virginia-community-investments/) | 11. jun. 2026 |
-| OpenClaw | [openclaw 2026.6.6](https://github.com/openclaw/openclaw/releases/tag/v2026.6.6) | 12. jun. 2026 |
-| Claude Code | [v2.1.172](https://github.com/anthropics/claude-code/releases/tag/v2.1.172) | 10. jun. 2026 |
-| Gemini CLI | [Release v0.47.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.47.0-preview.0) | 10. jun. 2026 |
+| OpenAI | [How Endava is redesigning software delivery around AI agents](https://openai.com/index/endava-frontiers) | 3. jun. 2026 |
+| Google AI | [Our new community investments in Virginia support local jobs and expand energy affordability.](https://blog.google/innovation-and-ai/infrastructure-and-cloud/global-network/virginia-community-investments) | 10. jun. 2026 |
+| OpenClaw | [openclaw 2026.6.6](https://github.com/openclaw/openclaw/releases/tag/v2026.6.6) | 11. jun. 2026 |
+| Claude Code | [v2.1.172](https://github.com/anthropics/claude-code/releases/tag/v2.1.172) | 9. jun. 2026 |
+| Gemini CLI | [Release v0.47.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.47.0-preview.0) | 9. jun. 2026 |
 
 ## Redaktionsnote
 
-Artiklen bygger på officielle kilder og korte parafraser. Lange citater, kopieret brødtekst og private tekniske detaljer er fravalgt.
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.

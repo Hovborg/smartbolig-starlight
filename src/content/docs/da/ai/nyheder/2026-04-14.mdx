@@ -1,98 +1,125 @@
 ---
 title: "AI-nyheder, 14. april 2026"
-description: "Kurateret AI-overblik for 14. april 2026: OpenAI, Claude Code, Gemini CLI, API-priser og agent-workflows."
+description: "Kurateret AI-overblik for 14. april 2026: modeller, produkter, ChatGPT, Claude, Gemini, API-priser, privacy og agent-workflows."
 date: 2026-04-14
 lastUpdated: 2026-04-14
+heroImage:
+  src: "/images/ai-news/2026-04-14.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om Claude Code, Gemini CLI, OpenClaw, OpenAI Codex, OpenAI"
+  caption: "Redaktionelt AI-nyhedsbillede om Claude Code, Gemini CLI, OpenClaw, OpenAI Codex, OpenAI"
 news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "c6e9fefb2deca194ce959e34a9fa6d347899e4d58a359043058a6014e7cd930b"
+  sourceSetFingerprint: "0b4e4d4545d1af0647efd5fbce81cde3671ade8249722d8effe15e28cf29b211"
   signal: high
   sources:
-    - https://github.com/anthropics/claude-code/releases/tag/v2.1.105
-    - https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.2
-    - https://github.com/openclaw/openclaw/releases/tag/v2026.4.14-beta.1
-    - https://github.com/openai/codex/releases/tag/rust-v0.120.0
-    - https://openai.com/index/cyberagent
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.105"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.2"
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.4.14-beta.1"
+    - "https://github.com/openai/codex/releases/tag/rust-v0.120.0"
+    - "https://openai.com/index/cyberagent"
 sidebar:
   label: "14. april 2026"
 ---
 
 import { Aside } from "@astrojs/starlight/components";
 
-<p><strong>Publiceret:</strong> <time datetime="2026-04-14">14. april 2026</time> | <strong>Opdateret:</strong> <time datetime="2026-04-14">14. april 2026</time></p>
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-04-14">14. april 2026</time> · 5 udvalgte kilder</p>
 
-Dagens stærkeste signaler kommer fra Claude Code, Gemini CLI, OpenClaw, OpenAI Codex, OpenAI. Fokus er release notes, CLI-agent ændringer og API-ændringer med praktisk betydning.
+<p class="ai-news-lede">Dagens udgave samler fire terminalbaserede AI-kodeværktøjer, der alle har sat nye versionsnumre live inden for få dage af hinanden — Claude Code, Gemini CLI, OpenClaw og Codex — men ingen af udgivelserne kommer med synlige ændringsnoter i det materiale, vi har adgang til. Dertil kommer en kundehistorie fra OpenAI om CyberAgent, hvor selve teksten mangler helt.</p>
 
-<Aside type="caution" title="Kildeførst">
-Denne side må ikke kopiere lange tekststykker fra kilderne. Brug links, korte forklaringer og konkrete handlinger.
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
 </Aside>
 
-## Kort sagt
-
-- 5 officielle signaler blev udvalgt til denne udgave.
-- Prioriteten er AI CLI'er, coding agents, API-ændringer, modelændringer, pricing og sikkerhed.
-- Læs altid release notes før du opdaterer en CLI i et aktivt projekt.
-
-## Nyhederne i dag
-
-- [Claude Code: v2.1.105](#1-claude-code-v21105) · [kilde](https://github.com/anthropics/claude-code/releases/tag/v2.1.105)
-- [Gemini CLI: Release v0.37.2](#2-gemini-cli-release-v0372) · [kilde](https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.2)
-- [OpenClaw: openclaw 2026.4.14-beta.1](#3-openclaw-openclaw-2026414-beta1) · [kilde](https://github.com/openclaw/openclaw/releases/tag/v2026.4.14-beta.1)
-- [OpenAI Codex: 0.120.0](#4-openai-codex-01200) · [kilde](https://github.com/openai/codex/releases/tag/rust-v0.120.0)
-- [OpenAI: CyberAgent moves faster with ChatGPT Enterprise and Codex](#5-openai-cyberagent-moves-faster-with-chatgpt-enterprise-and-codex) · [kilde](https://openai.com/index/cyberagent)
-
-## Vigtigste nyt
+## Dagens historier
 
 ### 1. Claude Code: v2.1.105
 
-- Hvad skete der: Claude Code releases publicerede denne opdatering 13. apr. 2026.
-- Hvorfor det betyder noget: Claude Code bruges ofte direkte i lokale repos. Nye features og rettelser kan påvirke permissions, team-workflows, hooks, rate-limit feedback og enterprise-netværk.
-- Hvad bør du gøre: Læs kilden, opdater kontrolleret og hold øje med ændringer i permissions, pricing, API-brug og projektmapper.
+**Hvad ændrede sig:** Claude Code offentliggjorde opdateringen 12. apr. 2026. Anthropic har udgivet version 2.1.105 af Claude Code på GitHub, men den hentede udgivelsesside viser kun sidens generelle navigation og ingen synlige ændringsnoter.
 
-Kilde: [Claude Code releases](https://github.com/anthropics/claude-code/releases/tag/v2.1.105)
+> Kort kildeuddrag: Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster…
+
+**Hvorfor det er relevant:** For folk der bruger Claude Code som kodeagent er der en ny build tilgængelig, men uden synlige noter kan man ikke vide om den ændrer adfærd, retter fejl eller påvirker eksisterende arbejdsgange.
+
+**Sådan verificerer du det:** Åbn Claude Code's egen udgivelseshistorik på GitHub og læs de fulde noter til 2.1.105, før du opgraderer en maskine du er afhængig af.
+
+**Usikkerhed:** Materialet viser ikke hvilke fejl der er rettet, hvilke funktioner der er tilføjet, eller om opdateringen kræver en manuel handling for at tage effekt.
+
+Kilde: [v2.1.105](https://github.com/anthropics/claude-code/releases/tag/v2.1.105)
 
 ### 2. Gemini CLI: Release v0.37.2
 
-- Hvad skete der: Gemini CLI releases publicerede denne opdatering 13. apr. 2026.
-- Hvorfor det betyder noget: Gemini CLI ændrer sig hurtigt. Tjek versionsnoter, især hvis du bruger API key, Vertex AI, checkpoints eller automatiserede agent-runs.
-- Hvad bør du gøre: Læs kilden, opdater kontrolleret og hold øje med ændringer i permissions, pricing, API-brug og projektmapper.
+**Hvad ændrede sig:** Gemini CLI offentliggjorde opdateringen 12. apr. 2026. Google har sat en ny build, v0.37.2, af det open source-terminalværktøj Gemini CLI live på GitHub, men den hentede side rummer ikke selve udgivelsesteksten, kun sidens faste menupunkter.
 
-Kilde: [Gemini CLI releases](https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.2)
+> Kort kildeuddrag: An open-source AI agent that brings the power of Gemini directly into your terminal. - Release Release v0.37.2 · google-gemini/gemini-cli…
+
+**Hvorfor det er relevant:** Brugere der kører Gemini CLI som terminalagent kan hente den nye build, men uden synlige noter er det uklart om kommandoer, rettigheder eller vante funktioner er berørt.
+
+**Sådan verificerer du det:** Slå v0.37.2 op i Gemini CLI's egen udgivelseshistorik på GitHub, og læs hele ændringslisten, før du ruller den ud i noget vigtigt.
+
+**Usikkerhed:** Det fremgår ikke om v0.37.2 er en fejlrettelse, en sikkerhedsopdatering eller indeholder nye funktioner, og der står intet om hvorvidt tidligere versioner ophører med at virke.
+
+Kilde: [Release v0.37.2](https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.2)
 
 ### 3. OpenClaw: openclaw 2026.4.14-beta.1
 
-- Hvad skete der: OpenClaw releases publicerede denne opdatering 14. apr. 2026.
-- Hvorfor det betyder noget: OpenClaw-ændringer kan påvirke lokale agent-workflows, cron-jobs, ACP-integrationer og hvordan automatiserede repo-opgaver styres.
-- Hvad bør du gøre: Læs kilden, opdater kontrolleret og hold øje med ændringer i permissions, pricing, API-brug og projektmapper.
+**Hvad ændrede sig:** OpenClaw offentliggjorde opdateringen 13. apr. 2026. OpenClaw-projektet har mærket en ny beta-udgivelse, 2026.4.14-beta.1, af sin personlige AI-assistent, men det hentede materiale indeholder ikke selve beskrivelsen af hvad beta-udgivelsen ændrer.
 
-Kilde: [OpenClaw releases](https://github.com/openclaw/openclaw/releases/tag/v2026.4.14-beta.1)
+> Kort kildeuddrag: Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 - Release openclaw 2026.4.14-beta.1 · openclaw/openclaw Release…
+
+**Hvorfor det er relevant:** Fordi der er tale om et beta-mærke, bør alle der eksperimenterer med OpenClaw som personlig assistent regne med mulig ustabilitet, men uden ændringsnoter kan man ikke vide hvilke dele af værktøjet det gælder.
+
+**Sådan verificerer du det:** Læs beta-udgivelsens fulde noter i OpenClaw's eget GitHub-projekt, før du installerer den på en maskine du er afhængig af.
+
+**Usikkerhed:** Det er uklart om beta-mærket dækker en enkelt funktion eller en større ombygning, og der er ingen oplysninger om hvornår eller om udgivelsen bliver til en stabil version.
+
+Kilde: [openclaw 2026.4.14-beta.1](https://github.com/openclaw/openclaw/releases/tag/v2026.4.14-beta.1)
 
 ### 4. OpenAI Codex: 0.120.0
 
-- Hvad skete der: OpenAI Codex releases publicerede denne opdatering 11. apr. 2026.
-- Hvorfor det betyder noget: Codex CLI kan ændre agent-workflow, sandboxing, MCP-værktøjer og review-flow. Opdater først i et testrepo og læs release notes før produktionsarbejde.
-- Hvad bør du gøre: Læs kilden, opdater kontrolleret og hold øje med ændringer i permissions, pricing, API-brug og projektmapper.
+**Hvad ændrede sig:** OpenAI Codex offentliggjorde opdateringen 10. apr. 2026. Codex, OpenAIs letvægts-kodeagent til terminalen, har fået versionsnummer 0.120.0, men den hentede udgivelsesside viser kun GitHubs faste navigation og ingen egentlig ændringstekst.
 
-Kilde: [OpenAI Codex releases](https://github.com/openai/codex/releases/tag/rust-v0.120.0)
+> Kort kildeuddrag: Lightweight coding agent that runs in your terminal - Release 0.120.0 · openai/codex Release 0.120.0 · openai/codex · GitHub /…
+
+**Hvorfor det er relevant:** Terminalbrugere af Codex har en ny version tilgængelig, men uden synlige noter kan man ikke vurdere om kommandoer, rettigheder eller pris er ændret.
+
+**Sådan verificerer du det:** Sammenlign versionsnummer 0.120.0 med Codex' egen changelog på GitHub og med den version du selv har installeret, før du opdaterer.
+
+**Usikkerhed:** Der er ingen oplysninger i materialet om hvilke fejl der er rettet, hvilke modeller der understøttes, eller om standardopførslen er ændret.
+
+Kilde: [0.120.0](https://github.com/openai/codex/releases/tag/rust-v0.120.0)
 
 ### 5. OpenAI: CyberAgent moves faster with ChatGPT Enterprise and Codex
 
-- Hvad skete der: OpenAI News publicerede denne opdatering 9. apr. 2026.
-- Hvorfor det betyder noget: Værd at læse, men bør behandles som produkt- eller læringsnyt med lavere prioritet end konkrete release notes.
-- Hvad bør du gøre: Læs kilden, opdater kontrolleret og hold øje med ændringer i permissions, pricing, API-brug og projektmapper.
+**Hvad ændrede sig:** OpenAI offentliggjorde opdateringen 8. apr. 2026. OpenAI har offentliggjort en kundehistorie om, at virksomheden CyberAgent angiveligt arbejder hurtigere med ChatGPT Enterprise og Codex, men selve artikelteksten mangler i det indhentede materiale, så der er ingen konkrete detaljer at gengive.
 
-Kilde: [OpenAI News](https://openai.com/index/cyberagent)
 
-## Kildeoverblik
+**Hvorfor det er relevant:** Uden en egentlig historie er der ingen konkret konsekvens at udlede for læsere, der selv kører ChatGPT Enterprise eller Codex i mindre opsætninger — kun at OpenAI bruger casen i sin egen markedsføring.
 
-| Område | Kilde | Dato |
+**Sådan verificerer du det:** Opsøg selve kundehistorien direkte hos OpenAI for at se hvilke konkrete tal eller arbejdsgange, der ligger bag titlen.
+
+**Usikkerhed:** Der er intet i materialet om hvilke funktioner CyberAgent bruger, hvilken tidsbesparelse der er tale om, eller om resultaterne kan overføres til en mindre opsætning.
+
+Kilde: [CyberAgent moves faster with ChatGPT Enterprise and Codex](https://openai.com/index/cyberagent)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
 | --- | --- | --- |
-| Claude Code | [v2.1.105](https://github.com/anthropics/claude-code/releases/tag/v2.1.105) | 13. apr. 2026 |
-| Gemini CLI | [Release v0.37.2](https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.2) | 13. apr. 2026 |
-| OpenClaw | [openclaw 2026.4.14-beta.1](https://github.com/openclaw/openclaw/releases/tag/v2026.4.14-beta.1) | 14. apr. 2026 |
-| OpenAI Codex | [0.120.0](https://github.com/openai/codex/releases/tag/rust-v0.120.0) | 11. apr. 2026 |
-| OpenAI | [CyberAgent moves faster with ChatGPT Enterprise and Codex](https://openai.com/index/cyberagent) | 9. apr. 2026 |
+| Claude Code | [v2.1.105](https://github.com/anthropics/claude-code/releases/tag/v2.1.105) | 12. apr. 2026 |
+| Gemini CLI | [Release v0.37.2](https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.2) | 12. apr. 2026 |
+| OpenClaw | [openclaw 2026.4.14-beta.1](https://github.com/openclaw/openclaw/releases/tag/v2026.4.14-beta.1) | 13. apr. 2026 |
+| OpenAI Codex | [0.120.0](https://github.com/openai/codex/releases/tag/rust-v0.120.0) | 10. apr. 2026 |
+| OpenAI | [CyberAgent moves faster with ChatGPT Enterprise and Codex](https://openai.com/index/cyberagent) | 8. apr. 2026 |
 
-## Redaktionsregler
+## Redaktionsnote
 
-- Officielle kilder prioriteres over rygter og sociale medier.
-- Interne OpenClaw-rapporter, lokale filstier og private tokens må aldrig publiceres.
-- Hvis der ikke er nok at skrive om, springes dagsudgaven over.
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.

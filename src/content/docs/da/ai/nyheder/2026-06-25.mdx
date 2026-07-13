@@ -4,14 +4,18 @@ description: "Kurateret AI-overblik for 25. juni 2026: modeller, produkter, Chat
 date: 2026-06-25
 lastUpdated: 2026-06-25
 heroImage:
-  src: "/images/ai-news/2026-06-25.png"
-  alt: "SmartBolig-hardwarevisual om dagens AI-nyheder fra OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI"
-  caption: "SmartBolig-hardware sat op til dagens AI-nyheder om OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI."
+  src: "/images/ai-news/2026-06-25.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI"
+  caption: "Redaktionelt AI-nyhedsbillede om OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI"
 news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "73ec315212caf4d2bb11f1f6aeca91fe57cfb449bc39ae5266f7bcf6b0508cc9"
+  sourceSetFingerprint: "bfbe798618eeae4bcc6d8aba19f01060ee05caa189334cceff324814a4d0c729"
   signal: high
   sources:
     - "https://openai.com/index/improving-health-intelligence-in-chatgpt"
-    - "https://blog.google/innovation-and-ai/models-and-research/google-research/amie-for-disease-management-in-nature/"
+    - "https://blog.google/innovation-and-ai/models-and-research/google-research/amie-for-disease-management-in-nature"
     - "https://github.com/openclaw/openclaw/releases/tag/v2026.6.9"
     - "https://github.com/anthropics/claude-code/releases/tag/v2.1.186"
     - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.47.0"
@@ -21,88 +25,101 @@ sidebar:
 
 import { Aside } from "@astrojs/starlight/components";
 
-<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <strong>Publiceret:</strong> <time datetime="2026-06-25">25. juni 2026</time> | <strong>Opdateret:</strong> <time datetime="2026-06-25">25. juni 2026</time> · 5 officielle kilder</p>
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-06-25">25. juni 2026</time> · 5 udvalgte kilder</p>
 
-<p class="ai-news-lede">Dagens stærkeste signaler kommer fra OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI. Fokus er de AI-nyheder, der kan mærkes i produkter, modeller, browser, agent-workflows, API'er, privacy, pris eller sikkerhed.</p>
+<p class="ai-news-lede">Dagens vigtigste nyhed er ny forskning i tidsskriftet Nature, der ifølge Google viser at samtale-AI-systemet AMIE kan matche praktiserende læger i håndtering af komplekse sygdomsforløb – stadig forskning, ikke noget du kan bruge i dag. Resten af opdateringerne er tyndere: en ny CLI-kommando i Claude Code til at logge ud af MCP-servere, og tre bare versionstags fra OpenAI, OpenClaw og Gemini CLI uden uddybende noter.</p>
 
-<Aside type="note" title="Redaktionelt filter">
-SmartBolig.net vælger hellere færre nyheder med klare kilder end et langt nyhedsfeed. Artiklen bruger egne formuleringer og linker til originalkilderne.
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
 </Aside>
 
-## Hovedhistorien
+## Dagens historier
 
 ### 1. OpenAI: Improving health intelligence in ChatGPT
 
-OpenAI News publicerede opdateringen 18. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenAI offentliggjorde opdateringen 17. jun. 2026. Kilden består kun af overskriften Improving health intelligence in ChatGPT fra 17. juni. Der er hverken resumé eller brødtekst, så det fremgår ikke hvilken konkret funktion eller ændring OpenAI beskriver.
 
-For SmartBolig-læsere er den relevante vinkel: Nyheden kan ændre, hvordan almindelige brugere og små teams bruger AI i hverdagen, ikke kun hvordan udviklere opdaterer værktøjer.
 
-Det næste skridt er konkret: Læs originalkilden og behandl nyheden som inspiration, indtil den har en konkret effekt på dit setup.
+**Hvorfor det er relevant:** Uden konkrete detaljer kan vi ikke sige om det påvirker hvordan ChatGPT besvarer sundhedsspørgsmål, eller om der overhovedet er tale om en produktændring.
 
-Kilde: [OpenAI News: Improving health intelligence in ChatGPT](https://openai.com/index/improving-health-intelligence-in-chatgpt)
+**Sådan verificerer du det:** Slå selv titlen op på OpenAIs egen hjemmeside for at se hvad opdateringen faktisk indeholder, før du ændrer noget i din brug af ChatGPT.
+
+**Usikkerhed:** Alt er uklart: om det er en ny funktion, en modeljustering eller blot en politik-tekst, og om den overhovedet rammer den almindelige ChatGPT-app.
+
+Kilde: [Improving health intelligence in ChatGPT](https://openai.com/index/improving-health-intelligence-in-chatgpt)
 
 ### 2. Google AI: New research shows how AMIE, our medical AI, could help manage health conditions.
 
-Google AI Blog publicerede opdateringen 17. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Google AI offentliggjorde opdateringen 16. jun. 2026. Ny forskning offentliggjort i Nature viser ifølge Google, at det medicinske samtale-AI-system AMIE i test kunne matche praktiserende læger i håndtering af komplekse sygdomsforløb. Overskriften angiver at forskningen bevæger sig fra diagnose til egentlig behandling.
 
-For SmartBolig-læsere er den relevante vinkel: Google AI-ændringer kan påvirke Gemini, Search, Chrome, API-brug og hvordan AI flytter ind i almindelige forbruger-workflows.
+> Kort kildeuddrag: Research in “Nature” shows our conversational AI system matches primary care physicians in complex disease management. Google advances its AMIE…
 
-Det næste skridt er konkret: Tjek om ændringen påvirker budget, latency eller modelvalg, før den bliver del af en fast automation.
+**Hvorfor det er relevant:** Det er forskning, ikke en funktion man kan tage i brug i dag, men det peger på at samtale-AI på sigt kan indgå i behandlingsforløb – en grund til ekstra varsomhed hvis man selv bruger AI til at fortolke egne symptomer eller behandlingsplaner.
 
-Kilde: [Google AI Blog: New research shows how AMIE, our medical AI, could help manage health conditions.](https://blog.google/innovation-and-ai/models-and-research/google-research/amie-for-disease-management-in-nature/)
+**Sådan verificerer du det:** Søg selv den konkrete Nature-artikel frem og læs metodeafsnittet, i stedet for at stole på Googles egen omtale af resultaterne.
+
+**Usikkerhed:** Kilden viser ikke studiets størrelse, hvilke sygdomme der indgik, eller om AMIE er tilgængelig uden for forskningsmiljøet.
+
+Kilde: [New research shows how AMIE, our medical AI, could help manage health conditions.](https://blog.google/innovation-and-ai/models-and-research/google-research/amie-for-disease-management-in-nature)
 
 ### 3. OpenClaw: openclaw 2026.6.9
 
-OpenClaw releases publicerede opdateringen 21. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenClaw offentliggjorde opdateringen 20. jun. 2026. Kilden er kun en versionstag, openclaw 2026.6.9, dateret 20. juni. Den egentlige GitHub-udgivelsesside kunne ikke hentes, kun sidens navigationsmenu, så det konkrete indhold i opdateringen kendes ikke.
 
-For SmartBolig-læsere er den relevante vinkel: OpenClaw-ændringer kan påvirke lokale agent-workflows, cron-jobs, ACP-integrationer og hvordan automatiserede repo-opgaver styres.
+> Kort kildeuddrag: Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 - Release openclaw 2026.6.9 · openclaw/openclaw Release…
 
-Det næste skridt er konkret: Læs release notes før gateway eller cron-jobs opdateres, fordi runtime-ændringer hurtigt kan påvirke automatiserede opgaver.
+**Hvorfor det er relevant:** Uden en changelog kan brugere af OpenClaw ikke vide om opdateringen retter fejl, ændrer adfærd eller kræver handling før opgradering.
 
-Kilde: [OpenClaw releases: openclaw 2026.6.9](https://github.com/openclaw/openclaw/releases/tag/v2026.6.9)
+**Sådan verificerer du det:** Åbn selve udgivelsessiden for openclaw 2026.6.9 på GitHub og læs changelog-teksten før du opdaterer en kørende installation.
+
+**Usikkerhed:** Det er uklart om opdateringen indeholder sikkerhedsrettelser, brud på bagudkompatibilitet eller blot mindre justeringer.
+
+Kilde: [openclaw 2026.6.9](https://github.com/openclaw/openclaw/releases/tag/v2026.6.9)
 
 ### 4. Claude Code: v2.1.186
 
-Claude Code releases publicerede opdateringen 22. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Claude Code offentliggjorde opdateringen 21. jun. 2026. Ifølge udgivelsesteksten tilføjer Claude Code v2.1.186 kommandoen claude mcp logout, så man kan autentificere og logge ud af MCP-servere direkte fra terminalen uden at åbne den interaktive /mcp-menu, samt understøttelse af --no-browser med stdin-redirect.
 
-For SmartBolig-læsere er den relevante vinkel: Claude Code bruges ofte direkte i lokale repos. Nye features og rettelser kan påvirke permissions, team-workflows, hooks, rate-limit feedback og enterprise-netværk.
+> Kort kildeuddrag: Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster…
 
-Det næste skridt er konkret: Læs ændringerne for permissions og team-opsætning, før du opdaterer en maskine der arbejder direkte i produktionsrepos.
+**Hvorfor det er relevant:** Det gør det lettere at administrere MCP-server-adgang fra scripts eller skærmløse SSH-sessioner, hvilket er relevant hvis du kører Claude Code som en del af en automatiseret opsætning.
 
-Kilde: [Claude Code releases: v2.1.186](https://github.com/anthropics/claude-code/releases/tag/v2.1.186)
+**Sådan verificerer du det:** Kør claude mcp logout i en opdateret installation og tjek at kommandoen findes, samt at --no-browser-flaget opfører sig som beskrevet.
+
+**Usikkerhed:** Kilden viser ikke om ændringen kræver en bestemt MCP-server-type, eller om ældre opsætninger skal justeres for at virke med den nye kommando.
+
+Kilde: [v2.1.186](https://github.com/anthropics/claude-code/releases/tag/v2.1.186)
 
 ### 5. Gemini CLI: Release v0.47.0
 
-Gemini CLI releases publicerede opdateringen 18. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Gemini CLI offentliggjorde opdateringen 17. jun. 2026. Kilden er kun en versionstag, Release v0.47.0, dateret 17. juni. De egentlige udgivelsesnoter blev ikke hentet, kun GitHub-sidens navigationsmenu, så det er ukendt hvad der faktisk er ændret i Gemini CLI.
 
-For SmartBolig-læsere er den relevante vinkel: Gemini CLI ændrer sig hurtigt. Tjek versionsnoter, især hvis du bruger API key, Vertex AI, checkpoints eller automatiserede agent-runs.
+> Kort kildeuddrag: An open-source AI agent that brings the power of Gemini directly into your terminal. - Release Release v0.47.0 · google-gemini/gemini-cli…
 
-Det næste skridt er konkret: Gem CLI-versionen sammen med projektets agent-instruktioner, så automatiske runs kan reproduceres.
+**Hvorfor det er relevant:** Uden konkret indhold kan brugere af Gemini CLI ikke vurdere om opdateringen påvirker deres arbejdsgang, før de selv har set changelog-teksten.
 
-Kilde: [Gemini CLI releases: Release v0.47.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.47.0)
+**Sådan verificerer du det:** Åbn udgivelsessiden for Gemini CLI v0.47.0 på GitHub direkte og læs changelog-afsnittet.
+
+**Usikkerhed:** Det fremgår ikke om der er tale om nye funktioner, fejlrettelser eller ændringer der bryder eksisterende scripts.
+
+Kilde: [Release v0.47.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.47.0)
 
 ## Hvorfor det betyder noget
 
-- Artiklen bygger på 5 officielle kilder fra OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI.
 - Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
-- Opdater ikke aktive automatiseringer uden at læse originalkilden først.
-
-## Hvad du bør gøre nu
-
-1. Læs originalkilden, før du aktiverer en ny AI-funktion, ændrer modelvalg eller opdaterer et agent-workflow.
-2. Test nye modeller, apps, API'er og agent-versioner i et ufarligt projekt, før de bruges i drift.
-3. Vurder privacy, pris og rollback, før AI får adgang til browser, filer, billeder eller automatiseringer.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
 
 ## Kilder og videre læsning
 
-| Område | Kilde | Dato |
+| Udgiver | Kilde | Dato |
 | --- | --- | --- |
-| OpenAI | [Improving health intelligence in ChatGPT](https://openai.com/index/improving-health-intelligence-in-chatgpt) | 18. jun. 2026 |
-| Google AI | [New research shows how AMIE, our medical AI, could help manage health conditions.](https://blog.google/innovation-and-ai/models-and-research/google-research/amie-for-disease-management-in-nature/) | 17. jun. 2026 |
-| OpenClaw | [openclaw 2026.6.9](https://github.com/openclaw/openclaw/releases/tag/v2026.6.9) | 21. jun. 2026 |
-| Claude Code | [v2.1.186](https://github.com/anthropics/claude-code/releases/tag/v2.1.186) | 22. jun. 2026 |
-| Gemini CLI | [Release v0.47.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.47.0) | 18. jun. 2026 |
+| OpenAI | [Improving health intelligence in ChatGPT](https://openai.com/index/improving-health-intelligence-in-chatgpt) | 17. jun. 2026 |
+| Google AI | [New research shows how AMIE, our medical AI, could help manage health conditions.](https://blog.google/innovation-and-ai/models-and-research/google-research/amie-for-disease-management-in-nature) | 16. jun. 2026 |
+| OpenClaw | [openclaw 2026.6.9](https://github.com/openclaw/openclaw/releases/tag/v2026.6.9) | 20. jun. 2026 |
+| Claude Code | [v2.1.186](https://github.com/anthropics/claude-code/releases/tag/v2.1.186) | 21. jun. 2026 |
+| Gemini CLI | [Release v0.47.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.47.0) | 17. jun. 2026 |
 
 ## Redaktionsnote
 
-Artiklen bygger på officielle kilder og korte parafraser. Lange citater, kopieret brødtekst og private tekniske detaljer er fravalgt.
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.

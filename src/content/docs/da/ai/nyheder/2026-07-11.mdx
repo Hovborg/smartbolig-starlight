@@ -4,14 +4,18 @@ description: "Kurateret AI-overblik for 11. juli 2026: modeller, produkter, Chat
 date: 2026-07-11
 lastUpdated: 2026-07-11
 heroImage:
-  src: "/images/ai-news/2026-07-11.png"
-  alt: "SmartBolig-hardwarevisual om dagens AI-nyheder fra OpenAI, Google AI, OpenClaw, OpenAI Codex, Claude Code, Gemini CLI"
-  caption: "SmartBolig-hardware sat op til dagens AI-nyheder om OpenAI, Google AI, OpenClaw, OpenAI Codex, Claude Code, Gemini CLI."
+  src: "/images/ai-news/2026-07-11.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om OpenAI, Google AI, OpenClaw, OpenAI Codex, Claude Code, Gemini CLI"
+  caption: "Redaktionelt AI-nyhedsbillede om OpenAI, Google AI, OpenClaw, OpenAI Codex, Claude Code, Gemini CLI"
 news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "3d8d376b16ff6446f5eca0038a00b3e6e3a324fde94d7ebc0378e5d1d531a9a4"
+  sourceSetFingerprint: "7a6a1f93cd45b69e4745fb9522545a276ced4efa49d36f0ad3b5fd7c96dbf278"
   signal: high
   sources:
     - "https://openai.com/index/introducing-gpt-live"
-    - "https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api/"
+    - "https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api"
     - "https://github.com/openclaw/openclaw/releases/tag/v2026.7.1-beta.2"
     - "https://github.com/openai/codex/releases/tag/rust-v0.144.0"
     - "https://github.com/anthropics/claude-code/releases/tag/v2.1.202"
@@ -22,99 +26,116 @@ sidebar:
 
 import { Aside } from "@astrojs/starlight/components";
 
-<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <strong>Publiceret:</strong> <time datetime="2026-07-11">11. juli 2026</time> | <strong>Opdateret:</strong> <time datetime="2026-07-11">11. juli 2026</time> · 6 officielle kilder</p>
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-07-11">11. juli 2026</time> · 6 udvalgte kilder</p>
 
-<p class="ai-news-lede">Dagens stærkeste signaler kommer fra OpenAI, Google AI, OpenClaw, OpenAI Codex, Claude Code, Gemini CLI. Fokus er de AI-nyheder, der kan mærkes i produkter, modeller, browser, agent-workflows, API'er, privacy, pris eller sikkerhed.</p>
+<p class="ai-news-lede">Dagens vigtigste nyhed er, at Google har annonceret udvidelser af Managed Agents i Gemini API, blandt andet med baggrundsopgaver og fjern-MCP-understøttelse, men uden tekniske detaljer i kildematerialet. Resten af opgørelsen består af version-opdateringer fra OpenAI, OpenClaw, Codex, Claude Code og Gemini CLI, hvor de fleste kildesider kun viser GitHubs navigationsmenu i stedet for de faktiske ændringslogger.</p>
 
-<Aside type="note" title="Redaktionelt filter">
-SmartBolig.net vælger hellere færre nyheder med klare kilder end et langt nyhedsfeed. Artiklen bruger egne formuleringer og linker til originalkilderne.
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
 </Aside>
 
-## Hovedhistorien
+## Dagens historier
 
 ### 1. OpenAI: Introducing GPT-Live
 
-OpenAI News publicerede opdateringen 8. jul. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenAI offentliggjorde opdateringen 6. jul. 2026. OpenAI har offentliggjort et opslag med titlen Introducing GPT-Live den 6. juli 2026. Kildematerialet indeholder hverken et resumé eller en beskrivelse af, hvad produktet faktisk gør.
 
-For SmartBolig-læsere er den relevante vinkel: Nyheden kan ændre, hvordan almindelige brugere og små teams bruger AI i hverdagen, ikke kun hvordan udviklere opdaterer værktøjer.
 
-Det næste skridt er konkret: Læs originalkilden og behandl nyheden som inspiration, indtil den har en konkret effekt på dit setup.
+**Hvorfor det er relevant:** Uden en beskrivelse af funktionen kan brugere endnu ikke vurdere, om GPT-Live ændrer noget i deres daglige brug af ChatGPT eller API'et.
 
-Kilde: [OpenAI News: Introducing GPT-Live](https://openai.com/index/introducing-gpt-live)
+**Sådan verificerer du det:** Tjek OpenAIs officielle nyhedsside eller ChatGPT-appen for en opdatering ved navn GPT-Live, før du regner med at funktionen findes.
+
+**Usikkerhed:** Kildematerialet viser ikke, om GPT-Live er en ny model, en funktion i ChatGPT, en API-ændring, eller hvornår og for hvem den udrulles.
+
+Kilde: [Introducing GPT-Live](https://openai.com/index/introducing-gpt-live)
 
 ### 2. Google AI: Expanding Managed Agents in Gemini API: background tasks, remote MCP and more
 
-Google AI Blog publicerede opdateringen 7. jul. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Google AI offentliggjorde opdateringen 5. jul. 2026. Google har annonceret udvidelser af Managed Agents i Gemini API. Ifølge overskriften drejer det sig blandt andet om baggrundsopgaver og understøttelse af fjern-MCP, men kildematerialet uddyber ikke de tekniske detaljer ud over det oplyste formål: at gøre agenter mere pålidelige og produktionsklare.
 
-For SmartBolig-læsere er den relevante vinkel: Google AI-ændringer kan påvirke Gemini, Search, Chrome, API-brug og hvordan AI flytter ind i almindelige forbruger-workflows.
+> Kort kildeuddrag: We’re announcing new capabilities in Managed Agents in Gemini API so developers can build reliable, production-ready agents. What’s new in…
 
-Det næste skridt er konkret: Tjek om ændringen påvirker budget, latency eller modelvalg, før den bliver del af en fast automation.
+**Hvorfor det er relevant:** Hvis du bygger agenter på Gemini API'et, kan tilføjelserne i praksis betyde færre afbrydelser og lettere adgang til eksterne værktøjer, men uden flere detaljer er det svært at vurdere den konkrete effekt på dit eget setup.
 
-Kilde: [Google AI Blog: Expanding Managed Agents in Gemini API: background tasks, remote MCP and more](https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api/)
+**Sådan verificerer du det:** Slå Managed Agents op i den officielle Gemini API-dokumentation for at se, om baggrundsopgaver og fjern-MCP allerede er tilgængelige for din konto.
+
+**Usikkerhed:** Det fremgår ikke, hvornår funktionerne bliver bredt tilgængelige, om de kræver særlig adgang, eller om de ændrer prisen for at bruge Gemini API'et.
+
+Kilde: [Expanding Managed Agents in Gemini API: background tasks, remote MCP and more](https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api)
 
 ### 3. OpenClaw: openclaw 2026.7.1-beta.2
 
-OpenClaw releases publicerede opdateringen 5. jul. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenClaw offentliggjorde opdateringen 3. jul. 2026. OpenClaw har udgivet version 2026.7.1-beta.2 den 3. juli 2026. Kildesiden indeholder kun GitHubs standardnavigation, ikke selve ændringsloggen, så det konkrete indhold i denne betaudgivelse er ikke tilgængeligt her.
 
-For SmartBolig-læsere er den relevante vinkel: OpenClaw-ændringer kan påvirke lokale agent-workflows, cron-jobs, ACP-integrationer og hvordan automatiserede repo-opgaver styres.
+> Kort kildeuddrag: Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 - Release openclaw 2026.7.1-beta.2 · openclaw/openclaw Release…
 
-Det næste skridt er konkret: Læs release notes før gateway eller cron-jobs opdateres, fordi runtime-ændringer hurtigt kan påvirke automatiserede opgaver.
+**Hvorfor det er relevant:** Uden en ændringslog kan brugere af OpenClaw ikke vide, om opdateringen retter fejl, ændrer adfærd eller kræver en ny konfiguration, før de opdaterer deres installation.
 
-Kilde: [OpenClaw releases: openclaw 2026.7.1-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.7.1-beta.2)
+**Sådan verificerer du det:** Åbn OpenClaws GitHub-udgivelsesside for 2026.7.1-beta.2 direkte, og læs den fulde ændringslog, før du opdaterer en produktionsopsætning.
+
+**Usikkerhed:** Det er uklart, hvilke fejl eller funktioner denne betaversion faktisk ændrer, og om den er stabil nok til daglig brug uden for test.
+
+Kilde: [openclaw 2026.7.1-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.7.1-beta.2)
 
 ### 4. OpenAI Codex: 0.144.0
 
-OpenAI Codex releases publicerede opdateringen 9. jul. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenAI Codex offentliggjorde opdateringen 7. jul. 2026. OpenAI har udgivet Codex CLI version 0.144.0 den 7. juli 2026. Ligesom for andre GitHub-udgivelser i denne oversigt viser kildesiden kun navigationsmenuen, ikke de faktiske rettelser eller nye funktioner i denne version.
 
-For SmartBolig-læsere er den relevante vinkel: Codex-ændringer kan påvirke agent-workflow, review, browserarbejde, sandboxing og MCP-værktøjer. Opdater først i et testrepo og læs release notes før produktionsarbejde.
+> Kort kildeuddrag: Lightweight coding agent that runs in your terminal - Release 0.144.0 · openai/codex Release 0.144.0 · openai/codex · GitHub /…
 
-Det næste skridt er konkret: Test versionen i et separat repo, før du bruger den i workflows med auto-commit, MCP eller shell-adgang.
+**Hvorfor det er relevant:** Codex bruges som terminalbaseret kodeagent, så en versionsopdatering kan ændre kommandoer eller adfærd, men uden ændringsloggen er det ikke muligt at sige, om denne opdatering påvirker eksisterende scripts eller workflows.
 
-Kilde: [OpenAI Codex releases: 0.144.0](https://github.com/openai/codex/releases/tag/rust-v0.144.0)
+**Sådan verificerer du det:** Kør codex --version efter opdatering, og sammenlign med den fulde ændringslog på GitHub for at se, hvad der reelt er ændret.
+
+**Usikkerhed:** Kildematerialet siger intet om, hvorvidt 0.144.0 indeholder brydende ændringer, sikkerhedsrettelser eller blot mindre justeringer.
+
+Kilde: [0.144.0](https://github.com/openai/codex/releases/tag/rust-v0.144.0)
 
 ### 5. Claude Code: v2.1.202
 
-Claude Code releases publicerede opdateringen 6. jul. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Claude Code offentliggjorde opdateringen 4. jul. 2026. Anthropic har udgivet Claude Code version 2.1.202 den 4. juli 2026. Kildesiden er igen kun GitHubs navigationsmenu, så de konkrete ændringer i denne version fremgår ikke af materialet.
 
-For SmartBolig-læsere er den relevante vinkel: Claude Code bruges ofte direkte i lokale repos. Nye features og rettelser kan påvirke permissions, team-workflows, hooks, rate-limit feedback og enterprise-netværk.
+> Kort kildeuddrag: Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster…
 
-Det næste skridt er konkret: Læs ændringerne for permissions og team-opsætning, før du opdaterer en maskine der arbejder direkte i produktionsrepos.
+**Hvorfor det er relevant:** Da Claude Code bruges direkte i terminalen til at redigere kode og køre kommandoer, kan selv en lille versionsopdatering ændre, hvordan værktøjet opfører sig i eksisterende projekter.
 
-Kilde: [Claude Code releases: v2.1.202](https://github.com/anthropics/claude-code/releases/tag/v2.1.202)
+**Sådan verificerer du det:** Tjek den installerede version med claude --version, og læs den fulde udgivelsesnote på GitHub, før du stoler på ny adfærd i dine egne projekter.
+
+**Usikkerhed:** Det fremgår ikke, om 2.1.202 er en fejlrettelse, en ny funktion eller en ændring, der kræver, at du opdaterer din konfiguration.
+
+Kilde: [v2.1.202](https://github.com/anthropics/claude-code/releases/tag/v2.1.202)
 
 ### 6. Gemini CLI: Release v0.51.0-preview.0
 
-Gemini CLI releases publicerede opdateringen 8. jul. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Gemini CLI offentliggjorde opdateringen 6. jul. 2026. Google har udgivet Gemini CLI version 0.51.0-preview.0 den 6. juli 2026. Kildesiden viser kun GitHubs navigationsmenu, så indholdet af denne preview-udgivelse er ikke beskrevet i materialet.
 
-For SmartBolig-læsere er den relevante vinkel: Gemini CLI ændrer sig hurtigt. Tjek versionsnoter, især hvis du bruger API key, Vertex AI, checkpoints eller automatiserede agent-runs.
+> Kort kildeuddrag: An open-source AI agent that brings the power of Gemini directly into your terminal. - Release Release v0.51.0-preview.0 · google-gemini/gemini-cli…
 
-Det næste skridt er konkret: Gem CLI-versionen sammen med projektets agent-instruktioner, så automatiske runs kan reproduceres.
+**Hvorfor det er relevant:** Som previewversion er 0.51.0-preview.0 formentlig ikke beregnet til stabil daglig drift, men uden en ændringslog kan brugere ikke vurdere, hvilke nye funktioner eller risici den introducerer i deres terminal-workflow.
 
-Kilde: [Gemini CLI releases: Release v0.51.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.51.0-preview.0)
+**Sådan verificerer du det:** Læs den fulde udgivelsesnote for 0.51.0-preview.0 på Gemini CLI's GitHub-side, og overvej at blive på en stabil version, hvis du er i tvivl.
+
+**Usikkerhed:** Det er uklart, hvad der adskiller denne preview fra tidligere versioner, og om den er tiltænkt bred brug eller kun intern test.
+
+Kilde: [Release v0.51.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.51.0-preview.0)
 
 ## Hvorfor det betyder noget
 
-- Artiklen bygger på 6 officielle kilder fra OpenAI, Google AI, OpenClaw, OpenAI Codex, Claude Code, Gemini CLI.
 - Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
-- Opdater ikke aktive automatiseringer uden at læse originalkilden først.
-
-## Hvad du bør gøre nu
-
-1. Læs originalkilden, før du aktiverer en ny AI-funktion, ændrer modelvalg eller opdaterer et agent-workflow.
-2. Test nye modeller, apps, API'er og agent-versioner i et ufarligt projekt, før de bruges i drift.
-3. Vurder privacy, pris og rollback, før AI får adgang til browser, filer, billeder eller automatiseringer.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
 
 ## Kilder og videre læsning
 
-| Område | Kilde | Dato |
+| Udgiver | Kilde | Dato |
 | --- | --- | --- |
-| OpenAI | [Introducing GPT-Live](https://openai.com/index/introducing-gpt-live) | 8. jul. 2026 |
-| Google AI | [Expanding Managed Agents in Gemini API: background tasks, remote MCP and more](https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api/) | 7. jul. 2026 |
-| OpenClaw | [openclaw 2026.7.1-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.7.1-beta.2) | 5. jul. 2026 |
-| OpenAI Codex | [0.144.0](https://github.com/openai/codex/releases/tag/rust-v0.144.0) | 9. jul. 2026 |
-| Claude Code | [v2.1.202](https://github.com/anthropics/claude-code/releases/tag/v2.1.202) | 6. jul. 2026 |
-| Gemini CLI | [Release v0.51.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.51.0-preview.0) | 8. jul. 2026 |
+| OpenAI | [Introducing GPT-Live](https://openai.com/index/introducing-gpt-live) | 6. jul. 2026 |
+| Google AI | [Expanding Managed Agents in Gemini API: background tasks, remote MCP and more](https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api) | 5. jul. 2026 |
+| OpenClaw | [openclaw 2026.7.1-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.7.1-beta.2) | 3. jul. 2026 |
+| OpenAI Codex | [0.144.0](https://github.com/openai/codex/releases/tag/rust-v0.144.0) | 7. jul. 2026 |
+| Claude Code | [v2.1.202](https://github.com/anthropics/claude-code/releases/tag/v2.1.202) | 4. jul. 2026 |
+| Gemini CLI | [Release v0.51.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.51.0-preview.0) | 6. jul. 2026 |
 
 ## Redaktionsnote
 
-Artiklen bygger på officielle kilder og korte parafraser. Lange citater, kopieret brødtekst og private tekniske detaljer er fravalgt.
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.

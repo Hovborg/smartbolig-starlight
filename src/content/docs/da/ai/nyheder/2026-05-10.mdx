@@ -4,117 +4,138 @@ description: "Kurateret AI-overblik for 10. maj 2026: modeller, produkter, ChatG
 date: 2026-05-10
 lastUpdated: 2026-05-10
 heroImage:
-  src: "/images/ai-news/2026-05-10.png"
-  alt: "SmartBolig-hardwarevisual om dagens AI-nyheder fra OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI, OpenAI Codex"
-  caption: "SmartBolig-hardware sat op til dagens AI-nyheder om OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI, OpenAI Codex."
+  src: "/images/ai-news/2026-05-10.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI, OpenAI Codex"
+  caption: "Redaktionelt AI-nyhedsbillede om OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI, OpenAI Codex"
 news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "b0587d76e701ad0a72f94233e7bc09828f2cb3bdcb060852345d75809d602b7b"
+  sourceSetFingerprint: "7a6a1f93cd45b69e4745fb9522545a276ced4efa49d36f0ad3b5fd7c96dbf278"
   signal: high
   sources:
-    - https://openai.com/index/how-chatgpt-protects-privacy
-    - https://blog.google/innovation-and-ai/technology/developers-tools/event-driven-webhooks/
-    - https://github.com/openclaw/openclaw/releases/tag/v2026.5.9-beta.1
-    - https://github.com/anthropics/claude-code/releases/tag/v2.1.126
-    - https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0-preview.0
-    - https://github.com/openai/codex/releases/tag/rust-v0.130.0
+    - "https://openai.com/index/how-chatgpt-protects-privacy"
+    - "https://blog.google/innovation-and-ai/technology/developers-tools/event-driven-webhooks"
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.5.9-beta.1"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.126"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0-preview.0"
+    - "https://github.com/openai/codex/releases/tag/rust-v0.130.0"
 sidebar:
   label: "10. maj 2026"
 ---
 
 import { Aside } from "@astrojs/starlight/components";
 
-<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <strong>Publiceret:</strong> <time datetime="2026-05-10">10. maj 2026</time> | <strong>Opdateret:</strong> <time datetime="2026-05-10">10. maj 2026</time> · 6 officielle kilder</p>
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-05-10">10. maj 2026</time> · 6 udvalgte kilder</p>
 
-<p class="ai-news-lede">Dagens stærkeste signaler kommer fra OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI, OpenAI Codex. Fokus er de AI-nyheder, der kan mærkes i produkter, modeller, browser, agent-workflows, API'er, privacy, pris eller sikkerhed.</p>
+<p class="ai-news-lede">Dagens vigtigste nyhed er at Google har indført event-drevne webhooks i Gemini API'et, så udviklere slipper for at polle for status på langvarige job. Resten af opdateringerne i dag er versionsudgivelser fra OpenAI, OpenClaw, Claude Code, Gemini CLI og Codex, hvor kildematerialet kun rummer titel og versionsnummer uden egentlige ændringslister.</p>
 
-<Aside type="note" title="Redaktionelt filter">
-SmartBolig.net vælger hellere færre nyheder med klare kilder end et langt nyhedsfeed. Artiklen bruger egne formuleringer og linker til originalkilderne.
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
 </Aside>
 
-## Hovedhistorien
+## Dagens historier
 
 ### 1. OpenAI: How ChatGPT learns about the world while protecting privacy
 
-OpenAI News publicerede opdateringen 6. maj 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenAI offentliggjorde opdateringen 5. maj 2026. OpenAI har offentliggjort en artikel med titlen "How ChatGPT learns about the world while protecting privacy", dateret 5. maj 2026, men kildeteksten indeholder hverken resumé eller brødtekst.
 
-For SmartBolig-læsere er den relevante vinkel: Nyheden kan ændre, hvordan almindelige brugere og små teams bruger AI i hverdagen, ikke kun hvordan udviklere opdaterer værktøjer.
 
-Det næste skridt er konkret: Læs originalkilden og behandl nyheden som inspiration, indtil den har en konkret effekt på dit setup.
+**Hvorfor det er relevant:** Uden konkret indhold kan man ikke vurdere, om der reelt er ændret noget i, hvordan ChatGPT indsamler eller bruger data fra brugerne.
 
-Kilde: [OpenAI News: How ChatGPT learns about the world while protecting privacy](https://openai.com/index/how-chatgpt-protects-privacy)
+**Sådan verificerer du det:** Slå selv artiklen op på OpenAIs officielle blog for at læse, hvad den faktisk beskriver.
+
+**Usikkerhed:** Det er uklart om artiklen beskriver en produktændring, en forklaring af eksisterende praksis, eller blot en principiel gennemgang.
+
+Kilde: [How ChatGPT learns about the world while protecting privacy](https://openai.com/index/how-chatgpt-protects-privacy)
 
 ### 2. Google AI: Reduce friction and latency for long-running jobs with Webhooks in Gemini API
 
-Google AI Blog publicerede opdateringen 4. maj 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Google AI offentliggjorde opdateringen 3. maj 2026. Google har tilføjet event-drevne webhooks til Gemini API'et - et push-baseret meddelelsessystem, der giver besked når et langvarigt job er færdigt, i stedet for at udvikleren selv skal polle status løbende.
 
-For SmartBolig-læsere er den relevante vinkel: Google AI-ændringer kan påvirke Gemini, Search, Chrome, API-brug og hvordan AI flytter ind i almindelige forbruger-workflows.
+> Kort kildeuddrag: Event-Driven Webhooks are a push-based notification system that eliminates the need for inefficient polling. Event-Driven Webhooks in the Gemini API…
 
-Det næste skridt er konkret: Tjek om ændringen påvirker budget, latency eller modelvalg, før den bliver del af en fast automation.
+**Hvorfor det er relevant:** For folk der bygger egne værktøjer eller automatiseringer oven på Gemini API'et, fx til billede- eller videogenerering, betyder det færre unødvendige kald og hurtigere reaktion, når et job er klart.
 
-Kilde: [Google AI Blog: Reduce friction and latency for long-running jobs with Webhooks in Gemini API](https://blog.google/innovation-and-ai/technology/developers-tools/event-driven-webhooks/)
+**Sådan verificerer du det:** Tjek Gemini API-dokumentationen for at se om webhooks er tilgængelige for den jobtype og adgangsnøgle, du bruger.
+
+**Usikkerhed:** Kilden nævner ikke hvilke jobtyper der understøttes, om det kræver ekstra opsætning, eller om det er tilgængeligt i alle regioner.
+
+Kilde: [Reduce friction and latency for long-running jobs with Webhooks in Gemini API](https://blog.google/innovation-and-ai/technology/developers-tools/event-driven-webhooks)
 
 ### 3. OpenClaw: openclaw 2026.5.9-beta.1
 
-OpenClaw releases publicerede opdateringen 9. maj 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenClaw offentliggjorde opdateringen 8. maj 2026. OpenClaw har udsendt en beta-udgivelse mærket 2026.5.9-beta.1 på GitHub. Kildematerialet indeholder kun GitHub-sidens faste navigation, ingen egentlig ændringsliste.
 
-For SmartBolig-læsere er den relevante vinkel: OpenClaw-ændringer kan påvirke lokale agent-workflows, cron-jobs, ACP-integrationer og hvordan automatiserede repo-opgaver styres.
+> Kort kildeuddrag: Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 - Release openclaw 2026.5.9-beta.1 · openclaw/openclaw Release…
 
-Det næste skridt er konkret: Læs release notes før gateway eller cron-jobs opdateres, fordi runtime-ændringer hurtigt kan påvirke automatiserede opgaver.
+**Hvorfor det er relevant:** Uden en ændringsliste kan man ikke vide, om denne beta retter fejl, tilføjer funktioner, eller ændrer noget der påvirker en eksisterende opsætning.
 
-Kilde: [OpenClaw releases: openclaw 2026.5.9-beta.1](https://github.com/openclaw/openclaw/releases/tag/v2026.5.9-beta.1)
+**Sådan verificerer du det:** Åbn release-siden for openclaw/openclaw på GitHub og læs den faktiske ændringslog, før du opdaterer.
+
+**Usikkerhed:** Det er en beta, så stabilitet er ikke givet, og hvilke ændringer den indeholder fremgår slet ikke af kildematerialet.
+
+Kilde: [openclaw 2026.5.9-beta.1](https://github.com/openclaw/openclaw/releases/tag/v2026.5.9-beta.1)
 
 ### 4. Claude Code: v2.1.126
 
-Claude Code releases publicerede opdateringen 1. maj 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Claude Code offentliggjorde opdateringen 30. apr. 2026. Anthropic har udgivet Claude Code version 2.1.126 den 30. april 2026. Selve udgivelsesnoterne mangler i kildeteksten, som kun viser GitHubs generelle sidemenu.
 
-For SmartBolig-læsere er den relevante vinkel: Claude Code bruges ofte direkte i lokale repos. Nye features og rettelser kan påvirke permissions, team-workflows, hooks, rate-limit feedback og enterprise-netværk.
+> Kort kildeuddrag: Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster…
 
-Det næste skridt er konkret: Læs ændringerne for permissions og team-opsætning, før du opdaterer en maskine der arbejder direkte i produktionsrepos.
+**Hvorfor det er relevant:** Så længe indholdet af opdateringen ikke fremgår, kan brugere af Claude Code ikke vide, om den ændrer adfærd i deres daglige arbejdsgange.
 
-Kilde: [Claude Code releases: v2.1.126](https://github.com/anthropics/claude-code/releases/tag/v2.1.126)
+**Sådan verificerer du det:** Se release-siden for anthropics/claude-code på GitHub for den fulde liste over ændringer i 2.1.126.
+
+**Usikkerhed:** Om opdateringen indeholder rettelser, nye funktioner eller kun mindre justeringer kan ikke afgøres ud fra det tilgængelige materiale.
+
+Kilde: [v2.1.126](https://github.com/anthropics/claude-code/releases/tag/v2.1.126)
 
 ### 5. Gemini CLI: Release v0.42.0-preview.0
 
-Gemini CLI releases publicerede opdateringen 5. maj 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Gemini CLI offentliggjorde opdateringen 4. maj 2026. Google har udgivet en preview-version af Gemini CLI, v0.42.0-preview.0, den 4. maj 2026. Kildeteksten stopper ved GitHubs navigationsmenu, før den når frem til selve udgivelsesnoterne.
 
-For SmartBolig-læsere er den relevante vinkel: Gemini CLI ændrer sig hurtigt. Tjek versionsnoter, især hvis du bruger API key, Vertex AI, checkpoints eller automatiserede agent-runs.
+> Kort kildeuddrag: An open-source AI agent that brings the power of Gemini directly into your terminal. - Release Release v0.42.0-preview.0 · google-gemini/gemini-cli…
 
-Det næste skridt er konkret: Gem CLI-versionen sammen med projektets agent-instruktioner, så automatiske runs kan reproduceres.
+**Hvorfor det er relevant:** Da det er en preview-udgave uden synligt indhold, er det uvist om den er egnet til daglig brug eller kun til afprøvning.
 
-Kilde: [Gemini CLI releases: Release v0.42.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0-preview.0)
+**Sådan verificerer du det:** Slå op på google-gemini/gemini-cli's release-side og læs noterne for v0.42.0-preview.0, inden du opgraderer.
+
+**Usikkerhed:** Der er ingen oplysninger om, hvad der er ændret, eller om preview-status betyder kendte ustabile dele.
+
+Kilde: [Release v0.42.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0-preview.0)
 
 ### 6. OpenAI Codex: 0.130.0
 
-OpenAI Codex releases publicerede opdateringen 8. maj 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenAI Codex offentliggjorde opdateringen 7. maj 2026. OpenAI har udgivet Codex version 0.130.0 den 7. maj 2026. Ligesom de øvrige GitHub-kilder i dagens udgave indeholder teksten kun sidens faste menu og ikke selve udgivelsesbeskrivelsen.
 
-For SmartBolig-læsere er den relevante vinkel: Codex-ændringer kan påvirke agent-workflow, review, browserarbejde, sandboxing og MCP-værktøjer. Opdater først i et testrepo og læs release notes før produktionsarbejde.
+> Kort kildeuddrag: Lightweight coding agent that runs in your terminal - Release 0.130.0 · openai/codex Release 0.130.0 · openai/codex · GitHub /…
 
-Det næste skridt er konkret: Test versionen i et separat repo, før du bruger den i workflows med auto-commit, MCP eller shell-adgang.
+**Hvorfor det er relevant:** Codex-brugere kan ikke ud fra dette vide, om opdateringen ændrer terminalagentens adfærd, kommandoer eller integrationer.
 
-Kilde: [OpenAI Codex releases: 0.130.0](https://github.com/openai/codex/releases/tag/rust-v0.130.0)
+**Sådan verificerer du det:** Gennemse release-siden for openai/codex på GitHub for at se den konkrete ændringsliste til 0.130.0.
+
+**Usikkerhed:** Hvad version 0.130.0 konkret ændrer, og om det kræver handling fra brugeren, fremgår ikke af det tilgængelige materiale.
+
+Kilde: [0.130.0](https://github.com/openai/codex/releases/tag/rust-v0.130.0)
 
 ## Hvorfor det betyder noget
 
-- Artiklen bygger på 6 officielle kilder fra OpenAI, Google AI, OpenClaw, Claude Code, Gemini CLI, OpenAI Codex.
 - Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
-- Opdater ikke aktive automatiseringer uden at læse originalkilden først.
-
-## Hvad du bør gøre nu
-
-1. Læs originalkilden, før du aktiverer en ny AI-funktion, ændrer modelvalg eller opdaterer et agent-workflow.
-2. Test nye modeller, apps, API'er og agent-versioner i et ufarligt projekt, før de bruges i drift.
-3. Vurder privacy, pris og rollback, før AI får adgang til browser, filer, billeder eller automatiseringer.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
 
 ## Kilder og videre læsning
 
-| Område | Kilde | Dato |
+| Udgiver | Kilde | Dato |
 | --- | --- | --- |
-| OpenAI | [How ChatGPT learns about the world while protecting privacy](https://openai.com/index/how-chatgpt-protects-privacy) | 6. maj 2026 |
-| Google AI | [Reduce friction and latency for long-running jobs with Webhooks in Gemini API](https://blog.google/innovation-and-ai/technology/developers-tools/event-driven-webhooks/) | 4. maj 2026 |
-| OpenClaw | [openclaw 2026.5.9-beta.1](https://github.com/openclaw/openclaw/releases/tag/v2026.5.9-beta.1) | 9. maj 2026 |
-| Claude Code | [v2.1.126](https://github.com/anthropics/claude-code/releases/tag/v2.1.126) | 1. maj 2026 |
-| Gemini CLI | [Release v0.42.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0-preview.0) | 5. maj 2026 |
-| OpenAI Codex | [0.130.0](https://github.com/openai/codex/releases/tag/rust-v0.130.0) | 8. maj 2026 |
+| OpenAI | [How ChatGPT learns about the world while protecting privacy](https://openai.com/index/how-chatgpt-protects-privacy) | 5. maj 2026 |
+| Google AI | [Reduce friction and latency for long-running jobs with Webhooks in Gemini API](https://blog.google/innovation-and-ai/technology/developers-tools/event-driven-webhooks) | 3. maj 2026 |
+| OpenClaw | [openclaw 2026.5.9-beta.1](https://github.com/openclaw/openclaw/releases/tag/v2026.5.9-beta.1) | 8. maj 2026 |
+| Claude Code | [v2.1.126](https://github.com/anthropics/claude-code/releases/tag/v2.1.126) | 30. apr. 2026 |
+| Gemini CLI | [Release v0.42.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0-preview.0) | 4. maj 2026 |
+| OpenAI Codex | [0.130.0](https://github.com/openai/codex/releases/tag/rust-v0.130.0) | 7. maj 2026 |
 
 ## Redaktionsnote
 
-Artiklen bygger på officielle kilder og korte parafraser. Lange citater, kopieret brødtekst og private tekniske detaljer er fravalgt.
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.

@@ -1,98 +1,125 @@
 ---
-title: "AI News, April 12, 2026"
-description: "Curated AI brief for April 12, 2026: OpenAI, Claude Code, Gemini CLI, API pricing, and agent workflows."
+title: "AI News, 12 April 2026"
+description: "Curated AI brief for 12 April 2026: models, products, ChatGPT, Claude, Gemini, API pricing, privacy, and agent workflows."
 date: 2026-04-12
 lastUpdated: 2026-04-12
+heroImage:
+  src: "/images/ai-news/2026-04-12.jpg"
+  alt: "Editorial AI news image about OpenAI Codex, Claude Code, OpenClaw, Gemini CLI, OpenAI"
+  caption: "Editorial AI news image about OpenAI Codex, Claude Code, OpenClaw, Gemini CLI, OpenAI"
 news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "ef7ebd1879dfb6169226d1336ea5e77009104cd5ed813f10779abe6af5b7b3fb"
+  sourceSetFingerprint: "0b4e4d4545d1af0647efd5fbce81cde3671ade8249722d8effe15e28cf29b211"
   signal: high
   sources:
-    - https://github.com/openai/codex/releases/tag/rust-v0.120.0
-    - https://github.com/anthropics/claude-code/releases/tag/v2.1.101
-    - https://github.com/openclaw/openclaw/releases/tag/v2026.4.11
-    - https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.1
-    - https://openai.com/index/cyberagent
+    - "https://github.com/openai/codex/releases/tag/rust-v0.120.0"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.101"
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.4.11"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.1"
+    - "https://openai.com/index/cyberagent"
 sidebar:
-  label: "April 12, 2026"
+  label: "12 April 2026"
 ---
 
 import { Aside } from "@astrojs/starlight/components";
 
-<p><strong>Published:</strong> <time datetime="2026-04-12">April 12, 2026</time> | <strong>Updated:</strong> <time datetime="2026-04-12">April 12, 2026</time></p>
+<p class="ai-news-byline">By SmartBolig.net Editorial · <time datetime="2026-04-12">12 April 2026</time> · 5 selected sources</p>
 
-Today's strongest signals come from OpenAI Codex, Claude Code, OpenClaw, Gemini CLI, OpenAI. The focus is release notes, CLI-agent changes, and API updates with practical impact.
+<p class="ai-news-lede">The days leading up to this issue brought new point releases for several terminal-based AI tools many readers already have installed, but none of the publishers posted an actual changelog alongside the update. On top of that, OpenAI put out a customer-story headline with the body text missing. That leaves today's issue unusually short on concrete detail.</p>
 
-<Aside type="caution" title="Source first">
-This page must not copy long passages from sources. Use links, short explanations, and concrete actions.
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
 </Aside>
 
-## Short Version
-
-- 5 official signals were selected for this issue.
-- The priority is AI CLIs, coding agents, API changes, model changes, pricing, and security.
-- Always read release notes before updating a CLI in an active project.
-
-## Today's News
-
-- [OpenAI Codex: 0.120.0](#1-openai-codex-01200) · [source](https://github.com/openai/codex/releases/tag/rust-v0.120.0)
-- [Claude Code: v2.1.101](#2-claude-code-v21101) · [source](https://github.com/anthropics/claude-code/releases/tag/v2.1.101)
-- [OpenClaw: openclaw 2026.4.11](#3-openclaw-openclaw-2026411) · [source](https://github.com/openclaw/openclaw/releases/tag/v2026.4.11)
-- [Gemini CLI: Release v0.37.1](#4-gemini-cli-release-v0371) · [source](https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.1)
-- [OpenAI: CyberAgent moves faster with ChatGPT Enterprise and Codex](#5-openai-cyberagent-moves-faster-with-chatgpt-enterprise-and-codex) · [source](https://openai.com/index/cyberagent)
-
-## Main Updates
+## Today's Stories
 
 ### 1. OpenAI Codex: 0.120.0
 
-- What happened: OpenAI Codex releases published this update on Apr 11, 2026.
-- Why it matters: Codex CLI changes can affect agent workflow, sandboxing, MCP tools, and review flows. Update in a test repository and read the release notes before production work.
-- What to do: Read the source, update carefully, and watch for changes in permissions, pricing, API usage, and project folders.
+**What changed:** OpenAI Codex published the update on 10 Apr 2026. OpenAI put version 0.120.0 of Codex, its terminal coding agent, into circulation on April 10 according to the GitHub archive. The source page itself consisted only of the version number and GitHub's standard menu text, with no actual list of changes.
 
-Source: [OpenAI Codex releases](https://github.com/openai/codex/releases/tag/rust-v0.120.0)
+> Short source excerpt: Lightweight coding agent that runs in your terminal - Release 0.120.0 · openai/codex Release 0.120.0 · openai/codex · GitHub /…
+
+**Why it matters:** That means anyone with Codex built into their daily terminal workflow can't tell from this whether the update changes commands, fixes bugs, or affects existing scripts.
+
+**How to verify it:** Open the release page for 0.120.0 on the openai/codex repository directly and read the full changelog before upgrading a system that's in active use.
+
+**Uncertainty:** What the update actually contains in terms of fixes or new features can't be determined from the material gathered here.
+
+Source: [0.120.0](https://github.com/openai/codex/releases/tag/rust-v0.120.0)
 
 ### 2. Claude Code: v2.1.101
 
-- What happened: Claude Code releases published this update on Apr 10, 2026.
-- Why it matters: Claude Code is often used directly inside local repositories. New features and fixes can affect permissions, team workflows, hooks, rate-limit feedback, and enterprise networking.
-- What to do: Read the source, update carefully, and watch for changes in permissions, pricing, API usage, and project folders.
+**What changed:** Claude Code published the update on 9 Apr 2026. On April 9, Claude Code, Anthropic's terminal coding agent, reached version number 2.1.101. Aside from that number, the fetched page showed only GitHub's generic navigation, with no description of what changed.
 
-Source: [Claude Code releases](https://github.com/anthropics/claude-code/releases/tag/v2.1.101)
+> Short source excerpt: Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster…
+
+**Why it matters:** People who rely on Claude Code to understand codebases or handle git workflows will need to check for themselves, since this source doesn't say whether the update changes behavior in their setup.
+
+**How to verify it:** See release v2.1.101 directly on the anthropics/claude-code GitHub repository for the complete list of changes.
+
+**Uncertainty:** The source does not show whether this involves security fixes, new commands, or only minor adjustments.
+
+Source: [v2.1.101](https://github.com/anthropics/claude-code/releases/tag/v2.1.101)
 
 ### 3. OpenClaw: openclaw 2026.4.11
 
-- What happened: OpenClaw releases published this update on Apr 12, 2026.
-- Why it matters: OpenClaw changes can affect local agent workflows, cron jobs, ACP integrations, and how automated repository tasks are controlled.
-- What to do: Read the source, update carefully, and watch for changes in permissions, pricing, API usage, and project folders.
+**What changed:** OpenClaw published the update on 11 Apr 2026. OpenClaw, an open-source project describing itself as a personal AI assistant for multiple platforms, reached version 2026.4.11 on April 11. The material gathered contains no description of changes, only the version label and GitHub's standard navigation.
 
-Source: [OpenClaw releases](https://github.com/openclaw/openclaw/releases/tag/v2026.4.11)
+> Short source excerpt: Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 - Release openclaw 2026.4.11 · openclaw/openclaw Release…
+
+**Why it matters:** Because OpenClaw is meant to be an assistant people set up themselves at home, an update with no known details could mean existing integrations or commands behave differently without any warning beforehand.
+
+**How to verify it:** Look up release 2026.4.11 on the openclaw/openclaw GitHub repository and read the description before updating an active installation.
+
+**Uncertainty:** Which features were added or changed, and whether the update requires configuration changes, is not shown by what's available here.
+
+Source: [openclaw 2026.4.11](https://github.com/openclaw/openclaw/releases/tag/v2026.4.11)
 
 ### 4. Gemini CLI: Release v0.37.1
 
-- What happened: Gemini CLI releases published this update on Apr 9, 2026.
-- Why it matters: Gemini CLI changes quickly. Check release notes if you use API keys, Vertex AI, checkpoints, or automated agent runs.
-- What to do: Read the source, update carefully, and watch for changes in permissions, pricing, API usage, and project folders.
+**What changed:** Gemini CLI published the update on 8 Apr 2026. Google's Gemini CLI, the open-source terminal tool for the Gemini models, was updated to version 0.37.1 on April 8. The source page held only the version tag and GitHub's fixed menu items, no text describing the change.
 
-Source: [Gemini CLI releases](https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.1)
+> Short source excerpt: An open-source AI agent that brings the power of Gemini directly into your terminal. - Release Release v0.37.1 · google-gemini/gemini-cli…
+
+**Why it matters:** For anyone running Gemini CLI as part of a coding routine, the missing content means there's no way to judge whether this version changes command-line flags or behavior without checking it directly.
+
+**How to verify it:** Find release v0.37.1 on the google-gemini/gemini-cli GitHub repository and review the full list of changes before upgrading.
+
+**Uncertainty:** The source gives no indication of whether the changes are minor fixes or something more far-reaching.
+
+Source: [Release v0.37.1](https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.1)
 
 ### 5. OpenAI: CyberAgent moves faster with ChatGPT Enterprise and Codex
 
-- What happened: OpenAI News published this update on Apr 9, 2026.
-- Why it matters: Worth reading, but treat it as product or learning news with lower priority than concrete release notes.
-- What to do: Read the source, update carefully, and watch for changes in permissions, pricing, API usage, and project folders.
+**What changed:** OpenAI published the update on 8 Apr 2026. OpenAI put out a headline stating that Japanese media and advertising company CyberAgent has become faster in its work since adopting ChatGPT Enterprise and Codex. The story itself was empty - no summary or body text came through in the material gathered.
 
-Source: [OpenAI News](https://openai.com/index/cyberagent)
 
-## Source Overview
+**Why it matters:** Without figures or a description of which tasks actually got faster, the story can't be used to judge what the two tools concretely change in a company's workflows.
 
-| Area | Source | Date |
+**How to verify it:** Seek out OpenAI's full customer story on CyberAgent to see what figures or examples sit behind the headline.
+
+**Uncertainty:** The entire content is missing - which departments, tasks, or time savings are involved is not documented at all in the material that was fetched.
+
+Source: [CyberAgent moves faster with ChatGPT Enterprise and Codex](https://openai.com/index/cyberagent)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
 | --- | --- | --- |
-| OpenAI Codex | [0.120.0](https://github.com/openai/codex/releases/tag/rust-v0.120.0) | Apr 11, 2026 |
-| Claude Code | [v2.1.101](https://github.com/anthropics/claude-code/releases/tag/v2.1.101) | Apr 10, 2026 |
-| OpenClaw | [openclaw 2026.4.11](https://github.com/openclaw/openclaw/releases/tag/v2026.4.11) | Apr 12, 2026 |
-| Gemini CLI | [Release v0.37.1](https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.1) | Apr 9, 2026 |
-| OpenAI | [CyberAgent moves faster with ChatGPT Enterprise and Codex](https://openai.com/index/cyberagent) | Apr 9, 2026 |
+| OpenAI Codex | [0.120.0](https://github.com/openai/codex/releases/tag/rust-v0.120.0) | 10 Apr 2026 |
+| Claude Code | [v2.1.101](https://github.com/anthropics/claude-code/releases/tag/v2.1.101) | 9 Apr 2026 |
+| OpenClaw | [openclaw 2026.4.11](https://github.com/openclaw/openclaw/releases/tag/v2026.4.11) | 11 Apr 2026 |
+| Gemini CLI | [Release v0.37.1](https://github.com/google-gemini/gemini-cli/releases/tag/v0.37.1) | 8 Apr 2026 |
+| OpenAI | [CyberAgent moves faster with ChatGPT Enterprise and Codex](https://openai.com/index/cyberagent) | 8 Apr 2026 |
 
-## Editorial Rules
+## Editorial Note
 
-- Official sources rank above rumors and social media.
-- Internal OpenClaw reports, local file paths, and private tokens must never be published.
-- If there is not enough to write about, the daily issue is skipped.
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.

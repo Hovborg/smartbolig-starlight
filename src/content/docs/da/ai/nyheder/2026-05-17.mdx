@@ -4,93 +4,40 @@ description: "Kurateret AI-overblik for 17. maj 2026: modeller, produkter, ChatG
 date: 2026-05-17
 lastUpdated: 2026-05-17
 heroImage:
-  src: "/images/ai-news/2026-05-17.png"
-  alt: "SmartBolig-hardwarevisual om dagens AI-nyheder fra OpenAI, OpenClaw, Claude Code, Gemini CLI"
-  caption: "SmartBolig-hardware sat op til dagens AI-nyheder om OpenAI, OpenClaw, Claude Code, Gemini CLI."
+  src: "/images/ai-news/2026-05-17.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om OpenAI, OpenClaw, Claude Code, Gemini CLI"
+  caption: "Redaktionelt AI-nyhedsbillede om OpenAI, OpenClaw, Claude Code, Gemini CLI"
 news:
-  signal: high
+  editorialVersion: 3
+  copySource: repeat
+  storyFingerprint: "9a53cfde2f1c2b3f9c2a1775f92cab51800a8c98d8223409b403e8aac8434355"
+  sourceSetFingerprint: "2398ea703d302f26a85033ff5e0916d28fcce73c8bf9a2b6b0bd479324278bf4"
+  signal: low
+  repeatOf: "2026-05-16"
   sources:
-    - https://openai.com/index/databricks
-    - https://github.com/openclaw/openclaw/releases/tag/v2026.5.12
-    - https://github.com/anthropics/claude-code/releases/tag/v2.1.141
-    - https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0
+    - "https://openai.com/index/databricks"
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.5.12"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.141"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0"
 sidebar:
   label: "17. maj 2026"
 ---
 
-import { Aside } from "@astrojs/starlight/components";
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-05-17">17. maj 2026</time> · gentagelses-udgave</p>
 
-<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <strong>Publiceret:</strong> <time datetime="2026-05-17">17. maj 2026</time> | <strong>Opdateret:</strong> <time datetime="2026-05-17">17. maj 2026</time> · 4 officielle kilder</p>
+<p class="ai-news-lede">Ingen nye kvalificerede kilder er kommet til siden udgaven 16. maj 2026. I stedet for at genudgive de samme historier som nyheder samler denne side kildelisten og henviser til den fulde gennemgang.</p>
 
-<p class="ai-news-lede">Rolig nyhedsdag: Ingen nye kvalificerede kilder siden 16. maj, så udgaven fastholder gårsdagens fire signaler fra OpenAI, OpenClaw, Claude Code og Gemini CLI. Fokus er stadig de AI-nyheder, der kan mærkes i produkter, modeller, browser, agent-workflows, API'er, privacy, pris eller sikkerhed.</p>
+## Status for dagen
 
-<Aside type="note" title="Redaktionelt filter">
-SmartBolig.net vælger hellere færre nyheder med klare kilder end et langt nyhedsfeed. Artiklen bruger egne formuleringer og linker til originalkilderne.
-</Aside>
+Overvågningen af de officielle kilder fandt ikke nye historier, der opfyldte de redaktionelle krav om primær kilde og nyhedsværdi. Den seneste fulde gennemgang er fortsat [udgaven 16. maj 2026](/da/ai/nyheder/2026-05-16/).
 
-## Hovedhistorien
+## Kilder fra seneste udgave
 
-### 1. OpenAI: Databricks brings GPT-5.5 to enterprise agent workflows
-
-OpenAI News publicerede opdateringen 15. maj 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
-
-For SmartBolig-læsere er den relevante vinkel: Nyheden kan ændre, hvordan almindelige brugere og små teams bruger AI i hverdagen, ikke kun hvordan udviklere opdaterer værktøjer.
-
-Det næste skridt er konkret: Læs originalkilden og behandl nyheden som inspiration, indtil den har en konkret effekt på dit setup.
-
-Kilde: [OpenAI News: Databricks brings GPT-5.5 to enterprise agent workflows](https://openai.com/index/databricks)
-
-### 2. OpenClaw: openclaw 2026.5.12
-
-OpenClaw releases publicerede opdateringen 15. maj 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
-
-For SmartBolig-læsere er den relevante vinkel: OpenClaw-ændringer kan påvirke lokale agent-workflows, cron-jobs, ACP-integrationer og hvordan automatiserede repo-opgaver styres.
-
-Det næste skridt er konkret: Læs release notes før gateway eller cron-jobs opdateres, fordi runtime-ændringer hurtigt kan påvirke automatiserede opgaver.
-
-Kilde: [OpenClaw releases: openclaw 2026.5.12](https://github.com/openclaw/openclaw/releases/tag/v2026.5.12)
-
-### 3. Claude Code: v2.1.141
-
-Claude Code releases publicerede opdateringen 13. maj 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
-
-For SmartBolig-læsere er den relevante vinkel: Claude Code bruges ofte direkte i lokale repos. Nye features og rettelser kan påvirke permissions, team-workflows, hooks, rate-limit feedback og enterprise-netværk.
-
-Det næste skridt er konkret: Læs ændringerne for permissions og team-opsætning, før du opdaterer en maskine der arbejder direkte i produktionsrepos.
-
-Kilde: [Claude Code releases: v2.1.141](https://github.com/anthropics/claude-code/releases/tag/v2.1.141)
-
-### 4. Gemini CLI: Release v0.42.0
-
-Gemini CLI releases publicerede opdateringen 12. maj 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
-
-For SmartBolig-læsere er den relevante vinkel: Gemini CLI ændrer sig hurtigt. Tjek versionsnoter, især hvis du bruger API key, Vertex AI, checkpoints eller automatiserede agent-runs.
-
-Det næste skridt er konkret: Gem CLI-versionen sammen med projektets agent-instruktioner, så automatiske runs kan reproduceres.
-
-Kilde: [Gemini CLI releases: Release v0.42.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0)
-
-## Hvorfor det betyder noget
-
-- Artiklen bygger på 4 officielle kilder fra OpenAI, OpenClaw, Claude Code, Gemini CLI.
-- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
-- Opdater ikke aktive automatiseringer uden at læse originalkilden først.
-
-## Hvad du bør gøre nu
-
-1. Læs originalkilden, før du aktiverer en ny AI-funktion, ændrer modelvalg eller opdaterer et agent-workflow.
-2. Test nye modeller, apps, API'er og agent-versioner i et ufarligt projekt, før de bruges i drift.
-3. Vurder privacy, pris og rollback, før AI får adgang til browser, filer, billeder eller automatiseringer.
-
-## Kilder og videre læsning
-
-| Område | Kilde | Dato |
+| Udgiver | Kilde | Dato |
 | --- | --- | --- |
-| OpenAI | [Databricks brings GPT-5.5 to enterprise agent workflows](https://openai.com/index/databricks) | 15. maj 2026 |
-| OpenClaw | [openclaw 2026.5.12](https://github.com/openclaw/openclaw/releases/tag/v2026.5.12) | 15. maj 2026 |
-| Claude Code | [v2.1.141](https://github.com/anthropics/claude-code/releases/tag/v2.1.141) | 13. maj 2026 |
-| Gemini CLI | [Release v0.42.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0) | 12. maj 2026 |
+| OpenAI | [Databricks brings GPT-5.5 to enterprise agent workflows](https://openai.com/index/databricks) | 14. maj 2026 |
+| OpenClaw | [openclaw 2026.5.12](https://github.com/openclaw/openclaw/releases/tag/v2026.5.12) | 14. maj 2026 |
+| Claude Code | [v2.1.141](https://github.com/anthropics/claude-code/releases/tag/v2.1.141) | 12. maj 2026 |
+| Gemini CLI | [Release v0.42.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.42.0) | 11. maj 2026 |
 
-## Redaktionsnote
-
-Artiklen bygger på officielle kilder og korte parafraser. Lange citater, kopieret brødtekst og private tekniske detaljer er fravalgt.
+Kilde: Se den fulde gennemgang i [AI-nyheder, 16. maj 2026](/da/ai/nyheder/2026-05-16/).

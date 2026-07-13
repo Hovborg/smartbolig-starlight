@@ -4,10 +4,14 @@ description: "Kurateret AI-overblik for 29. juni 2026: modeller, produkter, Chat
 date: 2026-06-29
 lastUpdated: 2026-06-29
 heroImage:
-  src: "/images/ai-news/2026-06-29.png"
-  alt: "SmartBolig-hardwarevisual om dagens AI-nyheder fra OpenAI, OpenClaw, Claude Code, Gemini CLI"
-  caption: "SmartBolig-hardware sat op til dagens AI-nyheder om OpenAI, OpenClaw, Claude Code, Gemini CLI."
+  src: "/images/ai-news/2026-06-29.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om OpenAI, OpenClaw, Claude Code, Gemini CLI"
+  caption: "Redaktionelt AI-nyhedsbillede om OpenAI, OpenClaw, Claude Code, Gemini CLI"
 news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "8beb215a80a4a0d5a0e38c0df6f21f56046f3e4ea4eeefa439e3251f4b021c97"
+  sourceSetFingerprint: "2398ea703d302f26a85033ff5e0916d28fcce73c8bf9a2b6b0bd479324278bf4"
   signal: high
   sources:
     - "https://openai.com/index/previewing-gpt-5-6-sol"
@@ -20,77 +24,86 @@ sidebar:
 
 import { Aside } from "@astrojs/starlight/components";
 
-<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <strong>Publiceret:</strong> <time datetime="2026-06-29">29. juni 2026</time> | <strong>Opdateret:</strong> <time datetime="2026-06-29">29. juni 2026</time> · 4 officielle kilder</p>
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-06-29">29. juni 2026</time> · 4 udvalgte kilder</p>
 
-<p class="ai-news-lede">Dagens stærkeste signaler kommer fra OpenAI, OpenClaw, Claude Code, Gemini CLI. Fokus er de AI-nyheder, der kan mærkes i produkter, modeller, browser, agent-workflows, API'er, privacy, pris eller sikkerhed.</p>
+<p class="ai-news-lede">Dagens udgave drejer sig først og fremmest om en varslet preview af OpenAIs kommende model GPT-5.6 Sol. Ved siden af den lander tre rutineopdateringer af værktøjer mange allerede bruger dagligt, men for alle fire historier gælder det, at de konkrete detaljer og ændringslister ikke er tilgængelige i det materiale, der ligger til grund for denne udgave.</p>
 
-<Aside type="note" title="Redaktionelt filter">
-SmartBolig.net vælger hellere færre nyheder med klare kilder end et langt nyhedsfeed. Artiklen bruger egne formuleringer og linker til originalkilderne.
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
 </Aside>
 
-## Hovedhistorien
+## Dagens historier
 
 ### 1. OpenAI: Previewing GPT-5.6 Sol: a next-generation model
 
-OpenAI News publicerede opdateringen 26. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenAI offentliggjorde opdateringen 25. jun. 2026. OpenAI har annonceret en preview af en kommende model kaldet GPT-5.6 Sol under overskriften "næste generation". Kilden indeholder kun titlen og ingen yderligere beskrivelse eller tekniske detaljer.
 
-For SmartBolig-læsere er den relevante vinkel: Nyheden kan ændre, hvordan almindelige brugere og små teams bruger AI i hverdagen, ikke kun hvordan udviklere opdaterer værktøjer.
 
-Det næste skridt er konkret: Læs originalkilden og behandl nyheden som inspiration, indtil den har en konkret effekt på dit setup.
+**Hvorfor det er relevant:** For folk der bruger ChatGPT eller OpenAIs API betyder en modelpreview typisk at nye kapaciteter er på vej, men uden konkrete tal om ydeevne eller pris kan du endnu ikke vurdere om det ændrer noget i din opsætning.
 
-Kilde: [OpenAI News: Previewing GPT-5.6 Sol: a next-generation model](https://openai.com/index/previewing-gpt-5-6-sol)
+**Sådan verificerer du det:** Slå selv GPT-5.6 Sol op på OpenAIs egen side eller i deres udviklerdokumentation, før du planlægger noget omkring den.
+
+**Usikkerhed:** Kilden viser hverken lanceringsdato, adgang, pris eller hvilke funktioner der faktisk ændres, så det er reelt kun et navn og en dato indtil videre.
+
+Kilde: [Previewing GPT-5.6 Sol: a next-generation model](https://openai.com/index/previewing-gpt-5-6-sol)
 
 ### 2. OpenClaw: openclaw 2026.6.9
 
-OpenClaw releases publicerede opdateringen 27. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenClaw offentliggjorde opdateringen 26. jun. 2026. Version 2026.6.9 af OpenClaw landede på GitHub den 26. juni, men selve ændringsloggen for udgivelsen fremgår ikke af det tilgængelige materiale, som kun gengiver projektets generelle beskrivelse.
 
-For SmartBolig-læsere er den relevante vinkel: OpenClaw-ændringer kan påvirke lokale agent-workflows, cron-jobs, ACP-integrationer og hvordan automatiserede repo-opgaver styres.
+> Kort kildeuddrag: Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 - Release openclaw 2026.6.9 · openclaw/openclaw Release…
 
-Det næste skridt er konkret: Læs release notes før gateway eller cron-jobs opdateres, fordi runtime-ændringer hurtigt kan påvirke automatiserede opgaver.
+**Hvorfor det er relevant:** Kører du OpenClaw som personlig assistent lokalt, er en ny versionsnummerering normalt et signal om rettelser eller ændringer, men uden en synlig liste kan du ikke vide om opdateringen kræver handling fra dig.
 
-Kilde: [OpenClaw releases: openclaw 2026.6.9](https://github.com/openclaw/openclaw/releases/tag/v2026.6.9)
+**Sådan verificerer du det:** Åbn selv GitHub-siden for openclaw-udgivelsen 2026.6.9 og læs den fulde ændringslog, før du opdaterer en kørende installation.
+
+**Usikkerhed:** Der er ingen oplysninger om hvilke fejl der er rettet, om der er breaking changes, eller om opgraderingen kræver ekstra trin.
+
+Kilde: [openclaw 2026.6.9](https://github.com/openclaw/openclaw/releases/tag/v2026.6.9)
 
 ### 3. Claude Code: v2.1.195
 
-Claude Code releases publicerede opdateringen 26. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Claude Code offentliggjorde opdateringen 25. jun. 2026. Claude Code fik den 25. juni en ny udgivelse, version 2.1.195, ifølge Anthropics GitHub-side. Materialet, der er indsamlet, indeholder dog kun GitHubs standardnavigation omkring udgivelsen og ikke den egentlige liste over ændringer.
 
-For SmartBolig-læsere er den relevante vinkel: Claude Code bruges ofte direkte i lokale repos. Nye features og rettelser kan påvirke permissions, team-workflows, hooks, rate-limit feedback og enterprise-netværk.
+> Kort kildeuddrag: Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster…
 
-Det næste skridt er konkret: Læs ændringerne for permissions og team-opsætning, før du opdaterer en maskine der arbejder direkte i produktionsrepos.
+**Hvorfor det er relevant:** Claude Code opdateres hyppigt, og en ny patch-version kan indeholde rettelser der påvirker daglige arbejdsgange i terminalen, men det kan ikke afgøres herfra hvad denne konkrete udgivelse ændrer.
 
-Kilde: [Claude Code releases: v2.1.195](https://github.com/anthropics/claude-code/releases/tag/v2.1.195)
+**Sådan verificerer du det:** Tjek changelog for Claude Code v2.1.195 direkte på GitHub, inden du opgraderer et produktionssetup.
+
+**Usikkerhed:** Hvilke bugs, funktioner eller adfærdsændringer denne version reelt indeholder, fremgår ikke af det tilgængelige materiale.
+
+Kilde: [v2.1.195](https://github.com/anthropics/claude-code/releases/tag/v2.1.195)
 
 ### 4. Gemini CLI: Release v0.49.0
 
-Gemini CLI releases publicerede opdateringen 25. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Gemini CLI offentliggjorde opdateringen 24. jun. 2026. Google-teamet bag Gemini CLI satte version 0.49.0 live den 24. juni. Ligesom de øvrige GitHub-kilder i denne opgørelse mangler den konkrete ændringsliste i det indsamlede materiale.
 
-For SmartBolig-læsere er den relevante vinkel: Gemini CLI ændrer sig hurtigt. Tjek versionsnoter, især hvis du bruger API key, Vertex AI, checkpoints eller automatiserede agent-runs.
+> Kort kildeuddrag: An open-source AI agent that brings the power of Gemini directly into your terminal. - Release Release v0.49.0 · google-gemini/gemini-cli…
 
-Det næste skridt er konkret: Gem CLI-versionen sammen med projektets agent-instruktioner, så automatiske runs kan reproduceres.
+**Hvorfor det er relevant:** Gemini CLI bruges til at styre Gemini fra terminalen, så en versionsopdatering kan ændre kommandoer eller adfærd i eksisterende scripts, men det kræver den fulde changelog at vide hvad der reelt er ændret.
 
-Kilde: [Gemini CLI releases: Release v0.49.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.49.0)
+**Sådan verificerer du det:** Find release-noterne for Gemini CLI v0.49.0 på GitHub og sammenhold dem med din egen brug, før du opdaterer.
+
+**Usikkerhed:** Det er uklart om opdateringen ændrer kommandoflader, retter fejl eller kræver nye tilladelser, da selve indholdet ikke indgår i kilden.
+
+Kilde: [Release v0.49.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.49.0)
 
 ## Hvorfor det betyder noget
 
-- Artiklen bygger på 4 officielle kilder fra OpenAI, OpenClaw, Claude Code, Gemini CLI.
 - Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
-- Opdater ikke aktive automatiseringer uden at læse originalkilden først.
-
-## Hvad du bør gøre nu
-
-1. Læs originalkilden, før du aktiverer en ny AI-funktion, ændrer modelvalg eller opdaterer et agent-workflow.
-2. Test nye modeller, apps, API'er og agent-versioner i et ufarligt projekt, før de bruges i drift.
-3. Vurder privacy, pris og rollback, før AI får adgang til browser, filer, billeder eller automatiseringer.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
 
 ## Kilder og videre læsning
 
-| Område | Kilde | Dato |
+| Udgiver | Kilde | Dato |
 | --- | --- | --- |
-| OpenAI | [Previewing GPT-5.6 Sol: a next-generation model](https://openai.com/index/previewing-gpt-5-6-sol) | 26. jun. 2026 |
-| OpenClaw | [openclaw 2026.6.9](https://github.com/openclaw/openclaw/releases/tag/v2026.6.9) | 27. jun. 2026 |
-| Claude Code | [v2.1.195](https://github.com/anthropics/claude-code/releases/tag/v2.1.195) | 26. jun. 2026 |
-| Gemini CLI | [Release v0.49.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.49.0) | 25. jun. 2026 |
+| OpenAI | [Previewing GPT-5.6 Sol: a next-generation model](https://openai.com/index/previewing-gpt-5-6-sol) | 25. jun. 2026 |
+| OpenClaw | [openclaw 2026.6.9](https://github.com/openclaw/openclaw/releases/tag/v2026.6.9) | 26. jun. 2026 |
+| Claude Code | [v2.1.195](https://github.com/anthropics/claude-code/releases/tag/v2.1.195) | 25. jun. 2026 |
+| Gemini CLI | [Release v0.49.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.49.0) | 24. jun. 2026 |
 
 ## Redaktionsnote
 
-Artiklen bygger på officielle kilder og korte parafraser. Lange citater, kopieret brødtekst og private tekniske detaljer er fravalgt.
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.

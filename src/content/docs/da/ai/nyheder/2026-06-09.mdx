@@ -4,14 +4,18 @@ description: "Kurateret AI-overblik for 9. juni 2026: modeller, produkter, ChatG
 date: 2026-06-09
 lastUpdated: 2026-06-09
 heroImage:
-  src: "/images/ai-news/2026-06-09.png"
-  alt: "SmartBolig-hardwarevisual om dagens AI-nyheder fra OpenAI, Google AI, OpenClaw, Claude Code, OpenAI Codex, Gemini CLI"
-  caption: "SmartBolig-hardware sat op til dagens AI-nyheder om OpenAI, Google AI, OpenClaw, Claude Code, OpenAI Codex, Gemini CLI."
+  src: "/images/ai-news/2026-06-09.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om OpenAI, Google AI, OpenClaw, Claude Code, OpenAI Codex, Gemini CLI"
+  caption: "Redaktionelt AI-nyhedsbillede om OpenAI, Google AI, OpenClaw, Claude Code, OpenAI Codex, Gemini CLI"
 news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "13d10d732e1813b35b454caf0754f70d2468e34d4b919eba1c2ab2d01012480d"
+  sourceSetFingerprint: "7a6a1f93cd45b69e4745fb9522545a276ced4efa49d36f0ad3b5fd7c96dbf278"
   signal: high
   sources:
     - "https://openai.com/index/endava-frontiers"
-    - "https://blog.google/products-and-platforms/products/search/thrifting-tips/"
+    - "https://blog.google/products-and-platforms/products/search/thrifting-tips"
     - "https://github.com/openclaw/openclaw/releases/tag/v2026.6.5-beta.5"
     - "https://github.com/anthropics/claude-code/releases/tag/v2.1.162"
     - "https://github.com/openai/codex/releases/tag/rust-v0.138.0"
@@ -22,99 +26,116 @@ sidebar:
 
 import { Aside } from "@astrojs/starlight/components";
 
-<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <strong>Publiceret:</strong> <time datetime="2026-06-09">9. juni 2026</time> | <strong>Opdateret:</strong> <time datetime="2026-06-09">9. juni 2026</time> · 6 officielle kilder</p>
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-06-09">9. juni 2026</time> · 6 udvalgte kilder</p>
 
-<p class="ai-news-lede">Dagens stærkeste signaler kommer fra OpenAI, Google AI, OpenClaw, Claude Code, OpenAI Codex, Gemini CLI. Fokus er de AI-nyheder, der kan mærkes i produkter, modeller, browser, agent-workflows, API'er, privacy, pris eller sikkerhed.</p>
+<p class="ai-news-lede">Dagens udgave lægger ud med en OpenAI-kundehistorie om, at konsulenthuset Endava har omlagt sin softwareudvikling til at bygge på AI-agenter, efterfulgt af rutineopdateringer af fire kodningsagenter, Claude Code, Codex, Gemini CLI og OpenClaw, samt et forbrugertip fra Google om genbrugs- og vintageshopping. De fleste af dagens kilder er tynde på konkrete detaljer.</p>
 
-<Aside type="note" title="Redaktionelt filter">
-SmartBolig.net vælger hellere færre nyheder med klare kilder end et langt nyhedsfeed. Artiklen bruger egne formuleringer og linker til originalkilderne.
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
 </Aside>
 
-## Hovedhistorien
+## Dagens historier
 
 ### 1. OpenAI: How Endava is redesigning software delivery around AI agents
 
-OpenAI News publicerede opdateringen 4. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenAI offentliggjorde opdateringen 3. jun. 2026. OpenAI har offentliggjort en kundehistorie om, at IT-konsulenthuset Endava har omlagt sin softwareudviklingsproces til at bygge på AI-agenter; artiklen giver ingen konkrete detaljer om, hvilke værktøjer eller trin der er ændret.
 
-For SmartBolig-læsere er den relevante vinkel: Nyheden kan ændre, hvordan almindelige brugere og små teams bruger AI i hverdagen, ikke kun hvordan udviklere opdaterer værktøjer.
 
-Det næste skridt er konkret: Læs originalkilden og behandl nyheden som inspiration, indtil den har en konkret effekt på dit setup.
+**Hvorfor det er relevant:** Hvis din arbejdsplads allerede bruger AI-agenter i udviklingsflowet, kan sagen fungere som et datapunkt på adoption, men uden konkrete tal eller trin kan du ikke direkte kopiere tilgangen.
 
-Kilde: [OpenAI News: How Endava is redesigning software delivery around AI agents](https://openai.com/index/endava-frontiers)
+**Sådan verificerer du det:** Læs den fulde kundehistorie på OpenAIs hjemmeside for at se, hvilke konkrete værktøjer og processer Endava faktisk har ændret.
+
+**Usikkerhed:** Kilden viser ikke omfanget af omlægningen, tidsrammen, hvilke AI-modeller der bruges, eller om resultaterne er målt uafhængigt.
+
+Kilde: [How Endava is redesigning software delivery around AI agents](https://openai.com/index/endava-frontiers)
 
 ### 2. Google AI: 5 ways Google Search can level up your thrift and vintage shopping
 
-Google AI Blog publicerede opdateringen 3. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Google AI offentliggjorde opdateringen 2. jun. 2026. Google har publiceret en artikel med råd om at bruge AI-funktioner i Search og Shopping til at finde genbrugs- og vintagevarer; de fem konkrete råd fremgår ikke af det tilgængelige kildemateriale.
 
-For SmartBolig-læsere er den relevante vinkel: AI i browseren kan ændre research, produktvalg, dokumentlæsning og hvordan man bruger webbaserede smart-home dashboards.
+> Kort kildeuddrag: Uncover second-hand scores with AI tools in Google Search and Shopping. Try these 5 thrifting tips from Google Skip to…
 
-Det næste skridt er konkret: Tjek om ændringen påvirker budget, latency eller modelvalg, før den bliver del af en fast automation.
+**Hvorfor det er relevant:** For husstande der handler via Google Shopping, kan artiklen pege på eksisterende søgefunktioner til genbrug, men da rådene mangler her, er der intet konkret at handle på endnu.
 
-Kilde: [Google AI Blog: 5 ways Google Search can level up your thrift and vintage shopping](https://blog.google/products-and-platforms/products/search/thrifting-tips/)
+**Sådan verificerer du det:** Slå artiklen op direkte på Googles Keyword-blog og afprøv de nævnte søge- eller filterfunktioner i Search og Shopping selv.
+
+**Usikkerhed:** Det er uklart, om der er tale om nye funktioner eller blot fremhævning af eksisterende funktioner, samt hvilke lande og sprog artiklen dækker.
+
+Kilde: [5 ways Google Search can level up your thrift and vintage shopping](https://blog.google/products-and-platforms/products/search/thrifting-tips)
 
 ### 3. OpenClaw: openclaw 2026.6.5-beta.5
 
-OpenClaw releases publicerede opdateringen 8. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenClaw offentliggjorde opdateringen 7. jun. 2026. OpenClaw har udgivet betaversionen 2026.6.5-beta.5 på GitHub den 7. juni 2026; selve udgivelsesnoterne med ændringer indgår ikke i det tilgængelige materiale.
 
-For SmartBolig-læsere er den relevante vinkel: OpenClaw-ændringer kan påvirke lokale agent-workflows, cron-jobs, ACP-integrationer og hvordan automatiserede repo-opgaver styres.
+> Kort kildeuddrag: Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 - Release openclaw 2026.6.5-beta.5 · openclaw/openclaw Release…
 
-Det næste skridt er konkret: Læs release notes før gateway eller cron-jobs opdateres, fordi runtime-ændringer hurtigt kan påvirke automatiserede opgaver.
+**Hvorfor det er relevant:** Bruger du OpenClaw som personlig AI-assistent, er der en ny betabygning at opdatere til, men uden kendte ændringer bør du vente med at installere den på et system, du er afhængig af.
 
-Kilde: [OpenClaw releases: openclaw 2026.6.5-beta.5](https://github.com/openclaw/openclaw/releases/tag/v2026.6.5-beta.5)
+**Sådan verificerer du det:** Åbn release-siden på GitHub og gennemgå den fulde changelog, før du opdaterer en produktionsopsætning.
+
+**Usikkerhed:** Kilden viser ikke, hvad der er rettet eller ændret, hvor stabil betaen er, eller om den introducerer brydende ændringer.
+
+Kilde: [openclaw 2026.6.5-beta.5](https://github.com/openclaw/openclaw/releases/tag/v2026.6.5-beta.5)
 
 ### 4. Claude Code: v2.1.162
 
-Claude Code releases publicerede opdateringen 3. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Claude Code offentliggjorde opdateringen 2. jun. 2026. Anthropic har udgivet Claude Code version 2.1.162 den 2. juni 2026 på GitHub; ændringsloggen for versionen fremgår ikke af det tilgængelige materiale.
 
-For SmartBolig-læsere er den relevante vinkel: Claude Code bruges ofte direkte i lokale repos. Nye features og rettelser kan påvirke permissions, team-workflows, hooks, rate-limit feedback og enterprise-netværk.
+> Kort kildeuddrag: Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster…
 
-Det næste skridt er konkret: Læs ændringerne for permissions og team-opsætning, før du opdaterer en maskine der arbejder direkte i produktionsrepos.
+**Hvorfor det er relevant:** Kører du Claude Code som kodningsagent, kan du opdatere til den nye version, men uden kendt indhold i opdateringen kan du ikke vurdere, om den løser et problem, du oplever.
 
-Kilde: [Claude Code releases: v2.1.162](https://github.com/anthropics/claude-code/releases/tag/v2.1.162)
+**Sådan verificerer du det:** Tjek release-noterne for v2.1.162 direkte på GitHub, inden du opdaterer et projekt, du arbejder aktivt i.
+
+**Usikkerhed:** Det fremgår ikke, hvilke fejl der er rettet, hvilke funktioner der er tilføjet, eller om opdateringen ændrer eksisterende adfærd.
+
+Kilde: [v2.1.162](https://github.com/anthropics/claude-code/releases/tag/v2.1.162)
 
 ### 5. OpenAI Codex: 0.138.0
 
-OpenAI Codex releases publicerede opdateringen 8. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** OpenAI Codex offentliggjorde opdateringen 7. jun. 2026. OpenAI har udgivet Codex version 0.138.0 den 7. juni 2026 på GitHub; det konkrete indhold af udgivelsen er ikke en del af det tilgængelige materiale.
 
-For SmartBolig-læsere er den relevante vinkel: Codex-ændringer kan påvirke agent-workflow, review, browserarbejde, sandboxing og MCP-værktøjer. Opdater først i et testrepo og læs release notes før produktionsarbejde.
+> Kort kildeuddrag: Lightweight coding agent that runs in your terminal - Release 0.138.0 · openai/codex Release 0.138.0 · openai/codex · GitHub /…
 
-Det næste skridt er konkret: Test versionen i et separat repo, før du bruger den i workflows med auto-commit, MCP eller shell-adgang.
+**Hvorfor det er relevant:** For brugere der kører Codex som terminalbaseret kodningsagent, er en ny version klar til installation, men manglende ændringsnoter gør det svært at vurdere, om opdateringen er relevant lige nu.
 
-Kilde: [OpenAI Codex releases: 0.138.0](https://github.com/openai/codex/releases/tag/rust-v0.138.0)
+**Sådan verificerer du det:** Se den fulde changelog for 0.138.0 på GitHub, før du opgraderer et miljø, hvor du er afhængig af nuværende adfærd.
+
+**Usikkerhed:** Kilden siger intet om, hvilke funktioner eller rettelser versionen indeholder, eller om den kræver ændringer i din opsætning.
+
+Kilde: [0.138.0](https://github.com/openai/codex/releases/tag/rust-v0.138.0)
 
 ### 6. Gemini CLI: Release v0.47.0-nightly.20260609.g0567b25a2
 
-Gemini CLI releases publicerede opdateringen 9. jun. 2026. Det er en officiel kilde med praktisk betydning for folk, der bruger AI-værktøjer i rigtige projekter.
+**Hvad ændrede sig:** Gemini CLI offentliggjorde opdateringen 8. jun. 2026. Google har udgivet en nightly-build af Gemini CLI mærket v0.47.0-nightly.20260609 den 8. juni 2026; ændringerne i denne build er ikke beskrevet i det tilgængelige materiale.
 
-For SmartBolig-læsere er den relevante vinkel: Gemini CLI ændrer sig hurtigt. Tjek versionsnoter, især hvis du bruger API key, Vertex AI, checkpoints eller automatiserede agent-runs.
+> Kort kildeuddrag: An open-source AI agent that brings the power of Gemini directly into your terminal. - Release Release v0.47.0-nightly.20260609.g0567b25a2 · google-gemini/gemini-cli…
 
-Det næste skridt er konkret: Gem CLI-versionen sammen med projektets agent-instruktioner, så automatiske runs kan reproduceres.
+**Hvorfor det er relevant:** Nightly-builds følger den daglige udvikling tættest, men er typisk mindre stabile end faste udgivelser, så det er mest en pointer til udviklingstempoet i projektet end en funktion, du bør tage i brug med det samme.
 
-Kilde: [Gemini CLI releases: Release v0.47.0-nightly.20260609.g0567b25a2](https://github.com/google-gemini/gemini-cli/releases/tag/v0.47.0-nightly.20260609.g0567b25a2)
+**Sådan verificerer du det:** Se commit-historikken for denne nightly på GitHub for at se, hvad der faktisk er ændret siden sidste stabile udgivelse.
+
+**Usikkerhed:** Det er uklart, hvad build'en indeholder, hvor stabil den er, og om ændringerne når den næste stabile udgivelse uændret.
+
+Kilde: [Release v0.47.0-nightly.20260609.g0567b25a2](https://github.com/google-gemini/gemini-cli/releases/tag/v0.47.0-nightly.20260609.g0567b25a2)
 
 ## Hvorfor det betyder noget
 
-- Artiklen bygger på 6 officielle kilder fra OpenAI, Google AI, OpenClaw, Claude Code, OpenAI Codex, Gemini CLI.
 - Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
-- Opdater ikke aktive automatiseringer uden at læse originalkilden først.
-
-## Hvad du bør gøre nu
-
-1. Læs originalkilden, før du aktiverer en ny AI-funktion, ændrer modelvalg eller opdaterer et agent-workflow.
-2. Test nye modeller, apps, API'er og agent-versioner i et ufarligt projekt, før de bruges i drift.
-3. Vurder privacy, pris og rollback, før AI får adgang til browser, filer, billeder eller automatiseringer.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
 
 ## Kilder og videre læsning
 
-| Område | Kilde | Dato |
+| Udgiver | Kilde | Dato |
 | --- | --- | --- |
-| OpenAI | [How Endava is redesigning software delivery around AI agents](https://openai.com/index/endava-frontiers) | 4. jun. 2026 |
-| Google AI | [5 ways Google Search can level up your thrift and vintage shopping](https://blog.google/products-and-platforms/products/search/thrifting-tips/) | 3. jun. 2026 |
-| OpenClaw | [openclaw 2026.6.5-beta.5](https://github.com/openclaw/openclaw/releases/tag/v2026.6.5-beta.5) | 8. jun. 2026 |
-| Claude Code | [v2.1.162](https://github.com/anthropics/claude-code/releases/tag/v2.1.162) | 3. jun. 2026 |
-| OpenAI Codex | [0.138.0](https://github.com/openai/codex/releases/tag/rust-v0.138.0) | 8. jun. 2026 |
-| Gemini CLI | [Release v0.47.0-nightly.20260609.g0567b25a2](https://github.com/google-gemini/gemini-cli/releases/tag/v0.47.0-nightly.20260609.g0567b25a2) | 9. jun. 2026 |
+| OpenAI | [How Endava is redesigning software delivery around AI agents](https://openai.com/index/endava-frontiers) | 3. jun. 2026 |
+| Google AI | [5 ways Google Search can level up your thrift and vintage shopping](https://blog.google/products-and-platforms/products/search/thrifting-tips) | 2. jun. 2026 |
+| OpenClaw | [openclaw 2026.6.5-beta.5](https://github.com/openclaw/openclaw/releases/tag/v2026.6.5-beta.5) | 7. jun. 2026 |
+| Claude Code | [v2.1.162](https://github.com/anthropics/claude-code/releases/tag/v2.1.162) | 2. jun. 2026 |
+| OpenAI Codex | [0.138.0](https://github.com/openai/codex/releases/tag/rust-v0.138.0) | 7. jun. 2026 |
+| Gemini CLI | [Release v0.47.0-nightly.20260609.g0567b25a2](https://github.com/google-gemini/gemini-cli/releases/tag/v0.47.0-nightly.20260609.g0567b25a2) | 8. jun. 2026 |
 
 ## Redaktionsnote
 
-Artiklen bygger på officielle kilder og korte parafraser. Lange citater, kopieret brødtekst og private tekniske detaljer er fravalgt.
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
