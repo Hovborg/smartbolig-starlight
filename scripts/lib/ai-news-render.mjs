@@ -17,6 +17,10 @@ function safeUrl(value) {
   }
 }
 
+// Escapes untrusted text for MDX body context. Markdown-active characters are
+// converted to numeric HTML entities (not backslash escapes) so they can never
+// be re-interpreted as links, images, or code by the Markdown processor —
+// see docs/verification/2026-07-13-security-review.md H-1.
 function safeText(value) {
   return String(value)
     .replace(/\s+/g, " ")
@@ -25,13 +29,22 @@ function safeText(value) {
     .replace(/>/g, "&gt;")
     .replace(/\{/g, "&#123;")
     .replace(/\}/g, "&#125;")
-    .replace(/\*/g, "\\*")
-    .replace(/_/g, "\\_")
+    .replace(/\[/g, "&#91;")
+    .replace(/\]/g, "&#93;")
+    .replace(/\(/g, "&#40;")
+    .replace(/\)/g, "&#41;")
+    .replace(/!/g, "&#33;")
+    .replace(/`/g, "&#96;")
+    .replace(/\*/g, "&#42;")
+    .replace(/_/g, "&#95;")
     .trim();
 }
 
+// For link labels, headings, and table cells: strip structural characters from
+// the raw value first (entity-escaping happens in safeText afterwards, so this
+// must not run on already-escaped text).
 function safeLabel(value) {
-  return safeText(value).replace(/[\[\]|`#]/g, " ").replace(/\s+/g, " ").trim();
+  return safeText(String(value).replace(/[|#]/g, " "));
 }
 
 function provider(item) {

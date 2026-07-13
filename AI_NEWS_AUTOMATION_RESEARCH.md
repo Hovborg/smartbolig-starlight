@@ -29,7 +29,7 @@ injection on the public site, and keeps deployment auditable.
 
 ## Current local facts
 
-- Site root: `/mnt/c/codex_projekts/infrastructure/HA_claude_code/site`
+- Site root: local workspace checkout (path intentionally not published)
 - Framework: Astro + Starlight
 - Hosting: Cloudflare Pages
 - Deploy: `.github/workflows/deploy.yml`
@@ -37,8 +37,8 @@ injection on the public site, and keeps deployment auditable.
 - Current AI section already exists under `src/content/docs/{da,en}/ai/`
 - OpenClaw cron is available and enabled.
 - OpenClaw already has AI Radar jobs installed.
-- AI Radar writes markdown reports to
-  `/mnt/c/codex_projekts/apps/openclaw-codex-pro/reports/ai-radar/`.
+- AI Radar writes markdown reports to a local reports directory on the runner
+  (path intentionally not published).
 
 ## Existing OpenClaw leverage
 

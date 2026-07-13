@@ -138,9 +138,22 @@ export async function generateIssueCopy({ date, items, model, bin, timeoutMs, ru
   const llmModel = model || process.env.AI_NEWS_LLM_MODEL || "sonnet";
   const prompt = buildCopyPrompt({ date, items });
 
+  // The prompt embeds untrusted feed text, so the CLI must run as a pure
+  // text-in/text-out call: no tools, no user/project settings (which would
+  // grant this machine's default permission mode), no MCP, no skills, and no
+  // persisted session. See docs/verification/2026-07-13-security-review.md C-1.
+  // (--bare is deliberately absent: it disables OAuth login on subscription
+  // installs; the flags below already yield a session that reports tools: [].)
   const raw = await run({
     bin: llmBin,
-    args: ["-p", "--output-format", "json", "--model", llmModel],
+    args: [
+      "-p", "--output-format", "json", "--model", llmModel,
+      "--tools", "",
+      "--setting-sources", "",
+      "--strict-mcp-config",
+      "--disable-slash-commands",
+      "--no-session-persistence",
+    ],
     input: prompt,
     timeoutMs: timeoutMs || Number(process.env.AI_NEWS_LLM_TIMEOUT_MS || 240_000),
   });

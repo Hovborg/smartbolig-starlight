@@ -13,9 +13,18 @@ yarn-error.log*
 pnpm-debug.log*
 
 
-# environment variables
+# environment variables and credentials — ignore every variant, allow only
+# documented example files (security review L-2)
 .env
-.env.production
+.env.*
+!.env.example
+!.env.*.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+service-account*.json
 
 # local agent/editor config
 .claude/

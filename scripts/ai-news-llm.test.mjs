@@ -70,7 +70,33 @@ test("generateIssueCopy parses the claude -p JSON envelope and validates", async
   const copy = await generateIssueCopy({ date: "2026-07-11", items, run, bin: "claude-test", model: "sonnet" });
   assert.deepEqual(copy, validCopy);
   assert.equal(seenArgs[0].bin, "claude-test");
-  assert.deepEqual(seenArgs[0].args, ["-p", "--output-format", "json", "--model", "sonnet"]);
+  assert.deepEqual(seenArgs[0].args, [
+    "-p", "--output-format", "json", "--model", "sonnet",
+    "--tools", "",
+    "--setting-sources", "",
+    "--strict-mcp-config",
+    "--disable-slash-commands",
+    "--no-session-persistence",
+  ]);
+});
+
+// Security invariants (see docs/verification/2026-07-13-security-review.md C-1):
+// the copy drafter consumes untrusted feed text, so the Claude process must
+// have no tools, no user/project settings (which grant bypassPermissions on
+// this machine), no MCP servers, no skills, and no persisted session.
+test("generateIssueCopy always disables tools and setting sources", async () => {
+  const seenArgs = [];
+  const run = async ({ args }) => {
+    seenArgs.push(args);
+    return JSON.stringify({ result: JSON.stringify(validCopy) });
+  };
+  await generateIssueCopy({ date: "2026-07-11", items, run });
+  const args = seenArgs[0];
+  assert.equal(args[args.indexOf("--tools") + 1], "");
+  assert.equal(args[args.indexOf("--setting-sources") + 1], "");
+  for (const flag of ["--strict-mcp-config", "--disable-slash-commands", "--no-session-persistence"]) {
+    assert.ok(args.includes(flag), `missing ${flag}`);
+  }
 });
 
 test("generateIssueCopy throws when the model output fails validation", async () => {
