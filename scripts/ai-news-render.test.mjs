@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { selectEditorialPackage } from "./lib/ai-news-editorial.mjs";
-import { renderIssue } from "./lib/ai-news-render.mjs";
+import { renderIssue, renderRepeatIssue } from "./lib/ai-news-render.mjs";
 
 const item = {
   source: { id: "openai-news", name: "OpenAI News", primary: true },
@@ -18,13 +18,16 @@ const item = {
   score: 24,
 };
 
-test("renderIssue writes v2 evidence metadata and a complete editorial contract", () => {
+test("renderIssue writes v3 evidence metadata and a complete editorial contract", () => {
   const editorialPackage = selectEditorialPackage([item], []);
   const da = renderIssue({ locale: "da", date: "2026-07-11", editorialPackage });
   const en = renderIssue({ locale: "en", date: "2026-07-11", editorialPackage });
 
   for (const output of [da, en]) {
-    assert.match(output, /editorialVersion: 2/);
+    assert.match(output, /editorialVersion: 3/);
+    assert.match(output, /copySource: template/);
+    assert.match(output, /signal: low/);
+    assert.match(output, /\b(Kilde|Source): \[/);
     assert.match(output, /storyFingerprint: "[a-f0-9]{64}"/);
     assert.match(output, /sourceSetFingerprint: "[a-f0-9]{64}"/);
     assert.match(output, /scoped permissions for home agents/i);
@@ -62,4 +65,42 @@ test("renderIssue neutralizes MDX and Markdown control characters from feeds", (
 
   assert.doesNotMatch(output, /\{process\.env\.SECRET\}|\{dangerousExpression\}|<\/script>/);
   assert.match(output, /story%28bad%29/);
+});
+
+test("renderIssue uses validated LLM copy and escapes it like feed text", () => {
+  const editorialPackage = selectEditorialPackage([item], []);
+  const copy = {
+    lede: { da: "Dagens vigtigste ændring handler om tilladelser.", en: "Today's main change concerns permissions." },
+    stories: [{
+      what: { da: "OpenAI har tilføjet {styrede} tilladelser.", en: "OpenAI added {scoped} permissions." },
+      why: { da: "Det begrænser hvad en agent kan udløse.", en: "It limits what an agent can trigger." },
+      verify: { da: "Prøv en følsom handling i testmiljø.", en: "Try a sensitive action in a test environment." },
+      uncertainty: { da: "Udrulningen er ikke beskrevet.", en: "The rollout is not described." },
+    }],
+  };
+  const da = renderIssue({ locale: "da", date: "2026-07-11", editorialPackage, copy });
+  const en = renderIssue({ locale: "en", date: "2026-07-11", editorialPackage, copy });
+
+  assert.match(da, /copySource: llm/);
+  assert.match(da, /Dagens vigtigste ændring handler om tilladelser\./);
+  assert.match(da, /Det begrænser hvad en agent kan udløse\./);
+  assert.doesNotMatch(da, /\{styrede\}/);
+  assert.match(en, /Today's main change concerns permissions\./);
+  assert.doesNotMatch(en, /\{scoped\}/);
+});
+
+test("renderRepeatIssue writes an honest low-signal repeat digest", () => {
+  const output = renderRepeatIssue({
+    locale: "da",
+    date: "2026-05-17",
+    repeatOfDate: "2026-05-16",
+    items: [item, { ...item, title: "Second story", canonicalUrl: "https://openai.com/news/second" }],
+  });
+
+  assert.match(output, /copySource: repeat/);
+  assert.match(output, /signal: low/);
+  assert.match(output, /repeatOf: "2026-05-16"/);
+  assert.match(output, /Ingen nye kvalificerede kilder/);
+  assert.match(output, /\/da\/ai\/nyheder\/2026-05-16\//);
+  assert.match(output, /Kilde: /);
 });

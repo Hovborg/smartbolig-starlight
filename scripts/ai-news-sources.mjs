@@ -30,6 +30,16 @@ export const FEEDS = [
     primary: true,
   },
   {
+    // Anthropic publishes no RSS feed; the news listing is parsed as HTML.
+    // Not critical: a front-end markup change must not abort the whole run.
+    id: 'anthropic-news',
+    name: 'Anthropic News',
+    url: 'https://www.anthropic.com/news',
+    kind: 'html-listing',
+    priority: 10,
+    primary: true,
+  },
+  {
     id: 'openai-codex',
     name: 'OpenAI Codex releases',
     url: 'https://github.com/openai/codex/releases.atom',

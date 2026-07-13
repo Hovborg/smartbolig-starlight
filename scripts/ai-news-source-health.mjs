@@ -12,8 +12,11 @@ function withTimeout() {
   };
 }
 
-function countEntries(xml) {
-  return (xml.match(/<item\b|<entry\b/gi) || []).length;
+function countEntries(feed, body) {
+  if (feed.kind === 'html-listing') {
+    return new Set([...body.matchAll(/href="(\/news\/[a-z0-9][a-z0-9-]*)"/gi)].map((match) => match[1])).size;
+  }
+  return (body.match(/<item\b|<entry\b/gi) || []).length;
 }
 
 async function fetchText(url, headers = {}) {
@@ -37,7 +40,7 @@ async function fetchText(url, headers = {}) {
 async function checkFeed(feed) {
   try {
     const result = await fetchText(feed.url);
-    const entries = countEntries(result.text);
+    const entries = countEntries(feed, result.text);
     const ok = result.ok && entries > 0;
     return {
       feed,

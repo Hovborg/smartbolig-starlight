@@ -5,7 +5,27 @@ import {
   canonicalizeUrl,
   fetchCandidates,
   parseFeed,
+  parseHtmlListing,
 } from "./lib/ai-news-discovery.mjs";
+
+test("parseHtmlListing extracts dated Anthropic-style articles and skips undated ones", () => {
+  const listingSource = { id: "anthropic-news", name: "Anthropic News", url: "https://www.anthropic.com/news", kind: "html-listing", primary: true };
+  const html = `
+    <a href="/news/hard-questions" class="featured"><h2 class="headline">Inviting hard questions</h2></a>
+    <a href="/news/claude-sonnet-5" class="grid"><div class="meta"><span class="caption">Product</span><time class="date">Jun 30, 2026</time></div><h3>Introducing Claude Sonnet 5</h3></a>
+    <a href="/news/claude-sonnet-5" class="dupe"><time>Jun 30, 2026</time><h3>Introducing Claude Sonnet 5</h3></a>
+    <a href="/news/redeploying-fable-5" class="grid"><time>Jun 30, 2026</time><h3>Redeploying Fable 5</h3></a>
+  `;
+  const items = parseHtmlListing(html, listingSource);
+
+  assert.equal(items.length, 2);
+  assert.equal(items[0].title, "Introducing Claude Sonnet 5");
+  assert.equal(items[0].canonicalUrl, "https://www.anthropic.com/news/claude-sonnet-5");
+  assert.equal(items[0].sourceId, "anthropic-news");
+  assert.equal(items[0].primary, true);
+  assert.equal(Number.isNaN(items[0].published.getTime()), false);
+  assert.equal(items[1].title, "Redeploying Fable 5");
+});
 
 const source = {
   id: "official-ai",

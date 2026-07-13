@@ -1,5 +1,7 @@
 import { sourceSetFingerprint, storyFingerprint } from "./ai-news-editorial.mjs";
 
+const HERO_EXT = ".jpg";
+
 function yamlString(value) {
   return JSON.stringify(String(value));
 }
@@ -56,7 +58,9 @@ function formatSourceDate(date, locale) {
 
 function sourceExcerpt(item) {
   const text = `${item.summary || ""} ${item.bodyText || ""}`.replace(/\s+/g, " ").trim();
-  const words = text.split(" ").filter(Boolean).slice(0, 22);
+  // 20 words keeps the rendered blockquote inside the validator's 25-word cap
+  // even with the localized label prefix in front.
+  const words = text.split(" ").filter(Boolean).slice(0, 20);
   return words.length > 0 ? safeText(`${words.join(" ")}${text.split(" ").length > words.length ? "…" : ""}`) : "";
 }
 
@@ -109,45 +113,60 @@ function uncertainty(item, locale) {
     : "The source documents the change but may not show long-term behavior in a home environment. Stability and edge cases remain uncertain.";
 }
 
-function renderStories(items, locale) {
+// Per-story copy: prefer validated LLM copy when present, otherwise fall back
+// to the deterministic template sentences. All LLM text passes safeText here,
+// so it is escaped exactly like feed-derived text.
+function storyCopy(copy, index, field, locale, fallback) {
+  const value = copy?.stories?.[index]?.[field]?.[locale];
+  return typeof value === "string" && value.trim().length > 0 ? safeText(value) : fallback;
+}
+
+function renderStories(items, locale, copy) {
   const da = locale === "da";
   return items.map((item, index) => {
     const excerpt = sourceExcerpt(item);
     const published = formatSourceDate(item.published, da ? "da-DK" : "en-GB");
+    const what = storyCopy(copy, index, "what", locale, safeText(item.summary || (da
+      ? "Den officielle side beskriver ændringen og dens aktuelle omfang."
+      : "The official page describes the change and its current scope.")));
+    const why = storyCopy(copy, index, "why", locale, relevance(item, locale));
+    const verify = storyCopy(copy, index, "verify", locale, verification(item, locale));
+    const open = storyCopy(copy, index, "uncertainty", locale, uncertainty(item, locale));
     if (da) {
       return `### ${index + 1}. ${safeLabel(provider(item))}: ${safeLabel(item.title)}
 
-**Hvad ændrede sig:** ${safeLabel(provider(item))} offentliggjorde opdateringen ${published}. ${safeText(item.summary || "Den officielle side beskriver ændringen og dens aktuelle omfang.")}
+**Hvad ændrede sig:** ${safeLabel(provider(item))} offentliggjorde opdateringen ${published}. ${what}
 
 ${excerpt ? `> Kort kildeuddrag: ${excerpt}\n` : ""}
-**Hvorfor det er relevant:** ${relevance(item, locale)}
+**Hvorfor det er relevant:** ${why}
 
-**Sådan verificerer du det:** ${verification(item, locale)}
+**Sådan verificerer du det:** ${verify}
 
-**Usikkerhed:** ${uncertainty(item, locale)}
+**Usikkerhed:** ${open}
 
-[Læs den officielle kilde: ${safeLabel(item.title)}](${safeUrl(item.canonicalUrl || item.url)})`;
+Kilde: [${safeLabel(item.title)}](${safeUrl(item.canonicalUrl || item.url)})`;
     }
     return `### ${index + 1}. ${safeLabel(provider(item))}: ${safeLabel(item.title)}
 
-**What changed:** ${safeLabel(provider(item))} published the update on ${published}. ${safeText(item.summary || "The official page describes the change and its current scope.")}
+**What changed:** ${safeLabel(provider(item))} published the update on ${published}. ${what}
 
 ${excerpt ? `> Short source excerpt: ${excerpt}\n` : ""}
-**Why it matters:** ${relevance(item, locale)}
+**Why it matters:** ${why}
 
-**How to verify it:** ${verification(item, locale)}
+**How to verify it:** ${verify}
 
-**Uncertainty:** ${uncertainty(item, locale)}
+**Uncertainty:** ${open}
 
-[Read the official source: ${safeLabel(item.title)}](${safeUrl(item.canonicalUrl || item.url)})`;
+Source: [${safeLabel(item.title)}](${safeUrl(item.canonicalUrl || item.url)})`;
   }).join("\n\n");
 }
 
-export function renderIssue({ locale, date, editorialPackage }) {
-  if (editorialPackage?.status !== "publish" || !editorialPackage.items?.length) {
-    throw new Error("renderIssue requires an accepted editorial package");
-  }
-  const items = editorialPackage.items;
+function signalLevel(count) {
+  if (count >= 3) return "high";
+  return count === 2 ? "medium" : "low";
+}
+
+function issueFrontmatter({ locale, date, items, setHash, copySource, signalOverride, extra = [] }) {
   const da = locale === "da";
   const formattedDate = formatDate(date, da ? "da-DK" : "en-GB");
   const title = da ? `AI-nyheder, ${formattedDate}` : `AI News, ${formattedDate}`;
@@ -155,35 +174,70 @@ export function renderIssue({ locale, date, editorialPackage }) {
     ? `Kurateret AI-overblik for ${formattedDate}: modeller, produkter, ChatGPT, Claude, Gemini, API-priser, privacy og agent-workflows.`
     : `Curated AI brief for ${formattedDate}: models, products, ChatGPT, Claude, Gemini, API pricing, privacy, and agent workflows.`;
   const sourceUrls = items.map((item) => safeUrl(item.canonicalUrl || item.url));
-  const storyHash = storyFingerprint(items[0]);
-  const setHash = editorialPackage.sourceSetFingerprint || sourceSetFingerprint(items);
   const providers = [...new Set(items.map(provider))].join(", ");
   const imageAlt = da
     ? `Redaktionelt AI-nyhedsbillede om ${providers}`
     : `Editorial AI news image about ${providers}`;
-  const sourceRows = items.map((item) =>
+  return {
+    formattedDate,
+    frontmatter: [
+      "---",
+      `title: ${yamlString(title)}`,
+      `description: ${yamlString(description)}`,
+      `date: ${date}`,
+      `lastUpdated: ${date}`,
+      "heroImage:",
+      `  src: ${yamlString(`/images/ai-news/${date}${HERO_EXT}`)}`,
+      `  alt: ${yamlString(imageAlt)}`,
+      `  caption: ${yamlString(imageAlt)}`,
+      "news:",
+      "  editorialVersion: 3",
+      `  copySource: ${copySource}`,
+      `  storyFingerprint: ${yamlString(storyFingerprint(items[0]))}`,
+      `  sourceSetFingerprint: ${yamlString(setHash)}`,
+      `  signal: ${signalOverride || signalLevel(items.length)}`,
+      ...extra,
+      "  sources:",
+      ...sourceUrls.map((url) => `    - ${yamlString(url)}`),
+      "sidebar:",
+      `  label: ${yamlString(formattedDate)}`,
+      "---",
+    ].join("\n"),
+  };
+}
+
+function sourceTable(items, locale) {
+  const da = locale === "da";
+  const rows = items.map((item) =>
     `| ${safeLabel(provider(item))} | [${safeLabel(item.title)}](${safeUrl(item.canonicalUrl || item.url)}) | ${formatSourceDate(item.published, da ? "da-DK" : "en-GB")} |`).join("\n");
-  const frontmatter = [
-    "---",
-    `title: ${yamlString(title)}`,
-    `description: ${yamlString(description)}`,
-    `date: ${date}`,
-    `lastUpdated: ${date}`,
-    "heroImage:",
-    `  src: ${yamlString(`/images/ai-news/${date}.png`)}`,
-    `  alt: ${yamlString(imageAlt)}`,
-    `  caption: ${yamlString(imageAlt)}`,
-    "news:",
-    "  editorialVersion: 2",
-    `  storyFingerprint: ${yamlString(storyHash)}`,
-    `  sourceSetFingerprint: ${yamlString(setHash)}`,
-    `  signal: ${items.length >= 3 ? "high" : "medium"}`,
-    "  sources:",
-    ...sourceUrls.map((url) => `    - ${yamlString(url)}`),
-    "sidebar:",
-    `  label: ${yamlString(formattedDate)}`,
-    "---",
-  ].join("\n");
+  return da
+    ? `| Udgiver | Kilde | Dato |\n| --- | --- | --- |\n${rows}`
+    : `| Publisher | Source | Date |\n| --- | --- | --- |\n${rows}`;
+}
+
+export function renderIssue({ locale, date, editorialPackage, copy = null }) {
+  if (editorialPackage?.status !== "publish" || !editorialPackage.items?.length) {
+    throw new Error("renderIssue requires an accepted editorial package");
+  }
+  const items = editorialPackage.items;
+  const da = locale === "da";
+  const setHash = editorialPackage.sourceSetFingerprint || sourceSetFingerprint(items);
+  const { formattedDate, frontmatter } = issueFrontmatter({
+    locale,
+    date,
+    items,
+    setHash,
+    copySource: copy ? "llm" : "template",
+  });
+  const storiesHeading = da
+    ? (items.length > 1 ? "Dagens historier" : "Hovedhistorien")
+    : (items.length > 1 ? "Today's Stories" : "Lead Story");
+  const ledeFallback = da
+    ? "Dagens udgave prioriterer dokumenterede ændringer frem for volumen. Hver historie skelner mellem kildefakta, praktisk betydning, kontrolpunkt og usikkerhed."
+    : "This issue prioritises documented change over volume. Each story separates source evidence, practical relevance, a verification point, and uncertainty.";
+  const lede = typeof copy?.lede?.[locale] === "string" && copy.lede[locale].trim().length > 0
+    ? safeText(copy.lede[locale])
+    : ledeFallback;
 
   if (da) {
     return `${frontmatter}
@@ -192,15 +246,15 @@ import { Aside } from "@astrojs/starlight/components";
 
 <p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="${date}">${formattedDate}</time> · ${items.length} ${items.length === 1 ? "primær kilde" : "udvalgte kilder"}</p>
 
-<p class="ai-news-lede">Dagens udgave prioriterer dokumenterede ændringer frem for volumen. Hver historie skelner mellem kildefakta, praktisk betydning, kontrolpunkt og usikkerhed.</p>
+<p class="ai-news-lede">${lede}</p>
 
 <Aside type="note" title="Redaktionel metode">
 Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
 </Aside>
 
-## Hovedhistorien
+## ${storiesHeading}
 
-${renderStories(items, locale)}
+${renderStories(items, locale, copy)}
 
 ## Hvorfor det betyder noget
 
@@ -210,13 +264,11 @@ ${renderStories(items, locale)}
 
 ## Kilder og videre læsning
 
-| Udgiver | Kilde | Dato |
-| --- | --- | --- |
-${sourceRows}
+${sourceTable(items, locale)}
 
 ## Redaktionsnote
 
-SmartBolig.net brugte automatiseret research og deduplikering til kildeudvælgelsen. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
 `;
   }
 
@@ -226,15 +278,15 @@ import { Aside } from "@astrojs/starlight/components";
 
 <p class="ai-news-byline">By SmartBolig.net Editorial · <time datetime="${date}">${formattedDate}</time> · ${items.length} ${items.length === 1 ? "primary source" : "selected sources"}</p>
 
-<p class="ai-news-lede">This issue prioritises documented change over volume. Each story separates source evidence, practical relevance, a verification point, and uncertainty.</p>
+<p class="ai-news-lede">${lede}</p>
 
 <Aside type="note" title="Editorial method">
 Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
 </Aside>
 
-## Lead Story
+## ${storiesHeading}
 
-${renderStories(items, locale)}
+${renderStories(items, locale, copy)}
 
 ## Why It Matters
 
@@ -244,12 +296,68 @@ ${renderStories(items, locale)}
 
 ## Sources and Further Reading
 
-| Publisher | Source | Date |
-| --- | --- | --- |
-${sourceRows}
+${sourceTable(items, locale)}
 
 ## Editorial Note
 
-SmartBolig.net used automated research and deduplication for source selection. Editorial rules require a primary source, verifiable links, and explicit uncertainty.
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.
+`;
+}
+
+// Honest short issue for days where discovery found no sources beyond the
+// previous issue's set. Replaces the old practice of republishing the previous
+// day's body verbatim under a new date.
+export function renderRepeatIssue({ locale, date, repeatOfDate, items }) {
+  if (!Array.isArray(items) || items.length === 0) {
+    throw new Error("renderRepeatIssue requires the previous issue's items");
+  }
+  const da = locale === "da";
+  const setHash = sourceSetFingerprint(items);
+  const { formattedDate, frontmatter } = issueFrontmatter({
+    locale,
+    date,
+    items,
+    setHash,
+    copySource: "repeat",
+    signalOverride: "low",
+    extra: [`  repeatOf: ${yamlString(repeatOfDate)}`],
+  });
+  const previousFormatted = formatDate(repeatOfDate, da ? "da-DK" : "en-GB");
+  const previousHref = da ? `/da/ai/nyheder/${repeatOfDate}/` : `/en/ai/nyheder/${repeatOfDate}/`;
+
+  if (da) {
+    return `${frontmatter}
+
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="${date}">${formattedDate}</time> · gentagelses-udgave</p>
+
+<p class="ai-news-lede">Ingen nye kvalificerede kilder er kommet til siden udgaven ${previousFormatted}. I stedet for at genudgive de samme historier som nyheder samler denne side kildelisten og henviser til den fulde gennemgang.</p>
+
+## Status for dagen
+
+Overvågningen af de officielle kilder fandt ikke nye historier, der opfyldte de redaktionelle krav om primær kilde og nyhedsværdi. Den seneste fulde gennemgang er fortsat [udgaven ${previousFormatted}](${previousHref}).
+
+## Kilder fra seneste udgave
+
+${sourceTable(items, locale)}
+
+Kilde: Se den fulde gennemgang i [AI-nyheder, ${previousFormatted}](${previousHref}).
+`;
+  }
+
+  return `${frontmatter}
+
+<p class="ai-news-byline">By SmartBolig.net Editorial · <time datetime="${date}">${formattedDate}</time> · repeat digest</p>
+
+<p class="ai-news-lede">No new qualified sources have appeared since the ${previousFormatted} issue. Rather than republishing the same stories as news, this page collects the source list and points to the full review.</p>
+
+## Status for the Day
+
+Monitoring of the official sources found no new stories that met the editorial requirements for a primary source and news value. The most recent full review remains the [${previousFormatted} issue](${previousHref}).
+
+## Sources From the Latest Issue
+
+${sourceTable(items, locale)}
+
+Source: See the full review in [AI News, ${previousFormatted}](${previousHref}).
 `;
 }

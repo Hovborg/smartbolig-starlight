@@ -11,7 +11,9 @@ export const collections = {
 				updated: z.coerce.date().optional(),
 				news: z
 					.object({
-						editorialVersion: z.literal(2).optional(),
+						editorialVersion: z.union([z.literal(2), z.literal(3)]).optional(),
+						copySource: z.enum(['llm', 'template', 'repeat']).optional(),
+						repeatOf: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 						storyFingerprint: z.string().regex(/^[a-f0-9]{64}$/).optional(),
 						sourceSetFingerprint: z.string().regex(/^[a-f0-9]{64}$/).optional(),
 						signal: z.enum(['high', 'medium', 'low']).optional(),
