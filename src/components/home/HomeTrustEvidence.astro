@@ -1,0 +1,29 @@
+---
+// Concrete trust signals with verifiable destinations (sources, privacy,
+// affiliate transparency and a corrections path).
+import type { HomeTrustCopy } from "../../lib/home-copy";
+
+interface Props {
+  copy: HomeTrustCopy;
+}
+
+const { copy } = Astro.props;
+---
+
+<section class="home-section home-trust" aria-labelledby="home-trust-title">
+  <div class="home-section__heading">
+    <p class="home-eyebrow">{copy.eyebrow}</p>
+    <h2 id="home-trust-title">{copy.title}</h2>
+  </div>
+  <dl class="home-trust__grid">
+    {copy.items.map((item) => (
+      <div class="home-trust__item">
+        <dt>{item.title}</dt>
+        <dd>
+          <p>{item.description}</p>
+          <a class="home-text-link" href={item.link.href}>{item.link.label}<span aria-hidden="true"> →</span></a>
+        </dd>
+      </div>
+    ))}
+  </dl>
+</section>

@@ -1,0 +1,52 @@
+---
+// Homepage hero — markup only; styling lives in HomeStyles.astro (.home-hero*).
+import type { HomeHeroCopy } from "../../lib/home-copy";
+
+interface Props {
+  copy: HomeHeroCopy;
+}
+
+const { copy } = Astro.props;
+---
+
+<section class="home-hero" aria-labelledby="home-hero-title">
+  <div class="home-hero__inner">
+    <div class="home-hero__text">
+      <p class="home-eyebrow"><span class="dot" aria-hidden="true"></span>{copy.kicker}</p>
+      <h1 id="home-hero-title">
+        <span class="home-hero__line">{copy.titleLines[0]}</span>
+        <span class="home-hero__line">{copy.titleLines[1]}</span>
+      </h1>
+      <p class="home-hero__tagline">{copy.tagline}</p>
+      <div class="home-hero__cta">
+        <a href={copy.primary.href} class="home-btn home-btn--primary">{copy.primary.label}</a>
+        <a href={copy.secondary.href} class="home-text-link">{copy.secondary.label}<span aria-hidden="true"> →</span></a>
+      </div>
+    </div>
+    <div class="home-hero__media">
+      <div class="home-hero__frame">
+        <picture>
+          <source
+            type="image/avif"
+            srcset="/images/hero/smart-home-editorial-640.avif 640w, /images/hero/smart-home-editorial-960.avif 960w, /images/hero/smart-home-editorial-1440.avif 1440w"
+            sizes="(max-width: 900px) calc(100vw - 2.5rem), 46vw"
+          />
+          <source
+            type="image/webp"
+            srcset="/images/hero/smart-home-editorial-640.webp 640w, /images/hero/smart-home-editorial-960.webp 960w, /images/hero/smart-home-editorial-1440.webp 1440w"
+            sizes="(max-width: 900px) calc(100vw - 2.5rem), 46vw"
+          />
+          <img
+            src="/images/hero/smart-home-editorial-960.webp"
+            alt={copy.imageAlt}
+            width="1440"
+            height="810"
+            loading="eager"
+            fetchpriority="high"
+            decoding="async"
+          />
+        </picture>
+      </div>
+    </div>
+  </div>
+</section>

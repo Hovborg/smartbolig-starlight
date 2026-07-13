@@ -1,0 +1,35 @@
+---
+// Compact route index: a beginner track plus five destination rows (no cards).
+import type { HomeNavigatorCopy } from "../../lib/home-copy";
+
+interface Props {
+  copy: HomeNavigatorCopy;
+}
+
+const { copy } = Astro.props;
+---
+
+<section class="home-section home-navigator" aria-labelledby="home-navigator-title">
+  <div class="home-section__heading">
+    <p class="home-eyebrow">{copy.eyebrow}</p>
+    <h2 id="home-navigator-title">{copy.title}</h2>
+  </div>
+  <aside class="home-navigator__beginner">
+    <p>
+      <strong>{copy.beginner.question}</strong>
+      {copy.beginner.description}
+    </p>
+    <a class="home-text-link" href={copy.beginner.link.href}>{copy.beginner.link.label}<span aria-hidden="true"> →</span></a>
+  </aside>
+  <ul class="home-navigator__rows">
+    {copy.rows.map((row) => (
+      <li>
+        <a href={row.href}>
+          <h3>{row.title}</h3>
+          <p>{row.description}</p>
+          <span class="home-navigator__arrow" aria-hidden="true">→</span>
+        </a>
+      </li>
+    ))}
+  </ul>
+</section>

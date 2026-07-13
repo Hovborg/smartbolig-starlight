@@ -1,0 +1,28 @@
+---
+// The single numbered progression on the homepage (stages 1–3).
+import type { HomeFieldGuideCopy } from "../../lib/home-copy";
+
+interface Props {
+  copy: HomeFieldGuideCopy;
+}
+
+const { copy } = Astro.props;
+---
+
+<section class="home-section home-fieldguide" aria-labelledby="home-fieldguide-title">
+  <div class="home-section__heading">
+    <p class="home-eyebrow">{copy.eyebrow}</p>
+    <h2 id="home-fieldguide-title">{copy.title}</h2>
+    <p>{copy.intro}</p>
+  </div>
+  <ol class="home-fieldguide__steps">
+    {copy.steps.map((step, index) => (
+      <li>
+        <span class="home-fieldguide__stage" aria-hidden="true">{index + 1}</span>
+        <h3>{step.title}</h3>
+        <p>{step.description}</p>
+      </li>
+    ))}
+  </ol>
+  <a class="home-text-link" href={copy.outro.href}>{copy.outro.label}<span aria-hidden="true"> →</span></a>
+</section>

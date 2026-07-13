@@ -1,0 +1,20 @@
+---
+// Closing section: continues into the guide library and the corrections path
+// instead of repeating the hero's start-route CTA.
+import type { HomeClosingCopy } from "../../lib/home-copy";
+
+interface Props {
+  copy: HomeClosingCopy;
+}
+
+const { copy } = Astro.props;
+---
+
+<section class="home-closing" aria-labelledby="home-closing-title">
+  <h2 id="home-closing-title">{copy.title}</h2>
+  <p>{copy.text}</p>
+  <div class="home-closing__actions">
+    <a class="home-btn home-btn--primary" href={copy.primary.href}>{copy.primary.label}</a>
+    <a class="home-btn home-btn--ghost" href={copy.secondary.href}>{copy.secondary.label}</a>
+  </div>
+</section>
