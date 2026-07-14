@@ -16,7 +16,7 @@
     "ai-news:source-health": "node scripts/ai-news-source-health.mjs",
     "ai-news:test": "node --test scripts/ai-news-*.test.mjs",
     "ai-news:validate": "node scripts/ai-news-validate.mjs",
-    "site:test": "node --test scripts/site-quality.test.mjs",
+    "site:test": "node --test scripts/site-quality.test.mjs scripts/sitemap-lastmod.test.mjs",
     "seo:validate": "node scripts/seo-validate.mjs"
   },
   "dependencies": {

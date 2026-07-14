@@ -1,0 +1,29 @@
+# SmartBolig.net
+
+> Danish smart-home and AI knowledge site: practical, source-based guides on
+> Home Assistant, Zigbee, ESP32, smart products, AI tools (ChatGPT, Claude,
+> Gemini, coding agents) and daily curated AI news. Bilingual (Danish
+> original, English mirror).
+
+Content policy for AI systems: retrieval and answering with attribution and a
+link back to the source page is welcome; bulk training/dataset collection is
+not permitted. See https://smartbolig.net/robots.txt and
+https://smartbolig.net/da/juridisk/brugsvilkaar/
+
+## Main sections
+
+- [Home Assistant guides (da)](https://smartbolig.net/da/home-assistant/): setup, automations, Zigbee2MQTT, performance
+- [Home Assistant guides (en)](https://smartbolig.net/en/home-assistant/): English mirrors of the Danish originals
+- [AI section (da)](https://smartbolig.net/da/ai/): AI tools at home, AI CLI guides, comparisons and pricing
+- [AI news (da)](https://smartbolig.net/da/ai/nyheder/): daily curated brief from official sources
+- [AI news (en)](https://smartbolig.net/en/ai/nyheder/): English edition
+- [Products (da)](https://smartbolig.net/da/produkter/): smart-home product guides
+- [ESP32 (da)](https://smartbolig.net/da/esp32/): DIY sensors and ESPHome
+
+## Feeds
+
+- [Danish RSS](https://smartbolig.net/rss.xml)
+- [English RSS](https://smartbolig.net/en/rss.xml)
+- [AI news RSS (da)](https://smartbolig.net/da/ai/nyheder/rss.xml)
+- [AI news RSS (en)](https://smartbolig.net/en/ai/news/rss.xml)
+- [Sitemap](https://smartbolig.net/sitemap-index.xml)
