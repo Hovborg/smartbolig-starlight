@@ -29,6 +29,32 @@ test("buildCopyPrompt wraps source material as untrusted data", () => {
   assert.match(prompt, /scoped permissions for home agents/);
 });
 
+// The validator enforces hard per-field word limits; the model must be told
+// the exact numbers, or drafts get rejected and the template fallback (raw
+// changelog dumps) publishes instead — as happened on 2026-07-14.
+test("buildCopyPrompt states every numeric word limit", () => {
+  const prompt = buildCopyPrompt({ date: "2026-07-11", items });
+  assert.match(prompt, /max 90 words/);
+  assert.match(prompt, /max 70 words/);
+  assert.match(prompt, /max 60 words/);
+  assert.match(prompt, /max 55 words/);
+});
+
+test("generateIssueCopy retries once with feedback when the first draft fails validation", async () => {
+  const overLimit = structuredClone(validCopy);
+  overLimit.stories[0].why.da = Array.from({ length: 90 }, () => "ord").join(" ");
+  const inputs = [];
+  const run = async ({ input }) => {
+    inputs.push(input);
+    return JSON.stringify({ result: JSON.stringify(inputs.length === 1 ? overLimit : validCopy) });
+  };
+  const copy = await generateIssueCopy({ date: "2026-07-11", items, run });
+  assert.equal(inputs.length, 2);
+  assert.deepEqual(copy, validCopy);
+  assert.match(inputs[1], /rejected/i);
+  assert.match(inputs[1], /why\.da/);
+});
+
 test("validateIssueCopy accepts complete bilingual copy", () => {
   const { ok, problems } = validateIssueCopy(validCopy, 1);
   assert.deepEqual(problems, []);

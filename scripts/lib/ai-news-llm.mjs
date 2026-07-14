@@ -45,12 +45,12 @@ STRICT RULES
 - No marketing language, no superlatives, no filler ("spændende", "game-changer", "landscape").
 - Never claim that smartbolig.net tested, verified, or measured anything.
 
-FIELDS (per story)
-- what: what concretely changed according to the source (facts only).
-- why: the practical consequence for people using AI tools or a smart home — cost, access, privacy, workflow, or reliability. Be specific to THIS story.
-- verify: one concrete check the reader can do themselves before relying on the change.
-- uncertainty: what the source does not show (rollout, region, stability, pricing details, long-term behavior) — specific to this story.
-- lede (per issue): 1-3 sentences framing what today's issue covers, mentioning the most substantial story first. No source list recitation.
+FIELDS (per story) — the word limits are hard caps enforced by a validator; exceeding any of them rejects the whole draft.
+- what: what concretely changed according to the source (facts only; max ${WORD_LIMITS.what} words per language).
+- why: the practical consequence for people using AI tools or a smart home — cost, access, privacy, workflow, or reliability. Be specific to THIS story (max ${WORD_LIMITS.why} words per language).
+- verify: one concrete check the reader can do themselves before relying on the change (max ${WORD_LIMITS.verify} words per language).
+- uncertainty: what the source does not show (rollout, region, stability, pricing details, long-term behavior) — specific to this story (max ${WORD_LIMITS.uncertainty} words per language).
+- lede (per issue): 1-3 sentences framing what today's issue covers, mentioning the most substantial story first. No source list recitation (max ${WORD_LIMITS.lede} words per language).
 
 OUTPUT
 Reply with ONLY a JSON object, no code fences, exactly this shape:
@@ -144,26 +144,43 @@ export async function generateIssueCopy({ date, items, model, bin, timeoutMs, ru
   // persisted session. See docs/verification/2026-07-13-security-review.md C-1.
   // (--bare is deliberately absent: it disables OAuth login on subscription
   // installs; the flags below already yield a session that reports tools: [].)
-  const raw = await run({
-    bin: llmBin,
-    args: [
-      "-p", "--output-format", "json", "--model", llmModel,
-      "--tools", "",
-      "--setting-sources", "",
-      "--strict-mcp-config",
-      "--disable-slash-commands",
-      "--no-session-persistence",
-    ],
-    input: prompt,
-    timeoutMs: timeoutMs || Number(process.env.AI_NEWS_LLM_TIMEOUT_MS || 240_000),
-  });
+  const args = [
+    "-p", "--output-format", "json", "--model", llmModel,
+    "--tools", "",
+    "--setting-sources", "",
+    "--strict-mcp-config",
+    "--disable-slash-commands",
+    "--no-session-persistence",
+  ];
+  const resolvedTimeoutMs = timeoutMs || Number(process.env.AI_NEWS_LLM_TIMEOUT_MS || 240_000);
 
-  const envelope = JSON.parse(raw);
-  const resultText = typeof envelope === "object" && envelope !== null && typeof envelope.result === "string"
-    ? envelope.result
-    : raw;
-  const copy = extractJson(resultText);
-  const { ok, problems } = validateIssueCopy(copy, items.length);
-  if (!ok) throw new Error(`LLM copy rejected: ${problems.slice(0, 5).join("; ")}`);
-  return copy;
+  // One retry with the rejection reasons appended: model output is
+  // nondeterministic, and a single word-limit overrun otherwise sends the
+  // whole day to the deterministic template fallback.
+  let feedback = "";
+  for (let attempt = 1; attempt <= 2; attempt += 1) {
+    const raw = await run({
+      bin: llmBin,
+      args,
+      input: feedback ? `${prompt}\n\n${feedback}` : prompt,
+      timeoutMs: resolvedTimeoutMs,
+    });
+
+    let problems;
+    try {
+      const envelope = JSON.parse(raw);
+      const resultText = typeof envelope === "object" && envelope !== null && typeof envelope.result === "string"
+        ? envelope.result
+        : raw;
+      const copy = extractJson(resultText);
+      const result = validateIssueCopy(copy, items.length);
+      if (result.ok) return copy;
+      problems = result.problems;
+    } catch (error) {
+      problems = [error.message];
+    }
+    if (attempt === 2) throw new Error(`LLM copy rejected: ${problems.slice(0, 5).join("; ")}`);
+    feedback = `IMPORTANT: Your previous draft was rejected: ${problems.slice(0, 5).join("; ")}. Return ONLY the corrected JSON object and respect every word limit strictly.`;
+  }
+  throw new Error("unreachable");
 }
