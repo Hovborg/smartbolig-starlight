@@ -1,3 +1,7 @@
+# Root goes permanently to the Danish default locale (also the hreflang
+# x-default), so link equity consolidates on one URL.
+/ /da/ 301
+
 # English alias URLs redirect to the canonical generated Starlight paths.
 # IMPORTANT: Specific rules MUST come BEFORE splat (*) rules!
 
