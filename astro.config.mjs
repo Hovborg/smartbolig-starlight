@@ -763,7 +763,7 @@ export default defineConfig({
             gtag('set', 'url_passthrough', true);
             gtag('set', 'ads_data_redaction', true);
             gtag('js', new Date());
-            gtag('config', 'G-78F6DLB00Z');
+            gtag('config', 'G-H52D2TJGV0');
           `,
         },
         // GA4 tag — Consent Mode keeps it cookieless until consent is granted.
@@ -771,7 +771,7 @@ export default defineConfig({
           tag: "script",
           attrs: {
             async: true,
-            src: "https://www.googletagmanager.com/gtag/js?id=G-78F6DLB00Z",
+            src: "https://www.googletagmanager.com/gtag/js?id=G-H52D2TJGV0",
           },
         },
         // RSS Feed auto-discovery
