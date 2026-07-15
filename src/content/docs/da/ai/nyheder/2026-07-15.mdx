@@ -1,0 +1,94 @@
+---
+title: "AI-nyheder, 15. juli 2026"
+description: "Kurateret AI-overblik for 15. juli 2026: modeller, produkter, ChatGPT, Claude, Gemini, API-priser, privacy og agent-workflows."
+date: 2026-07-15
+lastUpdated: 2026-07-15
+heroImage:
+  src: "/images/ai-news/2026-07-15.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om Claude Code releases, OpenAI News, Google AI Blog"
+  caption: "Redaktionelt AI-nyhedsbillede om Claude Code releases, OpenAI News, Google AI Blog"
+news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "4d0afc710950be3db6b20f001ace97b4301067f60c4512cbf7ada38ba8e68423"
+  sourceSetFingerprint: "9bc4e3984ef5d5434f50e60f48299875abd936a01c030ed5a727f56e5abe8313"
+  signal: high
+  sources:
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.208"
+    - "https://openai.com/academy/codex-for-work/how-data-science-teams-use-codex"
+    - "https://blog.google/products-and-platforms/products/search/google-images-25th-anniversary"
+sidebar:
+  label: "15. juli 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-07-15">15. juli 2026</time> · 3 udvalgte kilder</p>
+
+<p class="ai-news-lede">I dag handler det primært om en ny udgave af Claude Code med tilgængelighedsfunktioner og indstillinger til vim og virksomhedsmiljøer. Desuden ser vi på en vejledning fra OpenAI om at bruge ChatGPT Work til data science-opgaver, og på Googles jubilæumsindlæg om 25 år med Google Images.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. Claude Code releases: v2.1.208
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 14. jul. 2026. Anthropic udgav Claude Code version 2.1.208. Opdateringen tilføjer en tilvalgt skærmlæsertilstand med visning i almindelig tekst, som slås til via et kommandoflag, en miljøvariabel eller en indstilling. Den tilføjer også indstillingen vimInsertModeRemaps til at kortlægge to-tegns-sekvenser som jj til Escape i vim-tilstand, samt CLAUDE&#95;CODE&#95;PROCESS&#95;WRAPPER, der lader værktøjets selv-startede processer gå gennem en påkrævet wrapper-fil til virksomhedslanceringsprogrammer.
+
+> Kort kildeuddrag: What's changed Added screen reader mode: opt-in plain-text rendering for screen reader users. Run claude --ax-screen-reader , set CLAUDE&#95;AX&#95;SCREEN&#95;READER=1, or…
+
+**Hvorfor det er relevant:** For læsere, der bruger Claude Code som kodeagent, giver dette konkret tilgængelighed for skærmlæserbrugere og lettere opsætning af vim-tastebindinger. Wrapperen til virksomhedslanceringsprogrammer har mest betydning for folk, der kører Claude Code i styrede IT-miljøer, ikke typiske hjemmeopsætninger. Intet af dette ændrer modellens evner eller pris.
+
+**Sådan verificerer du det:** Kør claude --version for at se din nuværende version, opdater om nødvendigt, og test selv flaget --ax-screen-reader eller indstillingen vimInsertModeRemaps, før du regner med dem i den daglige brug.
+
+**Usikkerhed:** Kildeteksten er afskåret efter at nævne en tilføjet museklik-funktion, så den fulde ændringslog vises ikke. Den siger ikke, hvor moden skærmlæsertilstanden er, hvilke platforme der understøtter indstillingerne, eller om andre ændringer fulgte med i udgivelsen.
+
+Kilde: [v2.1.208](https://github.com/anthropics/claude-code/releases/tag/v2.1.208)
+
+### 2. OpenAI News: How data science teams use ChatGPT Work
+
+**Hvad ændrede sig:** OpenAI News offentliggjorde opdateringen 14. jul. 2026. OpenAI udgav en artikel om, hvordan data science-teams kan bruge ChatGPT Work til at lave root cause-notater, effektrapporter, KPI-memoer, afgrænsede analyser og dashboard-specifikationer ud fra eksisterende arbejdsmateriale. Der beskrives ingen ny funktion, modelopdatering eller prisændring. Det er brugsvejledning til et eksisterende produkt, ikke en udgivelse.
+
+> Kort kildeuddrag: See how data science teams can use ChatGPT Work to build root-cause briefs, impact readouts, KPI memos, scoped analyses, and…
+
+**Hvorfor det er relevant:** For små teams, der allerede betaler for ChatGPT Work, giver dette idéer til at omdanne rå data og noter til strukturerede dokumenter. Det ændrer ikke, hvad værktøjet kan, hvad det koster, eller adgangen til det, så det har mest betydning, hvis du skal organisere eksisterende brug, ikke om du bør skifte til det.
+
+**Sådan verificerer du det:** Hvis du bruger ChatGPT Work, så prøv at bygge en af disse dokumenttyper, for eksempel en KPI-memo, ud fra dine egne rigtige arbejdsdata, og tjek om resultatet holder, før du bruger det i et rigtigt leverance-dokument.
+
+**Usikkerhed:** Kilden giver ingen detaljer om nøjagtighed, hvilket ChatGPT Work-niveau det gælder for, om der kræves ekstra opsætning, eller hvordan resultaterne sammenlignes med manuelt skrevne versioner. Der var ingen sidetekst ud over resuméet.
+
+Kilde: [How data science teams use ChatGPT Work](https://openai.com/academy/codex-for-work/how-data-science-teams-use-codex)
+
+### 3. Google AI Blog: Celebrating 25 years of visual search innovation
+
+**Hvad ændrede sig:** Google AI Blog offentliggjorde opdateringen 14. jul. 2026. Google udgav et blogindlæg i anledning af Google Images' 25-års jubilæum, præsenteret som et tilbageblik på milepæle inden for visuel søgning. Resuméet nævner nye måder at udforske og skabe visuelt indhold på, men den hentede sidetekst består mest af navigationsmenuer, så ingen konkret ny funktion eller produktændring kan bekræftes ud fra materialet.
+
+> Kort kildeuddrag: Google Images is turning 25. Here’s a look back at some major milestones — and new ways to explore and…
+
+**Hvorfor det er relevant:** For læsere er dette et tilbageblik, ikke noget at handle på. Der er ikke dokumenteret nogen konkret ændring af Google Images, Search eller relaterede AI-værktøjer her, så der er ingen ny arbejdsgang, pris eller adgang at planlægge efter ud fra dette alene.
+
+**Sådan verificerer du det:** Hvis du vil vide, hvad de nye udforsknings- eller skabelsesfunktioner egentlig er, så læs Googles originale blogindlæg i sin helhed, da resuméet og det tilgængelige uddrag ikke angiver konkret funktionalitet.
+
+**Usikkerhed:** Den hentede tekst afslører ikke, hvad de nævnte nye funktioner er, om de er tilgængelige nu eller planlagte, hvilke regioner eller produkter de berører, eller nogen detalje ud over selve jubilæumsrammen.
+
+Kilde: [Celebrating 25 years of visual search innovation](https://blog.google/products-and-platforms/products/search/google-images-25th-anniversary)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| Claude Code releases | [v2.1.208](https://github.com/anthropics/claude-code/releases/tag/v2.1.208) | 14. jul. 2026 |
+| OpenAI News | [How data science teams use ChatGPT Work](https://openai.com/academy/codex-for-work/how-data-science-teams-use-codex) | 14. jul. 2026 |
+| Google AI Blog | [Celebrating 25 years of visual search innovation](https://blog.google/products-and-platforms/products/search/google-images-25th-anniversary) | 14. jul. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.

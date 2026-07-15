@@ -1,0 +1,94 @@
+---
+title: "AI News, 15 July 2026"
+description: "Curated AI brief for 15 July 2026: models, products, ChatGPT, Claude, Gemini, API pricing, privacy, and agent workflows."
+date: 2026-07-15
+lastUpdated: 2026-07-15
+heroImage:
+  src: "/images/ai-news/2026-07-15.jpg"
+  alt: "Editorial AI news image about Claude Code releases, OpenAI News, Google AI Blog"
+  caption: "Editorial AI news image about Claude Code releases, OpenAI News, Google AI Blog"
+news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "4d0afc710950be3db6b20f001ace97b4301067f60c4512cbf7ada38ba8e68423"
+  sourceSetFingerprint: "9bc4e3984ef5d5434f50e60f48299875abd936a01c030ed5a727f56e5abe8313"
+  signal: high
+  sources:
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.208"
+    - "https://openai.com/academy/codex-for-work/how-data-science-teams-use-codex"
+    - "https://blog.google/products-and-platforms/products/search/google-images-25th-anniversary"
+sidebar:
+  label: "15 July 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline">By SmartBolig.net Editorial · <time datetime="2026-07-15">15 July 2026</time> · 3 selected sources</p>
+
+<p class="ai-news-lede">Today's issue centers on a new Claude Code release with accessibility and workflow settings for developers. We also cover OpenAI's guidance on using ChatGPT Work for data science tasks, and Google's anniversary post marking 25 years of Google Images.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. Claude Code releases: v2.1.208
+
+**What changed:** Claude Code releases published the update on 14 Jul 2026. Anthropic released Claude Code version 2.1.208. The update adds an opt-in screen reader mode with plain-text rendering, enabled via a command flag, an environment variable, or a settings entry. It also adds a vimInsertModeRemaps setting for mapping two-key sequences such as jj to Escape in vim mode, and a CLAUDE&#95;CODE&#95;PROCESS&#95;WRAPPER option that routes the tool's self-spawned processes through a required wrapper executable for corporate launchers.
+
+> Short source excerpt: What's changed Added screen reader mode: opt-in plain-text rendering for screen reader users. Run claude --ax-screen-reader , set CLAUDE&#95;AX&#95;SCREEN&#95;READER=1, or…
+
+**Why it matters:** For readers who use Claude Code as a coding agent, this brings concrete accessibility support for screen reader users and easier vim keybinding setups. The corporate launcher wrapper mainly matters to people running Claude Code inside managed IT environments, not typical home setups. None of this changes model capability or pricing.
+
+**How to verify it:** Run claude --version to see your current version, update if needed, and test the --ax-screen-reader flag or the vimInsertModeRemaps setting yourself before depending on them in daily use.
+
+**Uncertainty:** The source text is truncated after mentioning an added mouse-click feature, so the full changelog isn't shown. It doesn't say how mature the screen reader mode is, which platforms support these settings, or whether other changes shipped in this release.
+
+Source: [v2.1.208](https://github.com/anthropics/claude-code/releases/tag/v2.1.208)
+
+### 2. OpenAI News: How data science teams use ChatGPT Work
+
+**What changed:** OpenAI News published the update on 14 Jul 2026. OpenAI published an article describing how data science teams can use ChatGPT Work to produce root-cause briefs, impact readouts, KPI memos, scoped analyses, and dashboard specs from existing work material. No new feature, model update, or pricing change is described. This is usage guidance for an existing product rather than a release.
+
+> Short source excerpt: See how data science teams can use ChatGPT Work to build root-cause briefs, impact readouts, KPI memos, scoped analyses, and…
+
+**Why it matters:** For small teams already paying for ChatGPT Work, this offers workflow ideas for turning raw data and notes into structured documents. It doesn't change what the tool can do, its cost, or its access, so it mainly matters if you're deciding how to organize existing subscription use rather than whether to adopt it.
+
+**How to verify it:** If you use ChatGPT Work, try building one of these document types, such as a KPI memo, from your own real work data and check whether the output holds up before using it in an actual deliverable.
+
+**Uncertainty:** The source gives no detail on accuracy, which ChatGPT Work tier this applies to, whether extra setup is needed, or how these outputs compare to manually written versions. No page text beyond the summary was available.
+
+Source: [How data science teams use ChatGPT Work](https://openai.com/academy/codex-for-work/how-data-science-teams-use-codex)
+
+### 3. Google AI Blog: Celebrating 25 years of visual search innovation
+
+**What changed:** Google AI Blog published the update on 14 Jul 2026. Google published a blog post marking the 25th anniversary of Google Images, presented as a retrospective on visual search milestones. The summary mentions new ways to explore and create visual content, but the retrieved page text consists mainly of site navigation menus, so no specific new feature or product change can be confirmed from the material available.
+
+> Short source excerpt: Google Images is turning 25. Here’s a look back at some major milestones — and new ways to explore and…
+
+**Why it matters:** For readers, this is a retrospective rather than something to act on. No concrete change to Google Images, Search, or related AI tools is documented here, so there's no new workflow, cost, or access shift to plan around based on this piece alone.
+
+**How to verify it:** If you want to know what the new exploration or creation features actually are, read the original Google blog post in full, since the summary and available excerpt don't specify concrete functionality.
+
+**Uncertainty:** The retrieved text doesn't reveal what the mentioned new features are, whether they're available now or planned, which regions or products they touch, or any detail beyond the anniversary framing itself.
+
+Source: [Celebrating 25 years of visual search innovation](https://blog.google/products-and-platforms/products/search/google-images-25th-anniversary)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| Claude Code releases | [v2.1.208](https://github.com/anthropics/claude-code/releases/tag/v2.1.208) | 14 Jul 2026 |
+| OpenAI News | [How data science teams use ChatGPT Work](https://openai.com/academy/codex-for-work/how-data-science-teams-use-codex) | 14 Jul 2026 |
+| Google AI Blog | [Celebrating 25 years of visual search innovation](https://blog.google/products-and-platforms/products/search/google-images-25th-anniversary) | 14 Jul 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.
