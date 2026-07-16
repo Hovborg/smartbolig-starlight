@@ -1,0 +1,110 @@
+---
+title: "AI News, 16 July 2026"
+description: "Curated AI brief for 16 July 2026: models, products, ChatGPT, Claude, Gemini, API pricing, privacy, and agent workflows."
+date: 2026-07-16
+lastUpdated: 2026-07-16
+heroImage:
+  src: "/images/ai-news/2026-07-16.jpg"
+  alt: "Editorial AI news image about OpenClaw releases, Claude Code releases, OpenAI News, Google AI Blog"
+  caption: "Editorial AI news image about OpenClaw releases, Claude Code releases, OpenAI News, Google AI Blog"
+news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "e71c9e656065ef00c2ff3ea213a4d8995a27004e4cb62090acb54a417bc22b6c"
+  sourceSetFingerprint: "923e08385e6520b2276ab4a0e6500979611f29d0e2aebe08aae7b70f61fa9f99"
+  signal: high
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.1"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.211"
+    - "https://openai.com/academy/codex-for-work/how-sales-teams-use-codex"
+    - "https://blog.google/products-and-platforms/products/search/google-images-25th-anniversary"
+sidebar:
+  label: "16 July 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline">By SmartBolig.net Editorial · <time datetime="2026-07-16">16 July 2026</time> · 4 selected sources</p>
+
+<p class="ai-news-lede">Today's issue centers on two agent-tooling updates: OpenClaw's beta release adds remote coding sessions and extends automations to mobile and headless Linux nodes, while Claude Code patches a permission-preview spoofing risk and a hook-bypass bug. We also look at a thin OpenAI post on ChatGPT Work for sales teams and an anniversary piece from Google Images that offers little concrete detail.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. OpenClaw releases: openclaw 2026.7.2-beta.1
+
+**What changed:** OpenClaw releases published the update on 15 Jul 2026. OpenClaw released version 2026.7.2-beta.1. The update adds remote coding sessions: Control UI sessions can run on cloud workers, Codex and Claude catalog sessions can open in terminals on their owning hosts, and OpenCode and Pi sessions can resume directly in a terminal. It also brings automation parity to mobile, adds a foreground Voice Wake feature on Android, and exposes camera, location, and notification capabilities from headless Linux nodes.
+
+> Short source excerpt: 2026.7.2 Highlights Remote coding sessions: run Control UI sessions on cloud workers, open Codex and Claude catalog sessions in terminals…
+
+**Why it matters:** For people running coding agents across devices, this means less friction switching between a laptop, a cloud worker, and a phone: sessions carry over instead of restarting. The Android and headless-node capabilities also extend what agents can sense and trigger outside a traditional terminal, which raises the stakes for reviewing what permissions those nodes are granted.
+
+**How to verify it:** Before relying on this, check the OpenClaw GitHub release notes for 2026.7.2-beta.1 directly, since it is a beta, and confirm which platforms &#40;mobile OS versions, Linux node types&#41; the automation and camera/location features actually support in your setup.
+
+**Uncertainty:** It's a beta release, so stability and rollout timing for a stable version are unclear. The release notes also mention a "safer channel operation" change whose details are cut off in the available text, so its scope and effect cannot be assessed from this source.
+
+Source: [openclaw 2026.7.2-beta.1](https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.1)
+
+### 2. Claude Code releases: v2.1.211
+
+**What changed:** Claude Code releases published the update on 15 Jul 2026. Claude Code v2.1.211 adds a --forward-subagent-text flag &#40;and matching environment variable&#41; to include subagent text and thinking in stream-json output. It also fixes permission previews sent to chat channels: bidirectional-override, zero-width, and look-alike quote characters are now neutralized so tool inputs cannot visually alter the approval message shown to a reviewer. A separate fix stops auto mode from overriding a PreToolUse hook's ask decision for unsandboxed Bash commands.
+
+> Short source excerpt: What's changed Added --forward-subagent-text flag and CLAUDE&#95;CODE&#95;FORWARD&#95;SUBAGENT&#95;TEXT environment variable to include subagent text and thinking in stream-json output Fixed permission…
+
+**Why it matters:** The permission-preview fix matters most: without it, a malicious tool input could visually disguise what a reviewer is approving in a chat-based workflow, so this closes a real spoofing risk. The hook fix means an "ask" rule you set for unsandboxed Bash will actually pause for confirmation instead of being silently auto-approved, restoring control over risky commands run by an agent.
+
+**How to verify it:** If you use chat-relayed approvals or Bash hooks with ask rules, update to v2.1.211 and re-check the release notes on the Claude Code GitHub page to confirm which hook and channel behaviors changed before trusting existing approval workflows.
+
+**Uncertainty:** The source does not specify which chat integrations &#40;which platforms&#41; were affected by the spoofing risk, how long it existed before this fix, or whether other stream-json consumers need code changes to use the new subagent-text flag.
+
+Source: [v2.1.211](https://github.com/anthropics/claude-code/releases/tag/v2.1.211)
+
+### 3. OpenAI News: How sales teams use ChatGPT Work
+
+**What changed:** OpenAI News published the update on 14 Jul 2026. OpenAI published a guide describing how sales teams can use ChatGPT Work to generate pipeline briefs, meeting prep packets, forecast reviews, account plans, and diagnoses of stalled deals, built from real work inputs. The available material is a short promotional summary with no further detail on the underlying features, data sources, or how outputs are generated.
+
+> Short source excerpt: See how sales teams can use ChatGPT Work to create pipeline briefs, meeting prep packets, forecast reviews, account plans, and…
+
+**Why it matters:** For small teams already paying for ChatGPT Work, this points to a use case bundling several sales tasks into one workflow, which could save time compiling reports manually. Without details on data handling, it's unclear what customer or deal data would need to be shared with the assistant to produce these outputs.
+
+**How to verify it:** Before using this for real deal data, check OpenAI's own ChatGPT Work documentation for what data it accesses and retains, and confirm your organization's data-sharing policy allows feeding CRM or pipeline details into it.
+
+**Uncertainty:** The source is a brief marketing summary and does not describe pricing, availability by region, accuracy of the generated forecasts or diagnoses, or how ChatGPT Work integrates with existing CRM systems.
+
+Source: [How sales teams use ChatGPT Work](https://openai.com/academy/codex-for-work/how-sales-teams-use-codex)
+
+### 4. Google AI Blog: Celebrating 25 years of visual search innovation
+
+**What changed:** Google AI Blog published the update on 14 Jul 2026. Google published a post marking 25 years of Google Images, describing it as a look back at milestones in visual search and mentioning new ways to explore and create visual content. The retrieved page consists mainly of site navigation; no specific features, dates, or product changes are described in the available text.
+
+> Short source excerpt: Google Images is turning 25. Here’s a look back at some major milestones — and new ways to explore and…
+
+**Why it matters:** There is nothing concrete here to act on: no new feature, setting, or product is described with enough detail to affect how someone uses Google Images or Gemini's image tools today. The anniversary framing itself has no practical bearing on a smart-home or AI-tool workflow.
+
+**How to verify it:** If you want to know what, if anything, is actually new, read the full Google blog post directly rather than relying on this summary, since the retrieved text here does not contain the article body.
+
+**Uncertainty:** The source material is largely navigation text, so it is unclear what "new ways to explore and create visual content" actually refers to, whether it means a shipped feature, a planned one, or just historical examples.
+
+Source: [Celebrating 25 years of visual search innovation](https://blog.google/products-and-platforms/products/search/google-images-25th-anniversary)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| OpenClaw releases | [openclaw 2026.7.2-beta.1](https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.1) | 15 Jul 2026 |
+| Claude Code releases | [v2.1.211](https://github.com/anthropics/claude-code/releases/tag/v2.1.211) | 15 Jul 2026 |
+| OpenAI News | [How sales teams use ChatGPT Work](https://openai.com/academy/codex-for-work/how-sales-teams-use-codex) | 14 Jul 2026 |
+| Google AI Blog | [Celebrating 25 years of visual search innovation](https://blog.google/products-and-platforms/products/search/google-images-25th-anniversary) | 14 Jul 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.

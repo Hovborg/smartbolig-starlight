@@ -1,0 +1,110 @@
+---
+title: "AI-nyheder, 16. juli 2026"
+description: "Kurateret AI-overblik for 16. juli 2026: modeller, produkter, ChatGPT, Claude, Gemini, API-priser, privacy og agent-workflows."
+date: 2026-07-16
+lastUpdated: 2026-07-16
+heroImage:
+  src: "/images/ai-news/2026-07-16.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om OpenClaw releases, Claude Code releases, OpenAI News, Google AI Blog"
+  caption: "Redaktionelt AI-nyhedsbillede om OpenClaw releases, Claude Code releases, OpenAI News, Google AI Blog"
+news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "e71c9e656065ef00c2ff3ea213a4d8995a27004e4cb62090acb54a417bc22b6c"
+  sourceSetFingerprint: "923e08385e6520b2276ab4a0e6500979611f29d0e2aebe08aae7b70f61fa9f99"
+  signal: high
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.1"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.211"
+    - "https://openai.com/academy/codex-for-work/how-sales-teams-use-codex"
+    - "https://blog.google/products-and-platforms/products/search/google-images-25th-anniversary"
+sidebar:
+  label: "16. juli 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-07-16">16. juli 2026</time> · 4 udvalgte kilder</p>
+
+<p class="ai-news-lede">Dagens udgave centrerer om to opdateringer af agent-værktøjer: OpenClaws beta-udgivelse tilføjer fjernstyrede kodesessioner og udvider automatiseringer til mobil og headless Linux-noder, mens Claude Code retter en spoofing-risiko i permission-previews og en hook-bypass-fejl. Vi ser også på et tyndt OpenAI-opslag om ChatGPT Work til salgsteams og et jubilæumsindlæg fra Google Images uden meget konkret indhold.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. OpenClaw releases: openclaw 2026.7.2-beta.1
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 15. jul. 2026. OpenClaw har udgivet version 2026.7.2-beta.1. Opdateringen giver fjernstyrede kodesessioner: Control UI-sessioner kan køre på cloud-workers, Codex- og Claude-kataložsessioner kan åbnes i terminaler på deres egne hosts, og OpenCode- og Pi-sessioner kan genoptages direkte i en terminal. Den bringer også automatiseringsfunktioner til mobil, tilføjer en Voice Wake-funktion i forgrunden på Android og giver headless Linux-noder adgang til kamera, lokation og notifikationer.
+
+> Kort kildeuddrag: 2026.7.2 Highlights Remote coding sessions: run Control UI sessions on cloud workers, open Codex and Claude catalog sessions in terminals…
+
+**Hvorfor det er relevant:** For folk der kører kodeagenter på tværs af enheder, betyder det mindre bøvl ved at skifte mellem laptop, cloud-worker og telefon, fordi sessioner følger med i stedet for at starte forfra. Android- og node-funktionerne udvider samtidig, hvad agenter kan sanse og udløse uden for en traditionel terminal, hvilket gør det vigtigere at tjekke, hvilke rettigheder de noder får.
+
+**Sådan verificerer du det:** Tjek OpenClaws GitHub-udgivelsesnoter for 2026.7.2-beta.1 direkte, da det er en beta, og bekræft hvilke platforme &#40;mobil-OS-versioner, typer af Linux-noder&#41;, automatiserings- og kamera/lokationsfunktionerne rent faktisk understøtter i din opsætning.
+
+**Usikkerhed:** Det er en beta-udgivelse, så stabilitet og tidspunkt for en stabil version er uklart. Udgivelsesnoterne nævner også en ændring kaldet "safer channel operation", hvis detaljer er afskåret i den tilgængelige tekst, så omfang og effekt kan ikke vurderes ud fra denne kilde.
+
+Kilde: [openclaw 2026.7.2-beta.1](https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.1)
+
+### 2. Claude Code releases: v2.1.211
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 15. jul. 2026. Claude Code v2.1.211 tilføjer flaget --forward-subagent-text &#40;og en tilsvarende miljøvariabel&#41;, så subagenters tekst og tankegang inkluderes i stream-json-output. Samtidig rettes en sikkerhedsfejl i permission-previews, der sendes til chatkanaler: tegn til bidirectional-override, zero-width og look-alike anførselstegn neutraliseres nu, så tool-input ikke længere kan ændre godkendelsesbeskeden visuelt for en gennemgår. En anden rettelse forhindrer auto mode i at overskrive et PreToolUse-hooks ask-beslutning for usandboxet Bash.
+
+> Kort kildeuddrag: What's changed Added --forward-subagent-text flag and CLAUDE&#95;CODE&#95;FORWARD&#95;SUBAGENT&#95;TEXT environment variable to include subagent text and thinking in stream-json output Fixed permission…
+
+**Hvorfor det er relevant:** Rettelsen af permission-previews er den vigtigste: uden den kunne et ondsindet tool-input visuelt forvrænge, hvad en gennemgår rent faktisk godkender i en chat-baseret arbejdsgang, så den lukker en reel spoofing-risiko. Hook-rettelsen betyder, at en "ask"-regel for usandboxet Bash nu faktisk stopper for bekræftelse i stedet for at blive auto-godkendt i stilhed, hvilket giver kontrollen over risikable kommandoer tilbage.
+
+**Sådan verificerer du det:** Hvis du bruger chat-relayerede godkendelser eller Bash-hooks med ask-regler, så opdater til v2.1.211 og tjek udgivelsesnoterne på Claude Codes GitHub-side for at bekræfte, hvilke hook- og kanaladfærd der er ændret, før du stoler på eksisterende godkendelsesflows.
+
+**Usikkerhed:** Kilden angiver ikke, hvilke chat-integrationer &#40;hvilke platforme&#41; der var berørt af spoofing-risikoen, hvor længe den har eksisteret før denne rettelse, eller om andre stream-json-forbrugere skal ændre kode for at bruge det nye subagent-text-flag.
+
+Kilde: [v2.1.211](https://github.com/anthropics/claude-code/releases/tag/v2.1.211)
+
+### 3. OpenAI News: How sales teams use ChatGPT Work
+
+**Hvad ændrede sig:** OpenAI News offentliggjorde opdateringen 14. jul. 2026. OpenAI har offentliggjort en guide om, hvordan salgsteams kan bruge ChatGPT Work til at lave pipeline-briefs, mødeforberedelser, forecast-gennemgange, kontoplaner og diagnoser af gå-i-stå-aftaler ud fra reelle arbejdsdata. Det tilgængelige materiale er et kort, promoverende resumé uden yderligere detaljer om de underliggende funktioner, datakilder eller hvordan output rent faktisk genereres.
+
+> Kort kildeuddrag: See how sales teams can use ChatGPT Work to create pipeline briefs, meeting prep packets, forecast reviews, account plans, and…
+
+**Hvorfor det er relevant:** For mindre teams, der allerede betaler for ChatGPT Work, peger dette på en use case, hvor flere salgsopgaver samles i én arbejdsgang, hvilket kan spare tid på manuel rapportering. Uden detaljer om databehandling er det uklart, hvilke kunde- eller aftaledata der skal deles med assistenten for at producere disse output.
+
+**Sådan verificerer du det:** Før du bruger det på reelle aftaledata, så tjek OpenAIs egen dokumentation for ChatGPT Work om, hvilke data det tilgår og gemmer, og bekræft at din organisations datapolitik tillader at fodre CRM- eller pipeline-oplysninger ind i det.
+
+**Usikkerhed:** Kilden er et kort marketing-resumé og beskriver ikke pris, regional tilgængelighed, hvor præcise de genererede forecasts eller diagnoser er, eller hvordan ChatGPT Work integreres med eksisterende CRM-systemer.
+
+Kilde: [How sales teams use ChatGPT Work](https://openai.com/academy/codex-for-work/how-sales-teams-use-codex)
+
+### 4. Google AI Blog: Celebrating 25 years of visual search innovation
+
+**Hvad ændrede sig:** Google AI Blog offentliggjorde opdateringen 14. jul. 2026. Google har udgivet et opslag om, at Google Images fylder 25 år, som ser tilbage på milepæle inden for visuel søgning og nævner nye måder at udforske og skabe visuelt indhold på. Den hentede side består mest af sitenavigation; ingen konkrete funktioner, datoer eller produktændringer er beskrevet i den tilgængelige tekst.
+
+> Kort kildeuddrag: Google Images is turning 25. Here’s a look back at some major milestones — and new ways to explore and…
+
+**Hvorfor det er relevant:** Der er intet konkret at handle på her: ingen ny funktion, indstilling eller produkt er beskrevet med nok detaljer til at påvirke, hvordan man bruger Google Images eller Geminis billedværktøjer i dag. Selve jubilæumsvinklen har ingen praktisk betydning for en smart-home- eller AI-værktøjs-arbejdsgang.
+
+**Sådan verificerer du det:** Hvis du vil vide, om der reelt er noget nyt, så læs Googles fulde blogindlæg direkte i stedet for at stole på dette resumé, da den hentede tekst her ikke indeholder selve artiklen.
+
+**Usikkerhed:** Kildematerialet er hovedsageligt navigationstekst, så det er uklart, hvad "nye måder at udforske og skabe visuelt indhold på" faktisk dækker over - om det er en lanceret funktion, en planlagt en, eller blot historiske eksempler.
+
+Kilde: [Celebrating 25 years of visual search innovation](https://blog.google/products-and-platforms/products/search/google-images-25th-anniversary)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| OpenClaw releases | [openclaw 2026.7.2-beta.1](https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.1) | 15. jul. 2026 |
+| Claude Code releases | [v2.1.211](https://github.com/anthropics/claude-code/releases/tag/v2.1.211) | 15. jul. 2026 |
+| OpenAI News | [How sales teams use ChatGPT Work](https://openai.com/academy/codex-for-work/how-sales-teams-use-codex) | 14. jul. 2026 |
+| Google AI Blog | [Celebrating 25 years of visual search innovation](https://blog.google/products-and-platforms/products/search/google-images-25th-anniversary) | 14. jul. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
