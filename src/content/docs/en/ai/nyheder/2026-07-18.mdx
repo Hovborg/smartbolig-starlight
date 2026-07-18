@@ -1,0 +1,126 @@
+---
+title: "AI News, 18 July 2026"
+description: "Curated AI brief for 18 July 2026: models, products, ChatGPT, Claude, Gemini, API pricing, privacy, and agent workflows."
+date: 2026-07-18
+lastUpdated: 2026-07-18
+heroImage:
+  src: "/images/ai-news/2026-07-18.jpg"
+  alt: "Editorial AI news image about OpenClaw releases, Claude Code releases, OpenAI News, Gemini CLI releases, Google AI Blog"
+  caption: "Editorial AI news image about OpenClaw releases, Claude Code releases, OpenAI News, Gemini CLI releases, Google AI Blog"
+news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "fef5f60c3b696be5929618a1eb9b12d4ff6b21af6c972505e506329a8b123bf8"
+  sourceSetFingerprint: "bfbe798618eeae4bcc6d8aba19f01060ee05caa189334cceff324814a4d0c729"
+  signal: high
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.2"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.212"
+    - "https://openai.com/index/why-teens-deserve-access-safe-ai"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.51.0"
+    - "https://blog.google/products-and-platforms/products/workspace/gemini-omni-personal-avatars"
+sidebar:
+  label: "18 July 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline">By SmartBolig.net Editorial · <time datetime="2026-07-18">18 July 2026</time> · 5 selected sources</p>
+
+<p class="ai-news-lede">Today's roundup leads with OpenClaw's new beta, which extends remote control of coding sessions and gives home automations access to camera, location and notifications on Linux nodes. We also cover new limits and features in Claude Code and Gemini CLI, a brief note on OpenAI's teen-safety plans, and two new features in Google Vids.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. OpenClaw releases: openclaw 2026.7.2-beta.2
+
+**What changed:** OpenClaw releases published the update on 17 Jul 2026. OpenClaw's 2026.7.2 beta adds remote coding sessions: Control UI sessions can run on cloud workers, and Codex and Claude catalog sessions can be opened in terminals on their owning host, while OpenCode and Pi sessions can be resumed directly in a terminal. Automations gain parity on mobile, Android gets a foreground Voice Wake feature, and headless Linux nodes can expose camera, location and notification data to automations.
+
+> Short source excerpt: 2026.7.2 Highlights Remote coding sessions: run Control UI sessions on cloud workers, open Codex and Claude catalog sessions in terminals…
+
+**Why it matters:** For people running home-automation setups or coding agents from home, this means access to coding sessions from mobile and new sensor and notification data from Linux nodes in automations - but also more permissions an agent could potentially use.
+
+**How to verify it:** Check the openclaw 2026.7.2-beta.2 release page on GitHub and confirm it is still marked beta before upgrading a production setup.
+
+**Uncertainty:** It is a beta, so stability isn't established, and the release notes on 'safer channel operation' cut off mid-sentence, leaving it unclear what the change actually covers.
+
+Source: [openclaw 2026.7.2-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.2)
+
+### 2. Claude Code releases: v2.1.212
+
+**What changed:** Claude Code releases published the update on 17 Jul 2026. Claude Code v2.1.212 changes /fork so it copies the conversation into a new background session with its own row under claude agents, while the old in-session subagent behavior moves to a new command, /subtask. The release adds a claude auto-mode reset command with a confirmation prompt &#40;skippable via --yes&#41;, a session-wide WebSearch call limit defaulting to 200 &#40;tunable via an environment variable&#41;, and a per-session cap on subagents.
+
+> Short source excerpt: What's changed /fork now copies your conversation into a new background session &#40;its own row in claude agents &#41; while…
+
+**Why it matters:** For people running Claude Code as a home coding agent, this curbs runaway web-search loops and limits how many subagents a session can spawn, giving more predictable API usage. The auto-mode reset gives a quick way back to defaults if auto-mode gets misconfigured.
+
+**How to verify it:** Update to v2.1.212, try /fork and /subtask once each, and check that CLAUDE&#95;CODE&#95;MAX&#95;WEB&#95;SEARCHES&#95;PER&#95;SESSION reflects the limit you expect.
+
+**Uncertainty:** The exact per-session subagent cap value isn't given in the source text, and there is no indication whether these limits apply to sessions already running.
+
+Source: [v2.1.212](https://github.com/anthropics/claude-code/releases/tag/v2.1.212)
+
+### 3. OpenAI News: Why teens deserve access to safe AI
+
+**What changed:** OpenAI News published the update on 16 Jul 2026. OpenAI published a post titled Why teens deserve access to safe AI, saying it is adding age-appropriate protections, learning tools, parental controls and expert partnerships for teen use of ChatGPT. The available source is only a title and a summary; the full article text wasn't provided, so no further specifics can be confirmed.
+
+> Short source excerpt: Learn how OpenAI is making ChatGPT safer for teens with age-appropriate protections, learning tools, parental controls, and expert partnerships.
+
+**Why it matters:** Families with teenagers using ChatGPT may eventually see new parental control options, but with no detail on what has actually shipped, this is a signal to watch rather than something to act on now.
+
+**How to verify it:** Check your own parental control or family settings in ChatGPT to see if any new options have appeared before assuming changes are active.
+
+**Uncertainty:** There is no rollout date, region, or concrete description of what the parental controls or protections actually involve in the available source text.
+
+Source: [Why teens deserve access to safe AI](https://openai.com/index/why-teens-deserve-access-safe-ai)
+
+### 4. Gemini CLI releases: Release v0.51.0
+
+**What changed:** Gemini CLI releases published the update on 16 Jul 2026. Gemini CLI v0.51.0 fixes the sensitive-path blocklist so it is case-insensitive and enforces the same check for the VS Code human-in-the-loop flow. The release also fixes path resolution for at-reference files, fixes macOS tests, fixes a no&#95;proxy test, and updates the Vertex base URL, per the changelog.
+
+> Short source excerpt: What's Changed Changelog for v0.50.0-preview.1 by @gemini-cli-robot in #28150 Fix no&#95;proxy test by @jerrylin3321 in #28131 chore&#40;release&#41;: bump version to…
+
+**Why it matters:** For people running Gemini CLI locally as a coding agent, the case-insensitive blocklist closes a gap where a sensitive file could previously be reached by varying the letter case in its path.
+
+**How to verify it:** Update to v0.51.0 and try referencing a sensitive path from your blocklist with different letter casing to confirm it is still blocked.
+
+**Uncertainty:** The changelog doesn't say how complete the protection now is, and this build is tagged as a nightly version rather than a marked stable release.
+
+Source: [Release v0.51.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.51.0)
+
+### 5. Google AI Blog: Create, edit and star in videos with two Google Vids updates
+
+**What changed:** Google AI Blog published the update on 16 Jul 2026. Google announced two updates to Google Vids: integration of Gemini Omni, and a personal avatars feature that lets users insert themselves into generated videos, according to the blog post's title and summary. No further detail on how either feature works is given in the available source text.
+
+> Short source excerpt: Gemini Omni and personal avatars in Google Vids make video creation easier than ever. Google Vids gets powerful upgrades with…
+
+**Why it matters:** For people making short home or project videos, this could mean AI-assisted editing and a way to appear in a video without filming yourself, useful for tutorials or presentations.
+
+**How to verify it:** Open Google Vids in your own Google account and check whether a Gemini Omni option or an avatar-creation tool has appeared in the interface.
+
+**Uncertainty:** The source doesn't say which accounts &#40;personal versus Workspace&#41; get access first, nor anything about pricing or timing of the rollout.
+
+Source: [Create, edit and star in videos with two Google Vids updates](https://blog.google/products-and-platforms/products/workspace/gemini-omni-personal-avatars)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| OpenClaw releases | [openclaw 2026.7.2-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.2) | 17 Jul 2026 |
+| Claude Code releases | [v2.1.212](https://github.com/anthropics/claude-code/releases/tag/v2.1.212) | 17 Jul 2026 |
+| OpenAI News | [Why teens deserve access to safe AI](https://openai.com/index/why-teens-deserve-access-safe-ai) | 16 Jul 2026 |
+| Gemini CLI releases | [Release v0.51.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.51.0) | 16 Jul 2026 |
+| Google AI Blog | [Create, edit and star in videos with two Google Vids updates](https://blog.google/products-and-platforms/products/workspace/gemini-omni-personal-avatars) | 16 Jul 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.
