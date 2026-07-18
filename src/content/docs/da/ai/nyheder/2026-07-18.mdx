@@ -1,0 +1,126 @@
+---
+title: "AI-nyheder, 18. juli 2026"
+description: "Kurateret AI-overblik for 18. juli 2026: modeller, produkter, ChatGPT, Claude, Gemini, API-priser, privacy og agent-workflows."
+date: 2026-07-18
+lastUpdated: 2026-07-18
+heroImage:
+  src: "/images/ai-news/2026-07-18.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om OpenClaw releases, Claude Code releases, OpenAI News, Gemini CLI releases, Google AI Blog"
+  caption: "Redaktionelt AI-nyhedsbillede om OpenClaw releases, Claude Code releases, OpenAI News, Gemini CLI releases, Google AI Blog"
+news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "fef5f60c3b696be5929618a1eb9b12d4ff6b21af6c972505e506329a8b123bf8"
+  sourceSetFingerprint: "bfbe798618eeae4bcc6d8aba19f01060ee05caa189334cceff324814a4d0c729"
+  signal: high
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.2"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.212"
+    - "https://openai.com/index/why-teens-deserve-access-safe-ai"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.51.0"
+    - "https://blog.google/products-and-platforms/products/workspace/gemini-omni-personal-avatars"
+sidebar:
+  label: "18. juli 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-07-18">18. juli 2026</time> · 5 udvalgte kilder</p>
+
+<p class="ai-news-lede">Dagens gennemgang starter med OpenClaws nye beta, der udvider fjernstyring af kodesessioner og giver hjemmeautomatiseringer adgang til kamera, lokation og notifikationer på Linux-noder. Vi ser også på nye grænser og funktioner i Claude Code og Gemini CLI, en kort omtale af OpenAIs teenager-tiltag, samt to nye funktioner i Google Vids.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. OpenClaw releases: openclaw 2026.7.2-beta.2
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 17. jul. 2026. OpenClaws beta 2026.7.2 tilføjer fjernstyrede kodesessioner: Control UI-sessioner kan køre på cloud-workers, og Codex- og Claude-sessioner kan åbnes i terminaler på deres egen host, mens OpenCode- og Pi-sessioner kan genoptages direkte i terminalen. Automatiseringer får nu paritet på mobil, Android får en Voice Wake-funktion i forgrunden, og headless Linux-noder kan eksponere kamera, lokation og notifikationer for automatiseringer.
+
+> Kort kildeuddrag: 2026.7.2 Highlights Remote coding sessions: run Control UI sessions on cloud workers, open Codex and Claude catalog sessions in terminals…
+
+**Hvorfor det er relevant:** For dem der styrer smart-home-automatiseringer eller kodeagenter hjemmefra, betyder det adgang til kodesessioner fra mobilen og nye sensor- og notifikationsdata fra Linux-noder i automatiseringer - men også flere rettigheder som agenter potentielt kan bruge.
+
+**Sådan verificerer du det:** Tjek udgivelsessiden for openclaw 2026.7.2-beta.2 på GitHub og bekræft at det stadig er mærket beta, før du opgraderer produktionsopsætninger.
+
+**Usikkerhed:** Det er en beta, så stabilitet er ikke fastslået, og teksten om 'sikrere kanaldrift' er afskåret midt i sætningen, så det er uklart hvad ændringen konkret dækker.
+
+Kilde: [openclaw 2026.7.2-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.2)
+
+### 2. Claude Code releases: v2.1.212
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 17. jul. 2026. Claude Code v2.1.212 ændrer /fork, så den kopierer samtalen ind i en ny baggrundssession med sin egen række under claude agents, mens den gamle in-session-subagent-funktion flyttes til en ny kommando, /subtask. Udgivelsen tilføjer en claude auto-mode reset-kommando med bekræftelsesprompt &#40;kan springes over med --yes&#41;, en sessionsbred grænse for WebSearch-kald på som standard 200 &#40;kan justeres via en miljøvariabel&#41;, samt et loft over subagenter pr. session.
+
+> Kort kildeuddrag: What's changed /fork now copies your conversation into a new background session &#40;its own row in claude agents &#41; while…
+
+**Hvorfor det er relevant:** For dem der bruger Claude Code som kodeagent hjemme, begrænser dette uventede søgeløkker og antallet af subagenter en session kan starte, hvilket bør give mere forudsigeligt API-forbrug. Auto-mode reset giver en hurtig vej tilbage til standardindstillinger, hvis auto-mode er fejlkonfigureret.
+
+**Sådan verificerer du det:** Opdater til v2.1.212, afprøv /fork og /subtask én gang hver, og tjek at CLAUDE&#95;CODE&#95;MAX&#95;WEB&#95;SEARCHES&#95;PER&#95;SESSION afspejler den grænse, du forventer.
+
+**Usikkerhed:** Den præcise værdi for loftet over subagenter pr. session er ikke angivet i kildeteksten, og det fremgår ikke, om grænserne gælder for sessioner der allerede kører.
+
+Kilde: [v2.1.212](https://github.com/anthropics/claude-code/releases/tag/v2.1.212)
+
+### 3. OpenAI News: Why teens deserve access to safe AI
+
+**Hvad ændrede sig:** OpenAI News offentliggjorde opdateringen 16. jul. 2026. OpenAI har publiceret et indlæg med titlen Why teens deserve access to safe AI, hvor de siger, at de tilføjer alderssvarende beskyttelser, læringsværktøjer, forældrekontrol og samarbejder med eksperter for teenageres brug af ChatGPT. Den tilgængelige kilde er kun en titel og et resumé - selve artikelteksten var ikke tilgængelig, så yderligere detaljer kan ikke bekræftes.
+
+> Kort kildeuddrag: Learn how OpenAI is making ChatGPT safer for teens with age-appropriate protections, learning tools, parental controls, and expert partnerships.
+
+**Hvorfor det er relevant:** Familier med teenagere der bruger ChatGPT kan på sigt se nye forældrekontrol-muligheder, men da der ikke er detaljer om, hvad der reelt er indført, er dette et signal at holde øje med snarere end noget at handle på nu.
+
+**Sådan verificerer du det:** Tjek dine egne forældrekontrol- eller familieindstillinger i ChatGPT for at se, om nye muligheder er dukket op, før du antager ændringer er aktive.
+
+**Usikkerhed:** Der er ingen udrulningsdato, region eller konkret beskrivelse af, hvad forældrekontrollerne eller beskyttelserne reelt indebærer, i den tilgængelige kildetekst.
+
+Kilde: [Why teens deserve access to safe AI](https://openai.com/index/why-teens-deserve-access-safe-ai)
+
+### 4. Gemini CLI releases: Release v0.51.0
+
+**Hvad ændrede sig:** Gemini CLI releases offentliggjorde opdateringen 16. jul. 2026. Gemini CLI v0.51.0 retter listen over følsomme stier, så den nu er versalufølsom, og håndhæver samme tjek for VS Codes human-in-the-loop-flow. Udgivelsen retter desuden sti-opløsning for at-reference-filer, retter macOS-tests, retter en no&#95;proxy-test og opdaterer Vertex-base-URL'en, ifølge changelog.
+
+> Kort kildeuddrag: What's Changed Changelog for v0.50.0-preview.1 by @gemini-cli-robot in #28150 Fix no&#95;proxy test by @jerrylin3321 in #28131 chore&#40;release&#41;: bump version to…
+
+**Hvorfor det er relevant:** For dem der kører Gemini CLI lokalt som kodeagent, lukker den versalufølsomme blokliste et hul, hvor en følsom fil tidligere kunne tilgås ved at variere store/små bogstaver i stien.
+
+**Sådan verificerer du det:** Opdater til v0.51.0, og prøv at referere en følsom sti fra din blokliste med anderledes bogstavstørrelse for at bekræfte, at den stadig blokeres.
+
+**Usikkerhed:** Changelog siger ikke, hvor komplet beskyttelsen nu er, og denne build er mærket som en nightly-version og ikke en udpeget stabil udgivelse.
+
+Kilde: [Release v0.51.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.51.0)
+
+### 5. Google AI Blog: Create, edit and star in videos with two Google Vids updates
+
+**Hvad ændrede sig:** Google AI Blog offentliggjorde opdateringen 16. jul. 2026. Google har annonceret to opdateringer til Google Vids: integration af Gemini Omni og en funktion med personlige avatarer, der lader brugere indsætte sig selv i genererede videoer, ifølge titlen og resuméet på blogindlægget. Der er ingen yderligere detaljer om, hvordan funktionerne fungerer, i den tilgængelige kildetekst.
+
+> Kort kildeuddrag: Gemini Omni and personal avatars in Google Vids make video creation easier than ever. Google Vids gets powerful upgrades with…
+
+**Hvorfor det er relevant:** For dem der laver korte hjemme- eller projektvideoer, kan dette betyde AI-understøttet redigering og en måde at optræde i en video uden selv at filme sig, nyttigt til guides eller præsentationer.
+
+**Sådan verificerer du det:** Åbn Google Vids i din egen Google-konto, og tjek om en Gemini Omni-mulighed eller et avatar-værktøj er dukket op i grænsefladen.
+
+**Usikkerhed:** Kilden angiver ikke, hvilke konti &#40;personlige eller Workspace&#41; der får adgang først, og heller ikke noget om pris eller tidspunkt for udrulning.
+
+Kilde: [Create, edit and star in videos with two Google Vids updates](https://blog.google/products-and-platforms/products/workspace/gemini-omni-personal-avatars)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| OpenClaw releases | [openclaw 2026.7.2-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.2) | 17. jul. 2026 |
+| Claude Code releases | [v2.1.212](https://github.com/anthropics/claude-code/releases/tag/v2.1.212) | 17. jul. 2026 |
+| OpenAI News | [Why teens deserve access to safe AI](https://openai.com/index/why-teens-deserve-access-safe-ai) | 16. jul. 2026 |
+| Gemini CLI releases | [Release v0.51.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.51.0) | 16. jul. 2026 |
+| Google AI Blog | [Create, edit and star in videos with two Google Vids updates](https://blog.google/products-and-platforms/products/workspace/gemini-omni-personal-avatars) | 16. jul. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
