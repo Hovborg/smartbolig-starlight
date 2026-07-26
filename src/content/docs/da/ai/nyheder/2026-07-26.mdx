@@ -1,0 +1,126 @@
+---
+title: "AI-nyheder, 26. juli 2026"
+description: "Kurateret AI-overblik for 26. juli 2026: modeller, produkter, ChatGPT, Claude, Gemini, API-priser, privacy og agent-workflows."
+date: 2026-07-26
+lastUpdated: 2026-07-26
+heroImage:
+  src: "/images/ai-news/2026-07-26.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om OpenClaw releases, Claude Code releases, OpenAI News, Gemini CLI releases, Anthropic News"
+  caption: "Redaktionelt AI-nyhedsbillede om OpenClaw releases, Claude Code releases, OpenAI News, Gemini CLI releases, Anthropic News"
+news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "847858da68b5af9fe714ee486950491ca966387863be104515f971e004b883f1"
+  sourceSetFingerprint: "20493f4288ea1473bb8b84e3d0547f0e19a6279005cb7d214fdc0b9c351f565f"
+  signal: high
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.3"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.212"
+    - "https://openai.com/index/ntt-data"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.52.0"
+    - "https://www.anthropic.com/news/claude-opus-5"
+sidebar:
+  label: "26. juli 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-07-26">26. juli 2026</time> · 5 udvalgte kilder</p>
+
+<p class="ai-news-lede">Dagens udgave starter med Anthropics lancering af Claude Opus 5, en billigere model til kodning og videnarbejde, som nu er standard i Max og Pro. Vi dækker også opdateringer til Claude Code, OpenClaw og Gemini CLI samt en case om Codex til hændelsesanalyse hos NTT DATA.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. OpenClaw releases: openclaw 2026.7.2-beta.3
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 18. jul. 2026. OpenClaws udgivelse 2026.7.2-beta.3 gør det muligt at køre Control UI-sessioner på cloud-workers, åbne Codex- og Claude-katalogsessioner i terminaler på deres egne værtsmaskiner, og genoptage OpenCode- og Pi-sessioner direkte i en terminal. Den tilføjer også Automations til mobil, en Voice Wake-funktion i forgrunden på Android, samt adgang til kamera, lokation og notifikationer fra Linux-noder uden skærm.
+
+> Kort kildeuddrag: 2026.7.2 Highlights Remote coding sessions: run Control UI sessions on cloud workers, open Codex and Claude catalog sessions in terminals…
+
+**Hvorfor det er relevant:** For dig, der kører agenter på tværs af flere maskiner, betyder det, at du sjældnere behøver sidde ved værtscomputeren, fordi sessioner kan hentes fjernt eller fra en telefon. Voice Wake og nodeadgang udvider automatisering til altid-tændte Android-enheder og skærmløse bokse.
+
+**Sådan verificerer du det:** Tjek openclaws GitHub-udgivelsesside for build 2026.7.2-beta.3, og læs de tilknyttede issue-numre for at se, hvilke platforme og nodetyper der understøttes, før du stoler på fjernsessioner.
+
+**Usikkerhed:** Udgivelsen er en beta, så stabiliteten på tværs af cloud-workers og nodetyper er uklar. Kildeteksten nævner også en ændring beskrevet som sikrere kanaldrift, uden at forklare hvad den beskytter mod.
+
+Kilde: [openclaw 2026.7.2-beta.3](https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.3)
+
+### 2. Claude Code releases: v2.1.212
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 17. jul. 2026. Claude Code v2.1.212 ændrer, hvordan fork virker: kommandoen kopierer nu din samtale ind i en ny baggrundssession med sin egen række under claude agents, mens den subagent, den tidligere startede i selve sessionen, nu hedder subtask. Opdateringen tilføjer en kommando til at nulstille auto-mode til standardopsætningen, med en bekræftelsesprompt medmindre du angiver et flag til at springe den over. Den indfører også et loft over WebSearch-kald pr. session, som standard 200 og justerbart via en miljøvariabel, for at stoppe søgeløkker der løber løbsk.
+
+> Kort kildeuddrag: What's changed /fork now copies your conversation into a new background session &#40;its own row in claude agents &#41; while…
+
+**Hvorfor det er relevant:** Hvis du bruger fork til at forgrene samtaler, skal du forvente en baggrundssession i stedet for en indlejret subagent, hvilket ændrer, hvordan du følger og genoptager arbejdet. WebSearch-loftet beskytter mod, at en session stille bruger hele søgekvoten op, hvis en agent går i løkke.
+
+**Sådan verificerer du det:** Opdater til v2.1.212, kør fork én gang, og tjek claude agents for den nye baggrundssessionsrække, og bekræft at subtask nu dukker op, hvor den gamle indlejrede subagent kørte.
+
+**Usikkerhed:** Kildeteksten stopper, før den beskriver loftet over subagenter pr. session i detaljer, så den præcise grænse og effekt er ikke oplyst. Om standardværdien på 200 WebSearch-kald passer til tungere workflows, fremgår ikke.
+
+Kilde: [v2.1.212](https://github.com/anthropics/claude-code/releases/tag/v2.1.212)
+
+### 3. OpenAI News: NTT DATA Group cuts incident analysis to 30 minutes with Codex
+
+**Hvad ændrede sig:** OpenAI News offentliggjorde opdateringen 22. jul. 2026. Ifølge OpenAI bruger NTT DATA Group nu ChatGPT Enterprise og Codex blandt omkring 9.000 medarbejdere, og virksomheden oplyser, at hændelsesanalyse er skåret ned til 30 minutter. Kilden er kun et kort resumé uden yderligere detaljer om, hvor lang tid analysen tog før, eller hvordan tidsbesparelsen er målt.
+
+> Kort kildeuddrag: NTT DATA Group uses ChatGPT Enterprise and Codex to help 9,000 employees automate work, cut incident analysis to 30 minutes,…
+
+**Hvorfor det er relevant:** Hvis en opgave som hændelsesanalyse kan komprimeres så meget, tyder det på, at kodeassistenter kan fremskynde diagnose- og driftsopgaver væsentligt, ikke kun skrivning af ny kode. Omfanget, 9.000 medarbejdere, peger på en virksomhedsudrulning frem for individuel brug.
+
+**Sådan verificerer du det:** Søg efter NTT DATAs egen case eller tekniske gennemgang af hændelsesanalyseprocessen, da OpenAIs resumé alene ikke forklarer udgangspunktet eller metoden.
+
+**Usikkerhed:** Kilden giver ingen baseline for, hvor lang tid analysen tog før, ingen metode og ingen detaljer om, hvilke hændelser eller systemer der var involveret. Om det kan overføres til mindre teams eller hjemmesetups, fremgår ikke.
+
+Kilde: [NTT DATA Group cuts incident analysis to 30 minutes with Codex](https://openai.com/index/ntt-data)
+
+### 4. Gemini CLI releases: Release v0.52.0
+
+**Hvad ændrede sig:** Gemini CLI releases offentliggjorde opdateringen 22. jul. 2026. Udgivelsesnoterne til Gemini CLI v0.52.0 lister mest interne ændringer: en refaktorering, der udelukker midlertidige CI-konfigurationsfiler fra værktøjets workspace-kontekst, nye kernemoduler til en caretaker triage-worker, og en github action-handler til en caretaker egress-tjeneste, sammen med rutinemæssige nightly-versionsopdateringer og changelog-poster.
+
+> Kort kildeuddrag: What's Changed Refactor: exclude transient CI configuration files from workspace context by @DavidAPierce in #28216 feat&#40;caretaker-triage&#41;: add triage worker core…
+
+**Hvorfor det er relevant:** Ingen af ændringerne ser ud til at påvirke, hvordan du bruger Gemini CLI i hverdagen; de fremstår som bagvedliggende arbejde til et internt triage- og egress-system frem for en ny brugervendt funktion. Forvent ingen umiddelbar ændring i adfærd fra denne udgivelse.
+
+**Sådan verificerer du det:** Læs de fulde udgivelsesnoter til v0.52.0 på gemini-clis GitHub-side for at se, om nogen af de listede pull requests rører kommandoer eller standardindstillinger, du faktisk bruger.
+
+**Usikkerhed:** Kilden forklarer ikke, hvad triage- og egress-systemerne gør, eller hvornår en relateret funktion når frem til slutbrugere. Det er uklart, om der er tale om en preview- eller nightly-build snarere end en stabil udgivelse.
+
+Kilde: [Release v0.52.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.52.0)
+
+### 5. Anthropic News: Introducing Claude Opus 5
+
+**Hvad ændrede sig:** Anthropic News offentliggjorde opdateringen 23. jul. 2026. Anthropic har udgivet Claude Opus 5 og beskriver den som tæt på Claude Fable 5s frontier-intelligens til det halve af prisen. På evalueringerne Frontier-Bench og GDPval-AA er Opus 5 Anthropics nye bedst præsterende model til kodning og videnarbejde, men den ligger stadig bag Mythos 5 på cybersikkerhedsopgaver. Den er nu standardmodel i Claude Max og den stærkeste model i Claude Pro, med bedre ydelse til samme pris som Opus 4.8.
+
+> Kort kildeuddrag: Introducing Claude Opus 5 \ Anthropic Skip to main content Skip to footer Research Policy Commitments Learn News Try Claude…
+
+**Hvorfor det er relevant:** For abonnenter på Max eller Pro betyder det, at standardmodellen skifter uden nogen handling fra din side, og brugere med meget kodning kan opleve hurtigere eller billigere resultater ved samme kvalitet. Den påståede forbedring i pris-ydelse betyder mest for dig, der kører hyppige eller lange agentsessioner.
+
+**Sådan verificerer du det:** Tjek modelindstillingerne i din Claude-plan for at bekræfte, at Opus 5 nu er valgt som standard, og sammenlign omkostning og output på en kendt kodningsopgave med, hvad Opus 4.8 tidligere leverede.
+
+**Usikkerhed:** Benchmarktallene kommer fra Anthropics egne evalueringer, herunder Frontier-Bench og CursorBench, uden uafhængig bekræftelse. Det er uklart, hvordan effort-indstillingens afvejning fungerer uden for kodnings- og videnarbejdsopgaver, eller ved ikke-engelsk brug.
+
+Kilde: [Introducing Claude Opus 5](https://www.anthropic.com/news/claude-opus-5)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| OpenClaw releases | [openclaw 2026.7.2-beta.3](https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.3) | 18. jul. 2026 |
+| Claude Code releases | [v2.1.212](https://github.com/anthropics/claude-code/releases/tag/v2.1.212) | 17. jul. 2026 |
+| OpenAI News | [NTT DATA Group cuts incident analysis to 30 minutes with Codex](https://openai.com/index/ntt-data) | 22. jul. 2026 |
+| Gemini CLI releases | [Release v0.52.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.52.0) | 22. jul. 2026 |
+| Anthropic News | [Introducing Claude Opus 5](https://www.anthropic.com/news/claude-opus-5) | 23. jul. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
