@@ -76,6 +76,34 @@ process.exit(2);
     assert.match(timer, /Persistent=true/);
     assert.match(timer, /WantedBy=timers\.target/);
 
+    // Neither the run nor the notifier may depend on the desktop keyring for
+    // its GitHub token: a locked or restarted keyring silently broke both on
+    // 2026-07-24/25/28/29, and a notifier that shares the failure cannot report it.
+    assert.match(service, /EnvironmentFile=-.*smartbolig-ai-news\/github\.env/);
+    assert.match(failure, /EnvironmentFile=-.*smartbolig-ai-news\/github\.env/);
+
+    // The staleness watchdog watches the published site, so breakage stays
+    // visible even when the automation cannot report on itself.
+    const stalenessPath = path.join(unitDir, 'smartbolig-ai-news-staleness.service');
+    const stalenessFailurePath = path.join(unitDir, 'smartbolig-ai-news-staleness-failure.service');
+    const stalenessTimerPath = path.join(unitDir, 'smartbolig-ai-news-staleness.timer');
+    assert.ok(existsSync(stalenessPath), 'expected staleness service unit to be written');
+    assert.ok(existsSync(stalenessFailurePath), 'expected staleness failure unit to be written');
+    assert.ok(existsSync(stalenessTimerPath), 'expected staleness timer unit to be written');
+
+    const staleness = await readFile(stalenessPath, 'utf8');
+    assert.match(staleness, /ExecStart=.*scripts\/ai-news-staleness-check\.sh/);
+    assert.match(staleness, /OnFailure=smartbolig-ai-news-staleness-failure\.service/);
+
+    // A stale site and a failed run need different issue titles — different causes.
+    const stalenessFailure = await readFile(stalenessFailurePath, 'utf8');
+    assert.match(stalenessFailure, /ExecStart=.*scripts\/ai-news-failure-notify\.sh/);
+    assert.match(stalenessFailure, /SMARTBOLIG_AI_NEWS_TITLE=/);
+
+    const stalenessTimer = await readFile(stalenessTimerPath, 'utf8');
+    assert.match(stalenessTimer, /OnCalendar=\*-\*-\* 09:00:00/);
+    assert.match(stalenessTimer, /Persistent=true/);
+
     // systemctl must reload units and enable the timer.
     const calls = (await readFile(callsFile, 'utf8'))
       .trim()

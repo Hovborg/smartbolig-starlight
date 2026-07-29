@@ -12,7 +12,9 @@ set -euo pipefail
 REPO="${SMARTBOLIG_AI_NEWS_REPO:-Hovborg/smartbolig-starlight}"
 UNIT="${SMARTBOLIG_AI_NEWS_UNIT:-smartbolig-ai-news.service}"
 TODAY="$(date +%F)"
-TITLE="Daily AI-news automation failed ${TODAY}"
+# Overridable so other watchdog units (e.g. the staleness check) can reuse this
+# notifier without their issues being mistaken for a failed automation run.
+TITLE="${SMARTBOLIG_AI_NEWS_TITLE:-Daily AI-news automation failed} ${TODAY}"
 
 # Don't open duplicate issues for the same day.
 existing="$(gh issue list --repo "${REPO}" --state open \
