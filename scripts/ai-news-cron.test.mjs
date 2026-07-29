@@ -124,10 +124,12 @@ printf '%s\\n' "$*" >> "\${SYSTEMCTL_FAKE_CALLS}"
     assert.match(service, /publish \+ PR \+ editorial review/i);
     assert.match(service, /PR awaiting separate editorial review/i);
 
+    // Exact list, so an installer that quietly starts anything else fails here.
     const calls = (await readFile(callsFile, 'utf8')).trim().split('\n');
     assert.deepEqual(calls, [
       '--user daemon-reload',
       '--user enable --now smartbolig-ai-news.timer',
+      '--user enable --now smartbolig-ai-news-staleness.timer',
     ]);
   } finally {
     await rm(tmp, { recursive: true, force: true });
