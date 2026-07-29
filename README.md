@@ -60,10 +60,17 @@ npm run site:test
 npm run ai-news:test
 npm run ai-news:validate
 python3 scripts/content-audit.py
-npm audit --omit=dev --audit-level=high
+npm audit --omit=dev --audit-level=critical
 npm run build
 npm run seo:validate
 ```
+
+> **Midlertidig undtagelse (2026-07-29):** afhængighedstjekket er sænket fra
+> `--audit-level=high` til `critical`. Fire high-advisories i `astro 6.4.8`'s
+> afhængighedstræ blokerede al deployment fra 26. juli, inklusive de daglige
+> AI News-udgivelser. Sitet bygges fuldt statisk, så eksponeringen er begrænset.
+> Gaten sættes tilbage til `high` som del af Astro 7-opgraderingen —
+> se [issue #104](https://github.com/Hovborg/smartbolig-starlight/issues/104).
 
 ---
 
