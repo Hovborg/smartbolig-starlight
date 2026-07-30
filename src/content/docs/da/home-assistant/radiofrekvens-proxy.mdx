@@ -1,0 +1,207 @@
+---
+title: 433 MHz RF-proxy i Home Assistant
+description: Styr kompatible 433 MHz-enheder lokalt med Home Assistants nye radiofrekvenslag, en understøttet proxy og realistisk kontrol af rækkevidde og tilstand.
+sidebar:
+  badge:
+    text: RF 2026.5
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Home Assistant 2026.5+" variant="note" /> <Badge text="433 MHz" variant="success" />
+
+Home Assistant 2026.5 indførte et fælles lag til radiofrekvensstyring. Det gør
+det muligt for en understøttet RF-proxy at sende kommandoer til eksempelvis
+fjernbetjente stikkontakter, lyskæder og andre enheder, uden at hver
+apparatintegration skal kende proxyens hardware.
+
+```text
+Home Assistant → apparatintegration → RF-entitet → 433 MHz-proxy → apparat
+```
+
+Det ligner infrarød arkitektur, men radiosignaler kan gå gennem møbler og vægge.
+Til gengæld skal frekvens, modulation og protokol passe præcist.
+
+<Aside type="caution" title="433 MHz er ikke én universel protokol">
+At både fjernbetjening og proxy bruger 433,92 MHz betyder ikke, at de kan tale
+sammen. Kontrollér også modulation, kodning og om Home Assistant har en
+integration til apparatet.
+</Aside>
+
+## Gode og dårlige kandidater
+
+**Gode kandidater:**
+
+- simple stikkontakter med understøttet protokol;
+- dekorations- og lyskæder;
+- emhætter eller andre ufarlige apparater med en dokumenteret integration;
+- ældre udstyr, hvor envejsstyring er acceptabel.
+
+**Dårlige kandidater:**
+
+- alarmer, låse og porte uden sikker feedback;
+- enheder med rullende eller krypterede koder, som proxyen ikke understøtter;
+- sensorer hvor du forventer modtagelse, men hardwaren kun kan sende;
+- apparater hvor forkert tilstand kan skabe skade.
+
+En billig fastkode-fjernbetjening kan ofte kopieres eller genafspilles. Brug
+ikke sådan en protokol som eneste sikkerhedslag.
+
+## Forstå de tre lag
+
+| Lag | Opgave |
+|---|---|
+| RF-proxy | Den fysiske sender og netværksforbindelsen |
+| Proxyintegration | Opretter en `radio_frequency`-entitet i Home Assistant |
+| Apparatintegration | Kender kommandoerne til det konkrete produkt |
+
+`Radio frequency` er en byggesten, som normalt ikke tilføjes alene. Du tilføjer
+proxyens integration og derefter den understøttede integration til apparatet.
+
+## Vælg kompatibel hardware
+
+ESPHomes officielle Ready-Made Projects viser en 433 MHz-proxy bygget af:
+
+- **M5Stack Atom Lite ESP32 Development Kit**;
+- **M5Stack RF Unit 433 MHz Transmitter (SYN115)**;
+- Grove-kabel mellem de to enheder.
+
+Det er et konkret transmittereksempel, ikke et løfte om kompatibilitet med alle
+433 MHz-produkter. Kontrollér om dit apparat bruger eksempelvis **433,92 MHz
+OOK**, og om den aktuelle Home Assistant-integration understøtter både apparat
+og transmitter.
+
+Andre understøttede adaptere kan også levere RF-entiteter. En Broadlink-model
+kan eksempelvis have både IR og RF, men funktionerne varierer efter model og
+integration.
+
+## Opsæt en ESPHome RF-proxy
+
+<Steps>
+1. **Identificér apparatet**
+
+   Find mærke, model, frekvens og protokol. Læs apparatintegrationens
+   dokumentation, før du køber proxyhardware.
+
+2. **Saml den dokumenterede hardware**
+
+   For det færdige ESPHome-projekt forbindes RF Unit til Atom Lite med det
+   medfølgende Grove-kabel. Brug korrekt spænding og stikretning.
+
+3. **Flash Ready-Made Project**
+
+   Tilslut Atom Lite med et datakabel, åbn ESPHomes officielle projektinstaller
+   og vælg **Radio Frequency Proxy**.
+
+4. **Tilføj Wi-Fi og ESPHome**
+
+   Vent på stabil netværks- og API-forbindelse. Acceptér derefter den fundne
+   ESPHome-enhed i Home Assistant.
+
+5. **Kontrollér RF-panelet**
+
+   Åbn **Indstillinger → Radiofrekvens**. Proxyens sender skal stå som online,
+   og tidspunktet for seneste transmission skal kunne ændre sig.
+
+6. **Tilføj apparatintegrationen**
+
+   Tilføj den integration, der understøtter dit produkt. Vælg proxyens
+   RF-sender, når opsætningen spørger efter en transmitter.
+</Steps>
+
+## Placering og rækkevidde
+
+RF kan gå gennem vægge, men rækkevidden påvirkes af:
+
+- store metalflader og teknikskabe;
+- antennens længde, orientering og jordplan;
+- andre sendere på samme frekvens;
+- støjende strømforsyninger og elektronik tæt på antennen;
+- afstand og apparatets modtagerfølsomhed.
+
+Start tæt på apparatet. Flyt derefter proxyen i små trin og gentag den samme
+kommando. En central placering er kun bedst, hvis den faktisk giver stabil
+dækning.
+
+## Verificér resultatet
+
+Brug en kommando med synligt resultat:
+
+1. Send `Tænd` fra apparatets Home Assistant-entitet.
+2. Kontrollér apparatet fysisk.
+3. Send `Sluk` og kontrollér igen.
+4. Gentag mindst ti gange fra den planlagte proxyplacering.
+5. Kontrollér tidspunktet for seneste RF-transmission.
+6. Afprøv den samme sekvens fra en simpel automation.
+
+RF-entitetens tilstand er et transmissionstidspunkt. Det beviser, at kommandoen
+blev sendt, ikke at apparatet modtog den.
+
+## Tilstand og feedback
+
+Mange enkle RF-produkter sender ingen bekræftelse tilbage. Apparatintegrationen
+kan derfor bruge en antaget tilstand.
+
+For bedre feedback kan du tilføje:
+
+- effektmåling på en stikkontakt;
+- en kontaktsensor på port eller vindue;
+- en separat temperatursensor ved varme/køling;
+- en netværksintegration, hvis apparatet har en lokal API.
+
+Hold den fysiske måling adskilt fra den antagede kommandotilstand. En
+`switch=on` er ikke bevis for strømforbrug.
+
+## RF, Zigbee, Z-Wave eller Matter?
+
+| Teknologi | Vælg den når |
+|---|---|
+| 433 MHz RF | Du vil genbruge et simpelt, understøttet fjernbetjent produkt |
+| Zigbee | Du vil have billige mesh-sensorer med tilstandsfeedback |
+| Z-Wave | Du vil have certificerede sub-GHz-enheder og tovejskommunikation |
+| Matter/Thread | Du vil have lokal IP-baseret styring og multi-admin |
+
+RF-proxyen er god til at forlænge livet på kompatibelt udstyr. Den er ikke en
+generel erstatning for et tovejs smart-home-netværk.
+
+## Fejlfinding
+
+### Proxyen er online, men apparatet reagerer ikke
+
+Kontrollér frekvens, modulation, apparatmodel og valgt transmitter. Test tæt på
+apparatet og fjern metal eller støjkilder midlertidigt.
+
+### RF-panelet viser ingen adapter
+
+Kontrollér at firmware og integration leverer den nye
+`radio_frequency`-entitet. En ældre `remote`-entitet er ikke automatisk den nye
+byggesten.
+
+### Styringen virker kun nogle gange
+
+Gentag samme kommando på samme afstand. Flyt eller drej antennen, forbedr
+strømforsyningen, og kontrollér interferens. Tilføj en ekstra proxy, hvis ét
+område konsekvent er uden for stabil rækkevidde.
+
+### Home Assistant viser forkert tilstand
+
+Undersøg om integrationen bruger antaget tilstand. Tilføj fysisk feedback eller
+brug kommandoer, der ikke afhænger af et toggle, hvis apparatet understøtter
+dem.
+
+<CardGrid>
+  <Card title="ESPHome avanceret" icon="rocket">
+    Læs [ESPHome avanceret](/da/esp32/esphome-avanceret/) før du ændrer det færdige projekt.
+  </Card>
+  <Card title="Smart garage" icon="setting">
+    Se sikkerhedsgrænserne i [Smart Garage-guiden](/da/produkter/smart-garage/).
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+- [Radiofrekvens i Home Assistant](https://www.home-assistant.io/integrations/radio_frequency)
+- [Home Assistant 2026.5: We're on the same frequency now](https://www.home-assistant.io/blog/2026/05/06/release-20265/)
+- [ESPHome Ready-Made Projects](https://esphome.io/projects/)
+- [Broadlink-integrationen](https://www.home-assistant.io/integrations/broadlink/)

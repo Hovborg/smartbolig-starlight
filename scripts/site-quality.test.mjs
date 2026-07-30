@@ -329,6 +329,53 @@ test("four-guide series stays bilingual, complete and globally scoped", async ()
   assert.doesNotMatch(englishEnergy, /Energi Data Service|\bDK1\b|\bDK2\b/);
 });
 
+test("six current Home Assistant guides stay bilingual and discoverable", async () => {
+  const guideSlugs = [
+    "automationer-2026-7",
+    "overview-dashboard-2026",
+    "infraroed-proxy",
+    "radiofrekvens-proxy",
+    "ai-task",
+    "mcp-server",
+  ];
+  const paths = guideSlugs.flatMap((slug) => [
+    `src/content/docs/da/home-assistant/${slug}.mdx`,
+    `src/content/docs/en/home-assistant/${slug}.mdx`,
+  ]);
+  const sources = await Promise.all(paths.map(read));
+
+  for (const source of sources) {
+    assert.equal((source.match(/^title:/gm) || []).length, 1);
+    assert.equal((source.match(/^description:/gm) || []).length, 1);
+    assert.ok((source.match(/^## /gm) || []).length >= 5);
+    assert.match(source, /## (?:Officielle kilder|Official sources)/);
+    assert.match(source, /https:\/\/www\.home-assistant\.io\//);
+    assert.doesNotMatch(source, /^# /m);
+  }
+
+  for (const source of sources.slice(6, 8)) {
+    assert.doesNotMatch(source, /markise|awning/i);
+  }
+  for (const source of sources.slice(10, 12)) {
+    assert.match(source, /OAuth/);
+    assert.match(source, /ejerkonto|owner account/i);
+    assert.match(source, /eksponeringslisten|exposure list/i);
+    assert.match(source, /andre\s+Home\s+Assistant-API|other\s+Home\s+Assistant\s+APIs/i);
+  }
+
+  const [config, daHub, enHub] = await Promise.all([
+    read("astro.config.mjs"),
+    read("src/content/docs/da/home-assistant/index.mdx"),
+    read("src/content/docs/en/home-assistant/index.mdx"),
+  ]);
+  for (const slug of guideSlugs) {
+    const route = `/home-assistant/${slug}/`;
+    assert.ok(config.includes(route), `missing sidebar route: ${route}`);
+    assert.ok(daHub.includes(`/da${route}`), `missing Danish hub route: ${route}`);
+    assert.ok(enHub.includes(`/en${route}`), `missing English hub route: ${route}`);
+  }
+});
+
 test("Astro renders the guides' GitHub-flavoured Markdown tables", async () => {
   const [config, packageJson] = await Promise.all([
     read("astro.config.mjs"),

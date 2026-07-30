@@ -155,6 +155,15 @@ export default defineConfig({
                   label: "Energy Dashboard",
                   link: "/home-assistant/energy-dashboard/",
                 },
+                {
+                  label: "AI Task",
+                  link: "/home-assistant/ai-task/",
+                },
+                {
+                  label: "MCP-server",
+                  translations: { en: "MCP Server" },
+                  link: "/home-assistant/mcp-server/",
+                },
               ],
             },
             // Protokoller gruppe
@@ -176,6 +185,16 @@ export default defineConfig({
                   translations: { en: "WiFi Devices" },
                   link: "/home-assistant/wifi-enheder/",
                 },
+                {
+                  label: "Infrarød proxy",
+                  translations: { en: "Infrared Proxy" },
+                  link: "/home-assistant/infraroed-proxy/",
+                },
+                {
+                  label: "433 MHz RF-proxy",
+                  translations: { en: "433 MHz RF Proxy" },
+                  link: "/home-assistant/radiofrekvens-proxy/",
+                },
               ],
             },
             // Automationer gruppe
@@ -188,6 +207,11 @@ export default defineConfig({
                   label: "Din første automation",
                   translations: { en: "Your First Automation" },
                   link: "/home-assistant/foerste-automation/",
+                },
+                {
+                  label: "Automationer 2026.7",
+                  translations: { en: "Automations 2026.7" },
+                  link: "/home-assistant/automationer-2026-7/",
                 },
                 {
                   label: "Vaskemaskine notifikation",
@@ -219,6 +243,11 @@ export default defineConfig({
                 {
                   label: "Dashboard Design",
                   link: "/home-assistant/dashboard-design/",
+                },
+                {
+                  label: "Det nye Overview",
+                  translations: { en: "The New Overview" },
+                  link: "/home-assistant/overview-dashboard-2026/",
                 },
               ],
             },

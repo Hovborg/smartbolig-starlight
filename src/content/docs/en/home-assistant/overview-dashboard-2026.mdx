@@ -1,0 +1,183 @@
+---
+title: The new Overview dashboard in Home Assistant
+description: Start using Home Assistant's automatically organised Overview, clean up areas, and choose deliberately between the system view and a custom dashboard.
+sidebar:
+  badge:
+    text: New Overview
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Home Assistant 2026.2+" variant="note" /> <Badge text="No YAML" variant="success" />
+
+Home Assistant's new **Overview** organises the home by area and surfaces useful
+devices without asking you to build an entire dashboard first. It became the
+default for new installations in Home Assistant 2026.2. Existing installations
+can try it alongside their current dashboards.
+
+The main improvement does not come from colours or cards. It comes from correct
+areas, floors, and device names. This guide helps you clean up that foundation
+and decide whether Overview should become your everyday starting point.
+
+<Aside type="note" title="Your old dashboard does not disappear">
+Existing custom dashboards continue to work. You can try the new Overview
+without copying or deleting your current dashboard, and the legacy Overview
+template remains available when creating a manual dashboard.
+</Aside>
+
+## What does the new Overview use?
+
+Overview is a system-managed view of the home. It relies mainly on:
+
+- **areas**, such as kitchen, living room, and garden;
+- **floors**, which collect several areas;
+- device and entity type, name, and availability;
+- primary temperature, humidity, and other area sensors;
+- discovered devices that have not been configured;
+- devices that have not yet been assigned to an area.
+
+It works well as a living index of the house. A hand-built dashboard is still
+better when a wall panel, a particular user, or a specialist task needs fixed
+controls.
+
+## Organise the building blocks
+
+| Item | Use it for |
+|---|---|
+| Area | A physical room or place |
+| Floor | Several areas on one level |
+| Label | A flexible property such as `critical`, `battery`, or `guest` |
+| Category | Sorting within one table, such as automations |
+| Group | One combined entity representing several entities |
+
+An area and a group are not the same. An area organises the home and can be an
+action target. A group creates a new entity with a combined state.
+
+## Enable and review Overview
+
+<Steps>
+1. **Update and back up**
+
+   Use a supported Home Assistant version and take a backup before a large
+   naming or area clean-up. Trying the view itself is low risk.
+
+2. **Open dashboard settings**
+
+   Go to **Settings → Dashboards**. Select the new **Overview**, or follow the
+   suggestion to try it if Home Assistant presents one.
+
+3. **Review “For you”**
+
+   Look for discovered devices, unavailable devices, and organisation prompts.
+   Add a discovered device only when you recognise it and understand the
+   integration.
+
+4. **Assign devices to areas**
+
+   Open the list of unassigned devices and place them in physical rooms. Do not
+   create an area named `Zigbee` or `Wi-Fi`; technology is better represented
+   by a label.
+
+5. **Create floors**
+
+   Open the area and floor settings. Assign `Living room`, `Kitchen`, and
+   `Hallway`, for example, to `Ground floor`.
+
+6. **Select primary sensors**
+
+   Edit an area and choose the temperature or humidity sensor that best
+   represents the room. A sensor inside a warm equipment cabinet is a poor
+   primary room temperature.
+
+7. **Check mobile and desktop**
+
+   Review navigation, areas, and important controls at both sizes. A useful
+   overview should make sense without knowing entity IDs.
+</Steps>
+
+## Names that work
+
+Use the area for context rather than repeating everything:
+
+| Less useful | Better |
+|---|---|
+| `TS0201_0x54ef` | `Temperature` in `Living room` |
+| `Living room living room ceiling` | `Ceiling light` in `Living room` |
+| `Sensor 1` | `Window` in `Bedroom` |
+| Area: `Zigbee` | Label: `Zigbee` |
+
+The device name should identify the physical product. The entity name should
+describe the measurement or control. The area supplies the remaining context.
+
+## When should you keep a custom dashboard?
+
+Keep or build a separate dashboard for:
+
+- a wall panel with a few large touch targets;
+- energy and operational charts;
+- cameras in a panel view;
+- administration and troubleshooting;
+- a user who only needs selected everyday controls;
+- a room with a specialist control surface.
+
+Use **Sections** and built-in **Tile** cards as the starting point for custom
+dashboards. They provide a responsive layout with fewer third-party parts.
+
+<Aside type="caution" title="A dashboard is not access control">
+Hiding a card or dashboard is not a security boundary on its own. Control
+access through users, integrations, and exposed entities, especially for locks,
+alarms, and garage doors.
+</Aside>
+
+## A safe clean-up order
+
+1. Assign devices to areas.
+2. Create and assign floors.
+3. Correct only clearly poor names.
+4. Check automations, scripts, and dashboards before changing an `entity_id`.
+5. Select primary area sensors.
+6. Only then decide which custom dashboards you still need.
+
+A display name can often be changed without changing the `entity_id`. Renaming
+the entity ID itself may break automations and cards and deserves a separate
+impact check.
+
+## Troubleshooting
+
+### A room is missing
+
+Confirm the area exists and has at least one relevant device or entity. Review
+its floor assignment and disabled or hidden entities as well.
+
+### The displayed temperature is wrong
+
+Open the area settings and select the correct primary temperature sensor.
+Compare the sensor's raw state before blaming the dashboard.
+
+### Too many irrelevant entities are shown
+
+Review each device's entities. Disable only diagnostic or duplicate entities
+you understand, and retain any data used by automations.
+
+### I want to return to my custom dashboard
+
+Open the existing dashboard from the sidebar or select it as the default using
+the available dashboard settings. Do not delete the old one until the new view
+has been tested on every relevant device.
+
+<CardGrid>
+  <Card title="Build a custom dashboard" icon="setting">
+    Continue with [Dashboard Design in Home Assistant](/en/home-assistant/dashboard-design/).
+  </Card>
+  <Card title="Start with Home Assistant" icon="rocket">
+    Read the [getting started guide](/en/home-assistant/kom-godt-i-gang/).
+  </Card>
+</CardGrid>
+
+## Official sources
+
+- [Home Assistant 2026.2: Home, sweet overview](https://www.home-assistant.io/blog/2026/02/04/release-20262/)
+- [Organising areas, floors, labels, and groups](https://www.home-assistant.io/docs/organizing/)
+- [Multiple dashboards](https://www.home-assistant.io/dashboards/dashboards/)
+- [Dashboard views](https://www.home-assistant.io/dashboards/views/)

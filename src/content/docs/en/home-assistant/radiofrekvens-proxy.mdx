@@ -1,0 +1,204 @@
+---
+title: 433 MHz RF proxy in Home Assistant
+description: Control compatible 433 MHz devices locally with Home Assistant's new radio-frequency layer, a supported proxy, and realistic range and state verification.
+sidebar:
+  badge:
+    text: RF 2026.5
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Home Assistant 2026.5+" variant="note" /> <Badge text="433 MHz" variant="success" />
+
+Home Assistant 2026.5 introduced a shared layer for radio-frequency control. A
+supported RF proxy can send commands to remote sockets, string lights, and
+other compatible devices without every appliance integration having to know
+the proxy hardware.
+
+```text
+Home Assistant → appliance integration → RF entity → 433 MHz proxy → appliance
+```
+
+The architecture resembles infrared, but radio signals can travel through
+furniture and walls. Frequency, modulation, and protocol still have to match.
+
+<Aside type="caution" title="433 MHz is not one universal protocol">
+A remote and proxy both using 433.92 MHz does not make them compatible. Check
+the modulation, encoding, and whether Home Assistant has an integration for the
+appliance.
+</Aside>
+
+## Good and poor candidates
+
+**Good candidates:**
+
+- simple remote sockets with a supported protocol;
+- decorative lights and string lights;
+- cooker hoods or other harmless appliances with a documented integration;
+- older equipment where one-way control is acceptable.
+
+**Poor candidates:**
+
+- alarms, locks, and doors without reliable feedback;
+- devices with rolling or encrypted codes the proxy does not support;
+- sensors where you expect reception but the hardware only transmits;
+- appliances where an incorrect state can cause damage.
+
+A cheap fixed-code remote can often be copied or replayed. Do not use that
+protocol as the only security layer.
+
+## Understand the three layers
+
+| Layer | Job |
+|---|---|
+| RF proxy | The physical transmitter and network connection |
+| Proxy integration | Creates a `radio_frequency` entity in Home Assistant |
+| Appliance integration | Knows the commands for the particular product |
+
+`Radio frequency` is a building block that is not normally added on its own.
+You add the proxy integration, followed by the supported appliance integration.
+
+## Choose compatible hardware
+
+ESPHome's official Ready-Made Projects show a 433 MHz proxy built from:
+
+- an **M5Stack Atom Lite ESP32 Development Kit**;
+- an **M5Stack RF Unit 433 MHz Transmitter (SYN115)**;
+- the Grove cable connecting them.
+
+This is a specific transmitter example, not a promise of compatibility with
+every 433 MHz product. Confirm whether the appliance uses, for example,
+**433.92 MHz OOK**, and whether the current Home Assistant integration supports
+both the appliance and transmitter.
+
+Other supported adapters can provide RF entities as well. A Broadlink model
+may provide both IR and RF, but features vary by model and integration.
+
+## Set up an ESPHome RF proxy
+
+<Steps>
+1. **Identify the appliance**
+
+   Find its brand, model, frequency, and protocol. Read the appliance
+   integration documentation before buying proxy hardware.
+
+2. **Assemble the documented hardware**
+
+   For the ready-made ESPHome project, connect the RF Unit to the Atom Lite
+   using the supplied Grove cable. Use the correct voltage and connector
+   orientation.
+
+3. **Flash the Ready-Made Project**
+
+   Connect the Atom Lite with a data cable, open ESPHome's official project
+   installer, and select **Radio Frequency Proxy**.
+
+4. **Add Wi-Fi and ESPHome**
+
+   Wait for a stable network and API connection. Then accept the discovered
+   ESPHome device in Home Assistant.
+
+5. **Check the RF panel**
+
+   Open **Settings → Radio frequency**. The proxy transmitter should be online,
+   and its last-transmission timestamp should change after a command.
+
+6. **Add the appliance integration**
+
+   Add the integration that supports your product. Select the proxy's RF
+   transmitter when setup asks for one.
+</Steps>
+
+## Placement and range
+
+RF can pass through walls, but range is affected by:
+
+- large metal objects and equipment cabinets;
+- antenna length, orientation, and ground plane;
+- other transmitters on the same frequency;
+- noisy power supplies and electronics close to the antenna;
+- distance and receiver sensitivity.
+
+Start close to the appliance. Move the proxy in small steps and repeat the same
+command. A central position is only best when it produces stable coverage.
+
+## Verify the result
+
+Use a command with a visible result:
+
+1. Send `On` from the appliance entity in Home Assistant.
+2. Check the appliance physically.
+3. Send `Off` and check again.
+4. Repeat at least ten times from the intended proxy position.
+5. Check the last RF transmission timestamp.
+6. Run the same sequence from a simple automation.
+
+The RF entity state is a transmission timestamp. It proves a command was sent,
+not that the appliance received it.
+
+## State and feedback
+
+Many simple RF products do not acknowledge commands. Their appliance
+integration may therefore use an assumed state.
+
+You can add stronger feedback with:
+
+- power measurement at a socket;
+- a contact sensor on a door or window;
+- a separate temperature sensor for heating or cooling;
+- a network integration when the appliance has a local API.
+
+Keep physical measurement separate from the assumed command state. A
+`switch=on` state is not evidence of power consumption.
+
+## RF, Zigbee, Z-Wave, or Matter?
+
+| Technology | Choose it when |
+|---|---|
+| 433 MHz RF | You want to reuse a simple supported remote-controlled product |
+| Zigbee | You need inexpensive mesh sensors with state feedback |
+| Z-Wave | You need certified sub-GHz devices and two-way communication |
+| Matter/Thread | You need local IP control and multi-admin |
+
+An RF proxy is useful for extending the life of compatible equipment. It is not
+a general replacement for a two-way smart-home network.
+
+## Troubleshooting
+
+### The proxy is online but the appliance does not respond
+
+Check frequency, modulation, appliance model, and selected transmitter. Test
+close to the device and temporarily remove metal or interference sources.
+
+### No adapter appears in the RF panel
+
+Confirm the firmware and integration expose the new `radio_frequency` entity.
+An older `remote` entity is not automatically the new building block.
+
+### Control only works sometimes
+
+Repeat the same command from the same distance. Move or rotate the antenna,
+improve the power supply, and check for interference. Add another proxy when
+one area remains outside reliable range.
+
+### Home Assistant shows the wrong state
+
+Check whether the integration uses an assumed state. Add physical feedback or
+use commands that do not depend on a toggle when the appliance supports them.
+
+<CardGrid>
+  <Card title="ESPHome Advanced" icon="rocket">
+    Read [ESPHome Advanced](/en/esp32/esphome-avanceret/) before changing the ready-made project.
+  </Card>
+  <Card title="Smart garage" icon="setting">
+    Review the safety boundaries in the [Smart Garage guide](/en/produkter/smart-garage/).
+  </Card>
+</CardGrid>
+
+## Official sources
+
+- [Radio frequency in Home Assistant](https://www.home-assistant.io/integrations/radio_frequency)
+- [Home Assistant 2026.5: We're on the same frequency now](https://www.home-assistant.io/blog/2026/05/06/release-20265/)
+- [ESPHome Ready-Made Projects](https://esphome.io/projects/)
+- [Broadlink integration](https://www.home-assistant.io/integrations/broadlink/)
