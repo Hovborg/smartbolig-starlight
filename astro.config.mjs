@@ -139,6 +139,11 @@ export default defineConfig({
                   link: "/home-assistant/zigbee2mqtt-avanceret/",
                 },
                 {
+                  label: "ZHA-enheder",
+                  translations: { en: "ZHA Devices" },
+                  link: "/home-assistant/zha-enhedshaandtering/",
+                },
+                {
                   label: "Shelly Wall Display",
                   link: "/home-assistant/shelly-wall-display/",
                 },
@@ -154,6 +159,11 @@ export default defineConfig({
                 {
                   label: "Energy Dashboard",
                   link: "/home-assistant/energy-dashboard/",
+                },
+                {
+                  label: "Mobilnotifikationer",
+                  translations: { en: "Mobile Notifications" },
+                  link: "/home-assistant/mobilnotifikationer/",
                 },
                 {
                   label: "AI Task",
@@ -214,6 +224,11 @@ export default defineConfig({
                   link: "/home-assistant/automationer-2026-7/",
                 },
                 {
+                  label: "Robotstøvsuger efter område",
+                  translations: { en: "Vacuum by Area" },
+                  link: "/home-assistant/robotstoevsuger-efter-omraade/",
+                },
+                {
                   label: "Vaskemaskine notifikation",
                   translations: { en: "Washing Machine Notification" },
                   link: "/home-assistant/vaskemaskine-notification/",
@@ -249,6 +264,11 @@ export default defineConfig({
                   translations: { en: "The New Overview" },
                   link: "/home-assistant/overview-dashboard-2026/",
                 },
+                {
+                  label: "Vælg dashboardkort",
+                  translations: { en: "Choose Dashboard Cards" },
+                  link: "/home-assistant/dashboard-kortvaelger/",
+                },
               ],
             },
             // System & Vedligeholdelse
@@ -261,6 +281,16 @@ export default defineConfig({
                   label: "Backup & Sikkerhed",
                   translations: { en: "Backup & Security" },
                   link: "/home-assistant/backup-sikkerhed/",
+                },
+                {
+                  label: "Sikre opdateringer",
+                  translations: { en: "Safe Updates" },
+                  link: "/home-assistant/sikre-opdateringer-2026/",
+                },
+                {
+                  label: "Aktivitet & Spor",
+                  translations: { en: "Activity & Traces" },
+                  link: "/home-assistant/aktivitet-og-spor/",
                 },
                 {
                   label: "Performance",

@@ -1,0 +1,194 @@
+---
+title: Update Home Assistant safely in 2026
+description: Use the new grouped updates page without treating Home Assistant, apps, integrations, and device firmware as one large update.
+sidebar:
+  badge:
+    text: "2026.7"
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Beginner" variant="success" /> <Badge text="Home Assistant 2026.7" variant="note" />
+
+![A compact smart-home server, backup drive, and groups of devices protected by a subtle shield](/images/guides/sikre-opdateringer-2026.webp)
+
+Home Assistant 2026.7 organizes pending updates into clear groups. ESPHome
+devices, HACS integrations, and apps can each gain an **Update all** button,
+while Home Assistant Core, the operating system, and Supervisor still require
+deliberate individual updates.
+
+That makes maintenance faster. It does not make every update equally
+risk-free. The safe habit remains: back up, read, update bounded groups, and
+test the parts of the home that matter.
+
+<Aside type="note" title="This guide focuses on Home Assistant OS">
+With Home Assistant Container, you update the container and host operating
+system using their own tools. Your updates page may therefore look different.
+</Aside>
+
+## What the new Update all button does
+
+The updates page separates work by the part of the system it belongs to:
+
+| Group | Examples | How it is handled |
+|---|---|---|
+| Home Assistant | Core, OS, and Supervisor | Each is updated deliberately |
+| One integration | Several ESPHome devices or HACS packages | May offer Update all |
+| Integrations | Individual integration updates | May be updated as a group |
+| Apps | Matter Server or Studio Code Server, for example | May be updated as a group |
+| Skipped versions | Updates you chose to skip | Kept out of bulk updates |
+
+The button applies only to the card where it appears. It is not a global
+“update the whole house” button, and the central Home Assistant components are
+kept out of it on purpose.
+
+## Before selecting update
+
+Use this short check, particularly before a monthly Core release:
+
+- Open the release notes and read every **backward-incompatible change**
+  between your current and target versions.
+- Open **Settings → System → Repairs** and resolve known problems first.
+- Check that the system has reasonable free disk space.
+- Create a full backup.
+- Store the backup and its emergency kit **outside the Home Assistant device**.
+- Write down the functions you intend to test afterwards.
+
+A green tick beside a backup is not enough if the file is only on the same SD
+card or drive that is being updated. Use network storage, Home Assistant Cloud,
+or a downloaded copy, for example.
+
+<Aside type="caution" title="A backup is useful only when you can access it">
+Make sure you know the encryption key or have the backup emergency kit. Store
+it separately and securely, not only inside the Home Assistant installation
+you may need to restore.
+</Aside>
+
+## A calm update sequence
+
+There is no single correct order for every home. This workflow makes it easier
+to identify which group introduced a problem:
+
+<Steps>
+1. **Choose a sensible time**
+
+   Update when you have time for checks afterwards. Avoid doing it just before
+   bed, a holiday, or a period when heating, alarms, or access control are
+   particularly important.
+
+2. **Create and move the backup**
+
+   Make a fresh full backup and confirm it exists at an external backup
+   location or can be downloaded.
+
+3. **Update a central component deliberately**
+
+   Open the Core, OS, or Supervisor update, read its note, and use the backup
+   option in the dialog when offered. Handle one central update at a time.
+
+4. **Wait for the system to return**
+
+   Let Home Assistant finish starting. Check Repairs and the system log for new
+   errors before continuing.
+
+5. **Update one grouped card**
+
+   Use **Update all** on an ESPHome or Apps card, for example. Do not mix every
+   group into the same troubleshooting window.
+
+6. **Test the home's important functions**
+
+   At minimum, check a light, heating, a notification, lock or alarm status,
+   and one important automation. Use a natural run where it is safe.
+
+7. **Continue with the next group**
+
+   Once the first group has been checked, move to the next.
+</Steps>
+
+## What should you test?
+
+Keep a fixed five-minute check suited to your home:
+
+| Area | Practical check |
+|---|---|
+| Interface | A dashboard opens on phone and computer |
+| Devices | One local light and one wireless sensor respond |
+| Automation | A low-risk automation produces a complete trace |
+| Notification | A test message reaches the intended phone |
+| Integrations | No new errors or repeated reloads appear |
+| Backup | The new backup is visible at the external location |
+
+If you have locks, gates, water valves, or heat sources, verify their status and
+normal operation without performing a risky remote-control test.
+
+## Use Update all thoughtfully
+
+The button is especially useful for many similar, non-critical devices. Seven
+ESPHome sensors may be a good group. Seven unrelated HACS cards with large
+changes may be easier to handle in smaller batches.
+
+Skip a version when you have a specific reason, such as a known problem with
+your model. In 2026.7, skipped updates live in their own card so that they are
+not swept into a later **Update all** action.
+
+Zigbee firmware needs extra care: read the device-specific changes first, fit
+fresh batteries to battery devices, and do not update the entire network just
+because updates are available.
+
+## If something goes wrong
+
+Stop at the first documented failure. Capture or write down:
+
+- the component and version you updated;
+- the time;
+- the first new error in Repairs or the log;
+- which devices or functions are actually affected.
+
+Reload only the relevant integration if the evidence points there. Do not
+restart repeatedly at random. If a Core update requires a rollback, Home
+Assistant documents restoring from backup as the supported route.
+
+<Aside type="tip" title="Waiting for a patch can be sensible">
+There is rarely a benefit to installing a large monthly release the minute it
+arrives. If the home is stable, you can read the first patch notes and relevant
+reports before updating.
+</Aside>
+
+## Common problems
+
+### The backup exists only locally
+
+Download it or add an external backup location. A drive failure could otherwise
+affect both the installation and its backup.
+
+### Everything was updated at once
+
+Use timestamps and version history to narrow the change. Next time, separate
+central components and grouped cards.
+
+### An app does not start after updating
+
+Read the app log and its release note. Check the configuration before
+uninstalling or restoring anything.
+
+### An integration shows new errors
+
+First check whether the error appears in the release notes or Repairs. Save
+diagnostics before removing the integration.
+
+<CardGrid>
+  <Card title="Backup and restore" icon="approve-check">
+    Review [backup and security](/en/home-assistant/backup-sikkerhed/) before you need it.
+  </Card>
+  <Card title="Find the first failure" icon="document">
+    Use [Activity and Traces](/en/home-assistant/aktivitet-og-spor/) after updating.
+  </Card>
+</CardGrid>
+
+## Official sources
+
+- [Home Assistant 2026.7: Update all](https://www.home-assistant.io/blog/2026/07/01/release-20267/)
+- [Updating Home Assistant OS](https://www.home-assistant.io/common-tasks/os/#updating-home-assistant)
+- [Backups in Home Assistant](https://www.home-assistant.io/common-tasks/general/#backups)

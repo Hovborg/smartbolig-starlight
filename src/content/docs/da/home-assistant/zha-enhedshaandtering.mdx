@@ -1,0 +1,193 @@
+---
+title: ZHA i praksis — enheder, mesh og firmware
+description: Tilføj og vedligehold Zigbee-enheder i Home Assistants indbyggede ZHA-integration med gode navne, et stabilt mesh og forsigtige firmwareopdateringer.
+sidebar:
+  badge:
+    text: "2026.7"
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Let øvet" variant="note" /> <Badge text="Home Assistant 2026.7" variant="success" />
+
+![Et hjem med Zigbee-pærer, sensorer og en koordinator forbundet i et diskret mesh](/images/guides/zha-enhedshaandtering.webp)
+
+ZHA er Home Assistants indbyggede Zigbee-løsning. Den forbinder en kompatibel
+koordinator med pærer, kontakter, sensorer og fjernbetjeninger uden en særskilt
+Zigbee-platform.
+
+I Home Assistant 2026.7 er den avancerede enhedshåndtering flyttet fra en trang
+dialog til en hel side med faner for blandt andet klynger, bindinger, signatur
+og naboer. Det gør oplysningerne lettere at bruge — men man behøver stadig ikke
+ændre de avancerede felter for at få et stabilt hjem.
+
+<Aside type="caution" title="Én koordinator, én Zigbee-platform">
+Forbind ikke samme Zigbee-koordinator til ZHA og Zigbee2MQTT samtidig. Denne
+guide handler om et eksisterende eller nyt ZHA-netværk, ikke om en automatisk
+migrering fra en anden platform.
+</Aside>
+
+## Før du tilføjer den første enhed
+
+Et godt Zigbee-net begynder med placering, ikke med høj sendestyrke:
+
+- brug en koordinator, der står på Home Assistants liste over understøttet
+  hardware;
+- placér en USB-koordinator på et skærmet forlængerkabel;
+- hold den væk fra USB 3.0-enheder, routere, metal og strømforsyninger;
+- tilføj nettilsluttede Zigbee-enheder, som kan fungere som routere i meshet;
+- tag en Home Assistant-backup, før du flytter eller udskifter koordinatoren.
+
+Batterisensorer er normalt slut-enheder. De udvider ikke netværket. Pærer,
+stikkontakter og faste moduler kan ofte route trafik, men kun mens de har
+strøm. En Zigbee-pære bag en almindelig vægkontakt er derfor en ustabil router,
+hvis kontakten ofte slukkes.
+
+## Tilføj en Zigbee-enhed
+
+Nulstillingsmetoden afhænger af modellen. Find den i producentens manual, før
+du begynder.
+
+<Steps>
+1. **Giv enheden et midlertidigt sted tæt på dens rigtige placering**
+
+   Du skal kunne nå resetknappen, men forbindelsen bør også afprøves i den del
+   af huset, hvor enheden skal bruges.
+
+2. **Åbn Zigbee**
+
+   Gå til **Indstillinger → Zigbee** og vælg at tilføje en enhed. På ældre
+   installationer findes funktionen via **Enheder og tjenester → ZHA**.
+
+3. **Fabriksnulstil enheden**
+
+   Sæt den i parringstilstand efter producentens vejledning. At fjerne en
+   enhed fra en gammel gateway er ikke altid det samme som at nulstille den.
+
+4. **Vent på hele registreringen**
+
+   Lad Home Assistant finde enheden og oprette dens entiteter. Batterienheder
+   kan have brug for et ekstra tryk for at holde sig vågne under opsætningen.
+
+5. **Navngiv efter funktion og placering**
+
+   Brug eksempelvis `Gang bevægelse` frem for modelnummeret. Tildel det rigtige
+   område, og navngiv kun entiteter særskilt, når det gør dem tydeligere.
+
+6. **Test i den endelige placering**
+
+   Udløs sensoren eller styr enheden flere gange. Se, om tilstand og
+   batterioplysninger kommer ind uden lange pauser.
+</Steps>
+
+Tilføj gerne faste routerenheder før de fjerneste batterisensorer. Meshet skal
+have tid til at falde til ro; en første test lige ved koordinatoren siger ikke
+nødvendigvis noget om forbindelsen i garagen eller på første sal.
+
+## Brug den nye enhedsside
+
+Åbn **Indstillinger → Zigbee → Enheder**, vælg enheden, og brug menuen ved
+**Konfigurér igen** til **Administrér Zigbee-enhed**. I 2026.7 vises værktøjerne
+på en fuld side.
+
+| Fane | Hvad den er god til |
+|---|---|
+| Oversigt | Hurtig kontrol af model, producent og status |
+| Signatur | Dokumentation ved fejlrapportering og enheder med manglende funktioner |
+| Naboer | Et øjebliksbillede af direkte Zigbee-forbindelser |
+| Bindinger | Direkte forbindelse mellem kompatible knapper og enheder |
+| Klynger | Rå Zigbee-funktioner og attributter til avanceret diagnosticering |
+
+Nabolisten er ikke et komplet, permanent kort over hele meshet. En enkelt lav
+værdi eller manglende nabo er ikke i sig selv bevis på en fejl. Se på den
+faktiske stabilitet over tid.
+
+<Aside type="caution" title="Skriv ikke tilfældige værdier i klynger">
+Klyngeværktøjet kan sende kommandoer direkte til enheden. Brug det til
+diagnostik, medmindre pålidelig dokumentation for præcis din model beskriver
+en nødvendig ændring.
+</Aside>
+
+## Når enheden mangler funktioner
+
+En kontakt kan være fundet, men mangle strømforbrug. En sensor kan vise
+temperatur, men ikke fugt. Gør følgende, før du sletter den:
+
+1. væk en batterienhed med et tryk;
+2. vælg **Konfigurér igen**;
+3. vent på at konfigurationen afsluttes;
+4. genindlæs kun ZHA, hvis fejlen peger på integrationen;
+5. hent diagnostik og enhedssignatur, hvis problemet fortsætter.
+
+En genparring er sidste trin, ikke det første. Hvis du fjerner enheden, kan
+automationer og dashboards miste deres henvisninger, især hvis entitetsnavnene
+ændres ved den nye registrering.
+
+## Firmwareopdateringer uden hastværk
+
+ZHA kan vise Zigbee-firmware som almindelige opdateringsentiteter. Muligheden
+afhænger af, at enheden understøtter OTA, og at producentens firmware er
+offentligt tilgængelig gennem en understøttet kilde.
+
+Før en opdatering:
+
+- søg efter kendte problemer for den nøjagtige model og firmware;
+- brug friske batterier i en batterienhed;
+- placér enheden med stabil forbindelse;
+- hold en sovende enhed vågen, når opdateringen starter;
+- opdatér én model først, og test dens normale funktion.
+
+Home Assistants ZHA-dokumentation advarer om, at firmware i sjældne tilfælde
+kan fjerne funktioner, kræve ny opsætning eller gøre en enhed ubrugelig. En
+tilgængelig opdatering er derfor ikke automatisk en nødvendig opdatering.
+
+## Et sundere mesh
+
+Hvis enheder falder af nettet, så ret det fysiske grundlag først:
+
+- flyt koordinatoren væk fra støjkilder;
+- tilføj faste routerenheder mellem koordinator og problemområdet;
+- undgå at afbryde strømmen til pærer, der fungerer som routere;
+- kontrollér overlap mellem Zigbee- og Wi-Fi-kanaler;
+- skift ikke Zigbee-kanal som første forsøg — nogle enheder skal vækkes eller
+  parres igen bagefter.
+
+Et stærkt signal ved koordinatoren løser ikke en blind plet gennem to
+betonvægge. Flere velplacerede routere giver som regel mere end én kraftig
+sender.
+
+## Typiske fejl
+
+### Enheden bliver ikke fundet
+
+Fabriksnulstil den efter modelens manual, flyt den tættere på en router eller
+koordinator, og kontrollér at den ikke stadig er bundet til en gammel gateway.
+
+### En batterienhed forsvinder under opsætning
+
+Væk den med korte tryk, mens ZHA konfigurerer den. Batterienheder sover for at
+spare strøm.
+
+### Enheden virker tæt på koordinatoren, men ikke i rummet
+
+Udbyg meshet med faste Zigbee-routere, og kontrollér placering og radiostøj.
+
+### Firmwareopdateringen står stille
+
+Sæt friske batterier i, væk enheden og sørg for stabil forbindelse. En OTA-
+opdatering kan tage omkring ti minutter eller længere ved et svagt mesh.
+
+<CardGrid>
+  <Card title="Vælg koordinator" icon="setting">
+    Sammenlign [Zigbee-koordinatorer](/da/produkter/zigbee-koordinatorer/) før et nyt netværk.
+  </Card>
+  <Card title="Bruger du Zigbee2MQTT?" icon="document">
+    Følg i stedet [Zigbee2MQTT-guiden](/da/home-assistant/zigbee2mqtt/).
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+- [Home Assistant 2026.7: ZHA device management](https://www.home-assistant.io/blog/2026/07/01/release-20267/)
+- [Zigbee Home Automation (ZHA)](https://www.home-assistant.io/integrations/zha/)

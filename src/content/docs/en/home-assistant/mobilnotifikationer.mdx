@@ -1,0 +1,213 @@
+---
+title: Send one message to several phones
+description: Group Home Assistant app notification entities in a helper, test every recipient, and use one clear target in your automations.
+sidebar:
+  badge:
+    text: "2026.5"
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Beginner" variant="success" /> <Badge text="Home Assistant 2026.5+" variant="note" />
+
+![Two phones and a tablet receive the same simple smart-home message from one shared notification](/images/guides/mobilnotifikationer.webp)
+
+When a leak is detected, both your phone and your partner's may need an alert.
+Older setups often ended up with a long list of phone-specific actions. From
+Home Assistant 2026.5, the Mobile App integration also creates a
+**notification entity** for each device.
+
+These new `notify` entities can be combined in a group helper directly in the
+user interface. Automations send to one stable target, while the phones and
+tablets in that group can be changed in one place.
+
+<Aside type="note" title="Two different meanings of group">
+This guide groups **receiving devices** inside Home Assistant. It is not the
+same as bundling several visible alerts under one heading on a phone's lock
+screen.
+</Aside>
+
+## Before creating the group
+
+Check every phone or tablet:
+
+- The Home Assistant Companion app is current and connected to the right
+  server.
+- Notification permission is enabled in the device settings.
+- The device appears under the Mobile App integration.
+- Its `notify` entity is enabled and not unavailable.
+- An ordinary test notification arrives.
+
+If a phone cannot receive its own test, adding it to a group will not fix it.
+Repair the device first.
+
+## Create a notification group
+
+<Steps>
+1. **Open Helpers**
+
+   Go to **Settings → Devices & services → Helpers**.
+
+2. **Create a helper**
+
+   Select **Create helper → Group**, then choose the notification group type.
+
+3. **Choose members**
+
+   Add the relevant `notify` entities for phones and tablets. Include only
+   devices that should receive the same kind of message.
+
+4. **Name the purpose**
+
+   Use something such as `Adults – house alerts` or `All family phones`.
+   Avoid just `Phones` if you may create more groups later.
+
+5. **Save**
+
+   Home Assistant creates one new `notify` entity for the group.
+</Steps>
+
+Notification entities can only be grouped through the UI. Older,
+phone-specific notify actions can still exist, but their legacy group form is
+YAML-based and is not what we are building here.
+
+## Test the group before using it
+
+1. Go to **Settings → Developer tools → Actions**.
+2. Select **Send a notification message** (`notify.send_message`).
+3. Target the group's notification entity.
+4. Enter a harmless message such as `Test from Home Assistant`.
+5. Perform the action.
+6. Physically check which devices received it.
+
+Test with screens locked and the app in the background. That is the normal use
+case, and phone power-saving settings can affect delivery.
+
+<Aside type="caution" title="A completed action is not a read receipt">
+Home Assistant can record that it sent a notification. That does not prove the
+phone displayed it immediately or that someone read it.
+</Aside>
+
+## Use the group in an automation
+
+A simple example is a water leak:
+
+> When the kitchen sensor detects water, send “Water detected below the kitchen
+> sink” to the Adults – house alerts group.
+
+In the automation editor:
+
+<Steps>
+1. **Choose the leak event**
+
+   Use the purpose-specific moisture-detected trigger or the stable leak sensor
+   entity.
+
+2. **Add the notification action**
+
+   Select **Send a notification message**.
+
+3. **Target the group**
+
+   Choose the group's `notify` entity, not the generic `notify.notify` action.
+
+4. **Write a specific message**
+
+   Say what happened and where: `Water detected below the kitchen sink`.
+
+5. **Test the action**
+
+   Run the notification action alone with clearly marked test text.
+
+6. **Test a natural event**
+
+   Trigger the sensor safely and inspect the automation trace afterwards.
+</Steps>
+
+Home Assistant's general `notify.notify` shorthand selects the first notify
+action the system finds. That can reach the wrong recipient. Use **Send a
+notification message** with a specific entity target.
+
+## Separate groups by purpose
+
+One group for every message quickly becomes noisy. Two or three clear groups
+are often better:
+
+| Group | Good examples | Avoid |
+|---|---|---|
+| Adults – critical house status | Leak, smoke status, freezer too warm | Daily status messages |
+| Whole family | Doorbell, shared reminder | Private cameras or access details |
+| My devices | Phone, tablet, and watch | Alerts other people must act on |
+
+Critical notifications can behave differently on iOS and Android and may
+bypass silent mode. Reserve them for genuine emergencies and test each
+platform separately.
+
+## Make messages useful
+
+A good notification contains:
+
+- the **event**: water detected;
+- the **place**: below the kitchen sink;
+- a **time or duration**, when relevant;
+- the **next action**: close the valve or check the freezer.
+
+Avoid generic text such as `Alarm!` or `Sensor activated`. The household should
+understand it without opening Home Assistant.
+
+Use a stable tag if the platform should replace an earlier alert with an
+update. Do not reuse one tag for unrelated events, or one message may overwrite
+another.
+
+## When a phone is replaced
+
+After replacing a phone, both the old and new devices may remain in Home
+Assistant.
+
+1. Test the new notification entity on its own.
+2. Add it to the group.
+3. Test the group.
+4. Remove the old entity from the group.
+5. Remove the old Mobile App device only after confirming that no automation
+   depends on its other sensors.
+
+The automations do not need to change. They still point to the same group.
+
+## Common problems
+
+### The notification group type is missing
+
+Update Home Assistant to 2026.5 or later and check that the Mobile App
+integration has created `notify` entities.
+
+### One phone does not receive the message
+
+Test its entity alone. Check notification permission, server connection,
+background restrictions, and entity availability.
+
+### An old phone still receives messages
+
+Open the group helper options and remove the old notification entity from the
+member list.
+
+### The message arrives more than once
+
+Open the automation trace and Activity. The automation may have triggered
+several times, or the phone may be both a direct target and a group member.
+
+<CardGrid>
+  <Card title="Laundry alert" icon="rocket">
+    Use the group in a [washing-machine notification](/en/home-assistant/vaskemaskine-notification/).
+  </Card>
+  <Card title="Find duplicates" icon="document">
+    Investigate repeated alerts with [Activity and Traces](/en/home-assistant/aktivitet-og-spor/).
+  </Card>
+</CardGrid>
+
+## Official sources
+
+- [Home Assistant 2026.5: Mobile app notifications are entities](https://www.home-assistant.io/blog/2026/05/06/release-20265/)
+- [Notifications and Send a notification message](https://www.home-assistant.io/integrations/notify/)
+- [Group helper and notify entity groups](https://www.home-assistant.io/integrations/group/)
+- [Companion App notifications](https://companion.home-assistant.io/docs/notifications/notifications-basic/)

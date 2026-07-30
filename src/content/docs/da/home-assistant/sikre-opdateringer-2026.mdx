@@ -1,0 +1,195 @@
+---
+title: Opdatér Home Assistant sikkert i 2026
+description: Brug den nye grupperede opdateringsside uden at behandle Home Assistant, Apps, integrationer og enhedsfirmware som én stor opdatering.
+sidebar:
+  badge:
+    text: "2026.7"
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Begynder" variant="success" /> <Badge text="Home Assistant 2026.7" variant="note" />
+
+![En kompakt smartbolig-server, backupdrev og grupper af enheder beskyttet af et diskret skjold](/images/guides/sikre-opdateringer-2026.webp)
+
+Home Assistant 2026.7 samler ventende opdateringer i tydelige grupper. ESPHome-
+enheder, HACS-integrationer og Apps kan hver få en knap til **Opdatér alle**,
+mens Home Assistant Core, operativsystemet og Supervisor fortsat skal
+opdateres bevidst én ad gangen.
+
+Det gør vedligeholdelsen hurtigere. Det gør ikke alle opdateringer lige
+risikofrie. Den sikre vane er stadig: backup, læs, opdatér i afgrænsede grupper
+og test det, hjemmet er afhængigt af.
+
+<Aside type="note" title="Guiden tager udgangspunkt i Home Assistant OS">
+På Home Assistant Container opdaterer du selve containeren og værtsmaskinen med
+deres egne værktøjer. Opdateringssiden kan derfor se anderledes ud.
+</Aside>
+
+## Hvad den nye Opdatér alle-knap gør
+
+Opdateringssiden er opdelt efter den del af systemet, opdateringen tilhører:
+
+| Gruppe | Eksempler | Sådan behandles den |
+|---|---|---|
+| Home Assistant | Core, OS og Supervisor | Hver opdateres bevidst for sig |
+| En bestemt integration | Flere ESPHome-enheder eller HACS-pakker | Kan have Opdatér alle |
+| Integrationer | Enkeltstående integrationsopdateringer | Kan opdateres som gruppe |
+| Apps | F.eks. Matter Server eller Studio Code Server | Kan opdateres som gruppe |
+| Sprungne versioner | Opdateringer du har valgt at springe over | Holdes uden for masseopdatering |
+
+Knappen arbejder kun med den viste gruppe. Den er ikke en global “opdatér hele
+huset”-knap, og de centrale Home Assistant-komponenter er med vilje holdt
+udenfor.
+
+## Før du trykker på opdatér
+
+Brug denne korte kontrol, især før en månedlig Core-opdatering:
+
+- Åbn udgivelsesnoterne, og læs alle **backward-incompatible changes** mellem
+  din nuværende og den nye version.
+- Se **Indstillinger → System → Reparationer** og ret kendte problemer først.
+- Kontrollér, at der er rimelig fri diskplads.
+- Opret en fuld backup.
+- Gem backup og backupens nødkit et sted **uden for Home Assistant-enheden**.
+- Notér de funktioner, du vil kontrollere bagefter.
+
+Et backupkort med et grønt flueben er ikke nok, hvis filen kun ligger på det
+samme SD-kort eller drev, som opdateringen kører på. Brug eksempelvis
+netværkslager, Home Assistant Cloud eller en downloadet kopi.
+
+<Aside type="caution" title="En backup er først god, når du kan få fat i den">
+Sørg for, at du kender krypteringsnøglen eller har backupens nødkit. Opbevar
+det separat og sikkert — ikke kun inde i den Home Assistant-installation, du
+kan få brug for at gendanne.
+</Aside>
+
+## En rolig opdateringsrækkefølge
+
+Der findes ikke én rigtig rækkefølge til alle hjem. Denne arbejdsgang gør det
+nemmere at se, hvilken gruppe der skabte et problem:
+
+<Steps>
+1. **Vælg et godt tidspunkt**
+
+   Opdatér, når du har tid til en kontrol bagefter. Undgå lige før sengetid,
+   ferie eller en periode, hvor varme, alarm eller adgangsstyring er særligt
+   vigtig.
+
+2. **Tag og flyt backup**
+
+   Opret en ny fuld backup, og kontrollér at den findes på et eksternt
+   backupsted eller kan downloades.
+
+3. **Opdatér den centrale komponent bevidst**
+
+   Åbn opdateringen for Core, OS eller Supervisor, læs noten, og brug
+   backupfunktionen i dialogen, når den tilbydes. Tag én central opdatering ad
+   gangen.
+
+4. **Vent på at systemet er tilbage**
+
+   Lad Home Assistant starte helt. Se Reparationer og systemlog efter nye fejl,
+   før du fortsætter.
+
+5. **Opdatér én samlet gruppe**
+
+   Brug **Opdatér alle** på eksempelvis ESPHome-kortet eller Apps-kortet. Bland
+   ikke alle grupper sammen i samme fejlsøgningsvindue.
+
+6. **Test hjemmets vigtigste funktioner**
+
+   Kontrollér mindst lys, varme, notifikation, lås/alarmvisning og en vigtig
+   automation. Brug en naturlig kørsel, hvor det er sikkert.
+
+7. **Fortsæt med næste gruppe**
+
+   Når første gruppe er kontrolleret, kan du tage den næste.
+</Steps>
+
+## Hvad skal du teste?
+
+Lav en fast femminutters kontrol, som passer til dit hjem:
+
+| Område | Praktisk kontrol |
+|---|---|
+| Brugerflade | Dashboard åbner på mobil og computer |
+| Enheder | Ét lokalt lys og én trådløs sensor svarer |
+| Automation | En ufarlig automation får et komplet spor |
+| Notifikation | En testbesked når den rigtige telefon |
+| Integrationer | Ingen nye fejl eller gentagne genindlæsninger |
+| Backup | Den nye backup kan ses på det eksterne sted |
+
+Hvis du har låse, porte, vandventiler eller varmekilder, så kontrollér status og
+naturlig funktion uden at lave en risikabel fjernbetjeningstest.
+
+## Brug Opdatér alle med omtanke
+
+Knappen er særlig nyttig til mange ens, ikke-kritiske enheder. Syv
+ESPHome-sensorer kan være oplagte at samle. Syv forskellige HACS-kort med store
+ændringer kan være lettere at tage i mindre bidder.
+
+Spring en version over, når du har en konkret grund — eksempelvis et kendt
+problem med din model. I 2026.7 placeres sprungne versioner i en særskilt
+gruppe, så de ikke følger med ved et senere tryk på **Opdatér alle**.
+
+For Zigbee-firmware gælder en ekstra forsigtighed: læs modelens ændringer først,
+brug friske batterier ved batterienheder, og opdatér ikke hele nettet blot
+fordi opdateringen findes.
+
+## Hvis noget går galt
+
+Stop efter den første dokumenterede fejl. Tag et skærmbillede eller notér:
+
+- hvilken komponent og version du opdaterede;
+- klokkeslættet;
+- den første nye fejl i Reparationer eller loggen;
+- hvilke enheder eller funktioner der faktisk er berørt.
+
+Genindlæs kun den relevante integration, hvis problemet peger på den. Genstart
+ikke gentagne gange på må og få. Hvis en Core-opdatering kræver tilbagerulning,
+beskriver Home Assistant gendannelse fra backup som den understøttede vej.
+
+<Aside type="tip" title="Vent på en rettelsesversion, når det giver mening">
+Der er sjældent gevinst ved at installere en stor månedlig udgivelse i samme
+minut, den kommer. Hvis hjemmet er stabilt, kan du læse erfaringer og den første
+rettelsesnotes, før du opdaterer.
+</Aside>
+
+## Typiske fejl
+
+### Backupen ligger kun lokalt
+
+Download den, eller tilføj et eksternt backupsted. Et drevproblem kan ellers
+ramme både installation og backup.
+
+### Alt blev opdateret på én gang
+
+Brug tidspunkt og versionshistorik til at afgrænse ændringen. Næste gang tager
+du centrale komponenter og grupper hver for sig.
+
+### En App starter ikke efter opdatering
+
+Læs Appens log og dens udgivelsesnote. Kontrollér konfigurationen før du
+afinstallerer eller gendanner noget.
+
+### En integration viser nye fejl
+
+Se først om fejlen er nævnt i udgivelsesnoterne eller Reparationer. Gem
+diagnostik, før du fjerner integrationen.
+
+<CardGrid>
+  <Card title="Backup og gendannelse" icon="approve-check">
+    Gennemgå [backup og sikkerhed](/da/home-assistant/backup-sikkerhed/), før du får brug for den.
+  </Card>
+  <Card title="Find den første fejl" icon="document">
+    Brug [Aktivitet og Spor](/da/home-assistant/aktivitet-og-spor/) efter opdateringen.
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+- [Home Assistant 2026.7: Update all](https://www.home-assistant.io/blog/2026/07/01/release-20267/)
+- [Opdatering af Home Assistant OS](https://www.home-assistant.io/common-tasks/os/#updating-home-assistant)
+- [Backups i Home Assistant](https://www.home-assistant.io/common-tasks/general/#backups)

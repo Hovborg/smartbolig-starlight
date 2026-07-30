@@ -1,0 +1,193 @@
+---
+title: ZHA in practice — devices, mesh, and firmware
+description: Add and maintain Zigbee devices in Home Assistant's built-in ZHA integration with clear names, a stable mesh, and careful firmware updates.
+sidebar:
+  badge:
+    text: "2026.7"
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Intermediate" variant="note" /> <Badge text="Home Assistant 2026.7" variant="success" />
+
+![A home with Zigbee bulbs, sensors, and a coordinator connected in a subtle mesh](/images/guides/zha-enhedshaandtering.webp)
+
+ZHA is Home Assistant's built-in Zigbee solution. It connects a compatible
+coordinator with bulbs, plugs, sensors, and remotes without a separate Zigbee
+platform.
+
+In Home Assistant 2026.7, advanced device management moved from a cramped
+dialog to a full page with tabs for clusters, bindings, signature, and
+neighbors. The information is easier to use, but you still do not need to
+change advanced fields to build a stable home.
+
+<Aside type="caution" title="One coordinator, one Zigbee platform">
+Do not connect the same Zigbee coordinator to ZHA and Zigbee2MQTT at the same
+time. This guide covers a new or existing ZHA network, not an automatic
+migration from another platform.
+</Aside>
+
+## Before adding the first device
+
+A good Zigbee network starts with placement, not maximum transmit power:
+
+- use a coordinator on Home Assistant's supported hardware list;
+- place a USB coordinator on a shielded extension cable;
+- keep it away from USB 3.0 devices, routers, metal, and power supplies;
+- add mains-powered Zigbee devices that can route traffic through the mesh;
+- take a Home Assistant backup before moving or replacing the coordinator.
+
+Battery sensors are normally end devices. They do not extend the network.
+Bulbs, plugs, and fixed modules can often route traffic, but only while powered.
+A Zigbee bulb behind an ordinary wall switch is therefore an unreliable router
+if the switch is regularly turned off.
+
+## Add a Zigbee device
+
+The reset method depends on the model. Find it in the manufacturer's manual
+before starting.
+
+<Steps>
+1. **Place the device near its intended location**
+
+   Keep its reset control within reach, while also testing the part of the home
+   where it will be used.
+
+2. **Open Zigbee**
+
+   Go to **Settings → Zigbee** and choose to add a device. On older
+   installations, use **Devices & services → ZHA**.
+
+3. **Factory-reset the device**
+
+   Put it into pairing mode according to its manual. Removing a device from an
+   old hub is not always the same as factory-resetting it.
+
+4. **Allow discovery to complete**
+
+   Let Home Assistant find the device and create its entities. A battery device
+   may need another button press to remain awake during configuration.
+
+5. **Name it by function and place**
+
+   Use `Hallway motion` rather than the model number. Assign the correct area,
+   and rename individual entities only when that makes them clearer.
+
+6. **Test in the final location**
+
+   Trigger the sensor or control the device several times. Confirm that state
+   and battery information arrive without long gaps.
+</Steps>
+
+Add fixed router devices before the most distant battery sensors when
+possible. The mesh needs time to settle; a first test next to the coordinator
+does not prove the connection will work in the garage or upstairs.
+
+## Use the new device page
+
+Open **Settings → Zigbee → Devices**, select the device, and use the menu beside
+**Reconfigure** to choose **Manage Zigbee device**. In 2026.7, the tools appear
+on a full page.
+
+| Tab | What it is useful for |
+|---|---|
+| Summary | Quick check of model, manufacturer, and status |
+| Signature | Evidence for bug reports and devices with missing functions |
+| Neighbors | A snapshot of direct Zigbee connections |
+| Bindings | Direct links between compatible buttons and devices |
+| Clusters | Raw Zigbee functions and attributes for advanced diagnosis |
+
+The neighbor list is not a complete, permanent map of the entire mesh. One low
+value or missing neighbor is not proof of a fault. Judge the device by its
+actual stability over time.
+
+<Aside type="caution" title="Do not write random cluster values">
+The cluster tool can send commands directly to a device. Use it for diagnosis
+unless reliable documentation for your exact model describes a necessary
+change.
+</Aside>
+
+## When a device is missing functions
+
+A plug may be discovered without energy readings. A sensor may show
+temperature but not humidity. Before deleting it:
+
+1. wake a battery device with a button press;
+2. select **Reconfigure**;
+3. wait for configuration to finish;
+4. reload only ZHA if the evidence points to the integration;
+5. download diagnostics and the device signature if the problem remains.
+
+Re-pairing is a last step, not a first one. Removing a device can break
+automation and dashboard references, particularly if entity names change when
+it is added again.
+
+## Firmware updates without rushing
+
+ZHA can expose Zigbee firmware through normal update entities. Availability
+depends on the device supporting OTA and its manufacturer making firmware
+public through a supported source.
+
+Before an update:
+
+- search for known issues for the exact model and firmware;
+- fit fresh batteries to a battery device;
+- place the device where its connection is stable;
+- keep a sleepy device awake when the update starts;
+- update one device model first and test its normal functions.
+
+Home Assistant's ZHA documentation warns that firmware can sometimes remove
+features, require reconfiguration, or even make a device unusable. An available
+update is therefore not automatically a necessary update.
+
+## Build a healthier mesh
+
+If devices drop from the network, fix the physical foundation first:
+
+- move the coordinator away from interference;
+- add fixed router devices between it and the problem area;
+- avoid cutting power to bulbs that act as routers;
+- review overlap between Zigbee and Wi-Fi channels;
+- do not change the Zigbee channel as a first attempt—some devices may need to
+  be woken or paired again afterwards.
+
+A strong signal beside the coordinator does not solve a dead spot behind two
+concrete walls. Several well-placed routers usually achieve more than one
+powerful transmitter.
+
+## Common problems
+
+### The device is not discovered
+
+Factory-reset it using the model's manual, move it closer to a router or
+coordinator, and check that it is not still attached to an old hub.
+
+### A battery device disappears during setup
+
+Wake it with short button presses while ZHA configures it. Battery devices sleep
+to conserve power.
+
+### It works near the coordinator but not in the room
+
+Extend the mesh with mains-powered Zigbee routers and check placement and radio
+interference.
+
+### The firmware update appears stuck
+
+Fit fresh batteries, wake the device, and ensure a stable connection. An OTA
+update can take around ten minutes or longer on a weak mesh.
+
+<CardGrid>
+  <Card title="Choose a coordinator" icon="setting">
+    Compare [Zigbee coordinators](/en/produkter/zigbee-koordinatorer/) before starting a network.
+  </Card>
+  <Card title="Using Zigbee2MQTT?" icon="document">
+    Follow the [Zigbee2MQTT guide](/en/home-assistant/zigbee2mqtt/) instead.
+  </Card>
+</CardGrid>
+
+## Official sources
+
+- [Home Assistant 2026.7: ZHA device management](https://www.home-assistant.io/blog/2026/07/01/release-20267/)
+- [Zigbee Home Automation (ZHA)](https://www.home-assistant.io/integrations/zha/)

@@ -1,0 +1,196 @@
+---
+title: Clean selected rooms with a robot vacuum
+description: Map the vacuum's floor plan to Home Assistant areas, test one cleaning run, and then build a simple automation without vendor room numbers.
+sidebar:
+  badge:
+    text: "2026.3"
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Beginner" variant="success" /> <Badge text="Home Assistant 2026.3+" variant="note" />
+
+![A robot vacuum cleans the kitchen and dining area while other rooms remain unselected](/images/guides/robotstoevsuger-efter-omraade.webp)
+
+“Clean the kitchen” should not require a vendor's internal room number. From
+Home Assistant 2026.3, compatible robot vacuums can use the **Clean area**
+action. The vacuum's own map segments are linked to the areas you already use
+in Home Assistant.
+
+Once mapped, you can choose `Kitchen` or `Living room` in an ordinary action or
+automation. Support launched with Matter, Ecovacs, and Roborock, and more
+integrations may follow. The reliable check is whether your vacuum exposes
+**Map vacuum segments to areas**.
+
+<Aside type="note" title="The floor plan still comes from the vacuum">
+Home Assistant does not draw the rooms. Create and name them in the
+manufacturer's app first if your model requires it. Home Assistant then links
+those segments to its own areas.
+</Aside>
+
+## Before you begin
+
+Check four things:
+
+- The vacuum is added through an integration that supports area cleaning.
+- Its map is complete and saved in the manufacturer's app.
+- Matching areas exist in Home Assistant.
+- The floor is safe to test: no loose cables, liquid, small toys, or open
+  stairs without reliable protection.
+
+Use clear area names. `Kitchen` in both systems is easier to maintain than
+`Room 3` in one and `East open-plan room` in the other.
+
+## Map the rooms to Home Assistant
+
+<Steps>
+1. **Open the vacuum entity**
+
+   Go to **Settings → Devices & services → Entities** and select the vacuum
+   entity.
+
+2. **Open entity settings**
+
+   Select the cogwheel in the entity dialog.
+
+3. **Choose segment mapping**
+
+   Open **Map vacuum segments to areas**. If the option is absent, the current
+   integration or device does not support the action.
+
+4. **Map each segment**
+
+   Select the Home Assistant area corresponding to each room from the vacuum
+   map. Leave unknown or unused segments alone until you know what they are.
+
+5. **Save**
+
+   Review the mapping once more, especially when two rooms have similar names.
+</Steps>
+
+If the vacuum-room list is empty, open the manufacturer's app and save or
+confirm its rooms again. Then reload the integration or wait for the device's
+next update.
+
+## Test one safe room
+
+Before building a schedule, make the action work on its own.
+
+1. Go to **Settings → Developer tools → Actions**.
+2. Select **Clean area with vacuum cleaner**.
+3. Choose the vacuum entity.
+4. Choose one small, clear area.
+5. Perform the action.
+6. Physically confirm that the vacuum enters the intended room.
+7. Wait for it to finish or return to the dock.
+
+A changed status in Home Assistant is useful, but it is not by itself proof
+that the intended floor area was cleaned.
+
+<Aside type="caution" title="Never make the first test unattended">
+Robot vacuums can pull cables, spread liquid, or become stuck. Inspect the area
+physically before the first remote or automated run.
+</Aside>
+
+## Build a simple weekday automation
+
+A calm first example could be:
+
+> At 10 AM on weekdays, if nobody is home and the vacuum is docked, clean the
+> kitchen and entrance hall.
+
+Build it in the automation editor:
+
+<Steps>
+1. **Choose a time**
+
+   Use a normal time trigger on the relevant weekdays.
+
+2. **Check presence**
+
+   Add a condition that the home is empty. Use the person or zone setup you
+   have already tested.
+
+3. **Check the vacuum**
+
+   Add the purpose-specific docked condition if the integration provides it.
+
+4. **Add Clean area**
+
+   Select the vacuum and the `Kitchen` and `Entrance hall` areas.
+
+5. **Give it a specific name**
+
+   Use something such as `Vacuum kitchen and hall on weekdays`.
+
+6. **Test the action, then the full flow**
+
+   First run only the cleaning action. Later, test a natural run that also
+   includes the trigger and conditions.
+</Steps>
+
+Keep the first automation simple. Do not add weather, calendar, doors, guests,
+battery level, and retries at the same time. Once a week runs reliably, add one
+necessary condition at a time.
+
+## Useful conditions
+
+Choose only conditions that solve a real problem:
+
+| Problem | Possible condition |
+|---|---|
+| Noise while the household is home | No people at home |
+| Starting with too little charge | Vacuum is docked or has adequate battery |
+| A closed door blocks a room | Select only normally accessible areas |
+| Cleaning during quiet hours | Limit to daytime |
+| Guests or working from home | Calendar helper or a manual pause toggle |
+
+A helper called `Pause cleaning` may be better than a complicated calendar
+rule. Everyone in the household can understand and use it.
+
+## When the floor plan changes
+
+If you divide a room, redraw the map, or reset the vacuum, its segments may
+receive new identifiers. Open entity settings and review the mapping before
+the next automatic run.
+
+Describe the intended areas in the automation description. That makes the
+post-map-change check explicit.
+
+## Common problems
+
+### The segment-mapping option is missing
+
+Your current vacuum and integration combination does not support
+`vacuum.clean_area`. Use documented vendor actions or wait for integration
+support—do not guess internal room numbers.
+
+### No rooms appear on the left
+
+Open the manufacturer's app, finish the map, name the rooms, and save them
+again.
+
+### The vacuum enters the wrong room
+
+Stop it safely and review the segment mapping. Segments may have changed after
+a new mapping run.
+
+### Run actions works, but the automation never starts
+
+The button skips triggers and conditions. Open the automation trace after a
+natural run and find the first condition that did not pass.
+
+<CardGrid>
+  <Card title="Robot vacuums" icon="setting">
+    Review choices and differences in [smart cleaning](/en/produkter/smart-rengoering/).
+  </Card>
+  <Card title="Understand the run" icon="document">
+    Troubleshoot it with [Activity and Traces](/en/home-assistant/aktivitet-og-spor/).
+  </Card>
+</CardGrid>
+
+## Official sources
+
+- [Home Assistant 2026.3: Send your vacuum to clean specific areas](https://www.home-assistant.io/blog/2026/03/04/release-20263/)
+- [Vacuum integration and Clean area](https://www.home-assistant.io/integrations/vacuum/)
