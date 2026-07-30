@@ -1,0 +1,197 @@
+---
+title: Nye automationer i Home Assistant 2026.7
+description: Byg robuste automationer med Home Assistants nye formålsbestemte triggere, områder og tydelige spor — uden at starte i tekniske entitetstilstande.
+sidebar:
+  badge:
+    text: "2026.7"
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Begynder" variant="success" /> <Badge text="Home Assistant 2026.7" variant="note" />
+
+Home Assistant 2026.7 ændrer udgangspunktet for nye automationer. I stedet for
+først at vælge mellem tekniske triggere som *state* og *numeric state* kan du
+begynde med det, du vil reagere på: en dør åbner, temperaturen falder, et
+batteri bliver lavt, eller der registreres bevægelse i et område.
+
+Denne guide viser den nye arbejdsgang og bruger en udendørs
+bevægelsesautomation som eksempel. Dine gamle automationer bliver ikke
+konverteret eller deaktiveret.
+
+<Aside type="note" title="Det er ikke en AI-generator">
+Den nye editor bruger mere forståelige, formålsbestemte triggere og betingelser.
+Du vælger stadig selv hændelse, grænser og handlinger, og Home Assistant gemmer
+automationens almindelige konfiguration.
+</Aside>
+
+## Hvad er ændret?
+
+| Før | Nyt udgangspunkt |
+|---|---|
+| Vælg en teknisk triggertype | Vælg en hændelse som “bevægelse registreret” |
+| Peg ofte på én bestemt entitet | Vælg også et område, når integrationen understøtter det |
+| Kend til `on`, `off` og attributter | Lad integrationen beskrive den relevante hændelse |
+| Find selv dokumentationen | Åbn dokumentationen for trigger, betingelse eller handling fra editoren |
+
+Integrationen bag en enhed kan levere sine egne forståelige triggere og
+betingelser. Derfor afhænger udvalget af dine integrationer og enhedstyper. Den
+generiske editor og YAML er stadig tilgængelige.
+
+## Før du bygger den første
+
+Brug fem minutter på at rydde op i grundlaget:
+
+- placér enheder i korrekte **områder**;
+- giv sensorer og lys korte, entydige navne;
+- kontrollér at sensoren skifter tilstand i Home Assistant;
+- lav en manuel tænd/sluk-test af den handling, du vil automatisere;
+- vælg et lille og ufarligt eksempel først.
+
+Et område er nyttigt, når automationshensigten handler om rummet frem for en
+bestemt sensor. Hvis du udskifter sensoren senere, kan en områdebaseret
+automation være lettere at vedligeholde.
+
+## Eksempel: udelys ved bevægelse
+
+Målet er:
+
+> Når der registreres bevægelse udenfor efter solnedgang, tænd udelyset. Sluk
+> igen, når området har været uden bevægelse i fem minutter.
+
+<Steps>
+1. **Opret automationen**
+
+   Gå til **Indstillinger → Automationer og scener → Opret automation → Opret
+   ny automation**.
+
+2. **Vælg hændelsen**
+
+   Under **Når** søger du efter bevægelse og vælger den formålsbestemte trigger
+   for registreret bevægelse. Vælg området `Udenfor`, hvis editoren tilbyder
+   området som mål. Ellers vælger du den stabile bevægelsessensor-entitet.
+
+3. **Begræns til mørke timer**
+
+   Under **Og hvis** tilføjer du en solbetingelse for efter solnedgang. Brug den
+   indbyggede betingelse frem for en hjemmelavet klokkeslætsskabelon.
+
+4. **Tænd lyset**
+
+   Under **Så gør** vælger du handlingen for at tænde lys og målretter området
+   `Udenfor` eller de konkrete udelys.
+
+5. **Vent på ro**
+
+   Tilføj en vent-handling, der venter på, at bevægelsessensoren bliver
+   inaktiv. Tilføj derefter fem minutters forsinkelse og sluk lyset.
+
+6. **Vælg genstartstilstand**
+
+   Sæt automationens tilstand til **Genstart** (`restart`). Ny bevægelse skal
+   starte ventetiden forfra i stedet for at blive ignoreret.
+
+7. **Gem og navngiv konkret**
+
+   Brug for eksempel `Udelys – bevægelse efter mørke`. En god beskrivelse gør
+   fejlfinding lettere senere.
+</Steps>
+
+<Aside type="tip" title="Område eller entitet?">
+Brug et område, når hensigten gælder hele rummet. Brug en bestemt entitet, når
+én sensor eller ét lys har en særlig rolle, som ikke må følge områdets øvrige
+enheder.
+</Aside>
+
+## Test uden at vente til i aften
+
+Kontrollér grænserne én ad gangen:
+
+1. Kør kun lyshandlingen fra editoren.
+2. Bekræft at den rigtige lampe eller det rigtige område reagerer.
+3. Udløs bevægelsessensoren og se dens tilstand.
+4. Brug **Spor** på automationen og kontrollér, hvilken trigger og betingelse
+   der blev valgt.
+5. Se **Aktivitet** for at kontrollere, hvad der tændte og slukkede lyset.
+
+En vellykket manuel handling beviser ikke, at triggeren virker. Et spor med en
+fuld naturlig kørsel er den bedste kontrol.
+
+## Skal gamle automationer bygges om?
+
+Nej. Home Assistant oplyser, at eksisterende automationer, generiske triggere,
+skabeloner og YAML fortsætter med at virke. Byg først nye automationer med den
+nye editor. Ret kun en gammel automation, hvis ændringen løser et konkret
+problem eller gør den mærkbart lettere at vedligeholde.
+
+Før en omlægning:
+
+- tag en backup eller kopi af automationen;
+- notér den nuværende trigger og automationstilstand;
+- ændr én del ad gangen;
+- sammenlign spor før og efter;
+- behold den gamle version deaktiveret kortvarigt, hvis automationen er vigtig.
+
+## Gode valg i den nye editor
+
+### Brug indbyggede betingelser
+
+Vælg temperaturgrænse, tid, sol, zone eller tilstand direkte i editoren.
+Skabeloner er nyttige til særlige beregninger, men de er sværere at validere og
+fejlfinde.
+
+### Brug stabile mål
+
+Brug område eller `entity_id` til almindelige enheder. Interne `device_id` kan
+ændre sig, hvis en enhed fjernes og tilføjes igen.
+
+### Vælg den rigtige kørselstilstand
+
+| Situation | Tilstand |
+|---|---|
+| Bevægelseslys med timeout | Genstart |
+| Låse eller porte, der skal behandles i rækkefølge | Kø |
+| Uafhængige hændelser, der må køre samtidigt | Parallel |
+| En enkelt notifikation uden ventetid | Enkelt |
+
+## Fejlfinding
+
+### Den ønskede trigger findes ikke
+
+Opdatér Home Assistant og den relevante integration. Ikke alle integrationer
+har endnu egne formålsbestemte triggere. Brug en almindelig tilstands- eller
+talgrænsetrigger, hvis den beskriver hændelsen korrekt.
+
+### Området reagerer på for mange enheder
+
+Kontrollér områdeplacering og hvilke enheder handlingen understøtter. Skift til
+konkrete entiteter, hvis kun bestemte lys skal med.
+
+### Lyset slukker trods ny bevægelse
+
+Kontrollér at automationen bruger **Genstart**, og at den nye bevægelse faktisk
+udløser automationen. Læs sporet frem for at forlænge forsinkelsen på må og få.
+
+### Triggeren virker, men handlingen stopper
+
+Åbn det seneste spor. Kontrollér betingelsens resultat og den handling, der
+fejlede. Ret den første dokumenterede fejl i stedet for at tilføje flere
+forsinkelser.
+
+<CardGrid>
+  <Card title="Første automation" icon="rocket">
+    Start helt fra bunden med [din første automation](/da/home-assistant/foerste-automation/).
+  </Card>
+  <Card title="Flere idéer" icon="document">
+    Find konkrete mønstre i [oversigten over automationer](/da/automationer/).
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+- [Home Assistant 2026.7: Automations that speak your language](https://www.home-assistant.io/blog/2026/07/01/release-20267/)
+- [Grundprincipper for automationer](https://www.home-assistant.io/docs/automation/basics/)
+- [Automationstriggere](https://www.home-assistant.io/docs/automation/trigger/)
+- [Betingelser](https://www.home-assistant.io/docs/scripts/conditions/)
+- [Handlinger](https://www.home-assistant.io/docs/automation/action/)

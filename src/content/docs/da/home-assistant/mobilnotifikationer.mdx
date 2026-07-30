@@ -1,0 +1,215 @@
+---
+title: Send én besked til flere telefoner
+description: Saml Home Assistant-appens notifikationsentiteter i en hjælper, test hver modtager og brug én tydelig målgruppe i dine automationer.
+sidebar:
+  badge:
+    text: "2026.5"
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Begynder" variant="success" /> <Badge text="Home Assistant 2026.5+" variant="note" />
+
+![To telefoner og en tablet modtager samme enkle smartboligbesked fra en fælles notifikation](/images/guides/mobilnotifikationer.webp)
+
+Når en vandlækage opdages, skal både din og din partners telefon måske have
+besked. Tidligere endte mange opsætninger med en lang liste af
+telefonspecifikke handlinger. Fra Home Assistant 2026.5 opretter Mobile App-
+integrationen også en **notifikationsentitet** for hver enhed.
+
+De nye `notify`-entiteter kan samles i en gruppehjælper direkte i
+brugerfladen. Automationerne sender så til ét stabilt mål, mens gruppens
+telefoner og tablets kan ændres ét sted.
+
+<Aside type="note" title="To forskellige slags grupper">
+Denne guide samler **modtagende enheder** i én Home Assistant-gruppe. Det er
+ikke det samme som at samle flere synlige beskeder under én overskrift på
+telefonens låseskærm.
+</Aside>
+
+## Før du opretter gruppen
+
+Kontrollér hver telefon eller tablet:
+
+- Home Assistant Companion-appen er opdateret og forbundet til den rigtige
+  server.
+- Notifikationstilladelse er givet i telefonens indstillinger.
+- Enheden vises under Mobile App-integrationen.
+- Dens `notify`-entitet er aktiveret og ikke utilgængelig.
+- En almindelig testbesked kommer frem.
+
+Hvis en telefon ikke kan modtage sin egen test, hjælper det ikke at lægge den i
+en gruppe. Ret enheden først.
+
+## Opret en notifikationsgruppe
+
+<Steps>
+1. **Åbn Hjælpere**
+
+   Gå til **Indstillinger → Enheder og tjenester → Hjælpere**.
+
+2. **Opret en ny hjælper**
+
+   Vælg **Opret hjælper → Gruppe** og derefter gruppetypen for
+   notifikationer.
+
+3. **Vælg medlemmer**
+
+   Tilføj de relevante `notify`-entiteter for telefoner og tablets. Brug kun
+   enheder, der skal modtage den samme type besked.
+
+4. **Giv gruppen et formål**
+
+   Navngiv den eksempelvis `Voksne – husbeskeder` eller `Alle
+   familietelefoner`. Undgå bare `Telefoner`, hvis du senere får flere grupper.
+
+5. **Gem**
+
+   Home Assistant opretter én ny `notify`-entitet for gruppen.
+</Steps>
+
+Notifikationsentiteter kan kun grupperes gennem brugerfladen. De ældre,
+telefonspecifikke notify-handlinger kan fortsat eksistere, men deres gamle
+gruppeform er YAML-baseret og er ikke det, vi bygger her.
+
+## Test gruppen, før du bruger den
+
+1. Gå til **Indstillinger → Udviklerværktøjer → Handlinger**.
+2. Vælg **Send en notifikationsbesked** (`notify.send_message`).
+3. Vælg gruppens notifikationsentitet som mål.
+4. Skriv en ufarlig tekst som `Test fra Home Assistant`.
+5. Udfør handlingen.
+6. Kontrollér fysisk, hvilke enheder der modtog beskeden.
+
+Test gerne med skærmen låst og appen i baggrunden. Det er den almindelige
+brugssituation, og telefonens strømsparefunktioner kan påvirke leveringen.
+
+<Aside type="caution" title="En udført handling er ikke en læsekvittering">
+Home Assistant kan registrere, at notifikationen blev sendt. Det beviser ikke,
+at telefonen viste den med det samme, eller at personen læste den.
+</Aside>
+
+## Brug gruppen i en automation
+
+Et enkelt eksempel er en vandlækage:
+
+> Når køkkensensoren registrerer vand, send “Vand registreret under
+> køkkenvasken” til gruppen Voksne – husbeskeder.
+
+I automationseditoren:
+
+<Steps>
+1. **Vælg lækagehændelsen**
+
+   Brug den formålsbestemte trigger for registreret fugt eller den stabile
+   lækagesensor-entitet.
+
+2. **Tilføj notifikationshandlingen**
+
+   Vælg **Send en notifikationsbesked**.
+
+3. **Vælg gruppen som mål**
+
+   Brug gruppens `notify`-entitet, ikke en tilfældig generel
+   `notify.notify`-handling.
+
+4. **Skriv en konkret besked**
+
+   Fortæl hvad der skete, og hvor: `Vand registreret under køkkenvasken`.
+
+5. **Test handlingen**
+
+   Kør notifikationshandlingen alene med tydelig testtekst.
+
+6. **Test en naturlig hændelse**
+
+   Udløs sensoren sikkert, og kontrollér bagefter automationens Spor.
+</Steps>
+
+Home Assistants generelle `notify.notify` vælger den første notify-handling,
+systemet finder. Det kan give den forkerte modtager. Brug
+**Send en notifikationsbesked** med en konkret entitet som mål.
+
+## Del grupperne efter formål
+
+Én gruppe til alle beskeder bliver hurtigt støjende. To eller tre tydelige
+grupper er ofte bedre:
+
+| Gruppe | Gode eksempler | Undgå |
+|---|---|---|
+| Voksne – kritisk husstatus | Lækage, røgstatus, fryser for varm | Daglige statusbeskeder |
+| Hele familien | Dørklokke, fælles påmindelse | Private kameraer eller adgangsoplysninger |
+| Egne enheder | Telefon, tablet og ur | Beskeder andre skal handle på |
+
+Kritiske notifikationer kan opføre sig forskelligt på iOS og Android og kan
+omgå lydløs tilstand. Brug dem kun til reelle nødsituationer, og test hver
+platform særskilt.
+
+## Gør beskederne nyttige
+
+En god besked indeholder:
+
+- **hændelsen**: vand registreret;
+- **stedet**: under køkkenvasken;
+- **tid eller varighed**, når det er relevant;
+- **næste handling**: luk ventilen eller kontrollér fryseren.
+
+Undgå generiske tekster som `Alarm!` eller `Sensor aktiveret`. Familien skal
+kunne forstå beskeden uden at åbne Home Assistant.
+
+Brug en stabil tag-værdi, hvis platformen skal erstatte en tidligere besked med
+en opdatering. Brug ikke samme tag til forskellige hændelser; så kan en
+uvedkommende besked blive overskrevet.
+
+## Når en telefon udskiftes
+
+Efter telefonbytte kan både den gamle og den nye enhed blive stående i Home
+Assistant.
+
+1. Test den nye notifikationsentitet alene.
+2. Tilføj den til gruppen.
+3. Test gruppen.
+4. Fjern den gamle entitet fra gruppen.
+5. Fjern først den gamle Mobile App-enhed, når du har kontrolleret, at den ikke
+   leverer andre sensorer til automationer.
+
+På den måde ændres automationerne ikke. De peger fortsat på samme gruppe.
+
+## Typiske fejl
+
+### Gruppetype for notifikationer mangler
+
+Opdatér Home Assistant til 2026.5 eller nyere, og kontrollér at Mobile App-
+integrationen har oprettet `notify`-entiteter.
+
+### Én telefon modtager ikke beskeden
+
+Test dens entitet alene. Kontrollér notifikationstilladelse, serverforbindelse,
+baggrundsbegrænsninger og om entiteten er tilgængelig.
+
+### En gammel telefon får stadig beskeder
+
+Åbn gruppehjælperens indstillinger, og fjern den gamle notifikationsentitet fra
+medlemslisten.
+
+### Beskeden kommer flere gange
+
+Se automationens Spor og Aktivitet. Den kan være udløst flere gange, eller
+telefonen kan både være direkte mål og medlem af gruppen.
+
+<CardGrid>
+  <Card title="Vaskemaskinebesked" icon="rocket">
+    Brug gruppen i en [notifikation når vasken er færdig](/da/home-assistant/vaskemaskine-notification/).
+  </Card>
+  <Card title="Find dubletter" icon="document">
+    Undersøg gentagelser med [Aktivitet og Spor](/da/home-assistant/aktivitet-og-spor/).
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+- [Home Assistant 2026.5: Mobile app notifications are entities](https://www.home-assistant.io/blog/2026/05/06/release-20265/)
+- [Notifikationer og Send en notifikationsbesked](https://www.home-assistant.io/integrations/notify/)
+- [Gruppehjælper og notifikationsgrupper](https://www.home-assistant.io/integrations/group/)
+- [Companion App-notifikationer](https://companion.home-assistant.io/docs/notifications/notifications-basic/)

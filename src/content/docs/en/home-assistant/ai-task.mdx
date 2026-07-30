@@ -1,0 +1,227 @@
+---
+title: AI Task in Home Assistant
+description: Use AI Task for concise summaries, camera analysis, and structured data in Home Assistant with clear privacy, cost, and failure boundaries.
+sidebar:
+  badge:
+    text: AI Task
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Optional AI" variant="note" /> <Badge text="Automations" variant="success" />
+
+**AI Task** lets an automation send a bounded task to an AI model and receive
+text or structured data in return. It can produce a short camera summary, a
+readable weather message, or a simple classification.
+
+It is a building block rather than an AI service of its own. Another
+integration must provide the AI Task entity and the model that performs the
+work.
+
+<Aside type="caution" title="AI output is not sensor data">
+An AI model can overlook, misunderstand, or invent details. Never use its
+answer as the only reason to unlock a door, disarm an alarm, control dangerous
+heat, or decide who a person is.
+</Aside>
+
+## When does AI Task fit?
+
+| Good use | Poor use |
+|---|---|
+| Write a short summary of non-critical data | Replace a smoke, gas, or leak sensor |
+| Describe a door camera for a notification | Identify a person and unlock the door |
+| Sort text into a few categories | Make an irreversible decision |
+| Produce a friendly status message | Treat free text as an accurate measurement |
+| Extract controlled structured fields | Send the entire home's history without need |
+
+Use normal Home Assistant sensors and conditions for safety logic. Let AI Task
+word or enrich information where an error cannot trigger a dangerous action.
+
+## Understand the flow
+
+```text
+Trigger → bounded input → AI Task entity → response → validation → notification or display
+```
+
+AI Task can provide:
+
+- normal text;
+- structured fields that you define;
+- analysis of supported files or camera images;
+- a generated image when the selected integration and model support it.
+
+Capabilities vary between providers and models. Check the actual integration
+feature list rather than assuming every entity can process images or return the
+same structure.
+
+## Choose a local or cloud model
+
+| Choice | Advantage | Cost |
+|---|---|---|
+| Local model through a supported integration | Data may remain on your network | Requires hardware, model operations, and often more latency |
+| Cloud model | Easy access and often strong image understanding | Data leaves the home and API use may cost money |
+
+A local Home Assistant installation does not make the AI task local. When the
+model runs at a provider, instructions and attachments are sent under that
+provider's terms.
+
+## Create an AI Task entity
+
+<Steps>
+1. **Choose a compatible AI integration**
+
+   Read Home Assistant's documentation for the provider. Confirm it offers an
+   AI Task entity rather than only a conversation agent.
+
+2. **Add the integration from the UI**
+
+   Go to **Settings → Devices & services → Add integration**. Follow the setup
+   flow and keep API keys in Home Assistant's credential storage, not in
+   automation descriptions or YAML examples.
+
+3. **Create the AI Task sub-entry**
+
+   Open the integration and add the AI Task configuration it provides. Choose
+   a model with the needed features and a sensible usage limit.
+
+4. **Select the preferred AI Task**
+
+   Go to **Settings → System → AI tasks** and choose the preferred entity. This
+   makes actions and shared blueprints easier to reuse.
+
+5. **Begin with a text test**
+
+   Run `ai_task.generate_data` from the developer tools or a temporary test
+   automation. Use non-sensitive input and ask for a short, checkable answer.
+</Steps>
+
+## First example: readable indoor climate status
+
+Use existing temperature and humidity sensors as facts. AI Task should only
+write the message.
+
+1. Create an automation with a fixed time trigger.
+2. Add the **AI Task: Generate data** action.
+3. Give it a stable task name such as `Morning indoor climate`.
+4. Include the current sensor values in the instructions.
+5. Ask for no more than three short sentences and no health advice.
+6. Store the answer in a response variable.
+7. Send it to a persistent notification or your phone.
+
+The instruction might say:
+
+> Use only the values below. Write no more than three neutral sentences.
+> Living room temperature: 21.2 °C. Humidity: 46%. Outdoor temperature: 12 °C.
+
+The sensors remain the source of truth. If the AI task fails, the automation
+should stop or send a normal fallback message containing the raw values.
+
+## Camera summary without false security
+
+A supported AI Task entity can accept a camera image as an attachment. A
+cautious door camera flow looks like this:
+
+<Steps>
+1. Use the doorbell or motion sensor as an ordinary trigger.
+2. Send only the relevant camera image to AI Task.
+3. Ask for a short description of visible objects and activity.
+4. Prohibit guesses about identity, age, health, or intent.
+5. Send the original image and text together in the notification.
+6. Let the recipient decide; do not operate locks or alarms from the description.
+</Steps>
+
+A description such as “a person is standing at the door with a parcel” may be
+useful, but it may be wrong. Keep the original image available for checking.
+
+## Use structured responses
+
+Structured output is safer than free text when the next step expects specific
+fields. Define only what you need:
+
+| Field | Type | Example |
+|---|---|---|
+| `short_summary` | Text | “Parcel at the front door” |
+| `activity` | Choice | `none`, `person`, `animal`, `unknown` |
+| `uncertainty` | Text | “Subject partly obscured” |
+
+Always validate:
+
+- that a response exists;
+- that each field has the expected type;
+- that choices are within the allowed values;
+- that failure leads to a safe fallback.
+
+## Privacy and cost
+
+Before enabling a repeated task:
+
+- calculate how often it can run on a busy day;
+- limit image count and retention;
+- send only the entities and files the task needs;
+- read the provider's processing and retention terms;
+- use spending limits and billing alerts;
+- state in the automation description which provider receives data.
+
+A camera task every minute may be expensive and intrusive. Trigger it from a
+specific event and add a cooldown when several events can arrive close
+together.
+
+<Aside type="caution" title="Suggest with AI sends context">
+When AI suggestions for names and descriptions are enabled, automation or
+script content and related names may be sent to the selected model. Use the
+feature only when that data boundary is acceptable.
+</Aside>
+
+## Verify before regular use
+
+Test at least:
+
+1. Normal input with an expected response.
+2. A missing sensor value.
+3. An unavailable AI Task entity.
+4. A slow or empty response.
+5. An ambiguous camera image.
+6. A day with several rapid triggers.
+
+Inspect the automation trace, provider usage, and the message the user actually
+receives.
+
+## Troubleshooting
+
+### AI Task cannot be found as an integration
+
+It is a building block. First add an AI provider that explicitly supplies an
+AI Task entity, then create its sub-entry.
+
+### The action cannot process images
+
+Check the entity's supported features and the chosen model. Do not switch
+models blindly; test one non-sensitive file first.
+
+### The response is empty or truncated
+
+Shorten the instruction, reduce the input, and check provider response limits.
+Never place the API key in debug output.
+
+### The automation response varies
+
+Tighten the instruction and use structured output. If identical input must
+produce the same critical decision every time, AI Task is probably the wrong
+tool.
+
+<CardGrid>
+  <Card title="Local voice control" icon="setting">
+    See [local Assist](/en/home-assistant/local-voice-assist/) for a pipeline that does not require cloud AI.
+  </Card>
+  <Card title="AI security" icon="lock">
+    Read [security and permissions](/en/ai/ai-cli/sikkerhed-og-permissions/).
+  </Card>
+</CardGrid>
+
+## Official sources
+
+- [AI Task integration](https://www.home-assistant.io/integrations/ai_task/)
+- [Home Assistant 2025.8: The summer of AI](https://www.home-assistant.io/blog/2025/08/06/release-20258/)
+- [Anthropic integration](https://www.home-assistant.io/integrations/anthropic/)
+- [OpenAI Conversation integration](https://www.home-assistant.io/integrations/openai_conversation/)

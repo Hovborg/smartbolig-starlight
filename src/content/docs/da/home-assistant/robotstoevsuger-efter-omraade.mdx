@@ -1,0 +1,198 @@
+---
+title: Rengør bestemte rum med robotstøvsugeren
+description: Knyt støvsugerens kort til Home Assistants områder, test en enkelt rengøring og byg derefter en enkel automation uden producentens rumnumre.
+sidebar:
+  badge:
+    text: "2026.3"
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Begynder" variant="success" /> <Badge text="Home Assistant 2026.3+" variant="note" />
+
+![En robotstøvsuger rengør køkken og spiseområde, mens andre rum er fravalgt](/images/guides/robotstoevsuger-efter-omraade.webp)
+
+“Rengør køkkenet” burde ikke kræve, at man kender producentens interne
+rumnummer. Fra Home Assistant 2026.3 kan kompatible robotstøvsugere bruge
+handlingen **Rengør område**. Støvsugerens egne kortsegmenter kobles til de
+områder, du allerede har i Home Assistant.
+
+Når koblingen er lavet, kan du vælge `Køkken` eller `Stue` i en almindelig
+handling eller automation. Understøttelsen kom først til Matter, Ecovacs og
+Roborock, og flere integrationer kan komme til. Den afgørende kontrol er derfor,
+om din støvsuger viser indstillingen **Knyt støvsugersegmenter til områder**.
+
+<Aside type="note" title="Kortet kommer stadig fra støvsugeren">
+Home Assistant tegner ikke rummene. Opret og navngiv dem først i producentens
+app, hvis din model kræver det. Home Assistant kobler derefter segmenterne til
+sine egne områder.
+</Aside>
+
+## Før du begynder
+
+Kontrollér fire ting:
+
+- Støvsugeren er tilføjet gennem en integration, der understøtter
+  områderengøring.
+- Kortet i producentens app er færdigt og gemt.
+- De tilsvarende områder findes i Home Assistant.
+- Gulvet er sikkert at teste på: ingen løse ledninger, væsker, småt legetøj
+  eller åbne trapper uden pålidelig afgrænsning.
+
+Brug tydelige områdenavne. `Køkken` i begge systemer er lettere at vedligeholde
+end `Rum 3` i appen og `Alrum øst` i Home Assistant.
+
+## Knyt rummene til Home Assistant
+
+<Steps>
+1. **Åbn støvsugerens entitet**
+
+   Gå til **Indstillinger → Enheder og tjenester → Entiteter**, og vælg
+   støvsugerentiteten.
+
+2. **Åbn entitetsindstillinger**
+
+   Vælg tandhjulet i entitetens dialog.
+
+3. **Vælg segmentkobling**
+
+   Åbn **Knyt støvsugersegmenter til områder**. Hvis valget ikke findes,
+   understøtter den aktuelle integration eller enhed ikke handlingen.
+
+4. **Knyt hvert segment**
+
+   Vælg det Home Assistant-område, der svarer til hvert rum fra
+   støvsugerkortet. Lad ukendte eller ubrugte segmenter stå, til du ved, hvad de
+   er.
+
+5. **Gem**
+
+   Kontrollér koblingen én ekstra gang, især hvis to rum har næsten samme navn.
+</Steps>
+
+Hvis listen over støvsugerrum er tom, så åbn producentens app og gem eller
+bekræft rummene igen. Genindlæs derefter integrationen eller vent på næste
+opdatering af enheden.
+
+## Test ét ufarligt rum
+
+Før du bygger en tidsplan, skal handlingen virke alene.
+
+1. Gå til **Indstillinger → Udviklerværktøjer → Handlinger**.
+2. Vælg **Rengør område med støvsuger**.
+3. Vælg støvsugerentiteten.
+4. Vælg ét lille, ryddet område.
+5. Udfør handlingen.
+6. Se fysisk, at støvsugeren kører til det rigtige rum.
+7. Vent på, at den afslutter eller vender tilbage til basen.
+
+Et ændret statusfelt i Home Assistant er nyttigt, men det er ikke alene bevis
+på, at det rigtige gulvareal blev rengjort.
+
+<Aside type="caution" title="Start aldrig en ukontrolleret første test">
+Robotstøvsugere kan trække ledninger, sprede væske eller sidde fast. Kontrollér
+området fysisk, før den første fjernstyrede eller automatiske kørsel.
+</Aside>
+
+## Byg en enkel hverdagsautomation
+
+Et roligt første eksempel kan være:
+
+> På hverdage klokken 10, hvis ingen er hjemme og støvsugeren står i basen,
+> rengør køkken og entré.
+
+Byg den i automationseditoren:
+
+<Steps>
+1. **Vælg et tidspunkt**
+
+   Brug en almindelig tidstrigger på de relevante hverdage.
+
+2. **Kontrollér tilstedeværelse**
+
+   Tilføj en betingelse om, at hjemmet er tomt. Brug den person- eller
+   zoneopsætning, du allerede har testet.
+
+3. **Kontrollér støvsugeren**
+
+   Tilføj den formålsbestemte betingelse for, at støvsugeren står i basen, hvis
+   integrationen tilbyder den.
+
+4. **Tilføj Rengør område**
+
+   Vælg støvsugeren og områderne `Køkken` og `Entré`.
+
+5. **Gem med et konkret navn**
+
+   Brug eksempelvis `Støvsug køkken og entré på hverdage`.
+
+6. **Test handlingen og derefter forløbet**
+
+   Kør først kun rengøringshandlingen. Test senere en naturlig kørsel, hvor
+   trigger og betingelser også er med.
+</Steps>
+
+Hold den første automation enkel. Tilføj ikke samtidig vejr, kalender, døre,
+gæster, batteriniveau og genforsøg. Når en uge fungerer stabilt, kan du tilføje
+én nødvendig betingelse ad gangen.
+
+## Gode betingelser
+
+Vælg kun betingelser, som løser et reelt problem:
+
+| Problem | Mulig betingelse |
+|---|---|
+| Støj mens familien er hjemme | Ingen personer hjemme |
+| Kørsel med for lavt batteri | Støvsugeren står i basen eller har passende batteri |
+| Lukket dør til et rum | Vælg kun områder, som normalt er tilgængelige |
+| Kørsel under nattero | Begræns til dagtimer |
+| Gæster eller hjemmearbejde | Kalenderhjælper eller manuel pauseknap |
+
+En pausehjælper som `Sæt rengøring på pause` kan være bedre end en kompliceret
+kalenderregel. Familien kan forstå og bruge den.
+
+## Når rumkortet ændrer sig
+
+Hvis du opdeler et rum, flytter en væg på kortet eller nulstiller støvsugeren,
+kan segmenterne få nye identifikatorer. Åbn entitetsindstillingerne og
+kontrollér koblingen igen, før næste automatiske kørsel.
+
+Giv automationen en beskrivelse med de forventede områder. Så er det tydeligt,
+hvad der skal kontrolleres efter en kortændring.
+
+## Typiske fejl
+
+### Indstillingen til segmentkobling findes ikke
+
+Din aktuelle kombination af støvsuger og integration understøtter ikke
+`vacuum.clean_area`. Brug producentens understøttede handlinger, eller vent på
+integrationens understøttelse — lad være med at gætte interne rumnumre.
+
+### Der er ingen rum i venstre side
+
+Åbn producentens app, færdiggør kortet, navngiv rummene og gem dem igen.
+
+### Støvsugeren kører til det forkerte rum
+
+Stop kørsel sikkert, og kontrollér segmentkoblingen. Kortsegmenterne kan være
+ændret efter en ny kortlægning.
+
+### Automationens Kør handlinger virker, men den starter ikke selv
+
+Knappen springer trigger og betingelser over. Åbn automationens Spor efter en
+naturlig kørsel, og find den første betingelse, der ikke blev opfyldt.
+
+<CardGrid>
+  <Card title="Robotstøvsugere" icon="setting">
+    Se valg og forskelle i [smart rengøring](/da/produkter/smart-rengoering/).
+  </Card>
+  <Card title="Forstå kørselen" icon="document">
+    Fejlfind automationen med [Aktivitet og Spor](/da/home-assistant/aktivitet-og-spor/).
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+- [Home Assistant 2026.3: Send your vacuum to clean specific areas](https://www.home-assistant.io/blog/2026/03/04/release-20263/)
+- [Vacuum-integrationen og Rengør område](https://www.home-assistant.io/integrations/vacuum/)

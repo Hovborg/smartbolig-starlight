@@ -1,0 +1,184 @@
+---
+title: Find the cause with Activity and Traces
+description: See what happened at home, who or what caused it, and where an automation stopped without starting in log files.
+sidebar:
+  badge:
+    text: "2026.7"
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Beginner" variant="success" /> <Badge text="Home Assistant 2026.7" variant="note" />
+
+![An entrance hall and living room with a subtle timeline connecting a door sensor, motion, and a light](/images/guides/aktivitet-og-spor.webp)
+
+A light comes on in the middle of the night. The heating changes temperature.
+One alert arrives twice. Before changing anything, it helps to establish what
+actually happened.
+
+In Home Assistant 2026.7, the former logbook became **Activity**: a clearer
+timeline that shows both an event and its cause. If an automation was involved,
+you can continue to its **Trace** and inspect that run step by step.
+
+<Aside type="tip" title="Use both views together">
+Activity answers *what happened, when, and what started it?* A trace answers
+*which path did this particular automation take?*
+</Aside>
+
+## Activity, History, and Traces
+
+The three tools look related, but solve different problems:
+
+| Tool | Best for | What it shows |
+|---|---|---|
+| Activity | A quick explanation | Changes in time order and their causes |
+| History | A pattern over time | State changes and graphs for selected entities |
+| Trace | One automation run | Its trigger, conditions, actions, and errors |
+
+Start in Activity when the question is “Why did the lamp turn on?” Start in
+History when it is “How often does the temperature change during the day?”
+Open a trace when Activity points to an automation.
+
+## Investigate an unexpected event
+
+Imagine that the hallway light came on at 2:14 AM.
+
+<Steps>
+1. **Note the time and device**
+
+   Write down the approximate time and use the lamp's Home Assistant name. That
+   is more useful than a name from the manufacturer's app.
+
+2. **Open the lamp's activity**
+
+   Open the lamp from a dashboard or device page. Its more-info dialog contains
+   a compact activity view for that entity.
+
+3. **Find the right change**
+
+   Select the time to switch between relative and exact time. Look at the icon
+   beside the event: it may identify a user, automation, or integration as the
+   cause.
+
+4. **Follow the cause**
+
+   If an automation is named, open that activity entry and continue to the
+   automation trace.
+
+5. **Read the path that ran**
+
+   The trace highlights the route taken through the automation. Select the step
+   where a condition failed or an action behaved unexpectedly.
+
+6. **Compare affected entities**
+
+   Use the trace's related activity. Check whether the sensor changed before
+   the light and whether another automation reacted to the same event.
+</Steps>
+
+The order matters. Manually controlling a lamp only proves the lamp can be
+controlled. It does not prove that the trigger, condition, and natural run
+work.
+
+## Read the timeline without guessing
+
+The new timeline is grouped by day and reads from top to bottom. Colored state
+dots make on and off easier to distinguish, while the cause appears next to the
+event.
+
+Look for:
+
+- a **user avatar** when someone changed the state in the app;
+- an **automation icon** when an automation caused it;
+- an **integration icon** when it came directly from a device or service;
+- a missing cause, which may simply mean the source provides no further
+  context.
+
+Events occurring close together are not automatically causal. If a motion
+sensor and a light change at nearly the same time, open the trace before
+concluding that one triggered the other.
+
+## When there is no trace
+
+Home Assistant normally stores the five most recent traces for each
+automation. A trace is created only when the automation actually runs. **Run
+actions** skips its triggers and conditions, so it cannot prove the complete
+flow.
+
+Check these in order:
+
+1. Is the automation enabled?
+2. Does the expected trigger event appear in Activity?
+3. Does its time match an automation run?
+4. Does the editor show that the condition currently passes?
+5. Can you produce a safe natural run and then open its trace?
+
+If an important automation runs frequently, the default five traces can be
+replaced quickly. Increase the count only for a clear reason; storing more
+traces is not a substitute for investigating a fresh problem.
+
+## When Activity has missing data
+
+Activity relies on data stored by Home Assistant's **Recorder**. If an entity
+is excluded from Recorder, or older data has passed the retention period, the
+timeline cannot reconstruct it.
+
+Before changing filters or retention:
+
+- check whether recent events appear;
+- open the entity's History;
+- review Recorder under **Settings → System → Repairs → System information**;
+- do not make the database larger “just in case.”
+
+<Aside type="caution" title="Activity can reveal household routines">
+The timeline may show when doors open, lights are used, and people arrive home.
+Give Home Assistant access only to appropriate users and protect your backups.
+</Aside>
+
+## A simple troubleshooting habit
+
+Once you know the cause, record it in the automation description:
+
+> July 30: The light was triggered by the basement motion sensor, which had
+> accidentally been assigned to the Hallway area. Moved it to the correct area.
+
+A short note is more useful than ten changes nobody remembers. Change one
+thing, wait for a natural run, and compare the new trace with the old one.
+
+## Common problems
+
+### Activity only says the light was turned on
+
+Open the full Activity page and the affected device. Integrations do not all
+provide the same amount of causal context.
+
+### The trace stops at a condition
+
+Select the condition and read its actual result. Fix the documented state or
+threshold instead of adding an arbitrary delay.
+
+### Run actions works, but the automation does not
+
+That is expected when the problem is in the trigger or a condition. **Run
+actions** skips both. Test with a natural event.
+
+### The wrong automation responds
+
+Open related activity around the same time. Two automations can react to the
+same sensor without being aware of each other.
+
+<CardGrid>
+  <Card title="New automations" icon="rocket">
+    Build the next one with the [new 2026.7 triggers](/en/home-assistant/automationer-2026-7/).
+  </Card>
+  <Card title="General troubleshooting" icon="document">
+    Continue with [Home Assistant troubleshooting](/en/home-assistant/fejlfinding/).
+  </Card>
+</CardGrid>
+
+## Official sources
+
+- [Home Assistant 2026.7: Activity logbook](https://www.home-assistant.io/blog/2026/07/01/release-20267/)
+- [Activity integration](https://www.home-assistant.io/integrations/logbook/)
+- [Testing and troubleshooting automations](https://www.home-assistant.io/docs/automation/troubleshooting/)

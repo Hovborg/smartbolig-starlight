@@ -1,0 +1,187 @@
+---
+title: Infrared proxy in Home Assistant
+description: Bring TVs, soundbars, and other IR devices into Home Assistant with a supported infrared proxy, correct placement, and honest state verification.
+sidebar:
+  badge:
+    text: Infrared
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Home Assistant 2026.4+" variant="note" /> <Badge text="Local signal" variant="success" />
+
+Home Assistant 2026.4 made infrared control a shared part of the platform. A
+small IR proxy can send commands to an existing TV, soundbar, or air
+conditioner without giving the appliance Wi-Fi or a cloud account.
+
+A complete setup has three parts: an IR transmitter, the integration that
+connects it to Home Assistant, and a device-specific integration that knows the
+appliance's commands.
+
+```text
+Home Assistant → device integration → infrared entity → IR proxy → appliance
+```
+
+<Aside type="caution" title="Infrared is usually one-way">
+A normal IR signal does not tell Home Assistant whether the appliance received
+the command. Many integrations must therefore use an assumed state. Add a
+separate power sensor or a proper network integration when reliable feedback
+matters.
+</Aside>
+
+## What can you control?
+
+Common candidates include:
+
+- TVs and projectors;
+- soundbars, receivers, and active speakers;
+- fans;
+- air conditioners and heat pumps with handheld IR remotes;
+- older media equipment.
+
+Home Assistant's shared infrared layer is not a database of every remote.
+There still needs to be an integration that supports the appliance or a
+documented path for learning and transmitting the required codes.
+
+## Choose a proxy
+
+| Solution | Advantage | Watch for |
+|---|---|---|
+| ESPHome Ready-Made IR Proxy | Local, open, and adoptable in ESPHome | Requires compatible hardware and line of sight |
+| Broadlink RM with official integration | Finished enclosure and learned commands | Features vary by model |
+| Another supported IR adapter | May fit equipment you already own | Confirm it creates an infrared entity |
+
+Home Assistant and ESPHome use the Seeed Studio XIAO IR Mate as a ready-made
+example. Do not buy on product name alone; check the current compatibility list
+and the device-specific integration first.
+
+## Place it before configuring it
+
+Infrared light normally does not travel through walls or closed cabinets.
+
+- Give the transmitter a clear path to the appliance's IR receiver.
+- Do not hide it behind a TV unless its angle still reaches the receiver.
+- Start testing at short range.
+- Strong sunlight and some light sources can reduce reliability.
+- Use separate proxies for appliances in different rooms.
+
+A stronger transmitter cannot fix a physically blocked signal. Move the proxy
+and test again before changing software.
+
+## Set up an ESPHome IR proxy
+
+<Steps>
+1. **Check the hardware and device integration**
+
+   Confirm the exact proxy board is supported and Home Assistant has an
+   infrared integration for the appliance you want to control.
+
+2. **Flash the ready-made project**
+
+   Connect the board with a data cable and open ESPHome's official
+   **Ready-Made Projects** in a supported browser. Select the exact board.
+
+3. **Add network details**
+
+   Enter Wi-Fi details and wait for the device to come online. Home Assistant
+   should then discover it as an ESPHome device.
+
+4. **Adopt it in ESPHome**
+
+   Adopt the configuration if you want to own and update its YAML. Save the
+   working default before adding custom components.
+
+5. **Check the infrared entity**
+
+   Open the proxy device page. Confirm the transmitter is available and
+   **Settings → Infrared** shows the adapter online.
+
+6. **Add the appliance integration**
+
+   Add the supported TV, speaker, or appliance integration. When setup asks
+   for an IR transmitter, select the proxy's infrared entity.
+</Steps>
+
+## Verify a real command
+
+Test one unambiguous command:
+
+1. Point the proxy at the appliance from a short distance.
+2. Send `Volume up`, a navigation command, or a discrete power command.
+3. Watch the appliance respond physically.
+4. Move the proxy to its intended position.
+5. Repeat the test at least five times.
+6. Check Activity and the last infrared transmission time.
+
+Avoid using a toggle as the only test. A `Power toggle` can leave Home
+Assistant's assumed state out of sync when a command is missed or someone uses
+the physical remote.
+
+## Automate carefully
+
+Good first automations include:
+
+- select a known TV input as part of a scene;
+- turn off a media appliance at bedtime;
+- lower volume at a set time;
+- start an air conditioner when a separate temperature sensor crosses a limit.
+
+Heating and cooling need independent temperature measurement and a safe stop
+path. Sending an IR command does not prove the appliance started.
+
+## Learned commands and codes
+
+Some adapter integrations, including supported Broadlink devices, can learn a
+command from the physical remote and play it back. Give commands stable names
+and document:
+
+- appliance and model;
+- function;
+- selected adapter and room;
+- whether it is discrete or a toggle;
+- how the physical result is verified.
+
+Do not send random codes from the internet without confirming protocol and
+model. An incorrect code may invoke an unexpected service function.
+
+## Troubleshooting
+
+### The adapter does not appear under Infrared
+
+Confirm the proxy integration is loaded, its firmware supports the infrared
+entity, and the device is online. A normal `remote` entity is not necessarily
+the new infrared building block.
+
+### Home Assistant sends but nothing happens
+
+Test at short range with clear line of sight. Check appliance model, selected
+transmitter, and IR LED direction. A transmission timestamp only shows that
+Home Assistant attempted to send.
+
+### The displayed state is wrong
+
+That is expected with one-way control and toggle commands. Use discrete
+commands where available or add independent feedback such as power
+measurement.
+
+### Several rooms are unreliable
+
+IR does not travel through walls. Use one well-placed proxy per room or
+appliance group instead of increasing transmit power without evidence.
+
+<CardGrid>
+  <Card title="ESPHome foundation" icon="rocket">
+    Read [ESPHome Advanced](/en/esp32/esphome-avanceret/) before changing the proxy configuration.
+  </Card>
+  <Card title="Home media" icon="setting">
+    Continue with [media and entertainment](/en/produkter/medier-entertainment/).
+  </Card>
+</CardGrid>
+
+## Official sources
+
+- [Infrared in Home Assistant](https://www.home-assistant.io/integrations/infrared/)
+- [Home Assistant 2026.4: Infrared never left the chat](https://www.home-assistant.io/blog/2026/04/01/release-20264/)
+- [ESPHome Ready-Made Projects](https://esphome.io/projects/)
+- [Broadlink integration](https://www.home-assistant.io/integrations/broadlink/)

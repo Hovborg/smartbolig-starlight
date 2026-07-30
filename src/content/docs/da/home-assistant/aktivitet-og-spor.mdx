@@ -1,0 +1,186 @@
+---
+title: Find årsagen med Aktivitet og Spor
+description: Se hvad der skete i hjemmet, hvem eller hvad der udløste det, og hvor en automation stoppede — uden at begynde i logfiler.
+sidebar:
+  badge:
+    text: "2026.7"
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Begynder" variant="success" /> <Badge text="Home Assistant 2026.7" variant="note" />
+
+![En entré og stue, hvor en diskret tidslinje forbinder dørsensor, bevægelse og lys](/images/guides/aktivitet-og-spor.webp)
+
+Et lys tænder midt om natten. Varmen ændrer temperatur. En besked kommer to
+gange. Før man retter noget, er det værd at finde ud af, hvad der faktisk
+skete.
+
+I Home Assistant 2026.7 er den tidligere logbog blevet til **Aktivitet**: en
+mere overskuelig tidslinje, som viser både hændelsen og dens årsag. Hvis en
+automation var involveret, kan du fortsætte direkte til dens **Spor** og se
+kørslen trin for trin.
+
+<Aside type="tip" title="Brug de to visninger sammen">
+Aktivitet svarer på *hvad skete hvornår — og hvem startede det?* Spor svarer på
+*hvilken vej tog netop denne automation?*
+</Aside>
+
+## Aktivitet, Historik og Spor
+
+De tre værktøjer ligner hinanden, men løser forskellige opgaver:
+
+| Værktøj | Bedst til | Det viser |
+|---|---|---|
+| Aktivitet | En hurtig forklaring | Ændringer i tidsorden og deres årsag |
+| Historik | Et mønster over tid | Kurver og tilstande for udvalgte entiteter |
+| Spor | En konkret automation | Trigger, betingelser, handlinger og fejl i én kørsel |
+
+Begynd i Aktivitet, når spørgsmålet er: “Hvorfor tændte lampen?” Begynd i
+Historik, hvis spørgsmålet er: “Hvor ofte skifter temperaturen i løbet af
+dagen?” Åbn Spor, når Aktivitet peger på en automation.
+
+## Sådan undersøger du en uventet hændelse
+
+Forestil dig, at lyset i gangen tændte klokken 02.14.
+
+<Steps>
+1. **Notér tid og enhed**
+
+   Skriv det omtrentlige klokkeslæt ned, og brug lampens navn i Home Assistant.
+   Det er hurtigere end at lede efter et navn fra producentens app.
+
+2. **Åbn lampens aktivitet**
+
+   Åbn lampen fra dashboardet eller enhedsoversigten. I dens detaljevisning kan
+   du se den kompakte aktivitet for netop denne entitet.
+
+3. **Find den rigtige ændring**
+
+   Vælg tidspunktet for at skifte mellem relativ og præcis tid. Se efter
+   ikonet ved hændelsen: en bruger, en automation eller en integration kan være
+   angivet som årsag.
+
+4. **Følg årsagen**
+
+   Hvis en automation står som årsag, åbner du den pågældende aktivitet. Gå
+   derfra til automationens spor.
+
+5. **Læs kun den kørte vej**
+
+   Sporet markerer den sti, automationen fulgte. Vælg det enkelte trin, hvor en
+   betingelse fejlede, eller hvor en handling gjorde noget uventet.
+
+6. **Sammenlign med de berørte enheder**
+
+   Brug fanen med relateret aktivitet i sporet. Kontrollér, om sensoren skiftede
+   tilstand før lyset, og om andre automationer reagerede på samme hændelse.
+</Steps>
+
+Denne rækkefølge er vigtig. En manuel test af en lampe viser kun, at lampen kan
+styres. Den beviser ikke, at triggeren, betingelsen og den naturlige kørsel
+virker.
+
+## Læs tidslinjen uden at gætte
+
+Den nye tidslinje er grupperet efter dag og læses oppefra og ned. Farvede
+tilstandspunkter gør det lettere at skelne eksempelvis tændt fra slukket, og
+årsagen står tæt ved hændelsen.
+
+Hold især øje med:
+
+- **brugerens avatar**, hvis nogen ændrede tilstanden i appen;
+- **automationsikonet**, hvis en automation stod bag;
+- **integrationsikonet**, hvis ændringen kom direkte fra en enhed eller
+  tjeneste;
+- en manglende årsag, som kan betyde, at kilden ikke leverer mere kontekst.
+
+En tidsmæssig sammenhæng er ikke altid en årsag. Hvis en bevægelsessensor og et
+lys skifter næsten samtidig, så åbn sporet, før du konkluderer, at sensoren
+udløste lyset.
+
+## Når automationen ikke har noget spor
+
+Home Assistant gemmer normalt de seneste fem spor for hver automation. Et spor
+oprettes først, når automationen faktisk har kørt. Knappen **Kør handlinger**
+springer trigger og betingelser over, så den kan ikke bevise hele forløbet.
+
+Kontrollér i denne rækkefølge:
+
+1. Er automationen aktiveret?
+2. Findes den forventede triggerhændelse i Aktivitet?
+3. Passer tidspunktet med en automationkørsel?
+4. Viser editoren, at betingelsen er opfyldt?
+5. Kan du fremkalde en ufarlig, naturlig kørsel og derefter åbne sporet?
+
+Hvis en vigtig automation kører meget ofte, kan de fem standardsport hurtigt
+blive overskrevet. Udvid kun antallet, hvis du har et konkret behov; flere spor
+er ikke en erstatning for at undersøge fejlen, mens den er frisk.
+
+## Når Aktivitet mangler data
+
+Aktivitet bruger data fra Home Assistants **Recorder**. Hvis en entitet er
+udelukket fra Recorder, eller hvis de gamle data er slettet efter
+opbevaringsperioden, kan tidslinjen ikke genskabe dem.
+
+Før du ændrer filtrering eller opbevaring:
+
+- kontrollér om nyere hændelser vises;
+- åbn entitetens Historik;
+- se systemets Recorder-oplysninger under **Indstillinger → System →
+  Reparationer → Systeminformation**;
+- undgå at gøre databasen større “for en sikkerheds skyld”.
+
+<Aside type="caution" title="Aktivitet kan afsløre hverdagsmønstre">
+Tidslinjen kan vise, hvornår døre åbnes, lys bruges, og personer kommer hjem.
+Giv kun passende brugere adgang til Home Assistant, og beskyt dine backups.
+</Aside>
+
+## En enkel fejlfindingsvane
+
+Når noget opfører sig forkert, så gem forklaringen i automationens beskrivelse:
+
+> 30. juli: Lyset tændte på grund af bevægelse fra kældersensoren, som fejlagtigt
+> lå i området Gang. Sensoren blev flyttet til korrekt område.
+
+En kort note er mere værd end ti ændringer, man senere ikke kan huske. Ret én
+ting ad gangen, vent på en naturlig kørsel, og sammenlign det nye spor med det
+gamle.
+
+## Typiske fejl
+
+### Aktivitet viser kun at lyset blev tændt
+
+Åbn den fulde Aktivitet-side og den berørte enhed. Ikke alle integrationer
+leverer samme mængde årsagskontekst.
+
+### Sporet stopper ved en betingelse
+
+Vælg betingelsen i sporet og læs dens faktiske resultat. Ret den dokumenterede
+tilstand eller grænse frem for at tilføje en tilfældig forsinkelse.
+
+### Kør handlinger virker, men automationen gør ikke
+
+Det er forventeligt, hvis problemet ligger i triggeren eller en betingelse.
+**Kør handlinger** springer begge dele over. Test en naturlig hændelse.
+
+### Den forkerte automation reagerer
+
+Åbn relateret aktivitet omkring samme tidspunkt. To automationer kan reagere på
+den samme sensor uden at kende til hinanden.
+
+<CardGrid>
+  <Card title="Nye automationer" icon="rocket">
+    Byg den næste automation med [de nye 2026.7-triggere](/da/home-assistant/automationer-2026-7/).
+  </Card>
+  <Card title="Generel fejlfinding" icon="document">
+    Gå videre med [Home Assistant-fejlfinding](/da/home-assistant/fejlfinding/).
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+- [Home Assistant 2026.7: Activity logbook](https://www.home-assistant.io/blog/2026/07/01/release-20267/)
+- [Activity-integrationen](https://www.home-assistant.io/integrations/logbook/)
+- [Test og fejlfinding af automationer](https://www.home-assistant.io/docs/automation/troubleshooting/)

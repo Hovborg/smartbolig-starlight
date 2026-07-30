@@ -1,0 +1,193 @@
+---
+title: New automations in Home Assistant 2026.7
+description: Build robust automations with Home Assistant's new purpose-specific triggers, areas, and readable traces without starting from technical entity states.
+sidebar:
+  badge:
+    text: "2026.7"
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Beginner" variant="success" /> <Badge text="Home Assistant 2026.7" variant="note" />
+
+Home Assistant 2026.7 changes the starting point for new automations. Instead of
+first choosing between technical trigger types such as *state* and *numeric
+state*, you can begin with the event you care about: a door opens, the
+temperature drops, a battery runs low, or motion is detected in an area.
+
+This guide uses an outdoor motion light as a practical example. Your existing
+automations are not converted or disabled by the update.
+
+<Aside type="note" title="This is not an AI generator">
+The editor provides clearer, purpose-specific triggers and conditions. You
+still choose the event, limits, and actions yourself, and Home Assistant stores
+an ordinary automation configuration.
+</Aside>
+
+## What changed?
+
+| Before | New starting point |
+|---|---|
+| Choose a technical trigger type | Choose an event such as “motion detected” |
+| Often point to one entity | Select an area where the integration supports it |
+| Know about `on`, `off`, and attributes | Let the integration describe the useful event |
+| Find the documentation separately | Open trigger, condition, or action documentation from the editor |
+
+The integration behind a device can provide its own readable triggers and
+conditions. The available choices therefore depend on your integrations and
+device types. The generic editor and YAML remain available.
+
+## Prepare the foundation
+
+Spend five minutes on the setup before building:
+
+- assign devices to the correct **areas**;
+- give sensors and lights short, distinct names;
+- confirm the sensor changes state in Home Assistant;
+- manually test the action you plan to automate;
+- start with a small, low-risk example.
+
+Areas work well when the intent concerns the room rather than one particular
+sensor. If you replace that sensor later, an area-based automation can be
+easier to maintain.
+
+## Example: outdoor light on motion
+
+The goal is:
+
+> When motion is detected outside after sunset, turn on the outdoor lights.
+> Turn them off after the area has been quiet for five minutes.
+
+<Steps>
+1. **Create the automation**
+
+   Go to **Settings → Automations & scenes → Create automation → Create new
+   automation**.
+
+2. **Choose the event**
+
+   Under **When**, search for motion and select the purpose-specific motion
+   detected trigger. Choose the `Outside` area if the editor offers area
+   targeting. Otherwise select the stable motion sensor entity.
+
+3. **Limit it to darkness**
+
+   Under **And if**, add the built-in sun condition for after sunset. Prefer
+   this to a hand-written time template.
+
+4. **Turn on the lights**
+
+   Under **Then do**, choose the turn-on action and target the `Outside` area
+   or the specific lights you want.
+
+5. **Wait for quiet**
+
+   Add a wait action for the motion sensor to become inactive. Follow it with a
+   five-minute delay, then turn the lights off.
+
+6. **Choose restart mode**
+
+   Set the automation mode to **Restart**. New motion should restart the
+   timeout instead of being ignored.
+
+7. **Save with a useful name**
+
+   A name such as `Outdoor lights – motion after dark` will be easier to find
+   and debug later.
+</Steps>
+
+<Aside type="tip" title="Area or entity?">
+Use an area when the intent applies to the whole space. Use a specific entity
+when one sensor or light has a special role that must not follow the rest of
+the area.
+</Aside>
+
+## Test without waiting for tonight
+
+Check each boundary separately:
+
+1. Run only the light action from the editor.
+2. Confirm the intended light or area responds.
+3. Trigger the motion sensor and watch its state.
+4. Open the automation **Trace** and inspect the selected trigger and condition.
+5. Use **Activity** to see what turned the light on and off.
+
+A successful manual action does not prove the trigger works. A trace from a
+complete natural run is the stronger check.
+
+## Should old automations be rebuilt?
+
+No. Home Assistant states that existing automations, generic triggers,
+templates, and YAML continue to work. Use the new editor for new automations
+first. Change an existing automation only when doing so fixes a real problem or
+makes it meaningfully easier to maintain.
+
+Before changing an important automation:
+
+- take a backup or duplicate it;
+- record its current trigger and mode;
+- change one part at a time;
+- compare traces before and after;
+- keep the former version disabled briefly if the automation is important.
+
+## Good choices in the new editor
+
+### Prefer built-in conditions
+
+Select temperature threshold, time, sun, zone, or state directly. Templates
+remain useful for special calculations, but are harder to validate and debug.
+
+### Use stable targets
+
+Prefer an area or `entity_id` for ordinary devices. Internal `device_id` values
+can change when a device is removed and added again.
+
+### Pick the right run mode
+
+| Situation | Mode |
+|---|---|
+| Motion light with a timeout | Restart |
+| Locks or doors processed in order | Queued |
+| Independent events that may overlap | Parallel |
+| One short notification | Single |
+
+## Troubleshooting
+
+### The trigger I need is missing
+
+Update Home Assistant and the relevant integration. Not every integration
+provides purpose-specific triggers yet. Use a normal state or numeric threshold
+trigger when it accurately represents the event.
+
+### The area controls too many devices
+
+Review area assignments and which domains the action targets. Select individual
+entities if only particular lights should respond.
+
+### The light turns off despite new motion
+
+Confirm the automation uses **Restart** and that the new motion actually starts
+a fresh run. Read the trace before extending the delay.
+
+### The trigger works but the action stops
+
+Open the latest trace. Check the condition result and the first failed action.
+Fix the documented failure instead of adding more delays.
+
+<CardGrid>
+  <Card title="First automation" icon="rocket">
+    Start from the beginning with [your first automation](/en/home-assistant/foerste-automation/).
+  </Card>
+  <Card title="More ideas" icon="document">
+    Browse practical patterns in the [automations overview](/en/automationer/).
+  </Card>
+</CardGrid>
+
+## Official sources
+
+- [Home Assistant 2026.7: Automations that speak your language](https://www.home-assistant.io/blog/2026/07/01/release-20267/)
+- [Understanding automations](https://www.home-assistant.io/docs/automation/basics/)
+- [Automation triggers](https://www.home-assistant.io/docs/automation/trigger/)
+- [Conditions](https://www.home-assistant.io/docs/scripts/conditions/)
+- [Actions](https://www.home-assistant.io/docs/automation/action/)

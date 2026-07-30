@@ -1,0 +1,227 @@
+---
+title: AI Task i Home Assistant
+description: Brug AI Task til korte resuméer, kameraanalyser og strukturerede data i Home Assistant med tydelige grænser for privatliv, pris og fejl.
+sidebar:
+  badge:
+    text: AI Task
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Valgfri AI" variant="note" /> <Badge text="Automationer" variant="success" />
+
+**AI Task** lader en automation sende en afgrænset opgave til en AI-model og få
+tekst eller strukturerede data tilbage. Det kan bruges til et kort
+kameraresumé, en læsevenlig vejrbesked eller kategorisering af information.
+
+Det er en byggesten, ikke en AI-tjeneste i sig selv. En anden integration skal
+levere en AI Task-entitet og den model, som udfører arbejdet.
+
+<Aside type="caution" title="AI-resultater er ikke sensordata">
+En AI-model kan overse, misforstå eller opfinde detaljer. Brug ikke resultatet
+som eneste grundlag for at låse en dør op, deaktivere alarm, styre farlig varme
+eller afgøre, hvem en person er.
+</Aside>
+
+## Hvornår giver AI Task mening?
+
+| God anvendelse | Dårlig anvendelse |
+|---|---|
+| Skriv et kort resumé af ikke-kritiske data | Erstat en røg-, gas- eller lækagesensor |
+| Beskriv et dørkamera til en notifikation | Genkend en person og lås døren op |
+| Sortér en tekst i få kategorier | Træf en irreversibel beslutning |
+| Lav en venlig statusbesked | Brug fri tekst som sikker numerisk måling |
+| Uddrag strukturerede felter med kontrol | Send hele hjemmets historik uden behov |
+
+Brug almindelige Home Assistant-sensorer og betingelser til selve
+sikkerhedslogikken. Lad AI Task formulere eller berige information, når en fejl
+ikke skaber en farlig handling.
+
+## Forstå arbejdsgangen
+
+```text
+Trigger → afgrænset input → AI Task-entitet → svar → kontrol → notifikation eller visning
+```
+
+AI Task kan levere:
+
+- almindelig tekst;
+- strukturerede felter, som du selv definerer;
+- analyse af understøttede filer eller kamerabilleder;
+- et genereret billede, hvis den valgte integration og model understøtter det.
+
+Funktionerne varierer mellem udbydere og modeller. Kontrollér den konkrete
+integrations funktionsoversigt frem for at antage, at alle kan behandle billeder
+eller levere samme struktur.
+
+## Vælg lokal eller cloudbaseret model
+
+| Valg | Fordel | Omkostning |
+|---|---|---|
+| Lokal model via en understøttet integration | Data kan blive på dit eget netværk | Kræver hardware, modeldrift og ofte mere ventetid |
+| Cloudmodel | Nem adgang og ofte stærk billedforståelse | Data forlader hjemmet, og API-brug kan koste penge |
+
+“Lokal Home Assistant” betyder ikke, at AI-opgaven er lokal. Hvis modellen
+kører hos en udbyder, sendes instruktion og vedhæftninger til udbyderen efter
+dennes vilkår.
+
+## Opret en AI Task-entitet
+
+<Steps>
+1. **Vælg en kompatibel AI-integration**
+
+   Læs Home Assistants dokumentation for den konkrete udbyder. Kontrollér at
+   integrationen tilbyder en AI Task-entitet, ikke kun en conversation-agent.
+
+2. **Tilføj integrationen fra brugerfladen**
+
+   Gå til **Indstillinger → Enheder og tjenester → Tilføj integration**. Følg
+   integrationsflowet og opbevar API-nøgler i Home Assistants
+   credential-lager — ikke i automationsbeskrivelser eller YAML-eksempler.
+
+3. **Opret AI Task-underposten**
+
+   Åbn integrationen og tilføj den AI Task-konfiguration, som den tilbyder.
+   Vælg en model med de nødvendige funktioner og en rimelig forbrugsgrænse.
+
+4. **Vælg foretrukken AI Task**
+
+   Gå til **Indstillinger → System → AI-opgaver** og vælg den foretrukne
+   AI Task-entitet. Det gør blueprints og handlinger lettere at genbruge.
+
+5. **Start med en teksttest**
+
+   Kør handlingen `ai_task.generate_data` fra udviklerværktøjerne eller en
+   midlertidig testautomation. Brug ufølsomme input og et kort, kontrollerbart
+   svar.
+</Steps>
+
+## Første eksempel: læsevenlig indeklimastatus
+
+Brug eksisterende temperatur- og fugtsensorer som fakta. AI Task skal kun
+formulere teksten.
+
+1. Opret en automation med et fast tidspunkt som trigger.
+2. Tilføj handlingen **AI Task: Generate data**.
+3. Giv opgaven et stabilt navn som `Morgenstatus indeklima`.
+4. Indsæt de aktuelle sensorværdier i instruktionen.
+5. Bed om højst tre korte sætninger uden anbefalinger om sundhed.
+6. Gem svaret i en responsvariabel.
+7. Send teksten til en persistent notifikation eller din mobil.
+
+Instruktionen kan eksempelvis beskrive:
+
+> Brug kun tallene nedenfor. Skriv højst tre nøgterne sætninger på dansk.
+> Temperatur i stuen: 21,2 °C. Luftfugtighed: 46 %. Udendørs temperatur: 12 °C.
+
+Sensorerne er stadig sandhedskilden. Hvis AI-opgaven fejler, bør automationen
+enten stoppe eller sende en almindelig besked med rå værdier.
+
+## Kameraresumé uden falsk sikkerhed
+
+En understøttet AI Task-entitet kan modtage et kamerabillede som vedhæftning.
+Et forsigtigt dørkamera-flow er:
+
+<Steps>
+1. Brug dørklokken eller bevægelsessensoren som almindelig trigger.
+2. Send kun det relevante kamerabillede til AI Task.
+3. Bed om en kort beskrivelse af synlige objekter og aktivitet.
+4. Forbyd gæt om identitet, alder, helbred eller hensigt.
+5. Send billede og tekst sammen i notifikationen.
+6. Lad modtageren træffe beslutningen; udfør ingen låse- eller alarmhandling fra beskrivelsen.
+</Steps>
+
+En beskrivelse som “en person står ved døren med en pakke” kan være praktisk,
+men den kan være forkert. Det originale billede skal være tilgængeligt som
+kontrol.
+
+## Brug strukturerede svar
+
+Struktureret output er bedre end fri tekst, når næste trin forventer bestemte
+felter. Definér kun det nødvendige:
+
+| Felt | Type | Eksempel |
+|---|---|---|
+| `kort_resume` | Tekst | “Pakke ved hoveddøren” |
+| `aktivitet` | Valg | `ingen`, `person`, `dyr`, `ukendt` |
+| `usikkerhed` | Tekst | “Delvist skjult motiv” |
+
+Validér altid:
+
+- at svaret findes;
+- at feltet har forventet type;
+- at valget er blandt de tilladte værdier;
+- at en fejl giver en sikker fallback.
+
+## Privatliv og omkostninger
+
+Før du aktiverer en gentagen opgave:
+
+- beregn hvor ofte den kan køre på en travl dag;
+- begræns billedernes antal og opbevaring;
+- send kun de entiteter og filer, opgaven behøver;
+- læs udbyderens databehandling og retention;
+- brug forbrugsgrænser og faktureringsalarmer;
+- skriv i automationens beskrivelse, hvilken udbyder der modtager data.
+
+En kameraautomation hvert minut kan blive dyr og indgribende. Udløs den på en
+konkret hændelse og tilføj cooldown, hvis flere hændelser kan komme tæt.
+
+<Aside type="caution" title="“Suggest with AI” sender kontekst">
+Når du aktiverer AI-forslag til navne og beskrivelser, kan automationens eller
+scriptets indhold samt relaterede navne blive sendt til den valgte model. Brug
+kun funktionen, når den datagrænse er acceptabel.
+</Aside>
+
+## Verificér før drift
+
+Lav mindst disse tests:
+
+1. Normalt input med forventet svar.
+2. Manglende sensorværdi.
+3. Utilgængelig AI Task-entitet.
+4. Langsomt eller tomt svar.
+5. Et tvetydigt kamerabillede.
+6. En dag med flere hurtige triggere.
+
+Kontrollér både spor, udbyderens forbrug og den besked, brugeren faktisk ser.
+
+## Fejlfinding
+
+### AI Task findes ikke som integration
+
+Det er en byggesten. Tilføj først en AI-udbyder, der dokumenteret leverer en
+AI Task-entitet, og opret dens underpost.
+
+### Handlingen kan ikke behandle billeder
+
+Kontrollér entitetens understøttede funktioner og den valgte model. Skift ikke
+blindt model; test først med én ufølsom fil.
+
+### Svaret er tomt eller afkortet
+
+Gør instruktionen kortere, reducer input, og kontrollér udbyderens
+svargrænser. Log ikke API-nøglen under fejlfinding.
+
+### Automationens svar varierer
+
+Stram instruktionen og brug struktureret output. Hvis samme input skal give
+samme kritiske beslutning hver gang, er AI Task sandsynligvis det forkerte
+værktøj.
+
+<CardGrid>
+  <Card title="Lokal stemmestyring" icon="setting">
+    Se [lokal Assist](/da/home-assistant/local-voice-assist/) for en pipeline uden nødvendig cloud-AI.
+  </Card>
+  <Card title="AI-sikkerhed" icon="lock">
+    Læs [sikkerhed og permissions](/da/ai/ai-cli/sikkerhed-og-permissions/).
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+- [AI Task-integrationen](https://www.home-assistant.io/integrations/ai_task/)
+- [Home Assistant 2025.8: The summer of AI](https://www.home-assistant.io/blog/2025/08/06/release-20258/)
+- [Anthropic-integrationen](https://www.home-assistant.io/integrations/anthropic/)
+- [OpenAI Conversation-integrationen](https://www.home-assistant.io/integrations/openai_conversation/)

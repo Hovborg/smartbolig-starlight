@@ -1,0 +1,192 @@
+---
+title: Vælg det rigtige kort til dit dashboard
+description: Brug Home Assistant 2026.6's nye kortvælger til at begynde med lampen, sensoren eller medieafspilleren og sammenligne brugbare forhåndsvisninger.
+sidebar:
+  badge:
+    text: "2026.6"
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Begynder" variant="success" /> <Badge text="Home Assistant 2026.6+" variant="note" />
+
+![En tablet med en enkel samling af dashboardkort til lys, temperatur, sensor, kamera og medier](/images/guides/dashboard-kortvaelger.webp)
+
+Et godt dashboard begynder ikke med spørgsmålet “Hvilket kort ser smartest
+ud?” Det begynder med “Hvad skal jeg kunne se eller gøre her?”
+
+Home Assistant 2026.6 ændrede kortvælgeren, så du kan vælge en enhed eller
+entitet først. Derefter foreslår Home Assistant kort, der passer til den, med
+forhåndsvisninger baseret på dine egne data. Det er en lille ændring, som gør
+det langt lettere at bygge et dashboard uden at kende navnene på alle kort.
+
+## Begynd med opgaven
+
+Vælg kort efter den vigtigste handling:
+
+| Jeg vil… | Godt første valg |
+|---|---|
+| tænde, dæmpe eller skifte farve på et lys | Flise med relevante funktioner |
+| se temperatur og den seneste udvikling | Flise eller sensorkort med graf |
+| styre varme | Flise med temperatur- og tilstandsknapper |
+| vise flere enheder i samme rum | Områdekort eller en sektion med fliser |
+| vise energidata over tid | Statistikgraf eller Energy-kort |
+| se et kamera | Billede-entitet eller et dedikeret kamerakort |
+| starte en scene eller et script | Genvej eller knap |
+
+Flisekortet er et godt udgangspunkt til de fleste almindelige enheder. Tilføj
+kun de funktioner, du faktisk bruger. En lampe behøver sjældent både lysstyrke,
+farvetemperatur, farvevalg og seks favoritknapper på hjemmets forside.
+
+## Tilføj kortet via enheden
+
+<Steps>
+1. **Åbn dashboardet**
+
+   Gå til **Indstillinger → Dashboards**, vælg dashboardet og den visning, du
+   vil ændre.
+
+2. **Start redigering**
+
+   Vælg redigeringsknappen. I en sektionsvisning tilføjer du kortet i den
+   relevante sektion.
+
+3. **Vælg efter entitet**
+
+   Vælg metoden **Efter entitet**, og find eksempelvis `Stue gulvlampe`. Hvis
+   den mangler, kan den stå under enheder uden tildelt område.
+
+4. **Sammenlign forhåndsvisninger**
+
+   Se på de foreslåede kort med lampens aktuelle data. Vælg det enkleste kort,
+   der løser opgaven.
+
+5. **Tilføj få funktioner**
+
+   På en flise kan du eksempelvis tilføje lysstyrke eller farvetemperatur. Hold
+   tryk-handlingen til detaljevisning, hvis du ikke har en særlig grund til
+   andet.
+
+6. **Tilpas størrelsen**
+
+   I en sektionsvisning kan kortet trækkes til en passende bredde. Brug præcis
+   tilstand, hvis standardgitteret er for groft.
+
+7. **Gem og test på mobilen**
+
+   Vælg **Færdig**, og prøv dashboardet i den størrelse, familien faktisk
+   bruger. Et kort, der ser godt ud på en stor skærm, kan fylde for meget på en
+   telefon.
+</Steps>
+
+## Flise, område eller graf?
+
+### Flise til daglig betjening
+
+Brug en flise til den ene ting, man ofte skal se eller ændre. Flisen kan vise
+tilstand og tilbyde relevante hurtigfunktioner uden at åbne en dialog.
+
+### Område til et hurtigt rumoverblik
+
+Et områdekort er nyttigt som indgang til køkken, stue eller have. Det er mindre
+egnet, hvis du vil styre tre bestemte lamper forskelligt direkte fra forsiden.
+
+### Graf til et spørgsmål over tid
+
+Brug en graf, når ændringen over tid er vigtigere end tallet lige nu:
+temperatur, luftfugtighed, strømforbrug eller luftkvalitet. En graf over en
+dørkontakt er sjældent lige så nyttig som dens Aktivitet.
+
+### Genvej til en bevidst handling
+
+Genvejskortet passer til et script, en scene eller en bestemt destination. Giv
+det et konkret navn som `Godnat` eller `Åbn energiforbrug`, så familien ved,
+hvad der sker.
+
+## Byg en rolig forside
+
+En enkel forside kan bestå af:
+
+1. en lille sektion med hjemmets vigtigste status;
+2. hurtig adgang til lys, varme og sikkerhedsstatus;
+3. områdekort, der fører til rumvisninger;
+4. kun de advarsler, der kræver handling.
+
+Flyt detaljer, lange grafer og sjældne indstillinger til egne visninger. Et
+dashboard bliver ikke mere nyttigt af at vise alle entiteter på én lang side.
+
+<Aside type="tip" title="Brug indbyggede kort først">
+Indbyggede kort følger Home Assistants design, mobilvisning og opdateringer.
+Vælg først et HACS-kort, når du kan beskrive den konkrete funktion, de
+indbyggede kort mangler.
+</Aside>
+
+## Sikre trykhandlinger
+
+Et enkelt tryk på et lys kan godt skifte tilstand. Et enkelt tryk på en lås,
+port, alarm eller vandventil fortjener mere omtanke.
+
+Til sikkerhedskritiske enheder:
+
+- åbn detaljevisningen ved tryk i stedet for at udføre handlingen straks;
+- undgå store knapper, som let rammes ved et uheld;
+- vis den aktuelle status tydeligt;
+- test både mobil, vægskærm og mørkt tema;
+- brug ikke et dashboardkort som eneste bevis på, at en fysisk port eller lås
+  nåede sin sluttilstand.
+
+## Når forslagene ikke passer
+
+Kortvælgerens forslag er et udgangspunkt, ikke en facitliste. Vælg **Efter
+kort**, hvis du ved, at du har brug for en bestemt type.
+
+Spørg derefter:
+
+- Skal kortet vise én værdi eller et forløb?
+- Skal det styre noget eller kun informere?
+- Skal alle brugere kunne se det?
+- Er funktionerne understøttet af entiteten?
+- Kan den samme opgave løses med mindre plads?
+
+Synlighedsbetingelser kan skjule et kort for bestemte brugere eller vise det
+kun i en relevant tilstand. Brug dem sparsomt; et kort, der pludselig forsvinder,
+kan også forvirre.
+
+## Typiske fejl
+
+### Entiteten findes ikke i vælgeren
+
+Se under **Ikke tildelt**, og tildel enheden det korrekte område. Kontrollér
+også, at entiteten er aktiveret.
+
+### En funktion kan ikke vælges
+
+Kortfunktioner afhænger af entitetens domæne og understøttede egenskaber. En
+lampe uden farvestyring kan ikke få et brugbart farvevalg.
+
+### Kortet er for højt eller smalt
+
+Åbn fanen **Layout** i kortets indstillinger. Tilpas størrelsen, eller flyt
+kortet til en sektion med mere plads.
+
+### Dashboardet er blevet langsomt
+
+Fjern dubletter, begræns samtidige livekameraer og store grafer, og test uden
+det senest tilføjede specialkort.
+
+<CardGrid>
+  <Card title="Det nye Overview" icon="rocket">
+    Se hvordan [Overview bygges af områder og etager](/da/home-assistant/overview-dashboard-2026/).
+  </Card>
+  <Card title="Dashboard-design" icon="document">
+    Planlæg flere visninger med [guiden til dashboard-design](/da/home-assistant/dashboard-design/).
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+- [Home Assistant 2026.6: Pick a card, any card](https://www.home-assistant.io/blog/2026/06/03/release-20266/)
+- [Dashboardkort](https://www.home-assistant.io/dashboards/cards/)
+- [Flisekort](https://www.home-assistant.io/dashboards/tile/)
+- [Sektionsvisning](https://www.home-assistant.io/dashboards/sections/)

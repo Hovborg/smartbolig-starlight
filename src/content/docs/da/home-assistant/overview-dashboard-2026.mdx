@@ -1,0 +1,183 @@
+---
+title: Det nye Overview-dashboard i Home Assistant
+description: Tag Home Assistants nye automatisk organiserede Overview i brug, ryd op i områder og vælg bevidst mellem systemets overblik og dit eget dashboard.
+sidebar:
+  badge:
+    text: Nyt Overview
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Home Assistant 2026.2+" variant="note" /> <Badge text="Ingen YAML" variant="success" />
+
+Home Assistants nye **Overview** samler boligen efter områder og viser relevante
+enheder uden, at du først skal bygge et helt dashboard. Det blev standard for
+nye installationer i Home Assistant 2026.2. På ældre installationer kan det
+afprøves ved siden af eksisterende dashboards.
+
+Den største gevinst kommer ikke fra farver eller kort. Den kommer fra korrekte
+områder, etager og enhedsnavne. Denne guide hjælper dig med at rydde op først og
+derefter vurdere, om Overview skal være dit daglige startpunkt.
+
+<Aside type="note" title="Dit gamle dashboard forsvinder ikke">
+Eksisterende brugerbyggede dashboards fortsætter. Du kan afprøve det nye
+Overview uden at kopiere eller slette dit nuværende dashboard, og den ældre
+Overview-skabelon kan stadig vælges til et nyt, manuelt dashboard.
+</Aside>
+
+## Hvad viser det nye Overview?
+
+Overview er et systemstyret overblik over hjemmet. Det bruger især oplysninger
+om:
+
+- **områder**, eksempelvis køkken, stue og have;
+- **etager**, som samler flere områder;
+- enheder og entiteters type, navn og tilgængelighed;
+- primære temperatur-, fugt- og andre områdesensorer;
+- opdagede enheder, der endnu ikke er sat op;
+- enheder, som endnu ikke er placeret i et område.
+
+Det er velegnet som et levende indeks over huset. Et håndbygget dashboard er
+stadig bedst, når en vægtablet, en bestemt bruger eller en arbejdsopgave kræver
+helt faste kontroller.
+
+## Forbered organiseringen
+
+| Element | Brug det til |
+|---|---|
+| Område | Et fysisk rum eller sted |
+| Etage | Flere områder på samme niveau |
+| Etiket | En fleksibel egenskab som `kritisk`, `batteri` eller `gæst` |
+| Kategori | Sortering i en bestemt tabel, eksempelvis automationer |
+| Gruppe | Én samlet entitet, der repræsenterer flere entiteter |
+
+Et område og en gruppe er ikke det samme. Området organiserer boligen og kan
+bruges som mål. Gruppen skaber en ny samlet entitet med sin egen tilstand.
+
+## Aktivér og gennemgå Overview
+
+<Steps>
+1. **Opdatér og tag backup**
+
+   Brug en understøttet Home Assistant-version, og tag en backup før større
+   oprydning i navne og områder. Selve visningen er ufarlig at afprøve.
+
+2. **Åbn dashboardindstillinger**
+
+   Gå til **Indstillinger → Dashboards**. Vælg det nye **Overview**, eller følg
+   forslaget om at afprøve det, hvis Home Assistant viser et.
+
+3. **Gennemgå “For dig”**
+
+   Se efter opdagede enheder, utilgængelige enheder og forslag til oprydning.
+   Tilføj kun en opdaget enhed, hvis du genkender den og kender integrationen.
+
+4. **Placér enheder i områder**
+
+   Åbn listen over enheder uden område. Placér dem i fysiske rum. Brug ikke
+   et område som `Zigbee` eller `Wi-Fi`; teknologi er bedre som etiket.
+
+5. **Opret etager**
+
+   Gå til organiseringen af områder og etager. Tilknyt eksempelvis `Stue`,
+   `Køkken` og `Entré` til `Stueetage`.
+
+6. **Vælg primære sensorer**
+
+   Åbn et område og vælg den temperatur- eller fugtsensor, der bedst
+   repræsenterer rummet. Undgå en sensor i et varmt teknikskab som områdets
+   temperatur.
+
+7. **Kontrollér på mobil og computer**
+
+   Gennemgå navigation, områder og de vigtigste kontroller i begge
+   skærmstørrelser. Et overblik skal kunne forstås uden at kende entitetsnavne.
+</Steps>
+
+## Navngivning der virker
+
+Brug områdekontekst uden at gentage alt:
+
+| Mindre godt | Bedre |
+|---|---|
+| `TS0201_0x54ef` | `Temperatur` i området `Stue` |
+| `Stue stue loftlys` | `Loftlys` i området `Stue` |
+| `Sensor 1` | `Vindue` i området `Soveværelse` |
+| Område: `Zigbee` | Etiket: `Zigbee` |
+
+Enhedsnavnet skal fortælle, hvad den fysiske enhed er. Entitetsnavnet skal
+fortælle, hvad målingen eller kontrollen gør. Området leverer resten af
+konteksten.
+
+## Hvornår skal du beholde et specialbygget dashboard?
+
+Behold eller byg et separat dashboard til:
+
+- en vægtablet med få store trykflader;
+- energi- og driftsgrafer;
+- kameraer i panelvisning;
+- administration og fejlfinding;
+- en bruger, som kun skal se bestemte hverdagsfunktioner;
+- et rum med en særlig betjeningsflade.
+
+Brug **Sections** og indbyggede **Tile**-kort som udgangspunkt til egne
+dashboards. De giver et responsivt layout og kræver færre specialkort.
+
+<Aside type="caution" title="Et dashboard er ikke adgangskontrol">
+At skjule et kort eller et dashboard er ikke i sig selv en sikkerhedsgrænse.
+Styr adgang gennem brugere, integrationer og eksponerede enheder, især for
+låse, alarmer og garageporte.
+</Aside>
+
+## En sikker oprydningsrækkefølge
+
+1. Placér enheder i områder.
+2. Opret og tilknyt etager.
+3. Ret kun tydeligt dårlige navne.
+4. Kontrollér automationer, scripts og dashboards før ændring af `entity_id`.
+5. Vælg primære områdesensorer.
+6. Vurder først derefter, hvilke egne dashboards du stadig har brug for.
+
+Et almindeligt navn i brugerfladen kan ofte ændres uden at ændre
+`entity_id`. En egentlig ændring af entitets-ID kan bryde automationer og kort
+og kræver derfor en særskilt konsekvenskontrol.
+
+## Fejlfinding
+
+### Et rum mangler
+
+Kontrollér at området findes, og at mindst én relevant enhed eller entitet er
+tilknyttet. Kontrollér også etageplacering og skjulte entiteter.
+
+### Temperaturen er forkert
+
+Åbn områdets indstillinger og vælg den korrekte primære temperatursensor.
+Sammenlign sensorens rå tilstand, før du giver dashboardet skylden.
+
+### Der vises for mange irrelevante entiteter
+
+Ryd op i de enkelte enheders entiteter. Deaktivér kun diagnostic- eller
+dubletentiteter, du forstår, og behold data som bruges af automationer.
+
+### Jeg vil tilbage til mit eget dashboard
+
+Åbn dit eksisterende dashboard fra sidepanelet eller vælg det som standard i
+de tilgængelige dashboardindstillinger. Slet ikke det gamle, før det nye har
+været afprøvet på alle relevante enheder.
+
+<CardGrid>
+  <Card title="Byg dit eget dashboard" icon="setting">
+    Fortsæt med [Dashboard Design i Home Assistant](/da/home-assistant/dashboard-design/).
+  </Card>
+  <Card title="Home Assistant fra start" icon="rocket">
+    Se [kom godt i gang-guiden](/da/home-assistant/kom-godt-i-gang/).
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+- [Home Assistant 2026.2: Home, sweet overview](https://www.home-assistant.io/blog/2026/02/04/release-20262/)
+- [Organisér områder, etager, etiketter og grupper](https://www.home-assistant.io/docs/organizing/)
+- [Flere dashboards](https://www.home-assistant.io/dashboards/dashboards/)
+- [Dashboard-visninger](https://www.home-assistant.io/dashboards/views/)

@@ -1,0 +1,187 @@
+---
+title: Infrarød proxy i Home Assistant
+description: Gør TV, soundbar og andre IR-enheder lokale i Home Assistant med en understøttet infrarød proxy, korrekt placering og ærlig tilstandskontrol.
+sidebar:
+  badge:
+    text: Infrarød
+    variant: success
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Home Assistant 2026.4+" variant="note" /> <Badge text="Lokalt signal" variant="success" />
+
+Home Assistant 2026.4 gjorde infrarød styring til en fælles del af platformen.
+En lille IR-proxy kan sende kommandoer til et eksisterende TV, en soundbar eller
+et klimaanlæg, uden at apparatet selv får Wi-Fi eller en cloudkonto.
+
+Den bedste løsning består af tre dele: en IR-sender, integrationen der forbinder
+senderen med Home Assistant, og en enhedsspecifik integration der kender
+apparatets kommandoer.
+
+```text
+Home Assistant → enhedsintegration → infrarød entitet → IR-proxy → apparat
+```
+
+<Aside type="caution" title="Infrarød er normalt envejs">
+Et almindeligt IR-signal fortæller ikke Home Assistant, om apparatet faktisk
+modtog kommandoen. Mange integrationer må derfor bruge en antaget tilstand.
+Brug en separat strømmåler eller en rigtig netværksintegration, hvis sikker
+feedback er vigtig.
+</Aside>
+
+## Hvad kan du styre?
+
+Typiske kandidater er:
+
+- TV og projektorer;
+- soundbars, receivere og aktive højttalere;
+- ventilatorer;
+- klimaanlæg og varmepumper med håndholdt IR-fjernbetjening;
+- ældre medieudstyr.
+
+Home Assistants fælles infrarøde lag er ikke en database over alle
+fjernbetjeninger. Der skal stadig findes en integration, der understøtter
+apparatet eller en dokumenteret vej til at lære og sende de nødvendige koder.
+
+## Vælg proxy
+
+| Løsning | Fordel | Vær opmærksom på |
+|---|---|---|
+| ESPHome Ready-Made IR Proxy | Lokal, åben og kan adopteres i ESPHome | Kræver kompatibel hardware og frit udsyn |
+| Broadlink RM med officiel integration | Færdig boks og understøtter lærte kommandoer | Model og funktioner varierer |
+| Anden understøttet IR-adapter | Kan passe til eksisterende udstyr | Kontrollér at den opretter en infrarød entitet |
+
+Home Assistant og ESPHome viser Seeed Studio XIAO IR Mate som et færdigt
+eksempel. Køb ikke kun efter produktnavnet; kontrollér den aktuelle
+kompatibilitetsliste og den enhedsspecifikke integration først.
+
+## Placering før konfiguration
+
+Infrarødt lys går normalt ikke gennem vægge eller lukkede skabe.
+
+- Placér senderen med frit udsyn til apparatets IR-modtager.
+- Undgå at gemme den bag TV'et, hvis senderens vinkel ikke rammer modtageren.
+- Test først på kort afstand.
+- Kraftigt sollys og enkelte lyskilder kan forringe modtagelsen.
+- Brug flere proxies til apparater i forskellige rum.
+
+En kraftigere sender løser ikke et fysisk blokeret signal. Flyt proxyen og test
+igen, før du ændrer software.
+
+## Opsæt en ESPHome IR-proxy
+
+<Steps>
+1. **Kontrollér hardware og enhedsintegration**
+
+   Bekræft at det præcise proxyboard understøttes, og at Home Assistant har en
+   infrarød integration til det apparat, du vil styre.
+
+2. **Flash det færdige projekt**
+
+   Tilslut boardet med et datakabel og brug ESPHomes officielle
+   **Ready-Made Projects** i en understøttet browser. Vælg det nøjagtige board.
+
+3. **Tilføj netværk**
+
+   Angiv Wi-Fi-oplysninger og vent, til enheden er online. Den kan derefter
+   dukke op som fundet ESPHome-enhed i Home Assistant.
+
+4. **Adoptér i ESPHome**
+
+   Adoptér konfigurationen, hvis du vil eje og opdatere YAML'en. Gem den
+   fungerende standard, før du tilføjer egne komponenter.
+
+5. **Kontrollér den infrarøde entitet**
+
+   Åbn proxyens enhedsside. Bekræft at senderen er tilgængelig, og at
+   **Indstillinger → Infrarød** viser adapteren som online.
+
+6. **Tilføj apparatets integration**
+
+   Tilføj eksempelvis den understøttede TV- eller højttalerintegration. Når
+   opsætningen spørger efter IR-sender, vælger du proxyens infrarøde entitet.
+</Steps>
+
+## Verificér en rigtig kommando
+
+Test én entydig kommando:
+
+1. Ret proxyen mod apparatet på kort afstand.
+2. Send `Lydstyrke op`, en navigationskommando eller en diskret tændkommando.
+3. Se at apparatet reagerer fysisk.
+4. Flyt proxyen til den planlagte placering.
+5. Gentag testen mindst fem gange.
+6. Kontrollér aktivitet og tidspunkt for seneste IR-transmission.
+
+Undgå at bruge en skiftekommando som eneste test. En `Power toggle` kan bringe
+Home Assistants antagede tilstand ud af takt, hvis en kommando mistes eller den
+fysiske fjernbetjening bruges.
+
+## Automatisér med omtanke
+
+Gode første automationer er:
+
+- vælg en bestemt TV-indgang som del af en scene;
+- sluk et kendt medieapparat ved godnat;
+- sænk lydstyrken på et bestemt tidspunkt;
+- start et klimaanlæg, når en separat temperatursensor krydser en grænse.
+
+Til varme og køling bør du have uafhængig temperaturmåling og en sikker
+stopmekanisme. En afsendt IR-kommando beviser ikke, at apparatet startede.
+
+## Lærte kommandoer og koder
+
+Nogle adapterintegrationer, eksempelvis understøttede Broadlink-enheder, kan
+lære en kommando fra den fysiske fjernbetjening og afspille den igen. Gem
+kommandoer med stabile, forståelige navne og dokumentér:
+
+- apparat og model;
+- funktion;
+- valgt adapter og rum;
+- om kommandoen er diskret eller en skiftekommando;
+- hvordan fysisk resultat verificeres.
+
+Del ikke tilfældige koder fra nettet uden at kontrollere protokol og model. En
+forkert kode kan udløse en skjult servicefunktion.
+
+## Fejlfinding
+
+### Adapteren vises ikke under Infrarød
+
+Kontrollér at proxyens integration er indlæst, firmwaren understøtter den
+infrarøde entitet, og at enheden er online. En almindelig `remote`-entitet er
+ikke nødvendigvis den nye infrarøde byggesten.
+
+### Home Assistant sender, men apparatet reagerer ikke
+
+Test kort afstand og frit udsyn. Kontrollér korrekt apparatmodel, valgt sender
+og at IR-dioden peger rigtigt. Et transmissionstidspunkt viser kun, at Home
+Assistant forsøgte at sende.
+
+### Tilstanden er forkert
+
+Det er forventeligt ved envejsstyring og toggle-kommandoer. Brug diskrete
+kommandoer, hvis integrationen har dem, eller tilføj uafhængig feedback som
+effektmåling.
+
+### Flere rum reagerer ustabilt
+
+IR går ikke gennem vægge. Brug én velplaceret proxy pr. rum eller pr.
+apparatgruppe i stedet for at øge sendestyrken ukritisk.
+
+<CardGrid>
+  <Card title="ESPHome grundlag" icon="rocket">
+    Se [ESPHome avanceret](/da/esp32/esphome-avanceret/) før du ændrer proxyens konfiguration.
+  </Card>
+  <Card title="Medier i hjemmet" icon="setting">
+    Fortsæt med [medier og entertainment](/da/produkter/medier-entertainment/).
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+- [Infrarød i Home Assistant](https://www.home-assistant.io/integrations/infrared/)
+- [Home Assistant 2026.4: Infrared never left the chat](https://www.home-assistant.io/blog/2026/04/01/release-20264/)
+- [ESPHome Ready-Made Projects](https://esphome.io/projects/)
+- [Broadlink-integrationen](https://www.home-assistant.io/integrations/broadlink/)
