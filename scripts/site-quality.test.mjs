@@ -111,12 +111,17 @@ test("start-route CTAs are bounded, distinct and absent from the closing section
 });
 
 test("homepage portal is a thin orchestrator with the editorial section order", async () => {
-  const portal = await read("src/components/HomePortal.astro");
-  for (const component of ["HomeHero", "HomeGoalNavigator", "HomeFieldGuide", "HomeFeaturedGuides", "HomeTrustEvidence", "HomeClosingCta"]) {
+  const [portal, pageTitle] = await Promise.all([
+    read("src/components/HomePortal.astro"),
+    read("src/components/PageTitle.astro"),
+  ]);
+  assert.match(pageTitle, /import HomeHero from/);
+  assert.match(pageTitle, /<HomeHero copy=/);
+  for (const component of ["HomeGoalNavigator", "HomeFieldGuide", "HomeFeaturedGuides", "HomeTrustEvidence", "HomeClosingCta"]) {
     assert.match(portal, new RegExp(`import ${component} from`), `portal must compose ${component}`);
   }
   assert.match(portal, /getHomeCopy|homeCopy\[/);
-  const order = ["<HomeHero", "<HomeGoalNavigator", "<HomeFieldGuide", "<HomeFeaturedGuides", "<HomeTrustEvidence", 'slot name="editorial-news"', "<HomeClosingCta"];
+  const order = ["<HomeGoalNavigator", "<HomeFieldGuide", "<HomeFeaturedGuides", "<HomeTrustEvidence", 'slot name="editorial-news"', "<HomeClosingCta"];
   const positions = order.map((needle) => portal.indexOf(needle));
   for (const [index, position] of positions.entries()) {
     assert.ok(position >= 0, `portal missing section: ${order[index]}`);
@@ -125,10 +130,11 @@ test("homepage portal is a thin orchestrator with the editorial section order", 
   assert.doesNotMatch(portal, /<\/?main\b/);
 });
 
-test("hero takes an explicit locale, keeps the responsive image contract and skip-link target", async () => {
+test("hero takes an explicit locale, owns the homepage h1 and keeps the responsive image contract", async () => {
   const hero = await read("src/components/home/HomeHero.astro");
   assert.doesNotMatch(hero, /Astro\.url/, "hero must use an explicit locale prop, not URL sniffing");
-  assert.match(hero, /id="home-hero-title"/);
+  assert.match(hero, /<h1 id="_top">/);
+  assert.match(hero, /aria-labelledby="_top"/);
   assert.match(hero, /<picture>/);
   for (const width of [640, 960, 1440]) {
     assert.match(hero, new RegExp(`smart-home-editorial-${width}\\.avif ${width}w`));
@@ -140,8 +146,7 @@ test("hero takes an explicit locale, keeps the responsive image contract and ski
   assert.match(hero, /fetchpriority="high"/);
   assert.match(hero, /decoding="async"/);
   const skipLink = await read("src/components/SkipLink.astro");
-  assert.match(skipLink, /home-hero-title/);
-  assert.match(skipLink, /["']_top["']/);
+  assert.match(skipLink, /href=["']#_top["']/);
 });
 
 test("homepage hero has a complete responsive AVIF and WebP image family", () => {
@@ -239,14 +244,20 @@ test("both homepages compose the isolated latest-news component", async () => {
 });
 
 test("homepage keeps a single main landmark and a visible skip-link target", async () => {
-  const [portal, themeSelect, styles, config] = await Promise.all([
+  const [portal, pageTitle, themeSelect, styles, config] = await Promise.all([
     read("src/components/HomePortal.astro"),
+    read("src/components/PageTitle.astro"),
     read("src/components/ThemeSelect.astro"),
     read("src/components/HomeStyles.astro"),
     read("astro.config.mjs"),
   ]);
   assert.doesNotMatch(portal, /<\/?main\b/);
+  assert.match(pageTitle, /DefaultPageTitle/);
+  assert.match(pageTitle, /Astro\.url\.pathname\.match/);
+  assert.match(pageTitle, /\\\/\(da\|en\)\\\//);
+  assert.match(pageTitle, /homepageLocale\s*\?\s*<HomeHero/);
   assert.match(config, /SkipLink:\s*["']\.\/src\/components\/SkipLink\.astro["']/);
+  assert.match(config, /PageTitle:\s*["']\.\/src\/components\/PageTitle\.astro["']/);
   assert.match(themeSelect, /aria-label=\{label\}/);
   assert.match(config, /ThemeSelect:\s*["']\.\/src\/components\/ThemeSelect\.astro["']/);
   assert.match(styles, /html\[data-theme=["']light["']\]/);

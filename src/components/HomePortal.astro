@@ -2,7 +2,6 @@
 // Thin homepage orchestrator: resolves the bilingual copy model and composes
 // the editorial sections in order. All styling lives in HomeStyles.astro.
 import { getHomeCopy, type HomeLocale } from "../lib/home-copy";
-import HomeHero from "./home/HomeHero.astro";
 import HomeGoalNavigator from "./home/HomeGoalNavigator.astro";
 import HomeFieldGuide from "./home/HomeFieldGuide.astro";
 import HomeFeaturedGuides from "./home/HomeFeaturedGuides.astro";
@@ -18,7 +17,6 @@ const copy = getHomeCopy(locale);
 ---
 
 <div class="home-portal">
-  <HomeHero copy={copy.hero} />
   <HomeGoalNavigator copy={copy.navigator} />
   <HomeFieldGuide copy={copy.fieldGuide} />
   <HomeFeaturedGuides copy={copy.guides} />

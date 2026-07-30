@@ -54,6 +54,7 @@ export default defineConfig({
         Head: "./src/components/Head.astro",
         Footer: "./src/components/Footer.astro",
         MarkdownContent: "./src/components/MarkdownContent.astro",
+        PageTitle: "./src/components/PageTitle.astro",
         SiteTitle: "./src/components/SiteTitle.astro",
         SkipLink: "./src/components/SkipLink.astro",
         ThemeSelect: "./src/components/ThemeSelect.astro",
