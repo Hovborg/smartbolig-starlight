@@ -32,6 +32,65 @@ Sitet er tilgængeligt på både dansk og engelsk.
 
 ---
 
+## ✨ SmartBolig AI-assistent
+
+Alle sider viser en valgfri AI-assistent nederst til højre. Den er bygget som en
+samme-origin Cloudflare Pages Function og en specialdesignet Astro-widget:
+
+- **Bred AI-hjerne:** Workers AI-modellen
+  `@cf/google/gemma-4-26b-a4b-it` svarer om
+  Home Assistant, ESPHome, sensorer, Zigbee, Z-Wave, Matter, Thread, MQTT,
+  netværk, Docker, Proxmox og øvrige homelab-emner. Endpointet bruger
+  Cloudflares native `env.AI.run()`-binding.
+- **SmartBolig som ekstra kilde:** Bindingen `SMARTBOLIG_SEARCH` peger på
+  `smartbolig-ai-search`. Faglige smart-home/homelab-spørgsmål får højst ét
+  afgrænset opslag, hvis bindingen er tilgængelig. Resultatet gives til den
+  brede model som ubetroet reference-data.
+  AI Search er ikke assistentens eneste viden.
+- **Ingen ekstra RAG-database:** AI Search ejer allerede sin søgeindeksering, så
+  projektet opretter ikke en separat D1- eller Vectorize-database.
+- **Abuse-kontrol:** `CHAT_RATE_LIMITER` tillader 12 chatkald pr. minut pr.
+  forbindende IP i hver Cloudflare-lokation. Et normalt svar bruger ét
+  modelkald. Et fagligt svar kan desuden bruge ét AI Search-opslag; en
+  valgfri modelstyret søgefallback er fortsat begrænset til højst to modelkald.
+  AI Search falder tilbage til bred modelviden efter fem sekunder.
+- **Dataminimering:** Endpointet accepterer højst 10 skiftevis bruger/assistent-
+  beskeder, 2.000 tegn pr. besked og 8.000 tegn i alt. Widgeten gemmer kun den
+  aktuelle samtale i browserens `sessionStorage`.
+- **Sikker rendering:** Modelsvar bliver til tekstnoder; der indsættes ikke
+  modelgenereret HTML. Kildelinks tillades kun til `https://smartbolig.net`.
+
+Bindings og modelvalg ligger i `wrangler.jsonc`; der skal ikke ligge Cloudflare-
+tokens eller modelnøgler i kildekoden.
+
+API- og widgettests bruger fakes og foretager ingen betalte AI-kald:
+
+```bash
+npm run site:test
+```
+
+Kompilér Pages Functions og validér bindings lokalt:
+
+```bash
+types_dir="$(mktemp -d)"
+npx wrangler types "$types_dir/worker-configuration.d.ts" --include-runtime false
+build_dir="$(mktemp -d)"
+npx wrangler pages functions build functions --outdir "$build_dir" --project-directory .
+```
+
+En rigtig lokal chat kræver remote Cloudflare-bindings og bruger Workers
+AI/AI Search-kvoten:
+
+```bash
+npm run build
+npx wrangler pages dev dist
+```
+
+Spørgsmål, bounded samtalehistorik og databehandlingen er beskrevet i de
+lokaliserede privatlivspolitikker.
+
+---
+
 ## 📁 Struktur
 
 ```
@@ -63,6 +122,7 @@ python3 scripts/content-audit.py
 npm audit --omit=dev --audit-level=critical
 npm run build
 npm run seo:validate
+npx wrangler pages functions build functions --outdir "$(mktemp -d)" --project-directory .
 ```
 
 > **Midlertidig undtagelse (2026-07-29):** afhængighedstjekket er sænket fra
