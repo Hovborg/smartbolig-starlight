@@ -1,0 +1,142 @@
+---
+title: "AI-nyheder, 30. juli 2026"
+description: "Kurateret AI-overblik for 30. juli 2026: modeller, produkter, ChatGPT, Claude, Gemini, API-priser, privacy og agent-workflows."
+date: 2026-07-30
+lastUpdated: 2026-07-30
+heroImage:
+  src: "/images/ai-news/2026-07-30.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om OpenClaw releases, OpenAI Codex releases, OpenAI News, Claude Code releases, Google AI Blog, Gemini CLI releases"
+  caption: "Redaktionelt AI-nyhedsbillede om OpenClaw releases, OpenAI Codex releases, OpenAI News, Claude Code releases, Google AI Blog, Gemini CLI releases"
+news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "41b9561d967e53f0caaf61245b5cb8a6bf9006f91282c2470411804718db0fba"
+  sourceSetFingerprint: "7a6a1f93cd45b69e4745fb9522545a276ced4efa49d36f0ad3b5fd7c96dbf278"
+  signal: high
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.5"
+    - "https://github.com/openai/codex/releases/tag/rust-v0.146.0"
+    - "https://openai.com/index/chatgpt-for-academic-researchers"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.219"
+    - "https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api-3-6-flash-hooks"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.54.0-preview.0"
+sidebar:
+  label: "30. juli 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-07-30">30. juli 2026</time> · 6 udvalgte kilder</p>
+
+<p class="ai-news-lede">Dagens udgave handler mest om at Claude Code gør Opus 5 til standardmodel med 1M kontekst og faste priser i hurtig tilstand, mens OpenClaw strammer datasikkerheden i sin nyeste beta og Codex, Gemini CLI og Gemini API alle får mindre men konkrete opdateringer. OpenAI løfter desuden sløret for et gratis adgangsprogram til 100.000 forskere.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. OpenClaw releases: openclaw 2026.7.2-beta.5
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 28. jul. 2026. OpenClaw udgiver 2026.7.2-beta.5 med fokus på databeskyttelse: en karantænelagring der overlever skader på hoveddatabasen, krasj-sikre SQLite-snapshots, holdbar filsystempublicering, afvisning af skema-opgraderinger der ville tabe data, og snapshot-genopretning. Udgivelsen tilføjer også holdbar kanallevering, så accepterede beskeder kan genskabes efter genstart af gateway eller lokale nedbrud.
+
+> Kort kildeuddrag: 2026.7.2 Highlights State safety and recovery: protect persisted data with a quarantine store that survives primary-database damage, crash-recoverable SQLite snapshots,…
+
+**Hvorfor det er relevant:** For brugere der kører OpenClaw lokalt eller som selvhostet agent-platform betyder det færre risici for datatab ved nedbrud eller fejlslagne opgraderinger, og beskeder går ikke tabt hvis gatewayen genstarter midt i en samtale.
+
+**Sådan verificerer du det:** Tjek release notes for 2026.7.2-beta.5 på GitHub og se om quarantine-store og snapshot-recovery er aktiveret som standard i din opsætning, før du opgraderer en produktionsinstans.
+
+**Usikkerhed:** Det er en beta-udgivelse, så stabiliteten på tværs af opsætninger er ikke dokumenteret, og det fremgår ikke om funktionerne kræver manuel aktivering eller ekstra diskplads.
+
+Kilde: [openclaw 2026.7.2-beta.5](https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.5)
+
+### 2. OpenAI Codex releases: 0.146.0
+
+**Hvad ændrede sig:** OpenAI Codex releases offentliggjorde opdateringen 29. jul. 2026. OpenAI Codex 0.146.0 tilføjer navngivning af nye sessioner med /new eller /clear, mulighed for at fastgøre vigtige tråde og skifte mellem sidesamtaler uden at lukke dem. Udgivelsen understøtter Agent Plugins-manifester, workspace-plugin-publicering og flere plugin-markedspladser, herunder til Amazon Bedrock og Claude Code. Den tilføjer også forgrening af tråde med paginering af historik, inklusive midlertidige forgreninger der ikke vises i trådlister.
+
+> Kort kildeuddrag: New Features Name new sessions with /new or /clear , pin important threads, and switch between side conversations without closing…
+
+**Hvorfor det er relevant:** For folk der bruger Codex til daglig kodning betyder det bedre overblik i lange sessioner og mulighed for at forgrene en samtale for at afprøve en idé uden at rode den oprindelige tråd til.
+
+**Sådan verificerer du det:** Opdater til 0.146.0 og prøv /new samt fastgørelse af en tråd, og se efter om din foretrukne plugin-markedsplads, fx Claude Code eller Bedrock, dukker op i indstillingerne.
+
+**Usikkerhed:** Det fremgår ikke hvor stabile de nye plugin-markedspladser er, eller om forgrening af tråde har begrænsninger i antal eller opbevaringstid for midlertidige forgreninger.
+
+Kilde: [0.146.0](https://github.com/openai/codex/releases/tag/rust-v0.146.0)
+
+### 3. OpenAI News: Accelerating scientific discovery with ChatGPT for Academic Researchers
+
+**Hvad ændrede sig:** OpenAI News offentliggjorde opdateringen 29. jul. 2026. OpenAI giver 100.000 akademiske forskere gratis adgang til ChatGPTs mest avancerede AI-modeller for at fremme videnskabelig forskning, samarbejde og opdagelser.
+
+> Kort kildeuddrag: OpenAI is giving 100,000 academic researchers free access to ChatGPT's most advanced AI models to accelerate scientific research, collaboration, and…
+
+**Hvorfor det er relevant:** For forskere og deres institutioner betyder det adgang til dyre modeller uden abonnementsudgift, hvilket kan sænke barrieren for at bruge AI i forskningsarbejde, men ordningens omfang og kriterier er ikke beskrevet.
+
+**Sådan verificerer du det:** Søg efter OpenAIs officielle meddelelse om programmet og tjek din institutions status og ansøgningsproces, før du regner med gratis adgang.
+
+**Usikkerhed:** Kildeteksten er kun en kort opsummering uden detaljer om varighed, hvilke modeller der indgår, ansøgningsproces eller hvordan de 100.000 pladser fordeles.
+
+Kilde: [Accelerating scientific discovery with ChatGPT for Academic Researchers](https://openai.com/index/chatgpt-for-academic-researchers)
+
+### 4. Claude Code releases: v2.1.219
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 24. jul. 2026. Claude Code v2.1.219 tilføjer Claude Opus 5 som ny standardmodel for Opus, med 1M kontekst og hurtig tilstand til 10/50 dollar pr. Mtok. Udgivelsen tilføjer indstillingen sandbox.network.strictAllowlist, der afviser ikke-godkendte hosts for sandboxede kommandoer uden at spørge, et DirectoryAdded-hook der udløses når en ny arbejdsmappe registreres, og et nyt felt mcp&#95;server&#95;errors i headless-init-eventet der lister MCP-konfigurationer der er sprunget over.
+
+> Kort kildeuddrag: What's changed Added Claude Opus 5 &#40; claude-opus-5 &#41;, now the default Opus model — 1M context, fast mode at…
+
+**Hvorfor det er relevant:** For brugere der kører kommandoer i sandbox betyder den strikse allowlist, at uventede netværkskald blokeres i stedet for at udløse en godkendelsesprompt, hvilket strammer sikkerheden i automatiserede opsætninger.
+
+**Sådan verificerer du det:** Sæt sandbox.network.strictAllowlist i din konfiguration og test at en ikke-godkendt host faktisk bliver afvist, i stedet for at give en prompt, før du stoler på indstillingen.
+
+**Usikkerhed:** Det fremgår ikke om strictAllowlist er slået til som standard, og prisangivelsen for Opus 5 fast mode er ikke bekræftet for alle regioner eller abonnementstyper.
+
+Kilde: [v2.1.219](https://github.com/anthropics/claude-code/releases/tag/v2.1.219)
+
+### 5. Google AI Blog: Gemini API Managed Agents: 3.6 Flash, hooks, and more
+
+**Hvad ændrede sig:** Google AI Blog offentliggjorde opdateringen 28. jul. 2026. Google annoncerer nye funktioner i Managed Agents i Gemini API, herunder understøttelse af modellen Gemini 3.6 Flash og et hook-system, rettet mod udviklere der bygger produktionsklare agenter. Kildeteksten giver ikke konkrete detaljer om hvad hooks gør, eller hvilke andre funktioner der er tilføjet.
+
+> Kort kildeuddrag: We’re announcing even more new capabilities in Managed Agents in Gemini API so developers can build reliable, production-ready agents. What’s…
+
+**Hvorfor det er relevant:** For udviklere der bygger agenter på Gemini API kan en hurtigere Flash-model og hooks betyde lavere omkostninger og bedre kontrol over agent-adfærd, men uden konkrete detaljer er den praktiske gevinst svær at vurdere.
+
+**Sådan verificerer du det:** Tjek Google AI Blog-opslaget og Gemini API-dokumentationen for at se hvad hooks konkret gør, og om 3.6 Flash allerede er tilgængelig i din region eller på dit abonnement.
+
+**Usikkerhed:** Den crawlede side indeholder mest navigationsmenuer og ingen konkret produktbeskrivelse, så det er uklart hvad hooks gør, hvilken pris 3.6 Flash har, og hvornår funktionerne rulles ud.
+
+Kilde: [Gemini API Managed Agents: 3.6 Flash, hooks, and more](https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api-3-6-flash-hooks)
+
+### 6. Gemini CLI releases: Release v0.54.0-preview.0
+
+**Hvad ændrede sig:** Gemini CLI releases offentliggjorde opdateringen 28. jul. 2026. Gemini CLI v0.54.0-preview.0 retter en fejl hvor session-ID nu roteres ved model-fallback for at undgå tilstandsafhængige API-fejl, og indfører sanering og indpakning af issue-titler i untrusted&#95;context for at lukke en sikkerhedshul i caretaker-funktionen. Udgivelsen opdaterer også vitest til v3.2.4 og tilføjer package-lock.json-filer.
+
+> Kort kildeuddrag: What's Changed Changelog for v0.53.0-preview.0 by @gemini-cli-robot in #28507 Changelog for v0.52.0 by @gemini-cli-robot in #28508 chore&#40;release&#41;: bump version to…
+
+**Hvorfor det er relevant:** For brugere der oplever fejl når CLI'en falder tilbage til en anden model, bør sessionsfejl blive sjældnere, og saneringen af issue-titler reducerer risikoen for at ondsindet tekst i en GitHub-issue kan påvirke agentens opførsel.
+
+**Sådan verificerer du det:** Opdater til v0.54.0-preview.0 og test model-fallback-scenariet samt hvordan CLI'en håndterer en issue-titel med usædvanlige tegn, før du stoler på rettelserne i produktion.
+
+**Usikkerhed:** Det er en preview-udgivelse, så stabiliteten er ikke garanteret, og det fremgår ikke hvor udbredt problemet med untrusted&#95;context var, eller om andre indgangspunkter har samme sårbarhed.
+
+Kilde: [Release v0.54.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.54.0-preview.0)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| OpenClaw releases | [openclaw 2026.7.2-beta.5](https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.5) | 28. jul. 2026 |
+| OpenAI Codex releases | [0.146.0](https://github.com/openai/codex/releases/tag/rust-v0.146.0) | 29. jul. 2026 |
+| OpenAI News | [Accelerating scientific discovery with ChatGPT for Academic Researchers](https://openai.com/index/chatgpt-for-academic-researchers) | 29. jul. 2026 |
+| Claude Code releases | [v2.1.219](https://github.com/anthropics/claude-code/releases/tag/v2.1.219) | 24. jul. 2026 |
+| Google AI Blog | [Gemini API Managed Agents: 3.6 Flash, hooks, and more](https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api-3-6-flash-hooks) | 28. jul. 2026 |
+| Gemini CLI releases | [Release v0.54.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.54.0-preview.0) | 28. jul. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
