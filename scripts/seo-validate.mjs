@@ -47,8 +47,100 @@ async function validatePage(issues, filePath, checks) {
   for (const check of checks.forbidden ?? []) rejectText(issues, filePath, html, check.needle, check.label);
 }
 
+function decodeEntities(value) {
+  const named = {
+    amp: '&',
+    apos: "'",
+    gt: '>',
+    lt: '<',
+    quot: '"',
+  };
+
+  return value.replace(/&(#x[\da-f]+|#\d+|amp|apos|gt|lt|quot);/gi, (entity, code) => {
+    if (code[0] !== '#') return named[code.toLowerCase()] ?? entity;
+    const radix = code[1].toLowerCase() === 'x' ? 16 : 10;
+    const number = Number.parseInt(code.slice(radix === 16 ? 2 : 1), radix);
+    return Number.isFinite(number) ? String.fromCodePoint(number) : entity;
+  });
+}
+
+function sitemapUrlToHtmlPath(loc) {
+  const url = new URL(loc);
+  if (url.origin !== 'https://smartbolig.net') return null;
+  const relative = decodeURIComponent(url.pathname).replace(/^\/+|\/+$/g, '');
+  return path.join(distDir, relative, 'index.html');
+}
+
+async function validateSitemapPages(issues, sitemapPath, sitemap) {
+  const entries = sitemap.match(/<url>[\s\S]*?<\/url>/g) ?? [];
+  const titles = new Map();
+
+  for (const entry of entries) {
+    const locMatch = entry.match(/<loc>([^<]+)<\/loc>/);
+    if (!locMatch) {
+      fail(issues, sitemapPath, 'sitemap entry is missing loc');
+      continue;
+    }
+
+    const loc = decodeEntities(locMatch[1]);
+    const lastmod = entry.match(/<lastmod>([^<]+)<\/lastmod>/)?.[1];
+    if (!lastmod) {
+      fail(issues, sitemapPath, `${loc} is missing lastmod`);
+    } else if (!/^\d{4}-\d{2}-\d{2}$/.test(lastmod) || Number.isNaN(Date.parse(`${lastmod}T00:00:00Z`))) {
+      fail(issues, sitemapPath, `${loc} has invalid lastmod: ${lastmod}`);
+    }
+
+    const htmlPath = sitemapUrlToHtmlPath(loc);
+    if (!htmlPath) {
+      fail(issues, sitemapPath, `unexpected sitemap origin: ${loc}`);
+      continue;
+    }
+    if (!existsSync(htmlPath)) {
+      fail(issues, htmlPath, `missing generated HTML for sitemap URL ${loc}`);
+      continue;
+    }
+
+    const html = await readFile(htmlPath, 'utf8');
+    const h1Count = (html.match(/<h1\b/gi) ?? []).length;
+    if (h1Count !== 1) fail(issues, htmlPath, `expected exactly one h1, found ${h1Count}`);
+
+    const title = decodeEntities(html.match(/<title>([\s\S]*?)<\/title>/i)?.[1] ?? '')
+      .replace(/<[^>]+>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
+    if (!title) {
+      fail(issues, htmlPath, 'missing non-empty title');
+    } else {
+      const matches = titles.get(title) ?? [];
+      matches.push(loc);
+      titles.set(title, matches);
+    }
+
+    const description = decodeEntities(
+      html.match(/<meta\s+name="description"\s+content="([^"]*)"/i)?.[1] ?? '',
+    ).replace(/\s+/g, ' ').trim();
+    const descriptionLength = [...description].length;
+    if (descriptionLength < 80 || descriptionLength > 165) {
+      fail(
+        issues,
+        htmlPath,
+        `meta description must be 80–165 characters, found ${descriptionLength}`,
+      );
+    }
+  }
+
+  for (const [title, locations] of titles) {
+    if (locations.length > 1) {
+      fail(issues, sitemapPath, `duplicate title "${title}" on ${locations.join(', ')}`);
+    }
+  }
+
+  return entries.length;
+}
+
 async function main() {
   const issues = [];
+  let sitemapPageCount = 0;
   const daArticles = await listDailyArticles(daNewsDir);
   const enArticles = await listDailyArticles(enNewsDir);
   const latest = daArticles.at(-1)?.replace(/\.mdx$/, '');
@@ -333,6 +425,7 @@ async function main() {
     requireText(issues, sitemapPath, sitemap, `https://smartbolig.net/en/ai/nyheder/${latest}/`, 'English AI News article in sitemap');
     requireText(issues, sitemapPath, sitemap, 'https://smartbolig.net/da/start/', 'Danish start page in sitemap');
     requireText(issues, sitemapPath, sitemap, 'https://smartbolig.net/en/start/', 'English start page in sitemap');
+    sitemapPageCount = await validateSitemapPages(issues, sitemapPath, sitemap);
   } else if (!existsSync(sitemapPath)) {
     fail(issues, sitemapPath, 'missing sitemap');
   }
@@ -361,7 +454,10 @@ async function main() {
     process.exit(1);
   }
 
-  console.log(`SEO validation passed${latest ? ` (latest AI News ${latest})` : ''}.`);
+  console.log(
+    `SEO validation passed for ${sitemapPageCount} sitemap pages`
+      + `${latest ? ` (latest AI News ${latest})` : ''}.`,
+  );
 }
 
 main().catch((error) => {

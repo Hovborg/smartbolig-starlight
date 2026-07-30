@@ -1,9 +1,4 @@
----
-const isHomepage = /^\/(?:da|en)\/?$/.test(Astro.url.pathname);
-const target = isHomepage ? "home-hero-title" : "_top";
----
-
-<a href={`#${target}`}>{Astro.locals.t("skipLink.label")}</a>
+<a href="#_top">{Astro.locals.t("skipLink.label")}</a>
 
 <style>
   @layer starlight.core {

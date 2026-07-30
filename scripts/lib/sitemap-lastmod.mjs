@@ -5,9 +5,10 @@
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
 export function addLastmod(xml, resolveLastmod) {
-  return xml.replace(/<url><loc>([^<]+)<\/loc>/g, (match, loc) => {
+  return xml.replace(/<url><loc>([^<]+)<\/loc>([\s\S]*?)<\/url>/g, (match, loc, remainder) => {
     const lastmod = resolveLastmod(loc);
     if (typeof lastmod !== "string" || !DATE_PATTERN.test(lastmod)) return match;
-    return `<url><loc>${loc}</loc><lastmod>${lastmod}</lastmod>`;
+    const withoutLastmod = remainder.replace(/<lastmod>[^<]*<\/lastmod>/g, "");
+    return `<url><loc>${loc}</loc><lastmod>${lastmod}</lastmod>${withoutLastmod}</url>`;
   });
 }

@@ -1,0 +1,14 @@
+---
+import DefaultPageTitle from "@astrojs/starlight/components/PageTitle.astro";
+import { getHomeCopy, type HomeLocale } from "../lib/home-copy";
+import HomeHero from "./home/HomeHero.astro";
+
+const homepageMatch = Astro.url.pathname.match(/^\/(da|en)\/?$/);
+const homepageLocale = (homepageMatch?.[1] ?? null) as HomeLocale | null;
+---
+
+{
+  homepageLocale
+    ? <HomeHero copy={getHomeCopy(homepageLocale).hero} />
+    : <DefaultPageTitle />
+}

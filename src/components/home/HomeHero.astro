@@ -9,11 +9,11 @@ interface Props {
 const { copy } = Astro.props;
 ---
 
-<section class="home-hero" aria-labelledby="home-hero-title">
+<section class="home-hero" aria-labelledby="_top">
   <div class="home-hero__inner">
     <div class="home-hero__text">
       <p class="home-eyebrow"><span class="dot" aria-hidden="true"></span>{copy.kicker}</p>
-      <h1 id="home-hero-title">
+      <h1 id="_top">
         <span class="home-hero__line">{copy.titleLines[0]}</span>
         <span class="home-hero__line">{copy.titleLines[1]}</span>
       </h1>
