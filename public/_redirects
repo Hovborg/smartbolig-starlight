@@ -3,15 +3,14 @@
 / /da/ 301
 
 # English alias URLs redirect to the canonical generated Starlight paths.
-# IMPORTANT: Specific rules MUST come BEFORE splat (*) rules!
+# IMPORTANT: Every exact rule MUST come before placeholder/splat rules. Workers
+# counts every rule after the first dynamic rule against the 100-rule quota.
 
 # AI
 /en/ai/news/rss.xml /en/ai/news/rss.xml 200
 /en/ai/news/rss.xml/ /en/ai/news/rss.xml 301
 /en/ai/news/ /en/ai/nyheder/ 301
 /en/ai/news /en/ai/nyheder/ 301
-/en/ai/news/:slug/ /en/ai/nyheder/:slug/ 301
-/en/ai/news/:slug /en/ai/nyheder/:slug/ 301
 /en/ai/ai-cli/getting-started/ /en/ai/ai-cli/ 301
 /en/ai/ai-cli/getting-started /en/ai/ai-cli/ 301
 /en/ai/ai-cli/pricing-and-plans/ /en/ai/ai-cli/priser-og-planer/ 301
@@ -132,3 +131,7 @@
 /en/security /en/sikkerhed/ 301
 /en/ai/ai-cli/antigravity-getting-started/ /en/ai/ai-cli/antigravity-cli-kom-godt-i-gang/ 301
 /en/ai/ai-cli/antigravity-getting-started /en/ai/ai-cli/antigravity-cli-kom-godt-i-gang/ 301
+
+# Dynamic rules must remain last. See the quota note above.
+/en/ai/news/:slug/ /en/ai/nyheder/:slug/ 301
+/en/ai/news/:slug /en/ai/nyheder/:slug/ 301

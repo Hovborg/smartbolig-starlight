@@ -2,8 +2,8 @@
 
 ## Scope
 
-This record covers the local implementation of the SmartBolig AI assistant on
-branch `codex/smartbolig-ai-assistant`.
+This record covers the SmartBolig AI assistant implementation and its
+Cloudflare Workers deployment preparation.
 
 The assistant uses Workers AI model `@cf/google/gemma-4-26b-a4b-it` as the
 broad expert brain for Home Assistant, ESPHome, sensors, Zigbee, Matter, MQTT,
@@ -42,6 +42,16 @@ expected bindings (`AI`, `SMARTBOLIG_SEARCH`, `CHAT_RATE_LIMITER`, `ASSETS`) and
 chat returned a complete 2,679-character Danish answer. AI Search exceeded its
 five-second bound in that specific request, so the verified graceful fallback
 reported `sourceMode: "general"`.
+
+The first real Worker upload then exposed a second deployment-only constraint:
+Workers classified every redirect after the first placeholder rule as dynamic,
+so two early `/en/ai/news/:slug` rules caused later exact redirects to consume
+the 100-rule dynamic quota. The upload stopped before Worker activation with
+Cloudflare error `100324`. The two placeholder rules were moved to the end of
+`public/_redirects` without changing any source or destination URL. A regression
+test now enforces static-before-dynamic ordering and both documented rule
+limits. The corrected file was accepted by the local Workers runtime as 117
+valid redirect rules with no invalid-rule warning.
 
 ## Deterministic checks
 
@@ -194,18 +204,20 @@ visible answer.
 
 ## Final gate results
 
-- `npm run site:test`: 51/51 passed.
+- `npm run site:test`: 56/56 passed.
 - `npm run ai-news:test`: 49/49 passed.
 - `npm run ai-news:validate`: 61 bilingual daily issue pairs passed.
 - `python3 scripts/content-audit.py`: 0 syntax issues, 0 broken links,
   0 missing files.
 - `npm run build`: 311 pages built; Pagefind and sitemap completed.
-- `npm run seo:validate`: passed.
+- `npm run seo:validate`: passed for 310 sitemap pages.
 - `npm audit --omit=dev --audit-level=critical`: exit 0; unchanged baseline of
   1 low, 3 moderate, 4 high and 0 critical advisories.
 - `npx wrangler types`: generated `AI`, `SMARTBOLIG_SEARCH` and
   `CHAT_RATE_LIMITER` bindings with the expected types.
-- `npx wrangler pages functions build`: compiled successfully; final bundle
-  measured 40,718 bytes unminified (22,113 bytes minified).
+- `npm run worker:build`: compiled the Pages Functions router to the Workers
+  entrypoint successfully.
+- `npx wrangler deploy --dry-run`: passed with 1,604 static assets and all four
+  expected bindings.
 - `git diff --check`: clean.
 - Credential-pattern scan: clean across all 13 task-owned files.
