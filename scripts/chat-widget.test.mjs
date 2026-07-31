@@ -136,7 +136,7 @@ test("assistant shows allowlisted bilingual model, route, edge, trace and source
   assert.match(source, /data-diagnostic-route/);
   assert.match(source, /message\.diagnostics/);
   assert.match(source, /result\.diagnostics/);
-  assert.match(source, /Math\.min\(150_000/);
+  assert.match(source, /Math\.min\(180_000/);
   assert.match(source, /trace\.slice\(0,\s*64\)/);
   assert.match(source, /overflow-x:\s*auto/);
 });
@@ -240,7 +240,7 @@ test("assistant handles loading, server failures, Escape and focus restoration",
   const requestTimeoutMs = Number(requestTimeoutMatch[1].replaceAll("_", ""));
   const modelRunBudgetMs = PRIMARY_MODEL_TIMEOUT_MS + FALLBACK_MODEL_TIMEOUT_MS;
   const maximumServerPathMs = modelRunBudgetMs * MAX_MODEL_RUNS + SEARCH_TIMEOUT_MS;
-  assert.equal(requestTimeoutMs, 150_000);
+  assert.equal(requestTimeoutMs, 180_000);
   assert.ok(
     requestTimeoutMs >= maximumServerPathMs + 10_000,
     "browser timeout must cover search, every allowed model run and network overhead",

@@ -366,7 +366,7 @@ const t = translations[lang];
   const MAX_HISTORY_MESSAGES = 10;
   const MAX_HISTORY_CHARS = 8_000;
   const MAX_MESSAGE_CHARS = 2000;
-  const REQUEST_TIMEOUT_MS = 150_000;
+  const REQUEST_TIMEOUT_MS = 180_000;
   const SAFE_SOURCE_HOSTS = new Set(["smartbolig.net", "www.home-assistant.io", "esphome.io"]);
   const ALLOWED_DIAGNOSTIC_MODELS = new Set([
     "gemma-4-26b-a4b-it",
@@ -453,7 +453,7 @@ const t = translations[lang];
       return {
         model: hasKnownPair ? candidateModel : "unknown",
         route: hasKnownPair ? candidateRoute : "unknown",
-        durationMs: Math.min(150_000, Math.max(0, durationCandidate)),
+        durationMs: Math.min(180_000, Math.max(0, durationCandidate)),
         trace: SAFE_DIAGNOSTIC_TRACE.test(trace) ? trace : "",
       };
     }
