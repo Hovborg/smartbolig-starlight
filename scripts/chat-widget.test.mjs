@@ -77,6 +77,54 @@ test("assistant safely formats model Markdown without an HTML sink", async () =>
   assert.doesNotMatch(source, /\.innerHTML\s*=/);
 });
 
+test("assistant renders fenced technical code with a DOM-only copyable console", async () => {
+  const source = await read("src/components/SmartBoligAssistant.astro");
+
+  assert.match(source, /function createSafeCodeBlock\(code,\s*language\)/);
+  assert.match(source, /document\.createElement\(["']pre["']\)/);
+  assert.match(source, /document\.createElement\(["']code["']\)/);
+  assert.match(source, /safeLanguagePattern/);
+  assert.match(source, /codeElement\.textContent\s*=\s*code/);
+  assert.match(source, /fenceMatch/);
+  assert.match(source, /Kopiér kode/);
+  assert.match(source, /Copy code/);
+  assert.match(source, /smartbolig-ai__code-shell/);
+  assert.match(source, /smartbolig-ai__code-head/);
+  assert.doesNotMatch(source, /\.innerHTML\s*=/);
+  assert.doesNotMatch(source, /insertAdjacentHTML/);
+});
+
+test("assistant shows allowlisted bilingual model, route, edge, trace and source diagnostics", async () => {
+  const source = await read("src/components/SmartBoligAssistant.astro");
+
+  for (const copy of [
+    "MODEL",
+    "RUTE",
+    "ROUTE",
+    "EDGE",
+    "SPOR",
+    "TRACE",
+    "KILDER",
+    "SOURCES",
+    "PRIMÆR",
+    "PRIMARY",
+    "FALLBACK",
+  ]) {
+    assert.match(source, new RegExp(copy), `missing localized diagnostic copy: ${copy}`);
+  }
+
+  assert.match(source, /function normalizeDiagnostics\(diagnostics\)/);
+  assert.match(source, /ALLOWED_DIAGNOSTIC_MODELS/);
+  assert.match(source, /ALLOWED_DIAGNOSTIC_ROUTES/);
+  assert.match(source, /smartbolig-ai__diagnostics/);
+  assert.match(source, /data-diagnostic-route/);
+  assert.match(source, /message\.diagnostics/);
+  assert.match(source, /result\.diagnostics/);
+  assert.match(source, /Math\.min\(120_000/);
+  assert.match(source, /trace\.slice\(0,\s*64\)/);
+  assert.match(source, /overflow-x:\s*auto/);
+});
+
 test("assistant renders copy controls and revalidates canonical SmartBolig and official sources", async () => {
   const source = await read("src/components/SmartBoligAssistant.astro");
 

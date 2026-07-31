@@ -37,7 +37,18 @@ const translations = {
     official: 'Officielle kilder kontrolleret',
     sources: 'Kilder',
     copy: 'Kopiér',
+    copyCode: 'Kopiér kode',
     copied: 'Kopieret',
+    code: 'KODE',
+    diagnosticModel: 'MODEL',
+    diagnosticRoute: 'RUTE',
+    diagnosticEdge: 'EDGE',
+    diagnosticTrace: 'SPOR',
+    diagnosticSources: 'KILDER',
+    routePrimary: 'PRIMÆR',
+    routeFallback: 'FALLBACK',
+    routeUnknown: 'UKENDT',
+    modelUnknown: 'UKENDT',
     retry: 'Prøv igen',
     ready: 'Klar til dit spørgsmål.',
     resetDone: 'Samtalen er ryddet.',
@@ -78,7 +89,18 @@ const translations = {
     official: 'Official sources checked',
     sources: 'Sources',
     copy: 'Copy',
+    copyCode: 'Copy code',
     copied: 'Copied',
+    code: 'CODE',
+    diagnosticModel: 'MODEL',
+    diagnosticRoute: 'ROUTE',
+    diagnosticEdge: 'EDGE',
+    diagnosticTrace: 'TRACE',
+    diagnosticSources: 'SOURCES',
+    routePrimary: 'PRIMARY',
+    routeFallback: 'FALLBACK',
+    routeUnknown: 'UNKNOWN',
+    modelUnknown: 'UNKNOWN',
     retry: 'Try again',
     ready: 'Ready for your question.',
     resetDone: 'The conversation has been cleared.',
@@ -101,7 +123,9 @@ const t = translations[lang];
   data-label-assistant={t.assistant}
   data-label-you={t.you}
   data-label-copy={t.copy}
+  data-label-copy-code={t.copyCode}
   data-label-copied={t.copied}
+  data-label-code={t.code}
   data-label-retry={t.retry}
   data-label-ready={t.ready}
   data-label-reset={t.resetDone}
@@ -109,6 +133,15 @@ const t = translations[lang];
   data-label-mixed={t.mixed}
   data-label-official={t.official}
   data-label-sources={t.sources}
+  data-label-diagnostic-model={t.diagnosticModel}
+  data-label-diagnostic-route={t.diagnosticRoute}
+  data-label-diagnostic-edge={t.diagnosticEdge}
+  data-label-diagnostic-trace={t.diagnosticTrace}
+  data-label-diagnostic-sources={t.diagnosticSources}
+  data-label-route-primary={t.routePrimary}
+  data-label-route-fallback={t.routeFallback}
+  data-label-route-unknown={t.routeUnknown}
+  data-label-model-unknown={t.modelUnknown}
   data-error-rate={t.errorRate}
   data-error-service={t.errorService}
   data-error-timeout={t.errorTimeout}
@@ -290,6 +323,14 @@ const t = translations[lang];
   const MAX_MESSAGE_CHARS = 2000;
   const REQUEST_TIMEOUT_MS = 120_000;
   const SAFE_SOURCE_HOSTS = new Set(["smartbolig.net", "www.home-assistant.io", "esphome.io"]);
+  const ALLOWED_DIAGNOSTIC_MODELS = new Set([
+    "gemma-4-26b-a4b-it",
+    "llama-3.1-8b-instruct-fast",
+    "unknown",
+  ]);
+  const ALLOWED_DIAGNOSTIC_ROUTES = new Set(["primary", "fallback", "unknown"]);
+  const SAFE_DIAGNOSTIC_TRACE = /^[A-Za-z0-9._:-]{1,64}$/;
+  const safeLanguagePattern = /^[a-zA-Z0-9_+-]{1,20}$/;
 
   function setupAssistant(root) {
     if (!(root instanceof HTMLElement) || root.dataset.chatReady === "true") return;
@@ -336,6 +377,31 @@ const t = translations[lang];
       status.textContent = message;
     }
 
+    function normalizeDiagnostics(diagnostics) {
+      const candidateModel =
+        typeof diagnostics?.model === "string" && ALLOWED_DIAGNOSTIC_MODELS.has(diagnostics.model)
+          ? diagnostics.model
+          : "unknown";
+      const candidateRoute =
+        typeof diagnostics?.route === "string" && ALLOWED_DIAGNOSTIC_ROUTES.has(diagnostics.route)
+          ? diagnostics.route
+          : "unknown";
+      const hasKnownPair =
+        (candidateModel === "gemma-4-26b-a4b-it" && candidateRoute === "primary") ||
+        (candidateModel === "llama-3.1-8b-instruct-fast" && candidateRoute === "fallback");
+      const durationCandidate = Number.isFinite(diagnostics?.durationMs)
+        ? Math.round(diagnostics.durationMs)
+        : 0;
+      const trace = typeof diagnostics?.trace === "string" ? diagnostics.trace.slice(0, 64) : "";
+
+      return {
+        model: hasKnownPair ? candidateModel : "unknown",
+        route: hasKnownPair ? candidateRoute : "unknown",
+        durationMs: Math.min(120_000, Math.max(0, durationCandidate)),
+        trace: SAFE_DIAGNOSTIC_TRACE.test(trace) ? trace : "",
+      };
+    }
+
     function normalizeStoredMessage(message) {
       if (!message || typeof message !== "object") return null;
       if (message.role !== "user" && message.role !== "assistant") return null;
@@ -347,6 +413,7 @@ const t = translations[lang];
       if (message.role === "assistant") {
         normalized.sourceMode =
           message.sourceMode === "official" ? "official" : message.sourceMode === "mixed" ? "mixed" : "general";
+        normalized.diagnostics = normalizeDiagnostics(message.diagnostics);
         if (Array.isArray(message.sources)) {
           normalized.sources = message.sources.slice(0, 5).filter((source) => {
             if (!source || typeof source.title !== "string" || typeof source.url !== "string") return false;
@@ -416,23 +483,50 @@ const t = translations[lang];
       return sourceLink;
     }
 
-    function createCopyButton(content) {
+    function createCopyButton(content, options = {}) {
       const button = document.createElement("button");
-      button.className = "smartbolig-ai__message-action";
+      const defaultLabel = root.dataset.labelCopy || "Copy";
+      button.className = options.className || "smartbolig-ai__message-action";
       button.type = "button";
-      button.textContent = root.dataset.labelCopy || "Copy";
+      button.textContent = options.label || defaultLabel;
       button.addEventListener("click", async () => {
         try {
           await navigator.clipboard.writeText(content);
           button.textContent = root.dataset.labelCopied || "Copied";
           setTimeout(() => {
-            button.textContent = root.dataset.labelCopy || "Copy";
+            button.textContent = options.label || defaultLabel;
           }, 1600);
         } catch {
           setStatus(root.dataset.errorGeneric || "Could not copy.");
         }
       });
       return button;
+    }
+
+    function createSafeCodeBlock(code, language) {
+      const normalizedLanguage = typeof language === "string" ? language.trim() : "";
+      const safeLanguage = safeLanguagePattern.test(normalizedLanguage)
+        ? normalizedLanguage.toUpperCase()
+        : root.dataset.labelCode || "CODE";
+      const shell = document.createElement("div");
+      shell.className = "smartbolig-ai__code-shell";
+
+      const head = document.createElement("div");
+      head.className = "smartbolig-ai__code-head";
+      const languageLabel = document.createElement("span");
+      languageLabel.textContent = safeLanguage;
+      const copyButton = createCopyButton(code, {
+        className: "smartbolig-ai__code-copy",
+        label: root.dataset.labelCopyCode || "Copy code",
+      });
+      head.append(languageLabel, copyButton);
+
+      const pre = document.createElement("pre");
+      const codeElement = document.createElement("code");
+      codeElement.textContent = code;
+      pre.append(codeElement);
+      shell.append(head, pre);
+      return shell;
     }
 
     function appendInlineFormatting(element, content) {
@@ -466,6 +560,8 @@ const t = translations[lang];
       let paragraphLines = [];
       let list = null;
       let listKind = "";
+      let codeLanguage = null;
+      let codeLines = [];
 
       const flushParagraph = () => {
         if (paragraphLines.length === 0) return;
@@ -480,8 +576,31 @@ const t = translations[lang];
         listKind = "";
       };
 
+      const flushCode = () => {
+        if (codeLanguage === null) return;
+        container.append(createSafeCodeBlock(codeLines.join("\n"), codeLanguage));
+        codeLanguage = null;
+        codeLines = [];
+      };
+
       for (const rawLine of lines) {
         const line = rawLine.trim();
+        const fenceMatch = line.match(/^```([a-zA-Z0-9_+-]{0,20})\s*$/);
+
+        if (codeLanguage !== null) {
+          if (fenceMatch) flushCode();
+          else codeLines.push(rawLine);
+          continue;
+        }
+
+        if (fenceMatch) {
+          flushParagraph();
+          closeList();
+          codeLanguage = fenceMatch[1] || "";
+          codeLines = [];
+          continue;
+        }
+
         if (!line) {
           flushParagraph();
           closeList();
@@ -519,7 +638,62 @@ const t = translations[lang];
       }
 
       flushParagraph();
+      flushCode();
       return container;
+    }
+
+    function createDiagnosticItem(label, value) {
+      const item = document.createElement("span");
+      item.className = "smartbolig-ai__diagnostic";
+      const key = document.createElement("small");
+      key.textContent = label;
+      const content = document.createElement("strong");
+      content.textContent = value;
+      item.append(key, content);
+      return item;
+    }
+
+    function modelDiagnosticLabel(model) {
+      if (model === "gemma-4-26b-a4b-it") return "GEMMA 4 · 26B";
+      if (model === "llama-3.1-8b-instruct-fast") return "LLAMA 3.1 · 8B FAST";
+      return root.dataset.labelModelUnknown || "UNKNOWN";
+    }
+
+    function routeDiagnosticLabel(route) {
+      if (route === "primary") return root.dataset.labelRoutePrimary || "PRIMARY";
+      if (route === "fallback") return root.dataset.labelRouteFallback || "FALLBACK";
+      return root.dataset.labelRouteUnknown || "UNKNOWN";
+    }
+
+    function formatDiagnosticDuration(durationMs) {
+      if (durationMs < 1000) return `${durationMs} MS`;
+      return `${(durationMs / 1000).toFixed(1)} S`;
+    }
+
+    function createDiagnostics(message, sourceCount) {
+      const diagnostics = normalizeDiagnostics(message.diagnostics);
+      const rail = document.createElement("div");
+      rail.className = "smartbolig-ai__diagnostics";
+      rail.dataset.diagnosticRoute = diagnostics.route;
+      const trace = diagnostics.trace ? diagnostics.trace.slice(0, 8).toUpperCase() : "—";
+      const safeSourceCount = Math.min(5, Math.max(0, Number.isInteger(sourceCount) ? sourceCount : 0));
+
+      rail.append(
+        createDiagnosticItem(root.dataset.labelDiagnosticModel || "MODEL", modelDiagnosticLabel(diagnostics.model)),
+        createDiagnosticItem(root.dataset.labelDiagnosticRoute || "ROUTE", routeDiagnosticLabel(diagnostics.route)),
+        createDiagnosticItem(root.dataset.labelDiagnosticEdge || "EDGE", formatDiagnosticDuration(diagnostics.durationMs)),
+        createDiagnosticItem(root.dataset.labelDiagnosticTrace || "TRACE", trace),
+        createDiagnosticItem(root.dataset.labelDiagnosticSources || "SOURCES", String(safeSourceCount)),
+      );
+      rail.setAttribute(
+        "aria-label",
+        `${root.dataset.labelDiagnosticModel || "MODEL"}: ${modelDiagnosticLabel(diagnostics.model)}; ` +
+          `${root.dataset.labelDiagnosticRoute || "ROUTE"}: ${routeDiagnosticLabel(diagnostics.route)}; ` +
+          `${root.dataset.labelDiagnosticEdge || "EDGE"}: ${formatDiagnosticDuration(diagnostics.durationMs)}; ` +
+          `${root.dataset.labelDiagnosticTrace || "TRACE"}: ${trace}; ` +
+          `${root.dataset.labelDiagnosticSources || "SOURCES"}: ${safeSourceCount}`,
+      );
+      return rail;
     }
 
     function renderMessage(message) {
@@ -570,6 +744,8 @@ const t = translations[lang];
           sourceBlock.append(sourceLabel, ...validSources);
           bubble.append(sourceBlock);
         }
+
+        bubble.append(createDiagnostics(message, validSources.length));
 
         const actions = document.createElement("div");
         actions.className = "smartbolig-ai__message-actions";
@@ -736,6 +912,7 @@ const t = translations[lang];
           sourceMode:
             result.sourceMode === "official" ? "official" : result.sourceMode === "mixed" ? "mixed" : "general",
           sources,
+          diagnostics: normalizeDiagnostics(result.diagnostics),
         });
         history = history.slice(-MAX_HISTORY_MESSAGES);
         saveHistory();
@@ -1575,6 +1752,76 @@ const t = translations[lang];
     font-size: 0.72rem;
   }
 
+  .smartbolig-ai__code-shell {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid rgba(57, 231, 255, 0.2);
+    border-radius: 11px;
+    background: rgba(1, 8, 16, 0.88);
+    box-shadow:
+      0 15px 34px rgba(0, 0, 0, 0.22),
+      3px 0 0 rgba(66, 245, 176, 0.26) inset;
+  }
+
+  .smartbolig-ai__code-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.42rem 0.55rem 0.4rem 0.68rem;
+    border-bottom: 1px solid rgba(57, 231, 255, 0.12);
+    background: linear-gradient(90deg, rgba(57, 231, 255, 0.08), rgba(66, 245, 176, 0.025));
+  }
+
+  .smartbolig-ai__code-head > span {
+    color: var(--ai-positive);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.52rem;
+    font-weight: 760;
+    letter-spacing: 0.1em;
+  }
+
+  .smartbolig-ai__code-copy {
+    padding: 0.2rem 0.38rem;
+    border: 1px solid rgba(57, 231, 255, 0.16);
+    border-radius: 6px;
+    color: #a9c2d3;
+    background: rgba(57, 231, 255, 0.04);
+    cursor: pointer;
+    font-size: 0.55rem;
+    line-height: 1.2;
+  }
+
+  .smartbolig-ai__code-copy:hover {
+    border-color: rgba(57, 231, 255, 0.42);
+    color: #e7faff;
+    background: rgba(57, 231, 255, 0.09);
+  }
+
+  .smartbolig-ai__code-shell pre {
+    margin: 0;
+    padding: 0.72rem 0.78rem 0.82rem;
+    overflow-x: auto;
+    scrollbar-color: rgba(57, 231, 255, 0.28) transparent;
+    scrollbar-width: thin;
+  }
+
+  .smartbolig-ai__code-shell code {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    color: #c8f3ff;
+    background: transparent;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.68rem;
+    line-height: 1.55;
+    tab-size: 2;
+    white-space: pre;
+  }
+
   .smartbolig-ai__sources {
     display: flex;
     flex-wrap: wrap;
@@ -1623,6 +1870,57 @@ const t = translations[lang];
   .smartbolig-ai__source[data-source-type="official"]:hover {
     border-color: rgba(72, 255, 164, 0.52);
     color: #e0ffef;
+  }
+
+  .smartbolig-ai__diagnostics {
+    display: flex;
+    gap: 0.34rem;
+    margin-top: 0.68rem;
+    padding: 0.42rem 0.1rem 0.08rem;
+    overflow-x: auto;
+    border-top: 1px solid rgba(57, 231, 255, 0.09);
+    scrollbar-color: rgba(57, 231, 255, 0.24) transparent;
+    scrollbar-width: thin;
+  }
+
+  .smartbolig-ai__diagnostic {
+    display: grid;
+    flex: 0 0 auto;
+    gap: 0.08rem;
+    min-width: 54px;
+    padding: 0.28rem 0.38rem;
+    border: 1px solid rgba(57, 231, 255, 0.1);
+    border-radius: 7px;
+    background: rgba(57, 231, 255, 0.025);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    white-space: nowrap;
+  }
+
+  .smartbolig-ai__diagnostic small {
+    color: var(--ai-dim);
+    font-size: 0.42rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  .smartbolig-ai__diagnostic strong {
+    color: #bfefff;
+    font-size: 0.5rem;
+    font-weight: 720;
+    letter-spacing: 0.02em;
+  }
+
+  .smartbolig-ai__diagnostics[data-diagnostic-route="fallback"] .smartbolig-ai__diagnostic:nth-child(2) {
+    border-color: rgba(255, 181, 71, 0.24);
+    background: rgba(255, 181, 71, 0.055);
+  }
+
+  .smartbolig-ai__diagnostics[data-diagnostic-route="fallback"] .smartbolig-ai__diagnostic:nth-child(2) strong {
+    color: #ffd18a;
+  }
+
+  .smartbolig-ai__diagnostic:last-child strong {
+    color: var(--ai-positive);
   }
 
   .smartbolig-ai__message-actions {
@@ -1887,6 +2185,27 @@ const t = translations[lang];
 
   [data-theme='light'] .smartbolig-ai__system-state strong {
     color: #087b58;
+  }
+
+  [data-theme='light'] .smartbolig-ai__code-shell {
+    border-color: rgba(0, 126, 168, 0.18);
+    background: rgba(222, 238, 246, 0.9);
+    box-shadow: 3px 0 0 rgba(13, 152, 104, 0.2) inset;
+  }
+
+  [data-theme='light'] .smartbolig-ai__code-shell code {
+    color: #17384c;
+  }
+
+  [data-theme='light'] .smartbolig-ai__code-copy,
+  [data-theme='light'] .smartbolig-ai__diagnostic {
+    color: #476476;
+    border-color: rgba(0, 126, 168, 0.14);
+    background: rgba(0, 126, 168, 0.045);
+  }
+
+  [data-theme='light'] .smartbolig-ai__diagnostic strong {
+    color: #075f7c;
   }
 
   @media (max-width: 640px) {
