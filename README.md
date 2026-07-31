@@ -75,15 +75,31 @@ specialdesignet Astro-widget:
   modelviden efter fem sekunder.
 - **Dataminimering:** Endpointet accepterer højst 10 skiftevis bruger/assistent-
   beskeder, 2.000 tegn pr. besked og 8.000 tegn i alt. Widgeten gemmer kun den
-  aktuelle samtale i browserens `sessionStorage`.
+  aktuelle samtale i browserens `sessionStorage`. Hvert gemt og genudsendt
+  historikelement normaliseres til 2.000 tegn; et netop modtaget svar kan stadig
+  vises i sin fulde returnerede længde uden at bryde det næste chatkald.
 - **Sikker rendering:** Modelsvar bliver til tekstnoder; der indsættes ikke
-  modelgenereret HTML. Kildelinks tillades kun til `https://smartbolig.net`
-  samt de serverstyrede officielle værter `www.home-assistant.io` og
-  `esphome.io`.
+  modelgenereret HTML. Fenced Markdown-kode bliver vist som indrykningsbevarende
+  kodekonsoller med sproglabel og egen kopiknap, men opbygges stadig kun med
+  sikre DOM-elementer og `textContent`. Kildelinks tillades kun til
+  `https://smartbolig.net` samt de serverstyrede officielle værter
+  `www.home-assistant.io` og `esphome.io`.
 - **Smart-home intelligence console:** Widgeten bruger et responsivt
   cyan/grønt tech-interface med tydelig `EDGE AI`-status, capability-felter,
-  handlingskort og console-composer. Den understøtter både lys/mørk tilstand og
-  reduceret bevægelse uden eksterne UI-biblioteker.
+  handlingskort og console-composer. Fire tosprogede arbejdsprofiler —
+  **Fejlsøg/Debug**, **Byg/Build**, **Forklar/Explain** og
+  **Sammenlign/Compare** — indsætter synlig, redigerbar tekst i promptfeltet;
+  de ændrer ikke skjult systemprompt eller permissions. Under et kald viser
+  konsollen den reelle forløbne ventetid i browseren som en aktiv
+  `WORKER · CONTEXT · MODEL`-pipeline. Det er en timer, ikke et påfundet indblik
+  i interne modeltrin. Widgeten understøtter både lys/mørk tilstand og reduceret
+  bevægelse uden eksterne UI-biblioteker.
+- **Afgrænset svartelemetri:** Hvert AI-svar viser en kompakt rail med en fast
+  allowlistet modelbetegnelse, `PRIMARY`/`FALLBACK`-rute, servermålt edge-tid,
+  et højst 64 tegn langt request-spor og antallet af allerede validerede kilder.
+  Sporet korrelerer kun kaldet og indeholder hverken prompt, svar, providerfejl
+  eller credentials. Telemetrien gør driften gennemsigtig; den er ikke en
+  score for, om svaret er fagligt korrekt.
 - **Lavere variation i tekniske fakta:** Modellen kører med temperatur `0.1`.
   Den indstilling gør svar mindre tilfældige, men erstatter ikke kilder,
   regressionstests eller brugerens kontrol i den konkrete installation.
@@ -173,7 +189,7 @@ npx wrangler deploy --dry-run
 ```
 
 > **Midlertidig undtagelse (2026-07-29):** afhængighedstjekket er sænket fra
-> `--audit-level=high` til `critical`. Fire high-advisories i `astro 6.4.8`'s
+> `--audit-level=high` til `critical`. Otte high-advisories i projektets
 > afhængighedstræ blokerede al deployment fra 26. juli, inklusive de daglige
 > AI News-udgivelser. Sitet bygges fuldt statisk, så eksponeringen er begrænset.
 > Gaten sættes tilbage til `high` som del af Astro 7-opgraderingen —
