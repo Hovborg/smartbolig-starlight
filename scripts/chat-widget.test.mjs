@@ -65,6 +65,19 @@ test("assistant uses same-origin bounded session-only chat without unsafe HTML s
   assert.doesNotMatch(source, /localStorage/);
 });
 
+test("assistant bounds persisted and outbound context without shortening the current rendered answer", async () => {
+  const source = await read("src/components/SmartBoligAssistant.astro");
+
+  assert.match(source, /history\.slice\(-MAX_HISTORY_MESSAGES\)\.map\(normalizeStoredMessage\)\.filter\(Boolean\)/);
+  assert.match(source, /const MAX_HISTORY_CHARS\s*=\s*8_000/);
+  assert.match(source, /function createRequestMessages\(\)/);
+  assert.match(source, /requestMessages\.length\s*<\s*MAX_HISTORY_MESSAGES/);
+  assert.match(source, /Math\.min\(MAX_MESSAGE_CHARS,\s*remainingChars\)/);
+  assert.match(source, /requestMessages\[0\]\?\.role\s*!==\s*["']user["']/);
+  assert.match(source, /messages:\s*createRequestMessages\(\)/);
+  assert.match(source, /result\.answer\.trim\(\)\.slice\(0,\s*12_000\)/);
+});
+
 test("assistant safely formats model Markdown without an HTML sink", async () => {
   const source = await read("src/components/SmartBoligAssistant.astro");
 
@@ -141,6 +154,8 @@ test("assistant keeps four visible bilingual expert work modes beside the compos
     "Compare",
     "sikre trin, verifikation og rollback",
     "safe steps, verification and rollback",
+    "Prompten blev afkortet",
+    "The prompt was shortened",
   ]) {
     assert.match(source, new RegExp(copy, "i"), `missing localized work-mode copy: ${copy}`);
   }
@@ -153,6 +168,9 @@ test("assistant keeps four visible bilingual expert work modes beside the compos
   assert.match(source, /button\.dataset\.template/);
   assert.match(source, /input\.value\s*=/);
   assert.match(source, /input\.dispatchEvent\(new Event\(["']input["']\)\)/);
+  assert.match(source, /MAX_MESSAGE_CHARS\s*-\s*template\.length/);
+  assert.match(source, /remainder\.slice\(0,\s*availableChars\)/);
+  assert.match(source, /activeModeTemplate\s*&&\s*!input\.value\.startsWith\(activeModeTemplate\)/);
 });
 
 test("assistant shows an honest elapsed edge request console and clears its timer", async () => {
@@ -169,6 +187,13 @@ test("assistant shows an honest elapsed edge request console and clears its time
   assert.match(source, /renderLoading\(\)[\s\S]*return article/);
   assert.match(source, /elapsed\.setAttribute\(["']aria-hidden["'],\s*["']true["']\)/);
   assert.match(source, /elapsed\.dataset\.chatElapsed\s*=/);
+  assert.match(source, /function closeAssistant\(\)\s*\{\s*stopLoadingTimer\(\)/);
+  assert.match(source, /function resetConversation\(\)[\s\S]{0,160}stopLoadingTimer\(\)/);
+  assert.match(
+    source,
+    /if \(abortController === requestController\) \{\s*stopLoadingTimer\(\)/,
+    "a stale request must not stop the timer owned by a newer request",
+  );
 });
 
 test("assistant renders copy controls and revalidates canonical SmartBolig and official sources", async () => {

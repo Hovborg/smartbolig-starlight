@@ -55,6 +55,7 @@ const translations = {
     modeExplainTemplate: 'Forklar dette teknisk, men klart, og markér usikkerheder: ',
     modeCompare: 'Sammenlign',
     modeCompareTemplate: 'Sammenlign mulighederne med fordele, ulemper og en anbefaling til: ',
+    modeTruncated: 'Prompten blev afkortet til 2.000 tegn.',
     edgeActive: 'EDGE-FORESPØRGSEL AKTIV',
     edgePipeline: 'WORKER · CONTEXT · MODEL',
     routePrimary: 'PRIMÆR',
@@ -119,6 +120,7 @@ const translations = {
     modeExplainTemplate: 'Explain this technically but clearly, and mark uncertainties: ',
     modeCompare: 'Compare',
     modeCompareTemplate: 'Compare the options with advantages, disadvantages and a recommendation for: ',
+    modeTruncated: 'The prompt was shortened to 2,000 characters.',
     edgeActive: 'EDGE REQUEST ACTIVE',
     edgePipeline: 'WORKER · CONTEXT · MODEL',
     routePrimary: 'PRIMARY',
@@ -164,6 +166,7 @@ const t = translations[lang];
   data-label-diagnostic-sources={t.diagnosticSources}
   data-label-edge-active={t.edgeActive}
   data-label-edge-pipeline={t.edgePipeline}
+  data-label-mode-truncated={t.modeTruncated}
   data-label-route-primary={t.routePrimary}
   data-label-route-fallback={t.routeFallback}
   data-label-route-unknown={t.routeUnknown}
@@ -361,6 +364,7 @@ const t = translations[lang];
 
 <script>
   const MAX_HISTORY_MESSAGES = 10;
+  const MAX_HISTORY_CHARS = 8_000;
   const MAX_MESSAGE_CHARS = 2000;
   const REQUEST_TIMEOUT_MS = 120_000;
   const SAFE_SOURCE_HOSTS = new Set(["smartbolig.net", "www.home-assistant.io", "esphome.io"]);
@@ -420,6 +424,13 @@ const t = translations[lang];
 
     function setStatus(message) {
       status.textContent = message;
+    }
+
+    function clearActiveMode() {
+      activeModeTemplate = "";
+      for (const modeButton of modeButtons) {
+        if (modeButton instanceof HTMLButtonElement) modeButton.setAttribute("aria-pressed", "false");
+      }
     }
 
     function normalizeDiagnostics(diagnostics) {
@@ -501,10 +512,33 @@ const t = translations[lang];
 
     function saveHistory() {
       try {
-        sessionStorage.setItem(storageKey, JSON.stringify(history.slice(-MAX_HISTORY_MESSAGES)));
+        const storedHistory = history.slice(-MAX_HISTORY_MESSAGES).map(normalizeStoredMessage).filter(Boolean);
+        sessionStorage.setItem(storageKey, JSON.stringify(storedHistory));
       } catch {
         // Storage may be unavailable in hardened/private browser contexts.
       }
+    }
+
+    function createRequestMessages() {
+      const requestMessages = [];
+      let remainingChars = MAX_HISTORY_CHARS;
+
+      for (
+        let index = history.length - 1;
+        index >= 0 && remainingChars > 0 && requestMessages.length < MAX_HISTORY_MESSAGES;
+        index -= 1
+      ) {
+        const message = history[index];
+        const content = message.content.slice(0, Math.min(MAX_MESSAGE_CHARS, remainingChars));
+        if (!content) continue;
+        requestMessages.unshift({ role: message.role, content });
+        remainingChars -= content.length;
+      }
+
+      while (requestMessages.length > 0 && requestMessages[0]?.role !== "user") {
+        requestMessages.shift();
+      }
+      return requestMessages;
     }
 
     function createSafeSourceLink(source) {
@@ -945,10 +979,7 @@ const t = translations[lang];
       renderHistory();
       setStatus(root.dataset.labelReset || "Conversation cleared.");
       input.value = "";
-      activeModeTemplate = "";
-      for (const modeButton of modeButtons) {
-        if (modeButton instanceof HTMLButtonElement) modeButton.setAttribute("aria-pressed", "false");
-      }
+      clearActiveMode();
       input.focus();
     }
 
@@ -996,7 +1027,7 @@ const t = translations[lang];
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             locale,
-            messages: history.map(({ role, content: messageContent }) => ({ role, content: messageContent })),
+            messages: createRequestMessages(),
           }),
           signal: requestController.signal,
         });
@@ -1055,10 +1086,7 @@ const t = translations[lang];
     for (const button of promptButtons) {
       button.addEventListener("click", () => {
         if (!(button instanceof HTMLButtonElement)) return;
-        activeModeTemplate = "";
-        for (const modeButton of modeButtons) {
-          if (modeButton instanceof HTMLButtonElement) modeButton.setAttribute("aria-pressed", "false");
-        }
+        clearActiveMode();
         input.value = button.dataset.prompt || "";
         input.focus();
         input.dispatchEvent(new Event("input"));
@@ -1074,7 +1102,12 @@ const t = translations[lang];
           activeModeTemplate && current.startsWith(activeModeTemplate)
             ? current.slice(activeModeTemplate.length).trimStart()
             : current.trim();
-        input.value = remainder ? `${template}${remainder}` : template;
+        const availableChars = Math.max(0, MAX_MESSAGE_CHARS - template.length);
+        const boundedRemainder = remainder.slice(0, availableChars);
+        input.value = boundedRemainder ? `${template}${boundedRemainder}` : template;
+        if (boundedRemainder.length < remainder.length) {
+          setStatus(root.dataset.labelModeTruncated || "The prompt was shortened to 2,000 characters.");
+        }
         activeModeTemplate = template;
         for (const modeButton of modeButtons) {
           if (modeButton instanceof HTMLButtonElement) {
@@ -1097,6 +1130,7 @@ const t = translations[lang];
       }
     });
     input.addEventListener("input", () => {
+      if (activeModeTemplate && !input.value.startsWith(activeModeTemplate)) clearActiveMode();
       input.style.height = "auto";
       input.style.height = `${Math.min(input.scrollHeight, 128)}px`;
     });
