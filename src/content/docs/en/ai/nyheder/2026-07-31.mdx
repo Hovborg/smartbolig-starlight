@@ -1,0 +1,142 @@
+---
+title: "AI News, 31 July 2026"
+description: "Curated AI brief for 31 July 2026: models, products, ChatGPT, Claude, Gemini, API pricing, privacy, and agent workflows."
+date: 2026-07-31
+lastUpdated: 2026-07-31
+heroImage:
+  src: "/images/ai-news/2026-07-31.jpg"
+  alt: "Editorial AI news image about OpenClaw releases, OpenAI Codex releases, OpenAI News, Claude Code releases, Google AI Blog, Gemini CLI releases"
+  caption: "Editorial AI news image about OpenClaw releases, OpenAI Codex releases, OpenAI News, Claude Code releases, Google AI Blog, Gemini CLI releases"
+news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "41b9561d967e53f0caaf61245b5cb8a6bf9006f91282c2470411804718db0fba"
+  sourceSetFingerprint: "7a6a1f93cd45b69e4745fb9522545a276ced4efa49d36f0ad3b5fd7c96dbf278"
+  signal: high
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.5"
+    - "https://github.com/openai/codex/releases/tag/rust-v0.146.0"
+    - "https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.219"
+    - "https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api-3-6-flash-hooks"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.54.0-preview.0"
+sidebar:
+  label: "31 July 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline">By SmartBolig.net Editorial · <time datetime="2026-07-31">31 July 2026</time> · 6 selected sources</p>
+
+<p class="ai-news-lede">Today's brief leads with Claude Code, where Opus 5 is now the default model with a 1 million token context and a fast mode priced at $10/$50 per Mtok. OpenClaw also tightens state recovery, Codex CLI gains session management and plugin support, and Gemini CLI fixes a session bug tied to model fallback.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. OpenClaw releases: openclaw 2026.7.2-beta.5
+
+**What changed:** OpenClaw releases published the update on 28 Jul 2026. OpenClaw 2026.7.2-beta.5 adds several layers of data protection: a quarantine store that survives damage to the primary database, crash-recoverable SQLite snapshots, crash-durable filesystem publication, rejection of schema upgrades that would cause data loss, and recovery via rollback-writer snapshots. Channel messages now also survive gateway restarts and local crashes through a shared ingress queue.
+
+> Short source excerpt: 2026.7.2 Highlights State safety and recovery: protect persisted data with a quarantine store that survives primary-database damage, crash-recoverable SQLite snapshots,…
+
+**Why it matters:** For OpenClaw users this means less risk of losing chat history or configuration during crashes or upgrades. That matters if you run OpenClaw as a persistent part of a smart-home setup, where downtime or data loss can interrupt automations.
+
+**How to verify it:** Check the release notes for 2026.7.2-beta.5 on GitHub to see whether your version includes the updated schema handling before upgrading a production install.
+
+**Uncertainty:** The source does not show how stable beta.5 is in practice, whether these recovery mechanisms are enabled by default, or whether the new snapshot and quarantine mechanisms carry a performance cost.
+
+Source: [openclaw 2026.7.2-beta.5](https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.5)
+
+### 2. OpenAI Codex releases: 0.146.0
+
+**What changed:** OpenAI Codex releases published the update on 29 Jul 2026. OpenAI Codex 0.146.0 lets users name new sessions with /new or /clear, pin important threads, and switch between side conversations without closing them. The release adds support for Agent Plugins manifests, workspace plugin publishing, and additional plugin marketplaces, including for Amazon Bedrock and Claude Code. Threads can now be forked with paginated history, including temporary forks that do not appear in thread listings.
+
+> Short source excerpt: New Features Name new sessions with /new or /clear , pin important threads, and switch between side conversations without closing…
+
+**Why it matters:** This makes it easier to track several parallel Codex tasks without losing context, and the new plugin marketplaces widen which tools you can attach to an agent workflow, including if you also use Bedrock or Claude Code.
+
+**How to verify it:** Update to 0.146.0 and try /new plus pinning a thread to check whether the features are available in your installation.
+
+**Uncertainty:** The source does not show whether the new plugin marketplaces are available to all users immediately, or how temporary thread forks behave over time.
+
+Source: [0.146.0](https://github.com/openai/codex/releases/tag/rust-v0.146.0)
+
+### 3. OpenAI News: Advancing the price-performance frontier with GPT-5.6
+
+**What changed:** OpenAI News published the update on 30 Jul 2026. OpenAI mentions lower pricing for GPT-5.6 on the Luna and Terra models, framed as part of what it calls a price-performance frontier for enterprises. The source material contains no concrete figures, no effective date, and no detail on which features are covered.
+
+> Short source excerpt: Explore lower GPT‑5.6 pricing for Luna and Terra—and how OpenAI’s more efficient models help enterprises deploy AI workflows at scale.
+
+**Why it matters:** If the price genuinely drops, it could make running AI workflows at scale cheaper for businesses and developers using GPT-5.6 via the API. Without specific numbers, the practical saving for an individual user cannot be judged from this source.
+
+**How to verify it:** Look up the current Luna and Terra prices directly on OpenAI's pricing page before assuming a saving in your own usage.
+
+**Uncertainty:** The source gives no concrete prices, percentage changes, effective date, or whether the change applies to all regions and account types.
+
+Source: [Advancing the price-performance frontier with GPT-5.6](https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6)
+
+### 4. Claude Code releases: v2.1.219
+
+**What changed:** Claude Code releases published the update on 24 Jul 2026. Claude Code v2.1.219 makes Opus 5 &#40;claude-opus-5&#41; the default model, with a 1 million token context and a fast mode priced at $10/$50 per Mtok. The release adds a sandbox.network.strictAllowlist setting that denies non-allowlisted hosts for sandboxed commands without prompting, a DirectoryAdded hook that fires when a new working directory is added mid-session, and mcp&#95;server&#95;errors in the headless stream-json init event.
+
+> Short source excerpt: What's changed Added Claude Opus 5 &#40; claude-opus-5 &#41;, now the default Opus model — 1M context, fast mode at…
+
+**Why it matters:** Switching to Opus 5 by default changes both performance and cost for existing users without extra setup, while the new allowlist setting gives tighter control over network access in sandboxed runs, relevant if you run Claude Code with access to sensitive systems.
+
+**How to verify it:** Check your Claude Code version and model settings to see whether Opus 5 is now selected by default, and review the fast mode pricing under your plan.
+
+**Uncertainty:** The source does not show whether all users are automatically moved to Opus 5 by default, or whether older default models can still be selected manually without extra steps.
+
+Source: [v2.1.219](https://github.com/anthropics/claude-code/releases/tag/v2.1.219)
+
+### 5. Google AI Blog: Gemini API Managed Agents: 3.6 Flash, hooks, and more
+
+**What changed:** Google AI Blog published the update on 28 Jul 2026. Google announces new features in Managed Agents in the Gemini API, including Gemini 3.6 Flash and something called hooks, aimed at developers building production-ready agents. The available source material is mostly navigation text from the Google blog and contains no concrete technical detail on how 3.6 Flash or hooks work.
+
+> Short source excerpt: We’re announcing even more new capabilities in Managed Agents in Gemini API so developers can build reliable, production-ready agents. What’s…
+
+**Why it matters:** If the features hold up, they could make it easier to build reliable agent workflows with Gemini, but without concrete detail it is not yet possible to judge what this means for setup, pricing, or access.
+
+**How to verify it:** Visit Google's developer documentation for Gemini API Managed Agents to find concrete detail on 3.6 Flash and hooks before planning an agent setup.
+
+**Uncertainty:** The source does not show what hooks concretely do, when 3.6 Flash becomes broadly available, or whether the features require special access or payment.
+
+Source: [Gemini API Managed Agents: 3.6 Flash, hooks, and more](https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api-3-6-flash-hooks)
+
+### 6. Gemini CLI releases: Release v0.54.0-preview.0
+
+**What changed:** Gemini CLI releases published the update on 28 Jul 2026. Gemini CLI v0.54.0-preview.0 fixes a bug by rotating the session ID on model fallback to prevent stateful API errors. The release sanitizes and wraps issue titles in untrusted&#95;context to guard against injection via GitHub issues, and updates the vitest test tool to version 3.2.4 with accompanying package-lock files.
+
+> Short source excerpt: What's Changed Changelog for v0.53.0-preview.0 by @gemini-cli-robot in #28507 Changelog for v0.52.0 by @gemini-cli-robot in #28508 chore&#40;release&#41;: bump version to…
+
+**Why it matters:** Rotating the session ID makes Gemini CLI more robust when the model falls back to another version mid-session, reducing the risk of errors that would otherwise interrupt an agent run. Sanitizing issue titles closes a potential path for prompt injection from external GitHub issues.
+
+**How to verify it:** Update to v0.54.0-preview.0 and test a session where the model falls back, to check whether previous stateful API errors are gone.
+
+**Uncertainty:** The source does not show how often model fallback actually occurs in practice, or whether the fix has been tested across every scenario where the session ID previously caused errors.
+
+Source: [Release v0.54.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.54.0-preview.0)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| OpenClaw releases | [openclaw 2026.7.2-beta.5](https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.5) | 28 Jul 2026 |
+| OpenAI Codex releases | [0.146.0](https://github.com/openai/codex/releases/tag/rust-v0.146.0) | 29 Jul 2026 |
+| OpenAI News | [Advancing the price-performance frontier with GPT-5.6](https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6) | 30 Jul 2026 |
+| Claude Code releases | [v2.1.219](https://github.com/anthropics/claude-code/releases/tag/v2.1.219) | 24 Jul 2026 |
+| Google AI Blog | [Gemini API Managed Agents: 3.6 Flash, hooks, and more](https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api-3-6-flash-hooks) | 28 Jul 2026 |
+| Gemini CLI releases | [Release v0.54.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.54.0-preview.0) | 28 Jul 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.

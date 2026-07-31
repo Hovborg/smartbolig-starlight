@@ -1,0 +1,142 @@
+---
+title: "AI-nyheder, 31. juli 2026"
+description: "Kurateret AI-overblik for 31. juli 2026: modeller, produkter, ChatGPT, Claude, Gemini, API-priser, privacy og agent-workflows."
+date: 2026-07-31
+lastUpdated: 2026-07-31
+heroImage:
+  src: "/images/ai-news/2026-07-31.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om OpenClaw releases, OpenAI Codex releases, OpenAI News, Claude Code releases, Google AI Blog, Gemini CLI releases"
+  caption: "Redaktionelt AI-nyhedsbillede om OpenClaw releases, OpenAI Codex releases, OpenAI News, Claude Code releases, Google AI Blog, Gemini CLI releases"
+news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "41b9561d967e53f0caaf61245b5cb8a6bf9006f91282c2470411804718db0fba"
+  sourceSetFingerprint: "7a6a1f93cd45b69e4745fb9522545a276ced4efa49d36f0ad3b5fd7c96dbf278"
+  signal: high
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.5"
+    - "https://github.com/openai/codex/releases/tag/rust-v0.146.0"
+    - "https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.219"
+    - "https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api-3-6-flash-hooks"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.54.0-preview.0"
+sidebar:
+  label: "31. juli 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-07-31">31. juli 2026</time> · 6 udvalgte kilder</p>
+
+<p class="ai-news-lede">Dagens brief handler primært om Claude Code, hvor Opus 5 nu er standardmodel med 1 million tokens kontekst og en hurtig tilstand til $10/$50 per Mtok. Derudover strammer OpenClaw sin state-sikkerhed med nye recovery-mekanismer, Codex CLI får sessionsstyring og plugin-understøttelse, og Gemini CLI retter en session-fejl ved model-fallback.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. OpenClaw releases: openclaw 2026.7.2-beta.5
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 28. jul. 2026. OpenClaw 2026.7.2-beta.5 tilføjer flere lag af databeskyttelse: en karantænelagring der overlever skader på den primære database, crash-genoprettelige SQLite-snapshots, crash-holdbar filsystempublicering, afvisning af skema-opgraderinger der ville medføre datatab, og gendannelse via rollback-writer-snapshots. Beskeder til kanaler bevares nu også på tværs af gateway-genstarter og lokale nedbrud via en delt ingress-kø.
+
+> Kort kildeuddrag: 2026.7.2 Highlights State safety and recovery: protect persisted data with a quarantine store that survives primary-database damage, crash-recoverable SQLite snapshots,…
+
+**Hvorfor det er relevant:** For brugere af OpenClaw betyder det færre risici for at miste chathistorik eller konfiguration ved crashes eller opgraderinger. Det er særligt relevant hvis man kører OpenClaw som en vedvarende del af sit smart-home-setup, hvor nedetid eller datatab kan afbryde automatiseringer.
+
+**Sådan verificerer du det:** Tjek release notes for 2026.7.2-beta.5 på GitHub, og se om din version har opdateret skema-håndtering, før du opgraderer en produktionsinstallation.
+
+**Usikkerhed:** Det fremgår ikke hvor stabil beta.5 er i praksis, om alle recovery-mekanismerne er aktiveret som standard, eller om de nye snapshot- og karantænemekanismer koster ydeevne.
+
+Kilde: [openclaw 2026.7.2-beta.5](https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.5)
+
+### 2. OpenAI Codex releases: 0.146.0
+
+**Hvad ændrede sig:** OpenAI Codex releases offentliggjorde opdateringen 29. jul. 2026. OpenAI Codex 0.146.0 lader brugere navngive nye sessioner med /new eller /clear, fastgøre vigtige tråde og skifte mellem sideforløb uden at lukke dem. Udgaven tilføjer support for Agent Plugins-manifester, workspace-plugin-udgivelse og flere plugin-markedspladser, herunder til Amazon Bedrock og Claude Code. Tråde kan nu forgrenes med pagineret historik, inklusive midlertidige forgreninger der ikke vises i trådlisten.
+
+> Kort kildeuddrag: New Features Name new sessions with /new or /clear , pin important threads, and switch between side conversations without closing…
+
+**Hvorfor det er relevant:** Det gør det lettere at holde styr på flere parallelle Codex-opgaver uden at miste kontekst, og plugin-markedspladserne udvider hvilke værktøjer man kan koble på sin agent-workflow, også hvis man bruger Bedrock eller Claude Code ved siden af.
+
+**Sådan verificerer du det:** Opdater til 0.146.0, og prøv /new samt fastgørelse af en tråd for at se om funktionerne er tilgængelige i din installation.
+
+**Usikkerhed:** Det fremgår ikke om de nye plugin-markedspladser er tilgængelige for alle brugere fra dag ét, eller hvordan de midlertidige trådforgreninger håndteres over tid.
+
+Kilde: [0.146.0](https://github.com/openai/codex/releases/tag/rust-v0.146.0)
+
+### 3. OpenAI News: Advancing the price-performance frontier with GPT-5.6
+
+**Hvad ændrede sig:** OpenAI News offentliggjorde opdateringen 30. jul. 2026. OpenAI nævner lavere priser på GPT-5.6 for modellerne Luna og Terra som en del af det, OpenAI kalder en pris-ydelse-front for virksomheder. Kildematerialet indeholder ingen konkrete tal, ingen dato for ikrafttræden og ingen detaljer om hvilke funktioner der er omfattet.
+
+> Kort kildeuddrag: Explore lower GPT‑5.6 pricing for Luna and Terra—and how OpenAI’s more efficient models help enterprises deploy AI workflows at scale.
+
+**Hvorfor det er relevant:** Hvis prisen reelt falder, kan det gøre det billigere at køre AI-workflows i større skala for virksomheder og udviklere, der bruger GPT-5.6 via API'en. Uden konkrete tal kan den praktiske besparelse for den enkelte bruger dog ikke vurderes her.
+
+**Sådan verificerer du det:** Slå de aktuelle Luna- og Terra-priser op direkte på OpenAIs prisside, før du regner med en besparelse i dit eget forbrug.
+
+**Usikkerhed:** Kilden angiver hverken konkrete priser, procentvise ændringer, ikrafttrædelsesdato eller om ændringen gælder alle regioner og kontotyper.
+
+Kilde: [Advancing the price-performance frontier with GPT-5.6](https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6)
+
+### 4. Claude Code releases: v2.1.219
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 24. jul. 2026. Claude Code v2.1.219 gør Opus 5 &#40;claude-opus-5&#41; til standardmodel med 1 million tokens kontekst og en hurtig tilstand til $10/$50 per Mtok. Udgaven tilføjer indstillingen sandbox.network.strictAllowlist, der afviser ikke-godkendte hosts for sandboxede kommandoer uden at spørge, en DirectoryAdded-hook der udløses når et nyt arbejdsområde tilføjes midt i en session, og mcp&#95;server&#95;errors i headless stream-json init-eventet.
+
+> Kort kildeuddrag: What's changed Added Claude Opus 5 &#40; claude-opus-5 &#41;, now the default Opus model — 1M context, fast mode at…
+
+**Hvorfor det er relevant:** Skiftet til Opus 5 som standard ændrer både ydeevne og pris for eksisterende brugere uden ekstra opsætning, mens den nye allowlist-indstilling giver strammere kontrol over netværksadgang i sandboxede kørsler, hvilket er relevant hvis man kører Claude Code med adgang til følsomme systemer.
+
+**Sådan verificerer du det:** Tjek din Claude Code-version og modelindstillinger for at se om Opus 5 nu er valgt som standard, og gennemgå prisen for hurtig tilstand i din plan.
+
+**Usikkerhed:** Det fremgår ikke om alle brugere automatisk flyttes til Opus 5 som standard, eller om ældre standardmodeller stadig kan vælges manuelt uden ekstra trin.
+
+Kilde: [v2.1.219](https://github.com/anthropics/claude-code/releases/tag/v2.1.219)
+
+### 5. Google AI Blog: Gemini API Managed Agents: 3.6 Flash, hooks, and more
+
+**Hvad ændrede sig:** Google AI Blog offentliggjorde opdateringen 28. jul. 2026. Google annoncerer nye funktioner i Managed Agents i Gemini API, herunder Gemini 3.6 Flash og noget kaldet hooks, målrettet udviklere der bygger produktionsklare agenter. Det tilgængelige kildemateriale består primært af navigationstekst fra Google-bloggen og indeholder ingen konkrete tekniske detaljer om, hvordan 3.6 Flash eller hooks fungerer.
+
+> Kort kildeuddrag: We’re announcing even more new capabilities in Managed Agents in Gemini API so developers can build reliable, production-ready agents. What’s…
+
+**Hvorfor det er relevant:** Hvis funktionerne holder, kan de gøre det lettere at bygge pålidelige agent-workflows med Gemini, men uden konkrete detaljer kan man endnu ikke vurdere hvad det betyder for opsætning, pris eller adgang.
+
+**Sådan verificerer du det:** Besøg Googles udviklerdokumentation for Gemini API Managed Agents for at finde konkrete detaljer om 3.6 Flash og hooks, før du planlægger en agent-opsætning.
+
+**Usikkerhed:** Kilden viser ikke hvad hooks konkret gør, hvornår 3.6 Flash bliver bredt tilgængelig, eller om funktionerne kræver særlig adgang eller betaling.
+
+Kilde: [Gemini API Managed Agents: 3.6 Flash, hooks, and more](https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api-3-6-flash-hooks)
+
+### 6. Gemini CLI releases: Release v0.54.0-preview.0
+
+**Hvad ændrede sig:** Gemini CLI releases offentliggjorde opdateringen 28. jul. 2026. Gemini CLI v0.54.0-preview.0 retter en fejl ved at rotere session-ID ved model-fallback for at undgå tilstandsafhængige API-fejl. Udgaven sanerer og indpakker issue-titler i untrusted&#95;context for at undgå injektion via GitHub-issues, og opdaterer testværktøjet vitest til version 3.2.4 med tilhørende package-lock-filer.
+
+> Kort kildeuddrag: What's Changed Changelog for v0.53.0-preview.0 by @gemini-cli-robot in #28507 Changelog for v0.52.0 by @gemini-cli-robot in #28508 chore&#40;release&#41;: bump version to…
+
+**Hvorfor det er relevant:** Rotationen af session-ID gør Gemini CLI mere robust når modellen falder tilbage til en anden version midt i en session, hvilket reducerer risikoen for fejl der ellers ville afbryde en agent-kørsel. Saneringen af issue-titler lukker en potentiel vej for prompt-injektion fra eksterne GitHub-issues.
+
+**Sådan verificerer du det:** Opdater til v0.54.0-preview.0, og test en session hvor modellen falder tilbage, for at se om tidligere tilstandsafhængige API-fejl er væk.
+
+**Usikkerhed:** Det fremgår ikke hvor ofte model-fallback reelt sker i praksis, eller om rettelsen er testet i alle scenarier hvor session-ID tidligere forårsagede fejl.
+
+Kilde: [Release v0.54.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.54.0-preview.0)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| OpenClaw releases | [openclaw 2026.7.2-beta.5](https://github.com/openclaw/openclaw/releases/tag/v2026.7.2-beta.5) | 28. jul. 2026 |
+| OpenAI Codex releases | [0.146.0](https://github.com/openai/codex/releases/tag/rust-v0.146.0) | 29. jul. 2026 |
+| OpenAI News | [Advancing the price-performance frontier with GPT-5.6](https://openai.com/index/advancing-the-price-performance-frontier-with-gpt-5-6) | 30. jul. 2026 |
+| Claude Code releases | [v2.1.219](https://github.com/anthropics/claude-code/releases/tag/v2.1.219) | 24. jul. 2026 |
+| Google AI Blog | [Gemini API Managed Agents: 3.6 Flash, hooks, and more](https://blog.google/innovation-and-ai/technology/developers-tools/expanding-managed-agents-gemini-api-3-6-flash-hooks) | 28. jul. 2026 |
+| Gemini CLI releases | [Release v0.54.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.54.0-preview.0) | 28. jul. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
