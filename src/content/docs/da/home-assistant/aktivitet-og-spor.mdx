@@ -106,6 +106,11 @@ Home Assistant gemmer normalt de seneste fem spor for hver automation. Et spor
 oprettes først, når automationen faktisk har kørt. Knappen **Kør handlinger**
 springer trigger og betingelser over, så den kan ikke bevise hele forløbet.
 
+For **YAML-oprettede automationer** gælder desuden, at hver automation skal
+have et unikt `id`, før Home Assistant gemmer dens debug-spor. Et `alias` er
+kun visningsnavnet og erstatter ikke `id`. Automationer oprettet i brugerfladen
+får automatisk et id.
+
 Kontrollér i denne rækkefølge:
 
 1. Er automationen aktiveret?
@@ -184,3 +189,4 @@ den samme sensor uden at kende til hinanden.
 - [Home Assistant 2026.7: Activity logbook](https://www.home-assistant.io/blog/2026/07/01/release-20267/)
 - [Activity-integrationen](https://www.home-assistant.io/integrations/logbook/)
 - [Test og fejlfinding af automationer](https://www.home-assistant.io/docs/automation/troubleshooting/)
+- [Automationer i YAML og kravet om id til spor](https://www.home-assistant.io/docs/automation/yaml/)

@@ -34,7 +34,8 @@ const translations = {
     privacy: 'Del ikke adgangskoder, tokens eller personoplysninger.',
     general: 'Generel AI-viden',
     mixed: 'SmartBolig-kilder + bred AI-viden',
-    sources: 'SmartBolig-kilder',
+    official: 'Officielle HA-kilder kontrolleret',
+    sources: 'Kilder',
     copy: 'Kopiér',
     copied: 'Kopieret',
     retry: 'Prøv igen',
@@ -74,7 +75,8 @@ const translations = {
     privacy: 'Do not share passwords, tokens or personal data.',
     general: 'General AI knowledge',
     mixed: 'SmartBolig sources + broad AI knowledge',
-    sources: 'SmartBolig sources',
+    official: 'Official HA sources checked',
+    sources: 'Sources',
     copy: 'Copy',
     copied: 'Copied',
     retry: 'Try again',
@@ -105,6 +107,7 @@ const t = translations[lang];
   data-label-reset={t.resetDone}
   data-label-general={t.general}
   data-label-mixed={t.mixed}
+  data-label-official={t.official}
   data-label-sources={t.sources}
   data-error-rate={t.errorRate}
   data-error-service={t.errorService}
@@ -286,6 +289,7 @@ const t = translations[lang];
   const MAX_HISTORY_MESSAGES = 10;
   const MAX_MESSAGE_CHARS = 2000;
   const REQUEST_TIMEOUT_MS = 30_000;
+  const SAFE_SOURCE_HOSTS = new Set(["smartbolig.net", "www.home-assistant.io", "esphome.io"]);
 
   function setupAssistant(root) {
     if (!(root instanceof HTMLElement) || root.dataset.chatReady === "true") return;
@@ -341,13 +345,20 @@ const t = translations[lang];
 
       const normalized = { role: message.role, content };
       if (message.role === "assistant") {
-        normalized.sourceMode = message.sourceMode === "mixed" ? "mixed" : "general";
+        normalized.sourceMode =
+          message.sourceMode === "official" ? "official" : message.sourceMode === "mixed" ? "mixed" : "general";
         if (Array.isArray(message.sources)) {
           normalized.sources = message.sources.slice(0, 5).filter((source) => {
             if (!source || typeof source.title !== "string" || typeof source.url !== "string") return false;
             try {
               const sourceUrl = new URL(source.url);
-              return sourceUrl.protocol === "https:" && sourceUrl.hostname === "smartbolig.net";
+              return (
+                sourceUrl.protocol === "https:" &&
+                !sourceUrl.port &&
+                !sourceUrl.username &&
+                !sourceUrl.password &&
+                SAFE_SOURCE_HOSTS.has(sourceUrl.hostname)
+              );
             } catch {
               return false;
             }
@@ -392,11 +403,12 @@ const t = translations[lang];
       } catch {
         return null;
       }
-      if (sourceUrl.protocol !== "https:") return null;
-      if (sourceUrl.hostname !== "smartbolig.net") return null;
+      if (sourceUrl.protocol !== "https:" || sourceUrl.port || sourceUrl.username || sourceUrl.password) return null;
+      if (!SAFE_SOURCE_HOSTS.has(sourceUrl.hostname)) return null;
 
       const sourceLink = document.createElement("a");
       sourceLink.className = "smartbolig-ai__source";
+      sourceLink.dataset.sourceType = sourceUrl.hostname === "smartbolig.net" ? "smartbolig" : "official";
       sourceLink.href = sourceUrl.toString();
       sourceLink.target = "_blank";
       sourceLink.rel = "noopener noreferrer";
@@ -524,9 +536,13 @@ const t = translations[lang];
       if (message.role === "assistant") {
         const sourceMode = document.createElement("span");
         sourceMode.className = "smartbolig-ai__source-mode";
-        sourceMode.dataset.sourceMode = message.sourceMode === "mixed" ? "mixed" : "general";
+        const normalizedSourceMode =
+          message.sourceMode === "official" ? "official" : message.sourceMode === "mixed" ? "mixed" : "general";
+        sourceMode.dataset.sourceMode = normalizedSourceMode;
         sourceMode.textContent =
-          message.sourceMode === "mixed"
+          normalizedSourceMode === "official"
+            ? root.dataset.labelOfficial || "Official HA sources checked"
+            : normalizedSourceMode === "mixed"
             ? root.dataset.labelMixed || "SmartBolig sources + broad AI knowledge"
             : root.dataset.labelGeneral || "General AI knowledge";
         meta.append(sourceMode);
@@ -717,7 +733,8 @@ const t = translations[lang];
         history.push({
           role: "assistant",
           content: result.answer.trim().slice(0, 12_000),
-          sourceMode: result.sourceMode === "mixed" ? "mixed" : "general",
+          sourceMode:
+            result.sourceMode === "official" ? "official" : result.sourceMode === "mixed" ? "mixed" : "general",
           sources,
         });
         history = history.slice(-MAX_HISTORY_MESSAGES);
@@ -1479,6 +1496,13 @@ const t = translations[lang];
     background: rgba(255, 255, 255, 0.035);
   }
 
+  .smartbolig-ai__source-mode[data-source-mode="official"] {
+    border-color: rgba(72, 255, 164, 0.3);
+    color: #8fffc4;
+    background: rgba(72, 255, 164, 0.08);
+    box-shadow: 0 0 14px rgba(72, 255, 164, 0.08);
+  }
+
   .smartbolig-ai__bubble {
     max-width: 92%;
     padding: 0.78rem 0.86rem;
@@ -1588,6 +1612,17 @@ const t = translations[lang];
   .smartbolig-ai__source:hover {
     border-color: rgba(49, 215, 255, 0.42);
     color: #d7f8ff;
+  }
+
+  .smartbolig-ai__source[data-source-type="official"] {
+    border-color: rgba(72, 255, 164, 0.28);
+    color: #a6ffd0;
+    background: rgba(72, 255, 164, 0.07);
+  }
+
+  .smartbolig-ai__source[data-source-type="official"]:hover {
+    border-color: rgba(72, 255, 164, 0.52);
+    color: #e0ffef;
   }
 
   .smartbolig-ai__message-actions {
