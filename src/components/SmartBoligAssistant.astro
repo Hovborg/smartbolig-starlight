@@ -34,7 +34,7 @@ const translations = {
     privacy: 'Del ikke adgangskoder, tokens eller personoplysninger.',
     general: 'Generel AI-viden',
     mixed: 'SmartBolig-kilder + bred AI-viden',
-    official: 'Officielle HA-kilder kontrolleret',
+    official: 'Officielle kilder kontrolleret',
     sources: 'Kilder',
     copy: 'Kopiér',
     copied: 'Kopieret',
@@ -75,7 +75,7 @@ const translations = {
     privacy: 'Do not share passwords, tokens or personal data.',
     general: 'General AI knowledge',
     mixed: 'SmartBolig sources + broad AI knowledge',
-    official: 'Official HA sources checked',
+    official: 'Official sources checked',
     sources: 'Sources',
     copy: 'Copy',
     copied: 'Copied',
@@ -541,7 +541,7 @@ const t = translations[lang];
         sourceMode.dataset.sourceMode = normalizedSourceMode;
         sourceMode.textContent =
           normalizedSourceMode === "official"
-            ? root.dataset.labelOfficial || "Official HA sources checked"
+            ? root.dataset.labelOfficial || "Official sources checked"
             : normalizedSourceMode === "mixed"
             ? root.dataset.labelMixed || "SmartBolig sources + broad AI knowledge"
             : root.dataset.labelGeneral || "General AI knowledge";

@@ -279,10 +279,10 @@ for the installed version or point to current official documentation before
 presenting a precise path as fact.
 For automation troubleshooting, structure the practical answer around
 assumptions, safe change, verification, and rollback. When reviewed official
-evidence is supplied, use it as the source of truth for the listed facts and
-do not extend its official status to other claims. Treat an exact claim that is
-not present in reviewed official evidence as unverified when it may vary by
-version.
+evidence for Home Assistant or ESPHome is supplied, use it as the source of
+truth for the listed facts and do not extend its official status to other
+claims. Treat an exact claim that is not present in reviewed official evidence as unverified
+when it may vary by version.
 Keep the answer focused and below 600 words unless the visitor explicitly asks
 for a longer guide.
 
@@ -464,6 +464,7 @@ facts override conflicting general knowledge. Do not claim that other facts
 were officially verified.
 ${JSON.stringify({
   evidenceIds: evidence.evidenceIds,
+  verifiedAt: evidence.verifiedAt,
   facts: evidence.facts,
   sources: evidence.sources,
 })}
@@ -614,6 +615,7 @@ export function createChatHandler(dependencies = {}) {
         {
           answer: answer.slice(0, MAX_ANSWER_CHARS),
           sources,
+          officialVerifiedAt: officialEvidence.verifiedAt,
           sourceMode:
             officialEvidence.evidenceIds.length > 0
               ? "official"

@@ -27,8 +27,8 @@ test("assistant has a localized accessible dialog and smart-domain starter promp
   for (const copy of [
     "Spørg SmartBolig AI",
     "Ask SmartBolig AI",
-    "Officielle HA-kilder kontrolleret",
-    "Official HA sources checked",
+    "Officielle kilder kontrolleret",
+    "Official sources checked",
     "Home Assistant",
     "ESPHome",
     "sensor",
@@ -38,6 +38,7 @@ test("assistant has a localized accessible dialog and smart-domain starter promp
   ]) {
     assert.match(source, new RegExp(copy, "i"), `missing localized/domain copy: ${copy}`);
   }
+  assert.doesNotMatch(source, /Officielle HA-kilder kontrolleret|Official HA sources checked/);
 
   const promptButtons = source.match(/data-chat-prompt/g) || [];
   assert.ok(promptButtons.length >= 4, "assistant must expose at least four starter prompts");
