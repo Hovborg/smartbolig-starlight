@@ -516,6 +516,8 @@ test("Cloudflare headers retain the security contract", async () => {
 
 test("deploy runs every local quality gate before publishing", async () => {
   const workflow = await read(".github/workflows/deploy.yml");
+  const wrangler = JSON.parse(await read("wrangler.jsonc"));
+  const gitignore = await read(".gitignore");
   assert.match(workflow, /pull_request:\s*\n\s+branches:\s*\[main\]/);
   assert.equal((workflow.match(/github\.event_name != 'pull_request'/g) || []).length, 2);
   for (const command of [
@@ -532,4 +534,22 @@ test("deploy runs every local quality gate before publishing", async () => {
   ]) {
     assert.ok(workflow.includes(command), `missing pre-deploy gate: ${command}`);
   }
+
+  assert.equal(wrangler.pages_build_output_dir, undefined);
+  assert.equal(wrangler.main, "./.worker/index.js");
+  assert.deepEqual(wrangler.assets, {
+    directory: "./dist",
+    binding: "ASSETS",
+    run_worker_first: ["/api/*"],
+    not_found_handling: "404-page",
+  });
+  assert.deepEqual(
+    wrangler.routes.map(({ pattern }) => pattern),
+    ["smartbolig.net/*", "www.smartbolig.net/*"],
+  );
+  assert.match(gitignore, /^\.worker\/$/m);
+  assert.match(workflow, /npm run worker:build/);
+  assert.match(workflow, /wrangler deploy --dry-run/);
+  assert.match(workflow, /wrangler deploy(?:\s|$)/);
+  assert.doesNotMatch(workflow, /wrangler pages deploy/);
 });

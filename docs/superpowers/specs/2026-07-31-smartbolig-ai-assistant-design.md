@@ -24,7 +24,7 @@ Browser widget
     |
     | same-origin POST /api/chat
     v
-Cloudflare Pages Function
+Cloudflare Worker (kompileret Pages Functions-router)
     |
     +-- validates origin, body, roles, size and rate limit
     |
@@ -156,7 +156,7 @@ introducing a stock Cloudflare widget or an unrelated brand.
 ## Verification bar
 
 The change is complete only after unit/contract tests, existing project gates,
-Cloudflare Pages Function compilation, a production build, and desktop/mobile
+Cloudflare Worker-router compilation, a production build, and desktop/mobile
 visual inspection pass. A real Workers AI/AI Search roundtrip is reported
 separately because it consumes Cloudflare resources and depends on the correct
 account bindings being available.

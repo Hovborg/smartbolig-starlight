@@ -15,6 +15,34 @@ Production deployment is outside this local verification record. No live claim
 is made until the exact deployed commit and the real production endpoint have
 passed the same checks.
 
+## Deployment architecture correction
+
+PR #111 passed every test and build gate, but the first production workflow
+stopped before upload because `wrangler pages deploy` rejects the `ai_search`
+and `ratelimits` keys for Pages projects. Workers AI itself is supported by
+Pages; the two additional bindings are not.
+
+The deployment therefore follows Cloudflare's official Pages-to-Workers
+migration path:
+
+- `functions/` remains the source router and is compiled to
+  `.worker/index.js`.
+- `dist/` is deployed with Workers Static Assets and an `ASSETS` binding.
+- Only `/api/*` runs through the Worker before static asset handling.
+- `smartbolig.net/*` and `www.smartbolig.net/*` are Worker routes in front of
+  the existing Pages-backed DNS. Removing those routes restores Pages as the
+  rollback path.
+- GitHub Actions runs `wrangler deploy --dry-run` on every PR and performs the
+  real `wrangler deploy` only after merge to `main`.
+
+The migrated configuration passed `wrangler deploy --dry-run` with all four
+expected bindings (`AI`, `SMARTBOLIG_SEARCH`, `CHAT_RATE_LIMITER`, `ASSETS`) and
+1,604 static assets. A local Worker-runtime roundtrip returned HTTP 200 for both
+`/da/` and `/api/chat`; the page contained exactly one assistant widget and the
+chat returned a complete 2,679-character Danish answer. AI Search exceeded its
+five-second bound in that specific request, so the verified graceful fallback
+reported `sourceMode: "general"`.
+
 ## Deterministic checks
 
 The following gates were run from the repository root:

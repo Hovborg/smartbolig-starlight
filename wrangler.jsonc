@@ -1,9 +1,26 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "smartbolig-starlight",
-  "pages_build_output_dir": "dist",
+  "main": "./.worker/index.js",
   "compatibility_date": "2026-04-16",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "workers_dev": true,
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"],
+    "not_found_handling": "404-page"
+  },
+  "routes": [
+    {
+      "pattern": "smartbolig.net/*",
+      "zone_name": "smartbolig.net"
+    },
+    {
+      "pattern": "www.smartbolig.net/*",
+      "zone_name": "smartbolig.net"
+    }
+  ],
   "ai": {
     "binding": "AI",
     "remote": true
