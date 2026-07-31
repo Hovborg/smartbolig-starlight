@@ -117,13 +117,17 @@ specialdesignet Astro-widget:
 - **Lavere variation i tekniske fakta:** Modellen kører med temperatur `0.1`.
   Den indstilling gør svar mindre tilfældige, men erstatter ikke kilder,
   regressionstests eller brugerens kontrol i den konkrete installation.
-- **Afgrænset svartid og længde:** Modellen må generere højst 1.200 tokens og
-  fallbacken højst 900. Hvert logisk modelkald har 30 sekunder til Gemma og 20
-  sekunder til Qwen-fallbacken. Browserens 120-sekunders maksimum dækker den
-  sjældne værste sti med fem sekunders AI Search, to logiske modelkald og 15
-  sekunders netværksmargin. Normale svar returneres med det samme. En aktiv
-  eller fejlet fallback logges med request-ID, trin, årsagsklasse og fejlnavn,
-  men aldrig med prompt, modelsvar eller providerens fritekstfejl.
+- **Afgrænset svartid og længde:** Gemma får højst 2.400 completion-tokens og
+  Qwen-fallbacken højst 1.600, så modellernes skjulte ræsonnering ikke afskærer
+  et teknisk svar midt i en sætning. Gemma har 40 sekunder pr. kald og Qwen har
+  25 sekunder. Browserens 150-sekunders maksimum dækker den sjældne værste sti
+  med fem sekunders AI Search, to Gemma-kald, op til to Qwen-fallbackkald og ti
+  sekunders netværksmargin. Et providerresultat med token-limit, en uafsluttet
+  kodeblok eller et tydeligt hængende bindeord vises aldrig: primærsvaret går
+  til fallback, og en afskåret fallback fejler lukket. Normale svar returneres
+  med det samme. En aktiv eller fejlet fallback logges med request-ID, trin,
+  årsagsklasse og fejlnavn, men aldrig med prompt, modelsvar eller providerens
+  fritekstfejl.
 
 Bindings og modelvalg ligger i `wrangler.jsonc`; der skal ikke ligge Cloudflare-
 tokens eller modelnøgler i kildekoden.

@@ -6,6 +6,7 @@ import {
   CHAT_MODEL,
   FALLBACK_MAX_MODEL_TOKENS,
   FALLBACK_MODEL_TIMEOUT_MS,
+  MAX_ANSWER_CHARS,
   MAX_MODEL_TOKENS,
   MAX_MESSAGE_CHARS,
   MAX_MESSAGES,
@@ -294,9 +295,10 @@ test("Workers AI agent keeps broad expertise and exposes AI Search as an optiona
   });
   assert.equal(modelCalls.length, 2);
   assert.ok(modelCalls.every((call) => call.model === CHAT_MODEL));
-  assert.equal(MAX_MODEL_TOKENS, 1_200);
-  assert.equal(PRIMARY_MODEL_TIMEOUT_MS, 30_000);
-  assert.equal(FALLBACK_MODEL_TIMEOUT_MS, 20_000);
+  assert.equal(MAX_MODEL_TOKENS, 2_400);
+  assert.equal(FALLBACK_MAX_MODEL_TOKENS, 1_600);
+  assert.equal(PRIMARY_MODEL_TIMEOUT_MS, 40_000);
+  assert.equal(FALLBACK_MODEL_TIMEOUT_MS, 25_000);
   assert.ok(modelCalls.every((call) => call.input.max_completion_tokens === MAX_MODEL_TOKENS));
   assert.ok(modelCalls.every((call) => call.input.max_tokens === undefined));
   assert.ok(modelCalls.every((call) => call.input.reasoning_effort === "low"));
@@ -318,6 +320,7 @@ test("Workers AI agent keeps broad expertise and exposes AI Search as an optiona
   assert.match(modelCalls[0].input.messages[0].content, /assumptions, safe change, verification, and rollback/i);
   assert.match(modelCalls[0].input.messages[0].content, /Home Assistant or ESPHome/i);
   assert.match(modelCalls[0].input.messages[0].content, /not present in reviewed official evidence.*unverified/i);
+  assert.match(modelCalls[0].input.messages[0].content, /finish with a complete sentence and close every code block/i);
   assert.match(modelCalls[0].input.messages[0].content, /Always\s+call it once before answering a substantive question/i);
   assert.match(modelCalls[0].input.messages[0].content, /supplement, never the boundary of your knowledge/i);
   assert.equal(modelCalls[0].input.tools[0].type, "function");
@@ -368,6 +371,211 @@ test("Workers AI agent falls back to a fast bounded model when the primary provi
     reason: "primary_error",
     error: "Error",
   }]);
+});
+
+test("Workers AI agent rejects a primary answer stopped by the token limit", async () => {
+  const modelCalls = [];
+  const fallbackEvents = [];
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model, input) => {
+      modelCalls.push({ model, input });
+      if (model === CHAT_MODEL) {
+        return {
+          choices: [{
+            finish_reason: "length",
+            message: { content: "Et svar, der stopper midt i en" },
+          }],
+        };
+      }
+      return { response: "Et komplet fallback-svar." };
+    },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "da",
+    messages: validBody("Hvordan segmenterer jeg mit homelab-netværk?").messages,
+    searchSmartbolig: undefined,
+    onModelFallback: (event) => fallbackEvents.push(event),
+  });
+
+  assert.equal(result.answer, "Et komplet fallback-svar.");
+  assert.deepEqual(modelCalls.map((call) => call.model), [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
+  assert.deepEqual(fallbackEvents, [{
+    event: "fallback_started",
+    reason: "truncated_primary_response",
+    error: null,
+  }]);
+});
+
+test("Workers AI agent rejects a long legacy response that ends abruptly without finish metadata", async () => {
+  const modelCalls = [];
+  const fallbackEvents = [];
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) => {
+      modelCalls.push(model);
+      if (model === CHAT_MODEL) {
+        return {
+          response: `${"Et konkret netværksprincip med forklaring. ".repeat(12)}Dine computere, telefoner og`,
+        };
+      }
+      return { response: "Et komplet fallback-svar." };
+    },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "da",
+    messages: validBody("Hvordan segmenterer jeg mit homelab-netværk?").messages,
+    searchSmartbolig: undefined,
+    onModelFallback: (event) => fallbackEvents.push(event),
+  });
+
+  assert.equal(result.answer, "Et komplet fallback-svar.");
+  assert.deepEqual(modelCalls, [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
+  assert.deepEqual(fallbackEvents, [{
+    event: "fallback_started",
+    reason: "truncated_primary_response",
+    error: null,
+  }]);
+});
+
+test("Workers AI agent trusts an explicit stop reason even when the answer ends in a connector", async () => {
+  const modelCalls = [];
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) => {
+      modelCalls.push(model);
+      return {
+        choices: [{
+          finish_reason: "stop",
+          message: { content: "Det korrekte engelske ord er for" },
+        }],
+      };
+    },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "da",
+    messages: validBody("Svar kun med det engelske ord for 'for'.").messages,
+    searchSmartbolig: undefined,
+  });
+
+  assert.equal(result.answer, "Det korrekte engelske ord er for");
+  assert.deepEqual(result.diagnostics, {
+    model: "gemma-4-26b-a4b-it",
+    route: "primary",
+  });
+  assert.deepEqual(modelCalls, [CHAT_MODEL]);
+});
+
+test("Workers AI fallback trusts an explicit stop reason for an exact connector answer", async () => {
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) => {
+      if (model === CHAT_MODEL) throw new Error("primary unavailable");
+      return {
+        choices: [{
+          finish_reason: "stop",
+          message: { content: "og" },
+        }],
+      };
+    },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "da",
+    messages: validBody("Svar kun med det danske ord for 'and'.").messages,
+    searchSmartbolig: undefined,
+  });
+
+  assert.equal(result.answer, "og");
+  assert.deepEqual(result.diagnostics, {
+    model: "qwen3-30b-a3b-fp8",
+    route: "fallback",
+  });
+});
+
+test("Workers AI agent replaces an answer that exceeds the public character cap", async () => {
+  const modelCalls = [];
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) => {
+      modelCalls.push(model);
+      if (model === CHAT_MODEL) {
+        return {
+          choices: [{
+            finish_reason: "stop",
+            message: { content: `${"A".repeat(MAX_ANSWER_CHARS)}.` },
+          }],
+        };
+      }
+      return { response: "Et komplet fallback-svar." };
+    },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "da",
+    messages: validBody("Giv mig en meget lang homelab-guide.").messages,
+    searchSmartbolig: undefined,
+  });
+
+  assert.equal(result.answer, "Et komplet fallback-svar.");
+  assert.deepEqual(modelCalls, [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
+});
+
+test("chat endpoint fails closed instead of slicing an oversized injected answer", async () => {
+  const handler = createHandler(async () => ({
+    answer: `${"A".repeat(MAX_ANSWER_CHARS)}.`,
+    diagnostics: { model: "gemma-4-26b-a4b-it", route: "primary" },
+  }));
+
+  const response = await handler({
+    request: request(validBody("Giv mig en meget lang homelab-guide.")),
+    env: createEnv({ SMARTBOLIG_SEARCH: undefined }),
+  });
+  const body = await json(response);
+
+  assert.equal(response.status, 502);
+  assert.equal(body.code, "assistant_unavailable");
+  assert.equal(body.error.da, "AI-assistenten kunne ikke svare. Prøv igen om lidt.");
+  assert.equal(body.error.en, "The AI assistant could not respond. Please try again shortly.");
+  assert.equal(body.answer, undefined);
+});
+
+test("Workers AI agent fails closed when the fallback also reaches its token limit", async () => {
+  const fallbackEvents = [];
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) => ({
+      choices: [{
+        finish_reason: model === CHAT_MODEL ? "length" : "max_tokens",
+        message: { content: "Et afskåret svar" },
+      }],
+    }),
+  });
+
+  await assert.rejects(
+    runner({
+      env: createEnv(),
+      locale: "da",
+      messages: validBody("Hvordan segmenterer jeg mit homelab-netværk?").messages,
+      searchSmartbolig: undefined,
+      onModelFallback: (event) => fallbackEvents.push(event),
+    }),
+    /TruncatedFallbackResponse/,
+  );
+  assert.deepEqual(fallbackEvents, [
+    {
+      event: "fallback_started",
+      reason: "truncated_primary_response",
+      error: null,
+    },
+    {
+      event: "fallback_failed",
+      reason: "truncated_fallback_response",
+      error: null,
+    },
+  ]);
 });
 
 test("fallback before optional search receives the search-unavailable prompt", async () => {
