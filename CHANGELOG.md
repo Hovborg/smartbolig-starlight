@@ -2,10 +2,12 @@
 
 ## 2026-07-31
 
-- Fixed intermittent live chat failures where the 26B Workers AI model crossed
-  the original 25-second server timeout: model output is now capped at 1,200
-  tokens, each model run may take 45 seconds, and the browser's 105-second cap
-  covers the bounded two-run AI Search fallback plus network overhead.
+- Fixed live chat failures in the primary 26B Workers AI inference path. Gemma
+  remains the quality-first model with a 30-second budget and 1,200-token cap;
+  a Cloudflare-hosted fast Llama model gets one bounded 20-second fallback
+  attempt with 900 tokens. The browser's 120-second cap covers the complete
+  two-run AI Search path plus network overhead. Empty primary responses also
+  fall back, and every fallback stage emits a sanitized request-correlated log.
 - Rebuilt the 404 page as a Home Assistant "entity unavailable" card in the
   site's own palette, replacing the off-brand indigo page. It shows the path
   that failed, and suggests the closest real guides from a build-time index of

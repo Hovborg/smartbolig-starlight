@@ -3,8 +3,9 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
+  FALLBACK_MODEL_TIMEOUT_MS,
   MAX_MODEL_RUNS,
-  MODEL_TIMEOUT_MS,
+  PRIMARY_MODEL_TIMEOUT_MS,
   SEARCH_TIMEOUT_MS,
 } from "../functions/api/chat.js";
 
@@ -115,8 +116,9 @@ test("assistant handles loading, server failures, Escape and focus restoration",
   const requestTimeoutMatch = source.match(/const REQUEST_TIMEOUT_MS\s*=\s*([\d_]+)/);
   assert.ok(requestTimeoutMatch, "widget request timeout must stay explicit");
   const requestTimeoutMs = Number(requestTimeoutMatch[1].replaceAll("_", ""));
-  const maximumServerPathMs = MODEL_TIMEOUT_MS * MAX_MODEL_RUNS + SEARCH_TIMEOUT_MS;
-  assert.equal(requestTimeoutMs, 105_000);
+  const modelRunBudgetMs = PRIMARY_MODEL_TIMEOUT_MS + FALLBACK_MODEL_TIMEOUT_MS;
+  const maximumServerPathMs = modelRunBudgetMs * MAX_MODEL_RUNS + SEARCH_TIMEOUT_MS;
+  assert.equal(requestTimeoutMs, 120_000);
   assert.ok(
     requestTimeoutMs >= maximumServerPathMs + 10_000,
     "browser timeout must cover search, every allowed model run and network overhead",

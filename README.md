@@ -42,7 +42,9 @@ specialdesignet Astro-widget:
   `@cf/google/gemma-4-26b-a4b-it` svarer om
   Home Assistant, ESPHome, sensorer, Zigbee, Z-Wave, Matter, Thread, MQTT,
   netværk, Docker, Proxmox og øvrige homelab-emner. Endpointet bruger
-  Cloudflares native `env.AI.run()`-binding.
+  Cloudflares native `env.AI.run()`-binding. Hvis den primære model fejler eller
+  løber ud af sit tidsbudget, overtager den Cloudflare-hostede
+  `@cf/meta/llama-3.1-8b-instruct-fast` med et kortere, separat budget.
 - **SmartBolig som ekstra kilde:** Bindingen `SMARTBOLIG_SEARCH` peger på
   `smartbolig-ai-search`. Faglige smart-home/homelab-spørgsmål får højst ét
   afgrænset opslag, hvis bindingen er tilgængelig. Resultatet gives til den
@@ -67,9 +69,10 @@ specialdesignet Astro-widget:
   projektet opretter ikke en separat D1- eller Vectorize-database.
 - **Abuse-kontrol:** `CHAT_RATE_LIMITER` tillader 12 chatkald pr. minut pr.
   forbindende IP i hver Cloudflare-lokation. Et normalt svar bruger ét
-  modelkald. Et fagligt svar kan desuden bruge ét AI Search-opslag; en
-  valgfri modelstyret søgefallback er fortsat begrænset til højst to modelkald.
-  AI Search falder tilbage til bred modelviden efter fem sekunder.
+  logisk modelkald med højst ét sekundært forsøg. Et fagligt svar kan desuden
+  bruge ét AI Search-opslag; en valgfri modelstyret søgesti er fortsat
+  begrænset til højst to logiske modelkald. AI Search falder tilbage til bred
+  modelviden efter fem sekunder.
 - **Dataminimering:** Endpointet accepterer højst 10 skiftevis bruger/assistent-
   beskeder, 2.000 tegn pr. besked og 8.000 tegn i alt. Widgeten gemmer kun den
   aktuelle samtale i browserens `sessionStorage`.
@@ -85,10 +88,12 @@ specialdesignet Astro-widget:
   Den indstilling gør svar mindre tilfældige, men erstatter ikke kilder,
   regressionstests eller brugerens kontrol i den konkrete installation.
 - **Afgrænset svartid og længde:** Modellen må generere højst 1.200 tokens og
-  får op til 45 sekunder pr. AI-kald. Browserens 105-sekunders maksimum dækker
-  både det normale ene modelkald og den sjældne, afgrænsede sti med fem
-  sekunders AI Search plus to modelkald. Normale svar returneres med det samme;
-  maksimumgrænserne stopper fortsat fastlåste kald.
+  fallbacken højst 900. Hvert logisk modelkald har 30 sekunder til Gemma og 20
+  sekunder til Llama-fallbacken. Browserens 120-sekunders maksimum dækker den
+  sjældne værste sti med fem sekunders AI Search, to logiske modelkald og 15
+  sekunders netværksmargin. Normale svar returneres med det samme. En aktiv
+  eller fejlet fallback logges med request-ID, trin, årsagsklasse og fejlnavn,
+  men aldrig med prompt, modelsvar eller providerens fritekstfejl.
 
 Bindings og modelvalg ligger i `wrangler.jsonc`; der skal ikke ligge Cloudflare-
 tokens eller modelnøgler i kildekoden.
