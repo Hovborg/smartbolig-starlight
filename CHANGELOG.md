@@ -2,6 +2,10 @@
 
 ## 2026-07-31
 
+- Rebuilt the 404 page as a Home Assistant "entity unavailable" card in the
+  site's own palette, replacing the off-brand indigo page. It shows the path
+  that failed, and suggests the closest real guides from a build-time index of
+  every page instead of the same four static links.
 - Added verified Home Assistant evidence for automation troubleshooting. The
   assistant now distinguishes reviewed official facts, SmartBolig-assisted
   answers, and general AI knowledge.
