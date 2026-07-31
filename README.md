@@ -84,6 +84,11 @@ specialdesignet Astro-widget:
 - **Lavere variation i tekniske fakta:** Modellen kører med temperatur `0.1`.
   Den indstilling gør svar mindre tilfældige, men erstatter ikke kilder,
   regressionstests eller brugerens kontrol i den konkrete installation.
+- **Afgrænset svartid og længde:** Modellen må generere højst 1.200 tokens og
+  får op til 45 sekunder pr. AI-kald. Browserens 105-sekunders maksimum dækker
+  både det normale ene modelkald og den sjældne, afgrænsede sti med fem
+  sekunders AI Search plus to modelkald. Normale svar returneres med det samme;
+  maksimumgrænserne stopper fortsat fastlåste kald.
 
 Bindings og modelvalg ligger i `wrangler.jsonc`; der skal ikke ligge Cloudflare-
 tokens eller modelnøgler i kildekoden.
