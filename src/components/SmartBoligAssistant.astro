@@ -370,7 +370,7 @@ const t = translations[lang];
   const SAFE_SOURCE_HOSTS = new Set(["smartbolig.net", "www.home-assistant.io", "esphome.io"]);
   const ALLOWED_DIAGNOSTIC_MODELS = new Set([
     "gemma-4-26b-a4b-it",
-    "llama-3.1-8b-instruct-fast",
+    "qwen3-30b-a3b-fp8",
     "unknown",
   ]);
   const ALLOWED_DIAGNOSTIC_ROUTES = new Set(["primary", "fallback", "unknown"]);
@@ -444,7 +444,7 @@ const t = translations[lang];
           : "unknown";
       const hasKnownPair =
         (candidateModel === "gemma-4-26b-a4b-it" && candidateRoute === "primary") ||
-        (candidateModel === "llama-3.1-8b-instruct-fast" && candidateRoute === "fallback");
+        (candidateModel === "qwen3-30b-a3b-fp8" && candidateRoute === "fallback");
       const durationCandidate = Number.isFinite(diagnostics?.durationMs)
         ? Math.round(diagnostics.durationMs)
         : 0;
@@ -734,7 +734,7 @@ const t = translations[lang];
 
     function modelDiagnosticLabel(model) {
       if (model === "gemma-4-26b-a4b-it") return "GEMMA 4 · 26B";
-      if (model === "llama-3.1-8b-instruct-fast") return "LLAMA 3.1 · 8B FAST";
+      if (model === "qwen3-30b-a3b-fp8") return "QWEN 3 · 30B A3B";
       return root.dataset.labelModelUnknown || "UNKNOWN";
     }
 

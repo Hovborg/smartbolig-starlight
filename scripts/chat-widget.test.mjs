@@ -129,6 +129,9 @@ test("assistant shows allowlisted bilingual model, route, edge, trace and source
   assert.match(source, /function normalizeDiagnostics\(diagnostics\)/);
   assert.match(source, /ALLOWED_DIAGNOSTIC_MODELS/);
   assert.match(source, /ALLOWED_DIAGNOSTIC_ROUTES/);
+  assert.match(source, /qwen3-30b-a3b-fp8/);
+  assert.match(source, /QWEN 3 · 30B A3B/);
+  assert.doesNotMatch(source, /llama-3\.1-8b-instruct-fast/);
   assert.match(source, /smartbolig-ai__diagnostics/);
   assert.match(source, /data-diagnostic-route/);
   assert.match(source, /message\.diagnostics/);

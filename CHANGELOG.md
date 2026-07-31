@@ -2,6 +2,18 @@
 
 ## 2026-07-31
 
+- Replaced the weak 8B fallback with Cloudflare-hosted Qwen3 30B-A3B and added
+  strict final-answer checks for internal retrieval leakage and explicitly
+  requested fenced YAML or automation modes.
+- Separated the tool-enabled planning prompt from the post-retrieval answer
+  prompt. Final primary and fallback calls can no longer be told to invoke a
+  search tool that is not actually available, closing the live
+  `search_smartbolig` command leak.
+- Tightened technical-answer instructions against invented UI controls and
+  related-but-noncompliant code examples. Invalid fallback output now fails
+  closed rather than being displayed as a plausible answer. Explicit YAML
+  mode requirements accept only active top-level keys, handle every requested
+  mode and do not turn conceptual questions into literal syntax requirements.
 - Turned the bilingual assistant into a technical AI console with four visible,
   editable work modes for debugging, building, explaining and comparing. The
   modes add no hidden system prompt or permissions.
@@ -17,7 +29,7 @@
   fully visible.
 - Fixed live chat failures in the primary 26B Workers AI inference path. Gemma
   remains the quality-first model with a 30-second budget and 1,200-token cap;
-  a Cloudflare-hosted fast Llama model gets one bounded 20-second fallback
+  Cloudflare-hosted Qwen3 30B-A3B gets one bounded 20-second fallback
   attempt with 900 tokens. The browser's 120-second cap covers the complete
   two-run AI Search path plus network overhead. Empty primary responses also
   fall back, and every fallback stage emits a sanitized request-correlated log.
