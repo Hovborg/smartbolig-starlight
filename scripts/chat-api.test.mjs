@@ -188,7 +188,7 @@ test("chat response exposes only allowlisted bounded public diagnostics", async 
     agentRunner: async () => ({
       answer: "Et svar via den afgrænsede fallback.",
       diagnostics: {
-        model: "llama-3.1-8b-instruct-fast",
+        model: "qwen3-30b-a3b-fp8",
         route: "fallback",
       },
     }),
@@ -205,7 +205,7 @@ test("chat response exposes only allowlisted bounded public diagnostics", async 
 
   assert.equal(response.status, 200);
   assert.deepEqual(body.diagnostics, {
-    model: "llama-3.1-8b-instruct-fast",
+    model: "qwen3-30b-a3b-fp8",
     route: "fallback",
     durationMs: 250,
     trace: "req-test-123",
@@ -324,6 +324,9 @@ test("Workers AI agent keeps broad expertise and exposes AI Search as an optiona
   assert.equal(modelCalls[0].input.tools[0].function.name, "search_smartbolig");
   assert.equal(modelCalls[1].input.tools, undefined);
   assert.equal(modelCalls[1].input.tool_choice, undefined);
+  assert.match(modelCalls[1].input.messages[0].content, /reference data has already been supplied/i);
+  assert.match(modelCalls[1].input.messages[0].content, /do not call, describe, imitate, or expose search_smartbolig/i);
+  assert.doesNotMatch(modelCalls[1].input.messages[0].content, /You have an optional tool named search_smartbolig/i);
   assert.equal(modelCalls[1].input.messages.at(-1).role, "user");
   assert.match(modelCalls[1].input.messages.at(-1).content, /SmartBolig guide/);
   assert.match(modelCalls[1].input.messages.at(-1).content, /untrusted SmartBolig reference data/i);
@@ -350,7 +353,7 @@ test("Workers AI agent falls back to a fast bounded model when the primary provi
 
   assert.equal(result.answer, "Et afgrænset fallback-svar.");
   assert.deepEqual(result.diagnostics, {
-    model: "llama-3.1-8b-instruct-fast",
+    model: "qwen3-30b-a3b-fp8",
     route: "fallback",
   });
   assert.deepEqual(modelCalls.map((call) => call.model), [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
@@ -365,6 +368,108 @@ test("Workers AI agent falls back to a fast bounded model when the primary provi
     reason: "primary_error",
     error: "Error",
   }]);
+});
+
+test("fallback before optional search receives the search-unavailable prompt", async () => {
+  const modelCalls = [];
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model, input) => {
+      modelCalls.push({ model, input });
+      if (model === CHAT_MODEL) throw new Error("primary unavailable");
+      return { response: "Et direkte svar uden et søgeværktøj." };
+    },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "da",
+    messages: validBody("Find en relevant guide på hjemmesiden.").messages,
+    searchSmartbolig: async () => ({ results: [{ text: "Skal ikke kaldes." }] }),
+  });
+
+  assert.equal(result.answer, "Et direkte svar uden et søgeværktøj.");
+  assert.deepEqual(modelCalls.map((call) => call.model), [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
+  assert.equal(modelCalls[0].input.tools[0].function.name, "search_smartbolig");
+  assert.equal(modelCalls[1].input.tools, undefined);
+  assert.match(modelCalls[1].input.messages[0].content, /search is currently unavailable/i);
+  assert.doesNotMatch(modelCalls[1].input.messages[0].content, /optional tool named search_smartbolig/i);
+  assert.doesNotMatch(modelCalls[1].input.messages[0].content, /reference data has already been supplied/i);
+});
+
+test("fallback after a dynamic search receives only the preloaded final prompt", async () => {
+  const modelCalls = [];
+  let primaryCalls = 0;
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model, input) => {
+      modelCalls.push({ model, input });
+      if (model === CHAT_MODEL) {
+        primaryCalls += 1;
+        if (primaryCalls === 1) {
+          return {
+            choices: [{
+              message: {
+                content: null,
+                tool_calls: [{
+                  id: "call-search-final",
+                  type: "function",
+                  function: {
+                    name: "search_smartbolig",
+                    arguments: JSON.stringify({ query: "relevant guide" }),
+                  },
+                }],
+              },
+            }],
+          };
+        }
+        throw new Error("second primary unavailable");
+      }
+      return { response: "Et direkte fallback-svar med den hentede reference." };
+    },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "da",
+    messages: validBody("Find en relevant guide på hjemmesiden.").messages,
+    searchSmartbolig: async () => ({ results: [{ text: "Hentet SmartBolig-guide." }] }),
+  });
+
+  assert.equal(result.answer, "Et direkte fallback-svar med den hentede reference.");
+  assert.deepEqual(modelCalls.map((call) => call.model), [CHAT_MODEL, CHAT_MODEL, CHAT_FALLBACK_MODEL]);
+  assert.equal(modelCalls[2].input.tools, undefined);
+  assert.match(modelCalls[2].input.messages[0].content, /reference data has already been supplied/i);
+  assert.doesNotMatch(modelCalls[2].input.messages[0].content, /optional tool named search_smartbolig/i);
+  assert.match(modelCalls[2].input.messages.at(-1).content, /Hentet SmartBolig-guide/);
+});
+
+test("fallback after a forced domain search receives only the preloaded final prompt", async () => {
+  const modelCalls = [];
+  let searches = 0;
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model, input) => {
+      modelCalls.push({ model, input });
+      if (model === CHAT_MODEL) throw new Error("primary unavailable");
+      return { response: "Et Home Assistant-svar med den hentede reference." };
+    },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "da",
+    messages: validBody("Hvordan fejlsøger jeg en Home Assistant automation?").messages,
+    searchSmartbolig: async () => {
+      searches += 1;
+      return { results: [{ text: "Brug automationens trace." }] };
+    },
+  });
+
+  assert.equal(result.answer, "Et Home Assistant-svar med den hentede reference.");
+  assert.equal(searches, 1);
+  assert.deepEqual(modelCalls.map((call) => call.model), [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
+  assert.ok(modelCalls.every((call) => call.input.tools === undefined));
+  assert.ok(modelCalls.every((call) => /reference data has already been supplied/i.test(call.input.messages[0].content)));
+  assert.ok(modelCalls.every((call) => !/optional tool named search_smartbolig/i.test(call.input.messages[0].content)));
+  assert.match(modelCalls[1].input.messages.at(-1).content, /Brug automationens trace/);
 });
 
 test("Workers AI agent falls back when the primary model returns neither text nor a valid tool call", async () => {
@@ -387,7 +492,7 @@ test("Workers AI agent falls back when the primary model returns neither text no
 
   assert.equal(result.answer, "Et rigtigt fallback-svar.");
   assert.deepEqual(result.diagnostics, {
-    model: "llama-3.1-8b-instruct-fast",
+    model: "qwen3-30b-a3b-fp8",
     route: "fallback",
   });
   assert.deepEqual(models, [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
@@ -396,6 +501,360 @@ test("Workers AI agent falls back when the primary model returns neither text no
     reason: "empty_primary_response",
     error: null,
   }]);
+});
+
+test("Workers AI enforces explicit fenced YAML constraints in the final code block", async () => {
+  const modelCalls = [];
+  const fallbackEvents = [];
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model, input) => {
+      modelCalls.push({ model, input });
+      if (model === CHAT_MODEL) {
+        return { response: "Brug mode: queued.\n```yaml\nalias: Test\ntriggers: []\nactions: []\n```" };
+      }
+      return {
+        choices: [{
+          message: {
+            content: "```yaml\nalias: Test\ntriggers: []\nactions: []\nmode: queued\n```",
+          },
+        }],
+      };
+    },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "da",
+    messages: validBody("Svar med en fenced YAML-kodeblok til en automation med mode queued.").messages,
+    searchSmartbolig: async () => ({ results: [{ text: "Et relevant guideuddrag." }] }),
+    officialEvidence: { facts: [], sources: [], evidenceIds: [], verifiedAt: null },
+    onModelFallback: (event) => fallbackEvents.push(event),
+  });
+
+  assert.match(result.answer, /```yaml[\s\S]*mode:\s*queued[\s\S]*```/i);
+  assert.doesNotMatch(result.answer, /search_smartbolig/i);
+  assert.deepEqual(result.diagnostics, { model: "qwen3-30b-a3b-fp8", route: "fallback" });
+  assert.deepEqual(modelCalls.map((call) => call.model), [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
+  assert.match(modelCalls[1].input.messages[0].content, /answer the visitor directly/i);
+  assert.deepEqual(fallbackEvents, [{
+    event: "fallback_started",
+    reason: "invalid_primary_response",
+    error: null,
+  }]);
+});
+
+test("Workers AI does not accept a commented automation mode as the requested YAML key", async () => {
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) =>
+      model === CHAT_MODEL
+        ? { response: "```yaml\nalias: Test\n# mode: queued\n```" }
+        : { response: "```yaml\nalias: Test\nmode: queued\n```" },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "da",
+    messages: validBody("Svar med en fenced YAML-kodeblok til en automation med mode queued.").messages,
+    searchSmartbolig: undefined,
+  });
+
+  assert.deepEqual(result.diagnostics, { model: "qwen3-30b-a3b-fp8", route: "fallback" });
+  assert.match(result.answer, /^```yaml\nalias: Test\nmode: queued\n```$/i);
+});
+
+test("Workers AI does not accept automation mode text nested inside another YAML scalar", async () => {
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) =>
+      model === CHAT_MODEL
+        ? { response: '```yaml\nalias: Test\nnote: "use mode: queued later"\n```' }
+        : { response: "```yaml\nalias: Test\nmode: queued\n```" },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "da",
+    messages: validBody("Svar med en fenced YAML-kodeblok til en automation med mode queued.").messages,
+    searchSmartbolig: undefined,
+  });
+
+  assert.deepEqual(result.diagnostics, { model: "qwen3-30b-a3b-fp8", route: "fallback" });
+  assert.match(result.answer, /^```yaml\nalias: Test\nmode: queued\n```$/i);
+});
+
+test("Workers AI does not accept mismatched quotes around an automation mode", async () => {
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) =>
+      model === CHAT_MODEL
+        ? { response: "```yaml\nalias: Test\nmode: \"queued'\n```" }
+        : { response: "```yaml\nalias: Test\nmode: queued\n```" },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "da",
+    messages: validBody("Svar med en fenced YAML-kodeblok til en automation med mode queued.").messages,
+    searchSmartbolig: undefined,
+  });
+
+  assert.deepEqual(result.diagnostics, { model: "qwen3-30b-a3b-fp8", route: "fallback" });
+  assert.match(result.answer, /^```yaml\nalias: Test\nmode: queued\n```$/i);
+});
+
+test("Workers AI enforces every explicitly requested automation mode", async () => {
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) =>
+      model === CHAT_MODEL
+        ? { response: "```yaml\nalias: First\nmode: queued\n```" }
+        : {
+            response:
+              "```yaml\nalias: First\nmode: queued\n```\n\n```yaml\nalias: Second\nmode: restart\n```",
+          },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "en",
+    messages: validBody(
+      "Return two fenced YAML code blocks comparing mode queued and mode restart.",
+    ).messages,
+    searchSmartbolig: undefined,
+  });
+
+  assert.deepEqual(result.diagnostics, { model: "qwen3-30b-a3b-fp8", route: "fallback" });
+  assert.match(result.answer, /mode:\s*queued/i);
+  assert.match(result.answer, /mode:\s*restart/i);
+});
+
+test("Workers AI recognizes an explicit triple-backtick YAML request", async () => {
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) =>
+      model === CHAT_MODEL
+        ? { response: "alias: Test\nmode: queued" }
+        : { response: "```yaml\nalias: Test\nmode: queued\n```" },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "en",
+    messages: validBody("Return YAML between triple backticks with mode queued.").messages,
+    searchSmartbolig: undefined,
+  });
+
+  assert.deepEqual(result.diagnostics, { model: "qwen3-30b-a3b-fp8", route: "fallback" });
+  assert.match(result.answer, /^```yaml[\s\S]+```$/i);
+});
+
+test("Workers AI enforces an explicitly requested mode key-value without a code block", async () => {
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) =>
+      model === CHAT_MODEL
+        ? { response: "Use queued mode for this automation." }
+        : { response: "Use `mode: queued` for this automation." },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "en",
+    messages: validBody("Return the exact key-value mode: queued without a code block.").messages,
+    searchSmartbolig: undefined,
+  });
+
+  assert.deepEqual(result.diagnostics, { model: "qwen3-30b-a3b-fp8", route: "fallback" });
+  assert.match(result.answer, /mode:\s*queued/i);
+});
+
+test("Workers AI ignores conceptual and explicitly negated automation modes", async () => {
+  const prompts = [
+    "Return fenced YAML with mode queued, not mode restart.",
+    "Use mode: queued, not mode: restart.",
+    "What does mode restart mean? Return fenced YAML with mode queued.",
+  ];
+
+  for (const prompt of prompts) {
+    const modelCalls = [];
+    const runner = createWorkersAgent({
+      aiRunImpl: async (_binding, model) => {
+        modelCalls.push(model);
+        return { response: "```yaml\nalias: Test\nmode: queued\n```" };
+      },
+    });
+
+    const result = await runner({
+      env: createEnv(),
+      locale: "en",
+      messages: validBody(prompt).messages,
+      searchSmartbolig: undefined,
+    });
+
+    assert.deepEqual(result.diagnostics, { model: "gemma-4-26b-a4b-it", route: "primary" }, prompt);
+    assert.deepEqual(modelCalls, [CHAT_MODEL], prompt);
+  }
+});
+
+test("Workers AI does not turn a conceptual mode question into a key-value requirement", async () => {
+  const modelCalls = [];
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) => {
+      modelCalls.push(model);
+      return { response: "Queued mode lets later automation runs wait their turn." };
+    },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "en",
+    messages: validBody("What does mode queued mean? Answer without YAML or key-value syntax.").messages,
+    searchSmartbolig: undefined,
+  });
+
+  assert.equal(result.answer, "Queued mode lets later automation runs wait their turn.");
+  assert.deepEqual(result.diagnostics, { model: "gemma-4-26b-a4b-it", route: "primary" });
+  assert.deepEqual(modelCalls, [CHAT_MODEL]);
+});
+
+test("Workers AI treats with mode syntax as conceptual unless output is requested", async () => {
+  const runner = createWorkersAgent({
+    aiRunImpl: async () => ({ response: "It queues later runs instead of interrupting the current run." }),
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "en",
+    messages: validBody(
+      "How does an automation with mode: queued behave? Explain without key-value syntax.",
+    ).messages,
+    searchSmartbolig: undefined,
+  });
+
+  assert.equal(result.answer, "It queues later runs instead of interrupting the current run.");
+  assert.deepEqual(result.diagnostics, { model: "gemma-4-26b-a4b-it", route: "primary" });
+});
+
+test("Workers AI respects explicit prose and negative fenced-YAML requests", async () => {
+  const prompts = [
+    "Do I need a fenced YAML code block? Explain in prose.",
+    "Would I need a fenced YAML code block for this? Explain in prose.",
+    "What is a fenced YAML code block? Answer in prose.",
+    "Don't return a fenced YAML code block; explain mode queued in prose.",
+    "Svar ikke med en fenced YAML-kodeblok; forklar mode queued i prosa.",
+    "Return YAML, but not in a fenced code block.",
+    "Returnér YAML, men ikke i en fenced kodeblok.",
+  ];
+
+  for (const prompt of prompts) {
+    const modelCalls = [];
+    const runner = createWorkersAgent({
+      aiRunImpl: async (_binding, model) => {
+        modelCalls.push(model);
+        return { response: "Queued mode lader senere kørsler vente på den aktive kørsel." };
+      },
+    });
+
+    const result = await runner({
+      env: createEnv(),
+      locale: prompt.startsWith("Svar") ? "da" : "en",
+      messages: validBody(prompt).messages,
+      searchSmartbolig: undefined,
+    });
+
+    assert.deepEqual(result.diagnostics, { model: "gemma-4-26b-a4b-it", route: "primary" }, prompt);
+    assert.deepEqual(modelCalls, [CHAT_MODEL], prompt);
+  }
+});
+
+test("Workers AI recognizes common Danish and English fenced-YAML output verbs", async () => {
+  const prompts = [
+    "Put this automation in a fenced YAML code block with mode queued.",
+    "Opret en fenced YAML-kodeblok med mode queued.",
+    "Jeg ønsker en fenced YAML-kodeblok med mode queued.",
+    "Don't return prose; instead return fenced YAML with mode queued.",
+    "Don't return anything except a fenced YAML code block with mode queued.",
+    "Svar ikke i prosa; returnér fenced YAML med mode queued.",
+  ];
+
+  for (const prompt of prompts) {
+    const runner = createWorkersAgent({
+      aiRunImpl: async (_binding, model) =>
+        model === CHAT_MODEL
+          ? { response: "alias: Test\nmode: queued" }
+          : { response: "```yaml\nalias: Test\nmode: queued\n```" },
+    });
+
+    const result = await runner({
+      env: createEnv(),
+      locale: prompt.startsWith("Put") ? "en" : "da",
+      messages: validBody(prompt).messages,
+      searchSmartbolig: undefined,
+    });
+
+    assert.deepEqual(result.diagnostics, { model: "qwen3-30b-a3b-fp8", route: "fallback" }, prompt);
+    assert.match(result.answer, /^```yaml[\s\S]+```$/i, prompt);
+  }
+});
+
+test("Workers AI replaces a primary response that leaks internal retrieval steps", async () => {
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) =>
+      model === CHAT_MODEL
+        ? { response: "Først kalder jeg search_smartbolig.\n```bash\nsearch_smartbolig Home Assistant\n```" }
+        : { response: "Her er et direkte svar uden interne trin." },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "da",
+    messages: validBody("Hvad er Home Assistant?").messages,
+    searchSmartbolig: undefined,
+  });
+
+  assert.equal(result.answer, "Her er et direkte svar uden interne trin.");
+  assert.deepEqual(result.diagnostics, { model: "qwen3-30b-a3b-fp8", route: "fallback" });
+  assert.doesNotMatch(result.answer, /search_smartbolig/i);
+});
+
+test("Workers AI rejects internal reference tags even when an opening tag has attributes", async () => {
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) =>
+      model === CHAT_MODEL
+        ? { response: '<official_reference_data reviewed_at="2026-07-31">internal facts' }
+        : { response: "Her er et direkte svar uden interne reference-tags." },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "da",
+    messages: validBody("Hvordan virker automation traces?").messages,
+    searchSmartbolig: undefined,
+  });
+
+  assert.equal(result.answer, "Her er et direkte svar uden interne reference-tags.");
+  assert.deepEqual(result.diagnostics, { model: "qwen3-30b-a3b-fp8", route: "fallback" });
+  assert.doesNotMatch(result.answer, /official_reference_data/i);
+});
+
+test("Workers AI fails closed when fallback exposes internal retrieval artifacts", async () => {
+  const fallbackEvents = [];
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) =>
+      model === CHAT_MODEL
+        ? { response: "" }
+        : { response: "```bash\nsearch_smartbolig Home Assistant\n```" },
+  });
+
+  await assert.rejects(
+    runner({
+      env: createEnv(),
+      locale: "da",
+      messages: validBody("Hvordan laver jeg en Home Assistant automation?").messages,
+      searchSmartbolig: undefined,
+      onModelFallback: (event) => fallbackEvents.push(event),
+    }),
+    { name: "InvalidModelResponseError" },
+  );
+  assert.deepEqual(fallbackEvents, [
+    { event: "fallback_started", reason: "empty_primary_response", error: null },
+    { event: "fallback_failed", reason: "invalid_fallback_response", error: null },
+  ]);
 });
 
 test("successful model fallback emits a safe request-correlated warning", async () => {
@@ -508,6 +967,9 @@ test("domain questions preload SmartBolig context while keeping the broad model 
   assert.equal(modelCalls.length, 1);
   assert.equal(modelCalls[0].tools, undefined);
   assert.equal(modelCalls[0].tool_choice, undefined);
+  assert.match(modelCalls[0].messages[0].content, /reference data has already been supplied/i);
+  assert.match(modelCalls[0].messages[0].content, /answer the visitor directly/i);
+  assert.doesNotMatch(modelCalls[0].messages[0].content, /You have an optional tool named search_smartbolig/i);
   assert.equal(modelCalls[0].messages.at(-1).role, "user");
   assert.match(modelCalls[0].messages.at(-1).content, /automationens trace/);
   assert.match(modelCalls[0].messages.at(-1).content, /Hvordan fejlsøger jeg/);

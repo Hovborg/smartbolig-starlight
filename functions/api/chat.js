@@ -1,7 +1,7 @@
 import { selectOfficialEvidence } from "../lib/official-evidence.js";
 
 export const CHAT_MODEL = "@cf/google/gemma-4-26b-a4b-it";
-export const CHAT_FALLBACK_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
+export const CHAT_FALLBACK_MODEL = "@cf/qwen/qwen3-30b-a3b-fp8";
 export const MAX_REQUEST_BYTES = 24_000;
 export const MAX_MESSAGES = 10;
 export const MAX_MESSAGE_CHARS = 2_000;
@@ -18,7 +18,7 @@ export const FALLBACK_MODEL_TIMEOUT_MS = 20_000;
 export const SEARCH_TIMEOUT_MS = 5_000;
 
 const CHAT_MODEL_DIAGNOSTIC = "gemma-4-26b-a4b-it";
-const CHAT_FALLBACK_MODEL_DIAGNOSTIC = "llama-3.1-8b-instruct-fast";
+const CHAT_FALLBACK_MODEL_DIAGNOSTIC = "qwen3-30b-a3b-fp8";
 const MAX_PUBLIC_DURATION_MS = 120_000;
 
 const JSON_HEADERS = {
@@ -248,9 +248,15 @@ export function normalizeSearchChunks(chunks) {
   return { results, sources: [...sourceMap.values()] };
 }
 
-export function buildSystemPrompt(locale, hasSearchTool) {
+export function buildSystemPrompt(locale, hasSearchTool, hasPreloadedSearch = false) {
   const language = locale === "en" ? "English" : "Danish";
-  const searchInstruction = hasSearchTool
+  const searchInstruction = hasPreloadedSearch
+    ? `
+Relevant SmartBolig reference data has already been supplied below by the
+server. Do not call, describe, imitate, or expose search_smartbolig. Do not
+narrate retrieval steps or render tool names, tool calls, or internal search
+syntax as prose or code. Answer the visitor directly using only relevant facts.`
+    : hasSearchTool
     ? `
 You have an optional tool named search_smartbolig. Use it when the visitor asks
 about SmartBolig.net or the smart-home and homelab topics listed above. Always
@@ -284,6 +290,11 @@ menu paths, configuration keys, service names or entity IDs. When those details
 may vary by version, say so and give a version-neutral diagnostic first; ask
 for the installed version or point to current official documentation before
 presenting a precise path as fact.
+When the visitor explicitly requests a named key/value, output format or fenced
+code block, include that exact constraint or state clearly that you cannot
+produce it. Never replace it with a merely related example. Never invent a
+Test, Rollback, Save, Reload or similar UI control. Mention an exact control or
+menu path only when the reviewed official evidence supplied below supports it.
 For automation troubleshooting, structure the practical answer around
 assumptions, safe change, verification, and rollback. When reviewed official
 evidence for Home Assistant or ESPHome is supplied, use it as the source of
@@ -318,11 +329,19 @@ export function createWorkersAgent(dependencies = {}) {
     officialEvidence,
     onModelFallback,
   }) {
-    const systemMessage = {
-      role: "system",
-      content: buildSystemPrompt(locale, Boolean(searchSmartbolig)),
-    };
-    const modelMessages = [systemMessage, ...messages];
+    const createModelMessages = (hasSearchTool, hasPreloadedSearch = false) => [
+      {
+        role: "system",
+        content: buildSystemPrompt(locale, hasSearchTool, hasPreloadedSearch),
+      },
+      ...messages,
+    ];
+    const modelMessages = createModelMessages(Boolean(searchSmartbolig));
+    const searchUnavailableMessages = createModelMessages(false);
+    const preloadedModelMessages = createModelMessages(false, true);
+    const latestUserContent = [...messages]
+      .reverse()
+      .find((message) => message.role === "user")?.content || "";
     const tools = searchSmartbolig
       ? [
           {
@@ -388,15 +407,16 @@ export function createWorkersAgent(dependencies = {}) {
           FALLBACK_MODEL_TIMEOUT_MS,
         );
 
-        if (!extractModelAnswer(fallbackResult)) {
+        const fallbackAnswer = extractModelAnswer(fallbackResult);
+        if (!isAcceptableModelAnswer(fallbackAnswer, latestUserContent)) {
           reportFallback({
             event: "fallback_failed",
-            reason: "empty_fallback_response",
+            reason: fallbackAnswer ? "invalid_fallback_response" : "empty_fallback_response",
             error: null,
           });
-          const emptyError = new Error("EmptyFallbackResponse");
-          emptyError.name = "EmptyModelResponseError";
-          throw emptyError;
+          const responseError = new Error(fallbackAnswer ? "InvalidFallbackResponse" : "EmptyFallbackResponse");
+          responseError.name = fallbackAnswer ? "InvalidModelResponseError" : "EmptyModelResponseError";
+          throw responseError;
         }
         return {
           result: fallbackResult,
@@ -406,7 +426,7 @@ export function createWorkersAgent(dependencies = {}) {
           },
         };
       } catch (error) {
-        if (error?.name !== "EmptyModelResponseError") {
+        if (!["EmptyModelResponseError", "InvalidModelResponseError"].includes(error?.name)) {
           reportFallback({
             event: "fallback_failed",
             reason: "fallback_error",
@@ -417,7 +437,7 @@ export function createWorkersAgent(dependencies = {}) {
       }
     };
 
-    const runModel = async (inputMessages, inputTools) => {
+    const runModel = async (inputMessages, inputTools, fallbackMessages = inputMessages) => {
       let primaryResult;
       try {
         primaryResult = await runInference(
@@ -433,10 +453,11 @@ export function createWorkersAgent(dependencies = {}) {
           PRIMARY_MODEL_TIMEOUT_MS,
         );
       } catch (error) {
-        return runFallback(inputMessages, "primary_error", safeErrorName(error));
+        return runFallback(fallbackMessages, "primary_error", safeErrorName(error));
       }
 
-      if (extractModelAnswer(primaryResult) || (inputTools && selectSearchToolCall(primaryResult))) {
+      const primaryAnswer = extractModelAnswer(primaryResult);
+      if (isAcceptableModelAnswer(primaryAnswer, latestUserContent) || (inputTools && selectSearchToolCall(primaryResult))) {
         return {
           result: primaryResult,
           diagnostics: {
@@ -445,14 +466,18 @@ export function createWorkersAgent(dependencies = {}) {
           },
         };
       }
-      return runFallback(inputMessages, "empty_primary_response", null);
+      return runFallback(
+        fallbackMessages,
+        primaryAnswer ? "invalid_primary_response" : "empty_primary_response",
+        null,
+      );
     };
 
     if (searchSmartbolig && shouldRequireSmartboligSearch(messages)) {
       const query = messages.at(-1).content.slice(0, MAX_SEARCH_QUERY_CHARS);
       const toolResult = await searchSmartbolig(query);
       const execution = await runModel(
-        withOfficialReference(withSmartboligReference(modelMessages, toolResult), officialEvidence),
+        withOfficialReference(withSmartboligReference(preloadedModelMessages, toolResult), officialEvidence),
       );
       const answer = extractModelAnswer(execution.result);
       if (!answer) throw new Error("EmptyModelResponse");
@@ -463,7 +488,11 @@ export function createWorkersAgent(dependencies = {}) {
     }
 
     let modelRuns = 1;
-    let execution = await runModel(withOfficialReference(modelMessages, officialEvidence), tools);
+    let execution = await runModel(
+      withOfficialReference(modelMessages, officialEvidence),
+      tools,
+      withOfficialReference(searchUnavailableMessages, officialEvidence),
+    );
     const selectedTool = searchSmartbolig ? selectSearchToolCall(execution.result) : null;
 
     if (selectedTool) {
@@ -472,7 +501,7 @@ export function createWorkersAgent(dependencies = {}) {
       if (modelRuns > MAX_MODEL_RUNS) throw new Error("ModelRunLimitExceeded");
 
       execution = await runModel(
-        withOfficialReference(withSmartboligReference(modelMessages, toolResult), officialEvidence),
+        withOfficialReference(withSmartboligReference(preloadedModelMessages, toolResult), officialEvidence),
       );
     }
 
@@ -528,6 +557,151 @@ function extractModelAnswer(result) {
     .map((part) => (part?.type === "text" && typeof part.text === "string" ? part.text : ""))
     .join("")
     .trim();
+}
+
+function isAcceptableModelAnswer(answer, latestUserContent) {
+  if (!answer) return false;
+  if (/\bsearch_smartbolig\b|<\/?(?:smartbolig|official)_reference_data\b/iu.test(answer)) return false;
+
+  const requestsFencedYaml = requestsFencedYamlOutput(latestUserContent);
+  const requestedModes = requestedAutomationModes(latestUserContent);
+  if (
+    requestedModes.some((mode) => !hasModeKeyValue(answer, mode))
+  ) {
+    return false;
+  }
+
+  const fencedYamlBlocks = [...answer.matchAll(/```ya?ml\s*\n([\s\S]+?)\n```/giu)];
+  if (requestsFencedYaml && fencedYamlBlocks.length === 0) return false;
+  if (
+    requestsFencedYaml &&
+    requestedModes.some(
+      (mode) => !fencedYamlBlocks.some((match) => hasTopLevelYamlMode(match[1], mode)),
+    )
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+function requestsFencedYamlOutput(content) {
+  let decision = null;
+  for (const clause of instructionClauses(content)) {
+    const clauseDecision = classifyFencedYamlClause(clause);
+    if (clauseDecision !== null) decision = clauseDecision;
+  }
+  return decision === true;
+}
+
+function requestedAutomationModes(content) {
+  const modePattern = /\bmode\s*(:?)\s*(single|restart|queued|parallel)\b/giu;
+  const requestedModes = new Set();
+  for (const clause of instructionClauses(content)) {
+    if (isConceptualQuestion(clause)) continue;
+    const modeMatches = [...clause.matchAll(modePattern)].filter(
+      (match) => !isNegatedModeMention(clause, match),
+    );
+    if (modeMatches.length === 0) continue;
+    const requestsFencedYamlInClause = classifyFencedYamlClause(clause) === true;
+    const hasExplicitKeyValue = modeMatches.some((match) => match[1] === ":");
+    const intent = lastOutputIntent(clause, !hasExplicitKeyValue);
+    const hasPositiveModeIntent = intent && !isNegatedIntent(clause, intent);
+    if (!requestsFencedYamlInClause && !hasPositiveModeIntent) continue;
+
+    for (const match of modeMatches) {
+      if (requestsFencedYamlInClause || match[1] === ":" || hasModeConfigurationIntent(clause)) {
+        requestedModes.add(match[2].toLowerCase());
+      }
+    }
+  }
+  return [...requestedModes];
+}
+
+function instructionClauses(content) {
+  return (content.match(/[^.!?;\n]+[.!?]?/gu) || [])
+    .map((clause) => clause.trim())
+    .filter(Boolean);
+}
+
+function classifyFencedYamlClause(clause) {
+  const mentionsYaml = /\bya?ml\b/iu.test(clause);
+  const mentionsFence =
+    /\b(?:code\s*block|fenced|kodeblok|three\s+backticks?|tre\s+backticks?|triple\s+backticks?)\b|```/iu.test(clause);
+  if (!mentionsYaml || !mentionsFence) return null;
+  if (isExclusiveStructuredRequest(clause)) return true;
+  if (isConceptualQuestion(clause)) return null;
+
+  const intent = lastOutputIntent(clause);
+  if (!intent) return null;
+  if (hasDirectStructuredRejection(clause) || isNegatedIntent(clause, intent)) return false;
+  return true;
+}
+
+function lastOutputIntent(content, modeConfigurationOnly = false) {
+  const verbs = modeConfigurationOnly
+    ? "build|create|generate|include|set|use|write|byg|brug|gener[eé]r|inklud[eé]r|lav|opret|skriv|sæt"
+    : "answer|build|compare|create|generate|give|include|need|output|provide|put|respond|return|set|show|use|want|write|byg|brug|gener[eé]r|giv|inklud[eé]r|lav|opret|return[eé]r|sammenlign|skriv|svar|vis|vil|ønsker|sæt";
+  const pattern = new RegExp(
+    `(?:^|[^\\p{L}\\p{N}_])(${verbs})(?=$|[^\\p{L}\\p{N}_])`,
+    "giu",
+  );
+  const matches = [...content.matchAll(pattern)];
+  const match = matches.at(-1);
+  if (!match) return null;
+  const verbOffset = match[0].lastIndexOf(match[1]);
+  return {
+    index: (match.index || 0) + verbOffset,
+    length: match[1].length,
+  };
+}
+
+function isConceptualQuestion(clause) {
+  if (!/\?\s*$/u.test(clause)) return false;
+  return !/^(?:(?:can|could|will|would)\s+you|(?:kan|kunne|vil)\s+du|please|venligst|return|put|create|generate|show|write|opret|return[eé]r|skriv|vis)\b/iu.test(
+    clause,
+  );
+}
+
+function isExclusiveStructuredRequest(clause) {
+  return /(?:anything\s+except|nothing\s+but|ikke\s+andet\s+end|kun)[\s\S]{0,80}(?:code\s*block|fenced|kodeblok|ya?ml)/iu.test(
+    clause,
+  );
+}
+
+function hasDirectStructuredRejection(clause) {
+  return /(?:^|[^\p{L}\p{N}_])(?:(?:no|ingen|uden|without)\s+(?:(?:a|an|any|en|et)\s+)?|(?:not|ikke)\s+(?:(?:in|inside|i|med|som)\s+)?(?:(?:a|an|any|en|et)\s+)?)(?:code\s*block|fenced|kodeblok|three\s+backticks?|tre\s+backticks?|triple\s+backticks?|ya?ml)(?=$|[^\p{L}\p{N}_])/iu.test(
+    clause,
+  );
+}
+
+function isNegatedIntent(clause, intent) {
+  const before = clause.slice(Math.max(0, intent.index - 16), intent.index);
+  const after = clause.slice(intent.index + intent.length, intent.index + intent.length + 16);
+  return /(?:do\s+not|don't|not)\s*$/iu.test(before) || /^\s+ikke\b/iu.test(after);
+}
+
+function hasModeConfigurationIntent(clause) {
+  return Boolean(lastOutputIntent(clause, true));
+}
+
+function isNegatedModeMention(clause, match) {
+  const start = match.index || 0;
+  const end = start + match[0].length;
+  const before = clause.slice(Math.max(0, start - 20), start);
+  const after = clause.slice(end, end + 24);
+  return /(?:ikke|not)\s*$/iu.test(before) || /^\s+(?:(?:must|should|må|skal)\s+)?(?:ikke|not)\b/iu.test(after);
+}
+
+function hasModeKeyValue(content, requestedMode) {
+  const modeValue = `(?:${requestedMode}\\b|"${requestedMode}"|'${requestedMode}')`;
+  return new RegExp(`\\bmode\\s*:\\s*${modeValue}`, "iu").test(content);
+}
+
+function hasTopLevelYamlMode(yaml, requestedMode) {
+  const modeValue = `(?:${requestedMode}|"${requestedMode}"|'${requestedMode}')`;
+  const modeLine = new RegExp(`^mode\\s*:\\s*${modeValue}\\s*(?:#.*)?$`, "iu");
+  return yaml.split(/\r?\n/u).some((line) => modeLine.test(line));
 }
 
 function withSmartboligReference(messages, searchResult) {

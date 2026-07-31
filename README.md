@@ -44,11 +44,15 @@ specialdesignet Astro-widget:
   netværk, Docker, Proxmox og øvrige homelab-emner. Endpointet bruger
   Cloudflares native `env.AI.run()`-binding. Hvis den primære model fejler eller
   løber ud af sit tidsbudget, overtager den Cloudflare-hostede
-  `@cf/meta/llama-3.1-8b-instruct-fast` med et kortere, separat budget.
+  `@cf/qwen/qwen3-30b-a3b-fp8` med et kortere, separat budget. Qwen-fallbacken
+  er valgt til flersproget instruktionsefterlevelse og tekniske svar frem for
+  blot lavest mulig latenstid.
 - **SmartBolig som ekstra kilde:** Bindingen `SMARTBOLIG_SEARCH` peger på
   `smartbolig-ai-search`. Faglige smart-home/homelab-spørgsmål får højst ét
   afgrænset opslag, hvis bindingen er tilgængelig. Resultatet gives til den
-  brede model som ubetroet reference-data.
+  brede model som ubetroet reference-data. Efter opslaget får både primær- og
+  fallbackmodel en særskilt slutprompt uden et tilgængeligt søgeværktøj, så
+  interne værktøjsnavne og retrieval-trin ikke bliver vist som kommandoer.
   AI Search er ikke assistentens eneste viden.
 - **Kontrolleret officiel evidens:** Syv gennemgåede evidenspakker vælges
   deterministisk i Workeren: automationstrace, automationsmåder,
@@ -57,6 +61,16 @@ specialdesignet Astro-widget:
   reviewdato og faste links til de allowlistede officielle værter
   `www.home-assistant.io` og `esphome.io`. Flere match kan kombineres og
   deduplikeres i samme modelkald.
+- **Svar-kontrakt:** Workeren afviser tomme svar, interne reference-tags og
+  synlige `search_smartbolig`-kald. Når brugeren udtrykkeligt beder om en
+  fenced YAML-kodeblok med en automationsværdi som `mode: queued`, skal hver
+  ønsket mode stå som en aktiv top-level `mode`-nøgle i en fenced YAML-blok —
+  en kommentar eller tekst inde i en anden nøgle tæller ikke. Et rent
+  konceptspørgsmål om eksempelvis queued mode udløser ikke et kunstigt krav om
+  key-value-syntaks. Ellers prøves den afgrænsede fallback, og også den fejler
+  lukket frem for at vise et vildledende næsten-svar. Det reducerer kendte fejl,
+  men er ikke en generel garanti for, at al modelgenereret konfiguration er
+  korrekt.
 - **Ingen dokumentationskopi:** SmartBolig kopierer ikke Home Assistant- eller ESPHome-dokumentation ind i AI Search.
   Den brede model svarer fortsat om hele fagområdet, mens kun serverens konkrete,
   gennemgåede fakta får officiel status.
@@ -105,7 +119,7 @@ specialdesignet Astro-widget:
   regressionstests eller brugerens kontrol i den konkrete installation.
 - **Afgrænset svartid og længde:** Modellen må generere højst 1.200 tokens og
   fallbacken højst 900. Hvert logisk modelkald har 30 sekunder til Gemma og 20
-  sekunder til Llama-fallbacken. Browserens 120-sekunders maksimum dækker den
+  sekunder til Qwen-fallbacken. Browserens 120-sekunders maksimum dækker den
   sjældne værste sti med fem sekunders AI Search, to logiske modelkald og 15
   sekunders netværksmargin. Normale svar returneres med det samme. En aktiv
   eller fejlet fallback logges med request-ID, trin, årsagsklasse og fejlnavn,
