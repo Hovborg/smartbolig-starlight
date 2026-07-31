@@ -10,6 +10,18 @@
   attribute, and a "Restart Home Assistant" button that restarts, fails, and
   says so. Danish and English are written separately rather than translated,
   and a path with no language prefix now follows the browser's language.
+- Expanded reviewed official coverage to seven Home Assistant and ESPHome
+  evidence packages: automation troubleshooting, automation modes, template
+  states, Home Assistant security, ESPHome security, safe mode, and sensors.
+- Generalized the official source badge for both products and added the API
+  field `officialVerifiedAt` so clients can see the oldest review date used.
+- Kept the official documentation out of AI Search; the registry stores only
+  short reviewed paraphrases and direct allowlisted source links.
+- Tightened evidence matching so generic internet, alarm-state, Raspberry Pi,
+  GitHub Actions, Node-RED, ordinary post-update restarts, sensor class/filter
+  choice, template-card styling, standalone non-HA YAML, trigger/condition
+  selection, operational meanings of secure/recover, entity exposure, and
+  non-ESPHome safe-mode questions cannot receive an official badge.
 - Added verified Home Assistant evidence for automation troubleshooting. The
   assistant now distinguishes reviewed official facts, SmartBolig-assisted
   answers, and general AI knowledge.

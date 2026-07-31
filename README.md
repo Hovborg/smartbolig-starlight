@@ -48,16 +48,21 @@ specialdesignet Astro-widget:
   afgrænset opslag, hvis bindingen er tilgængelig. Resultatet gives til den
   brede model som ubetroet reference-data.
   AI Search er ikke assistentens eneste viden.
-- **Kontrolleret officiel evidens:** Kritiske, gennemgåede fakta om fejlsøgning
-  af Home Assistant-automationer vælges deterministisk i Workeren og gives til
-  modellen som autoritativ reference. Første evidenspakke dækker kravet om
-  unikt YAML-`id` til gemte spor, begrænsningen i **Kør handlinger**,
-  konfigurationskontrol og standardsport. Registryet indeholder kun links til
-  allowlistede officielle værter (`www.home-assistant.io` og `esphome.io`).
-- **Ærlige kildegrader:** Svar vises som **Officielle HA-kilder
+- **Kontrolleret officiel evidens:** Syv gennemgåede evidenspakker vælges
+  deterministisk i Workeren: automationstrace, automationsmåder,
+  template-tilstande og Home Assistant-sikkerhed samt ESPHome-sikkerhed,
+  safe mode og sensorfiltre. Pakkerne indeholder korte tosprogede faktaparafraser,
+  reviewdato og faste links til de allowlistede officielle værter
+  `www.home-assistant.io` og `esphome.io`. Flere match kan kombineres og
+  deduplikeres i samme modelkald.
+- **Ingen dokumentationskopi:** SmartBolig kopierer ikke Home Assistant- eller ESPHome-dokumentation ind i AI Search.
+  Den brede model svarer fortsat om hele fagområdet, mens kun serverens konkrete,
+  gennemgåede fakta får officiel status.
+- **Ærlige kildegrader:** Svar vises som **Officielle kilder
   kontrolleret**, **SmartBolig-kilder + bred AI-viden** eller **Generel
   AI-viden**. Et svar får aldrig officielt badge alene på grund af modellens
-  generelle træningsviden.
+  generelle træningsviden. API-feltet `officialVerifiedAt` viser den ældste
+  reviewdato blandt de anvendte evidenspakker og er ellers `null`.
 - **Ingen ekstra RAG-database:** AI Search ejer allerede sin søgeindeksering, så
   projektet opretter ikke en separat D1- eller Vectorize-database.
 - **Abuse-kontrol:** `CHAT_RATE_LIMITER` tillader 12 chatkald pr. minut pr.
@@ -89,10 +94,11 @@ API- og widgettests bruger fakes og foretager ingen betalte AI-kald:
 npm run site:test
 ```
 
-Den officielle evidensselector har en deterministisk suite med **50 prompter**
-på dansk og engelsk. Den kontrollerer både, at automationsspørgsmål får den
-gennemgåede evidens, og at eksempelvis Proxmox-, Zigbee-, ESPHome- og
-NAS-spørgsmål ikke får et misvisende officielt badge.
+Den officielle evidensselector har en deterministisk suite med **98
+testspørgsmål** på dansk og engelsk. Den dækker alle syv pakker, kombinerede
+spørgsmål og false positives som GitHub Actions, Docker-sikkerhed, Arduino-
+sensorer, generiske Home Assistant-spørgsmål, klasse-/filtervalg, GitHub-
+handlinger og operativsystemers safe mode.
 
 Kompilér Pages Functions-routeren og validér Worker-konfigurationen lokalt:
 

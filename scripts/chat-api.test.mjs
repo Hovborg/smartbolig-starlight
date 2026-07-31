@@ -171,6 +171,7 @@ test("general-knowledge answers work without AI Search and return no-store metad
   assert.equal(body.answer, "ESPHome kan sende sensordata lokalt til Home Assistant.");
   assert.deepEqual(body.sources, []);
   assert.equal(body.sourceMode, "general");
+  assert.equal(body.officialVerifiedAt, null);
   assert.equal(received.locale, "da");
   assert.equal(received.messages.at(-1).role, "user");
   assert.equal(received.searchSmartbolig, undefined);
@@ -247,6 +248,7 @@ test("Workers AI agent keeps broad expertise and exposes AI Search as an optiona
   assert.match(modelCalls[0].input.messages[0].content, /configuration keys, service names or entity IDs/i);
   assert.match(modelCalls[0].input.messages[0].content, /official documentation/i);
   assert.match(modelCalls[0].input.messages[0].content, /assumptions, safe change, verification, and rollback/i);
+  assert.match(modelCalls[0].input.messages[0].content, /Home Assistant or ESPHome/i);
   assert.match(modelCalls[0].input.messages[0].content, /not present in reviewed official evidence.*unverified/i);
   assert.match(modelCalls[0].input.messages[0].content, /Always\s+call it once before answering a substantive question/i);
   assert.match(modelCalls[0].input.messages[0].content, /supplement, never the boundary of your knowledge/i);
@@ -282,6 +284,7 @@ test("domain questions preload SmartBolig context while keeping the broad model 
     messages,
     officialEvidence: {
       evidenceIds: ["ha-automation-troubleshooting"],
+      verifiedAt: "2026-07-31",
       facts: [
         "YAML-oprettede automationer skal have et unikt id, før debug-spor gemmes.",
         "Kør handlinger springer triggere og betingelser over.",
@@ -310,6 +313,7 @@ test("domain questions preload SmartBolig context while keeping the broad model 
   assert.match(modelCalls[0].messages.at(-1).content, /Hvordan fejlsøger jeg/);
   assert.match(modelCalls[0].messages.at(-1).content, /official_reference_data/);
   assert.match(modelCalls[0].messages.at(-1).content, /unikt id/);
+  assert.match(modelCalls[0].messages.at(-1).content, /"verifiedAt":"2026-07-31"/);
   assert.match(modelCalls[0].messages.at(-1).content, /reviewed official\s+facts override conflicting general knowledge/i);
 });
 
@@ -321,7 +325,7 @@ test("automation questions return only server-controlled official evidence sourc
   });
 
   const response = await handler({
-    request: request(validBody("Skal min YAML-automation have et id for at gemme spor?")),
+    request: request(validBody("Skal min Home Assistant YAML-automation have et id for at gemme spor?")),
     env: createEnv({ SMARTBOLIG_SEARCH: undefined }),
   });
   const body = await json(response);
@@ -330,6 +334,7 @@ test("automation questions return only server-controlled official evidence sourc
   assert.deepEqual(receivedEvidence.evidenceIds, ["ha-automation-troubleshooting"]);
   assert.match(receivedEvidence.facts.join(" "), /unikt id/);
   assert.equal(body.sourceMode, "official");
+  assert.equal(body.officialVerifiedAt, "2026-07-31");
   assert.deepEqual(body.sources, [
     {
       title: "Home Assistant: Testing and troubleshooting automations",
@@ -343,6 +348,31 @@ test("automation questions return only server-controlled official evidence sourc
     },
   ]);
   assert.ok(body.sources.every((source) => ["www.home-assistant.io", "esphome.io"].includes(new URL(source.url).hostname)));
+});
+
+test("compound official questions merge reviewed packages and deduplicate sources", async () => {
+  let receivedEvidence;
+  const handler = createHandler(async ({ officialEvidence }) => {
+    receivedEvidence = officialEvidence;
+    return { answer: "Brug unikke nøgler, og anvend safe mode til OTA-recovery." };
+  });
+
+  const response = await handler({
+    request: request(validBody("Hvordan beskytter jeg ESPHome API'et, og hvad gør safe mode ved en boot loop?")),
+    env: createEnv({ SMARTBOLIG_SEARCH: undefined }),
+  });
+  const body = await json(response);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(receivedEvidence.evidenceIds, ["esphome-security", "esphome-safe-mode"]);
+  assert.equal(body.sourceMode, "official");
+  assert.equal(body.officialVerifiedAt, "2026-07-31");
+  assert.equal(new Set(body.sources.map((source) => source.url)).size, body.sources.length);
+  assert.deepEqual(body.sources.map((source) => new URL(source.url).hostname), [
+    "esphome.io",
+    "esphome.io",
+    "esphome.io",
+  ]);
 });
 
 test("Workers AI agent answers in one bounded model call when AI Search is unavailable", async () => {
