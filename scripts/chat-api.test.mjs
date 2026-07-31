@@ -231,7 +231,7 @@ test("Workers AI agent keeps broad expertise and exposes AI Search as an optiona
   assert.ok(modelCalls.every((call) => call.input.max_completion_tokens === 2_200));
   assert.ok(modelCalls.every((call) => call.input.max_tokens === undefined));
   assert.ok(modelCalls.every((call) => call.input.reasoning_effort === "low"));
-  assert.ok(modelCalls.every((call) => call.input.temperature === 0.35));
+  assert.ok(modelCalls.every((call) => call.input.temperature === 0.1));
   assert.ok(modelCalls.every((call) => call.options.signal instanceof AbortSignal));
   assert.equal(searchedFor, "ESPHome Bluetooth proxy");
   assert.equal(modelCalls[0].input.messages[0].role, "system");
@@ -246,6 +246,8 @@ test("Workers AI agent keeps broad expertise and exposes AI Search as an optiona
   assert.match(modelCalls[0].input.messages[0].content, /Never invent exact UI\s+menu paths/i);
   assert.match(modelCalls[0].input.messages[0].content, /configuration keys, service names or entity IDs/i);
   assert.match(modelCalls[0].input.messages[0].content, /official documentation/i);
+  assert.match(modelCalls[0].input.messages[0].content, /assumptions, safe change, verification, and rollback/i);
+  assert.match(modelCalls[0].input.messages[0].content, /not present in reviewed official evidence.*unverified/i);
   assert.match(modelCalls[0].input.messages[0].content, /Always\s+call it once before answering a substantive question/i);
   assert.match(modelCalls[0].input.messages[0].content, /supplement, never the boundary of your knowledge/i);
   assert.equal(modelCalls[0].input.tools[0].type, "function");
@@ -278,6 +280,20 @@ test("domain questions preload SmartBolig context while keeping the broad model 
     env: createEnv(),
     locale: "da",
     messages,
+    officialEvidence: {
+      evidenceIds: ["ha-automation-troubleshooting"],
+      facts: [
+        "YAML-oprettede automationer skal have et unikt id, før debug-spor gemmes.",
+        "Kør handlinger springer triggere og betingelser over.",
+      ],
+      sources: [
+        {
+          title: "Home Assistant: Testing and troubleshooting automations",
+          url: "https://www.home-assistant.io/docs/automation/troubleshooting/",
+          type: "official",
+        },
+      ],
+    },
     searchSmartbolig: async (query) => {
       searchedFor = query;
       return { results: [{ text: "Brug automationens trace som første bevis." }] };
@@ -292,6 +308,41 @@ test("domain questions preload SmartBolig context while keeping the broad model 
   assert.equal(modelCalls[0].messages.at(-1).role, "user");
   assert.match(modelCalls[0].messages.at(-1).content, /automationens trace/);
   assert.match(modelCalls[0].messages.at(-1).content, /Hvordan fejlsøger jeg/);
+  assert.match(modelCalls[0].messages.at(-1).content, /official_reference_data/);
+  assert.match(modelCalls[0].messages.at(-1).content, /unikt id/);
+  assert.match(modelCalls[0].messages.at(-1).content, /reviewed official\s+facts override conflicting general knowledge/i);
+});
+
+test("automation questions return only server-controlled official evidence sources", async () => {
+  let receivedEvidence;
+  const handler = createHandler(async ({ officialEvidence }) => {
+    receivedEvidence = officialEvidence;
+    return { answer: "YAML-automationer skal have et unikt id, før spor bliver gemt." };
+  });
+
+  const response = await handler({
+    request: request(validBody("Skal min YAML-automation have et id for at gemme spor?")),
+    env: createEnv({ SMARTBOLIG_SEARCH: undefined }),
+  });
+  const body = await json(response);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(receivedEvidence.evidenceIds, ["ha-automation-troubleshooting"]);
+  assert.match(receivedEvidence.facts.join(" "), /unikt id/);
+  assert.equal(body.sourceMode, "official");
+  assert.deepEqual(body.sources, [
+    {
+      title: "Home Assistant: Testing and troubleshooting automations",
+      url: "https://www.home-assistant.io/docs/automation/troubleshooting/",
+      type: "official",
+    },
+    {
+      title: "Home Assistant: Automation YAML",
+      url: "https://www.home-assistant.io/docs/automation/yaml/",
+      type: "official",
+    },
+  ]);
+  assert.ok(body.sources.every((source) => ["www.home-assistant.io", "esphome.io"].includes(new URL(source.url).hostname)));
 });
 
 test("Workers AI agent answers in one bounded model call when AI Search is unavailable", async () => {
@@ -517,7 +568,11 @@ test("AI Search timeout degrades without blocking the broad model", async () => 
 
   assert.equal(response.status, 200);
   assert.equal(body.answer, "Et generelt svar efter søgetimeout.");
-  assert.equal(body.sourceMode, "general");
+  assert.equal(body.sourceMode, "official");
+  assert.deepEqual(body.sources.map((source) => new URL(source.url).hostname), [
+    "www.home-assistant.io",
+    "www.home-assistant.io",
+  ]);
   assert.ok(Date.now() - startedAt < 250, "search timeout should fail over promptly");
 });
 

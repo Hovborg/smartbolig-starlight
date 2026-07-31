@@ -48,6 +48,16 @@ specialdesignet Astro-widget:
   afgrænset opslag, hvis bindingen er tilgængelig. Resultatet gives til den
   brede model som ubetroet reference-data.
   AI Search er ikke assistentens eneste viden.
+- **Kontrolleret officiel evidens:** Kritiske, gennemgåede fakta om fejlsøgning
+  af Home Assistant-automationer vælges deterministisk i Workeren og gives til
+  modellen som autoritativ reference. Første evidenspakke dækker kravet om
+  unikt YAML-`id` til gemte spor, begrænsningen i **Kør handlinger**,
+  konfigurationskontrol og standardsport. Registryet indeholder kun links til
+  allowlistede officielle værter (`www.home-assistant.io` og `esphome.io`).
+- **Ærlige kildegrader:** Svar vises som **Officielle HA-kilder
+  kontrolleret**, **SmartBolig-kilder + bred AI-viden** eller **Generel
+  AI-viden**. Et svar får aldrig officielt badge alene på grund af modellens
+  generelle træningsviden.
 - **Ingen ekstra RAG-database:** AI Search ejer allerede sin søgeindeksering, så
   projektet opretter ikke en separat D1- eller Vectorize-database.
 - **Abuse-kontrol:** `CHAT_RATE_LIMITER` tillader 12 chatkald pr. minut pr.
@@ -59,11 +69,16 @@ specialdesignet Astro-widget:
   beskeder, 2.000 tegn pr. besked og 8.000 tegn i alt. Widgeten gemmer kun den
   aktuelle samtale i browserens `sessionStorage`.
 - **Sikker rendering:** Modelsvar bliver til tekstnoder; der indsættes ikke
-  modelgenereret HTML. Kildelinks tillades kun til `https://smartbolig.net`.
+  modelgenereret HTML. Kildelinks tillades kun til `https://smartbolig.net`
+  samt de serverstyrede officielle værter `www.home-assistant.io` og
+  `esphome.io`.
 - **Smart-home intelligence console:** Widgeten bruger et responsivt
   cyan/grønt tech-interface med tydelig `EDGE AI`-status, capability-felter,
   handlingskort og console-composer. Den understøtter både lys/mørk tilstand og
   reduceret bevægelse uden eksterne UI-biblioteker.
+- **Lavere variation i tekniske fakta:** Modellen kører med temperatur `0.1`.
+  Den indstilling gør svar mindre tilfældige, men erstatter ikke kilder,
+  regressionstests eller brugerens kontrol i den konkrete installation.
 
 Bindings og modelvalg ligger i `wrangler.jsonc`; der skal ikke ligge Cloudflare-
 tokens eller modelnøgler i kildekoden.
@@ -73,6 +88,11 @@ API- og widgettests bruger fakes og foretager ingen betalte AI-kald:
 ```bash
 npm run site:test
 ```
+
+Den officielle evidensselector har en deterministisk suite med **50 prompter**
+på dansk og engelsk. Den kontrollerer både, at automationsspørgsmål får den
+gennemgåede evidens, og at eksempelvis Proxmox-, Zigbee-, ESPHome- og
+NAS-spørgsmål ikke får et misvisende officielt badge.
 
 Kompilér Pages Functions-routeren og validér Worker-konfigurationen lokalt:
 

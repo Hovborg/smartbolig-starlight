@@ -27,6 +27,8 @@ test("assistant has a localized accessible dialog and smart-domain starter promp
   for (const copy of [
     "Spørg SmartBolig AI",
     "Ask SmartBolig AI",
+    "Officielle HA-kilder kontrolleret",
+    "Official HA sources checked",
     "Home Assistant",
     "ESPHome",
     "sensor",
@@ -67,15 +69,28 @@ test("assistant safely formats model Markdown without an HTML sink", async () =>
   assert.doesNotMatch(source, /\.innerHTML\s*=/);
 });
 
-test("assistant renders copy controls and revalidates canonical SmartBolig sources", async () => {
+test("assistant renders copy controls and revalidates canonical SmartBolig and official sources", async () => {
   const source = await read("src/components/SmartBoligAssistant.astro");
 
   assert.match(source, /navigator\.clipboard\.writeText/);
-  assert.match(source, /sourceUrl\.hostname\s*!==\s*["']smartbolig\.net["']/);
+  assert.match(source, /const SAFE_SOURCE_HOSTS\s*=\s*new Set/);
+  for (const hostname of ["smartbolig.net", "www.home-assistant.io", "esphome.io"]) {
+    assert.match(source, new RegExp(hostname.replaceAll(".", "\\.")));
+  }
+  assert.match(source, /SAFE_SOURCE_HOSTS\.has\(sourceUrl\.hostname\)/);
   assert.match(source, /sourceUrl\.protocol\s*!==\s*["']https:["']/);
+  assert.match(source, /sourceUrl\.port/);
+  assert.match(source, /sourceUrl\.username/);
+  assert.match(source, /sourceUrl\.password/);
   assert.match(source, /sourceLink\.rel\s*=\s*["']noopener noreferrer["']/);
   assert.match(source, /sourceLink\.target\s*=\s*["']_blank["']/);
+  assert.match(source, /sourceLink\.dataset\.sourceType/);
   assert.match(source, /data-source-mode/);
+  assert.match(source, /data-label-official/);
+  assert.match(source, /message\.sourceMode\s*===\s*["']official["']/);
+  assert.match(source, /root\.dataset\.labelOfficial/);
+  assert.match(source, /sources:\s*["']Sources["']/);
+  assert.match(source, /sources:\s*["']Kilder["']/);
 });
 
 test("assistant handles loading, server failures, Escape and focus restoration", async () => {
