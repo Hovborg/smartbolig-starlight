@@ -1,0 +1,1500 @@
+---
+interface Props {
+  locale?: string;
+}
+
+const { locale = 'da' } = Astro.props;
+const lang = locale === 'en' ? 'en' : 'da';
+
+const translations = {
+  da: {
+    launcher: 'Spørg AI',
+    launcherLabel: 'Spørg SmartBolig AI',
+    eyebrow: 'Smart home · homelab · lokal kontrol',
+    title: 'SmartBolig AI',
+    description: 'Din tekniske sparringspartner til Home Assistant, ESPHome, sensorer og homelab.',
+    intro:
+      'Få hjælp til fejlsøgning, arkitektur og konkrete konfigurationer. Jeg bruger bred AI-viden og finder SmartBolig-guides, når de gør svaret bedre.',
+    newChat: 'Ny samtale',
+    close: 'Luk assistenten',
+    suggestions: 'Prøv et godt udgangspunkt',
+    prompt1: 'Fejlsøg min Home Assistant-automation',
+    prompt2: 'Byg en ESPHome-sensor',
+    prompt3: 'Vælg Zigbee-, Matter- eller Wi-Fi-sensor',
+    prompt4: 'Design et stabilt homelab',
+    placeholder: 'Beskriv dit setup, målet og hvad der går galt …',
+    send: 'Send',
+    sending: 'Tænker',
+    privacy: 'Del ikke adgangskoder, tokens eller personoplysninger.',
+    general: 'Generel AI-viden',
+    mixed: 'SmartBolig-kilder + bred AI-viden',
+    sources: 'SmartBolig-kilder',
+    copy: 'Kopiér',
+    copied: 'Kopieret',
+    retry: 'Prøv igen',
+    ready: 'Klar til dit spørgsmål.',
+    resetDone: 'Samtalen er ryddet.',
+    errorRate: 'Du har sendt mange beskeder på kort tid. Vent et øjeblik og prøv igen.',
+    errorService: 'Assistenten er ikke klar lige nu. Prøv igen senere.',
+    errorTimeout: 'Svaret tog for lang tid. Prøv igen.',
+    errorGeneric: 'Jeg kunne ikke svare denne gang. Prøv igen om lidt.',
+    assistant: 'SmartBolig AI',
+    you: 'Dig',
+  },
+  en: {
+    launcher: 'Ask AI',
+    launcherLabel: 'Ask SmartBolig AI',
+    eyebrow: 'Smart home · homelab · local control',
+    title: 'SmartBolig AI',
+    description: 'Your technical partner for Home Assistant, ESPHome, sensors and homelabs.',
+    intro:
+      'Get help with troubleshooting, architecture and concrete configuration. I use broad AI knowledge and find SmartBolig guides when they improve the answer.',
+    newChat: 'New chat',
+    close: 'Close the assistant',
+    suggestions: 'Start with a useful question',
+    prompt1: 'Troubleshoot my Home Assistant automation',
+    prompt2: 'Build an ESPHome sensor',
+    prompt3: 'Choose a Zigbee, Matter or Wi-Fi sensor',
+    prompt4: 'Design a reliable homelab',
+    placeholder: 'Describe your setup, goal and what is going wrong …',
+    send: 'Send',
+    sending: 'Thinking',
+    privacy: 'Do not share passwords, tokens or personal data.',
+    general: 'General AI knowledge',
+    mixed: 'SmartBolig sources + broad AI knowledge',
+    sources: 'SmartBolig sources',
+    copy: 'Copy',
+    copied: 'Copied',
+    retry: 'Try again',
+    ready: 'Ready for your question.',
+    resetDone: 'The conversation has been cleared.',
+    errorRate: 'You sent many messages in a short time. Wait a moment and try again.',
+    errorService: 'The assistant is not ready right now. Please try again later.',
+    errorTimeout: 'The response took too long. Please try again.',
+    errorGeneric: 'I could not answer this time. Please try again shortly.',
+    assistant: 'SmartBolig AI',
+    you: 'You',
+  },
+};
+
+const t = translations[lang];
+---
+
+<div
+  class="smartbolig-ai"
+  data-smartbolig-ai
+  data-locale={lang}
+  data-label-assistant={t.assistant}
+  data-label-you={t.you}
+  data-label-copy={t.copy}
+  data-label-copied={t.copied}
+  data-label-retry={t.retry}
+  data-label-ready={t.ready}
+  data-label-reset={t.resetDone}
+  data-label-general={t.general}
+  data-label-mixed={t.mixed}
+  data-label-sources={t.sources}
+  data-error-rate={t.errorRate}
+  data-error-service={t.errorService}
+  data-error-timeout={t.errorTimeout}
+  data-error-generic={t.errorGeneric}
+>
+  <button
+    class="smartbolig-ai__launcher"
+    type="button"
+    aria-label={t.launcherLabel}
+    aria-expanded="false"
+    aria-controls="smartbolig-ai-panel"
+    data-chat-launcher
+  >
+    <span class="smartbolig-ai__orb" aria-hidden="true">
+      <svg viewBox="0 0 32 32" role="img">
+        <path d="M16 3.5 18.4 11l7.6 2.4-7.6 2.4L16 23.5l-2.4-7.7L6 13.4l7.6-2.4L16 3.5Z"></path>
+        <path d="m24.8 20 .9 2.9 2.8.9-2.8.9-.9 2.8-.9-2.8-2.9-.9 2.9-.9.9-2.9Z"></path>
+      </svg>
+    </span>
+    <span class="smartbolig-ai__launcher-copy">
+      <span class="smartbolig-ai__launcher-title">{t.launcher}</span>
+      <span class="smartbolig-ai__launcher-status">
+        <span class="smartbolig-ai__status-dot" aria-hidden="true"></span>
+        {lang === 'en' ? 'Broad smart-home expertise' : 'Bred smart-home-ekspertise'}
+      </span>
+    </span>
+  </button>
+
+  <section
+    class="smartbolig-ai__panel"
+    id="smartbolig-ai-panel"
+    role="dialog"
+    aria-labelledby="smartbolig-ai-title"
+    aria-describedby="smartbolig-ai-description"
+    aria-busy="false"
+    hidden
+    data-chat-panel
+  >
+    <header class="smartbolig-ai__header">
+      <div class="smartbolig-ai__brand">
+        <span class="smartbolig-ai__mark" aria-hidden="true">
+          <svg viewBox="0 0 32 32">
+            <path d="M16 3.5 18.4 11l7.6 2.4-7.6 2.4L16 23.5l-2.4-7.7L6 13.4l7.6-2.4L16 3.5Z"></path>
+            <path d="m24.8 20 .9 2.9 2.8.9-2.8.9-.9 2.8-.9-2.8-2.9-.9 2.9-.9.9-2.9Z"></path>
+          </svg>
+        </span>
+        <div>
+          <p class="smartbolig-ai__eyebrow">{t.eyebrow}</p>
+          <h2 id="smartbolig-ai-title">{t.title}</h2>
+        </div>
+      </div>
+      <div class="smartbolig-ai__header-actions">
+        <button class="smartbolig-ai__icon-button" type="button" title={t.newChat} aria-label={t.newChat} data-chat-reset>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 5a7 7 0 1 1-6.2 3.75"></path>
+            <path d="M3.5 5.5v4h4"></path>
+          </svg>
+        </button>
+        <button class="smartbolig-ai__icon-button" type="button" title={t.close} aria-label={t.close} data-chat-close>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m6 6 12 12M18 6 6 18"></path>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <p class="smartbolig-ai__description" id="smartbolig-ai-description">{t.description}</p>
+
+    <div class="smartbolig-ai__conversation" data-chat-conversation>
+      <div
+        class="smartbolig-ai__messages"
+        role="log"
+        aria-live="polite"
+        aria-relevant="additions"
+        data-chat-messages
+      ></div>
+
+      <div class="smartbolig-ai__welcome" data-chat-welcome>
+        <div class="smartbolig-ai__welcome-icon" aria-hidden="true">
+          <svg viewBox="0 0 32 32">
+            <path d="M16 3.5 18.4 11l7.6 2.4-7.6 2.4L16 23.5l-2.4-7.7L6 13.4l7.6-2.4L16 3.5Z"></path>
+          </svg>
+        </div>
+        <p>{t.intro}</p>
+        <div class="smartbolig-ai__knowledge-row" aria-label={lang === 'en' ? 'Areas of expertise' : 'Fagområder'}>
+          <span>Home Assistant</span>
+          <span>ESPHome</span>
+          <span>Zigbee · Matter</span>
+          <span>Homelab</span>
+        </div>
+      </div>
+
+      <div class="smartbolig-ai__prompts" data-chat-prompts>
+        <p>{t.suggestions}</p>
+        <button type="button" data-chat-prompt data-prompt={t.prompt1}>
+          <span aria-hidden="true">⌁</span>{t.prompt1}
+        </button>
+        <button type="button" data-chat-prompt data-prompt={t.prompt2}>
+          <span aria-hidden="true">⌁</span>{t.prompt2}
+        </button>
+        <button type="button" data-chat-prompt data-prompt={t.prompt3}>
+          <span aria-hidden="true">⌁</span>{t.prompt3}
+        </button>
+        <button type="button" data-chat-prompt data-prompt={t.prompt4}>
+          <span aria-hidden="true">⌁</span>{t.prompt4}
+        </button>
+      </div>
+    </div>
+
+    <div class="smartbolig-ai__composer">
+      <form data-chat-form>
+        <label class="sr-only" for="smartbolig-ai-input">{t.placeholder}</label>
+        <textarea
+          id="smartbolig-ai-input"
+          rows="1"
+          maxlength="2000"
+          enterkeyhint="send"
+          placeholder={t.placeholder}
+          data-chat-input
+        ></textarea>
+        <button class="smartbolig-ai__send" type="submit" aria-label={t.send} data-chat-send>
+          <span>{t.send}</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="m5 12 14-7-4.5 14-3-5.5L5 12Z"></path>
+            <path d="m11.5 13.5 3-3"></path>
+          </svg>
+        </button>
+      </form>
+      <div class="smartbolig-ai__composer-meta">
+        <p>{t.privacy}</p>
+        <span role="status" aria-live="polite" data-chat-status>{t.ready}</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  const MAX_HISTORY_MESSAGES = 10;
+  const MAX_MESSAGE_CHARS = 2000;
+  const REQUEST_TIMEOUT_MS = 30_000;
+
+  function setupAssistant(root) {
+    if (!(root instanceof HTMLElement) || root.dataset.chatReady === "true") return;
+    root.dataset.chatReady = "true";
+
+    const panel = root.querySelector("[data-chat-panel]");
+    const launcher = root.querySelector("[data-chat-launcher]");
+    const closeButton = root.querySelector("[data-chat-close]");
+    const resetButton = root.querySelector("[data-chat-reset]");
+    const form = root.querySelector("[data-chat-form]");
+    const input = root.querySelector("[data-chat-input]");
+    const sendButton = root.querySelector("[data-chat-send]");
+    const messagesElement = root.querySelector("[data-chat-messages]");
+    const welcome = root.querySelector("[data-chat-welcome]");
+    const prompts = root.querySelector("[data-chat-prompts]");
+    const status = root.querySelector("[data-chat-status]");
+    const promptButtons = root.querySelectorAll("[data-chat-prompt]");
+
+    if (
+      !(panel instanceof HTMLElement) ||
+      !(launcher instanceof HTMLButtonElement) ||
+      !(closeButton instanceof HTMLButtonElement) ||
+      !(resetButton instanceof HTMLButtonElement) ||
+      !(form instanceof HTMLFormElement) ||
+      !(input instanceof HTMLTextAreaElement) ||
+      !(sendButton instanceof HTMLButtonElement) ||
+      !(messagesElement instanceof HTMLElement) ||
+      !(welcome instanceof HTMLElement) ||
+      !(prompts instanceof HTMLElement) ||
+      !(status instanceof HTMLElement)
+    ) {
+      return;
+    }
+
+    const locale = root.dataset.locale === "en" ? "en" : "da";
+    const storageKey = `smartbolig-ai:v1:${locale}`;
+    let history = loadHistory();
+    let isSending = false;
+    let abortController = null;
+    let lastFailed = false;
+    let requestSequence = 0;
+
+    function setStatus(message) {
+      status.textContent = message;
+    }
+
+    function normalizeStoredMessage(message) {
+      if (!message || typeof message !== "object") return null;
+      if (message.role !== "user" && message.role !== "assistant") return null;
+      if (typeof message.content !== "string") return null;
+      const content = message.content.trim().slice(0, MAX_MESSAGE_CHARS);
+      if (!content) return null;
+
+      const normalized = { role: message.role, content };
+      if (message.role === "assistant") {
+        normalized.sourceMode = message.sourceMode === "mixed" ? "mixed" : "general";
+        if (Array.isArray(message.sources)) {
+          normalized.sources = message.sources.slice(0, 5).filter((source) => {
+            if (!source || typeof source.title !== "string" || typeof source.url !== "string") return false;
+            try {
+              const sourceUrl = new URL(source.url);
+              return sourceUrl.protocol === "https:" && sourceUrl.hostname === "smartbolig.net";
+            } catch {
+              return false;
+            }
+          });
+        }
+      }
+      return normalized;
+    }
+
+    function loadHistory() {
+      try {
+        const parsed = JSON.parse(sessionStorage.getItem(storageKey) || "[]");
+        if (!Array.isArray(parsed)) return [];
+
+        const safe = [];
+        for (const candidate of parsed.slice(-MAX_HISTORY_MESSAGES)) {
+          const message = normalizeStoredMessage(candidate);
+          if (!message) continue;
+          if (safe.length === 0 && message.role !== "user") continue;
+          if (safe.at(-1)?.role === message.role) continue;
+          safe.push(message);
+        }
+        return safe;
+      } catch {
+        return [];
+      }
+    }
+
+    function saveHistory() {
+      try {
+        sessionStorage.setItem(storageKey, JSON.stringify(history.slice(-MAX_HISTORY_MESSAGES)));
+      } catch {
+        // Storage may be unavailable in hardened/private browser contexts.
+      }
+    }
+
+    function createSafeSourceLink(source) {
+      if (!source || typeof source.title !== "string" || typeof source.url !== "string") return null;
+      let sourceUrl;
+      try {
+        sourceUrl = new URL(source.url);
+      } catch {
+        return null;
+      }
+      if (sourceUrl.protocol !== "https:") return null;
+      if (sourceUrl.hostname !== "smartbolig.net") return null;
+
+      const sourceLink = document.createElement("a");
+      sourceLink.className = "smartbolig-ai__source";
+      sourceLink.href = sourceUrl.toString();
+      sourceLink.target = "_blank";
+      sourceLink.rel = "noopener noreferrer";
+      sourceLink.textContent = source.title.slice(0, 100);
+      return sourceLink;
+    }
+
+    function createCopyButton(content) {
+      const button = document.createElement("button");
+      button.className = "smartbolig-ai__message-action";
+      button.type = "button";
+      button.textContent = root.dataset.labelCopy || "Copy";
+      button.addEventListener("click", async () => {
+        try {
+          await navigator.clipboard.writeText(content);
+          button.textContent = root.dataset.labelCopied || "Copied";
+          setTimeout(() => {
+            button.textContent = root.dataset.labelCopy || "Copy";
+          }, 1600);
+        } catch {
+          setStatus(root.dataset.errorGeneric || "Could not copy.");
+        }
+      });
+      return button;
+    }
+
+    function renderMessage(message) {
+      const article = document.createElement("article");
+      article.className = `smartbolig-ai__message smartbolig-ai__message--${message.role}`;
+
+      const meta = document.createElement("div");
+      meta.className = "smartbolig-ai__message-meta";
+      const author = document.createElement("span");
+      author.textContent =
+        message.role === "assistant" ? root.dataset.labelAssistant || "SmartBolig AI" : root.dataset.labelYou || "You";
+      meta.append(author);
+
+      if (message.role === "assistant") {
+        const sourceMode = document.createElement("span");
+        sourceMode.className = "smartbolig-ai__source-mode";
+        sourceMode.dataset.sourceMode = message.sourceMode === "mixed" ? "mixed" : "general";
+        sourceMode.textContent =
+          message.sourceMode === "mixed"
+            ? root.dataset.labelMixed || "SmartBolig sources + broad AI knowledge"
+            : root.dataset.labelGeneral || "General AI knowledge";
+        meta.append(sourceMode);
+      }
+
+      const bubble = document.createElement("div");
+      bubble.className = "smartbolig-ai__bubble";
+      const body = document.createElement("p");
+      body.append(document.createTextNode(message.content));
+      bubble.append(body);
+
+      if (message.role === "assistant") {
+        const validSources = Array.isArray(message.sources)
+          ? message.sources.map(createSafeSourceLink).filter(Boolean)
+          : [];
+        if (validSources.length > 0) {
+          const sourceBlock = document.createElement("div");
+          sourceBlock.className = "smartbolig-ai__sources";
+          const sourceLabel = document.createElement("span");
+          sourceLabel.textContent = root.dataset.labelSources || "SmartBolig sources";
+          sourceBlock.append(sourceLabel, ...validSources);
+          bubble.append(sourceBlock);
+        }
+
+        const actions = document.createElement("div");
+        actions.className = "smartbolig-ai__message-actions";
+        actions.append(createCopyButton(message.content));
+        bubble.append(actions);
+      }
+
+      article.append(meta, bubble);
+      return article;
+    }
+
+    function renderLoading() {
+      const article = document.createElement("article");
+      article.className = "smartbolig-ai__message smartbolig-ai__message--assistant smartbolig-ai__message--loading";
+      article.setAttribute("aria-label", locale === "en" ? "SmartBolig AI is thinking" : "SmartBolig AI tænker");
+
+      const meta = document.createElement("div");
+      meta.className = "smartbolig-ai__message-meta";
+      meta.textContent = root.dataset.labelAssistant || "SmartBolig AI";
+
+      const bubble = document.createElement("div");
+      bubble.className = "smartbolig-ai__bubble";
+      const dots = document.createElement("span");
+      dots.className = "smartbolig-ai__typing";
+      dots.append(document.createElement("i"), document.createElement("i"), document.createElement("i"));
+      bubble.append(dots);
+      article.append(meta, bubble);
+      messagesElement.append(article);
+    }
+
+    function renderError(message) {
+      const error = document.createElement("div");
+      error.className = "smartbolig-ai__error";
+      error.setAttribute("role", "alert");
+      const text = document.createElement("p");
+      text.textContent = message;
+      const retry = document.createElement("button");
+      retry.type = "button";
+      retry.textContent = root.dataset.labelRetry || "Try again";
+      retry.addEventListener("click", () => {
+        if (history.at(-1)?.role === "user") sendQuestion(history.at(-1).content, true);
+      });
+      error.append(text, retry);
+      messagesElement.append(error);
+    }
+
+    function renderHistory() {
+      messagesElement.replaceChildren();
+      for (const message of history) {
+        messagesElement.append(renderMessage(message));
+      }
+      const hasMessages = history.length > 0;
+      welcome.hidden = hasMessages;
+      prompts.hidden = hasMessages;
+      messagesElement.hidden = !hasMessages;
+      requestAnimationFrame(() => {
+        const conversation = root.querySelector("[data-chat-conversation]");
+        if (conversation instanceof HTMLElement) conversation.scrollTop = conversation.scrollHeight;
+      });
+    }
+
+    function setBusy(value) {
+      isSending = value;
+      panel.setAttribute("aria-busy", value ? "true" : "false");
+      input.disabled = value;
+      sendButton.disabled = value;
+      sendButton.querySelector("span").textContent = value
+        ? locale === "en"
+          ? "Thinking"
+          : "Tænker"
+        : locale === "en"
+          ? "Send"
+          : "Send";
+    }
+
+    function openAssistant() {
+      panel.hidden = false;
+      launcher.setAttribute("aria-expanded", "true");
+      root.classList.add("is-open");
+      requestAnimationFrame(() => input.focus());
+    }
+
+    function closeAssistant() {
+      panel.hidden = true;
+      launcher.setAttribute("aria-expanded", "false");
+      root.classList.remove("is-open");
+      launcher.focus();
+    }
+
+    function resetConversation() {
+      requestSequence += 1;
+      const controllerToAbort = abortController;
+      abortController = null;
+      controllerToAbort?.abort();
+      history = [];
+      lastFailed = false;
+      saveHistory();
+      setBusy(false);
+      renderHistory();
+      setStatus(root.dataset.labelReset || "Conversation cleared.");
+      input.value = "";
+      input.focus();
+    }
+
+    function messageForFailure(code, statusCode, wasAborted) {
+      if (wasAborted) return root.dataset.errorTimeout || "The response timed out.";
+      if (statusCode === 429 || code === "rate_limited") {
+        return root.dataset.errorRate || "Rate limited.";
+      }
+      if (statusCode === 503 || code === "service_unavailable") {
+        return root.dataset.errorService || "Service unavailable.";
+      }
+      return root.dataset.errorGeneric || "The assistant could not answer.";
+    }
+
+    async function sendQuestion(content, reuseExistingUser = false) {
+      const question = typeof content === "string" ? content.trim().slice(0, MAX_MESSAGE_CHARS) : "";
+      if (!question || isSending) return;
+      const requestId = ++requestSequence;
+
+      if (!reuseExistingUser) {
+        if (history.at(-1)?.role === "user") history.pop();
+        while (history.length >= MAX_HISTORY_MESSAGES) history.splice(0, 2);
+        history.push({ role: "user", content: question });
+      }
+      lastFailed = false;
+      saveHistory();
+      renderHistory();
+      messagesElement.hidden = false;
+      renderLoading();
+      setBusy(true);
+      setStatus(locale === "en" ? "Working on your answer …" : "Arbejder på dit svar …");
+      input.value = "";
+
+      abortController?.abort();
+      const requestController = new AbortController();
+      abortController = requestController;
+      const timeout = setTimeout(() => requestController.abort(), REQUEST_TIMEOUT_MS);
+      let response;
+
+      try {
+        response = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({
+            locale,
+            messages: history.map(({ role, content: messageContent }) => ({ role, content: messageContent })),
+          }),
+          signal: requestController.signal,
+        });
+        const result = await response.json().catch(() => ({}));
+        if (requestId !== requestSequence) return;
+        if (!response.ok || typeof result.answer !== "string" || !result.answer.trim()) {
+          const requestError = new Error("AssistantRequestFailed");
+          requestError.code = result.code;
+          requestError.statusCode = response.status;
+          throw requestError;
+        }
+
+        const sources = Array.isArray(result.sources) ? result.sources.slice(0, 5) : [];
+        history.push({
+          role: "assistant",
+          content: result.answer.trim().slice(0, 12_000),
+          sourceMode: result.sourceMode === "mixed" ? "mixed" : "general",
+          sources,
+        });
+        history = history.slice(-MAX_HISTORY_MESSAGES);
+        saveHistory();
+        renderHistory();
+        setStatus(root.dataset.labelReady || "Ready.");
+      } catch (error) {
+        if (requestId !== requestSequence) return;
+        lastFailed = true;
+        renderHistory();
+        const failureMessage = messageForFailure(
+          error?.code,
+          error?.statusCode,
+          error?.name === "AbortError" || requestController.signal.aborted,
+        );
+        renderError(failureMessage);
+        setStatus(failureMessage);
+      } finally {
+        clearTimeout(timeout);
+        if (abortController === requestController) {
+          abortController = null;
+          setBusy(false);
+          if (!lastFailed) input.focus();
+        }
+      }
+    }
+
+    launcher.addEventListener("click", () => {
+      if (panel.hidden) openAssistant();
+      else closeAssistant();
+    });
+    closeButton.addEventListener("click", closeAssistant);
+    resetButton.addEventListener("click", resetConversation);
+
+    for (const button of promptButtons) {
+      button.addEventListener("click", () => {
+        if (!(button instanceof HTMLButtonElement)) return;
+        input.value = button.dataset.prompt || "";
+        input.focus();
+        input.dispatchEvent(new Event("input"));
+      });
+    }
+
+    form.addEventListener("submit", (event) => {
+      event.preventDefault();
+      sendQuestion(input.value);
+    });
+    input.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        form.requestSubmit();
+      }
+    });
+    input.addEventListener("input", () => {
+      input.style.height = "auto";
+      input.style.height = `${Math.min(input.scrollHeight, 128)}px`;
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !panel.hidden) closeAssistant();
+    });
+
+    renderHistory();
+  }
+
+  function initSmartboligAssistants() {
+    document.querySelectorAll("[data-smartbolig-ai]").forEach(setupAssistant);
+  }
+
+  initSmartboligAssistants();
+  document.addEventListener("astro:page-load", initSmartboligAssistants);
+</script>
+
+<style is:global>
+  .smartbolig-ai {
+    --ai-accent: #ff7a18;
+    --ai-accent-strong: #ff4f0a;
+    --ai-cyan: #31d7ff;
+    --ai-teal: #27e2b2;
+    --ai-panel: rgba(8, 13, 24, 0.94);
+    --ai-panel-soft: rgba(20, 29, 45, 0.88);
+    --ai-line: rgba(255, 255, 255, 0.11);
+    --ai-text: #f7f9fc;
+    --ai-muted: #9daabd;
+    --ai-user: rgba(255, 122, 24, 0.17);
+    position: fixed;
+    z-index: 10000;
+    right: max(1.25rem, env(safe-area-inset-right));
+    bottom: max(1.25rem, env(safe-area-inset-bottom));
+    color: var(--ai-text);
+    font-family: var(--sl-font, ui-sans-serif, system-ui, sans-serif);
+  }
+
+  .smartbolig-ai *,
+  .smartbolig-ai *::before,
+  .smartbolig-ai *::after {
+    box-sizing: border-box;
+  }
+
+  .smartbolig-ai button,
+  .smartbolig-ai textarea {
+    font: inherit;
+  }
+
+  .smartbolig-ai__launcher {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.72rem;
+    min-height: 64px;
+    padding: 0.48rem 1rem 0.48rem 0.48rem;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 999px;
+    color: #fff;
+    background:
+      linear-gradient(120deg, rgba(255, 122, 24, 0.2), rgba(49, 215, 255, 0.08)),
+      rgba(8, 13, 24, 0.94);
+    box-shadow:
+      0 24px 70px rgba(0, 0, 0, 0.36),
+      0 0 0 1px rgba(49, 215, 255, 0.04) inset;
+    backdrop-filter: blur(22px) saturate(135%);
+    -webkit-backdrop-filter: blur(22px) saturate(135%);
+    cursor: pointer;
+    transition:
+      transform 180ms ease,
+      border-color 180ms ease,
+      box-shadow 180ms ease,
+      opacity 180ms ease;
+  }
+
+  .smartbolig-ai__launcher:hover {
+    transform: translateY(-3px);
+    border-color: rgba(49, 215, 255, 0.38);
+    box-shadow:
+      0 28px 80px rgba(0, 0, 0, 0.44),
+      0 0 28px rgba(49, 215, 255, 0.12);
+  }
+
+  .smartbolig-ai__launcher:focus-visible,
+  .smartbolig-ai button:focus-visible,
+  .smartbolig-ai textarea:focus-visible,
+  .smartbolig-ai a:focus-visible {
+    outline: 3px solid var(--ai-cyan);
+    outline-offset: 3px;
+  }
+
+  .smartbolig-ai__orb,
+  .smartbolig-ai__mark {
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.56), transparent 25%),
+      linear-gradient(145deg, var(--ai-accent), var(--ai-accent-strong) 54%, #ffb238);
+    box-shadow:
+      0 10px 28px rgba(255, 91, 10, 0.34),
+      0 0 0 1px rgba(255, 255, 255, 0.24) inset;
+  }
+
+  .smartbolig-ai__orb {
+    width: 48px;
+    height: 48px;
+    animation: smartbolig-ai-breathe 3.8s ease-in-out 2;
+  }
+
+  .smartbolig-ai__orb svg,
+  .smartbolig-ai__mark svg {
+    width: 55%;
+    fill: #fff;
+    filter: drop-shadow(0 2px 5px rgba(102, 31, 0, 0.36));
+  }
+
+  .smartbolig-ai__launcher-copy {
+    display: grid;
+    gap: 0.18rem;
+    text-align: left;
+  }
+
+  .smartbolig-ai__launcher-title {
+    font-size: 0.88rem;
+    font-weight: 760;
+    letter-spacing: -0.01em;
+  }
+
+  .smartbolig-ai__launcher-status {
+    display: flex;
+    align-items: center;
+    gap: 0.36rem;
+    color: #aab7c8;
+    font-size: 0.68rem;
+    line-height: 1;
+  }
+
+  .smartbolig-ai__status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ai-teal);
+    box-shadow: 0 0 12px rgba(39, 226, 178, 0.8);
+  }
+
+  .smartbolig-ai__panel {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 0.85rem);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(180px, 1fr) auto;
+    width: min(420px, calc(100vw - 2rem));
+    height: min(700px, calc(100dvh - 7rem));
+    min-height: 530px;
+    overflow: hidden;
+    border: 1px solid var(--ai-line);
+    border-radius: 26px;
+    background:
+      radial-gradient(circle at 12% 0%, rgba(255, 122, 24, 0.17), transparent 34%),
+      radial-gradient(circle at 92% 8%, rgba(49, 215, 255, 0.13), transparent 32%),
+      var(--ai-panel);
+    box-shadow:
+      0 34px 100px rgba(0, 0, 0, 0.52),
+      0 0 0 1px rgba(255, 255, 255, 0.035) inset;
+    backdrop-filter: blur(28px) saturate(140%);
+    -webkit-backdrop-filter: blur(28px) saturate(140%);
+    transform-origin: bottom right;
+    animation: smartbolig-ai-open 180ms ease-out;
+  }
+
+  .smartbolig-ai__panel > * {
+    min-width: 0;
+  }
+
+  .smartbolig-ai__panel[hidden] {
+    display: none;
+  }
+
+  .smartbolig-ai__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1rem 0.72rem 1.05rem;
+  }
+
+  .smartbolig-ai__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.72rem;
+    min-width: 0;
+  }
+
+  .smartbolig-ai__mark {
+    width: 42px;
+    height: 42px;
+  }
+
+  .smartbolig-ai__eyebrow,
+  .smartbolig-ai__brand h2,
+  .smartbolig-ai__description,
+  .smartbolig-ai__welcome p,
+  .smartbolig-ai__prompts p,
+  .smartbolig-ai__composer-meta p,
+  .smartbolig-ai__message p {
+    margin: 0;
+  }
+
+  .smartbolig-ai__eyebrow {
+    overflow: hidden;
+    color: var(--ai-muted);
+    font-size: 0.61rem;
+    font-weight: 720;
+    letter-spacing: 0.11em;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .smartbolig-ai__brand h2 {
+    margin-top: 0.18rem;
+    color: var(--ai-text);
+    font-size: 1.08rem;
+    font-weight: 790;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+
+  .smartbolig-ai__header-actions {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .smartbolig-ai__icon-button {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: var(--ai-muted);
+    background: rgba(255, 255, 255, 0.045);
+    cursor: pointer;
+    transition:
+      color 160ms ease,
+      border-color 160ms ease,
+      background 160ms ease;
+  }
+
+  .smartbolig-ai__icon-button:hover {
+    color: var(--ai-text);
+    border-color: rgba(49, 215, 255, 0.28);
+    background: rgba(49, 215, 255, 0.08);
+  }
+
+  .smartbolig-ai__icon-button svg {
+    width: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+  }
+
+  .smartbolig-ai__description {
+    padding: 0 1.1rem 0.85rem;
+    border-bottom: 1px solid var(--ai-line);
+    color: var(--ai-muted);
+    font-size: 0.76rem;
+    line-height: 1.45;
+  }
+
+  .smartbolig-ai__conversation {
+    min-height: 0;
+    overflow: auto;
+    padding: 1.05rem;
+    scrollbar-color: rgba(157, 170, 189, 0.35) transparent;
+    scrollbar-width: thin;
+  }
+
+  .smartbolig-ai__welcome {
+    display: grid;
+    justify-items: center;
+    padding: 0.6rem 0.25rem 0.8rem;
+    text-align: center;
+  }
+
+  .smartbolig-ai__welcome[hidden],
+  .smartbolig-ai__prompts[hidden],
+  .smartbolig-ai__messages[hidden] {
+    display: none;
+  }
+
+  .smartbolig-ai__welcome-icon {
+    display: grid;
+    place-items: center;
+    width: 58px;
+    height: 58px;
+    margin-bottom: 0.75rem;
+    border: 1px solid rgba(49, 215, 255, 0.16);
+    border-radius: 20px;
+    background:
+      linear-gradient(145deg, rgba(255, 122, 24, 0.17), rgba(49, 215, 255, 0.08)),
+      rgba(255, 255, 255, 0.035);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.2);
+  }
+
+  .smartbolig-ai__welcome-icon svg {
+    width: 30px;
+    fill: url("#smartbolig-ai-gradient");
+    color: var(--ai-accent);
+  }
+
+  .smartbolig-ai__welcome-icon path {
+    fill: var(--ai-accent);
+  }
+
+  .smartbolig-ai__welcome p {
+    max-width: 34ch;
+    color: #c9d2de;
+    font-size: 0.83rem;
+    line-height: 1.55;
+  }
+
+  .smartbolig-ai__knowledge-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.35rem;
+    margin-top: 0.8rem;
+  }
+
+  .smartbolig-ai__knowledge-row span {
+    padding: 0.28rem 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    color: var(--ai-muted);
+    background: rgba(255, 255, 255, 0.035);
+    font-size: 0.62rem;
+  }
+
+  .smartbolig-ai__prompts {
+    display: grid;
+    gap: 0.45rem;
+  }
+
+  .smartbolig-ai__prompts > p {
+    margin: 0.15rem 0 0.1rem;
+    color: var(--ai-muted);
+    font-size: 0.67rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .smartbolig-ai__prompts button {
+    display: flex;
+    align-items: center;
+    gap: 0.58rem;
+    width: 100%;
+    padding: 0.68rem 0.76rem;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 14px;
+    color: #dce3ec;
+    background: linear-gradient(110deg, rgba(255, 255, 255, 0.045), rgba(49, 215, 255, 0.025));
+    cursor: pointer;
+    font-size: 0.76rem;
+    line-height: 1.3;
+    text-align: left;
+    transition:
+      transform 150ms ease,
+      color 150ms ease,
+      border-color 150ms ease,
+      background 150ms ease;
+  }
+
+  .smartbolig-ai__prompts button:hover {
+    transform: translateX(3px);
+    color: #fff;
+    border-color: rgba(49, 215, 255, 0.28);
+    background: linear-gradient(110deg, rgba(255, 122, 24, 0.1), rgba(49, 215, 255, 0.08));
+  }
+
+  .smartbolig-ai__prompts button span {
+    color: var(--ai-cyan);
+    font-size: 1rem;
+  }
+
+  .smartbolig-ai__messages {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .smartbolig-ai__message {
+    display: grid;
+    gap: 0.32rem;
+  }
+
+  .smartbolig-ai__message--user {
+    justify-items: end;
+  }
+
+  .smartbolig-ai__message-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.38rem;
+    padding: 0 0.25rem;
+    color: var(--ai-muted);
+    font-size: 0.61rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .smartbolig-ai__message--user .smartbolig-ai__message-meta {
+    justify-content: flex-end;
+  }
+
+  .smartbolig-ai__source-mode {
+    padding: 0.16rem 0.4rem;
+    border: 1px solid rgba(49, 215, 255, 0.16);
+    border-radius: 999px;
+    color: #8fe8ff;
+    background: rgba(49, 215, 255, 0.06);
+    font-size: 0.52rem;
+    font-weight: 690;
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+
+  .smartbolig-ai__source-mode[data-source-mode="general"] {
+    border-color: rgba(255, 255, 255, 0.09);
+    color: var(--ai-muted);
+    background: rgba(255, 255, 255, 0.035);
+  }
+
+  .smartbolig-ai__bubble {
+    max-width: 92%;
+    padding: 0.78rem 0.86rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px 18px 18px 18px;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+  }
+
+  .smartbolig-ai__message--user .smartbolig-ai__bubble {
+    border-color: rgba(255, 122, 24, 0.2);
+    border-radius: 18px 8px 18px 18px;
+    background: var(--ai-user);
+  }
+
+  .smartbolig-ai__bubble p {
+    color: #e9edf3;
+    font-size: 0.79rem;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+
+  .smartbolig-ai__sources {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.7rem;
+    padding-top: 0.62rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .smartbolig-ai__sources > span {
+    width: 100%;
+    color: var(--ai-muted);
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .smartbolig-ai__source {
+    display: inline-flex;
+    max-width: 100%;
+    padding: 0.28rem 0.48rem;
+    overflow: hidden;
+    border: 1px solid rgba(49, 215, 255, 0.18);
+    border-radius: 999px;
+    color: #9feaff;
+    background: rgba(49, 215, 255, 0.06);
+    font-size: 0.6rem;
+    line-height: 1.2;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .smartbolig-ai__source:hover {
+    border-color: rgba(49, 215, 255, 0.42);
+    color: #d7f8ff;
+  }
+
+  .smartbolig-ai__message-actions {
+    display: flex;
+    margin-top: 0.45rem;
+  }
+
+  .smartbolig-ai__message-action {
+    padding: 0.2rem 0.38rem;
+    border: 0;
+    border-radius: 7px;
+    color: var(--ai-muted);
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.58rem;
+  }
+
+  .smartbolig-ai__message-action:hover {
+    color: var(--ai-text);
+    background: rgba(255, 255, 255, 0.06);
+  }
+
+  .smartbolig-ai__typing {
+    display: inline-flex;
+    gap: 0.28rem;
+    padding: 0.2rem 0.1rem;
+  }
+
+  .smartbolig-ai__typing i {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--ai-cyan);
+    animation: smartbolig-ai-typing 1s ease-in-out infinite;
+  }
+
+  .smartbolig-ai__typing i:nth-child(2) {
+    animation-delay: 130ms;
+  }
+
+  .smartbolig-ai__typing i:nth-child(3) {
+    animation-delay: 260ms;
+  }
+
+  .smartbolig-ai__error {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.7rem;
+    padding: 0.72rem;
+    border: 1px solid rgba(255, 122, 24, 0.26);
+    border-radius: 14px;
+    color: #ffd9c2;
+    background: rgba(255, 84, 18, 0.09);
+    font-size: 0.72rem;
+    line-height: 1.4;
+  }
+
+  .smartbolig-ai__error p {
+    margin: 0;
+  }
+
+  .smartbolig-ai__error button {
+    flex: 0 0 auto;
+    padding: 0.36rem 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 8px;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    font-size: 0.64rem;
+  }
+
+  .smartbolig-ai__composer {
+    padding: 0.78rem 0.9rem 0.72rem;
+    border-top: 1px solid var(--ai-line);
+    background: rgba(5, 9, 18, 0.72);
+  }
+
+  .smartbolig-ai__composer form {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.55rem;
+    padding: 0.42rem 0.42rem 0.42rem 0.78rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 17px;
+    background: rgba(255, 255, 255, 0.055);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16) inset;
+    transition:
+      border-color 160ms ease,
+      box-shadow 160ms ease;
+  }
+
+  .smartbolig-ai__composer form:focus-within {
+    border-color: rgba(49, 215, 255, 0.38);
+    box-shadow:
+      0 0 0 3px rgba(49, 215, 255, 0.07),
+      0 12px 30px rgba(0, 0, 0, 0.16) inset;
+  }
+
+  .smartbolig-ai__composer textarea {
+    width: 100%;
+    max-height: 128px;
+    min-height: 42px;
+    padding: 0.62rem 0;
+    resize: none;
+    overflow-y: auto;
+    border: 0;
+    outline: 0;
+    color: var(--ai-text);
+    background: transparent;
+    font-size: 0.77rem;
+    line-height: 1.4;
+  }
+
+  .smartbolig-ai__composer textarea::placeholder {
+    color: #7f8da2;
+  }
+
+  .smartbolig-ai__composer textarea:focus-visible {
+    outline: 0;
+  }
+
+  .smartbolig-ai__send {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 42px;
+    padding: 0 0.72rem;
+    border: 0;
+    border-radius: 13px;
+    color: #fff;
+    background: linear-gradient(135deg, var(--ai-accent), var(--ai-accent-strong));
+    box-shadow:
+      0 10px 24px rgba(255, 79, 10, 0.24),
+      0 1px 0 rgba(255, 255, 255, 0.24) inset;
+    cursor: pointer;
+    font-size: 0.69rem;
+    font-weight: 750;
+  }
+
+  .smartbolig-ai__send:disabled {
+    cursor: wait;
+    filter: saturate(0.6);
+    opacity: 0.65;
+  }
+
+  .smartbolig-ai__send svg {
+    width: 15px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+  }
+
+  .smartbolig-ai__composer-meta {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.42rem 0.15rem 0;
+    color: #76859a;
+    font-size: 0.54rem;
+    line-height: 1.3;
+  }
+
+  .smartbolig-ai__composer-meta p {
+    max-width: 56%;
+  }
+
+  .smartbolig-ai__composer-meta [role="status"] {
+    overflow: hidden;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+    margin: -1px;
+    white-space: nowrap;
+  }
+
+  [data-theme='light'] .smartbolig-ai {
+    --ai-panel: rgba(249, 251, 255, 0.94);
+    --ai-panel-soft: rgba(238, 244, 250, 0.9);
+    --ai-line: rgba(15, 32, 52, 0.12);
+    --ai-text: #132235;
+    --ai-muted: #5f6f82;
+    --ai-user: rgba(255, 112, 20, 0.12);
+  }
+
+  [data-theme='light'] .smartbolig-ai__launcher {
+    color: #172437;
+    border-color: rgba(15, 32, 52, 0.15);
+    background:
+      linear-gradient(120deg, rgba(255, 122, 24, 0.13), rgba(49, 215, 255, 0.07)),
+      rgba(250, 252, 255, 0.95);
+    box-shadow: 0 22px 60px rgba(31, 52, 77, 0.19);
+  }
+
+  [data-theme='light'] .smartbolig-ai__launcher-status,
+  [data-theme='light'] .smartbolig-ai__welcome p,
+  [data-theme='light'] .smartbolig-ai__bubble p {
+    color: #405268;
+  }
+
+  [data-theme='light'] .smartbolig-ai__composer {
+    background: rgba(244, 248, 252, 0.78);
+  }
+
+  [data-theme='light'] .smartbolig-ai__composer form,
+  [data-theme='light'] .smartbolig-ai__bubble,
+  [data-theme='light'] .smartbolig-ai__prompts button {
+    background: rgba(24, 49, 76, 0.045);
+  }
+
+  [data-theme='light'] .smartbolig-ai__prompts button {
+    color: #2d4057;
+  }
+
+  @media (max-width: 640px) {
+    .smartbolig-ai {
+      inset-inline: 0;
+      right: auto;
+      bottom: 0;
+      pointer-events: none;
+    }
+
+    .smartbolig-ai__launcher {
+      position: fixed;
+      right: max(0.85rem, env(safe-area-inset-right));
+      bottom: max(0.85rem, env(safe-area-inset-bottom));
+      min-height: 58px;
+      padding-right: 0.8rem;
+      pointer-events: auto;
+    }
+
+    .smartbolig-ai__orb {
+      width: 44px;
+      height: 44px;
+    }
+
+    .smartbolig-ai__launcher-status {
+      display: none;
+    }
+
+    .smartbolig-ai.is-open .smartbolig-ai__launcher {
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(12px);
+    }
+
+    .smartbolig-ai__panel {
+      position: fixed;
+      inset-inline: 0;
+      right: auto;
+      bottom: 0;
+      width: auto;
+      height: min(88dvh, 760px);
+      min-height: min(560px, 88dvh);
+      border-right: 0;
+      border-bottom: 0;
+      border-left: 0;
+      border-radius: 26px 26px 0 0;
+      padding-bottom: env(safe-area-inset-bottom);
+      pointer-events: auto;
+      transform-origin: bottom center;
+    }
+
+    .smartbolig-ai__header {
+      padding-top: 0.9rem;
+    }
+
+    .smartbolig-ai__panel::before {
+      position: absolute;
+      top: 0.42rem;
+      left: 50%;
+      width: 42px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(157, 170, 189, 0.32);
+      content: "";
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (max-width: 360px) {
+    .smartbolig-ai__launcher-copy {
+      display: none;
+    }
+
+    .smartbolig-ai__launcher {
+      min-width: 58px;
+      padding: 0.42rem;
+    }
+
+    .smartbolig-ai__description {
+      display: none;
+    }
+
+    .smartbolig-ai__panel {
+      grid-template-rows: auto minmax(180px, 1fr) auto;
+    }
+
+    .smartbolig-ai__source-mode {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .smartbolig-ai *,
+    .smartbolig-ai *::before,
+    .smartbolig-ai *::after {
+      scroll-behavior: auto !important;
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  @keyframes smartbolig-ai-breathe {
+    0%,
+    100% {
+      box-shadow:
+        0 10px 28px rgba(255, 91, 10, 0.34),
+        0 0 0 1px rgba(255, 255, 255, 0.24) inset;
+      transform: scale(1);
+    }
+    50% {
+      box-shadow:
+        0 12px 34px rgba(255, 91, 10, 0.46),
+        0 0 0 8px rgba(49, 215, 255, 0.04);
+      transform: scale(1.035);
+    }
+  }
+
+  @keyframes smartbolig-ai-open {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.975);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  @keyframes smartbolig-ai-typing {
+    0%,
+    80%,
+    100% {
+      opacity: 0.4;
+      transform: translateY(0);
+    }
+    40% {
+      opacity: 1;
+      transform: translateY(-3px);
+    }
+  }
+</style>

@@ -1,8 +1,30 @@
 {
+  "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "smartbolig-starlight",
   "pages_build_output_dir": "dist",
-  "compatibility_date": "2025-12-25",
+  "compatibility_date": "2026-04-16",
   "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+  "ai": {
+    "binding": "AI",
+    "remote": true
+  },
+  "ai_search": [
+    {
+      "binding": "SMARTBOLIG_SEARCH",
+      "instance_name": "smartbolig-ai-search",
+      "remote": true
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "CHAT_RATE_LIMITER",
+      "namespace_id": "2026073101",
+      "simple": {
+        "limit": 12,
+        "period": 60
+      }
+    }
+  ],
   "observability": {
     "enabled": true
   }

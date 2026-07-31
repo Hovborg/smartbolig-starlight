@@ -3,7 +3,7 @@ title: Privatlivspolitik for SmartBolig.net
 description: Privatlivspolitik for SmartBolig.net - hvordan vi indsamler, bruger og beskytter dine personoplysninger.
 ---
 
-**Senest opdateret:** Juli 2026
+**Senest opdateret:** 31. juli 2026
 
 Hos SmartBolig.net tager vi dit privatliv alvorligt. Denne privatlivspolitik forklarer, hvordan vi indsamler, bruger og beskytter dine personoplysninger.
 
@@ -30,6 +30,26 @@ E-mail: kontakt@smartbolig.net
 - Besøgte sider og tidspunkt
 - Henvisende website
 
+### 2.3 AI-assistenten
+
+Når du aktivt sender et spørgsmål til SmartBolig AI, behandler vi:
+
+- Dit spørgsmål og op til de seneste 10 beskeder i den aktuelle samtale
+- Dit valgte sprog (dansk eller engelsk)
+- Din IP-adresse via Cloudflares rate limiting for at begrænse misbrug og uventede AI-omkostninger
+
+Spørgsmålet behandles af **Cloudflare Workers AI**. Assistenten kan også søge i
+SmartBolig.net's offentlige indhold via **Cloudflare AI Search**, når en relevant
+guide kan gøre svaret bedre. AI Search er et supplerende kildeværktøj; generelle
+spørgsmål kan besvares uden denne søgning.
+
+SmartBolig.net opretter ikke en brugerkonto eller en serverbaseret
+samtalehistorik til chatten. Den seneste samtale gemmes kun i browserens
+`sessionStorage`, så den kan overleve en genindlæsning i samme fanesession. Du
+kan slette den med **Ny samtale**, og den ryddes normalt, når fanesessionen
+afsluttes. Skriv ikke adgangskoder, API-nøgler, tokens, private nøgler eller
+følsomme personoplysninger i chatten.
+
 ---
 
 ## 3. Hvorfor indsamler vi data?
@@ -39,8 +59,9 @@ Vi indsamler data for at:
 - Analysere trafik og brugeradfærd
 - Vise relevante annoncer
 - Besvare henvendelser
+- Levere og beskytte den AI-assistent, du aktivt vælger at bruge
 
-**Retsgrundlag:** Analytiske cookies og marketingcookies bruges kun med dit samtykke (databeskyttelsesforordningens artikel 6, stk. 1, litra a). Drift og sikkerhed af websitet samt besvarelse af henvendelser sker på grundlag af vores legitime interesse (artikel 6, stk. 1, litra f).
+**Retsgrundlag:** Analytiske cookies og marketingcookies bruges kun med dit samtykke (databeskyttelsesforordningens artikel 6, stk. 1, litra a). Drift og sikkerhed af websitet, besvarelse af henvendelser samt levering og misbrugsbeskyttelse af den brugeraktiverede AI-assistent sker på grundlag af vores legitime interesse (artikel 6, stk. 1, litra f).
 
 ---
 
@@ -61,9 +82,14 @@ Vi deler kun data med:
 - **Google Analytics** - Trafikanalyse
 - **Google AdSense** - Annoncering
 - **Ezoic** - Annoncering og optimering
-- **Cloudflare** - Sikkerhed og CDN
+- **Cloudflare** - Hosting, sikkerhed, CDN, Workers AI og AI Search
 
 Behandlingen hos disse leverandører er reguleret af databehandleraftaler, og overførsler til USA sker på grundlag af EU-US Data Privacy Framework eller EU's standardkontraktbestemmelser.
+
+Cloudflare oplyser i sin [Workers AI-dataanvendelse](https://developers.cloudflare.com/workers-ai/platform/data-usage/),
+at kundens input og output ikke bruges til at træne de tilgængelige AI-modeller
+eller forbedre Cloudflare- eller tredjepartstjenester uden udtrykkeligt samtykke.
+Cloudflares aktuelle vilkår og privatlivspolitik gælder for deres behandling.
 
 ---
 
@@ -93,6 +119,13 @@ Vi beskytter dine data med:
 ## 8. Opbevaring af data
 
 Vi opbevarer data, så længe det er nødvendigt for formålet, eller som lovgivningen kræver. Anonymiserede analysedata i Google Analytics opbevares i op til 14 måneder.
+
+SmartBolig.net skriver ikke chatspørgsmål eller AI-svar til sin egen database
+eller sine applikationslogs. Den lokale browserkopi følger fanesessionen som
+beskrevet i afsnit 2.3. Cloudflare behandler chatindhold og driftsmetadata efter
+deres aktuelle produktvilkår og politikker; browserens sletning af
+`sessionStorage` er derfor ikke en garanti for et bestemt sletningstidspunkt i
+Cloudflares systemer.
 
 ---
 

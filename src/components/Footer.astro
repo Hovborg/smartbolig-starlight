@@ -7,6 +7,7 @@ import EditLink from 'virtual:starlight/components/EditLink';
 import LastUpdated from 'virtual:starlight/components/LastUpdated';
 import Pagination from 'virtual:starlight/components/Pagination';
 import config from 'virtual:starlight/user-config';
+import SmartBoligAssistant from './SmartBoligAssistant.astro';
 
 const currentYear = new Date().getFullYear();
 const locale = Astro.currentLocale || 'da';
@@ -57,6 +58,8 @@ const basePath = locale === 'en' ? '/en' : '/da';
     </nav>
   </div>
 </footer>
+
+<SmartBoligAssistant locale={locale} />
 
 <style>
   @layer starlight.core {
