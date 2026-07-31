@@ -2,18 +2,14 @@
 
 ## Scope
 
-This record covers the SmartBolig AI assistant implementation and its
-Cloudflare Workers deployment preparation.
+This record covers the SmartBolig AI assistant implementation, Cloudflare
+Workers deployment and production verification.
 
 The assistant uses Workers AI model `@cf/google/gemma-4-26b-a4b-it` as the
 broad expert brain for Home Assistant, ESPHome, sensors, Zigbee, Matter, MQTT,
 homelabs, networking, Docker, Proxmox, backups, local AI and related topics. AI
 Search is supplemental first-party SmartBolig context, not the assistant's only
 knowledge source.
-
-Production deployment is outside this local verification record. No live claim
-is made until the exact deployed commit and the real production endpoint have
-passed the same checks.
 
 ## Deployment architecture correction
 
@@ -52,6 +48,40 @@ Cloudflare error `100324`. The two placeholder rules were moved to the end of
 test now enforces static-before-dynamic ordering and both documented rule
 limits. The corrected file was accepted by the local Workers runtime as 117
 valid redirect rules with no invalid-rule warning.
+
+## Initial live production verification
+
+PR #113 merged the redirect correction as
+`f54c871de53d9e276364b6b3da24b9c593e47d38`. GitHub Actions production run
+`30593334991` completed successfully in 1 minute 12 seconds. Cloudflare reported
+Worker version `2160bb46-c196-4ac9-b4c4-be0d73a5bbc5`, with active
+`smartbolig.net/*` and `www.smartbolig.net/*` routes.
+
+Direct production checks then proved:
+
+- `GET https://smartbolig.net/da/` returned HTTP 200, the expected security
+  headers and exactly one assistant widget.
+- Both dynamic `/en/ai/news/:slug` forms and a representative exact product
+  alias returned the expected HTTP 301 canonical redirects.
+- A same-origin `POST /api/chat` returned HTTP 200, request ID
+  `267d72e2-8be3-490f-9f29-49eaef3c5e48` and a complete 2,510-character Danish
+  ESPHome/Home Assistant troubleshooting answer. It reported
+  `sourceMode: "general"` with zero citations, directly proving that AI Search
+  is not the assistant's only knowledge source.
+- A real desktop-browser chat returned a complete Zigbee troubleshooting
+  answer with three SmartBolig sources. At 390×844, the open mobile panel
+  measured exactly 390 pixels against a 390-pixel viewport with no horizontal
+  overflow.
+
+That browser pass exposed two presentation/integration defects: model Markdown
+was shown as raw `###` and `**` syntax, and Cloudflare Web Analytics was blocked
+by the site's CSP. The follow-up renders a bounded Markdown subset with DOM
+elements and text nodes only, and explicitly permits Cloudflare's analytics
+script and beacon origins. A mocked production-shaped answer was then visually
+verified at 390×844 with headings, bold text, inline code and list items; no raw
+Markdown syntax remained. A separate injected `<img onerror>` and `<script>`
+probe stayed inert, created zero image/script nodes and left the browser XSS
+sentinel unset.
 
 ## Deterministic checks
 
@@ -139,6 +169,11 @@ Ephemeral screenshots from the verification run:
 4. Resetting while a request was running could race with an immediate new
    request. Per-request identity and controller ownership now prevent stale
    success, error and cleanup paths from changing the new conversation.
+5. Model Markdown appeared as literal syntax in live answers. A small safe
+   renderer now supports headings, lists, bold text and inline code without an
+   HTML sink.
+6. Cloudflare Web Analytics injection was blocked by CSP. The policy now
+   permits only Cloudflare's dedicated analytics script and beacon origins.
 
 ## Security and privacy review
 
@@ -204,7 +239,7 @@ visible answer.
 
 ## Final gate results
 
-- `npm run site:test`: 56/56 passed.
+- `npm run site:test`: 57/57 passed.
 - `npm run ai-news:test`: 49/49 passed.
 - `npm run ai-news:validate`: 61 bilingual daily issue pairs passed.
 - `python3 scripts/content-audit.py`: 0 syntax issues, 0 broken links,

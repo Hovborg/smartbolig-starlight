@@ -55,6 +55,18 @@ test("assistant uses same-origin bounded session-only chat without unsafe HTML s
   assert.doesNotMatch(source, /localStorage/);
 });
 
+test("assistant safely formats model Markdown without an HTML sink", async () => {
+  const source = await read("src/components/SmartBoligAssistant.astro");
+
+  assert.match(source, /function createSafeRichText\(content\)/);
+  assert.match(source, /function appendInlineFormatting\(element,\s*content\)/);
+  assert.match(source, /document\.createElement\(["']strong["']\)/);
+  assert.match(source, /document\.createElement\(["']code["']\)/);
+  assert.match(source, /document\.createElement\(["'](?:ul|ol)["']\)/);
+  assert.match(source, /bubble\.append\(createSafeRichText\(message\.content\)\)/);
+  assert.doesNotMatch(source, /\.innerHTML\s*=/);
+});
+
 test("assistant renders copy controls and revalidates canonical SmartBolig sources", async () => {
   const source = await read("src/components/SmartBoligAssistant.astro");
 
