@@ -23,10 +23,32 @@ Kortet indeholder:
 
 - `sensor.side_du_soegte` med tilstanden `unavailable` og badge `HTTP 404`
 - en 24-timers tilstandshistorik, hvor de sidste tre felter er nede
-- attributter i HA-stil: `state`, `requested_path`, `last_changed`, `integration`
+- attributter i HA-stil: `state`, `requested_path`, `device_class`, `restored`,
+  `last_changed`
+- en logbog med tidsstempler regnet ud fra sideindlæsning
 
 `requested_path` viser den faktiske sti der fejlede, og `last_changed` tæller op
 fra sideindlæsning, så kortet opfører sig som en levende entitet.
+
+## Humor
+
+Vittighederne er skrevet separat på dansk og engelsk, ikke oversat: de lander kun
+hvis hvert sprog får sin egen formulering.
+
+Den ligger i detaljer der er *rigtige* i Home Assistant, ikke i påklistrede
+jokes: `device_class: skuffelse` / `disappointment`, og `restored: true`, som er
+præcis hvad man ser på en entitet der ikke findes længere men huskes fra forrige
+kørsel. Logbogen slutter på `smartbolig.net: prøver igen om aldrig`.
+
+Knappen "Genstart Home Assistant" er selve pointen. Den sætter tilstanden til
+`restarting`, kører animationen, og lander så tilbage på `unavailable` med en ny
+logbogslinje. Tre klik eskalerer ("Genstart nr. 2. Stadig ingenting."), og
+derefter fjerner knappen sig selv. Den står i logbogen, ikke blandt de rigtige
+knapper, så den ikke konkurrerer med navigationen.
+
+Overskriften over de populære links siger `Sider der rent faktisk svarer` /
+`Pages that do respond`, hvilket både er sjovere og mere præcist end "populære
+guides".
 
 ## "Mente du?"
 
@@ -44,9 +66,12 @@ Kun kandidater med den besøgendes eget sprogpræfiks foreslås.
 
 ## Begrænsninger der styrer designet
 
-- **Én statisk fil.** Cloudflare Pages serverer `dist/404.html` for enhver ukendt
-  sti, så siden bygges kun én gang. Dansk er build-tidens sprog; en inline-script
-  skifter til engelsk for `/en/*`. Derfor kan Astro ikke sprogdetektere her.
+- **Én statisk fil.** Cloudflare serverer `dist/404.html` for enhver ukendt sti,
+  så siden bygges kun én gang. Dansk er build-tidens sprog, og et inline-script
+  skifter til engelsk ved runtime. Derfor kan Astro ikke sprogdetektere her.
+- **Sprogvalg.** `/en/`-præfiks giver engelsk, `/da/` giver dansk. Uden præfiks
+  (fx `/kaputt-side/`) afgør `navigator.languages` det, så en engelsktalende der
+  rammer en præfiksløs død URL ikke får dansk. Forslagene følger samme valg.
 - **Ingen dynamiske DOM-noder til stylede elementer.** Astro scoper `<style>` via
   en genereret klasse, som JS-skabte elementer ikke får. Forslagsrækker og
   historikfelter renderes derfor server-side og fyldes/afsløres af JS.
@@ -63,7 +88,13 @@ Kun kandidater med den besøgendes eget sprogpræfiks foreslås.
 
 `npm run build`, `npm run seo:validate`, `npm run ai-news:validate` samt en
 Playwright-kørsel mod `dist/` med en server der efterligner Cloudflares
-404-fallback. Dækker: HTTP 404-status, dansk og engelsk tekst, at forslagene
-rammer den rigtige guide og selv svarer 200, lyst tema, ingen forslag ved
+404-fallback. Dækker: HTTP 404-status, dansk og engelsk tekst, sprogvalg fra
+browseren på præfiksløse stier, at forslagene rammer den rigtige guide og selv
+svarer 200, genstart-gaggets tre trin og at knappen forsvinder bagefter, at
+tilstandsfarven falder tilbage til amber, lyst tema, ingen forslag ved
 nonsens-stier eller direkte `/404`, ingen vandret overflow ved 390 px, og at
 `<img src=x onerror=...>` i stien rendres som tekst.
+
+Bemærk ved fejlsøgning: Astro lægger de scopede styles i en separat
+`/_astro/404.*.css`. En testserver der svarer `text/html` på den fil får Chrome
+til at afvise den, og siden ser ustylet ud uden at noget er galt med koden.

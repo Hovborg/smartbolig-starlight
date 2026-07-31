@@ -7,16 +7,20 @@
  * override is NOT a valid Starlight option — that approach silently does
  * nothing, which is why this is a standalone page instead.)
  *
- * Concept: the page renders as a Home Assistant dashboard card whose entity is
- * `unavailable`. The visitor's broken path is shown as an entity attribute, and
- * a build-time index of every real page drives the "Mente du?" suggestions.
+ * Concept: the page renders as a Home Assistant more-info dialog whose entity is
+ * `unavailable`, logbook and joke restart button included. The visitor's broken
+ * path is an entity attribute, and a build-time index of every real page drives
+ * the "Mente du?" suggestions.
+ *
+ * Danish and English are written separately, not translated: the jokes only land
+ * if each language gets its own phrasing.
  */
 import { getCollection } from 'astro:content';
 
 // This page is built ONCE as static dist/404.html, so Astro.url.pathname is
 // always "/404" at build time — URL-based language detection can never see
 // "/en/". Danish is therefore the build-time default, and the inline script
-// at the bottom swaps the copy to English at runtime for /en/* paths.
+// at the bottom swaps the copy to English at runtime.
 const lang = 'da';
 
 /**
@@ -42,23 +46,41 @@ const content = {
     heading: 'Siden svarer ikke',
     // NB: metaDescription matches what scripts/seo-validate.mjs requires verbatim.
     metaDescription: 'Siden blev ikke fundet. Find SmartBolig.net guides fra forsiden.',
-    description: 'Den side du leder efter findes ikke, er flyttet, eller er midlertidigt utilgængelig. Her er de sider der virker.',
+    description: 'Siden findes ikke, er flyttet, eller har mistet forbindelsen ligesom den ene Zigbee-pære der altid falder af. Her er det der rent faktisk svarer.',
     eyebrow: 'Fejl 404 · entity not found',
     entityId: 'sensor.side_du_soegte',
     stateLabel: 'unavailable',
-    cardHint: 'Sidst set i integrationen smartbolig.net',
+    restartingLabel: 'restarting',
+    cardHint: 'Enhed: smartbolig.net · sidst set: aldrig',
     historyLabel: 'Tilstand, sidste 24 timer',
     attrState: 'state',
     attrPath: 'requested_path',
+    attrDeviceClass: 'device_class',
+    // A real HA attribute: `restored: true` is exactly what you see on an entity
+    // that no longer exists but is remembered from a previous run.
+    attrRestored: 'restored',
     attrChanged: 'last_changed',
-    attrIntegration: 'integration',
+    deviceClassValue: 'skuffelse',
     justNow: 'lige nu',
+    logTitle: 'Logbog',
+    logLines: [
+      'side_du_soegte blev unavailable',
+      'automation.find_siden udløst, 0 handlinger kørt',
+      'smartbolig.net: prøver igen om aldrig',
+    ],
+    restartLabel: 'Genstart Home Assistant',
+    restartBusy: 'Genstarter',
+    restartLines: [
+      'Genstart gennemført. Siden findes stadig ikke.',
+      'Genstart nr. 2. Stadig ingenting.',
+      'Tredje gang er ikke lykkens gang. Prøv et af linkene.',
+    ],
     suggestTitle: 'Mente du?',
     homeLink: 'Gå til forsiden',
     startLink: 'Guidebiblioteket',
     haLink: 'Home Assistant',
     espLink: 'ESP32',
-    popularTitle: 'Populære guides:',
+    popularTitle: 'Sider der rent faktisk svarer',
     guides: [
       { href: '/da/home-assistant/kom-godt-i-gang/', text: 'Kom godt i gang' },
       { href: '/da/home-assistant/zigbee2mqtt/', text: 'Zigbee2MQTT' },
@@ -75,23 +97,39 @@ const content = {
     title: '404 - Page not found',
     heading: 'This page is not responding',
     metaDescription: 'Page not found. Find SmartBolig.net guides from the homepage.',
-    description: 'The page you are looking for does not exist, has been moved, or is temporarily unavailable. Here is what does work.',
+    description: 'The page does not exist, it moved, or it dropped off the network like that one Zigbee bulb always does. Here is what actually responds.',
     eyebrow: 'Error 404 · entity not found',
     entityId: 'sensor.page_you_requested',
     stateLabel: 'unavailable',
-    cardHint: 'Last seen in the smartbolig.net integration',
+    restartingLabel: 'restarting',
+    cardHint: 'Device: smartbolig.net · last seen: never',
     historyLabel: 'State, last 24 hours',
     attrState: 'state',
     attrPath: 'requested_path',
+    attrDeviceClass: 'device_class',
+    attrRestored: 'restored',
     attrChanged: 'last_changed',
-    attrIntegration: 'integration',
+    deviceClassValue: 'disappointment',
     justNow: 'just now',
+    logTitle: 'Logbook',
+    logLines: [
+      'page_you_requested became unavailable',
+      'automation.find_the_page triggered, 0 actions run',
+      'smartbolig.net: retrying in never',
+    ],
+    restartLabel: 'Restart Home Assistant',
+    restartBusy: 'Restarting',
+    restartLines: [
+      'Restart complete. The page still does not exist.',
+      'Restart number 2. Still nothing.',
+      'Third time is not the charm. Try one of the links.',
+    ],
     suggestTitle: 'Did you mean?',
     homeLink: 'Go to homepage',
     startLink: 'Guide library',
     haLink: 'Home Assistant',
     espLink: 'ESP32',
-    popularTitle: 'Popular guides:',
+    popularTitle: 'Pages that do respond',
     guides: [
       { href: '/en/home-assistant/kom-godt-i-gang/', text: 'Getting Started' },
       { href: '/en/home-assistant/zigbee2mqtt/', text: 'Zigbee2MQTT' },
@@ -167,6 +205,7 @@ const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c")
             --line-strong: rgba(103, 232, 249, 0.45);
             --text: #f3f7fa;
             --muted: #a9b8c6;
+            --faint: #6d7f8e;
             --cyan: #67e8f9;
             --green: #6ce9a6;
             --warm: #e8b98a;
@@ -185,6 +224,7 @@ const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c")
             --line-strong: rgba(8, 121, 138, 0.55);
             --text: #16212c;
             --muted: #4d6070;
+            --faint: #6d7f8e;
             --cyan: #08798a;
             --green: #12734a;
             --warm: #8a5a2b;
@@ -256,7 +296,7 @@ const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c")
 
         .lede {
             margin: 0 0 2rem;
-            max-width: 36rem;
+            max-width: 38rem;
             color: var(--muted);
             font-size: 1.02rem;
             line-height: 1.65;
@@ -288,8 +328,18 @@ const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c")
             border: 1px solid rgba(232, 185, 138, 0.35);
             background: rgba(232, 185, 138, 0.12);
             color: var(--warm);
+            transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease;
         }
         .card-icon svg { width: 1.4rem; height: 1.4rem; }
+        .card.is-restarting .card-icon {
+            color: var(--cyan);
+            border-color: var(--line-strong);
+            background: rgba(103, 232, 249, 0.12);
+            animation: spin 1.1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
         .card-titles { min-width: 0; }
         .entity-id {
             display: block;
@@ -319,7 +369,9 @@ const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c")
             letter-spacing: -0.02em;
             color: var(--warm);
             text-transform: uppercase;
+            transition: color 0.3s ease;
         }
+        .card.is-restarting .state-value { color: var(--cyan); }
         .state-code {
             font-family: var(--mono);
             font-size: 0.78rem;
@@ -362,9 +414,18 @@ const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c")
             opacity: 1;
             animation: flicker 1.8s steps(2, end) infinite;
         }
+        .card.is-restarting .history-bar span {
+            background: var(--cyan);
+            opacity: 0.28;
+            animation: sweep 1.1s ease-in-out infinite;
+        }
         @keyframes flicker {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.55; }
+        }
+        @keyframes sweep {
+            0%, 100% { opacity: 0.18; }
+            50% { opacity: 0.6; }
         }
 
         .attrs {
@@ -384,6 +445,65 @@ const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c")
             overflow-wrap: anywhere;
         }
         .attrs dd.accent { color: var(--cyan); }
+
+        /* ===== Logbook + the restart gag ===== */
+        .logbook {
+            padding: 0.9rem 1.15rem 1.05rem;
+            border-top: 1px solid var(--line);
+            background: var(--panel-2);
+        }
+        .logbook h2 {
+            margin: 0 0 0.6rem;
+            color: var(--muted);
+            font-family: var(--mono);
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+        .log-list {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: grid;
+            gap: 0.3rem;
+            font-family: var(--mono);
+            font-size: 0.78rem;
+            line-height: 1.5;
+        }
+        .log-list li { display: flex; gap: 0.7rem; }
+        .log-list li[hidden] { display: none; }
+        .log-time {
+            flex: none;
+            color: var(--faint);
+            font-variant-numeric: tabular-nums;
+        }
+        .log-text { color: var(--muted); overflow-wrap: anywhere; }
+        .log-list li.fresh .log-text { color: var(--warm); }
+
+        .restart {
+            margin-top: 0.9rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+            padding: 0.45rem 0.85rem;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: transparent;
+            color: var(--muted);
+            font-family: var(--mono);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: border-color 0.15s ease, color 0.15s ease;
+        }
+        .restart:hover:not(:disabled),
+        .restart:focus-visible {
+            border-color: var(--line-strong);
+            color: var(--cyan);
+        }
+        .restart:disabled { cursor: progress; opacity: 0.7; }
+        .restart svg { width: 0.9rem; height: 0.9rem; }
+        .card.is-restarting .restart svg { animation: spin 1.1s linear infinite; }
 
         /* ===== Did you mean ===== */
         .suggest {
@@ -555,7 +675,7 @@ const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c")
         <h1 id="nf-heading">{t.heading}</h1>
         <p class="lede" id="nf-description">{t.description}</p>
 
-        <section class="card" aria-labelledby="nf-entity">
+        <section class="card" id="nf-card" aria-labelledby="nf-entity">
             <header class="card-head">
                 <span class="card-icon" aria-hidden="true">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
@@ -583,15 +703,42 @@ const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c")
             </div>
 
             <dl class="attrs">
-                <dt>{t.attrState}</dt>
+                <dt id="nf-attr-state">{t.attrState}</dt>
                 <dd id="nf-attr-state-value">{t.stateLabel}</dd>
-                <dt>{t.attrPath}</dt>
+                <dt id="nf-attr-path">{t.attrPath}</dt>
                 <dd class="accent" id="nf-path">/</dd>
-                <dt>{t.attrChanged}</dt>
+                <dt id="nf-attr-device-class">{t.attrDeviceClass}</dt>
+                <dd id="nf-device-class">{t.deviceClassValue}</dd>
+                <dt id="nf-attr-restored">{t.attrRestored}</dt>
+                <dd>true</dd>
+                <dt id="nf-attr-changed">{t.attrChanged}</dt>
                 <dd id="nf-changed">{t.justNow}</dd>
-                <dt>{t.attrIntegration}</dt>
-                <dd>smartbolig.net</dd>
             </dl>
+
+            <div class="logbook">
+                <h2 id="nf-log-title">{t.logTitle}</h2>
+                <ol class="log-list" id="nf-log">
+                    {t.logLines.map((line) => (
+                        <li>
+                            <span class="log-time">--:--:--</span>
+                            <span class="log-text">{line}</span>
+                        </li>
+                    ))}
+                    {t.restartLines.map(() => (
+                        <li hidden class="fresh">
+                            <span class="log-time">--:--:--</span>
+                            <span class="log-text"></span>
+                        </li>
+                    ))}
+                </ol>
+                <button type="button" class="restart" id="nf-restart">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 12a9 9 0 1 1-2.64-6.36"></path>
+                        <path d="M21 3v6h-6"></path>
+                    </svg>
+                    <span id="nf-restart-label">{t.restartLabel}</span>
+                </button>
+            </div>
         </section>
 
         <section class="suggest" id="nf-suggest" hidden>
@@ -624,49 +771,61 @@ const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c")
         </p>
     </main>
 
-    <script is:inline define:vars={{ en: content.en, pageIndex }}>
+    <script is:inline define:vars={{ i18n: content, pageIndex }}>
         (function () {
             var path = location.pathname;
-            var isEnglish = path.indexOf('/en/') === 0;
 
             function set(id, apply) {
                 var el = document.getElementById(id);
                 if (el) apply(el);
             }
 
-            // --- 1. dist/404.html is served for every unknown path, so swap the
-            // static Danish copy to English when the visitor came from /en/*.
-            var relativeTime = {
-                justNow: 'lige nu',
-                seconds: function (n) { return 'for ' + n + ' sekund' + (n === 1 ? '' : 'er') + ' siden'; },
-                minutes: function (n) { return 'for ' + n + ' minut' + (n === 1 ? '' : 'ter') + ' siden'; },
-            };
+            // --- 1. Language. dist/404.html is served for every unknown path and
+            // is built in Danish, so English is swapped in at runtime. A /da/ or
+            // /en/ prefix wins; without one (e.g. /typo/) the browser decides, so
+            // an English speaker hitting a bare bad URL still gets English.
+            var lang = 'da';
+            if (path.indexOf('/en/') === 0) {
+                lang = 'en';
+            } else if (path.indexOf('/da/') !== 0) {
+                var preferred = (navigator.languages && navigator.languages[0]) || navigator.language || '';
+                if (preferred && preferred.slice(0, 2).toLowerCase() !== 'da') lang = 'en';
+            }
+            var t = i18n[lang];
 
-            if (isEnglish) {
-                document.documentElement.lang = 'en';
-                document.title = en.title + ' | SmartBolig.net';
-                relativeTime = {
-                    justNow: 'just now',
+            var relativeTime = lang === 'en'
+                ? {
                     seconds: function (n) { return n + ' second' + (n === 1 ? '' : 's') + ' ago'; },
                     minutes: function (n) { return n + ' minute' + (n === 1 ? '' : 's') + ' ago'; },
+                }
+                : {
+                    seconds: function (n) { return 'for ' + n + ' sekund' + (n === 1 ? '' : 'er') + ' siden'; },
+                    minutes: function (n) { return 'for ' + n + ' minut' + (n === 1 ? '' : 'ter') + ' siden'; },
                 };
-                set('nf-eyebrow', function (el) { el.textContent = en.eyebrow; });
-                set('nf-heading', function (el) { el.textContent = en.heading; });
-                set('nf-description', function (el) { el.textContent = en.description; });
-                set('nf-entity', function (el) { el.textContent = en.entityId; });
-                set('nf-card-hint', function (el) { el.textContent = en.cardHint; });
-                set('nf-state', function (el) { el.textContent = en.stateLabel; });
-                set('nf-history-label', function (el) { el.textContent = en.historyLabel; });
-                set('nf-attr-state-value', function (el) { el.textContent = en.stateLabel; });
-                set('nf-suggest-title', function (el) { el.textContent = en.suggestTitle; });
-                set('nf-home', function (el) { el.href = en.homePath; el.textContent = en.homeLink; });
-                set('nf-start', function (el) { el.href = en.startPath; el.textContent = en.startLink; });
-                set('nf-ha', function (el) { el.href = en.haPath; el.textContent = en.haLink; });
-                set('nf-esp', function (el) { el.href = en.espPath; el.textContent = en.espLink; });
-                set('nf-popular-title', function (el) { el.textContent = en.popularTitle; });
+
+            if (lang === 'en') {
+                document.documentElement.lang = 'en';
+                document.title = t.title + ' | SmartBolig.net';
+                set('nf-eyebrow', function (el) { el.textContent = t.eyebrow; });
+                set('nf-heading', function (el) { el.textContent = t.heading; });
+                set('nf-description', function (el) { el.textContent = t.description; });
+                set('nf-entity', function (el) { el.textContent = t.entityId; });
+                set('nf-card-hint', function (el) { el.textContent = t.cardHint; });
+                set('nf-state', function (el) { el.textContent = t.stateLabel; });
+                set('nf-history-label', function (el) { el.textContent = t.historyLabel; });
+                set('nf-attr-state-value', function (el) { el.textContent = t.stateLabel; });
+                set('nf-device-class', function (el) { el.textContent = t.deviceClassValue; });
+                set('nf-log-title', function (el) { el.textContent = t.logTitle; });
+                set('nf-restart-label', function (el) { el.textContent = t.restartLabel; });
+                set('nf-suggest-title', function (el) { el.textContent = t.suggestTitle; });
+                set('nf-home', function (el) { el.href = t.homePath; el.textContent = t.homeLink; });
+                set('nf-start', function (el) { el.href = t.startPath; el.textContent = t.startLink; });
+                set('nf-ha', function (el) { el.href = t.haPath; el.textContent = t.haLink; });
+                set('nf-esp', function (el) { el.href = t.espPath; el.textContent = t.espLink; });
+                set('nf-popular-title', function (el) { el.textContent = t.popularTitle; });
                 set('nf-popular-links', function (el) {
                     var links = el.querySelectorAll('a');
-                    en.guides.forEach(function (guide, index) {
+                    t.guides.forEach(function (guide, index) {
                         if (links[index]) {
                             links[index].href = guide.href;
                             links[index].textContent = guide.text;
@@ -674,8 +833,8 @@ const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c")
                     });
                 });
                 set('nf-lang-switch', function (el) {
-                    el.href = en.langSwitch.href;
-                    el.textContent = en.langSwitch.flag + ' ' + en.langSwitch.text;
+                    el.href = t.langSwitch.href;
+                    el.textContent = t.langSwitch.flag + ' ' + t.langSwitch.text;
                 });
             }
 
@@ -692,10 +851,15 @@ const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c")
 
             // --- 3. last_changed ticks up from page load, like a live entity.
             var loadedAt = Date.now();
+            function clockAt(offsetMs) {
+                var d = new Date(loadedAt + (offsetMs || 0));
+                function pad(n) { return n < 10 ? '0' + n : String(n); }
+                return pad(d.getHours()) + ':' + pad(d.getMinutes()) + ':' + pad(d.getSeconds());
+            }
             function tick() {
                 var seconds = Math.round((Date.now() - loadedAt) / 1000);
                 var text;
-                if (seconds < 2) text = relativeTime.justNow;
+                if (seconds < 2) text = t.justNow;
                 else if (seconds < 60) text = relativeTime.seconds(seconds);
                 else text = relativeTime.minutes(Math.floor(seconds / 60));
                 set('nf-changed', function (el) { el.textContent = text; });
@@ -703,7 +867,52 @@ const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c")
             tick();
             setInterval(tick, 1000);
 
-            // --- 4. "Mente du?" — the closest real pages to the broken URL,
+            // --- 4. Logbook. The rows are rendered server-side (Astro scopes
+            // <style> with a class JS-created nodes never get); only the
+            // timestamps and the Danish/English text are filled in here.
+            var logRows = document.querySelectorAll('#nf-log li');
+            var baseCount = t.logLines.length;
+            for (var i = 0; i < baseCount; i++) {
+                if (!logRows[i]) continue;
+                logRows[i].querySelector('.log-time').textContent = clockAt(-3000 + i * 1000);
+                logRows[i].querySelector('.log-text').textContent = t.logLines[i];
+            }
+
+            // --- 5. The joke every Home Assistant user has lived through.
+            var card = document.getElementById('nf-card');
+            var restartButton = document.getElementById('nf-restart');
+            var restartCount = 0;
+            if (card && restartButton) {
+                restartButton.addEventListener('click', function () {
+                    if (restartCount >= t.restartLines.length) return;
+                    var line = t.restartLines[restartCount];
+                    restartCount++;
+
+                    card.classList.add('is-restarting');
+                    restartButton.disabled = true;
+                    set('nf-state', function (el) { el.textContent = t.restartingLabel; });
+                    set('nf-restart-label', function (el) { el.textContent = t.restartBusy; });
+
+                    setTimeout(function () {
+                        card.classList.remove('is-restarting');
+                        set('nf-state', function (el) { el.textContent = t.stateLabel; });
+                        var row = logRows[baseCount + restartCount - 1];
+                        if (row) {
+                            row.querySelector('.log-time').textContent = clockAt(Date.now() - loadedAt);
+                            row.querySelector('.log-text').textContent = line;
+                            row.hidden = false;
+                        }
+                        if (restartCount >= t.restartLines.length) {
+                            restartButton.remove();
+                        } else {
+                            restartButton.disabled = false;
+                            set('nf-restart-label', function (el) { el.textContent = t.restartLabel; });
+                        }
+                    }, 1400);
+                });
+            }
+
+            // --- 6. "Mente du?" — the closest real pages to the broken URL,
             // scored with a Dice coefficient over character bigrams.
             function normalise(value) {
                 return value.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
@@ -743,7 +952,7 @@ const webPageSchemaJson = JSON.stringify(webPageSchema).replace(/</g, "\\u003c")
             // A bare "/" or a direct visit to /404 is not a broken link.
             if (requested && path !== '/404' && path !== '/404/') {
                 var requestedGrams = bigrams(requested);
-                var langPrefix = isEnglish ? '/en/' : '/da/';
+                var langPrefix = lang === 'en' ? '/en/' : '/da/';
                 var requestedHead = headSegment(path);
 
                 var ranked = pageIndex
