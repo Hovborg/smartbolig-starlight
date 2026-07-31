@@ -10,16 +10,16 @@ export const MAX_ANSWER_CHARS = 12_000;
 export const MAX_SEARCH_QUERY_CHARS = 400;
 export const MAX_SEARCH_RESULTS = 5;
 export const MAX_SEARCH_CHUNK_CHARS = 2_400;
-export const MAX_MODEL_TOKENS = 1_200;
-export const FALLBACK_MAX_MODEL_TOKENS = 900;
+export const MAX_MODEL_TOKENS = 2_400;
+export const FALLBACK_MAX_MODEL_TOKENS = 1_600;
 export const MAX_MODEL_RUNS = 2;
-export const PRIMARY_MODEL_TIMEOUT_MS = 30_000;
-export const FALLBACK_MODEL_TIMEOUT_MS = 20_000;
+export const PRIMARY_MODEL_TIMEOUT_MS = 40_000;
+export const FALLBACK_MODEL_TIMEOUT_MS = 25_000;
 export const SEARCH_TIMEOUT_MS = 5_000;
 
 const CHAT_MODEL_DIAGNOSTIC = "gemma-4-26b-a4b-it";
 const CHAT_FALLBACK_MODEL_DIAGNOSTIC = "qwen3-30b-a3b-fp8";
-const MAX_PUBLIC_DURATION_MS = 120_000;
+const MAX_PUBLIC_DURATION_MS = 150_000;
 
 const JSON_HEADERS = {
   "cache-control": "no-store",
@@ -301,8 +301,9 @@ evidence for Home Assistant or ESPHome is supplied, use it as the source of
 truth for the listed facts and do not extend its official status to other
 claims. Treat an exact claim that is not present in reviewed official evidence as unverified
 when it may vary by version.
-Keep the answer focused and below 600 words unless the visitor explicitly asks
-for a longer guide.
+Keep the answer focused and below 450 words unless the visitor explicitly asks
+for a longer guide. Finish with a complete sentence and close every code block;
+if space is tight, omit secondary detail instead of ending mid-sentence.
 
 For mains electricity, fire, locks, alarms, surveillance, medical devices and
 other safety-critical topics, state the risk and recommend a qualified
@@ -408,6 +409,16 @@ export function createWorkersAgent(dependencies = {}) {
         );
 
         const fallbackAnswer = extractModelAnswer(fallbackResult);
+        if (isTruncatedModelResult(fallbackResult, fallbackAnswer)) {
+          reportFallback({
+            event: "fallback_failed",
+            reason: "truncated_fallback_response",
+            error: null,
+          });
+          const responseError = new Error("TruncatedFallbackResponse");
+          responseError.name = "TruncatedModelResponseError";
+          throw responseError;
+        }
         if (!isAcceptableModelAnswer(fallbackAnswer, latestUserContent)) {
           reportFallback({
             event: "fallback_failed",
@@ -426,7 +437,11 @@ export function createWorkersAgent(dependencies = {}) {
           },
         };
       } catch (error) {
-        if (!["EmptyModelResponseError", "InvalidModelResponseError"].includes(error?.name)) {
+        if (![
+          "EmptyModelResponseError",
+          "InvalidModelResponseError",
+          "TruncatedModelResponseError",
+        ].includes(error?.name)) {
           reportFallback({
             event: "fallback_failed",
             reason: "fallback_error",
@@ -457,6 +472,9 @@ export function createWorkersAgent(dependencies = {}) {
       }
 
       const primaryAnswer = extractModelAnswer(primaryResult);
+      if (isTruncatedModelResult(primaryResult, primaryAnswer)) {
+        return runFallback(fallbackMessages, "truncated_primary_response", null);
+      }
       if (isAcceptableModelAnswer(primaryAnswer, latestUserContent) || (inputTools && selectSearchToolCall(primaryResult))) {
         return {
           result: primaryResult,
@@ -482,7 +500,7 @@ export function createWorkersAgent(dependencies = {}) {
       const answer = extractModelAnswer(execution.result);
       if (!answer) throw new Error("EmptyModelResponse");
       return {
-        answer: answer.slice(0, MAX_ANSWER_CHARS),
+        answer,
         diagnostics: execution.diagnostics,
       };
     }
@@ -508,7 +526,7 @@ export function createWorkersAgent(dependencies = {}) {
     const answer = extractModelAnswer(execution.result);
     if (!answer) throw new Error("EmptyModelResponse");
     return {
-      answer: answer.slice(0, MAX_ANSWER_CHARS),
+      answer,
       diagnostics: execution.diagnostics,
     };
   };
@@ -559,8 +577,42 @@ function extractModelAnswer(result) {
     .trim();
 }
 
+function isTruncatedModelResult(result, answer = "") {
+  const finishReasons = [
+    result?.finish_reason,
+    result?.stop_reason,
+    result?.choices?.[0]?.finish_reason,
+    result?.response_metadata?.finish_reason,
+  ];
+
+  const normalizedFinishReasons = finishReasons
+    .filter((reason) => typeof reason === "string" && reason.trim())
+    .map((reason) => reason.trim().toLowerCase().replace(/[\s-]+/g, "_"));
+  const stoppedAtTokenLimit = normalizedFinishReasons.some((normalized) => {
+    return new Set([
+      "length",
+      "max_tokens",
+      "max_completion_tokens",
+      "max_output_tokens",
+      "token_limit",
+    ]).has(normalized);
+  });
+  if (stoppedAtTokenLimit) return true;
+
+  const trimmedAnswer = typeof answer === "string" ? answer.trim() : "";
+  const fenceCount = trimmedAnswer.match(/```/g)?.length || 0;
+  if (fenceCount % 2 !== 0) return true;
+
+  if (normalizedFinishReasons.length > 0) return false;
+
+  return /(?:^|\s)(?:og|eller|med|som|der|til|af|i|på|and|or|with|that|to|of|in|the|a|an|for)$/iu.test(
+    trimmedAnswer,
+  );
+}
+
 function isAcceptableModelAnswer(answer, latestUserContent) {
   if (!answer) return false;
+  if (answer.length > MAX_ANSWER_CHARS) return false;
   if (/\bsearch_smartbolig\b|<\/?(?:smartbolig|official)_reference_data\b/iu.test(answer)) return false;
 
   const requestsFencedYaml = requestsFencedYamlOutput(latestUserContent);
@@ -909,6 +961,7 @@ export function createChatHandler(dependencies = {}) {
       });
       const answer = typeof result?.answer === "string" ? result.answer.trim() : "";
       if (!answer) throw new Error("EmptyAssistantAnswer");
+      if (answer.length > MAX_ANSWER_CHARS) throw new Error("OversizedAssistantAnswer");
 
       const sources = [...sourceMap.values()];
       const diagnostics = createPublicDiagnostics(
@@ -918,7 +971,7 @@ export function createChatHandler(dependencies = {}) {
       );
       return jsonResponse(
         {
-          answer: answer.slice(0, MAX_ANSWER_CHARS),
+          answer,
           sources,
           officialVerifiedAt: officialEvidence.verifiedAt,
           sourceMode:

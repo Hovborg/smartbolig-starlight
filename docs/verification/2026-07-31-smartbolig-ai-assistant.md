@@ -262,9 +262,11 @@ The model choice was based on live comparisons, not catalogue text alone.
 GLM-4.7-Flash and GPT-OSS-120B returned confident but unreliable Danish
 Home Assistant paths or commands. Gemma 4 produced the clearest complete Danish
 answer, respected the broad-plus-retrieval architecture and has lower current
-per-token pricing. Its completion budget is 2,200 tokens with low reasoning
-effort; a 1,000-token trial was rejected because hidden reasoning truncated the
-visible answer.
+per-token pricing. The initial verification used 2,200 completion tokens with
+low reasoning effort; the live-quality hotfix later raised the current cap to
+2,400 after a broader homelab answer still ended mid-sentence. A 1,000-token
+trial had already been rejected because hidden reasoning truncated the visible
+answer.
 
 ## Final gate results
 

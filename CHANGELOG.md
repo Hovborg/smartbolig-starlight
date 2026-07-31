@@ -2,6 +2,13 @@
 
 ## 2026-07-31
 
+- Prevented broad technical answers from ending mid-sentence by increasing the
+  reasoning-aware completion budgets, tightening the response-length prompt,
+  treating provider token-limit finish reasons as invalid, and recognizing
+  dangling legacy responses even when finish metadata is absent. A truncated
+  primary answer now uses Qwen; a truncated fallback fails closed. Oversized
+  answers are rejected instead of being silently cut at the public character
+  cap, while explicit provider `stop` reasons remain authoritative.
 - Replaced the weak 8B fallback with Cloudflare-hosted Qwen3 30B-A3B and added
   strict final-answer checks for internal retrieval leakage and explicitly
   requested fenced YAML or automation modes.
@@ -28,11 +35,12 @@
   retransmitted context to the API contract while keeping the fresh answer
   fully visible.
 - Fixed live chat failures in the primary 26B Workers AI inference path. Gemma
-  remains the quality-first model with a 30-second budget and 1,200-token cap;
-  Cloudflare-hosted Qwen3 30B-A3B gets one bounded 20-second fallback
-  attempt with 900 tokens. The browser's 120-second cap covers the complete
-  two-run AI Search path plus network overhead. Empty primary responses also
-  fall back, and every fallback stage emits a sanitized request-correlated log.
+  remains the quality-first model with a 40-second budget and 2,400-token cap;
+  each Gemma call can make one bounded 25-second Qwen3 30B-A3B fallback attempt
+  with 1,600 tokens. The browser's 150-second cap covers the conservative
+  two-run AI Search path, both possible fallbacks and network overhead. Empty
+  primary responses also fall back, and every fallback stage emits a sanitized
+  request-correlated log.
 - Rebuilt the 404 page as a Home Assistant "entity unavailable" card in the
   site's own palette, replacing the off-brand indigo page. It shows the path
   that failed, and suggests the closest real guides from a build-time index of
