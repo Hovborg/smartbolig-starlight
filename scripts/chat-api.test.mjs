@@ -2,13 +2,16 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import {
+  CHAT_FALLBACK_MODEL,
   CHAT_MODEL,
+  FALLBACK_MAX_MODEL_TOKENS,
+  FALLBACK_MODEL_TIMEOUT_MS,
   MAX_MODEL_TOKENS,
   MAX_MESSAGE_CHARS,
   MAX_MESSAGES,
   MAX_REQUEST_BYTES,
   MAX_TOTAL_CHARS,
-  MODEL_TIMEOUT_MS,
+  PRIMARY_MODEL_TIMEOUT_MS,
   createChatHandler,
   createWorkersAgent,
 } from "../functions/api/chat.js";
@@ -232,7 +235,8 @@ test("Workers AI agent keeps broad expertise and exposes AI Search as an optiona
   assert.equal(modelCalls.length, 2);
   assert.ok(modelCalls.every((call) => call.model === CHAT_MODEL));
   assert.equal(MAX_MODEL_TOKENS, 1_200);
-  assert.equal(MODEL_TIMEOUT_MS, 45_000);
+  assert.equal(PRIMARY_MODEL_TIMEOUT_MS, 30_000);
+  assert.equal(FALLBACK_MODEL_TIMEOUT_MS, 20_000);
   assert.ok(modelCalls.every((call) => call.input.max_completion_tokens === MAX_MODEL_TOKENS));
   assert.ok(modelCalls.every((call) => call.input.max_tokens === undefined));
   assert.ok(modelCalls.every((call) => call.input.reasoning_effort === "low"));
@@ -263,6 +267,130 @@ test("Workers AI agent keeps broad expertise and exposes AI Search as an optiona
   assert.equal(modelCalls[1].input.messages.at(-1).role, "user");
   assert.match(modelCalls[1].input.messages.at(-1).content, /SmartBolig guide/);
   assert.match(modelCalls[1].input.messages.at(-1).content, /untrusted SmartBolig reference data/i);
+});
+
+test("Workers AI agent falls back to a fast bounded model when the primary provider fails", async () => {
+  const modelCalls = [];
+  const fallbackEvents = [];
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model, input, options) => {
+      modelCalls.push({ model, input, options });
+      if (model === CHAT_MODEL) throw new Error("primary provider unavailable");
+      return { response: "Et afgrænset fallback-svar." };
+    },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "da",
+    messages: validBody("Hvad kan du hjælpe med?").messages,
+    searchSmartbolig: undefined,
+    onModelFallback: (event) => fallbackEvents.push(event),
+  });
+
+  assert.equal(result.answer, "Et afgrænset fallback-svar.");
+  assert.deepEqual(modelCalls.map((call) => call.model), [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
+  assert.equal(modelCalls[0].input.max_completion_tokens, MAX_MODEL_TOKENS);
+  assert.equal(modelCalls[0].input.reasoning_effort, "low");
+  assert.equal(modelCalls[1].input.max_tokens, FALLBACK_MAX_MODEL_TOKENS);
+  assert.equal(modelCalls[1].input.max_completion_tokens, undefined);
+  assert.equal(modelCalls[1].input.reasoning_effort, undefined);
+  assert.ok(modelCalls.every((call) => call.options.signal instanceof AbortSignal));
+  assert.deepEqual(fallbackEvents, [{
+    event: "fallback_started",
+    reason: "primary_error",
+    error: "Error",
+  }]);
+});
+
+test("Workers AI agent falls back when the primary model returns neither text nor a valid tool call", async () => {
+  const models = [];
+  const fallbackEvents = [];
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) => {
+      models.push(model);
+      return model === CHAT_MODEL ? { response: "" } : { response: "Et rigtigt fallback-svar." };
+    },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "da",
+    messages: validBody("Hvad kan du hjælpe med?").messages,
+    searchSmartbolig: undefined,
+    onModelFallback: (event) => fallbackEvents.push(event),
+  });
+
+  assert.equal(result.answer, "Et rigtigt fallback-svar.");
+  assert.deepEqual(models, [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
+  assert.deepEqual(fallbackEvents, [{
+    event: "fallback_started",
+    reason: "empty_primary_response",
+    error: null,
+  }]);
+});
+
+test("successful model fallback emits a safe request-correlated warning", async () => {
+  const warnings = [];
+  const agentRunner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) => {
+      if (model === CHAT_MODEL) throw new Error("provider details must stay private");
+      return { response: "Fallback virker." };
+    },
+  });
+  const handler = createChatHandler({
+    agentRunner,
+    createRequestId: () => "req-fallback-123",
+    logger: {
+      warn(message, details) {
+        warnings.push({ message, details });
+      },
+      error() {},
+    },
+  });
+
+  const response = await handler({
+    request: request(validBody("Hvad kan du hjælpe med?")),
+    env: createEnv({ SMARTBOLIG_SEARCH: undefined }),
+  });
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(warnings, [{
+    message: "SmartBolig chat model fallback",
+    details: {
+      requestId: "req-fallback-123",
+      event: "fallback_started",
+      reason: "primary_error",
+      error: "Error",
+    },
+  }]);
+});
+
+test("failed fallback reports both bounded provider stages without leaking messages", async () => {
+  const fallbackEvents = [];
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) => {
+      if (model === CHAT_MODEL) throw new TypeError("private primary details");
+      throw new RangeError("private fallback details");
+    },
+  });
+
+  await assert.rejects(
+    runner({
+      env: createEnv(),
+      locale: "da",
+      messages: validBody("Hvad kan du hjælpe med?").messages,
+      searchSmartbolig: undefined,
+      onModelFallback: (event) => fallbackEvents.push(event),
+    }),
+    RangeError,
+  );
+
+  assert.deepEqual(fallbackEvents, [
+    { event: "fallback_started", reason: "primary_error", error: "TypeError" },
+    { event: "fallback_failed", reason: "fallback_error", error: "RangeError" },
+  ]);
+  assert.doesNotMatch(JSON.stringify(fallbackEvents), /private/i);
 });
 
 test("domain questions preload SmartBolig context while keeping the broad model as the answerer", async () => {

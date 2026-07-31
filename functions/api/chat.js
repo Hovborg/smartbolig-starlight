@@ -1,6 +1,7 @@
 import { selectOfficialEvidence } from "../lib/official-evidence.js";
 
 export const CHAT_MODEL = "@cf/google/gemma-4-26b-a4b-it";
+export const CHAT_FALLBACK_MODEL = "@cf/meta/llama-3.1-8b-instruct-fast";
 export const MAX_REQUEST_BYTES = 24_000;
 export const MAX_MESSAGES = 10;
 export const MAX_MESSAGE_CHARS = 2_000;
@@ -10,8 +11,10 @@ export const MAX_SEARCH_QUERY_CHARS = 400;
 export const MAX_SEARCH_RESULTS = 5;
 export const MAX_SEARCH_CHUNK_CHARS = 2_400;
 export const MAX_MODEL_TOKENS = 1_200;
+export const FALLBACK_MAX_MODEL_TOKENS = 900;
 export const MAX_MODEL_RUNS = 2;
-export const MODEL_TIMEOUT_MS = 45_000;
+export const PRIMARY_MODEL_TIMEOUT_MS = 30_000;
+export const FALLBACK_MODEL_TIMEOUT_MS = 20_000;
 export const SEARCH_TIMEOUT_MS = 5_000;
 
 const JSON_HEADERS = {
@@ -303,7 +306,14 @@ export function createWorkersAgent(dependencies = {}) {
     dependencies.aiRunImpl ||
     ((binding, model, input, options) => binding.run(model, input, options));
 
-  return async function runWorkersAgent({ env, messages, locale, searchSmartbolig, officialEvidence }) {
+  return async function runWorkersAgent({
+    env,
+    messages,
+    locale,
+    searchSmartbolig,
+    officialEvidence,
+    onModelFallback,
+  }) {
     const systemMessage = {
       role: "system",
       content: buildSystemPrompt(locale, Boolean(searchSmartbolig)),
@@ -335,24 +345,92 @@ export function createWorkersAgent(dependencies = {}) {
         ]
       : undefined;
 
-    const runModel = (inputMessages, inputTools) =>
+    const runInference = (model, input, timeoutMs) =>
       withTimeout(
         (signal) =>
           aiRunImpl(
             env.AI,
-            CHAT_MODEL,
-            {
-              messages: inputMessages,
-              ...(inputTools ? { tools: inputTools } : {}),
-              max_completion_tokens: MAX_MODEL_TOKENS,
-              reasoning_effort: "low",
-              temperature: 0.1,
-              stream: false,
-            },
+            model,
+            input,
             { signal },
           ),
-        MODEL_TIMEOUT_MS,
+        timeoutMs,
       );
+
+    const reportFallback = (details) => {
+      try {
+        onModelFallback?.(details);
+      } catch {
+        // Observability must never make a visitor-facing model request fail.
+      }
+    };
+
+    const runFallback = async (inputMessages, reason, primaryErrorName) => {
+      reportFallback({
+        event: "fallback_started",
+        reason,
+        error: primaryErrorName,
+      });
+
+      try {
+        const fallbackResult = await runInference(
+          CHAT_FALLBACK_MODEL,
+          {
+            messages: inputMessages,
+            max_tokens: FALLBACK_MAX_MODEL_TOKENS,
+            temperature: 0.1,
+            stream: false,
+          },
+          FALLBACK_MODEL_TIMEOUT_MS,
+        );
+
+        if (!extractModelAnswer(fallbackResult)) {
+          reportFallback({
+            event: "fallback_failed",
+            reason: "empty_fallback_response",
+            error: null,
+          });
+          const emptyError = new Error("EmptyFallbackResponse");
+          emptyError.name = "EmptyModelResponseError";
+          throw emptyError;
+        }
+        return fallbackResult;
+      } catch (error) {
+        if (error?.name !== "EmptyModelResponseError") {
+          reportFallback({
+            event: "fallback_failed",
+            reason: "fallback_error",
+            error: safeErrorName(error),
+          });
+        }
+        throw error;
+      }
+    };
+
+    const runModel = async (inputMessages, inputTools) => {
+      let primaryResult;
+      try {
+        primaryResult = await runInference(
+          CHAT_MODEL,
+          {
+            messages: inputMessages,
+            ...(inputTools ? { tools: inputTools } : {}),
+            max_completion_tokens: MAX_MODEL_TOKENS,
+            reasoning_effort: "low",
+            temperature: 0.1,
+            stream: false,
+          },
+          PRIMARY_MODEL_TIMEOUT_MS,
+        );
+      } catch (error) {
+        return runFallback(inputMessages, "primary_error", safeErrorName(error));
+      }
+
+      if (extractModelAnswer(primaryResult) || (inputTools && selectSearchToolCall(primaryResult))) {
+        return primaryResult;
+      }
+      return runFallback(inputMessages, "empty_primary_response", null);
+    };
 
     if (searchSmartbolig && shouldRequireSmartboligSearch(messages)) {
       const query = messages.at(-1).content.slice(0, MAX_SEARCH_QUERY_CHARS);
@@ -606,6 +684,14 @@ export function createChatHandler(dependencies = {}) {
         messages: chat.messages,
         searchSmartbolig,
         officialEvidence,
+        onModelFallback: (details) => {
+          logger.warn?.("SmartBolig chat model fallback", {
+            requestId,
+            event: details.event,
+            reason: details.reason,
+            error: details.error,
+          });
+        },
       });
       const answer = typeof result?.answer === "string" ? result.answer.trim() : "";
       if (!answer) throw new Error("EmptyAssistantAnswer");
