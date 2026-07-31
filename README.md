@@ -60,6 +60,10 @@ specialdesignet Astro-widget:
   aktuelle samtale i browserens `sessionStorage`.
 - **Sikker rendering:** Modelsvar bliver til tekstnoder; der indsættes ikke
   modelgenereret HTML. Kildelinks tillades kun til `https://smartbolig.net`.
+- **Smart-home intelligence console:** Widgeten bruger et responsivt
+  cyan/grønt tech-interface med tydelig `EDGE AI`-status, capability-felter,
+  handlingskort og console-composer. Den understøtter både lys/mørk tilstand og
+  reduceret bevægelse uden eksterne UI-biblioteker.
 
 Bindings og modelvalg ligger i `wrangler.jsonc`; der skal ikke ligge Cloudflare-
 tokens eller modelnøgler i kildekoden.

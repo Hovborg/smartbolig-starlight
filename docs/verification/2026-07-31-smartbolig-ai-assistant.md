@@ -11,6 +11,35 @@ homelabs, networking, Docker, Proxmox, backups, local AI and related topics. AI
 Search is supplemental first-party SmartBolig context, not the assistant's only
 knowledge source.
 
+## Tech-console visual redesign
+
+The production widget's functionality was preserved while its visual shell was
+rebuilt as a Smart Home Intelligence Console:
+
+- The orange generic AI orb was replaced by a cyan/green microchip core aligned
+  with SmartBolig's existing visual identity.
+- The launcher and panel expose a visible `EDGE AI · ONLINE` label instead of
+  implying that AI-generated content is ordinary site content.
+- The welcome state uses a restrained circuit/core visual, four glanceable
+  capability tiles and a 2×2 grid of task-oriented action cards.
+- The composer reads as a command console, while responses and citations use
+  structured technical readout cards.
+- Semantic surface, signal and grid tokens drive dark and light themes. Motion
+  remains subtle and is disabled by the existing reduced-motion contract.
+- The redesign uses CSS and inline SVG only: no new runtime dependency, remote
+  image, model call or backend change was introduced.
+
+The direction was checked against IBM Carbon's AI transparency guidance,
+Fluent 2's material/elevation/motion guidance, Material 3's adaptive expressive
+principles and Home Assistant's glanceable dashboard direction.
+
+Local browser checks on the built output covered 1440×1000 dark and light
+themes plus a 390×844 mobile bottom sheet. The desktop panel measured 456×748
+pixels. Mobile measured 390/390 page width and 390-pixel panel width, with no
+horizontal overflow. A restored production-shaped conversation rendered two
+messages, a safe rich-text heading and one canonical source link with zero
+console errors.
+
 ## Deployment architecture correction
 
 PR #111 passed every test and build gate, but the first production workflow
@@ -239,7 +268,7 @@ visible answer.
 
 ## Final gate results
 
-- `npm run site:test`: 57/57 passed.
+- `npm run site:test`: 58/58 passed.
 - `npm run ai-news:test`: 49/49 passed.
 - `npm run ai-news:validate`: 61 bilingual daily issue pairs passed.
 - `python3 scripts/content-audit.py`: 0 syntax issues, 0 broken links,
@@ -252,7 +281,7 @@ visible answer.
   `CHAT_RATE_LIMITER` bindings with the expected types.
 - `npm run worker:build`: compiled the Pages Functions router to the Workers
   entrypoint successfully.
-- `npx wrangler deploy --dry-run`: passed with 1,604 static assets and all four
+- `npx wrangler deploy --dry-run`: passed with 1,605 static assets and all four
   expected bindings.
 - `git diff --check`: clean.
-- Credential-pattern scan: clean across all 13 task-owned files.
+- Credential-pattern scan: clean across all four redesign-owned files.

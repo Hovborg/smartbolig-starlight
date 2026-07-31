@@ -10,7 +10,9 @@ const translations = {
   da: {
     launcher: 'Spørg AI',
     launcherLabel: 'Spørg SmartBolig AI',
-    eyebrow: 'Smart home · homelab · lokal kontrol',
+    eyebrow: 'SmartBolig // AI Core',
+    systemStatus: 'EDGE AI · ONLINE',
+    systemDetail: 'Bred ekspertviden + SmartBolig-kilder',
     title: 'SmartBolig AI',
     description: 'Din tekniske sparringspartner til Home Assistant, ESPHome, sensorer og homelab.',
     intro:
@@ -19,9 +21,13 @@ const translations = {
     close: 'Luk assistenten',
     suggestions: 'Prøv et godt udgangspunkt',
     prompt1: 'Fejlsøg min Home Assistant-automation',
+    prompt1Meta: 'AUTOMATION',
     prompt2: 'Byg en ESPHome-sensor',
+    prompt2Meta: 'FIRMWARE',
     prompt3: 'Vælg Zigbee-, Matter- eller Wi-Fi-sensor',
+    prompt3Meta: 'ENHEDER',
     prompt4: 'Design et stabilt homelab',
+    prompt4Meta: 'INFRASTRUKTUR',
     placeholder: 'Beskriv dit setup, målet og hvad der går galt …',
     send: 'Send',
     sending: 'Tænker',
@@ -44,7 +50,9 @@ const translations = {
   en: {
     launcher: 'Ask AI',
     launcherLabel: 'Ask SmartBolig AI',
-    eyebrow: 'Smart home · homelab · local control',
+    eyebrow: 'SmartBolig // AI Core',
+    systemStatus: 'EDGE AI · ONLINE',
+    systemDetail: 'Broad expertise + SmartBolig sources',
     title: 'SmartBolig AI',
     description: 'Your technical partner for Home Assistant, ESPHome, sensors and homelabs.',
     intro:
@@ -53,9 +61,13 @@ const translations = {
     close: 'Close the assistant',
     suggestions: 'Start with a useful question',
     prompt1: 'Troubleshoot my Home Assistant automation',
+    prompt1Meta: 'AUTOMATION',
     prompt2: 'Build an ESPHome sensor',
+    prompt2Meta: 'FIRMWARE',
     prompt3: 'Choose a Zigbee, Matter or Wi-Fi sensor',
+    prompt3Meta: 'DEVICES',
     prompt4: 'Design a reliable homelab',
+    prompt4Meta: 'INFRASTRUCTURE',
     placeholder: 'Describe your setup, goal and what is going wrong …',
     send: 'Send',
     sending: 'Thinking',
@@ -107,19 +119,25 @@ const t = translations[lang];
     aria-controls="smartbolig-ai-panel"
     data-chat-launcher
   >
-    <span class="smartbolig-ai__orb" aria-hidden="true">
-      <svg viewBox="0 0 32 32" role="img">
-        <path d="M16 3.5 18.4 11l7.6 2.4-7.6 2.4L16 23.5l-2.4-7.7L6 13.4l7.6-2.4L16 3.5Z"></path>
-        <path d="m24.8 20 .9 2.9 2.8.9-2.8.9-.9 2.8-.9-2.8-2.9-.9 2.9-.9.9-2.9Z"></path>
+    <span class="smartbolig-ai__orb smartbolig-ai__core-chip" aria-hidden="true">
+      <span class="smartbolig-ai__core-pulse"></span>
+      <svg viewBox="0 0 32 32">
+        <rect x="9" y="9" width="14" height="14" rx="3"></rect>
+        <path d="M13 3v6M19 3v6M13 23v6M19 23v6M3 13h6M3 19h6M23 13h6M23 19h6"></path>
+        <path d="m13 17 2-5 2 8 2-5"></path>
       </svg>
     </span>
     <span class="smartbolig-ai__launcher-copy">
+      <span class="smartbolig-ai__launcher-kicker">SMARTBOLIG AI</span>
       <span class="smartbolig-ai__launcher-title">{t.launcher}</span>
-      <span class="smartbolig-ai__launcher-status">
+      <span class="smartbolig-ai__launcher-status" data-chat-system-status>
         <span class="smartbolig-ai__status-dot" aria-hidden="true"></span>
-        {lang === 'en' ? 'Broad smart-home expertise' : 'Bred smart-home-ekspertise'}
+        {t.systemStatus}
       </span>
     </span>
+    <svg class="smartbolig-ai__launcher-chevron" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="m9 6 6 6-6 6"></path>
+    </svg>
   </button>
 
   <section
@@ -134,10 +152,11 @@ const t = translations[lang];
   >
     <header class="smartbolig-ai__header">
       <div class="smartbolig-ai__brand">
-        <span class="smartbolig-ai__mark" aria-hidden="true">
+        <span class="smartbolig-ai__mark smartbolig-ai__core-chip" aria-hidden="true">
           <svg viewBox="0 0 32 32">
-            <path d="M16 3.5 18.4 11l7.6 2.4-7.6 2.4L16 23.5l-2.4-7.7L6 13.4l7.6-2.4L16 3.5Z"></path>
-            <path d="m24.8 20 .9 2.9 2.8.9-2.8.9-.9 2.8-.9-2.8-2.9-.9 2.9-.9.9-2.9Z"></path>
+            <rect x="9" y="9" width="14" height="14" rx="3"></rect>
+            <path d="M13 3v6M19 3v6M13 23v6M19 23v6M3 13h6M3 19h6M23 13h6M23 19h6"></path>
+            <path d="m13 17 2-5 2 8 2-5"></path>
           </svg>
         </span>
         <div>
@@ -160,7 +179,16 @@ const t = translations[lang];
       </div>
     </header>
 
-    <p class="smartbolig-ai__description" id="smartbolig-ai-description">{t.description}</p>
+    <div class="smartbolig-ai__system-bar">
+      <p class="smartbolig-ai__description" id="smartbolig-ai-description">{t.description}</p>
+      <div class="smartbolig-ai__system-state" data-chat-system-status>
+        <span class="smartbolig-ai__status-dot" aria-hidden="true"></span>
+        <span>
+          <strong>{t.systemStatus}</strong>
+          <small>{t.systemDetail}</small>
+        </span>
+      </div>
+    </div>
 
     <div class="smartbolig-ai__conversation" data-chat-conversation>
       <div
@@ -172,33 +200,56 @@ const t = translations[lang];
       ></div>
 
       <div class="smartbolig-ai__welcome" data-chat-welcome>
-        <div class="smartbolig-ai__welcome-icon" aria-hidden="true">
+        <div class="smartbolig-ai__core-visual" aria-hidden="true">
+          <span class="smartbolig-ai__core-ring smartbolig-ai__core-ring--outer"></span>
+          <span class="smartbolig-ai__core-ring smartbolig-ai__core-ring--inner"></span>
+          <span class="smartbolig-ai__core-node smartbolig-ai__core-node--one"></span>
+          <span class="smartbolig-ai__core-node smartbolig-ai__core-node--two"></span>
+          <span class="smartbolig-ai__core-node smartbolig-ai__core-node--three"></span>
           <svg viewBox="0 0 32 32">
-            <path d="M16 3.5 18.4 11l7.6 2.4-7.6 2.4L16 23.5l-2.4-7.7L6 13.4l7.6-2.4L16 3.5Z"></path>
+            <rect x="9" y="9" width="14" height="14" rx="3"></rect>
+            <path d="M13 3v6M19 3v6M13 23v6M19 23v6M3 13h6M3 19h6M23 13h6M23 19h6"></path>
+            <path d="m13 17 2-5 2 8 2-5"></path>
           </svg>
         </div>
         <p>{t.intro}</p>
-        <div class="smartbolig-ai__knowledge-row" aria-label={lang === 'en' ? 'Areas of expertise' : 'Fagområder'}>
-          <span>Home Assistant</span>
-          <span>ESPHome</span>
-          <span>Zigbee · Matter</span>
-          <span>Homelab</span>
+        <div class="smartbolig-ai__capability-grid" aria-label={lang === 'en' ? 'Areas of expertise' : 'Fagområder'}>
+          <span><i aria-hidden="true"></i><strong>Home Assistant</strong><small>Automations</small></span>
+          <span><i aria-hidden="true"></i><strong>ESPHome</strong><small>Firmware</small></span>
+          <span><i aria-hidden="true"></i><strong>Zigbee · Matter</strong><small>Devices</small></span>
+          <span><i aria-hidden="true"></i><strong>Homelab</strong><small>Infrastructure</small></span>
         </div>
       </div>
 
       <div class="smartbolig-ai__prompts" data-chat-prompts>
         <p>{t.suggestions}</p>
         <button type="button" data-chat-prompt data-prompt={t.prompt1}>
-          <span aria-hidden="true">⌁</span>{t.prompt1}
+          <span class="smartbolig-ai__prompt-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M4 18h4l2-12 4 12 2-8 2 8h2"></path></svg>
+          </span>
+          <span class="smartbolig-ai__prompt-copy"><small>{t.prompt1Meta}</small><strong>{t.prompt1}</strong></span>
+          <span class="smartbolig-ai__prompt-arrow" aria-hidden="true">↗</span>
         </button>
         <button type="button" data-chat-prompt data-prompt={t.prompt2}>
-          <span aria-hidden="true">⌁</span>{t.prompt2}
+          <span class="smartbolig-ai__prompt-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"></rect><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"></path></svg>
+          </span>
+          <span class="smartbolig-ai__prompt-copy"><small>{t.prompt2Meta}</small><strong>{t.prompt2}</strong></span>
+          <span class="smartbolig-ai__prompt-arrow" aria-hidden="true">↗</span>
         </button>
         <button type="button" data-chat-prompt data-prompt={t.prompt3}>
-          <span aria-hidden="true">⌁</span>{t.prompt3}
+          <span class="smartbolig-ai__prompt-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 8a10 10 0 0 1 14 0M8 11a6 6 0 0 1 8 0M10.5 14a2.5 2.5 0 0 1 3 0"></path><circle cx="12" cy="18" r="1"></circle></svg>
+          </span>
+          <span class="smartbolig-ai__prompt-copy"><small>{t.prompt3Meta}</small><strong>{t.prompt3}</strong></span>
+          <span class="smartbolig-ai__prompt-arrow" aria-hidden="true">↗</span>
         </button>
         <button type="button" data-chat-prompt data-prompt={t.prompt4}>
-          <span aria-hidden="true">⌁</span>{t.prompt4}
+          <span class="smartbolig-ai__prompt-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="6" rx="2"></rect><rect x="4" y="14" width="16" height="6" rx="2"></rect><path d="M8 7h.01M8 17h.01M12 7h5M12 17h5"></path></svg>
+          </span>
+          <span class="smartbolig-ai__prompt-copy"><small>{t.prompt4Meta}</small><strong>{t.prompt4}</strong></span>
+          <span class="smartbolig-ai__prompt-arrow" aria-hidden="true">↗</span>
         </button>
       </div>
     </div>
@@ -206,6 +257,7 @@ const t = translations[lang];
     <div class="smartbolig-ai__composer">
       <form data-chat-form>
         <label class="sr-only" for="smartbolig-ai-input">{t.placeholder}</label>
+        <span class="smartbolig-ai__command-prompt" aria-hidden="true">&gt;_</span>
         <textarea
           id="smartbolig-ai-input"
           rows="1"
@@ -740,16 +792,19 @@ const t = translations[lang];
 
 <style is:global>
   .smartbolig-ai {
-    --ai-accent: #ff7a18;
-    --ai-accent-strong: #ff4f0a;
-    --ai-cyan: #31d7ff;
-    --ai-teal: #27e2b2;
-    --ai-panel: rgba(8, 13, 24, 0.94);
-    --ai-panel-soft: rgba(20, 29, 45, 0.88);
-    --ai-line: rgba(255, 255, 255, 0.11);
-    --ai-text: #f7f9fc;
-    --ai-muted: #9daabd;
-    --ai-user: rgba(255, 122, 24, 0.17);
+    --ai-signal: #39e7ff;
+    --ai-signal-strong: #00b8f5;
+    --ai-positive: #42f5b0;
+    --ai-surface: rgba(4, 11, 22, 0.96);
+    --ai-surface-raised: rgba(12, 26, 43, 0.9);
+    --ai-surface-soft: rgba(18, 39, 61, 0.64);
+    --ai-grid: rgba(57, 231, 255, 0.052);
+    --ai-line: rgba(113, 222, 255, 0.15);
+    --ai-line-strong: rgba(57, 231, 255, 0.3);
+    --ai-text: #f3fbff;
+    --ai-muted: #91aabd;
+    --ai-dim: #647c91;
+    --ai-user: linear-gradient(135deg, rgba(0, 184, 245, 0.28), rgba(66, 245, 176, 0.17));
     position: fixed;
     z-index: 10000;
     right: max(1.25rem, env(safe-area-inset-right));
@@ -773,20 +828,22 @@ const t = translations[lang];
     position: relative;
     display: flex;
     align-items: center;
-    gap: 0.72rem;
-    min-height: 64px;
-    padding: 0.48rem 1rem 0.48rem 0.48rem;
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    border-radius: 999px;
+    gap: 0.78rem;
+    min-height: 68px;
+    padding: 0.48rem 0.62rem 0.48rem 0.48rem;
+    overflow: hidden;
+    border: 1px solid var(--ai-line-strong);
+    border-radius: 18px;
     color: #fff;
     background:
-      linear-gradient(120deg, rgba(255, 122, 24, 0.2), rgba(49, 215, 255, 0.08)),
-      rgba(8, 13, 24, 0.94);
+      linear-gradient(110deg, rgba(57, 231, 255, 0.12), transparent 44%, rgba(66, 245, 176, 0.07)),
+      var(--ai-surface);
     box-shadow:
-      0 24px 70px rgba(0, 0, 0, 0.36),
-      0 0 0 1px rgba(49, 215, 255, 0.04) inset;
-    backdrop-filter: blur(22px) saturate(135%);
-    -webkit-backdrop-filter: blur(22px) saturate(135%);
+      0 24px 70px rgba(0, 0, 0, 0.46),
+      0 0 0 1px rgba(255, 255, 255, 0.035) inset,
+      0 0 34px rgba(0, 184, 245, 0.09);
+    backdrop-filter: blur(24px) saturate(145%);
+    -webkit-backdrop-filter: blur(24px) saturate(145%);
     cursor: pointer;
     transition:
       transform 180ms ease,
@@ -796,66 +853,93 @@ const t = translations[lang];
   }
 
   .smartbolig-ai__launcher:hover {
-    transform: translateY(-3px);
-    border-color: rgba(49, 215, 255, 0.38);
+    transform: translateY(-3px) scale(1.012);
+    border-color: rgba(57, 231, 255, 0.56);
     box-shadow:
-      0 28px 80px rgba(0, 0, 0, 0.44),
-      0 0 28px rgba(49, 215, 255, 0.12);
+      0 28px 80px rgba(0, 0, 0, 0.5),
+      0 0 36px rgba(57, 231, 255, 0.16);
   }
 
   .smartbolig-ai__launcher:focus-visible,
   .smartbolig-ai button:focus-visible,
   .smartbolig-ai textarea:focus-visible,
   .smartbolig-ai a:focus-visible {
-    outline: 3px solid var(--ai-cyan);
+    outline: 3px solid var(--ai-signal);
     outline-offset: 3px;
   }
 
   .smartbolig-ai__orb,
   .smartbolig-ai__mark {
+    position: relative;
     display: grid;
     place-items: center;
     flex: 0 0 auto;
-    border-radius: 50%;
+    border: 1px solid rgba(57, 231, 255, 0.45);
+    border-radius: 14px;
     background:
-      radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.56), transparent 25%),
-      linear-gradient(145deg, var(--ai-accent), var(--ai-accent-strong) 54%, #ffb238);
+      radial-gradient(circle at 38% 28%, rgba(255, 255, 255, 0.22), transparent 28%),
+      linear-gradient(145deg, rgba(57, 231, 255, 0.22), rgba(0, 184, 245, 0.12) 56%, rgba(66, 245, 176, 0.16));
     box-shadow:
-      0 10px 28px rgba(255, 91, 10, 0.34),
-      0 0 0 1px rgba(255, 255, 255, 0.24) inset;
+      0 0 24px rgba(57, 231, 255, 0.2),
+      0 0 0 1px rgba(255, 255, 255, 0.08) inset;
   }
 
   .smartbolig-ai__orb {
-    width: 48px;
-    height: 48px;
-    animation: smartbolig-ai-breathe 3.8s ease-in-out 2;
+    width: 50px;
+    height: 50px;
+    animation: smartbolig-ai-breathe 4s ease-in-out infinite;
   }
 
   .smartbolig-ai__orb svg,
   .smartbolig-ai__mark svg {
-    width: 55%;
-    fill: #fff;
-    filter: drop-shadow(0 2px 5px rgba(102, 31, 0, 0.36));
+    width: 60%;
+    overflow: visible;
+    fill: none;
+    stroke: var(--ai-signal);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+    filter: drop-shadow(0 0 5px rgba(57, 231, 255, 0.6));
+  }
+
+  .smartbolig-ai__core-pulse {
+    position: absolute;
+    inset: -7px;
+    border: 1px solid rgba(57, 231, 255, 0.16);
+    border-radius: 18px;
+    animation: smartbolig-ai-signal 2.8s ease-out infinite;
   }
 
   .smartbolig-ai__launcher-copy {
     display: grid;
-    gap: 0.18rem;
+    min-width: 130px;
+    gap: 0.08rem;
     text-align: left;
   }
 
-  .smartbolig-ai__launcher-title {
-    font-size: 0.88rem;
+  .smartbolig-ai__launcher-kicker {
+    color: var(--ai-signal);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.52rem;
     font-weight: 760;
-    letter-spacing: -0.01em;
+    letter-spacing: 0.13em;
+    line-height: 1.2;
+  }
+
+  .smartbolig-ai__launcher-title {
+    font-size: 0.92rem;
+    font-weight: 780;
+    letter-spacing: -0.025em;
   }
 
   .smartbolig-ai__launcher-status {
     display: flex;
     align-items: center;
     gap: 0.36rem;
-    color: #aab7c8;
-    font-size: 0.68rem;
+    color: #9eb5c5;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.57rem;
+    letter-spacing: 0.025em;
     line-height: 1;
   }
 
@@ -863,8 +947,23 @@ const t = translations[lang];
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--ai-teal);
+    background: var(--ai-positive);
     box-shadow: 0 0 12px rgba(39, 226, 178, 0.8);
+  }
+
+  .smartbolig-ai__launcher-chevron {
+    width: 18px;
+    fill: none;
+    stroke: var(--ai-muted);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+    transition: transform 160ms ease, stroke 160ms ease;
+  }
+
+  .smartbolig-ai__launcher:hover .smartbolig-ai__launcher-chevron {
+    stroke: var(--ai-signal);
+    transform: translateX(2px);
   }
 
   .smartbolig-ai__panel {
@@ -874,26 +973,43 @@ const t = translations[lang];
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto auto minmax(180px, 1fr) auto;
-    width: min(420px, calc(100vw - 2rem));
-    height: min(700px, calc(100dvh - 7rem));
-    min-height: 530px;
+    width: min(456px, calc(100vw - 2rem));
+    height: min(748px, calc(100dvh - 7rem));
+    min-height: 570px;
     overflow: hidden;
     border: 1px solid var(--ai-line);
-    border-radius: 26px;
+    border-radius: 24px;
     background:
-      radial-gradient(circle at 12% 0%, rgba(255, 122, 24, 0.17), transparent 34%),
-      radial-gradient(circle at 92% 8%, rgba(49, 215, 255, 0.13), transparent 32%),
-      var(--ai-panel);
+      radial-gradient(circle at 16% -8%, rgba(57, 231, 255, 0.18), transparent 36%),
+      radial-gradient(circle at 100% 18%, rgba(66, 245, 176, 0.1), transparent 34%),
+      var(--ai-surface);
     box-shadow:
-      0 34px 100px rgba(0, 0, 0, 0.52),
+      0 38px 110px rgba(0, 0, 0, 0.58),
+      0 0 70px rgba(0, 184, 245, 0.08),
       0 0 0 1px rgba(255, 255, 255, 0.035) inset;
-    backdrop-filter: blur(28px) saturate(140%);
-    -webkit-backdrop-filter: blur(28px) saturate(140%);
+    backdrop-filter: blur(30px) saturate(150%);
+    -webkit-backdrop-filter: blur(30px) saturate(150%);
     transform-origin: bottom right;
     animation: smartbolig-ai-open 180ms ease-out;
   }
 
+  .smartbolig-ai__panel::after {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(var(--ai-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--ai-grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+    content: "";
+    mask-image: linear-gradient(to bottom, black, transparent 48%);
+    opacity: 0.7;
+  }
+
   .smartbolig-ai__panel > * {
+    position: relative;
+    z-index: 1;
     min-width: 0;
   }
 
@@ -906,7 +1022,9 @@ const t = translations[lang];
     align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    padding: 1rem 1rem 0.72rem 1.05rem;
+    padding: 1rem 1rem 0.78rem 1.05rem;
+    border-bottom: 1px solid rgba(57, 231, 255, 0.08);
+    background: linear-gradient(90deg, rgba(57, 231, 255, 0.035), transparent 44%);
   }
 
   .smartbolig-ai__brand {
@@ -917,8 +1035,9 @@ const t = translations[lang];
   }
 
   .smartbolig-ai__mark {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
   }
 
   .smartbolig-ai__eyebrow,
@@ -933,10 +1052,11 @@ const t = translations[lang];
 
   .smartbolig-ai__eyebrow {
     overflow: hidden;
-    color: var(--ai-muted);
-    font-size: 0.61rem;
+    color: var(--ai-signal);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.56rem;
     font-weight: 720;
-    letter-spacing: 0.11em;
+    letter-spacing: 0.09em;
     line-height: 1.2;
     text-overflow: ellipsis;
     text-transform: uppercase;
@@ -946,9 +1066,9 @@ const t = translations[lang];
   .smartbolig-ai__brand h2 {
     margin-top: 0.18rem;
     color: var(--ai-text);
-    font-size: 1.08rem;
-    font-weight: 790;
-    letter-spacing: -0.03em;
+    font-size: 1.03rem;
+    font-weight: 780;
+    letter-spacing: -0.025em;
     line-height: 1.1;
   }
 
@@ -963,10 +1083,10 @@ const t = translations[lang];
     width: 36px;
     height: 36px;
     padding: 0;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    border: 1px solid var(--ai-line);
+    border-radius: 10px;
     color: var(--ai-muted);
-    background: rgba(255, 255, 255, 0.045);
+    background: rgba(57, 231, 255, 0.035);
     cursor: pointer;
     transition:
       color 160ms ease,
@@ -976,8 +1096,8 @@ const t = translations[lang];
 
   .smartbolig-ai__icon-button:hover {
     color: var(--ai-text);
-    border-color: rgba(49, 215, 255, 0.28);
-    background: rgba(49, 215, 255, 0.08);
+    border-color: rgba(57, 231, 255, 0.36);
+    background: rgba(57, 231, 255, 0.09);
   }
 
   .smartbolig-ai__icon-button svg {
@@ -989,18 +1109,62 @@ const t = translations[lang];
     stroke-width: 1.8;
   }
 
-  .smartbolig-ai__description {
-    padding: 0 1.1rem 0.85rem;
+  .smartbolig-ai__system-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.7rem 1.05rem 0.72rem;
     border-bottom: 1px solid var(--ai-line);
+    background: rgba(2, 8, 17, 0.34);
+  }
+
+  .smartbolig-ai__description {
     color: var(--ai-muted);
-    font-size: 0.76rem;
+    font-size: 0.7rem;
     line-height: 1.45;
+  }
+
+  .smartbolig-ai__system-state {
+    display: flex;
+    align-items: center;
+    gap: 0.48rem;
+    min-width: 0;
+    padding: 0.42rem 0.52rem;
+    border: 1px solid rgba(66, 245, 176, 0.16);
+    border-radius: 10px;
+    background: rgba(66, 245, 176, 0.045);
+  }
+
+  .smartbolig-ai__system-state > span:last-child {
+    display: grid;
+    gap: 0.08rem;
+  }
+
+  .smartbolig-ai__system-state strong,
+  .smartbolig-ai__system-state small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .smartbolig-ai__system-state strong {
+    color: #adffdc;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.51rem;
+    letter-spacing: 0.06em;
+  }
+
+  .smartbolig-ai__system-state small {
+    max-width: 148px;
+    color: var(--ai-dim);
+    font-size: 0.49rem;
   }
 
   .smartbolig-ai__conversation {
     min-height: 0;
     overflow: auto;
-    padding: 1.05rem;
+    padding: 0.95rem 1rem 1rem;
     scrollbar-color: rgba(157, 170, 189, 0.35) transparent;
     scrollbar-width: thin;
   }
@@ -1008,7 +1172,7 @@ const t = translations[lang];
   .smartbolig-ai__welcome {
     display: grid;
     justify-items: center;
-    padding: 0.6rem 0.25rem 0.8rem;
+    padding: 0.35rem 0.1rem 0.82rem;
     text-align: center;
   }
 
@@ -1018,81 +1182,184 @@ const t = translations[lang];
     display: none;
   }
 
-  .smartbolig-ai__welcome-icon {
+  .smartbolig-ai__core-visual {
+    position: relative;
     display: grid;
     place-items: center;
-    width: 58px;
-    height: 58px;
-    margin-bottom: 0.75rem;
-    border: 1px solid rgba(49, 215, 255, 0.16);
-    border-radius: 20px;
+    width: 116px;
+    height: 82px;
+    margin: 0 0 0.55rem;
+    border-radius: 28px;
     background:
-      linear-gradient(145deg, rgba(255, 122, 24, 0.17), rgba(49, 215, 255, 0.08)),
-      rgba(255, 255, 255, 0.035);
-    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.2);
+      radial-gradient(circle, rgba(57, 231, 255, 0.12), transparent 58%),
+      linear-gradient(90deg, transparent 49.5%, rgba(57, 231, 255, 0.09) 50%, transparent 50.5%);
   }
 
-  .smartbolig-ai__welcome-icon svg {
-    width: 30px;
-    fill: url("#smartbolig-ai-gradient");
-    color: var(--ai-accent);
+  .smartbolig-ai__core-visual svg {
+    position: relative;
+    z-index: 2;
+    width: 38px;
+    padding: 8px;
+    overflow: visible;
+    border: 1px solid rgba(57, 231, 255, 0.45);
+    border-radius: 11px;
+    fill: none;
+    stroke: var(--ai-signal);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.4;
+    background: rgba(4, 16, 30, 0.9);
+    box-shadow:
+      0 0 28px rgba(57, 231, 255, 0.3),
+      0 0 0 5px rgba(57, 231, 255, 0.035);
   }
 
-  .smartbolig-ai__welcome-icon path {
-    fill: var(--ai-accent);
+  .smartbolig-ai__core-ring {
+    position: absolute;
+    border: 1px solid rgba(57, 231, 255, 0.16);
+    border-radius: 50%;
+    animation: smartbolig-ai-orbit 12s linear infinite;
+  }
+
+  .smartbolig-ai__core-ring--outer {
+    width: 104px;
+    height: 62px;
+    border-right-color: rgba(66, 245, 176, 0.52);
+    border-left-color: rgba(57, 231, 255, 0.38);
+    transform: rotate(-8deg);
+  }
+
+  .smartbolig-ai__core-ring--inner {
+    width: 78px;
+    height: 46px;
+    border-top-color: rgba(57, 231, 255, 0.5);
+    transform: rotate(18deg);
+    animation-direction: reverse;
+    animation-duration: 9s;
+  }
+
+  .smartbolig-ai__core-node {
+    position: absolute;
+    z-index: 3;
+    width: 5px;
+    height: 5px;
+    border: 1px solid rgba(255, 255, 255, 0.55);
+    border-radius: 50%;
+    background: var(--ai-positive);
+    box-shadow: 0 0 10px rgba(66, 245, 176, 0.8);
+  }
+
+  .smartbolig-ai__core-node--one {
+    top: 14px;
+    right: 17px;
+  }
+
+  .smartbolig-ai__core-node--two {
+    bottom: 13px;
+    left: 21px;
+    background: var(--ai-signal);
+  }
+
+  .smartbolig-ai__core-node--three {
+    right: 25px;
+    bottom: 16px;
+    width: 3px;
+    height: 3px;
   }
 
   .smartbolig-ai__welcome p {
-    max-width: 34ch;
-    color: #c9d2de;
-    font-size: 0.83rem;
-    line-height: 1.55;
+    max-width: 42ch;
+    color: #c3d3df;
+    font-size: 0.76rem;
+    line-height: 1.48;
   }
 
-  .smartbolig-ai__knowledge-row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.35rem;
-    margin-top: 0.8rem;
+  .smartbolig-ai__capability-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0.38rem;
+    width: 100%;
+    margin-top: 0.72rem;
   }
 
-  .smartbolig-ai__knowledge-row span {
-    padding: 0.28rem 0.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 999px;
-    color: var(--ai-muted);
-    background: rgba(255, 255, 255, 0.035);
-    font-size: 0.62rem;
+  .smartbolig-ai__capability-grid > span {
+    position: relative;
+    display: grid;
+    justify-items: start;
+    gap: 0.08rem;
+    min-width: 0;
+    padding: 0.48rem 0.43rem 0.42rem;
+    overflow: hidden;
+    border: 1px solid rgba(57, 231, 255, 0.1);
+    border-radius: 10px;
+    background: linear-gradient(145deg, rgba(57, 231, 255, 0.045), rgba(255, 255, 255, 0.02));
+    text-align: left;
+  }
+
+  .smartbolig-ai__capability-grid i {
+    width: 5px;
+    height: 5px;
+    margin-bottom: 0.14rem;
+    border-radius: 50%;
+    background: var(--ai-positive);
+    box-shadow: 0 0 9px rgba(66, 245, 176, 0.75);
+  }
+
+  .smartbolig-ai__capability-grid strong,
+  .smartbolig-ai__capability-grid small {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .smartbolig-ai__capability-grid strong {
+    color: #dcebf3;
+    font-size: 0.52rem;
+    font-weight: 680;
+  }
+
+  .smartbolig-ai__capability-grid small {
+    color: var(--ai-dim);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.43rem;
+    letter-spacing: 0.015em;
   }
 
   .smartbolig-ai__prompts {
     display: grid;
-    gap: 0.45rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.5rem;
   }
 
   .smartbolig-ai__prompts > p {
-    margin: 0.15rem 0 0.1rem;
-    color: var(--ai-muted);
-    font-size: 0.67rem;
+    grid-column: 1 / -1;
+    margin: 0.18rem 0 0;
+    color: var(--ai-dim);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.57rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 
   .smartbolig-ai__prompts button {
-    display: flex;
-    align-items: center;
-    gap: 0.58rem;
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 0.52rem;
     width: 100%;
-    padding: 0.68rem 0.76rem;
-    border: 1px solid rgba(255, 255, 255, 0.09);
-    border-radius: 14px;
-    color: #dce3ec;
-    background: linear-gradient(110deg, rgba(255, 255, 255, 0.045), rgba(49, 215, 255, 0.025));
+    min-height: 82px;
+    padding: 0.7rem 0.62rem;
+    overflow: hidden;
+    border: 1px solid rgba(57, 231, 255, 0.12);
+    border-radius: 13px;
+    color: #dcebf3;
+    background:
+      linear-gradient(145deg, rgba(57, 231, 255, 0.06), transparent 58%),
+      rgba(12, 26, 43, 0.56);
     cursor: pointer;
-    font-size: 0.76rem;
-    line-height: 1.3;
     text-align: left;
     transition:
       transform 150ms ease,
@@ -1102,15 +1369,65 @@ const t = translations[lang];
   }
 
   .smartbolig-ai__prompts button:hover {
-    transform: translateX(3px);
+    transform: translateY(-2px);
     color: #fff;
-    border-color: rgba(49, 215, 255, 0.28);
-    background: linear-gradient(110deg, rgba(255, 122, 24, 0.1), rgba(49, 215, 255, 0.08));
+    border-color: rgba(57, 231, 255, 0.4);
+    background:
+      linear-gradient(145deg, rgba(57, 231, 255, 0.13), rgba(66, 245, 176, 0.04)),
+      rgba(12, 26, 43, 0.74);
+    box-shadow: 0 12px 26px rgba(0, 184, 245, 0.1);
   }
 
-  .smartbolig-ai__prompts button span {
-    color: var(--ai-cyan);
-    font-size: 1rem;
+  .smartbolig-ai__prompt-icon {
+    display: grid;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid rgba(57, 231, 255, 0.18);
+    border-radius: 8px;
+    color: var(--ai-signal);
+    background: rgba(57, 231, 255, 0.055);
+  }
+
+  .smartbolig-ai__prompt-icon svg {
+    width: 16px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.6;
+  }
+
+  .smartbolig-ai__prompt-copy {
+    display: grid;
+    gap: 0.25rem;
+    min-width: 0;
+  }
+
+  .smartbolig-ai__prompt-copy small {
+    color: var(--ai-signal);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.47rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+  }
+
+  .smartbolig-ai__prompt-copy strong {
+    color: inherit;
+    font-size: 0.67rem;
+    font-weight: 620;
+    line-height: 1.35;
+  }
+
+  .smartbolig-ai__prompt-arrow {
+    color: var(--ai-dim);
+    font-size: 0.72rem;
+    transition: color 150ms ease, transform 150ms ease;
+  }
+
+  .smartbolig-ai__prompts button:hover .smartbolig-ai__prompt-arrow {
+    color: var(--ai-positive);
+    transform: translate(1px, -1px);
   }
 
   .smartbolig-ai__messages {
@@ -1165,16 +1482,21 @@ const t = translations[lang];
   .smartbolig-ai__bubble {
     max-width: 92%;
     padding: 0.78rem 0.86rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 8px 18px 18px 18px;
-    background: rgba(255, 255, 255, 0.05);
-    box-shadow: 0 10px 28px rgba(0, 0, 0, 0.12);
+    border: 1px solid rgba(57, 231, 255, 0.11);
+    border-radius: 5px 15px 15px 15px;
+    background:
+      linear-gradient(135deg, rgba(57, 231, 255, 0.035), transparent 50%),
+      var(--ai-surface-soft);
+    box-shadow:
+      0 10px 28px rgba(0, 0, 0, 0.14),
+      3px 0 0 rgba(57, 231, 255, 0.18) inset;
   }
 
   .smartbolig-ai__message--user .smartbolig-ai__bubble {
-    border-color: rgba(255, 122, 24, 0.2);
-    border-radius: 18px 8px 18px 18px;
+    border-color: rgba(57, 231, 255, 0.24);
+    border-radius: 15px 5px 15px 15px;
     background: var(--ai-user);
+    box-shadow: 0 10px 26px rgba(0, 184, 245, 0.08);
   }
 
   .smartbolig-ai__bubble p {
@@ -1212,7 +1534,7 @@ const t = translations[lang];
   }
 
   .smartbolig-ai__rich-text li::marker {
-    color: var(--ai-cyan);
+    color: var(--ai-signal);
   }
 
   .smartbolig-ai__rich-text strong {
@@ -1298,7 +1620,7 @@ const t = translations[lang];
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: var(--ai-cyan);
+    background: var(--ai-signal);
     animation: smartbolig-ai-typing 1s ease-in-out infinite;
   }
 
@@ -1340,30 +1662,45 @@ const t = translations[lang];
   }
 
   .smartbolig-ai__composer {
-    padding: 0.78rem 0.9rem 0.72rem;
+    padding: 0.72rem 0.85rem 0.7rem;
     border-top: 1px solid var(--ai-line);
-    background: rgba(5, 9, 18, 0.72);
+    background:
+      linear-gradient(90deg, rgba(57, 231, 255, 0.025), transparent 48%),
+      rgba(2, 8, 17, 0.84);
   }
 
   .smartbolig-ai__composer form {
     display: flex;
-    align-items: flex-end;
-    gap: 0.55rem;
-    padding: 0.42rem 0.42rem 0.42rem 0.78rem;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 17px;
-    background: rgba(255, 255, 255, 0.055);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.16) inset;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.34rem 0.36rem 0.34rem 0.68rem;
+    border: 1px solid var(--ai-line);
+    border-radius: 13px;
+    background: rgba(11, 26, 43, 0.72);
+    box-shadow:
+      0 12px 30px rgba(0, 0, 0, 0.18) inset,
+      0 0 0 1px rgba(255, 255, 255, 0.018);
     transition:
       border-color 160ms ease,
       box-shadow 160ms ease;
   }
 
   .smartbolig-ai__composer form:focus-within {
-    border-color: rgba(49, 215, 255, 0.38);
+    border-color: rgba(57, 231, 255, 0.48);
     box-shadow:
-      0 0 0 3px rgba(49, 215, 255, 0.07),
-      0 12px 30px rgba(0, 0, 0, 0.16) inset;
+      0 0 0 3px rgba(57, 231, 255, 0.075),
+      0 0 22px rgba(57, 231, 255, 0.055),
+      0 12px 30px rgba(0, 0, 0, 0.18) inset;
+  }
+
+  .smartbolig-ai__command-prompt {
+    align-self: flex-start;
+    padding-top: 0.77rem;
+    color: var(--ai-positive);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.62rem;
+    font-weight: 760;
+    text-shadow: 0 0 9px rgba(66, 245, 176, 0.5);
   }
 
   .smartbolig-ai__composer textarea {
@@ -1393,15 +1730,15 @@ const t = translations[lang];
     display: flex;
     align-items: center;
     gap: 0.35rem;
-    min-height: 42px;
-    padding: 0 0.72rem;
-    border: 0;
-    border-radius: 13px;
-    color: #fff;
-    background: linear-gradient(135deg, var(--ai-accent), var(--ai-accent-strong));
+    min-height: 40px;
+    padding: 0 0.7rem;
+    border: 1px solid rgba(57, 231, 255, 0.42);
+    border-radius: 10px;
+    color: #03141d;
+    background: linear-gradient(135deg, var(--ai-signal), var(--ai-positive));
     box-shadow:
-      0 10px 24px rgba(255, 79, 10, 0.24),
-      0 1px 0 rgba(255, 255, 255, 0.24) inset;
+      0 10px 24px rgba(0, 184, 245, 0.18),
+      0 1px 0 rgba(255, 255, 255, 0.35) inset;
     cursor: pointer;
     font-size: 0.69rem;
     font-weight: 750;
@@ -1456,19 +1793,23 @@ const t = translations[lang];
   }
 
   [data-theme='light'] .smartbolig-ai {
-    --ai-panel: rgba(249, 251, 255, 0.94);
-    --ai-panel-soft: rgba(238, 244, 250, 0.9);
+    --ai-surface: rgba(246, 251, 254, 0.97);
+    --ai-surface-raised: rgba(232, 244, 250, 0.94);
+    --ai-surface-soft: rgba(226, 240, 247, 0.76);
+    --ai-grid: rgba(0, 126, 168, 0.06);
     --ai-line: rgba(15, 32, 52, 0.12);
+    --ai-line-strong: rgba(0, 146, 192, 0.27);
     --ai-text: #132235;
     --ai-muted: #5f6f82;
-    --ai-user: rgba(255, 112, 20, 0.12);
+    --ai-dim: #71879a;
+    --ai-user: linear-gradient(135deg, rgba(0, 174, 230, 0.16), rgba(35, 201, 133, 0.12));
   }
 
   [data-theme='light'] .smartbolig-ai__launcher {
     color: #172437;
     border-color: rgba(15, 32, 52, 0.15);
     background:
-      linear-gradient(120deg, rgba(255, 122, 24, 0.13), rgba(49, 215, 255, 0.07)),
+      linear-gradient(120deg, rgba(0, 184, 245, 0.1), rgba(66, 245, 176, 0.06)),
       rgba(250, 252, 255, 0.95);
     box-shadow: 0 22px 60px rgba(31, 52, 77, 0.19);
   }
@@ -1486,17 +1827,31 @@ const t = translations[lang];
   }
 
   [data-theme='light'] .smartbolig-ai__composer {
-    background: rgba(244, 248, 252, 0.78);
+    background: rgba(240, 247, 251, 0.9);
+  }
+
+  [data-theme='light'] .smartbolig-ai__system-bar {
+    background: rgba(229, 241, 247, 0.78);
+  }
+
+  [data-theme='light'] .smartbolig-ai__system-state {
+    border-color: rgba(13, 152, 104, 0.18);
+    background: rgba(35, 201, 133, 0.07);
   }
 
   [data-theme='light'] .smartbolig-ai__composer form,
   [data-theme='light'] .smartbolig-ai__bubble,
   [data-theme='light'] .smartbolig-ai__prompts button {
-    background: rgba(24, 49, 76, 0.045);
+    background: rgba(24, 70, 94, 0.055);
   }
 
-  [data-theme='light'] .smartbolig-ai__prompts button {
+  [data-theme='light'] .smartbolig-ai__prompts button,
+  [data-theme='light'] .smartbolig-ai__capability-grid strong {
     color: #2d4057;
+  }
+
+  [data-theme='light'] .smartbolig-ai__system-state strong {
+    color: #087b58;
   }
 
   @media (max-width: 640px) {
@@ -1552,6 +1907,10 @@ const t = translations[lang];
       padding-top: 0.9rem;
     }
 
+    .smartbolig-ai__capability-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
     .smartbolig-ai__panel::before {
       position: absolute;
       top: 0.42rem;
@@ -1575,12 +1934,24 @@ const t = translations[lang];
       padding: 0.42rem;
     }
 
+    .smartbolig-ai__launcher-chevron {
+      display: none;
+    }
+
     .smartbolig-ai__description {
       display: none;
     }
 
     .smartbolig-ai__panel {
-      grid-template-rows: auto minmax(180px, 1fr) auto;
+      grid-template-rows: auto auto minmax(180px, 1fr) auto;
+    }
+
+    .smartbolig-ai__system-bar {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .smartbolig-ai__system-state {
+      justify-self: start;
     }
 
     .smartbolig-ai__source-mode {
@@ -1603,15 +1974,36 @@ const t = translations[lang];
     0%,
     100% {
       box-shadow:
-        0 10px 28px rgba(255, 91, 10, 0.34),
-        0 0 0 1px rgba(255, 255, 255, 0.24) inset;
+        0 0 24px rgba(57, 231, 255, 0.2),
+        0 0 0 1px rgba(255, 255, 255, 0.08) inset;
       transform: scale(1);
     }
     50% {
       box-shadow:
-        0 12px 34px rgba(255, 91, 10, 0.46),
-        0 0 0 8px rgba(49, 215, 255, 0.04);
-      transform: scale(1.035);
+        0 0 32px rgba(57, 231, 255, 0.34),
+        0 0 0 5px rgba(57, 231, 255, 0.035);
+      transform: scale(1.025);
+    }
+  }
+
+  @keyframes smartbolig-ai-signal {
+    0% {
+      opacity: 0.5;
+      transform: scale(0.86);
+    }
+    75%,
+    100% {
+      opacity: 0;
+      transform: scale(1.18);
+    }
+  }
+
+  @keyframes smartbolig-ai-orbit {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
     }
   }
 

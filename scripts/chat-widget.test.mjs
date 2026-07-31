@@ -112,6 +112,26 @@ test("assistant is a fixed premium panel, a mobile bottom sheet and motion-safe"
   assert.match(source, /\[data-theme=['"]light['"]\]\s+\.smartbolig-ai/);
 });
 
+test("assistant presents a semantic smart-home intelligence console", async () => {
+  const source = await read("src/components/SmartBoligAssistant.astro");
+
+  assert.match(source, /data-chat-system-status/);
+  assert.match(source, /EDGE AI/);
+  assert.match(source, /smartbolig-ai__core-visual/);
+  assert.match(source, /smartbolig-ai__core-ring/);
+  assert.match(source, /smartbolig-ai__capability-grid/);
+  assert.match(source, /smartbolig-ai__prompt-icon/);
+  assert.match(source, /smartbolig-ai__command-prompt/);
+
+  for (const token of ["--ai-surface", "--ai-signal", "--ai-grid"]) {
+    assert.match(source, new RegExp(token), `missing semantic console token: ${token}`);
+  }
+
+  assert.match(source, /\.smartbolig-ai__prompts\s*\{[^}]*grid-template-columns:\s*repeat\(2,/s);
+  assert.match(source, /\.smartbolig-ai__panel::after/);
+  assert.match(source, /radial-gradient/);
+});
+
 test("Cloudflare bindings and bilingual privacy copy stay coupled to the assistant", async () => {
   const [wranglerSource, daPrivacy, enPrivacy, readme] = await Promise.all([
     read("wrangler.jsonc"),
