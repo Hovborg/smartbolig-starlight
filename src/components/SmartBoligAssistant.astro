@@ -45,6 +45,18 @@ const translations = {
     diagnosticEdge: 'EDGE',
     diagnosticTrace: 'SPOR',
     diagnosticSources: 'KILDER',
+    workMode: 'ARBEJDSPROFIL',
+    workModeLabel: 'Vælg arbejdsprofil',
+    modeDebug: 'Fejlsøg',
+    modeDebugTemplate: 'Fejlsøg dette systematisk med antagelser, sikre trin, verifikation og rollback: ',
+    modeBuild: 'Byg',
+    modeBuildTemplate: 'Byg en konkret løsning med konfiguration, test og rollback til: ',
+    modeExplain: 'Forklar',
+    modeExplainTemplate: 'Forklar dette teknisk, men klart, og markér usikkerheder: ',
+    modeCompare: 'Sammenlign',
+    modeCompareTemplate: 'Sammenlign mulighederne med fordele, ulemper og en anbefaling til: ',
+    edgeActive: 'EDGE-FORESPØRGSEL AKTIV',
+    edgePipeline: 'WORKER · CONTEXT · MODEL',
     routePrimary: 'PRIMÆR',
     routeFallback: 'FALLBACK',
     routeUnknown: 'UKENDT',
@@ -97,6 +109,18 @@ const translations = {
     diagnosticEdge: 'EDGE',
     diagnosticTrace: 'TRACE',
     diagnosticSources: 'SOURCES',
+    workMode: 'WORK MODE',
+    workModeLabel: 'Choose work mode',
+    modeDebug: 'Debug',
+    modeDebugTemplate: 'Debug this systematically with assumptions, safe steps, verification and rollback: ',
+    modeBuild: 'Build',
+    modeBuildTemplate: 'Build a concrete solution with configuration, testing and rollback for: ',
+    modeExplain: 'Explain',
+    modeExplainTemplate: 'Explain this technically but clearly, and mark uncertainties: ',
+    modeCompare: 'Compare',
+    modeCompareTemplate: 'Compare the options with advantages, disadvantages and a recommendation for: ',
+    edgeActive: 'EDGE REQUEST ACTIVE',
+    edgePipeline: 'WORKER · CONTEXT · MODEL',
     routePrimary: 'PRIMARY',
     routeFallback: 'FALLBACK',
     routeUnknown: 'UNKNOWN',
@@ -138,6 +162,8 @@ const t = translations[lang];
   data-label-diagnostic-edge={t.diagnosticEdge}
   data-label-diagnostic-trace={t.diagnosticTrace}
   data-label-diagnostic-sources={t.diagnosticSources}
+  data-label-edge-active={t.edgeActive}
+  data-label-edge-pipeline={t.edgePipeline}
   data-label-route-primary={t.routePrimary}
   data-label-route-fallback={t.routeFallback}
   data-label-route-unknown={t.routeUnknown}
@@ -291,6 +317,21 @@ const t = translations[lang];
     </div>
 
     <div class="smartbolig-ai__composer">
+      <div class="smartbolig-ai__modes" role="group" aria-label={t.workModeLabel} data-chat-modes>
+        <span class="smartbolig-ai__modes-label">{t.workMode}</span>
+        <button type="button" data-chat-mode data-template={t.modeDebugTemplate} aria-pressed="false">
+          <small>DBG</small><strong>{t.modeDebug}</strong>
+        </button>
+        <button type="button" data-chat-mode data-template={t.modeBuildTemplate} aria-pressed="false">
+          <small>BLD</small><strong>{t.modeBuild}</strong>
+        </button>
+        <button type="button" data-chat-mode data-template={t.modeExplainTemplate} aria-pressed="false">
+          <small>EXP</small><strong>{t.modeExplain}</strong>
+        </button>
+        <button type="button" data-chat-mode data-template={t.modeCompareTemplate} aria-pressed="false">
+          <small>CMP</small><strong>{t.modeCompare}</strong>
+        </button>
+      </div>
       <form data-chat-form>
         <label class="sr-only" for="smartbolig-ai-input">{t.placeholder}</label>
         <span class="smartbolig-ai__command-prompt" aria-hidden="true">&gt;_</span>
@@ -348,6 +389,7 @@ const t = translations[lang];
     const prompts = root.querySelector("[data-chat-prompts]");
     const status = root.querySelector("[data-chat-status]");
     const promptButtons = root.querySelectorAll("[data-chat-prompt]");
+    const modeButtons = root.querySelectorAll("[data-chat-mode]");
 
     if (
       !(panel instanceof HTMLElement) ||
@@ -372,6 +414,9 @@ const t = translations[lang];
     let abortController = null;
     let lastFailed = false;
     let requestSequence = 0;
+    let activeModeTemplate = "";
+    let loadingTimer = null;
+    let loadingStartedAt = 0;
 
     function setStatus(message) {
       status.textContent = message;
@@ -768,12 +813,55 @@ const t = translations[lang];
 
       const bubble = document.createElement("div");
       bubble.className = "smartbolig-ai__bubble";
+      const consoleElement = document.createElement("div");
+      consoleElement.className = "smartbolig-ai__loading-console";
+      const consoleHead = document.createElement("div");
+      consoleHead.className = "smartbolig-ai__loading-head";
+      const activeLabel = document.createElement("span");
+      activeLabel.textContent = root.dataset.labelEdgeActive || "EDGE REQUEST ACTIVE";
+      const elapsed = document.createElement("strong");
+      elapsed.setAttribute("aria-hidden", "true");
+      elapsed.dataset.chatElapsed = "";
+      elapsed.textContent = "0.0 S";
+      consoleHead.append(activeLabel, elapsed);
+
+      const signal = document.createElement("span");
+      signal.className = "smartbolig-ai__loading-signal";
+      signal.setAttribute("aria-hidden", "true");
+      signal.append(document.createElement("i"));
+
+      const pipeline = document.createElement("small");
+      pipeline.textContent = root.dataset.labelEdgePipeline || "WORKER · CONTEXT · MODEL";
       const dots = document.createElement("span");
       dots.className = "smartbolig-ai__typing";
       dots.append(document.createElement("i"), document.createElement("i"), document.createElement("i"));
-      bubble.append(dots);
+      consoleElement.append(consoleHead, signal, pipeline, dots);
+      bubble.append(consoleElement);
       article.append(meta, bubble);
       messagesElement.append(article);
+      return article;
+    }
+
+    function stopLoadingTimer() {
+      if (loadingTimer !== null) {
+        clearInterval(loadingTimer);
+        loadingTimer = null;
+      }
+    }
+
+    function startLoadingTimer(article) {
+      stopLoadingTimer();
+      if (!(article instanceof HTMLElement)) return;
+      const elapsed = article.querySelector("[data-chat-elapsed]");
+      if (!(elapsed instanceof HTMLElement)) return;
+      if (!loadingStartedAt) loadingStartedAt = performance.now();
+
+      const updateElapsed = () => {
+        const elapsedMs = Math.min(REQUEST_TIMEOUT_MS, Math.max(0, performance.now() - loadingStartedAt));
+        elapsed.textContent = `${(elapsedMs / 1000).toFixed(1)} S`;
+      };
+      updateElapsed();
+      loadingTimer = setInterval(updateElapsed, 100);
     }
 
     function renderError(message) {
@@ -812,23 +900,31 @@ const t = translations[lang];
       panel.setAttribute("aria-busy", value ? "true" : "false");
       input.disabled = value;
       sendButton.disabled = value;
-      sendButton.querySelector("span").textContent = value
-        ? locale === "en"
-          ? "Thinking"
-          : "Tænker"
-        : locale === "en"
-          ? "Send"
+      for (const modeButton of modeButtons) {
+        if (modeButton instanceof HTMLButtonElement) modeButton.disabled = value;
+      }
+      const sendLabel = sendButton.querySelector("span");
+      if (sendLabel instanceof HTMLElement) {
+        sendLabel.textContent = value
+          ? locale === "en"
+            ? "Thinking"
+            : "Tænker"
           : "Send";
+      }
     }
 
     function openAssistant() {
       panel.hidden = false;
       launcher.setAttribute("aria-expanded", "true");
       root.classList.add("is-open");
+      if (isSending) {
+        startLoadingTimer(messagesElement.querySelector(".smartbolig-ai__message--loading"));
+      }
       requestAnimationFrame(() => input.focus());
     }
 
     function closeAssistant() {
+      stopLoadingTimer();
       panel.hidden = true;
       launcher.setAttribute("aria-expanded", "false");
       root.classList.remove("is-open");
@@ -837,6 +933,8 @@ const t = translations[lang];
 
     function resetConversation() {
       requestSequence += 1;
+      stopLoadingTimer();
+      loadingStartedAt = 0;
       const controllerToAbort = abortController;
       abortController = null;
       controllerToAbort?.abort();
@@ -847,6 +945,10 @@ const t = translations[lang];
       renderHistory();
       setStatus(root.dataset.labelReset || "Conversation cleared.");
       input.value = "";
+      activeModeTemplate = "";
+      for (const modeButton of modeButtons) {
+        if (modeButton instanceof HTMLButtonElement) modeButton.setAttribute("aria-pressed", "false");
+      }
       input.focus();
     }
 
@@ -875,7 +977,9 @@ const t = translations[lang];
       saveHistory();
       renderHistory();
       messagesElement.hidden = false;
-      renderLoading();
+      loadingStartedAt = performance.now();
+      const loadingArticle = renderLoading();
+      startLoadingTimer(loadingArticle);
       setBusy(true);
       setStatus(locale === "en" ? "Working on your answer …" : "Arbejder på dit svar …");
       input.value = "";
@@ -932,6 +1036,8 @@ const t = translations[lang];
       } finally {
         clearTimeout(timeout);
         if (abortController === requestController) {
+          stopLoadingTimer();
+          loadingStartedAt = 0;
           abortController = null;
           setBusy(false);
           if (!lastFailed) input.focus();
@@ -949,7 +1055,32 @@ const t = translations[lang];
     for (const button of promptButtons) {
       button.addEventListener("click", () => {
         if (!(button instanceof HTMLButtonElement)) return;
+        activeModeTemplate = "";
+        for (const modeButton of modeButtons) {
+          if (modeButton instanceof HTMLButtonElement) modeButton.setAttribute("aria-pressed", "false");
+        }
         input.value = button.dataset.prompt || "";
+        input.focus();
+        input.dispatchEvent(new Event("input"));
+      });
+    }
+
+    for (const button of modeButtons) {
+      button.addEventListener("click", () => {
+        if (!(button instanceof HTMLButtonElement)) return;
+        const template = button.dataset.template || "";
+        const current = input.value;
+        const remainder =
+          activeModeTemplate && current.startsWith(activeModeTemplate)
+            ? current.slice(activeModeTemplate.length).trimStart()
+            : current.trim();
+        input.value = remainder ? `${template}${remainder}` : template;
+        activeModeTemplate = template;
+        for (const modeButton of modeButtons) {
+          if (modeButton instanceof HTMLButtonElement) {
+            modeButton.setAttribute("aria-pressed", modeButton === button ? "true" : "false");
+          }
+        }
         input.focus();
         input.dispatchEvent(new Event("input"));
       });
@@ -1946,7 +2077,8 @@ const t = translations[lang];
   .smartbolig-ai__typing {
     display: inline-flex;
     gap: 0.28rem;
-    padding: 0.2rem 0.1rem;
+    justify-self: end;
+    padding: 0.05rem 0;
   }
 
   .smartbolig-ai__typing i {
@@ -1963,6 +2095,71 @@ const t = translations[lang];
 
   .smartbolig-ai__typing i:nth-child(3) {
     animation-delay: 260ms;
+  }
+
+  .smartbolig-ai__loading-console {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.42rem 0.8rem;
+    min-width: 0;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+
+  .smartbolig-ai__loading-head {
+    display: flex;
+    grid-column: 1 / -1;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.7rem;
+    color: var(--ai-signal);
+    font-size: 0.54rem;
+    font-weight: 760;
+    letter-spacing: 0.075em;
+  }
+
+  .smartbolig-ai__loading-head span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .smartbolig-ai__loading-head strong {
+    flex: 0 0 auto;
+    color: var(--ai-positive);
+    font-size: 0.58rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+
+  .smartbolig-ai__loading-signal {
+    position: relative;
+    grid-column: 1 / -1;
+    height: 2px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(57, 231, 255, 0.12);
+  }
+
+  .smartbolig-ai__loading-signal i {
+    position: absolute;
+    inset-block: 0;
+    left: -34%;
+    width: 34%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, transparent, var(--ai-signal), var(--ai-positive));
+    box-shadow: 0 0 12px rgba(57, 231, 255, 0.48);
+    animation: smartbolig-ai-edge-scan 1.35s ease-in-out infinite;
+  }
+
+  .smartbolig-ai__loading-console > small {
+    align-self: center;
+    overflow: hidden;
+    color: var(--ai-dim);
+    font-size: 0.46rem;
+    font-weight: 680;
+    letter-spacing: 0.08em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .smartbolig-ai__error {
@@ -2000,6 +2197,78 @@ const t = translations[lang];
     background:
       linear-gradient(90deg, rgba(57, 231, 255, 0.025), transparent 48%),
       rgba(2, 8, 17, 0.84);
+  }
+
+  .smartbolig-ai__modes {
+    display: flex;
+    min-width: 0;
+    gap: 0.34rem;
+    align-items: center;
+    margin: 0 0 0.52rem;
+    overflow-x: auto;
+    scrollbar-color: rgba(57, 231, 255, 0.24) transparent;
+    scrollbar-width: thin;
+  }
+
+  .smartbolig-ai__modes-label {
+    flex: 0 0 auto;
+    margin-right: 0.08rem;
+    color: var(--ai-dim);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.45rem;
+    font-weight: 760;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+
+  .smartbolig-ai__modes button {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: baseline;
+    gap: 0.27rem;
+    min-height: 25px;
+    padding: 0.26rem 0.42rem;
+    border: 1px solid rgba(57, 231, 255, 0.12);
+    border-radius: 7px;
+    color: var(--ai-muted);
+    background: rgba(57, 231, 255, 0.025);
+    cursor: pointer;
+    transition:
+      border-color 150ms ease,
+      color 150ms ease,
+      background 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  .smartbolig-ai__modes button small {
+    color: var(--ai-dim);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.4rem;
+    font-weight: 780;
+    letter-spacing: 0.06em;
+  }
+
+  .smartbolig-ai__modes button strong {
+    font-size: 0.56rem;
+    font-weight: 690;
+    white-space: nowrap;
+  }
+
+  .smartbolig-ai__modes button:hover,
+  .smartbolig-ai__modes button[aria-pressed='true'] {
+    border-color: rgba(57, 231, 255, 0.38);
+    color: #d8f8ff;
+    background: linear-gradient(120deg, rgba(57, 231, 255, 0.1), rgba(66, 245, 176, 0.055));
+    box-shadow: 0 0 15px rgba(57, 231, 255, 0.055);
+  }
+
+  .smartbolig-ai__modes button[aria-pressed='true'] small {
+    color: var(--ai-positive);
+  }
+
+  .smartbolig-ai__modes button:disabled {
+    cursor: wait;
+    opacity: 0.5;
   }
 
   .smartbolig-ai__composer form {
@@ -2208,6 +2477,23 @@ const t = translations[lang];
     color: #075f7c;
   }
 
+  [data-theme='light'] .smartbolig-ai__modes button,
+  [data-theme='light'] .smartbolig-ai__loading-console {
+    color: #476476;
+  }
+
+  [data-theme='light'] .smartbolig-ai__modes button {
+    border-color: rgba(0, 126, 168, 0.13);
+    background: rgba(0, 126, 168, 0.035);
+  }
+
+  [data-theme='light'] .smartbolig-ai__modes button:hover,
+  [data-theme='light'] .smartbolig-ai__modes button[aria-pressed='true'] {
+    border-color: rgba(0, 126, 168, 0.3);
+    color: #075f7c;
+    background: linear-gradient(120deg, rgba(0, 174, 230, 0.11), rgba(35, 201, 133, 0.07));
+  }
+
   @media (max-width: 640px) {
     .smartbolig-ai {
       inset-inline: 0;
@@ -2382,6 +2668,15 @@ const t = translations[lang];
     40% {
       opacity: 1;
       transform: translateY(-3px);
+    }
+  }
+
+  @keyframes smartbolig-ai-edge-scan {
+    0% {
+      left: -34%;
+    }
+    100% {
+      left: 100%;
     }
   }
 </style>

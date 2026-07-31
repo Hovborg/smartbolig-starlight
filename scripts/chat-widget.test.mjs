@@ -125,6 +125,52 @@ test("assistant shows allowlisted bilingual model, route, edge, trace and source
   assert.match(source, /overflow-x:\s*auto/);
 });
 
+test("assistant keeps four visible bilingual expert work modes beside the composer", async () => {
+  const source = await read("src/components/SmartBoligAssistant.astro");
+
+  for (const copy of [
+    "ARBEJDSPROFIL",
+    "WORK MODE",
+    "Fejlsøg",
+    "Debug",
+    "Byg",
+    "Build",
+    "Forklar",
+    "Explain",
+    "Sammenlign",
+    "Compare",
+    "sikre trin, verifikation og rollback",
+    "safe steps, verification and rollback",
+  ]) {
+    assert.match(source, new RegExp(copy, "i"), `missing localized work-mode copy: ${copy}`);
+  }
+
+  const modeButtons = source.match(/<button[^>]*data-chat-mode/g) || [];
+  assert.equal(modeButtons.length, 4, "assistant must expose exactly four persistent work modes");
+  assert.match(source, /data-chat-modes/);
+  assert.match(source, /data-template=/);
+  assert.match(source, /aria-pressed="false"/);
+  assert.match(source, /button\.dataset\.template/);
+  assert.match(source, /input\.value\s*=/);
+  assert.match(source, /input\.dispatchEvent\(new Event\(["']input["']\)\)/);
+});
+
+test("assistant shows an honest elapsed edge request console and clears its timer", async () => {
+  const source = await read("src/components/SmartBoligAssistant.astro");
+
+  assert.match(source, /EDGE-FORESPØRGSEL AKTIV/);
+  assert.match(source, /EDGE REQUEST ACTIVE/);
+  assert.match(source, /WORKER · CONTEXT · MODEL/);
+  assert.match(source, /data-chat-elapsed/);
+  assert.match(source, /performance\.now\(\)/);
+  assert.match(source, /setInterval\(/);
+  assert.match(source, /function stopLoadingTimer\(\)/);
+  assert.match(source, /clearInterval\(loadingTimer\)/);
+  assert.match(source, /renderLoading\(\)[\s\S]*return article/);
+  assert.match(source, /elapsed\.setAttribute\(["']aria-hidden["'],\s*["']true["']\)/);
+  assert.match(source, /elapsed\.dataset\.chatElapsed\s*=/);
+});
+
 test("assistant renders copy controls and revalidates canonical SmartBolig and official sources", async () => {
   const source = await read("src/components/SmartBoligAssistant.astro");
 
