@@ -3,6 +3,9 @@ dist/
 # generated types
 .astro/
 
+# compiled Pages Functions router for Workers deployment
+.worker/
+
 # dependencies
 node_modules/
 

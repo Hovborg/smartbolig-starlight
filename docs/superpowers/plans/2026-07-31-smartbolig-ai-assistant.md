@@ -9,14 +9,16 @@
 has broad homelab and smart-home knowledge while optionally using AI Search for
 source-backed SmartBolig guidance.
 
-**Architecture:** A same-origin Cloudflare Pages Function validates and
+**Architecture:** A same-origin Cloudflare Worker, compiled from the
+`functions/` router, validates and
 rate-limits chat requests, calls `@cf/google/gemma-4-26b-a4b-it` through the
 native Workers AI binding, and supplements domain answers with bounded,
 untrusted context from `smartbolig-ai-search` when available. A custom Astro
 widget is mounted globally through the existing footer and keeps a bounded
 conversation in session storage only.
 
-**Tech Stack:** Astro 6, Starlight, Cloudflare Pages Functions, Workers AI, AI
+**Tech Stack:** Astro 6, Starlight, Cloudflare Workers Static Assets, compiled
+Pages Functions, Workers AI, AI
 Search, Cloudflare Rate Limiting, native `env.AI.run()`, Node's built-in test
 runner.
 

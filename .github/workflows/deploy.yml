@@ -1,4 +1,4 @@
-name: Deploy to Cloudflare Pages
+name: Deploy to Cloudflare Workers
 
 on:
   push:
@@ -64,15 +64,21 @@ jobs:
 
       - name: Validate SEO metadata
         run: npm run seo:validate
-      
-      - name: Deploy to Cloudflare Pages
+
+      - name: Build Workers router
+        run: npm run worker:build
+
+      - name: Validate Workers deployment
+        run: npm exec --no -- wrangler deploy --dry-run
+
+      - name: Deploy to Cloudflare Workers
         if: github.event_name != 'pull_request'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         # Wrangler is a lockfile-pinned devDependency (integrity-checked by npm
         # ci) instead of a runtime npx download next to the Cloudflare secrets.
-        run: npm exec --no -- wrangler pages deploy dist --project-name=smartbolig-starlight
+        run: npm exec --no -- wrangler deploy
 
       - name: Ping IndexNow
         if: github.event_name != 'pull_request'

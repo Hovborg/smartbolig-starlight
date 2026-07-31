@@ -26,7 +26,7 @@ Sitet er tilgængeligt på både dansk og engelsk.
 ## 🛠️ Teknisk Stack
 
 - **Framework:** [Astro Starlight](https://starlight.astro.build/)
-- **Hosting:** [Cloudflare Pages](https://pages.cloudflare.com/)
+- **Hosting:** [Cloudflare Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/) med det eksisterende Pages-projekt bevaret som rollback
 - **Sprog:** Dansk (primær) + Engelsk
 - **Styling:** Custom responsivt portaldesign med lys og mørk tilstand
 
@@ -35,7 +35,8 @@ Sitet er tilgængeligt på både dansk og engelsk.
 ## ✨ SmartBolig AI-assistent
 
 Alle sider viser en valgfri AI-assistent nederst til højre. Den er bygget som en
-samme-origin Cloudflare Pages Function og en specialdesignet Astro-widget:
+samme-origin Cloudflare Worker, kompileret fra en Pages Functions-router, og en
+specialdesignet Astro-widget:
 
 - **Bred AI-hjerne:** Workers AI-modellen
   `@cf/google/gemma-4-26b-a4b-it` svarer om
@@ -69,13 +70,13 @@ API- og widgettests bruger fakes og foretager ingen betalte AI-kald:
 npm run site:test
 ```
 
-Kompilér Pages Functions og validér bindings lokalt:
+Kompilér Pages Functions-routeren og validér Worker-konfigurationen lokalt:
 
 ```bash
 types_dir="$(mktemp -d)"
 npx wrangler types "$types_dir/worker-configuration.d.ts" --include-runtime false
-build_dir="$(mktemp -d)"
-npx wrangler pages functions build functions --outdir "$build_dir" --project-directory .
+npm run worker:build
+npx wrangler deploy --dry-run
 ```
 
 En rigtig lokal chat kræver remote Cloudflare-bindings og bruger Workers
@@ -83,7 +84,8 @@ AI/AI Search-kvoten:
 
 ```bash
 npm run build
-npx wrangler pages dev dist
+npm run worker:build
+npx wrangler dev
 ```
 
 Spørgsmål, bounded samtalehistorik og databehandlingen er beskrevet i de
@@ -107,11 +109,15 @@ src/content/docs/
 
 ## 🚀 Deployment
 
-Sitet deployes automatisk til Cloudflare Pages ved push til `main` branch.
+Sitet deployes automatisk som **Cloudflare Worker med Static Assets** ved push
+til `main`. Worker-ruterne ligger foran det eksisterende Pages-domæne, så
+Pages-projektet fortsat kan bruges som hurtig rollback, hvis Worker-ruterne
+fjernes.
 
-Deployment-workflowet stopper før publicering, hvis en kvalitets-, nyheds-,
-indholds-, sikkerheds-, build- eller SEO-kontrol fejler. Kør den samme centrale
-kontrol lokalt før push:
+Deployment-workflowet genbruger den eksisterende `dist/`-build, kompilerer
+`functions/` til `.worker/index.js` og stopper før publicering, hvis en
+kvalitets-, nyheds-, indholds-, sikkerheds-, build- eller SEO-kontrol fejler.
+Kør den samme centrale kontrol lokalt før push:
 
 ```bash
 npm ci
@@ -122,7 +128,8 @@ python3 scripts/content-audit.py
 npm audit --omit=dev --audit-level=critical
 npm run build
 npm run seo:validate
-npx wrangler pages functions build functions --outdir "$(mktemp -d)" --project-directory .
+npm run worker:build
+npx wrangler deploy --dry-run
 ```
 
 > **Midlertidig undtagelse (2026-07-29):** afhængighedstjekket er sænket fra
