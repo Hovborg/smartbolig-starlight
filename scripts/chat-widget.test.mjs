@@ -2,6 +2,12 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+import {
+  MAX_MODEL_RUNS,
+  MODEL_TIMEOUT_MS,
+  SEARCH_TIMEOUT_MS,
+} from "../functions/api/chat.js";
+
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 
 test("custom footer mounts one global SmartBolig assistant", async () => {
@@ -106,6 +112,15 @@ test("assistant handles loading, server failures, Escape and focus restoration",
   assert.match(source, /let requestSequence\s*=\s*0/);
   assert.match(source, /const requestId\s*=\s*\+\+requestSequence/);
   assert.match(source, /const requestController\s*=\s*new AbortController\(\)/);
+  const requestTimeoutMatch = source.match(/const REQUEST_TIMEOUT_MS\s*=\s*([\d_]+)/);
+  assert.ok(requestTimeoutMatch, "widget request timeout must stay explicit");
+  const requestTimeoutMs = Number(requestTimeoutMatch[1].replaceAll("_", ""));
+  const maximumServerPathMs = MODEL_TIMEOUT_MS * MAX_MODEL_RUNS + SEARCH_TIMEOUT_MS;
+  assert.equal(requestTimeoutMs, 105_000);
+  assert.ok(
+    requestTimeoutMs >= maximumServerPathMs + 10_000,
+    "browser timeout must cover search, every allowed model run and network overhead",
+  );
   assert.match(source, /requestId\s*!==\s*requestSequence/);
   assert.match(source, /abortController\s*===\s*requestController/);
   assert.match(source, /event\.key\s*===\s*["']Escape["']/);

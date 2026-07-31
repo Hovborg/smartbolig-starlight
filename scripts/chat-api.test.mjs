@@ -3,10 +3,12 @@ import test from "node:test";
 
 import {
   CHAT_MODEL,
+  MAX_MODEL_TOKENS,
   MAX_MESSAGE_CHARS,
   MAX_MESSAGES,
   MAX_REQUEST_BYTES,
   MAX_TOTAL_CHARS,
+  MODEL_TIMEOUT_MS,
   createChatHandler,
   createWorkersAgent,
 } from "../functions/api/chat.js";
@@ -229,7 +231,9 @@ test("Workers AI agent keeps broad expertise and exposes AI Search as an optiona
   assert.equal(result.answer, "Et kombineret ekspertsvar.");
   assert.equal(modelCalls.length, 2);
   assert.ok(modelCalls.every((call) => call.model === CHAT_MODEL));
-  assert.ok(modelCalls.every((call) => call.input.max_completion_tokens === 2_200));
+  assert.equal(MAX_MODEL_TOKENS, 1_200);
+  assert.equal(MODEL_TIMEOUT_MS, 45_000);
+  assert.ok(modelCalls.every((call) => call.input.max_completion_tokens === MAX_MODEL_TOKENS));
   assert.ok(modelCalls.every((call) => call.input.max_tokens === undefined));
   assert.ok(modelCalls.every((call) => call.input.reasoning_effort === "low"));
   assert.ok(modelCalls.every((call) => call.input.temperature === 0.1));
@@ -401,7 +405,7 @@ test("Workers AI agent answers in one bounded model call when AI Search is unava
   assert.equal(calls.length, 1);
   assert.equal(calls[0].model, CHAT_MODEL);
   assert.equal(calls[0].input.tools, undefined);
-  assert.equal(calls[0].input.max_completion_tokens, 2_200);
+  assert.equal(calls[0].input.max_completion_tokens, MAX_MODEL_TOKENS);
   assert.equal(calls[0].input.max_tokens, undefined);
   assert.equal(calls[0].input.reasoning_effort, "low");
 });

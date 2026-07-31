@@ -9,9 +9,9 @@ export const MAX_ANSWER_CHARS = 12_000;
 export const MAX_SEARCH_QUERY_CHARS = 400;
 export const MAX_SEARCH_RESULTS = 5;
 export const MAX_SEARCH_CHUNK_CHARS = 2_400;
-export const MAX_MODEL_TOKENS = 2_200;
+export const MAX_MODEL_TOKENS = 1_200;
 export const MAX_MODEL_RUNS = 2;
-export const MODEL_TIMEOUT_MS = 25_000;
+export const MODEL_TIMEOUT_MS = 45_000;
 export const SEARCH_TIMEOUT_MS = 5_000;
 
 const JSON_HEADERS = {

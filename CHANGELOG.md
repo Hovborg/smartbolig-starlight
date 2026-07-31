@@ -2,6 +2,10 @@
 
 ## 2026-07-31
 
+- Fixed intermittent live chat failures where the 26B Workers AI model crossed
+  the original 25-second server timeout: model output is now capped at 1,200
+  tokens, each model run may take 45 seconds, and the browser's 105-second cap
+  covers the bounded two-run AI Search fallback plus network overhead.
 - Rebuilt the 404 page as a Home Assistant "entity unavailable" card in the
   site's own palette, replacing the off-brand indigo page. It shows the path
   that failed, and suggests the closest real guides from a build-time index of
