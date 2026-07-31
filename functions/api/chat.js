@@ -17,6 +17,10 @@ export const PRIMARY_MODEL_TIMEOUT_MS = 30_000;
 export const FALLBACK_MODEL_TIMEOUT_MS = 20_000;
 export const SEARCH_TIMEOUT_MS = 5_000;
 
+const CHAT_MODEL_DIAGNOSTIC = "gemma-4-26b-a4b-it";
+const CHAT_FALLBACK_MODEL_DIAGNOSTIC = "llama-3.1-8b-instruct-fast";
+const MAX_PUBLIC_DURATION_MS = 120_000;
+
 const JSON_HEADERS = {
   "cache-control": "no-store",
   "content-type": "application/json; charset=utf-8",
@@ -394,7 +398,13 @@ export function createWorkersAgent(dependencies = {}) {
           emptyError.name = "EmptyModelResponseError";
           throw emptyError;
         }
-        return fallbackResult;
+        return {
+          result: fallbackResult,
+          diagnostics: {
+            model: CHAT_FALLBACK_MODEL_DIAGNOSTIC,
+            route: "fallback",
+          },
+        };
       } catch (error) {
         if (error?.name !== "EmptyModelResponseError") {
           reportFallback({
@@ -427,7 +437,13 @@ export function createWorkersAgent(dependencies = {}) {
       }
 
       if (extractModelAnswer(primaryResult) || (inputTools && selectSearchToolCall(primaryResult))) {
-        return primaryResult;
+        return {
+          result: primaryResult,
+          diagnostics: {
+            model: CHAT_MODEL_DIAGNOSTIC,
+            route: "primary",
+          },
+        };
       }
       return runFallback(inputMessages, "empty_primary_response", null);
     };
@@ -435,31 +451,37 @@ export function createWorkersAgent(dependencies = {}) {
     if (searchSmartbolig && shouldRequireSmartboligSearch(messages)) {
       const query = messages.at(-1).content.slice(0, MAX_SEARCH_QUERY_CHARS);
       const toolResult = await searchSmartbolig(query);
-      const result = await runModel(
+      const execution = await runModel(
         withOfficialReference(withSmartboligReference(modelMessages, toolResult), officialEvidence),
       );
-      const answer = extractModelAnswer(result);
+      const answer = extractModelAnswer(execution.result);
       if (!answer) throw new Error("EmptyModelResponse");
-      return { answer: answer.slice(0, MAX_ANSWER_CHARS) };
+      return {
+        answer: answer.slice(0, MAX_ANSWER_CHARS),
+        diagnostics: execution.diagnostics,
+      };
     }
 
     let modelRuns = 1;
-    let result = await runModel(withOfficialReference(modelMessages, officialEvidence), tools);
-    const selectedTool = searchSmartbolig ? selectSearchToolCall(result) : null;
+    let execution = await runModel(withOfficialReference(modelMessages, officialEvidence), tools);
+    const selectedTool = searchSmartbolig ? selectSearchToolCall(execution.result) : null;
 
     if (selectedTool) {
       const toolResult = await searchSmartbolig(selectedTool.query);
       modelRuns += 1;
       if (modelRuns > MAX_MODEL_RUNS) throw new Error("ModelRunLimitExceeded");
 
-      result = await runModel(
+      execution = await runModel(
         withOfficialReference(withSmartboligReference(modelMessages, toolResult), officialEvidence),
       );
     }
 
-    const answer = extractModelAnswer(result);
+    const answer = extractModelAnswer(execution.result);
     if (!answer) throw new Error("EmptyModelResponse");
-    return { answer: answer.slice(0, MAX_ANSWER_CHARS) };
+    return {
+      answer: answer.slice(0, MAX_ANSWER_CHARS),
+      diagnostics: execution.diagnostics,
+    };
   };
 }
 
@@ -581,14 +603,32 @@ function safeErrorName(error) {
   return "UnknownError";
 }
 
+function createPublicDiagnostics(candidate, durationMs, requestId) {
+  const hasPrimaryRoute =
+    candidate?.model === CHAT_MODEL_DIAGNOSTIC && candidate?.route === "primary";
+  const hasFallbackRoute =
+    candidate?.model === CHAT_FALLBACK_MODEL_DIAGNOSTIC && candidate?.route === "fallback";
+  const hasKnownRoute = hasPrimaryRoute || hasFallbackRoute;
+  const numericDuration = Number.isFinite(durationMs) ? Math.round(durationMs) : 0;
+
+  return {
+    model: hasKnownRoute ? candidate.model : "unknown",
+    route: hasKnownRoute ? candidate.route : "unknown",
+    durationMs: Math.min(MAX_PUBLIC_DURATION_MS, Math.max(0, numericDuration)),
+    trace: typeof requestId === "string" ? requestId.slice(0, 64) : "",
+  };
+}
+
 export function createChatHandler(dependencies = {}) {
   const agentRunner = dependencies.agentRunner || createWorkersAgent();
   const createRequestId = dependencies.createRequestId || (() => crypto.randomUUID());
   const logger = dependencies.logger || console;
   const searchTimeoutMs = dependencies.searchTimeoutMs ?? SEARCH_TIMEOUT_MS;
+  const now = dependencies.now || Date.now;
 
   return async function handleChat({ request, env }) {
     const requestId = createRequestId();
+    const requestStartedAt = now();
 
     if (request.method !== "POST") {
       return jsonResponse("method_not_allowed", 405, requestId, { allow: "POST" });
@@ -697,6 +737,11 @@ export function createChatHandler(dependencies = {}) {
       if (!answer) throw new Error("EmptyAssistantAnswer");
 
       const sources = [...sourceMap.values()];
+      const diagnostics = createPublicDiagnostics(
+        result?.diagnostics,
+        now() - requestStartedAt,
+        requestId,
+      );
       return jsonResponse(
         {
           answer: answer.slice(0, MAX_ANSWER_CHARS),
@@ -709,6 +754,7 @@ export function createChatHandler(dependencies = {}) {
                 ? "mixed"
                 : "general",
           requestId,
+          diagnostics,
         },
         200,
         requestId,

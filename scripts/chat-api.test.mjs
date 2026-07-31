@@ -182,6 +182,62 @@ test("general-knowledge answers work without AI Search and return no-store metad
   assert.equal(received.searchSmartbolig, undefined);
 });
 
+test("chat response exposes only allowlisted bounded public diagnostics", async () => {
+  const ticks = [10_000, 10_250];
+  const handler = createChatHandler({
+    agentRunner: async () => ({
+      answer: "Et svar via den afgrænsede fallback.",
+      diagnostics: {
+        model: "llama-3.1-8b-instruct-fast",
+        route: "fallback",
+      },
+    }),
+    createRequestId: () => "req-test-123",
+    logger: { error() {} },
+    now: () => ticks.shift() ?? 10_250,
+  });
+
+  const response = await handler({
+    request: request(validBody("Hvad er ESPHome?")),
+    env: createEnv({ SMARTBOLIG_SEARCH: undefined }),
+  });
+  const body = await json(response);
+
+  assert.equal(response.status, 200);
+  assert.deepEqual(body.diagnostics, {
+    model: "llama-3.1-8b-instruct-fast",
+    route: "fallback",
+    durationMs: 250,
+    trace: "req-test-123",
+  });
+
+  const untrustedHandler = createChatHandler({
+    agentRunner: async () => ({
+      answer: "Et svar med ugyldig intern metadata.",
+      diagnostics: {
+        model: "<script>alert(1)</script>",
+        route: "provider-secret-route",
+      },
+    }),
+    createRequestId: () => "x".repeat(100),
+    logger: { error() {} },
+    now: () => 20_000,
+  });
+  const untrustedResponse = await untrustedHandler({
+    request: request(validBody("Hvad er ESPHome?")),
+    env: createEnv({ SMARTBOLIG_SEARCH: undefined }),
+  });
+  const untrustedBody = await json(untrustedResponse);
+
+  assert.deepEqual(untrustedBody.diagnostics, {
+    model: "unknown",
+    route: "unknown",
+    durationMs: 0,
+    trace: "x".repeat(64),
+  });
+  assert.doesNotMatch(JSON.stringify(untrustedBody), /script|provider-secret-route/i);
+});
+
 test("Workers AI agent keeps broad expertise and exposes AI Search as an optional tool", async () => {
   assert.equal(CHAT_MODEL, "@cf/google/gemma-4-26b-a4b-it");
   const modelCalls = [];
@@ -232,6 +288,10 @@ test("Workers AI agent keeps broad expertise and exposes AI Search as an optiona
   });
 
   assert.equal(result.answer, "Et kombineret ekspertsvar.");
+  assert.deepEqual(result.diagnostics, {
+    model: "gemma-4-26b-a4b-it",
+    route: "primary",
+  });
   assert.equal(modelCalls.length, 2);
   assert.ok(modelCalls.every((call) => call.model === CHAT_MODEL));
   assert.equal(MAX_MODEL_TOKENS, 1_200);
@@ -289,6 +349,10 @@ test("Workers AI agent falls back to a fast bounded model when the primary provi
   });
 
   assert.equal(result.answer, "Et afgrænset fallback-svar.");
+  assert.deepEqual(result.diagnostics, {
+    model: "llama-3.1-8b-instruct-fast",
+    route: "fallback",
+  });
   assert.deepEqual(modelCalls.map((call) => call.model), [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
   assert.equal(modelCalls[0].input.max_completion_tokens, MAX_MODEL_TOKENS);
   assert.equal(modelCalls[0].input.reasoning_effort, "low");
@@ -322,6 +386,10 @@ test("Workers AI agent falls back when the primary model returns neither text no
   });
 
   assert.equal(result.answer, "Et rigtigt fallback-svar.");
+  assert.deepEqual(result.diagnostics, {
+    model: "llama-3.1-8b-instruct-fast",
+    route: "fallback",
+  });
   assert.deepEqual(models, [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
   assert.deepEqual(fallbackEvents, [{
     event: "fallback_started",
