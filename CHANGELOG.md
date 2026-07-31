@@ -2,6 +2,19 @@
 
 ## 2026-07-31
 
+- Turned the bilingual assistant into a technical AI console with four visible,
+  editable work modes for debugging, building, explaining and comparing. The
+  modes add no hidden system prompt or permissions.
+- Added an honest active-request display that measures elapsed browser wait
+  time without claiming access to internal model progress.
+- Added per-answer operational diagnostics for the allowlisted model route,
+  bounded edge duration, request trace and validated source count. Traces carry
+  no prompt or answer data, and the rail is explicitly not a correctness score.
+- Added DOM-only fenced code and YAML consoles with preserved indentation and a
+  dedicated copy button; model-generated HTML remains prohibited.
+- Fixed follow-up questions after long answers by bounding persisted and
+  retransmitted context to the API contract while keeping the fresh answer
+  fully visible.
 - Fixed live chat failures in the primary 26B Workers AI inference path. Gemma
   remains the quality-first model with a 30-second budget and 1,200-token cap;
   a Cloudflare-hosted fast Llama model gets one bounded 20-second fallback

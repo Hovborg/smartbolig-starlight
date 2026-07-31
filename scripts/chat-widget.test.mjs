@@ -65,6 +65,19 @@ test("assistant uses same-origin bounded session-only chat without unsafe HTML s
   assert.doesNotMatch(source, /localStorage/);
 });
 
+test("assistant bounds persisted and outbound context without shortening the current rendered answer", async () => {
+  const source = await read("src/components/SmartBoligAssistant.astro");
+
+  assert.match(source, /history\.slice\(-MAX_HISTORY_MESSAGES\)\.map\(normalizeStoredMessage\)\.filter\(Boolean\)/);
+  assert.match(source, /const MAX_HISTORY_CHARS\s*=\s*8_000/);
+  assert.match(source, /function createRequestMessages\(\)/);
+  assert.match(source, /requestMessages\.length\s*<\s*MAX_HISTORY_MESSAGES/);
+  assert.match(source, /Math\.min\(MAX_MESSAGE_CHARS,\s*remainingChars\)/);
+  assert.match(source, /requestMessages\[0\]\?\.role\s*!==\s*["']user["']/);
+  assert.match(source, /messages:\s*createRequestMessages\(\)/);
+  assert.match(source, /result\.answer\.trim\(\)\.slice\(0,\s*12_000\)/);
+});
+
 test("assistant safely formats model Markdown without an HTML sink", async () => {
   const source = await read("src/components/SmartBoligAssistant.astro");
 
@@ -75,6 +88,112 @@ test("assistant safely formats model Markdown without an HTML sink", async () =>
   assert.match(source, /document\.createElement\(["'](?:ul|ol)["']\)/);
   assert.match(source, /bubble\.append\(createSafeRichText\(message\.content\)\)/);
   assert.doesNotMatch(source, /\.innerHTML\s*=/);
+});
+
+test("assistant renders fenced technical code with a DOM-only copyable console", async () => {
+  const source = await read("src/components/SmartBoligAssistant.astro");
+
+  assert.match(source, /function createSafeCodeBlock\(code,\s*language\)/);
+  assert.match(source, /document\.createElement\(["']pre["']\)/);
+  assert.match(source, /document\.createElement\(["']code["']\)/);
+  assert.match(source, /safeLanguagePattern/);
+  assert.match(source, /codeElement\.textContent\s*=\s*code/);
+  assert.match(source, /fenceMatch/);
+  assert.match(source, /Kopiér kode/);
+  assert.match(source, /Copy code/);
+  assert.match(source, /smartbolig-ai__code-shell/);
+  assert.match(source, /smartbolig-ai__code-head/);
+  assert.doesNotMatch(source, /\.innerHTML\s*=/);
+  assert.doesNotMatch(source, /insertAdjacentHTML/);
+});
+
+test("assistant shows allowlisted bilingual model, route, edge, trace and source diagnostics", async () => {
+  const source = await read("src/components/SmartBoligAssistant.astro");
+
+  for (const copy of [
+    "MODEL",
+    "RUTE",
+    "ROUTE",
+    "EDGE",
+    "SPOR",
+    "TRACE",
+    "KILDER",
+    "SOURCES",
+    "PRIMÆR",
+    "PRIMARY",
+    "FALLBACK",
+  ]) {
+    assert.match(source, new RegExp(copy), `missing localized diagnostic copy: ${copy}`);
+  }
+
+  assert.match(source, /function normalizeDiagnostics\(diagnostics\)/);
+  assert.match(source, /ALLOWED_DIAGNOSTIC_MODELS/);
+  assert.match(source, /ALLOWED_DIAGNOSTIC_ROUTES/);
+  assert.match(source, /smartbolig-ai__diagnostics/);
+  assert.match(source, /data-diagnostic-route/);
+  assert.match(source, /message\.diagnostics/);
+  assert.match(source, /result\.diagnostics/);
+  assert.match(source, /Math\.min\(120_000/);
+  assert.match(source, /trace\.slice\(0,\s*64\)/);
+  assert.match(source, /overflow-x:\s*auto/);
+});
+
+test("assistant keeps four visible bilingual expert work modes beside the composer", async () => {
+  const source = await read("src/components/SmartBoligAssistant.astro");
+
+  for (const copy of [
+    "ARBEJDSPROFIL",
+    "WORK MODE",
+    "Fejlsøg",
+    "Debug",
+    "Byg",
+    "Build",
+    "Forklar",
+    "Explain",
+    "Sammenlign",
+    "Compare",
+    "sikre trin, verifikation og rollback",
+    "safe steps, verification and rollback",
+    "Prompten blev afkortet",
+    "The prompt was shortened",
+  ]) {
+    assert.match(source, new RegExp(copy, "i"), `missing localized work-mode copy: ${copy}`);
+  }
+
+  const modeButtons = source.match(/<button[^>]*data-chat-mode/g) || [];
+  assert.equal(modeButtons.length, 4, "assistant must expose exactly four persistent work modes");
+  assert.match(source, /data-chat-modes/);
+  assert.match(source, /data-template=/);
+  assert.match(source, /aria-pressed="false"/);
+  assert.match(source, /button\.dataset\.template/);
+  assert.match(source, /input\.value\s*=/);
+  assert.match(source, /input\.dispatchEvent\(new Event\(["']input["']\)\)/);
+  assert.match(source, /MAX_MESSAGE_CHARS\s*-\s*template\.length/);
+  assert.match(source, /remainder\.slice\(0,\s*availableChars\)/);
+  assert.match(source, /activeModeTemplate\s*&&\s*!input\.value\.startsWith\(activeModeTemplate\)/);
+});
+
+test("assistant shows an honest elapsed edge request console and clears its timer", async () => {
+  const source = await read("src/components/SmartBoligAssistant.astro");
+
+  assert.match(source, /EDGE-FORESPØRGSEL AKTIV/);
+  assert.match(source, /EDGE REQUEST ACTIVE/);
+  assert.match(source, /WORKER · CONTEXT · MODEL/);
+  assert.match(source, /data-chat-elapsed/);
+  assert.match(source, /performance\.now\(\)/);
+  assert.match(source, /setInterval\(/);
+  assert.match(source, /function stopLoadingTimer\(\)/);
+  assert.match(source, /clearInterval\(loadingTimer\)/);
+  assert.match(source, /renderLoading\(\)[\s\S]*return article/);
+  assert.match(source, /elapsed\.setAttribute\(["']aria-hidden["'],\s*["']true["']\)/);
+  assert.match(source, /elapsed\.dataset\.chatElapsed\s*=/);
+  assert.match(source, /function closeAssistant\(\)\s*\{\s*stopLoadingTimer\(\)/);
+  assert.match(source, /function resetConversation\(\)[\s\S]{0,160}stopLoadingTimer\(\)/);
+  assert.match(
+    source,
+    /if \(abortController === requestController\) \{\s*stopLoadingTimer\(\)/,
+    "a stale request must not stop the timer owned by a newer request",
+  );
 });
 
 test("assistant renders copy controls and revalidates canonical SmartBolig and official sources", async () => {
