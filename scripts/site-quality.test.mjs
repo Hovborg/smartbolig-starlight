@@ -553,3 +553,34 @@ test("deploy runs every local quality gate before publishing", async () => {
   assert.match(workflow, /wrangler deploy(?:\s|$)/);
   assert.doesNotMatch(workflow, /wrangler pages deploy/);
 });
+
+test("static redirect rules stay before dynamic rules for Workers limits", async () => {
+  const redirectLines = (await read("public/_redirects"))
+    .split("\n")
+    .map((line) => line.replace(/\s+#.*$/, "").trim())
+    .filter((line) => line && !line.startsWith("#"));
+
+  let sawDynamicRule = false;
+  let staticRules = 0;
+  let dynamicRules = 0;
+
+  for (const line of redirectLines) {
+    const [source] = line.split(/\s+/);
+    const isDynamic = source.includes("*") || /:[A-Za-z][A-Za-z0-9_]*/.test(source);
+    if (isDynamic) {
+      sawDynamicRule = true;
+      dynamicRules += 1;
+      continue;
+    }
+
+    assert.equal(
+      sawDynamicRule,
+      false,
+      `static redirect appears after a dynamic redirect and would consume the 100-rule dynamic quota: ${line}`,
+    );
+    staticRules += 1;
+  }
+
+  assert.ok(staticRules <= 2_000, `static redirect limit exceeded: ${staticRules}`);
+  assert.ok(dynamicRules <= 100, `dynamic redirect limit exceeded: ${dynamicRules}`);
+});
