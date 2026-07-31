@@ -371,6 +371,93 @@ const t = translations[lang];
       return button;
     }
 
+    function appendInlineFormatting(element, content) {
+      const tokenPattern = /(\*\*[^*\n]+\*\*|`[^`\n]+`)/g;
+      let cursor = 0;
+
+      for (const match of content.matchAll(tokenPattern)) {
+        const index = match.index ?? 0;
+        if (index > cursor) {
+          element.append(document.createTextNode(content.slice(cursor, index)));
+        }
+
+        const token = match[0];
+        const formatted = token.startsWith("**")
+          ? document.createElement("strong")
+          : document.createElement("code");
+        formatted.textContent = token.startsWith("**") ? token.slice(2, -2) : token.slice(1, -1);
+        element.append(formatted);
+        cursor = index + token.length;
+      }
+
+      if (cursor < content.length) {
+        element.append(document.createTextNode(content.slice(cursor)));
+      }
+    }
+
+    function createSafeRichText(content) {
+      const container = document.createElement("div");
+      container.className = "smartbolig-ai__rich-text";
+      const lines = String(content).replace(/\r\n?/g, "\n").split("\n");
+      let paragraphLines = [];
+      let list = null;
+      let listKind = "";
+
+      const flushParagraph = () => {
+        if (paragraphLines.length === 0) return;
+        const paragraph = document.createElement("p");
+        appendInlineFormatting(paragraph, paragraphLines.join(" "));
+        container.append(paragraph);
+        paragraphLines = [];
+      };
+
+      const closeList = () => {
+        list = null;
+        listKind = "";
+      };
+
+      for (const rawLine of lines) {
+        const line = rawLine.trim();
+        if (!line) {
+          flushParagraph();
+          closeList();
+          continue;
+        }
+
+        const headingMatch = line.match(/^#{1,4}\s+(.+)$/);
+        if (headingMatch) {
+          flushParagraph();
+          closeList();
+          const heading = document.createElement("h3");
+          appendInlineFormatting(heading, headingMatch[1]);
+          container.append(heading);
+          continue;
+        }
+
+        const unorderedMatch = line.match(/^[-*]\s+(.+)$/);
+        const orderedMatch = line.match(/^\d+[.)]\s+(.+)$/);
+        if (unorderedMatch || orderedMatch) {
+          flushParagraph();
+          const nextKind = orderedMatch ? "ol" : "ul";
+          if (!list || listKind !== nextKind) {
+            list = nextKind === "ol" ? document.createElement("ol") : document.createElement("ul");
+            listKind = nextKind;
+            container.append(list);
+          }
+          const item = document.createElement("li");
+          appendInlineFormatting(item, (orderedMatch || unorderedMatch)[1]);
+          list.append(item);
+          continue;
+        }
+
+        closeList();
+        paragraphLines.push(line);
+      }
+
+      flushParagraph();
+      return container;
+    }
+
     function renderMessage(message) {
       const article = document.createElement("article");
       article.className = `smartbolig-ai__message smartbolig-ai__message--${message.role}`;
@@ -395,9 +482,13 @@ const t = translations[lang];
 
       const bubble = document.createElement("div");
       bubble.className = "smartbolig-ai__bubble";
-      const body = document.createElement("p");
-      body.append(document.createTextNode(message.content));
-      bubble.append(body);
+      if (message.role === "assistant") {
+        bubble.append(createSafeRichText(message.content));
+      } else {
+        const body = document.createElement("p");
+        body.append(document.createTextNode(message.content));
+        bubble.append(body);
+      }
 
       if (message.role === "assistant") {
         const validSources = Array.isArray(message.sources)
@@ -1094,6 +1185,50 @@ const t = translations[lang];
     white-space: pre-wrap;
   }
 
+  .smartbolig-ai__rich-text {
+    display: grid;
+    gap: 0.58rem;
+    color: #e9edf3;
+    font-size: 0.79rem;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+  }
+
+  .smartbolig-ai__rich-text h3 {
+    margin: 0.2rem 0 0;
+    color: #fff;
+    font-size: 0.84rem;
+    font-weight: 760;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+  }
+
+  .smartbolig-ai__rich-text ul,
+  .smartbolig-ai__rich-text ol {
+    display: grid;
+    gap: 0.38rem;
+    margin: 0;
+    padding-inline-start: 1.2rem;
+  }
+
+  .smartbolig-ai__rich-text li::marker {
+    color: var(--ai-cyan);
+  }
+
+  .smartbolig-ai__rich-text strong {
+    color: #fff;
+    font-weight: 720;
+  }
+
+  .smartbolig-ai__rich-text code {
+    padding: 0.08rem 0.28rem;
+    border: 1px solid rgba(49, 215, 255, 0.16);
+    border-radius: 5px;
+    color: #b9f1ff;
+    background: rgba(49, 215, 255, 0.07);
+    font-size: 0.72rem;
+  }
+
   .smartbolig-ai__sources {
     display: flex;
     flex-wrap: wrap;
@@ -1340,8 +1475,14 @@ const t = translations[lang];
 
   [data-theme='light'] .smartbolig-ai__launcher-status,
   [data-theme='light'] .smartbolig-ai__welcome p,
-  [data-theme='light'] .smartbolig-ai__bubble p {
+  [data-theme='light'] .smartbolig-ai__bubble p,
+  [data-theme='light'] .smartbolig-ai__rich-text {
     color: #405268;
+  }
+
+  [data-theme='light'] .smartbolig-ai__rich-text h3,
+  [data-theme='light'] .smartbolig-ai__rich-text strong {
+    color: #172437;
   }
 
   [data-theme='light'] .smartbolig-ai__composer {
