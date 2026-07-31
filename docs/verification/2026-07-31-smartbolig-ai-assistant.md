@@ -118,8 +118,8 @@ The following gates were run from the repository root:
 
 | Check | Result |
 | --- | --- |
-| `node --test scripts/chat-api.test.mjs` | 15/15 passed, including the final AI Search timeout regression |
-| `node --test scripts/chat-widget.test.mjs` | 7/7 passed after the final error-status regression |
+| `node --test scripts/chat-api.test.mjs` | 52/52 passed, including all four Home Assistant YAML shapes and generic-YAML isolation |
+| `node --test scripts/chat-widget.test.mjs` | 14/14 passed, including the 180-second browser ceiling |
 | `npm run build` | Passed; 311 pages built, Pagefind and sitemap completed |
 | `npx wrangler pages functions build` | Passed; Pages Functions bundle compiled |
 | Baseline dependency audit | 8 advisories: 1 low, 3 moderate, 4 high, 0 critical |
@@ -268,9 +268,31 @@ low reasoning effort; the live-quality hotfix later raised the current cap to
 trial had already been rejected because hidden reasoning truncated the visible
 answer.
 
+A later production tail showed intermittent `TimeoutError` at the 40-second
+Gemma boundary followed by Qwen returning an `automation:` wrapper that failed
+the paste-ready YAML contract. The current runtime therefore gives Gemma 55
+seconds and selects a separate response contract for editor YAML,
+`configuration.yaml`, `automations.yaml`, or an automation blueprint.
+[Official Home Assistant 2026.7.4 automation documentation](https://www.home-assistant.io/docs/automation/yaml/)
+was rechecked and confirms required `triggers` and `actions` lists, optional
+`conditions`, and `max` rather than `max_runs`; the
+[official blueprint schema](https://www.home-assistant.io/docs/blueprint/schema/)
+confirms that automation-domain `triggers`, `conditions`, `actions`, and `mode`
+stay at the document root rather than inside `blueprint:`. Shape-specific
+validators now reject misplaced wrappers, list roots, singular keys,
+`max_runs`, and incorrect mode placement while leaving generic non-Home-
+Assistant YAML outside the specialist validator. Three consecutive remote
+editor probes returned root-level `alias`, `triggers`, `actions`, and
+`mode: queued`; separate probes returned valid `configuration.yaml` and
+`automations.yaml` shapes. Qwen still nested the blueprint domain schema after
+three increasingly explicit prompts, so that malformed output was deliberately
+rejected as `InvalidModelResponseError` rather than presented as valid YAML.
+The 180-second browser ceiling covers the conservative two-run path with both
+possible fallbacks and network margin.
+
 ## Final gate results
 
-- `npm run site:test`: 58/58 passed.
+- `npm run site:test`: 103/103 passed.
 - `npm run ai-news:test`: 49/49 passed.
 - `npm run ai-news:validate`: 61 bilingual daily issue pairs passed.
 - `python3 scripts/content-audit.py`: 0 syntax issues, 0 broken links,
@@ -283,7 +305,7 @@ answer.
   `CHAT_RATE_LIMITER` bindings with the expected types.
 - `npm run worker:build`: compiled the Pages Functions router to the Workers
   entrypoint successfully.
-- `npx wrangler deploy --dry-run`: passed with 1,605 static assets and all four
+- `npx wrangler deploy --dry-run`: passed with 1,607 static assets and all four
   expected bindings.
 - `git diff --check`: clean.
-- Credential-pattern scan: clean across all four redesign-owned files.
+- Credential-pattern scan: clean across all seven changed files.

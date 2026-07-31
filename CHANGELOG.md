@@ -2,6 +2,16 @@
 
 ## 2026-07-31
 
+- Extended the Gemma timeout after production tail logs proved that otherwise
+  valid English requests could hit the previous 40-second limit under load.
+  The Qwen fallback prompt now selects a separate Home Assistant YAML contract
+  for editor output, `configuration.yaml`, `automations.yaml`, or an automation
+  blueprint. Post-inference validators enforce each requested root shape,
+  current `triggers`/`actions` keys, top-level mode placement, and reject
+  invalid wrappers, list roots, singular legacy keys, and invented `max_runs`.
+  Non-Home-Assistant YAML remains outside this specialist validation, and
+  malformed model output fails closed. The browser/diagnostic ceiling is
+  aligned at 180 seconds.
 - Prevented broad technical answers from ending mid-sentence by increasing the
   reasoning-aware completion budgets, tightening the response-length prompt,
   treating provider token-limit finish reasons as invalid, and recognizing
@@ -35,9 +45,9 @@
   retransmitted context to the API contract while keeping the fresh answer
   fully visible.
 - Fixed live chat failures in the primary 26B Workers AI inference path. Gemma
-  remains the quality-first model with a 40-second budget and 2,400-token cap;
+  remains the quality-first model with a 55-second budget and 2,400-token cap;
   each Gemma call can make one bounded 25-second Qwen3 30B-A3B fallback attempt
-  with 1,600 tokens. The browser's 150-second cap covers the conservative
+  with 1,600 tokens. The browser's 180-second cap covers the conservative
   two-run AI Search path, both possible fallbacks and network overhead. Empty
   primary responses also fall back, and every fallback stage emits a sanitized
   request-correlated log.

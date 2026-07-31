@@ -63,14 +63,18 @@ specialdesignet Astro-widget:
   deduplikeres i samme modelkald.
 - **Svar-kontrakt:** Workeren afviser tomme svar, interne reference-tags og
   synlige `search_smartbolig`-kald. Når brugeren udtrykkeligt beder om en
-  fenced YAML-kodeblok med en automationsværdi som `mode: queued`, skal hver
-  ønsket mode stå som en aktiv top-level `mode`-nøgle i en fenced YAML-blok —
-  en kommentar eller tekst inde i en anden nøgle tæller ikke. Et rent
-  konceptspørgsmål om eksempelvis queued mode udløser ikke et kunstigt krav om
-  key-value-syntaks. Ellers prøves den afgrænsede fallback, og også den fejler
-  lukket frem for at vise et vildledende næsten-svar. Det reducerer kendte fejl,
-  men er ikke en generel garanti for, at al modelgenereret konfiguration er
-  korrekt.
+  Home Assistant-automationskode, klassificeres den ønskede form som enten
+  editor-YAML, en mærket `configuration.yaml`-blok, en `automations.yaml`-
+  listepost eller et automation-blueprint. Hver form valideres server-side mod
+  sit eget rodformat, de aktuelle pluralnøgler `triggers`/`actions` og en
+  eventuel ønsket top-level `mode`; wrapper-, liste-, singular- og `max_runs`-
+  varianter afvises, når de ikke hører til formen. Almindelig YAML til andre
+  systemer, eksempelvis GitHub Actions, tvinges ikke gennem Home Assistant-
+  valideringen. Et rent konceptspørgsmål om eksempelvis queued mode udløser
+  heller ikke et kunstigt syntakskrav. Ellers prøves den afgrænsede fallback,
+  og også den fejler lukket frem for at vise et vildledende næsten-svar. Det
+  reducerer kendte fejl, men er ikke en generel garanti for, at al
+  modelgenereret konfiguration er korrekt.
 - **Ingen dokumentationskopi:** SmartBolig kopierer ikke Home Assistant- eller ESPHome-dokumentation ind i AI Search.
   Den brede model svarer fortsat om hele fagområdet, mens kun serverens konkrete,
   gennemgåede fakta får officiel status.
@@ -117,10 +121,16 @@ specialdesignet Astro-widget:
 - **Lavere variation i tekniske fakta:** Modellen kører med temperatur `0.1`.
   Den indstilling gør svar mindre tilfældige, men erstatter ikke kilder,
   regressionstests eller brugerens kontrol i den konkrete installation.
+- **Håndhævet Home Assistant-editorformat:** Når brugeren beder om én fenced
+  YAML-automation, accepterer API'et kun et dokument, der starter med
+  root-level `alias`, bruger de aktuelle `triggers`- og `actions`-lister og
+  holder `mode` ved roden. Wrapper-, liste-, entals- og `max_runs`-varianter
+  går til fallback eller fejler lukket. Eksplicitte forespørgsler efter
+  `configuration.yaml` og `automations.yaml` bevarer deres korrekte filformat.
 - **Afgrænset svartid og længde:** Gemma får højst 2.400 completion-tokens og
   Qwen-fallbacken højst 1.600, så modellernes skjulte ræsonnering ikke afskærer
-  et teknisk svar midt i en sætning. Gemma har 40 sekunder pr. kald og Qwen har
-  25 sekunder. Browserens 150-sekunders maksimum dækker den sjældne værste sti
+  et teknisk svar midt i en sætning. Gemma har 55 sekunder pr. kald og Qwen har
+  25 sekunder. Browserens 180-sekunders maksimum dækker den sjældne værste sti
   med fem sekunders AI Search, to Gemma-kald, op til to Qwen-fallbackkald og ti
   sekunders netværksmargin. Et providerresultat med token-limit, en uafsluttet
   kodeblok eller et tydeligt hængende bindeord vises aldrig: primærsvaret går

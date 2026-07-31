@@ -13,13 +13,13 @@ export const MAX_SEARCH_CHUNK_CHARS = 2_400;
 export const MAX_MODEL_TOKENS = 2_400;
 export const FALLBACK_MAX_MODEL_TOKENS = 1_600;
 export const MAX_MODEL_RUNS = 2;
-export const PRIMARY_MODEL_TIMEOUT_MS = 40_000;
+export const PRIMARY_MODEL_TIMEOUT_MS = 55_000;
 export const FALLBACK_MODEL_TIMEOUT_MS = 25_000;
 export const SEARCH_TIMEOUT_MS = 5_000;
 
 const CHAT_MODEL_DIAGNOSTIC = "gemma-4-26b-a4b-it";
 const CHAT_FALLBACK_MODEL_DIAGNOSTIC = "qwen3-30b-a3b-fp8";
-const MAX_PUBLIC_DURATION_MS = 150_000;
+const MAX_PUBLIC_DURATION_MS = 180_000;
 
 const JSON_HEADERS = {
   "cache-control": "no-store",
@@ -248,7 +248,12 @@ export function normalizeSearchChunks(chunks) {
   return { results, sources: [...sourceMap.values()] };
 }
 
-export function buildSystemPrompt(locale, hasSearchTool, hasPreloadedSearch = false) {
+export function buildSystemPrompt(
+  locale,
+  hasSearchTool,
+  hasPreloadedSearch = false,
+  requestedYamlShape = null,
+) {
   const language = locale === "en" ? "English" : "Danish";
   const searchInstruction = hasPreloadedSearch
     ? `
@@ -271,6 +276,54 @@ Never invent a SmartBolig source.`
 SmartBolig search is currently unavailable. Continue using broad expert
 knowledge and say when a version-sensitive claim should be checked against
 current official documentation.`;
+
+  const yamlFormatInstruction = {
+    editor: `
+For a requested single Home Assistant editor YAML document, never wrap it in
+an automation key. Put alias, triggers, optional conditions, actions, and mode
+at the YAML document root; place mode at the YAML document root without
+indentation. Start the code block with alias: without a leading dash or list
+marker.`,
+    configuration: `
+For an explicitly requested configuration.yaml automation, start with one
+labeled automation block. Its value is a list with one item using exactly this
+indentation pattern:
+automation smartbolig_example:
+  - alias: Example
+    triggers: []
+    conditions: []
+    actions: []
+    mode: single
+Use the plural triggers, conditions, and actions keys, never singular trigger,
+condition, or action keys. Do not return the editor's root-level alias shape.`,
+    automations: `
+For an explicitly requested automations.yaml entry, use exactly this shape:
+- id: example_automation
+  alias: Example
+  triggers: []
+  conditions: []
+  actions: []
+  mode: single
+Use the plural triggers, conditions, and actions keys. automations.yaml is
+always a list; do not wrap it in an automation key or return the editor's
+root-level alias shape.`,
+    blueprint: `
+For a requested Home Assistant automation blueprint, start with blueprint: and
+use exactly this indentation pattern:
+blueprint:
+  name: Example
+  domain: automation
+triggers: []
+conditions: []
+actions: []
+mode: single
+Do not indent triggers, optional conditions, actions, or mode under blueprint.
+The lines triggers:, conditions:, actions:, and mode: must have zero leading spaces and stay aligned with blueprint:.
+Do not start with alias and do not wrap the blueprint in an automation list.`,
+  }[requestedYamlShape] || "";
+  const yamlOutputInstruction = requestedYamlShape
+    ? "Return only one fenced YAML block with no prose before or after it."
+    : "";
 
   return `You are SmartBolig AI, a practical and careful expert assistant for
 smart homes and homelabs. Your knowledge is broad and is not limited to
@@ -295,6 +348,11 @@ code block, include that exact constraint or state clearly that you cannot
 produce it. Never replace it with a merely related example. Never invent a
 Test, Rollback, Save, Reload or similar UI control. Mention an exact control or
 menu path only when the reviewed official evidence supplied below supports it.
+${yamlFormatInstruction}
+${yamlOutputInstruction}
+For queued or parallel automations, the only valid run-limit key is max; never
+use max_runs. Do not add a run limit unless explicitly requested.
+Close a fenced code block with exactly three backticks on their own line.
 For automation troubleshooting, structure the practical answer around
 assumptions, safe change, verification, and rollback. When reviewed official
 evidence for Home Assistant or ESPHome is supplied, use it as the source of
@@ -330,19 +388,25 @@ export function createWorkersAgent(dependencies = {}) {
     officialEvidence,
     onModelFallback,
   }) {
+    const latestUserContent = [...messages]
+      .reverse()
+      .find((message) => message.role === "user")?.content || "";
+    const requestedYamlShape = requestedHomeAssistantYamlShape(latestUserContent);
     const createModelMessages = (hasSearchTool, hasPreloadedSearch = false) => [
       {
         role: "system",
-        content: buildSystemPrompt(locale, hasSearchTool, hasPreloadedSearch),
+        content: buildSystemPrompt(
+          locale,
+          hasSearchTool,
+          hasPreloadedSearch,
+          requestedYamlShape,
+        ),
       },
       ...messages,
     ];
     const modelMessages = createModelMessages(Boolean(searchSmartbolig));
     const searchUnavailableMessages = createModelMessages(false);
     const preloadedModelMessages = createModelMessages(false, true);
-    const latestUserContent = [...messages]
-      .reverse()
-      .find((message) => message.role === "user")?.content || "";
     const tools = searchSmartbolig
       ? [
           {
@@ -616,6 +680,7 @@ function isAcceptableModelAnswer(answer, latestUserContent) {
   if (/\bsearch_smartbolig\b|<\/?(?:smartbolig|official)_reference_data\b/iu.test(answer)) return false;
 
   const requestsFencedYaml = requestsFencedYamlOutput(latestUserContent);
+  const requestedYamlShape = requestedHomeAssistantYamlShape(latestUserContent);
   const requestedModes = requestedAutomationModes(latestUserContent);
   if (
     requestedModes.some((mode) => !hasModeKeyValue(answer, mode))
@@ -625,11 +690,27 @@ function isAcceptableModelAnswer(answer, latestUserContent) {
 
   const fencedYamlBlocks = [...answer.matchAll(/```ya?ml\s*\n([\s\S]+?)\n```/giu)];
   if (requestsFencedYaml && fencedYamlBlocks.length === 0) return false;
+  const requestedModeIndent = {
+    editor: 0,
+    configuration: 4,
+    automations: 2,
+    blueprint: 0,
+  }[requestedYamlShape];
   if (
-    requestsFencedYaml &&
+    Number.isInteger(requestedModeIndent) &&
     requestedModes.some(
-      (mode) => !fencedYamlBlocks.some((match) => hasTopLevelYamlMode(match[1], mode)),
+      (mode) =>
+        !fencedYamlBlocks.some((match) =>
+          hasYamlModeAtIndent(match[1], mode, requestedModeIndent),
+        ),
     )
+  ) {
+    return false;
+  }
+  if (
+    requestedYamlShape &&
+    (fencedYamlBlocks.length !== 1 ||
+      !hasValidRequestedHomeAssistantYaml(fencedYamlBlocks[0][1], requestedYamlShape))
   ) {
     return false;
   }
@@ -644,6 +725,28 @@ function requestsFencedYamlOutput(content) {
     if (clauseDecision !== null) decision = clauseDecision;
   }
   return decision === true;
+}
+
+function requestedHomeAssistantYamlShape(content) {
+  const explicitlyFencedYaml =
+    requestsFencedYamlOutput(content) ||
+    /\b(?:fenced|code\s*block|kodeblok)[\s\S]{0,80}\b(?:configuration|automations)\.ya?ml\b/iu.test(
+      content,
+    );
+  if (!explicitlyFencedYaml) return null;
+  const hasAutomationContext = /\bautomation(?:s|er)?\b/iu.test(content);
+  const hasHomeAssistantContext =
+    /\bhome assistant\b/iu.test(content) ||
+    /\bHA\b/u.test(content) ||
+    requestedAutomationModes(content).length > 0;
+  if (!hasAutomationContext) return null;
+  if (/\bconfiguration\.ya?ml\b/iu.test(content)) return "configuration";
+  if (/\bautomations\.ya?ml\b/iu.test(content)) return "automations";
+  if (/\bblueprint\b/iu.test(content) && hasHomeAssistantContext) {
+    return "blueprint";
+  }
+  if (/\bautomation\b/iu.test(content) && hasHomeAssistantContext) return "editor";
+  return null;
 }
 
 function requestedAutomationModes(content) {
@@ -671,7 +774,11 @@ function requestedAutomationModes(content) {
 }
 
 function instructionClauses(content) {
-  return (content.match(/[^.!?;\n]+[.!?]?/gu) || [])
+  const protectedFilenames = content.replace(
+    /\b(configuration|automations)\.(ya?ml)\b/giu,
+    "$1-$2",
+  );
+  return (protectedFilenames.match(/[^.!?;\n]+[.!?]?/gu) || [])
     .map((clause) => clause.trim())
     .filter(Boolean);
 }
@@ -751,9 +858,133 @@ function hasModeKeyValue(content, requestedMode) {
 }
 
 function hasTopLevelYamlMode(yaml, requestedMode) {
+  return hasYamlModeAtIndent(yaml, requestedMode, 0);
+}
+
+function hasYamlModeAtIndent(yaml, requestedMode, spaces) {
   const modeValue = `(?:${requestedMode}|"${requestedMode}"|'${requestedMode}')`;
-  const modeLine = new RegExp(`^mode\\s*:\\s*${modeValue}\\s*(?:#.*)?$`, "iu");
+  const modeLine = new RegExp(
+    `^ {${spaces}}mode\\s*:\\s*${modeValue}\\s*(?:#.*)?$`,
+    "iu",
+  );
   return yaml.split(/\r?\n/u).some((line) => modeLine.test(line));
+}
+
+function hasValidRequestedHomeAssistantYaml(yaml, requestedYamlShape) {
+  if (requestedYamlShape === "editor") return hasValidSingleAutomationEditorRoot(yaml);
+  if (requestedYamlShape === "configuration") return hasValidConfigurationYamlAutomation(yaml);
+  if (requestedYamlShape === "automations") return hasValidAutomationsYamlEntry(yaml);
+  if (requestedYamlShape === "blueprint") return hasValidAutomationBlueprint(yaml);
+  return false;
+}
+
+function hasInvalidAutomationKeyAtIndent(yaml, spaces) {
+  const invalidKey = new RegExp(
+    `^ {${spaces}}(?:trigger|condition|action|max_runs)\\s*:`,
+    "iu",
+  );
+  return yaml.split(/\r?\n/u).some((line) =>
+    invalidKey.test(line),
+  );
+}
+
+function collectAllowedRootKeys(yaml, allowedRootKeys) {
+  const rootKeys = new Set();
+  for (const line of yaml.split(/\r?\n/u)) {
+    if (!line.trim() || /^\s/u.test(line) || /^#/u.test(line)) continue;
+    const keyMatch = line.match(/^([A-Za-z_][A-Za-z0-9_-]*)\s*:/u);
+    if (!keyMatch || !allowedRootKeys.has(keyMatch[1])) return null;
+    rootKeys.add(keyMatch[1]);
+  }
+  return rootKeys;
+}
+
+function hasValidSingleAutomationEditorRoot(yaml) {
+  const lines = yaml.split(/\r?\n/u);
+  const firstMeaningfulLine = lines.find((line) => line.trim() && !/^\s*#/u.test(line));
+  if (!firstMeaningfulLine || !/^alias\s*:/iu.test(firstMeaningfulLine)) return false;
+
+  const allowedRootKeys = new Set([
+    "alias",
+    "id",
+    "description",
+    "initial_state",
+    "trace",
+    "variables",
+    "trigger_variables",
+    "mode",
+    "max",
+    "max_exceeded",
+    "triggers",
+    "conditions",
+    "actions",
+  ]);
+  const rootKeys = collectAllowedRootKeys(yaml, allowedRootKeys);
+  if (!rootKeys) return false;
+
+  return rootKeys.has("alias") && rootKeys.has("triggers") && rootKeys.has("actions");
+}
+
+function hasValidConfigurationYamlAutomation(yaml) {
+  const lines = yaml.split(/\r?\n/u);
+  const firstMeaningfulLine = lines.find((line) => line.trim() && !/^\s*#/u.test(line));
+  if (!firstMeaningfulLine || !/^automation\s+[A-Za-z0-9_-]+\s*:/u.test(firstMeaningfulLine)) {
+    return false;
+  }
+  if (hasInvalidAutomationKeyAtIndent(yaml, 4)) return false;
+  const rootLines = lines.filter((line) => line.trim() && !/^\s/u.test(line) && !/^#/u.test(line));
+  const listItems = lines.filter((line) => /^\s{2}-\s+(?:id|alias)\s*:/u.test(line));
+  const hasAlias = lines.some((line) =>
+    /^\s{2}-\s+alias\s*:|^\s{4}alias\s*:/u.test(line),
+  );
+  return (
+    rootLines.length === 1 &&
+    listItems.length === 1 &&
+    hasAlias &&
+    lines.some((line) => /^\s{4}triggers\s*:/u.test(line)) &&
+    lines.some((line) => /^\s{4}actions\s*:/u.test(line))
+  );
+}
+
+function hasValidAutomationsYamlEntry(yaml) {
+  const lines = yaml.split(/\r?\n/u);
+  const firstMeaningfulLine = lines.find((line) => line.trim() && !/^\s*#/u.test(line));
+  if (!firstMeaningfulLine || !/^-\s+id\s*:/u.test(firstMeaningfulLine)) return false;
+  if (hasInvalidAutomationKeyAtIndent(yaml, 2)) return false;
+  const rootListItems = lines.filter((line) => /^-\s+/u.test(line));
+  return (
+    rootListItems.length === 1 &&
+    lines.some((line) => /^\s{2}alias\s*:/u.test(line)) &&
+    lines.some((line) => /^\s{2}triggers\s*:/u.test(line)) &&
+    lines.some((line) => /^\s{2}actions\s*:/u.test(line))
+  );
+}
+
+function hasValidAutomationBlueprint(yaml) {
+  const lines = yaml.split(/\r?\n/u);
+  const firstMeaningfulLine = lines.find((line) => line.trim() && !/^\s*#/u.test(line));
+  if (firstMeaningfulLine !== "blueprint:") return false;
+  const rootKeys = collectAllowedRootKeys(
+    yaml,
+    new Set([
+      "blueprint",
+      "variables",
+      "trigger_variables",
+      "mode",
+      "max",
+      "max_exceeded",
+      "triggers",
+      "conditions",
+      "actions",
+    ]),
+  );
+  if (!rootKeys) return false;
+  return (
+    lines.some((line) => /^\s{2}name\s*:/u.test(line)) &&
+    lines.some((line) => /^\s{2}domain\s*:\s*automation\s*(?:#.*)?$/iu.test(line)) &&
+    rootKeys.has("triggers") &&
+    rootKeys.has("actions")
+  );
 }
 
 function withSmartboligReference(messages, searchResult) {

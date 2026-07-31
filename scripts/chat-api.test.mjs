@@ -297,7 +297,7 @@ test("Workers AI agent keeps broad expertise and exposes AI Search as an optiona
   assert.ok(modelCalls.every((call) => call.model === CHAT_MODEL));
   assert.equal(MAX_MODEL_TOKENS, 2_400);
   assert.equal(FALLBACK_MAX_MODEL_TOKENS, 1_600);
-  assert.equal(PRIMARY_MODEL_TIMEOUT_MS, 40_000);
+  assert.equal(PRIMARY_MODEL_TIMEOUT_MS, 55_000);
   assert.equal(FALLBACK_MODEL_TIMEOUT_MS, 25_000);
   assert.ok(modelCalls.every((call) => call.input.max_completion_tokens === MAX_MODEL_TOKENS));
   assert.ok(modelCalls.every((call) => call.input.max_tokens === undefined));
@@ -751,12 +751,293 @@ test("Workers AI enforces explicit fenced YAML constraints in the final code blo
   }]);
 });
 
+test("Workers AI rejects invalid single-automation editor roots before displaying them", async () => {
+  const invalidFixtures = [
+    {
+      prompt: "Return a fenced YAML Home Assistant automation with mode queued.",
+      answer: "```yaml\nautomation: []\nalias: Test\ntriggers: []\nactions: []\nmode: queued\n```",
+    },
+    {
+      prompt: "Return a fenced YAML Home Assistant automation with mode queued.",
+      answer: "```yaml\n- alias: Test\ntriggers: []\nactions: []\nmode: queued\n```",
+    },
+    {
+      prompt: "Return a fenced YAML Home Assistant automation with mode queued.",
+      answer: "```yaml\nalias: Test\ntriggers: []\nactions: []\nmode: queued\nmax_runs: 3\n```",
+    },
+    {
+      prompt: "Return a fenced YAML Home Assistant automation with mode queued.",
+      answer: "```yaml\nalias: Test\ntrigger: []\naction: []\nmode: queued\n```",
+    },
+    {
+      prompt:
+        "Return one of these automations as one fenced YAML Home Assistant automation with mode queued.",
+      answer: "```yaml\nautomation: []\nalias: Bad\ntriggers: []\nactions: []\nmode: queued\nmax_runs: 3\n```",
+    },
+  ];
+  const validFallback = "```yaml\nalias: Test\ntriggers: []\nactions: []\nmode: queued\n```";
+
+  for (const fixture of invalidFixtures) {
+    const modelCalls = [];
+    const runner = createWorkersAgent({
+      aiRunImpl: async (_binding, model, input) => {
+        modelCalls.push({ model, input });
+        return { response: model === CHAT_MODEL ? fixture.answer : validFallback };
+      },
+    });
+
+    const result = await runner({
+      env: createEnv(),
+      locale: "en",
+      messages: validBody(fixture.prompt).messages,
+      searchSmartbolig: undefined,
+    });
+
+    assert.equal(result.answer, validFallback);
+    assert.deepEqual(result.diagnostics, {
+      model: "qwen3-30b-a3b-fp8",
+      route: "fallback",
+    });
+    assert.deepEqual(modelCalls.map((call) => call.model), [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
+    assert.match(modelCalls[0].input.messages[0].content, /never wrap it\s+in\s+an automation key/i);
+    assert.match(modelCalls[0].input.messages[0].content, /start the code block with alias.*without a leading dash/i);
+    assert.match(
+      modelCalls[0].input.messages[0].content,
+      /alias,\s+triggers,\s+optional conditions,\s+actions,\s+and\s+mode\s+at the YAML document root/i,
+    );
+  }
+});
+
+test("Workers AI enforces explicitly requested Home Assistant file-level YAML shapes", async () => {
+  const cases = [
+    {
+      prompt:
+        "Return a fenced configuration.yaml Home Assistant automation with mode queued.",
+      answer:
+        "```yaml\nautomation kitchen:\n  - alias: Test\n    triggers: []\n    actions: []\n    mode: queued\n```",
+      nestedModeOnlyAnswer:
+        "```yaml\nautomation kitchen:\n  - alias: Test\n    triggers: []\n    actions:\n      - action: light.turn_on\n        data:\n          mode: queued\n```",
+      promptContract: /configuration\.yaml[\s\S]*labeled automation block[\s\S]*list/iu,
+    },
+    {
+      prompt:
+        "Return a fenced automations.yaml Home Assistant automation with mode queued.",
+      answer:
+        "```yaml\n- id: test_automation\n  alias: Test\n  triggers: []\n  actions: []\n  mode: queued\n```",
+      nestedModeOnlyAnswer:
+        "```yaml\n- id: test_automation\n  alias: Test\n  triggers: []\n  actions:\n    - action: light.turn_on\n      data:\n        mode: queued\n```",
+      promptContract: /automations\.yaml[\s\S]*- id:[\s\S]*always a list/iu,
+    },
+  ];
+  const invalidEditorAnswer =
+    "```yaml\nalias: Wrong file shape\ntriggers: []\nactions: []\nmode: queued\n```";
+
+  for (const fixture of cases) {
+    const primaryCalls = [];
+    const primaryRunner = createWorkersAgent({
+      aiRunImpl: async (_binding, model) => {
+        primaryCalls.push(model);
+        return { response: fixture.answer };
+      },
+    });
+
+    const primaryResult = await primaryRunner({
+      env: createEnv(),
+      locale: "en",
+      messages: validBody(fixture.prompt).messages,
+      searchSmartbolig: undefined,
+    });
+
+    assert.equal(primaryResult.answer, fixture.answer);
+    assert.deepEqual(primaryResult.diagnostics, {
+      model: "gemma-4-26b-a4b-it",
+      route: "primary",
+    });
+    assert.deepEqual(primaryCalls, [CHAT_MODEL]);
+
+    const fallbackCalls = [];
+    const fallbackPrompts = [];
+    const fallbackRunner = createWorkersAgent({
+      aiRunImpl: async (_binding, model, input) => {
+        fallbackCalls.push(model);
+        fallbackPrompts.push(input.messages[0].content);
+        return { response: model === CHAT_MODEL ? invalidEditorAnswer : fixture.answer };
+      },
+    });
+    const fallbackResult = await fallbackRunner({
+      env: createEnv(),
+      locale: "en",
+      messages: validBody(fixture.prompt).messages,
+      searchSmartbolig: undefined,
+    });
+
+    assert.equal(fallbackResult.answer, fixture.answer);
+    assert.deepEqual(fallbackResult.diagnostics, {
+      model: "qwen3-30b-a3b-fp8",
+      route: "fallback",
+    });
+    assert.deepEqual(fallbackCalls, [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
+    assert.match(fallbackPrompts[0], fixture.promptContract);
+    assert.match(fallbackPrompts[0], /return only one fenced YAML block with no prose/iu);
+    assert.match(fallbackPrompts[0], /plural triggers[\s\S]*conditions[\s\S]*actions/iu);
+    assert.doesNotMatch(fallbackPrompts[0], /start the code block with alias/iu);
+
+    const nestedModeCalls = [];
+    const nestedModeRunner = createWorkersAgent({
+      aiRunImpl: async (_binding, model) => {
+        nestedModeCalls.push(model);
+        return { response: model === CHAT_MODEL ? fixture.nestedModeOnlyAnswer : fixture.answer };
+      },
+    });
+    const nestedModeResult = await nestedModeRunner({
+      env: createEnv(),
+      locale: "en",
+      messages: validBody(fixture.prompt).messages,
+      searchSmartbolig: undefined,
+    });
+
+    assert.equal(nestedModeResult.answer, fixture.answer);
+    assert.deepEqual(nestedModeResult.diagnostics, {
+      model: "qwen3-30b-a3b-fp8",
+      route: "fallback",
+    });
+    assert.deepEqual(nestedModeCalls, [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
+  }
+});
+
+test("Workers AI preserves and validates an explicitly requested automation blueprint", async () => {
+  const prompt =
+    "Return one fenced YAML Home Assistant automation blueprint with mode queued.";
+  const blueprint = [
+    "```yaml",
+    "blueprint:",
+    "  name: Queue example",
+    "  domain: automation",
+    "triggers: []",
+    "actions: []",
+    "mode: queued",
+    "```",
+  ].join("\n");
+  const invalidEditorAnswer =
+    "```yaml\nalias: Wrong shape\ntriggers: []\nactions: []\nmode: queued\n```";
+  const modelCalls = [];
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model, input) => {
+      modelCalls.push({ model, input });
+      return { response: model === CHAT_MODEL ? invalidEditorAnswer : blueprint };
+    },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "en",
+    messages: validBody(prompt).messages,
+    searchSmartbolig: undefined,
+  });
+
+  assert.equal(result.answer, blueprint);
+  assert.deepEqual(result.diagnostics, {
+    model: "qwen3-30b-a3b-fp8",
+    route: "fallback",
+  });
+  assert.deepEqual(modelCalls.map((call) => call.model), [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
+  assert.match(
+    modelCalls[0].input.messages[0].content,
+    /blueprint:[\s\S]*domain: automation[\s\S]*triggers[\s\S]*actions/iu,
+  );
+  assert.match(
+    modelCalls[0].input.messages[0].content,
+    /do not indent triggers, optional conditions, actions, or mode under blueprint/iu,
+  );
+  assert.match(
+    modelCalls[0].input.messages[0].content,
+    /triggers:.*conditions:.*actions:.*mode:.*zero leading spaces.*aligned with blueprint:/isu,
+  );
+  assert.match(
+    modelCalls[0].input.messages[0].content,
+    /return only one fenced YAML block with no prose/iu,
+  );
+  assert.doesNotMatch(modelCalls[0].input.messages[0].content, /start the code block with alias/iu);
+});
+
+test("Workers AI editor validation leaves nested service data keys untouched", async () => {
+  const answer = [
+    "```yaml",
+    "alias: Nested service data",
+    "triggers: []",
+    "actions:",
+    "  - action: script.turn_on",
+    "    data:",
+    "      action: preserve_this_payload_key",
+    "      max_runs: 3",
+    "mode: queued",
+    "```",
+  ].join("\n");
+  const modelCalls = [];
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) => {
+      modelCalls.push(model);
+      return { response: answer };
+    },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "en",
+    messages: validBody(
+      "Return a fenced YAML Home Assistant automation with mode queued.",
+    ).messages,
+    searchSmartbolig: undefined,
+  });
+
+  assert.equal(result.answer, answer);
+  assert.deepEqual(result.diagnostics, {
+    model: "gemma-4-26b-a4b-it",
+    route: "primary",
+  });
+  assert.deepEqual(modelCalls, [CHAT_MODEL]);
+});
+
+test("Workers AI does not impose Home Assistant YAML shapes on other platforms", async () => {
+  const answer = [
+    "```yaml",
+    "name: CI",
+    "on: [push]",
+    "jobs:",
+    "  test:",
+    "    runs-on: ubuntu-latest",
+    "    steps: []",
+    "```",
+  ].join("\n");
+  const modelCalls = [];
+  const runner = createWorkersAgent({
+    aiRunImpl: async (_binding, model) => {
+      modelCalls.push(model);
+      return { response: answer };
+    },
+  });
+
+  const result = await runner({
+    env: createEnv(),
+    locale: "en",
+    messages: validBody("Return one fenced YAML GitHub Actions automation.").messages,
+    searchSmartbolig: undefined,
+  });
+
+  assert.equal(result.answer, answer);
+  assert.deepEqual(result.diagnostics, {
+    model: "gemma-4-26b-a4b-it",
+    route: "primary",
+  });
+  assert.deepEqual(modelCalls, [CHAT_MODEL]);
+});
+
 test("Workers AI does not accept a commented automation mode as the requested YAML key", async () => {
   const runner = createWorkersAgent({
     aiRunImpl: async (_binding, model) =>
       model === CHAT_MODEL
-        ? { response: "```yaml\nalias: Test\n# mode: queued\n```" }
-        : { response: "```yaml\nalias: Test\nmode: queued\n```" },
+        ? { response: "```yaml\nalias: Test\ntriggers: []\nactions: []\n# mode: queued\n```" }
+        : { response: "```yaml\nalias: Test\ntriggers: []\nactions: []\nmode: queued\n```" },
   });
 
   const result = await runner({
@@ -767,15 +1048,18 @@ test("Workers AI does not accept a commented automation mode as the requested YA
   });
 
   assert.deepEqual(result.diagnostics, { model: "qwen3-30b-a3b-fp8", route: "fallback" });
-  assert.match(result.answer, /^```yaml\nalias: Test\nmode: queued\n```$/i);
+  assert.match(result.answer, /^```yaml\nalias: Test\ntriggers: \[\]\nactions: \[\]\nmode: queued\n```$/i);
 });
 
 test("Workers AI does not accept automation mode text nested inside another YAML scalar", async () => {
   const runner = createWorkersAgent({
     aiRunImpl: async (_binding, model) =>
       model === CHAT_MODEL
-        ? { response: '```yaml\nalias: Test\nnote: "use mode: queued later"\n```' }
-        : { response: "```yaml\nalias: Test\nmode: queued\n```" },
+        ? {
+            response:
+              '```yaml\nalias: Test\ndescription: "use mode: queued later"\ntriggers: []\nactions: []\n```',
+          }
+        : { response: "```yaml\nalias: Test\ntriggers: []\nactions: []\nmode: queued\n```" },
   });
 
   const result = await runner({
@@ -786,15 +1070,15 @@ test("Workers AI does not accept automation mode text nested inside another YAML
   });
 
   assert.deepEqual(result.diagnostics, { model: "qwen3-30b-a3b-fp8", route: "fallback" });
-  assert.match(result.answer, /^```yaml\nalias: Test\nmode: queued\n```$/i);
+  assert.match(result.answer, /^```yaml\nalias: Test\ntriggers: \[\]\nactions: \[\]\nmode: queued\n```$/i);
 });
 
 test("Workers AI does not accept mismatched quotes around an automation mode", async () => {
   const runner = createWorkersAgent({
     aiRunImpl: async (_binding, model) =>
       model === CHAT_MODEL
-        ? { response: "```yaml\nalias: Test\nmode: \"queued'\n```" }
-        : { response: "```yaml\nalias: Test\nmode: queued\n```" },
+        ? { response: "```yaml\nalias: Test\ntriggers: []\nactions: []\nmode: \"queued'\n```" }
+        : { response: "```yaml\nalias: Test\ntriggers: []\nactions: []\nmode: queued\n```" },
   });
 
   const result = await runner({
@@ -805,7 +1089,7 @@ test("Workers AI does not accept mismatched quotes around an automation mode", a
   });
 
   assert.deepEqual(result.diagnostics, { model: "qwen3-30b-a3b-fp8", route: "fallback" });
-  assert.match(result.answer, /^```yaml\nalias: Test\nmode: queued\n```$/i);
+  assert.match(result.answer, /^```yaml\nalias: Test\ntriggers: \[\]\nactions: \[\]\nmode: queued\n```$/i);
 });
 
 test("Workers AI enforces every explicitly requested automation mode", async () => {
@@ -985,7 +1269,7 @@ test("Workers AI recognizes common Danish and English fenced-YAML output verbs",
       aiRunImpl: async (_binding, model) =>
         model === CHAT_MODEL
           ? { response: "alias: Test\nmode: queued" }
-          : { response: "```yaml\nalias: Test\nmode: queued\n```" },
+          : { response: "```yaml\nalias: Test\ntriggers: []\nactions: []\nmode: queued\n```" },
     });
 
     const result = await runner({
