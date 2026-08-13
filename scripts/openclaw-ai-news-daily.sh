@@ -44,7 +44,82 @@ start_comfyui_if_available() {
   return 0
 }
 
+# GPU queue coordination (incident 2026-07-18: this job stopped comfyui.service
+# while another caller held a GPU token, killing a running LTX video render).
+# The job now behaves like every other GPU caller: acquire a token before using
+# ComfyUI, release it afterwards, and never stop comfyui.service while the queue
+# reports an active holder or lock.
+GPU_QUEUE_URL="${GPU_QUEUE_URL:-http://localhost:11435}"
+GPU_QUEUE_CALLER="${GPU_QUEUE_CALLER:-ai-news}"
+# The queue parks a caller for up to MAX_GPU_ACQUIRE_WAIT_S (1800s) behind a
+# higher-priority render, so the client has to outlast that instead of giving up
+# early and racing the holder.
+GPU_ACQUIRE_TIMEOUT_S="${GPU_ACQUIRE_TIMEOUT_S:-1860}"
+GPU_TOKEN=""
+
+# Reads one top-level field from JSON on stdin. Empty when absent or unparsable,
+# so a malformed queue reply is never mistaken for a value.
+json_field() {
+  node --input-type=module -e '
+    const input = await new Promise((resolve) => {
+      let buffer = "";
+      process.stdin.setEncoding("utf8");
+      process.stdin.on("data", (chunk) => { buffer += chunk; });
+      process.stdin.on("end", () => resolve(buffer));
+    });
+    try {
+      const value = JSON.parse(input)[process.argv[1]];
+      process.stdout.write(value === undefined || value === null ? "" : String(value));
+    } catch { process.stdout.write(""); }
+  ' "$1"
+}
+
+gpu_acquire() {
+  local response
+  if ! response="$(curl -sf -m "${GPU_ACQUIRE_TIMEOUT_S}" -X POST "${GPU_QUEUE_URL}/gpu/acquire" \
+      -H 'Content-Type: application/json' \
+      -d "{\"caller\":\"${GPU_QUEUE_CALLER}\",\"model\":\"comfyui-ai-news-hero\",\"vram_gb\":8}" 2>/dev/null)"; then
+    echo "GPU queue refused or timed out; skipping ComfyUI and using the procedural SVG fallback." >&2
+    return 1
+  fi
+  GPU_TOKEN="$(printf '%s' "${response}" | json_field token)"
+  if [[ -z "${GPU_TOKEN}" ]]; then
+    echo "GPU queue returned no token; skipping ComfyUI and using the procedural SVG fallback." >&2
+    return 1
+  fi
+  echo "Acquired GPU token from ${GPU_QUEUE_URL}."
+}
+
+gpu_release() {
+  [[ -n "${GPU_TOKEN}" ]] || return 0
+  curl -sf -m 15 -X POST "${GPU_QUEUE_URL}/gpu/release" \
+    -H 'Content-Type: application/json' \
+    -d "{\"token\":\"${GPU_TOKEN}\"}" >/dev/null 2>&1 \
+    || echo "Could not release the GPU token; the queue will time it out." >&2
+  GPU_TOKEN=""
+}
+
+# True when the queue reports the GPU held. Our own token must be released
+# first, otherwise this only ever reports our own hold. An unreachable queue
+# counts as busy: leaving ComfyUI running costs VRAM, stopping it can kill a
+# render this job cannot see.
+gpu_busy_elsewhere() {
+  local health locked holder
+  if ! health="$(curl -sf -m 5 "${GPU_QUEUE_URL}/health" 2>/dev/null)"; then
+    echo "GPU queue unreachable; leaving ${COMFYUI_SERVICE} alone." >&2
+    return 0
+  fi
+  locked="$(printf '%s' "${health}" | json_field gpu_locked)"
+  holder="$(printf '%s' "${health}" | json_field holder_registered)"
+  [[ "${locked}" == "true" || "${holder}" == "true" ]]
+}
+
 stop_comfyui() {
+  gpu_release
+  if gpu_busy_elsewhere; then
+    echo "Another GPU caller holds the queue; leaving ${COMFYUI_SERVICE} running."
+    return 0
+  fi
   if systemctl --user is-active "${COMFYUI_SERVICE}" >/dev/null 2>&1; then
     systemctl --user stop "${COMFYUI_SERVICE}" >/dev/null 2>&1 || true
     echo "Stopped ${COMFYUI_SERVICE}."
@@ -176,7 +251,11 @@ main() {
     return 1
   fi
 
-  start_comfyui_if_available
+  # Take a queue token before touching ComfyUI. Without one the run stays off the
+  # GPU entirely and the hero images come from the procedural SVG fallback.
+  if gpu_acquire; then
+    start_comfyui_if_available
+  fi
   trap 'stop_comfyui' EXIT
 
   render_pending_images
@@ -258,4 +337,8 @@ close_stale_ai_news_prs() {
   )
 }
 
-main "$@"
+# Guarded so the GPU-queue helpers can be sourced and tested in isolation
+# (scripts/ai-news-gpu-queue.test.mjs) without running the daily job.
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+  main "$@"
+fi
