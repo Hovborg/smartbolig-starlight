@@ -50,14 +50,13 @@ jobs:
       - name: Audit guide content
         run: python3 scripts/content-audit.py
 
-      # MIDLERTIDIGT sænket fra --audit-level=high til critical (2026-07-29).
-      # Fire high-advisories i astro 6.4.8's afhængighedstræ (astro, sharp, svgo,
-      # postcss) blokerede al deployment fra 2026-07-26, inkl. daglige AI News.
-      # Siden bygges fuldt statisk, så eksponeringen er begrænset — men det er en
-      # undtagelse, ikke en løsning. Sæt tilbage til high som del af Astro 7-opgraderingen.
+      # Tilbage på high pr. 2026-08-13. Undtagelsen fra 2026-07-29 dækkede fire
+      # high-advisories i astro 6.4.8's afhængighedstræ (astro, sharp, svgo,
+      # postcss), som blokerede al deployment fra 2026-07-26, inkl. daglige
+      # AI News. Astro 7 + Starlight 0.41 fjerner alle fire.
       # Se https://github.com/Hovborg/smartbolig-starlight/issues/104
       - name: Audit production dependencies
-        run: npm audit --omit=dev --audit-level=critical
+        run: npm audit --omit=dev --audit-level=high
       
       - name: Build
         run: npm run build
