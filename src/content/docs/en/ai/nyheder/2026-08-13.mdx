@@ -1,0 +1,126 @@
+---
+title: "AI News, 13 August 2026"
+description: "Curated AI brief for 13 August 2026: models, products, ChatGPT, Claude, Gemini, API pricing, privacy, and agent workflows."
+date: 2026-08-13
+lastUpdated: 2026-08-13
+heroImage:
+  src: "/images/ai-news/2026-08-13.jpg"
+  alt: "Editorial AI news image about Claude Code releases, OpenClaw releases, Gemini CLI releases, OpenAI News, Google AI Blog"
+  caption: "Editorial AI news image about Claude Code releases, OpenClaw releases, Gemini CLI releases, OpenAI News, Google AI Blog"
+news:
+  editorialVersion: 3
+  copySource: template
+  storyFingerprint: "2d98e9cf34b9a6a0b7247f0735cbeff0b76bd311d3af90288c445b86543b2110"
+  sourceSetFingerprint: "bfbe798618eeae4bcc6d8aba19f01060ee05caa189334cceff324814a4d0c729"
+  signal: high
+  sources:
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.221"
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.6.34"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.55.1"
+    - "https://openai.com/index/how-enterprises-put-ai-to-work"
+    - "https://blog.google/innovation-and-ai/models-and-research/google-research/amie-video-consultations"
+sidebar:
+  label: "13 August 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline">By SmartBolig.net Editorial · <time datetime="2026-08-13">13 August 2026</time> · 5 selected sources</p>
+
+<p class="ai-news-lede">This issue prioritises documented change over volume. Each story separates source evidence, practical relevance, a verification point, and uncertainty.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. Claude Code releases: v2.1.221
+
+**What changed:** Claude Code releases published the update on 4 Aug 2026. What's changed &#91;VSCode&#93; Added Focus view: a chat-menu toggle that hides tool activity behind an expandable per-turn summary with a live running-tool indicator, toggled with Ctrl+Alt+F or the "Claude Code: Toggle Focus view" command Added mode: "mask" for sandbox credential files on Linux and WSL — sandboxed commands read a sentinel copy &#40;the whole file, or just the spans captured by an extract regex&#41; while the sandbox proxy substitutes the real value on egress; on macOS file masking falls back to deny Added warnings to claude plugin validate when a…
+
+> Short source excerpt: What's changed &#91;VSCode&#93; Added Focus view: a chat-menu toggle that hides tool activity behind an expandable per-turn summary with a…
+
+**Why it matters:** This matters when an AI assistant can read sensors or trigger home actions: narrower permissions and visible approval reduce the impact of a wrong decision.
+
+**How to verify it:** Verify in a test environment that the agent can perform the allowed action, is stopped at a sensitive action, and leaves a useful log.
+
+**Uncertainty:** The source documents the change but may not show long-term behavior in a home environment. Stability and edge cases remain uncertain.
+
+Source: [v2.1.221](https://github.com/anthropics/claude-code/releases/tag/v2.1.221)
+
+### 2. OpenClaw releases: openclaw 2026.6.34
+
+**What changed:** OpenClaw releases published the update on 8 Aug 2026. 2026.6.34 Highlights Safer browser and network boundaries: sandboxed browser routes, trusted DNS targets, custom browser origins, and loopback provider endpoints now reject unsafe access paths. &#40; #97958 , #38290 , #103075 , #110693 &#41; Thanks @eleqtrizit , @brunowowk , @mosidevv , @pgondhi987 , and @lsr911 . More resilient agent and provider runs: retained session writes, provider fallbacks, stream progress handling, and stdio failures now recover without silently ending active work. &#40; #96100 , #97128 , #90908 , #99803 , #100521 &#41; Thanks @xialonglee , @sallyom , @richwilson-bloom , @LiuwqGit ,…
+
+> Short source excerpt: 2026.6.34 Highlights Safer browser and network boundaries: sandboxed browser routes, trusted DNS targets, custom browser origins, and loopback provider endpoints…
+
+**Why it matters:** This matters when an AI assistant can read sensors or trigger home actions: narrower permissions and visible approval reduce the impact of a wrong decision.
+
+**How to verify it:** Verify in a test environment that the agent can perform the allowed action, is stopped at a sensitive action, and leaves a useful log.
+
+**Uncertainty:** Rollout, region, or account type may limit access. Recheck the source for the actual account before planning around availability.
+
+Source: [openclaw 2026.6.34](https://github.com/openclaw/openclaw/releases/tag/v2026.6.34)
+
+### 3. Gemini CLI releases: Release v0.55.1
+
+**What changed:** Gemini CLI releases published the update on 11 Aug 2026. What's Changed fix/verify release npm ci ignore scripts by @rmedranollamas in #28116 fix&#40;ci&#41;: prevent workspace binary shadowing in release verification by @galdawave in #28132 Feat/tool registry discovery by @ved015 in #28113 fix&#40;ci&#41;: prevent bad NPM releases and promote job crashes by @galdawave in #28147 Changelog for v0.50.0-preview.1 by @gemini-cli-robot in #28150 Fix no&#95;proxy test by @jerrylin3321 in #28131 chore&#40;release&#41;: bump version to 0.51.0-nightly.20260625.g3fbf93e26 by @gemini-cli-robot in #28151 Vertex base url update by @DavidAPierce in #28145 fix&#40;security&#41;: enforce case-insensitive sensitive path blocklist and vscode hitl by @luisfelipe-alt in #27966 fix&#40;core-tools&#41;: resolve…
+
+> Short source excerpt: What's Changed fix/verify release npm ci ignore scripts by @rmedranollamas in #28116 fix&#40;ci&#41;: prevent workspace binary shadowing in release verification…
+
+**Why it matters:** This matters when an AI assistant can read sensors or trigger home actions: narrower permissions and visible approval reduce the impact of a wrong decision.
+
+**How to verify it:** Verify in a test environment that the agent can perform the allowed action, is stopped at a sensitive action, and leaves a useful log.
+
+**Uncertainty:** Rollout, region, or account type may limit access. Recheck the source for the actual account before planning around availability.
+
+Source: [Release v0.55.1](https://github.com/google-gemini/gemini-cli/releases/tag/v0.55.1)
+
+### 4. OpenAI News: From assistance to execution: How enterprises put AI to work
+
+**What changed:** OpenAI News published the update on 12 Aug 2026. OpenAI research reveals how enterprises are adopting agentic AI, using ChatGPT and Codex, and how frontier firms are pulling ahead in AI adoption.
+
+> Short source excerpt: OpenAI research reveals how enterprises are adopting agentic AI, using ChatGPT and Codex, and how frontier firms are pulling ahead…
+
+**Why it matters:** The pricing change can shift the boundary between local and cloud AI and should be calculated before a recurring automation is scaled.
+
+**How to verify it:** Compare before and after on the same task, measuring outcome, latency, cost, and rollback before using the change in operations.
+
+**Uncertainty:** The source documents the change but may not show long-term behavior in a home environment. Stability and edge cases remain uncertain.
+
+Source: [From assistance to execution: How enterprises put AI to work](https://openai.com/index/how-enterprises-put-ai-to-work)
+
+### 5. Google AI Blog: AMIE, our research medical AI system, demonstrates real-time clinical video consultation capabilities in a first-of-its-kind study.
+
+**What changed:** Google AI Blog published the update on 11 Aug 2026. Google introduces AMIE for real-time clinical video consultations in simulated settings.
+
+> Short source excerpt: Google introduces AMIE for real-time clinical video consultations in simulated settings. AMIE: Advancing medical AI for video consultations Skip to…
+
+**Why it matters:** Its practical value depends on solving a concrete task better without expanding access, cloud dependency, or operational risk.
+
+**How to verify it:** Compare before and after on the same task, measuring outcome, latency, cost, and rollback before using the change in operations.
+
+**Uncertainty:** The source documents the change but may not show long-term behavior in a home environment. Stability and edge cases remain uncertain.
+
+Source: [AMIE, our research medical AI system, demonstrates real-time clinical video consultation capabilities in a first-of-its-kind study.](https://blog.google/innovation-and-ai/models-and-research/google-research/amie-video-consultations)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| Claude Code releases | [v2.1.221](https://github.com/anthropics/claude-code/releases/tag/v2.1.221) | 4 Aug 2026 |
+| OpenClaw releases | [openclaw 2026.6.34](https://github.com/openclaw/openclaw/releases/tag/v2026.6.34) | 8 Aug 2026 |
+| Gemini CLI releases | [Release v0.55.1](https://github.com/google-gemini/gemini-cli/releases/tag/v0.55.1) | 11 Aug 2026 |
+| OpenAI News | [From assistance to execution: How enterprises put AI to work](https://openai.com/index/how-enterprises-put-ai-to-work) | 12 Aug 2026 |
+| Google AI Blog | [AMIE, our research medical AI system, demonstrates real-time clinical video consultation capabilities in a first-of-its-kind study.](https://blog.google/innovation-and-ai/models-and-research/google-research/amie-video-consultations) | 11 Aug 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.

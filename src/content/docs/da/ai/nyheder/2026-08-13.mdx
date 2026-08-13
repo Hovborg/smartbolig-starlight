@@ -1,0 +1,126 @@
+---
+title: "AI-nyheder, 13. august 2026"
+description: "Kurateret AI-overblik for 13. august 2026: modeller, produkter, ChatGPT, Claude, Gemini, API-priser, privacy og agent-workflows."
+date: 2026-08-13
+lastUpdated: 2026-08-13
+heroImage:
+  src: "/images/ai-news/2026-08-13.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om Claude Code releases, OpenClaw releases, Gemini CLI releases, OpenAI News, Google AI Blog"
+  caption: "Redaktionelt AI-nyhedsbillede om Claude Code releases, OpenClaw releases, Gemini CLI releases, OpenAI News, Google AI Blog"
+news:
+  editorialVersion: 3
+  copySource: template
+  storyFingerprint: "2d98e9cf34b9a6a0b7247f0735cbeff0b76bd311d3af90288c445b86543b2110"
+  sourceSetFingerprint: "bfbe798618eeae4bcc6d8aba19f01060ee05caa189334cceff324814a4d0c729"
+  signal: high
+  sources:
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.221"
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.6.34"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.55.1"
+    - "https://openai.com/index/how-enterprises-put-ai-to-work"
+    - "https://blog.google/innovation-and-ai/models-and-research/google-research/amie-video-consultations"
+sidebar:
+  label: "13. august 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-08-13">13. august 2026</time> · 5 udvalgte kilder</p>
+
+<p class="ai-news-lede">Dagens udgave prioriterer dokumenterede ændringer frem for volumen. Hver historie skelner mellem kildefakta, praktisk betydning, kontrolpunkt og usikkerhed.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. Claude Code releases: v2.1.221
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 4. aug. 2026. What's changed &#91;VSCode&#93; Added Focus view: a chat-menu toggle that hides tool activity behind an expandable per-turn summary with a live running-tool indicator, toggled with Ctrl+Alt+F or the "Claude Code: Toggle Focus view" command Added mode: "mask" for sandbox credential files on Linux and WSL — sandboxed commands read a sentinel copy &#40;the whole file, or just the spans captured by an extract regex&#41; while the sandbox proxy substitutes the real value on egress; on macOS file masking falls back to deny Added warnings to claude plugin validate when a…
+
+> Kort kildeuddrag: What's changed &#91;VSCode&#93; Added Focus view: a chat-menu toggle that hides tool activity behind an expandable per-turn summary with a…
+
+**Hvorfor det er relevant:** Ændringen er relevant, når en AI-assistent må læse sensorer eller udløse handlinger i hjemmet: smallere tilladelser og synlig godkendelse reducerer konsekvensen af en forkert beslutning.
+
+**Sådan verificerer du det:** Kontrollér i et testmiljø, at agenten kan udføre den tilladte handling, bliver stoppet ved en følsom handling og efterlader en brugbar log.
+
+**Usikkerhed:** Kilden dokumenterer ændringen, men viser ikke nødvendigvis langtidseffekt i et hjemmemiljø. Stabilitet og grænsetilfælde er derfor stadig usikre.
+
+Kilde: [v2.1.221](https://github.com/anthropics/claude-code/releases/tag/v2.1.221)
+
+### 2. OpenClaw releases: openclaw 2026.6.34
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 8. aug. 2026. 2026.6.34 Highlights Safer browser and network boundaries: sandboxed browser routes, trusted DNS targets, custom browser origins, and loopback provider endpoints now reject unsafe access paths. &#40; #97958 , #38290 , #103075 , #110693 &#41; Thanks @eleqtrizit , @brunowowk , @mosidevv , @pgondhi987 , and @lsr911 . More resilient agent and provider runs: retained session writes, provider fallbacks, stream progress handling, and stdio failures now recover without silently ending active work. &#40; #96100 , #97128 , #90908 , #99803 , #100521 &#41; Thanks @xialonglee , @sallyom , @richwilson-bloom , @LiuwqGit ,…
+
+> Kort kildeuddrag: 2026.6.34 Highlights Safer browser and network boundaries: sandboxed browser routes, trusted DNS targets, custom browser origins, and loopback provider endpoints…
+
+**Hvorfor det er relevant:** Ændringen er relevant, når en AI-assistent må læse sensorer eller udløse handlinger i hjemmet: smallere tilladelser og synlig godkendelse reducerer konsekvensen af en forkert beslutning.
+
+**Sådan verificerer du det:** Kontrollér i et testmiljø, at agenten kan udføre den tilladte handling, bliver stoppet ved en følsom handling og efterlader en brugbar log.
+
+**Usikkerhed:** Udrulning, region eller kontotype kan begrænse adgangen. Kilden bør genlæses for den konkrete konto, før funktionen planlægges som tilgængelig.
+
+Kilde: [openclaw 2026.6.34](https://github.com/openclaw/openclaw/releases/tag/v2026.6.34)
+
+### 3. Gemini CLI releases: Release v0.55.1
+
+**Hvad ændrede sig:** Gemini CLI releases offentliggjorde opdateringen 11. aug. 2026. What's Changed fix/verify release npm ci ignore scripts by @rmedranollamas in #28116 fix&#40;ci&#41;: prevent workspace binary shadowing in release verification by @galdawave in #28132 Feat/tool registry discovery by @ved015 in #28113 fix&#40;ci&#41;: prevent bad NPM releases and promote job crashes by @galdawave in #28147 Changelog for v0.50.0-preview.1 by @gemini-cli-robot in #28150 Fix no&#95;proxy test by @jerrylin3321 in #28131 chore&#40;release&#41;: bump version to 0.51.0-nightly.20260625.g3fbf93e26 by @gemini-cli-robot in #28151 Vertex base url update by @DavidAPierce in #28145 fix&#40;security&#41;: enforce case-insensitive sensitive path blocklist and vscode hitl by @luisfelipe-alt in #27966 fix&#40;core-tools&#41;: resolve…
+
+> Kort kildeuddrag: What's Changed fix/verify release npm ci ignore scripts by @rmedranollamas in #28116 fix&#40;ci&#41;: prevent workspace binary shadowing in release verification…
+
+**Hvorfor det er relevant:** Ændringen er relevant, når en AI-assistent må læse sensorer eller udløse handlinger i hjemmet: smallere tilladelser og synlig godkendelse reducerer konsekvensen af en forkert beslutning.
+
+**Sådan verificerer du det:** Kontrollér i et testmiljø, at agenten kan udføre den tilladte handling, bliver stoppet ved en følsom handling og efterlader en brugbar log.
+
+**Usikkerhed:** Udrulning, region eller kontotype kan begrænse adgangen. Kilden bør genlæses for den konkrete konto, før funktionen planlægges som tilgængelig.
+
+Kilde: [Release v0.55.1](https://github.com/google-gemini/gemini-cli/releases/tag/v0.55.1)
+
+### 4. OpenAI News: From assistance to execution: How enterprises put AI to work
+
+**Hvad ændrede sig:** OpenAI News offentliggjorde opdateringen 12. aug. 2026. OpenAI research reveals how enterprises are adopting agentic AI, using ChatGPT and Codex, and how frontier firms are pulling ahead in AI adoption.
+
+> Kort kildeuddrag: OpenAI research reveals how enterprises are adopting agentic AI, using ChatGPT and Codex, and how frontier firms are pulling ahead…
+
+**Hvorfor det er relevant:** Prisændringen kan flytte grænsen mellem lokal og cloudbaseret AI og bør regnes ind i faste automationer, før de skaleres.
+
+**Sådan verificerer du det:** Sammenlign før/efter på den samme opgave, og mål resultat, svartid, omkostning og mulighed for rollback, før ændringen bruges i drift.
+
+**Usikkerhed:** Kilden dokumenterer ændringen, men viser ikke nødvendigvis langtidseffekt i et hjemmemiljø. Stabilitet og grænsetilfælde er derfor stadig usikre.
+
+Kilde: [From assistance to execution: How enterprises put AI to work](https://openai.com/index/how-enterprises-put-ai-to-work)
+
+### 5. Google AI Blog: AMIE, our research medical AI system, demonstrates real-time clinical video consultation capabilities in a first-of-its-kind study.
+
+**Hvad ændrede sig:** Google AI Blog offentliggjorde opdateringen 11. aug. 2026. Google introduces AMIE for real-time clinical video consultations in simulated settings.
+
+> Kort kildeuddrag: Google introduces AMIE for real-time clinical video consultations in simulated settings. AMIE: Advancing medical AI for video consultations Skip to…
+
+**Hvorfor det er relevant:** Den praktiske værdi afhænger af, om ændringen løser en konkret opgave bedre uden at udvide adgang, cloudafhængighed eller driftsrisiko.
+
+**Sådan verificerer du det:** Sammenlign før/efter på den samme opgave, og mål resultat, svartid, omkostning og mulighed for rollback, før ændringen bruges i drift.
+
+**Usikkerhed:** Kilden dokumenterer ændringen, men viser ikke nødvendigvis langtidseffekt i et hjemmemiljø. Stabilitet og grænsetilfælde er derfor stadig usikre.
+
+Kilde: [AMIE, our research medical AI system, demonstrates real-time clinical video consultation capabilities in a first-of-its-kind study.](https://blog.google/innovation-and-ai/models-and-research/google-research/amie-video-consultations)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| Claude Code releases | [v2.1.221](https://github.com/anthropics/claude-code/releases/tag/v2.1.221) | 4. aug. 2026 |
+| OpenClaw releases | [openclaw 2026.6.34](https://github.com/openclaw/openclaw/releases/tag/v2026.6.34) | 8. aug. 2026 |
+| Gemini CLI releases | [Release v0.55.1](https://github.com/google-gemini/gemini-cli/releases/tag/v0.55.1) | 11. aug. 2026 |
+| OpenAI News | [From assistance to execution: How enterprises put AI to work](https://openai.com/index/how-enterprises-put-ai-to-work) | 12. aug. 2026 |
+| Google AI Blog | [AMIE, our research medical AI system, demonstrates real-time clinical video consultation capabilities in a first-of-its-kind study.](https://blog.google/innovation-and-ai/models-and-research/google-research/amie-video-consultations) | 11. aug. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
