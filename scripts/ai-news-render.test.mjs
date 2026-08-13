@@ -113,6 +113,24 @@ test("renderIssue uses validated LLM copy and escapes it like feed text", () => 
   assert.doesNotMatch(en, /\{scoped\}/);
 });
 
+// Regression for the 2026-08-12 outage: GitHub release feeds put the entire
+// release body in item.summary, and the template fallback for "what" inlined it
+// verbatim. The rendered issue reached 28.8k characters, tripped the article cap
+// in scripts/ai-news-validate.mjs, and failed the whole daily run, so nothing
+// was published between 2026-07-27 and the fix.
+test("template copy caps a huge source summary instead of inlining the whole feed body", () => {
+  const releaseBody = Array.from({ length: 4000 }, (_, index) => `change${index}`).join(" ");
+  const editorialPackage = selectEditorialPackage([{ ...item, summary: releaseBody }], []);
+
+  for (const locale of ["da", "en"]) {
+    const output = renderIssue({ locale, date: "2026-08-12", editorialPackage });
+    // Mirrors the 24000-character article cap in scripts/ai-news-validate.mjs.
+    assert.ok(output.length < 24000, `${locale} issue is ${output.length} characters`);
+    assert.match(output, /change0\b/);
+    assert.doesNotMatch(output, /change3999\b/);
+  }
+});
+
 test("renderRepeatIssue writes an honest low-signal repeat digest", () => {
   const output = renderRepeatIssue({
     locale: "da",
