@@ -77,6 +77,28 @@ function sourceExcerpt(item) {
   return words.length > 0 ? safeText(`${words.join(" ")}${text.split(" ").length > words.length ? "…" : ""}`) : "";
 }
 
+// Word budget for the deterministic "what" fallback. It mirrors WORD_LIMITS.what
+// in ai-news-llm.mjs so both copy paths produce a brief of the same size: the
+// LLM path is bounded by its validator, and without this the template path was
+// not bounded at all. item.summary is the raw feed summary, and for a GitHub
+// release feed that is the entire release body. On 2026-08-12 two such bodies
+// rendered a 28.8k-character issue, past the 24000 cap in ai-news-validate.mjs,
+// which failed the daily run instead of publishing a shorter brief.
+const TEMPLATE_WHAT_WORDS = 90;
+
+function templateWhat(item, locale) {
+  const summary = String(item.summary || "").replace(/\s+/g, " ").trim();
+  if (!summary) {
+    return locale === "da"
+      ? "Den officielle side beskriver ændringen og dens aktuelle omfang."
+      : "The official page describes the change and its current scope.";
+  }
+  const words = summary.split(" ").filter(Boolean);
+  return words.length > TEMPLATE_WHAT_WORDS
+    ? `${words.slice(0, TEMPLATE_WHAT_WORDS).join(" ")}…`
+    : summary;
+}
+
 function relevance(item, locale) {
   const text = `${item.title} ${item.summary}`.toLowerCase();
   const da = locale === "da";
@@ -139,9 +161,7 @@ function renderStories(items, locale, copy) {
   return items.map((item, index) => {
     const excerpt = sourceExcerpt(item);
     const published = formatSourceDate(item.published, da ? "da-DK" : "en-GB");
-    const what = storyCopy(copy, index, "what", locale, safeText(item.summary || (da
-      ? "Den officielle side beskriver ændringen og dens aktuelle omfang."
-      : "The official page describes the change and its current scope.")));
+    const what = storyCopy(copy, index, "what", locale, safeText(templateWhat(item, locale)));
     const why = storyCopy(copy, index, "why", locale, relevance(item, locale));
     const verify = storyCopy(copy, index, "verify", locale, verification(item, locale));
     const open = storyCopy(copy, index, "uncertainty", locale, uncertainty(item, locale));
