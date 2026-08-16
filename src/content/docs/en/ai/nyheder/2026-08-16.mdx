@@ -1,0 +1,126 @@
+---
+title: "AI News, 16 August 2026"
+description: "Curated AI brief for 16 August 2026: models, products, ChatGPT, Claude, Gemini, API pricing, privacy, and agent workflows."
+date: 2026-08-16
+lastUpdated: 2026-08-16
+heroImage:
+  src: "/images/ai-news/2026-08-16.jpg"
+  alt: "Editorial AI news image about OpenClaw releases, Gemini CLI releases, Claude Code releases, OpenAI News, Google AI Blog"
+  caption: "Editorial AI news image about OpenClaw releases, Gemini CLI releases, Claude Code releases, OpenAI News, Google AI Blog"
+news:
+  editorialVersion: 3
+  copySource: template
+  storyFingerprint: "879a9ae0f6b876a1e5527b3837a45e4c39c5ecd2c10d7b1a89417fe50b8b1361"
+  sourceSetFingerprint: "bfbe798618eeae4bcc6d8aba19f01060ee05caa189334cceff324814a4d0c729"
+  signal: high
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.8.1-beta.2"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.55.1"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.229"
+    - "https://openai.com/index/builders-guide-to-gpt-5-6"
+    - "https://blog.google/innovation-and-ai/models-and-research/google-research/amie-video-consultations"
+sidebar:
+  label: "16 August 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline">By SmartBolig.net Editorial · <time datetime="2026-08-16">16 August 2026</time> · 5 selected sources</p>
+
+<p class="ai-news-lede">This issue prioritises documented change over volume. Each story separates source evidence, practical relevance, a verification point, and uncertainty.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. OpenClaw releases: OpenClaw 2026.8.1-beta.2
+
+**What changed:** OpenClaw releases published the update on 15 Aug 2026. 2026.8.1 Highlights Secret egress host binding: bind each shared-store secret to exact HTTPS destination hosts across CLI, Gateway RPC, and Control UI so unbound sentinel substitution fails closed before plaintext egress. Thanks @shakkernerd . GPT-5.6 Ultra and runtime switching: support Sol, Terra, and Luna across OpenClaw and Codex engines; keep model, runtime, and thinking selection atomic through /model and fallback; and add live matrix coverage for both harnesses. Thanks @anyech and @vincentkoc . Channel plugin ingress monitors: add a shared plugin SDK monitor for durable admission, polling, pruning, claim identity…
+
+> Short source excerpt: 2026.8.1 Highlights Secret egress host binding: bind each shared-store secret to exact HTTPS destination hosts across CLI, Gateway RPC, and…
+
+**Why it matters:** This matters when an AI assistant can read sensors or trigger home actions: narrower permissions and visible approval reduce the impact of a wrong decision.
+
+**How to verify it:** Verify in a test environment that the agent can perform the allowed action, is stopped at a sensitive action, and leaves a useful log.
+
+**Uncertainty:** Rollout, region, or account type may limit access. Recheck the source for the actual account before planning around availability.
+
+Source: [OpenClaw 2026.8.1-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.8.1-beta.2)
+
+### 2. Gemini CLI releases: Release v0.55.1
+
+**What changed:** Gemini CLI releases published the update on 11 Aug 2026. What's Changed fix/verify release npm ci ignore scripts by @rmedranollamas in #28116 fix&#40;ci&#41;: prevent workspace binary shadowing in release verification by @galdawave in #28132 Feat/tool registry discovery by @ved015 in #28113 fix&#40;ci&#41;: prevent bad NPM releases and promote job crashes by @galdawave in #28147 Changelog for v0.50.0-preview.1 by @gemini-cli-robot in #28150 Fix no&#95;proxy test by @jerrylin3321 in #28131 chore&#40;release&#41;: bump version to 0.51.0-nightly.20260625.g3fbf93e26 by @gemini-cli-robot in #28151 Vertex base url update by @DavidAPierce in #28145 fix&#40;security&#41;: enforce case-insensitive sensitive path blocklist and vscode hitl by @luisfelipe-alt in #27966 fix&#40;core-tools&#41;: resolve…
+
+> Short source excerpt: What's Changed fix/verify release npm ci ignore scripts by @rmedranollamas in #28116 fix&#40;ci&#41;: prevent workspace binary shadowing in release verification…
+
+**Why it matters:** This matters when an AI assistant can read sensors or trigger home actions: narrower permissions and visible approval reduce the impact of a wrong decision.
+
+**How to verify it:** Verify in a test environment that the agent can perform the allowed action, is stopped at a sensitive action, and leaves a useful log.
+
+**Uncertainty:** Rollout, region, or account type may limit access. Recheck the source for the actual account before planning around availability.
+
+Source: [Release v0.55.1](https://github.com/google-gemini/gemini-cli/releases/tag/v0.55.1)
+
+### 3. Claude Code releases: v2.1.229
+
+**What changed:** Claude Code releases published the update on 12 Aug 2026. What's changed Documented claude remote-control --continue for resuming the most recent Remote Control session Added server-supplied Claude Code hook support for self-hosted runner sessions, matching managed-environment behavior Added SSE keepalive pings to gateway streaming responses during long thinking pauses, preventing idle-timeout disconnects on Vertex and Bedrock upstreams Added plugin marketplace command sources: a local command &#40;e.g. an IDE&#41; prints the plugin directory, which is re-resolved each session and applied without a restart; mode: "link" uses it in place ListAgents now marks disconnected Remote Control sessions as offline and labels your…
+
+> Short source excerpt: What's changed Documented claude remote-control --continue for resuming the most recent Remote Control session Added server-supplied Claude Code hook support…
+
+**Why it matters:** The model change can affect latency, data boundaries, and tool safety, so it should be measured on the actual home workflow.
+
+**How to verify it:** Compare before and after on the same task, measuring outcome, latency, cost, and rollback before using the change in operations.
+
+**Uncertainty:** The source documents the change but may not show long-term behavior in a home environment. Stability and edge cases remain uncertain.
+
+Source: [v2.1.229](https://github.com/anthropics/claude-code/releases/tag/v2.1.229)
+
+### 4. OpenAI News: The builder’s guide to GPT‑5.6
+
+**What changed:** OpenAI News published the update on 13 Aug 2026. Learn how startups use GPT-5.6 to build faster, more cost-efficient AI agents with smarter model selection and new Responses API capabilities.
+
+> Short source excerpt: Learn how startups use GPT-5.6 to build faster, more cost-efficient AI agents with smarter model selection and new Responses API…
+
+**Why it matters:** The pricing change can shift the boundary between local and cloud AI and should be calculated before a recurring automation is scaled.
+
+**How to verify it:** Compare before and after on the same task, measuring outcome, latency, cost, and rollback before using the change in operations.
+
+**Uncertainty:** The source documents the change but may not show long-term behavior in a home environment. Stability and edge cases remain uncertain.
+
+Source: [The builder’s guide to GPT‑5.6](https://openai.com/index/builders-guide-to-gpt-5-6)
+
+### 5. Google AI Blog: AMIE, our research medical AI system, demonstrates real-time clinical video consultation capabilities in a first-of-its-kind study.
+
+**What changed:** Google AI Blog published the update on 11 Aug 2026. Google introduces AMIE for real-time clinical video consultations in simulated settings.
+
+> Short source excerpt: Google introduces AMIE for real-time clinical video consultations in simulated settings. AMIE: Advancing medical AI for video consultations Skip to…
+
+**Why it matters:** Its practical value depends on solving a concrete task better without expanding access, cloud dependency, or operational risk.
+
+**How to verify it:** Compare before and after on the same task, measuring outcome, latency, cost, and rollback before using the change in operations.
+
+**Uncertainty:** The source documents the change but may not show long-term behavior in a home environment. Stability and edge cases remain uncertain.
+
+Source: [AMIE, our research medical AI system, demonstrates real-time clinical video consultation capabilities in a first-of-its-kind study.](https://blog.google/innovation-and-ai/models-and-research/google-research/amie-video-consultations)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| OpenClaw releases | [OpenClaw 2026.8.1-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.8.1-beta.2) | 15 Aug 2026 |
+| Gemini CLI releases | [Release v0.55.1](https://github.com/google-gemini/gemini-cli/releases/tag/v0.55.1) | 11 Aug 2026 |
+| Claude Code releases | [v2.1.229](https://github.com/anthropics/claude-code/releases/tag/v2.1.229) | 12 Aug 2026 |
+| OpenAI News | [The builder’s guide to GPT‑5.6](https://openai.com/index/builders-guide-to-gpt-5-6) | 13 Aug 2026 |
+| Google AI Blog | [AMIE, our research medical AI system, demonstrates real-time clinical video consultation capabilities in a first-of-its-kind study.](https://blog.google/innovation-and-ai/models-and-research/google-research/amie-video-consultations) | 11 Aug 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.
