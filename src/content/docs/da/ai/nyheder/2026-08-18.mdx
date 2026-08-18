@@ -1,0 +1,126 @@
+---
+title: "AI-nyheder, 18. august 2026"
+description: "Kurateret AI-overblik for 18. august 2026: modeller, produkter, ChatGPT, Claude, Gemini, API-priser, privacy og agent-workflows."
+date: 2026-08-18
+lastUpdated: 2026-08-18
+heroImage:
+  src: "/images/ai-news/2026-08-18.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om OpenClaw releases, Claude Code releases, Gemini CLI releases, OpenAI News, Google AI Blog"
+  caption: "Redaktionelt AI-nyhedsbillede om OpenClaw releases, Claude Code releases, Gemini CLI releases, OpenAI News, Google AI Blog"
+news:
+  editorialVersion: 3
+  copySource: template
+  storyFingerprint: "879a9ae0f6b876a1e5527b3837a45e4c39c5ecd2c10d7b1a89417fe50b8b1361"
+  sourceSetFingerprint: "bfbe798618eeae4bcc6d8aba19f01060ee05caa189334cceff324814a4d0c729"
+  signal: high
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.8.1-beta.2"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.234"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.55.1"
+    - "https://openai.com/index/builders-guide-to-gpt-5-6"
+    - "https://blog.google/products-and-platforms/products/gemini/google-gemini-pixel-football-club-partnerships"
+sidebar:
+  label: "18. august 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="2026-08-18">18. august 2026</time> · 5 udvalgte kilder</p>
+
+<p class="ai-news-lede">Dagens udgave prioriterer dokumenterede ændringer frem for volumen. Hver historie skelner mellem kildefakta, praktisk betydning, kontrolpunkt og usikkerhed.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. OpenClaw releases: OpenClaw 2026.8.1-beta.2
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 15. aug. 2026. 2026.8.1 Highlights Secret egress host binding: bind each shared-store secret to exact HTTPS destination hosts across CLI, Gateway RPC, and Control UI so unbound sentinel substitution fails closed before plaintext egress. Thanks @shakkernerd . GPT-5.6 Ultra and runtime switching: support Sol, Terra, and Luna across OpenClaw and Codex engines; keep model, runtime, and thinking selection atomic through /model and fallback; and add live matrix coverage for both harnesses. Thanks @anyech and @vincentkoc . Channel plugin ingress monitors: add a shared plugin SDK monitor for durable admission, polling, pruning, claim identity…
+
+> Kort kildeuddrag: 2026.8.1 Highlights Secret egress host binding: bind each shared-store secret to exact HTTPS destination hosts across CLI, Gateway RPC, and…
+
+**Hvorfor det er relevant:** Ændringen er relevant, når en AI-assistent må læse sensorer eller udløse handlinger i hjemmet: smallere tilladelser og synlig godkendelse reducerer konsekvensen af en forkert beslutning.
+
+**Sådan verificerer du det:** Kontrollér i et testmiljø, at agenten kan udføre den tilladte handling, bliver stoppet ved en følsom handling og efterlader en brugbar log.
+
+**Usikkerhed:** Udrulning, region eller kontotype kan begrænse adgangen. Kilden bør genlæses for den konkrete konto, før funktionen planlægges som tilgængelig.
+
+Kilde: [OpenClaw 2026.8.1-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.8.1-beta.2)
+
+### 2. Claude Code releases: v2.1.234
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 17. aug. 2026. What's changed Added the optional CLAUDE&#95;CODE&#95;PROJECT&#95;DIR&#95;NAME environment variable: hosts that give each session its own config directory can choose a short name for the per-project transcript directory Added the selection:clear keybinding action, so a key can be bound to clear an in-app text selection; also works in the agents view Added a GitLab merge request badge to the footer and statusline: repos with a GitLab remote and an authenticated glab CLI show MR &#33;N with draft/pending/green states Claude Code now continues your session automatically when a claude.ai usage limit resets;…
+
+> Kort kildeuddrag: What's changed Added the optional CLAUDE&#95;CODE&#95;PROJECT&#95;DIR&#95;NAME environment variable: hosts that give each session its own config directory can choose a…
+
+**Hvorfor det er relevant:** Ændringen er relevant, når en AI-assistent må læse sensorer eller udløse handlinger i hjemmet: smallere tilladelser og synlig godkendelse reducerer konsekvensen af en forkert beslutning.
+
+**Sådan verificerer du det:** Kontrollér i et testmiljø, at agenten kan udføre den tilladte handling, bliver stoppet ved en følsom handling og efterlader en brugbar log.
+
+**Usikkerhed:** Udrulning, region eller kontotype kan begrænse adgangen. Kilden bør genlæses for den konkrete konto, før funktionen planlægges som tilgængelig.
+
+Kilde: [v2.1.234](https://github.com/anthropics/claude-code/releases/tag/v2.1.234)
+
+### 3. Gemini CLI releases: Release v0.55.1
+
+**Hvad ændrede sig:** Gemini CLI releases offentliggjorde opdateringen 11. aug. 2026. What's Changed fix/verify release npm ci ignore scripts by @rmedranollamas in #28116 fix&#40;ci&#41;: prevent workspace binary shadowing in release verification by @galdawave in #28132 Feat/tool registry discovery by @ved015 in #28113 fix&#40;ci&#41;: prevent bad NPM releases and promote job crashes by @galdawave in #28147 Changelog for v0.50.0-preview.1 by @gemini-cli-robot in #28150 Fix no&#95;proxy test by @jerrylin3321 in #28131 chore&#40;release&#41;: bump version to 0.51.0-nightly.20260625.g3fbf93e26 by @gemini-cli-robot in #28151 Vertex base url update by @DavidAPierce in #28145 fix&#40;security&#41;: enforce case-insensitive sensitive path blocklist and vscode hitl by @luisfelipe-alt in #27966 fix&#40;core-tools&#41;: resolve…
+
+> Kort kildeuddrag: What's Changed fix/verify release npm ci ignore scripts by @rmedranollamas in #28116 fix&#40;ci&#41;: prevent workspace binary shadowing in release verification…
+
+**Hvorfor det er relevant:** Ændringen er relevant, når en AI-assistent må læse sensorer eller udløse handlinger i hjemmet: smallere tilladelser og synlig godkendelse reducerer konsekvensen af en forkert beslutning.
+
+**Sådan verificerer du det:** Kontrollér i et testmiljø, at agenten kan udføre den tilladte handling, bliver stoppet ved en følsom handling og efterlader en brugbar log.
+
+**Usikkerhed:** Udrulning, region eller kontotype kan begrænse adgangen. Kilden bør genlæses for den konkrete konto, før funktionen planlægges som tilgængelig.
+
+Kilde: [Release v0.55.1](https://github.com/google-gemini/gemini-cli/releases/tag/v0.55.1)
+
+### 4. OpenAI News: The builder’s guide to GPT‑5.6
+
+**Hvad ændrede sig:** OpenAI News offentliggjorde opdateringen 13. aug. 2026. Learn how startups use GPT-5.6 to build faster, more cost-efficient AI agents with smarter model selection and new Responses API capabilities.
+
+> Kort kildeuddrag: Learn how startups use GPT-5.6 to build faster, more cost-efficient AI agents with smarter model selection and new Responses API…
+
+**Hvorfor det er relevant:** Prisændringen kan flytte grænsen mellem lokal og cloudbaseret AI og bør regnes ind i faste automationer, før de skaleres.
+
+**Sådan verificerer du det:** Sammenlign før/efter på den samme opgave, og mål resultat, svartid, omkostning og mulighed for rollback, før ændringen bruges i drift.
+
+**Usikkerhed:** Kilden dokumenterer ændringen, men viser ikke nødvendigvis langtidseffekt i et hjemmemiljø. Stabilitet og grænsetilfælde er derfor stadig usikre.
+
+Kilde: [The builder’s guide to GPT‑5.6](https://openai.com/index/builders-guide-to-gpt-5-6)
+
+### 5. Google AI Blog: Get closer to the game with Gemini and Pixel
+
+**Hvad ændrede sig:** Google AI Blog offentliggjorde opdateringen 17. aug. 2026. Google Gemini and Pixel partner with five global football clubs to elevate the fan matchday experience through AI and Smartphone Technology.
+
+> Kort kildeuddrag: Google Gemini and Pixel partner with five global football clubs to elevate the fan matchday experience through AI and Smartphone…
+
+**Hvorfor det er relevant:** Den praktiske værdi afhænger af, om ændringen løser en konkret opgave bedre uden at udvide adgang, cloudafhængighed eller driftsrisiko.
+
+**Sådan verificerer du det:** Sammenlign før/efter på den samme opgave, og mål resultat, svartid, omkostning og mulighed for rollback, før ændringen bruges i drift.
+
+**Usikkerhed:** Kilden dokumenterer ændringen, men viser ikke nødvendigvis langtidseffekt i et hjemmemiljø. Stabilitet og grænsetilfælde er derfor stadig usikre.
+
+Kilde: [Get closer to the game with Gemini and Pixel](https://blog.google/products-and-platforms/products/gemini/google-gemini-pixel-football-club-partnerships)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| OpenClaw releases | [OpenClaw 2026.8.1-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.8.1-beta.2) | 15. aug. 2026 |
+| Claude Code releases | [v2.1.234](https://github.com/anthropics/claude-code/releases/tag/v2.1.234) | 17. aug. 2026 |
+| Gemini CLI releases | [Release v0.55.1](https://github.com/google-gemini/gemini-cli/releases/tag/v0.55.1) | 11. aug. 2026 |
+| OpenAI News | [The builder’s guide to GPT‑5.6](https://openai.com/index/builders-guide-to-gpt-5-6) | 13. aug. 2026 |
+| Google AI Blog | [Get closer to the game with Gemini and Pixel](https://blog.google/products-and-platforms/products/gemini/google-gemini-pixel-football-club-partnerships) | 17. aug. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
