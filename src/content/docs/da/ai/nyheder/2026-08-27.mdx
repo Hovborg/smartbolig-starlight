@@ -1,0 +1,112 @@
+---
+title: "AI-nyheder, 27. august 2026"
+description: "Kurateret AI-overblik for 27. august 2026: modeller, produkter, ChatGPT, Claude, Gemini, API-priser, privacy og agent-workflows."
+date: 2026-08-27
+lastUpdated: 2026-08-27
+heroImage:
+  src: "/images/ai-news/2026-08-27.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om Claude Code releases, OpenAI Codex releases, OpenClaw releases, Gemini CLI releases"
+  caption: "Redaktionelt AI-nyhedsbillede om Claude Code releases, OpenAI Codex releases, OpenClaw releases, Gemini CLI releases"
+news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "462e1b25eedae396abfa6e5e33a36c64d3232ce5397bfbb62659c3dc0277169f"
+  issueFingerprint: "5ff828666bb86bc2f94fd8fb2037eb54e699544b5e336cb54f56bc8cc3b21f03"
+  sourceSetFingerprint: "9776e762cf9d0a341a598f71b13b85c7b20036399ce9da1c686c6ee10b75f527"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.239"
+    - "https://github.com/openai/codex/releases/tag/rust-v0.150.0"
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.8.1-beta.3"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.57.0"
+sidebar:
+  label: "27. august 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="5ff828666bb86bc2f94fd8fb2037eb54e699544b5e336cb54f56bc8cc3b21f03">Af SmartBolig.net Redaktionen · <time datetime="2026-08-27">27. august 2026</time> · 4 udvalgte kilder</p>
+
+<p class="ai-news-lede">Dagens udgave ser på en opdatering af Claude Code, der lægger et tillæg oven i regningen for data-residency-arbejdsområder og giver Python-udviklere en officiel opgraderingsvej. Desuden får OpenAI Codex bedre styring af flere kørende opgaver, OpenClaw-beta'en udvider med flere GPT-5.6-modeller og Chrome-integration, og Gemini CLI retter et par login- og IDE-fejl.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. Claude Code releases: v2.1.239
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 21. aug. 2026. Claude Code 2.1.239 lægger et 1,1x tillæg for US-only-inference oven i omkostningsoverslag i /cost, statuslinjen og --max-budget-usd for arbejdsområder med data-residency-krav. Samtidig får Bedrock, Vertex, Foundry og andre tidligere udelukkede opsætninger et engangstilbud om fuldskærmsvisning, så nye installationer der starter i fuldskærm. En ny kommando, /claude-api upgrade, migrerer Python-projekter fra anthropic-pakkens version 0.x til 1.x, inklusive ændret timeout-håndtering.
+
+> Kort kildeuddrag: What's changed Cost estimates &#40; /cost , status line, --max-budget-usd &#41; now include the 1.1× US-only-inference premium for data-residency workspaces…
+
+**Hvorfor det er relevant:** For teams med data-residency-krav bliver Claude Code dyrere i praksis, fordi US-only-inference nu prissættes med et ekstra tillæg. Python-udviklere, der bruger Anthropics API, får en officiel vej til at opgradere uden manuelt at rette timeout-kald.
+
+**Sådan verificerer du det:** Tjek din organisations /cost-output eller statuslinje efter opdateringen for at se, om det nye 1,1x tillæg optræder, og kør /claude-api upgrade i et testmiljø, før du migrerer produktionskode.
+
+**Usikkerhed:** Det fremgår ikke, hvilke lande eller regioner der tæller som data-residency-arbejdsområder, eller om tillægget er permanent. Kildeteksten viser heller ikke, om Python-migreringen dækker alle projekttyper.
+
+Kilde: [v2.1.239](https://github.com/anthropics/claude-code/releases/tag/v2.1.239)
+
+### 2. OpenAI Codex releases: 0.150.0
+
+**Hvad ændrede sig:** OpenAI Codex releases offentliggjorde opdateringen 26. aug. 2026. OpenAI Codex 0.150.0 lader dig referere til andre Codex-opgaver med @-mentions, så agenter kan læse, oprette eller sende beskeder til opgaver direkte fra terminalen. Kommandoen /copy har nu en vælger til hele svar, enkelte kodeblokke eller citatblokke. Unavngivne terminalopgaver får automatisk beskrivende titler, og /rename foreslår en redigerbar titel ud fra samtalen. Markdown-links vises som klikbare labels i terminaler, der understøtter det, mens synlige URL'er bevares andre steder.
+
+> Kort kildeuddrag: New Features Reference other Codex tasks with @ mentions, and ask agents to read, create, or message tasks from the…
+
+**Hvorfor det er relevant:** Det gør det lettere at holde styr på og koordinere flere kørende Codex-agenter fra terminalen uden at skifte til en anden grænseflade. Kopiering af enkelte kodeblokke bliver mere præcis, og klikbare links sparer manuel copy-paste.
+
+**Sådan verificerer du det:** Opdater Codex CLI til 0.150.0 og test @-mentions mod en igangværende opgave, samt tjek at /copy viser den nye vælger, i din foretrukne terminal.
+
+**Usikkerhed:** Kilden angiver ikke, hvilke terminaler der understøtter klikbare links, eller om @-mentions virker på tværs af projekter og maskiner. Stabiliteten af automatisk titelgenerering er heller ikke beskrevet.
+
+Kilde: [0.150.0](https://github.com/openai/codex/releases/tag/rust-v0.150.0)
+
+### 3. OpenClaw releases: OpenClaw 2026.8.1-beta.3
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 24. aug. 2026. OpenClaw 2026.8.1-beta.3 tilføjer understøttelse af GPT-5.6-modellerne Sol, Terra, Luna og Ultra i både OpenClaw og Codex-runtiden. Opsætningsguiden i Control UI fører nu videre fra modelopsætning til Custodian og valgfri kanalopsætning. Der er tilføjet en Puppeteer-kompatibel CDP-relay til parrede Chrome-sessioner, eksplicit styring af eksterne Gateway-processers livscyklus med genstart, samt kommandoer til SQLite-backup og gendannelse til et nyt mål.
+
+> Kort kildeuddrag: Highlights GPT-5.6 Sol, Terra, Luna, and Ultra reasoning support across OpenClaw and the Codex runtime. Control UI first-run setup now…
+
+**Hvorfor det er relevant:** Flere modelvarianter giver mulighed for at vælge reasoning-niveau efter opgave, mens Chrome-relayen åbner for browserstyring via eksisterende Puppeteer-scripts. Backup- og genstartsfunktionerne kan gøre en selvhostet OpenClaw-opsætning mindre skrøbelig ved fejl.
+
+**Sådan verificerer du det:** Det er en beta-udgivelse, så test SQLite-backup og gendannelse på en kopi af dine data, og bekræft at den GPT-5.6-model, du forventer at bruge, faktisk er tilgængelig i din opsætning.
+
+**Usikkerhed:** Som beta kan funktionerne ændre sig eller indeholde fejl. Kilden viser ikke priser eller adgangsbegrænsninger for GPT-5.6-modellerne, og det fremgår ikke, om CDP-relayen kræver særlig Chrome-konfiguration.
+
+Kilde: [OpenClaw 2026.8.1-beta.3](https://github.com/openclaw/openclaw/releases/tag/v2026.8.1-beta.3)
+
+### 4. Gemini CLI releases: Release v0.57.0
+
+**Hvad ændrede sig:** Gemini CLI releases offentliggjorde opdateringen 25. aug. 2026. Gemini CLI v0.57.0 retter en OAuth-fejl, hvor proxy-redirect-URI'en til Cloud Workstations ikke blev opløst korrekt, samt en fejl hvor mappekonflikter i IDE-forbindelser blev tavse. Udgivelsen tilføjer også et eval-valideringsværktøj og en formatter til værktøjskald med fejlsammendrag, samt stabiliserer en langsom end-to-end-test. Kildematerialet er en liste af udvikler- og testrettelser uden yderligere beskrivelse.
+
+> Kort kildeuddrag: What's Changed fix&#40;core&#41;: dynamically resolve Cloud Workstations proxy redirect URI for OAuth flows by @amelidev in #28688 fix&#40;core&#41;: resolve swallowed…
+
+**Hvorfor det er relevant:** Rettelserne retter sig mest mod udviklere, der bygger eller tester med Gemini CLI, ikke mod almindelig daglig brug. OAuth-fixet kan dog betyde, at login via Cloud Workstations nu virker for brugere, der tidligere oplevede fejl der.
+
+**Sådan verificerer du det:** Hvis du bruger Gemini CLI med Cloud Workstations eller en IDE-integration, opdater til v0.57.0 og prøv login og mappeskift igen for at se, om de tidligere fejl er væk.
+
+**Usikkerhed:** Kilden er en rå commit-liste uden forklaring af, hvor udbredte de rettede fejl var, eller om der er nye fejl i eval-værktøjerne. Der er ingen oplysninger om, hvornår opdateringen rulles bredt ud.
+
+Kilde: [Release v0.57.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.57.0)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| Claude Code releases | [v2.1.239](https://github.com/anthropics/claude-code/releases/tag/v2.1.239) | 21. aug. 2026 |
+| OpenAI Codex releases | [0.150.0](https://github.com/openai/codex/releases/tag/rust-v0.150.0) | 26. aug. 2026 |
+| OpenClaw releases | [OpenClaw 2026.8.1-beta.3](https://github.com/openclaw/openclaw/releases/tag/v2026.8.1-beta.3) | 24. aug. 2026 |
+| Gemini CLI releases | [Release v0.57.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.57.0) | 25. aug. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.

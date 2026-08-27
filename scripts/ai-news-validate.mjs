@@ -27,10 +27,10 @@ function fail(issues, filePath, message) {
 }
 
 function parseFrontmatter(content) {
-  const match = content.match(/^---\n([\s\S]*?)\n---\n/);
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n/);
   if (!match) return {};
   const data = {};
-  for (const line of match[1].split('\n')) {
+  for (const line of match[1].split(/\r?\n/)) {
     const simple = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
     if (simple) data[simple[1]] = simple[2].replace(/^"|"$/g, '');
   }

@@ -521,7 +521,8 @@ test("deploy runs every local quality gate before publishing", async () => {
   const wrangler = JSON.parse(await read("wrangler.jsonc"));
   const gitignore = await read(".gitignore");
   assert.match(workflow, /pull_request:\s*\n\s+branches:\s*\[main\]/);
-  assert.equal((workflow.match(/github\.event_name != 'pull_request'/g) || []).length, 2);
+  assert.equal((workflow.match(/github\.event_name == 'push' && github\.ref == 'refs\/heads\/main'/g) || []).length, 2);
+  assert.doesNotMatch(workflow, /github\.event_name != 'pull_request'/);
   for (const command of [
     "npm run site:test",
     "npm run ai-news:test",

@@ -1,6 +1,23 @@
 import { sourceSetFingerprint, storyFingerprint } from "./ai-news-editorial.mjs";
+import { createHash } from "node:crypto";
 
 const HERO_EXT = ".jpg";
+
+export function issueFingerprint({ date, items, copy = null }) {
+  const payload = {
+    date,
+    sources: items.map((item) => ({
+      source: provider(item),
+      title: String(item.title || ""),
+      url: String(item.canonicalUrl || item.url || ""),
+      summary: String(item.summary || ""),
+      bodyText: String(item.bodyText || ""),
+      published: item.published instanceof Date ? item.published.toISOString() : String(item.published || ""),
+    })),
+    copy,
+  };
+  return createHash("sha256").update(JSON.stringify(payload)).digest("hex");
+}
 
 function yamlString(value) {
   return JSON.stringify(String(value));
@@ -199,7 +216,7 @@ function signalLevel(count) {
   return count === 2 ? "medium" : "low";
 }
 
-function issueFrontmatter({ locale, date, items, setHash, copySource, signalOverride, extra = [] }) {
+function issueFrontmatter({ locale, date, items, setHash, issueHash, copySource, signalOverride, extra = [] }) {
   const da = locale === "da";
   const formattedDate = formatDate(date, da ? "da-DK" : "en-GB");
   const title = da ? `AI-nyheder, ${formattedDate}` : `AI News, ${formattedDate}`;
@@ -227,6 +244,7 @@ function issueFrontmatter({ locale, date, items, setHash, copySource, signalOver
       "  editorialVersion: 3",
       `  copySource: ${copySource}`,
       `  storyFingerprint: ${yamlString(storyFingerprint(items[0]))}`,
+      `  issueFingerprint: ${yamlString(issueHash)}`,
       `  sourceSetFingerprint: ${yamlString(setHash)}`,
       `  signal: ${signalOverride || signalLevel(items.length)}`,
       ...extra,
@@ -255,13 +273,17 @@ export function renderIssue({ locale, date, editorialPackage, copy = null }) {
   const items = editorialPackage.items;
   const da = locale === "da";
   const setHash = editorialPackage.sourceSetFingerprint || sourceSetFingerprint(items);
+  const issueHash = issueFingerprint({ date, items, copy });
   const { formattedDate, frontmatter } = issueFrontmatter({
     locale,
     date,
     items,
     setHash,
+    issueHash,
     copySource: copy ? "llm" : "template",
+    extra: copy?.semanticReview ? [`  semanticReview: ${copy.semanticReview}`] : [],
   });
+  const publicFingerprint = issueHash;
   const storiesHeading = da
     ? (items.length > 1 ? "Dagens historier" : "Hovedhistorien")
     : (items.length > 1 ? "Today's Stories" : "Lead Story");
@@ -277,7 +299,7 @@ export function renderIssue({ locale, date, editorialPackage, copy = null }) {
 
 import { Aside } from "@astrojs/starlight/components";
 
-<p class="ai-news-byline">Af SmartBolig.net Redaktionen · <time datetime="${date}">${formattedDate}</time> · ${items.length} ${items.length === 1 ? "primær kilde" : "udvalgte kilder"}</p>
+<p class="ai-news-byline" data-issue-fingerprint="${publicFingerprint}">Af SmartBolig.net Redaktionen · <time datetime="${date}">${formattedDate}</time> · ${items.length} ${items.length === 1 ? "primær kilde" : "udvalgte kilder"}</p>
 
 <p class="ai-news-lede">${lede}</p>
 
@@ -309,7 +331,7 @@ SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne 
 
 import { Aside } from "@astrojs/starlight/components";
 
-<p class="ai-news-byline">By SmartBolig.net Editorial · <time datetime="${date}">${formattedDate}</time> · ${items.length} ${items.length === 1 ? "primary source" : "selected sources"}</p>
+<p class="ai-news-byline" data-issue-fingerprint="${publicFingerprint}">By SmartBolig.net Editorial · <time datetime="${date}">${formattedDate}</time> · ${items.length} ${items.length === 1 ? "primary source" : "selected sources"}</p>
 
 <p class="ai-news-lede">${lede}</p>
 
@@ -346,11 +368,13 @@ export function renderRepeatIssue({ locale, date, repeatOfDate, items }) {
   }
   const da = locale === "da";
   const setHash = sourceSetFingerprint(items);
+  const issueHash = issueFingerprint({ date, items, copy: null });
   const { formattedDate, frontmatter } = issueFrontmatter({
     locale,
     date,
     items,
     setHash,
+    issueHash,
     copySource: "repeat",
     signalOverride: "low",
     extra: [`  repeatOf: ${yamlString(repeatOfDate)}`],

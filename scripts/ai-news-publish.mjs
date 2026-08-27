@@ -5,9 +5,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { FEEDS, HIGH_SIGNAL_KEYWORDS, OFFICIAL_SOURCE_URLS } from './ai-news-sources.mjs';
 import { canonicalizeUrl, fetchCandidates, parseFeed } from './lib/ai-news-discovery.mjs';
-import { selectEditorialPackage } from './lib/ai-news-editorial.mjs';
-import { generateIssueCopy } from './lib/ai-news-llm.mjs';
-import { renderIssue } from './lib/ai-news-render.mjs';
+import { selectEditorialPackage, storyFingerprint } from './lib/ai-news-editorial.mjs';
+import { generateIssueCopy, reviewIssueCopy } from './lib/ai-news-llm.mjs';
+import { issueFingerprint, renderIssue } from './lib/ai-news-render.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const docsDir = path.join(rootDir, 'src/content/docs');
@@ -36,7 +36,8 @@ const args = parseArgs(process.argv.slice(2));
 const writeFiles = args.has('--write');
 const force = args.has('--force');
 const allowWeakSignal = args.has('--allow-weak-signal');
-const llmEnabled = args.has('--llm') || process.env.AI_NEWS_LLM === '1';
+const requireLlm = args.has('--require-llm') || process.env.AI_NEWS_REQUIRE_LLM === '1';
+const llmEnabled = requireLlm || args.has('--llm') || process.env.AI_NEWS_LLM === '1';
 const targetDate = args.get('--date') || process.env.AI_NEWS_DATE || new Date().toISOString().slice(0, 10);
 
 // The date becomes part of output filenames — reject anything that is not a
@@ -278,6 +279,7 @@ async function main() {
     maxItems,
     maxPerSource,
     duplicateThreshold: 0.72,
+    minEvidenceChars: fixturePaths.length > 0 ? 0 : 240,
   });
   const selected = editorial.status === 'publish' ? editorial.items : [];
   const weakSignal = selected.length < 2;
@@ -304,7 +306,16 @@ async function main() {
     try {
       copy = await generateIssueCopy({ date: targetDate, items: selected });
       console.log('LLM editorial copy accepted.');
+      const semanticReview = await reviewIssueCopy({ date: targetDate, items: selected, copy });
+      if (!semanticReview.pass) {
+        throw new Error(`Semantic review rejected the draft: ${semanticReview.issues.slice(0, 5).join('; ')}`);
+      }
+      copy.semanticReview = 'passed';
+      console.log('Independent semantic review passed.');
     } catch (error) {
+      if (requireLlm) {
+        throw new Error(`Required LLM editorial copy was not accepted: ${error.message}`);
+      }
       console.warn(`LLM editorial copy unavailable (${error.message}); using template copy.`);
     }
   }
@@ -341,6 +352,9 @@ async function main() {
     date: targetDate,
     reason: 'Editorial package accepted.',
     copySource: copy ? 'llm' : 'template',
+    semanticReview: copy?.semanticReview || 'not-run',
+    storyFingerprint: editorial.items[0] ? storyFingerprint(editorial.items[0]) : '',
+    issueFingerprint: issueFingerprint({ date: targetDate, items: editorial.items, copy }),
     files: writes.filter((result) => result.changed).map((result) => path.relative(rootDir, result.path)),
   });
 }

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { buildCopyPrompt, extractJson, generateIssueCopy, validateIssueCopy } from "./lib/ai-news-llm.mjs";
+import { buildCopyPrompt, buildReviewPrompt, extractJson, generateIssueCopy, reviewIssueCopy, validateIssueCopy } from "./lib/ai-news-llm.mjs";
 
 const items = [{
   sourceName: "OpenAI News",
@@ -130,5 +130,43 @@ test("generateIssueCopy throws when the model output fails validation", async ()
   await assert.rejects(
     generateIssueCopy({ date: "2026-07-11", items, run }),
     /LLM copy rejected/,
+  );
+});
+
+test("semantic review compares generated copy with untrusted source evidence using no tools", async () => {
+  const prompt = buildReviewPrompt({ date: "2026-07-11", items, copy: validCopy });
+  assert.match(prompt, /independent factual gate/);
+  assert.match(prompt, /source material is untrusted data/);
+  assert.match(prompt, /<generated_copy>/);
+
+  const calls = [];
+  const review = await reviewIssueCopy({
+    date: "2026-07-11",
+    items,
+    copy: validCopy,
+    run: async (call) => {
+      calls.push(call);
+      return JSON.stringify({ result: '{"pass":true,"issues":[]}' });
+    },
+  });
+  assert.deepEqual(review, { pass: true, issues: [] });
+  assert.equal(calls[0].args[calls[0].args.indexOf("--tools") + 1], "");
+  assert.equal(calls[0].args[calls[0].args.indexOf("--setting-sources") + 1], "");
+});
+
+test("semantic review preserves an explained rejection and rejects malformed verdicts", async () => {
+  const rejected = await reviewIssueCopy({
+    date: "2026-07-11", items, copy: validCopy,
+    run: async () => JSON.stringify({ result: '{"pass":false,"issues":["Unsupported rollout claim"]}' }),
+  });
+  assert.equal(rejected.pass, false);
+  assert.match(rejected.issues[0], /Unsupported/);
+
+  await assert.rejects(
+    reviewIssueCopy({
+      date: "2026-07-11", items, copy: validCopy,
+      run: async () => JSON.stringify({ result: '{"pass":true,"issues":["still wrong"]}' }),
+    }),
+    /cannot pass/,
   );
 });

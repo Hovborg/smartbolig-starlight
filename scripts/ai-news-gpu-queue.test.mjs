@@ -9,6 +9,7 @@ import { promisify } from 'node:util';
 const execFileAsync = promisify(execFile);
 const rootDir = path.resolve(import.meta.dirname, '..');
 const dailyScript = path.join(rootDir, 'scripts', 'openclaw-ai-news-daily.sh');
+const bashTest = process.platform === 'win32' ? test.skip : test;
 
 // Regression for the 2026-07-18 incident: the daily job stopped comfyui.service
 // while another caller held a GPU token, which killed a running LTX video
@@ -63,7 +64,7 @@ process.exit(0);
   return calls;
 }
 
-test('stop_comfyui releases its token and leaves the service running while another caller holds the GPU', async () => {
+bashTest('stop_comfyui releases its token and leaves the service running while another caller holds the GPU', async () => {
   const calls = await runStopComfyui({ health: { gpu_locked: true, holder_registered: false } });
 
   assert.ok(
@@ -76,13 +77,13 @@ test('stop_comfyui releases its token and leaves the service running while anoth
   );
 });
 
-test('stop_comfyui leaves the service running when a holder is registered', async () => {
+bashTest('stop_comfyui leaves the service running when a holder is registered', async () => {
   const calls = await runStopComfyui({ health: { gpu_locked: false, holder_registered: true } });
 
   assert.ok(!calls.some(([bin, ...args]) => bin === 'systemctl' && args.includes('stop')));
 });
 
-test('stop_comfyui leaves the service running when the GPU queue is unreachable', async () => {
+bashTest('stop_comfyui leaves the service running when the GPU queue is unreachable', async () => {
   const calls = await runStopComfyui({ healthFails: true });
 
   assert.ok(
@@ -91,7 +92,7 @@ test('stop_comfyui leaves the service running when the GPU queue is unreachable'
   );
 });
 
-test('stop_comfyui stops the service when the queue reports the GPU free', async () => {
+bashTest('stop_comfyui stops the service when the queue reports the GPU free', async () => {
   const calls = await runStopComfyui({ health: { gpu_locked: false, holder_registered: false } });
 
   assert.ok(

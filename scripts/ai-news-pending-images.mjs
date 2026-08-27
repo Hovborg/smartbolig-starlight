@@ -26,10 +26,10 @@ function parseArgs(argv) {
 }
 
 function extractHeroImageSrc(content) {
-  const frontmatter = content.match(/^---\n([\s\S]*?)\n---/);
+  const frontmatter = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!frontmatter) return '';
 
-  const lines = frontmatter[1].split('\n');
+  const lines = frontmatter[1].split(/\r?\n/);
   const heroIndex = lines.findIndex((line) => line.trim() === 'heroImage:');
   if (heroIndex === -1) return '';
 

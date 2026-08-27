@@ -15,6 +15,8 @@
     "ai-news:render-image": "node scripts/ai-news-render-image.mjs",
     "ai-news:source-health": "node scripts/ai-news-source-health.mjs",
     "ai-news:test": "node --test scripts/ai-news-*.test.mjs",
+    "ai-news:quality": "node scripts/ai-news-quality.mjs",
+    "ai-news:quality:changed": "node scripts/ai-news-quality-changed.mjs",
     "ai-news:validate": "node scripts/ai-news-validate.mjs",
     "site:test": "node --test scripts/chat-*.test.mjs scripts/site-quality.test.mjs scripts/sitemap-lastmod.test.mjs",
     "seo:validate": "node scripts/seo-validate.mjs",

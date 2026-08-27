@@ -38,6 +38,15 @@ test("a strong primary-source story is accepted", () => {
   assert.ok(result.reasons.includes("primary-source"));
 });
 
+test("automatic selection rejects candidates with too little source evidence", () => {
+  const thin = candidate({ summary: "Short announcement.", bodyText: "" });
+  const result = selectEditorialPackage([thin], [], { minEvidenceChars: 240 });
+  assert.equal(result.status, "skip");
+
+  const documented = candidate({ summary: "Short announcement.", bodyText: "x".repeat(240) });
+  assert.equal(selectEditorialPackage([documented], [], { minEvidenceChars: 240 }).status, "publish");
+});
+
 test("the editorial package enforces per-source diversity", () => {
   const result = selectEditorialPackage([
     candidate(),
