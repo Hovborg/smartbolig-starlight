@@ -12,7 +12,7 @@ import { existsSync } from 'node:fs';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { canonicalizeUrl, stripHtml } from './lib/ai-news-discovery.mjs';
+import { canonicalizeUrl, fetchPublicText, stripHtml } from './lib/ai-news-discovery.mjs';
 import { isOfficialUrl } from './lib/ai-news-official.mjs';
 import { generateIssueCopy } from './lib/ai-news-llm.mjs';
 import { sourceSetFingerprint } from './lib/ai-news-editorial.mjs';
@@ -91,20 +91,21 @@ function parseSourceTable(content) {
   return items;
 }
 
-async function fetchSourceMaterial(item) {
+export async function fetchSourceMaterial(item, { fetchImpl, lookup } = {}) {
   // Source tables are repo content, but still only ever fetch verified
   // official HTTPS URLs (security review H-2: no arbitrary deep-reading).
   if (!isOfficialUrl(item.canonicalUrl)) return;
   try {
-    const response = await fetch(item.canonicalUrl, {
+    const { text: html } = await fetchPublicText(item.canonicalUrl, {
+      fetchImpl,
+      lookup,
+      maxBytes: 1_500_000,
+      timeoutMs: 15_000,
       headers: {
         'User-Agent': 'SmartBolig AI News Bot (+https://smartbolig.net/da/ai/nyheder/)',
         Accept: 'text/html, application/xhtml+xml;q=0.9, text/plain;q=0.8',
       },
-      signal: AbortSignal.timeout(15_000),
     });
-    if (!response.ok) return;
-    const html = await response.text();
     const description = html.match(/<meta[^>]+(?:property="og:description"|name="description")[^>]+content="([^"]+)"/i)?.[1]
       || html.match(/<meta[^>]+content="([^"]+)"[^>]+(?:property="og:description"|name="description")/i)?.[1]
       || '';
@@ -206,7 +207,9 @@ async function main() {
   }
 }
 
-main().catch((error) => {
-  console.error(error);
-  process.exit(1);
-});
+if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+  main().catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+}

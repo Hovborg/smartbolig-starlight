@@ -5,6 +5,7 @@ const DEFAULTS = {
   maxItems: 4,
   maxPerSource: 1,
   duplicateThreshold: 0.72,
+  minEvidenceChars: 0,
 };
 
 const stopWords = new Set([
@@ -54,6 +55,7 @@ export function selectEditorialPackage(candidates, history = [], options = {}) {
 
   const eligible = [...candidates]
     .filter((item) => Number(item.score ?? item.source?.priority ?? 0) >= config.minScore)
+    .filter((item) => String(item.bodyText || item.summary || "").trim().length >= config.minEvidenceChars)
     .sort((a, b) => Number(b.score ?? 0) - Number(a.score ?? 0))
     .filter((item) => {
       const canonicalUrl = item.canonicalUrl || item.url;

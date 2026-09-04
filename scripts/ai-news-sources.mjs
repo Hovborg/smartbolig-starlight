@@ -1,7 +1,7 @@
 export const OFFICIAL_SOURCE_URLS = [
   'https://openai.com/news/rss.xml',
   'https://github.com/openai/codex/releases.atom',
-  'https://platform.openai.com/docs/changelog',
+  'https://developers.openai.com/api/docs/changelog',
   'https://www.anthropic.com/news',
   'https://code.claude.com/docs/en/changelog',
   'https://github.com/anthropics/claude-code/releases.atom',

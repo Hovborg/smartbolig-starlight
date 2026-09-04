@@ -1,58 +1,17 @@
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
-import { execFileSync } from 'node:child_process';
-
-const FALLBACK_DATE = new Date('2025-12-25T00:00:00.000Z');
-const EXCLUDED_SECTIONS = ['juridisk', 'om-os', 'kontakt', 'produkter'];
-
-function getSlug(doc) {
-  return doc.slug || doc.id;
-}
-
-function getGitLastModifiedDate(slug) {
-  try {
-    const filePath = `src/content/docs/${slug}.mdx`;
-    const value = execFileSync('git', ['log', '-1', '--format=%cI', '--', filePath], {
-      encoding: 'utf8',
-      stdio: ['ignore', 'pipe', 'ignore'],
-    }).trim();
-
-    return value ? new Date(value) : FALLBACK_DATE;
-  } catch {
-    return FALLBACK_DATE;
-  }
-}
-
-function toValidDate(value) {
-  // Starlight allows `lastUpdated: true` (meaning "use git date") — a boolean
-  // is not a date, and new Date(true) would silently produce 1970-01-01.
-  if (!value || typeof value === 'boolean') return null;
-  const date = new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
-}
-
-function getPubDate(doc) {
-  const frontmatterDate =
-    toValidDate(doc.data.date) || toValidDate(doc.data.updated) || toValidDate(doc.data.lastUpdated);
-  return frontmatterDate || getGitLastModifiedDate(getSlug(doc));
-}
+import { getSlug, getPubDate, isGuideDocument } from '../../lib/rss-guides.mjs';
 
 export async function GET(context) {
   // Get all docs from content collection
   const allDocs = await getCollection('docs');
 
   // Filter to only English guides, excluding indexes and non-guide sections.
-  const guides = allDocs.filter(doc => {
-    const slug = getSlug(doc);
-    return slug.startsWith('en/') &&
-           !slug.endsWith('/index') &&
-           !EXCLUDED_SECTIONS.some(section => slug.includes(`/${section}`)) &&
-           doc.data.title;
-  });
+  const guides = allDocs.filter(doc => isGuideDocument(doc, 'en'));
 
   const sortedGuides = guides
-    .map((doc) => ({ doc, pubDate: getPubDate(doc) }))
-    .sort((a, b) => b.pubDate - a.pubDate);
+    .map((doc) => ({ doc, pubDate: getPubDate(doc) || undefined }))
+    .sort((a, b) => (b.pubDate?.getTime() || 0) - (a.pubDate?.getTime() || 0));
 
   return rss({
     title: 'SmartBolig.net - Smart Home Guides',

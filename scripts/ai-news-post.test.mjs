@@ -48,7 +48,8 @@ test('AI News draft renders as a blog-style article with a narrative lead and so
     assert.match(stdout, /caption: "Redaktionelt AI-nyhedsbillede/);
     assert.match(stdout, /editorialVersion: 3/);
     assert.match(stdout, /storyFingerprint: "[a-f0-9]{64}"/);
-    assert.match(stdout, /<p class="ai-news-byline">/);
+    assert.match(stdout, /issueFingerprint: "[a-f0-9]{64}"/);
+    assert.match(stdout, /<p class="ai-news-byline"[^>]*>/);
     assert.match(stdout, /## Hovedhistorien/);
     assert.match(stdout, /## Hvorfor det betyder noget/);
     assert.match(stdout, /## Kilder og videre læsning/);

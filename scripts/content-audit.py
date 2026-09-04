@@ -14,6 +14,7 @@ Also checks:
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -94,25 +95,44 @@ def check_json(code):
         return f"JSONDecodeError: {e}"
 
 
+def bash_executable():
+    if os.name != "nt":
+        return shutil.which("bash")
+    # Windows' system32/bash.exe is a WSL launcher, not a native shell.
+    # Prefer Git for Windows; never pass a Windows path through WSL.
+    candidates = []
+    git = shutil.which("git")
+    if git:
+        candidates.extend([Path(git).parent / "bash.exe", Path(git).parent.parent / "bin" / "bash.exe"])
+    for variable in ("ProgramFiles", "ProgramFiles(x86)", "LOCALAPPDATA"):
+        base = os.environ.get(variable)
+        if base:
+            candidates.extend([Path(base) / "Git/bin/bash.exe", Path(base) / "Programs/Git/bin/bash.exe"])
+    return next((str(candidate) for candidate in candidates if candidate.is_file()), None)
+
+
 def check_bash(code):
-    with tempfile.NamedTemporaryFile("w", suffix=".sh", delete=False) as f:
-        f.write(code)
-        path = f.name
+    executable = bash_executable()
+    if not executable:
+        return "Bash syntax checker unavailable; install Git for Windows or bash on Unix"
     try:
-        r = subprocess.run(["bash", "-n", path], capture_output=True, text=True, timeout=10)
+        r = subprocess.run(
+            [executable, "--noprofile", "--norc", "-n"], input=code,
+            capture_output=True, text=True, encoding="utf-8", timeout=10,
+        )
         if r.returncode != 0:
-            return r.stderr.strip().replace(path, "<block>").splitlines()[0]
+            return next(iter(r.stderr.strip().splitlines()), "Bash syntax error")
         return None
-    finally:
-        os.unlink(path)
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return f"Bash syntax checker failed: {error}"
 
 
 def check_javascript(code):
-    with tempfile.NamedTemporaryFile("w", suffix=".mjs", delete=False) as f:
+    with tempfile.NamedTemporaryFile("w", suffix=".mjs", encoding="utf-8", delete=False) as f:
         f.write(code)
         path = f.name
     try:
-        r = subprocess.run(["node", "--check", path], capture_output=True, text=True, timeout=10)
+        r = subprocess.run(["node", "--check", path], capture_output=True, text=True, encoding="utf-8", timeout=10)
         # Node-RED Function nodes intentionally use a top-level `return msg;`.
         # Node's module parser rejects that even though the snippet is valid in
         # Node-RED, so retry only that specific parser error inside a function.
@@ -125,12 +145,15 @@ def check_javascript(code):
                 ["node", "--check", path],
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
                 timeout=10,
             )
         if r.returncode != 0:
             first = r.stderr.strip().replace(path, "<block>").splitlines()
             return next((l for l in first if l.strip()), "syntax error")
         return None
+    except (OSError, subprocess.TimeoutExpired) as error:
+        return f"JavaScript syntax checker failed: {error}"
     finally:
         os.unlink(path)
 
@@ -156,7 +179,7 @@ def main():
     all_slugs = set()
     for f in mdx_files:
         rel = f.relative_to(DOCS).with_suffix("")
-        slug = str(rel)
+        slug = rel.as_posix()
         all_slugs.add(slug)
         if slug.endswith("/index"):
             all_slugs.add(slug[: -len("/index")])
@@ -167,7 +190,7 @@ def main():
     stats = {}
 
     for f in mdx_files:
-        rel = str(f.relative_to(ROOT))
+        rel = f.relative_to(ROOT).as_posix()
         text = f.read_text(encoding="utf-8")
 
         # --- code blocks ---

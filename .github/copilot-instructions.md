@@ -6,15 +6,15 @@ Dette er **smartbolig.net** - en dansk smart home tutorial website bygget med:
 - **Astro Starlight** (dokumentations-framework)
 - **Tailwind CSS** (styling)
 - **IBRACORP-inspireret dark theme** (GitHub Dark farver)
-- **Cloudflare Pages** (hosting)
+- **Cloudflare Worker med Static Assets** (hosting)
 
 ## Tech Stack
 
-- Framework: Astro 5.x + Starlight 0.37.x
+- Framework: Astro 7.x + Starlight 0.41.x
 - Styling: Tailwind CSS 4.x + Custom CSS
 - Languages: Danish (da) default, English (en)
 - Build: Static site generation
-- Deploy: Cloudflare Pages via Wrangler
+- Deploy: Cloudflare Worker med Static Assets via Wrangler
 
 ## Farve Palette (GitHub Dark / IBRACORP)
 
@@ -56,7 +56,7 @@ src/
 1. **Brug danske kommentarer** i config filer
 2. **Følg Starlight conventions** for frontmatter
 3. **Brug CSS custom properties** fra custom.css
-4. **Test med `npm run dev`** før deploy
+4. **Følg kontrolkommandoerne i `AGENTS.md` og README** før deploy
 
 ## Frontmatter Format
 

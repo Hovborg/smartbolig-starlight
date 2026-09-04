@@ -8,8 +8,9 @@ import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 const rootDir = path.resolve(import.meta.dirname, '..');
+const bashTest = process.platform === 'win32' ? test.skip : test;
 
-test('OpenClaw AI News cron is installed with the tools it needs to run unattended', async () => {
+bashTest('OpenClaw AI News cron is installed with the tools it needs to run unattended', async () => {
   const tmp = await mkdtemp(path.join(tmpdir(), 'smartbolig-ai-news-cron-'));
   const fakeOpenclaw = path.join(tmp, 'openclaw');
   const callsFile = path.join(tmp, 'openclaw-calls.jsonl');
@@ -96,7 +97,7 @@ test('the daily runner never auto-merges its own PR', async () => {
   assert.match(script, /editorial review/i);
 });
 
-test('the systemd installer describes a PR-only editorial review workflow', async () => {
+bashTest('the systemd installer describes a PR-only editorial review workflow', async () => {
   const tmp = await mkdtemp(path.join(tmpdir(), 'smartbolig-ai-news-systemd-'));
   const fakeSystemctl = path.join(tmp, 'systemctl');
   const callsFile = path.join(tmp, 'systemctl-calls.jsonl');

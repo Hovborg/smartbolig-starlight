@@ -739,11 +739,11 @@ export default defineConfig({
           tag: "script",
           content: `
             (function() {
-              const theme = localStorage.getItem('starlight-theme');
-              if (!theme) {
+              try {
+                if (localStorage.getItem('starlight-theme')) return;
                 localStorage.setItem('starlight-theme', 'dark');
-                document.documentElement.dataset.theme = 'dark';
-              }
+              } catch { /* Storage can be disabled in private or embedded contexts. */ }
+              document.documentElement.dataset.theme = 'dark';
             })();
           `,
         },

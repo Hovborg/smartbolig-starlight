@@ -43,10 +43,10 @@ function xmlEscape(value = '') {
 }
 
 function frontmatter(content) {
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  const match = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!match) return { title: '', description: '', sources: [] };
 
-  const lines = match[1].split('\n');
+  const lines = match[1].split(/\r?\n/);
   const value = (name) => {
     const line = lines.find((entry) => entry.startsWith(`${name}:`));
     if (!line) return '';

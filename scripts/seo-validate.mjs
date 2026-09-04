@@ -246,7 +246,7 @@ async function main() {
   }
 
   if (existsSync(robotsPath)) {
-    const robots = await readFile(robotsPath, 'utf8');
+    const robots = (await readFile(robotsPath, 'utf8')).replace(/\r\n/g, '\n');
     const requiredRobotRules = [
       { needle: 'User-agent: Googlebot\nAllow: /', label: 'Googlebot allowed' },
       { needle: 'User-agent: Bingbot\nAllow: /', label: 'Bingbot allowed' },

@@ -7,7 +7,7 @@ function validDate(value) {
 }
 
 export function extractFrontmatterLastmod(source) {
-  const frontmatter = source.match(/^---\n([\s\S]*?)\n---/)?.[1] ?? "";
+  const frontmatter = source.match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? "";
   const lastUpdated = frontmatter.match(/^lastUpdated:\s*"?(\d{4}-\d{2}-\d{2})"?\s*$/m)?.[1];
   const published = frontmatter.match(/^date:\s*"?(\d{4}-\d{2}-\d{2})"?\s*$/m)?.[1];
   const value = lastUpdated || published;

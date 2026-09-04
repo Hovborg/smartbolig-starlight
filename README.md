@@ -208,29 +208,38 @@ npm ci
 npm run site:test
 npm run ai-news:test
 npm run ai-news:validate
+python3 -m unittest discover -s scripts -p "test_*.py"
 python3 scripts/content-audit.py
-npm audit --omit=dev --audit-level=critical
+npm audit --audit-level=high
 npm run build
 npm run seo:validate
 npm run worker:build
 npx wrangler deploy --dry-run
 ```
 
-> **Midlertidig undtagelse (2026-07-29):** afhængighedstjekket er sænket fra
-> `--audit-level=high` til `critical`. Otte high-advisories i projektets
-> afhængighedstræ blokerede al deployment fra 26. juli, inklusive de daglige
-> AI News-udgivelser. Sitet bygges fuldt statisk, så eksponeringen er begrænset.
-> Gaten sættes tilbage til `high` som del af Astro 7-opgraderingen —
-> se [issue #104](https://github.com/Hovborg/smartbolig-starlight/issues/104).
+Afhængighedskontrollen omfatter også udviklingsværktøjer. Den tidligere
+midlertidige undtagelse er ophævet. På Windows bruges den installerede Python
+og Git for Windows Bash; indholdskontrollen behøver ikke WSL.
+
+Nyhedskilder hentes gennem én fælles kontrol med HTTPS, værtsallowlist,
+kontrol af hver redirect, binding til godkendte offentlige DNS-adresser,
+timeout og bytegrænser (2 MB for feeds/kildestatus, 1,5 MB for artikler).
+Reference-URL'er kontrolleres med status alene, og deres svarindhold annulleres.
+Tests bruger lokale mocks og kalder hverken private netværksadresser eller AI.
+Projektets MCP-fil starter ingen eksterne pakker; udviklerværktøjer styres af
+værtens egen MCP-konfiguration.
 
 ---
 
 ## 🤖 Daglig AI-news automation
 
-AI-nyhedssektionen opdateres dagligt kl. 07:20 af `scripts/openclaw-ai-news-daily.sh`,
-som henter officielle kilder, genererer artikler (da+en), bygger, validerer og
-åbner en PR. Generatoren merger aldrig sin egen PR: en separat Claude/Codex-session
-skal læse udkastet, kontrollere kilderne og vente på grønne checks før merge.
+AI-nyhedssektionen opdateres dagligt kl. 07:20 af Windows Scheduled Task
+`Shark Smartbolig AI News`. Runneren `scripts/smartbolig-ai-news-daily.ps1`
+henter officielle kilder, genererer artikler (da+en), bygger og validerer, åbner
+en PR, venter på den grønne GitHub Actions-kørsel, merger, venter på
+  Cloudflare-deploy og kontrollerer til sidst både dansk og engelsk artikel og
+  oversigt mod udgavens unikke fingerprint. Fingerprintet dækker dato, alle
+  kilder og kildeuddrag samt hele den tosprogede redaktionelle tekst.
 
 Pipelinen (v3):
 
@@ -238,11 +247,16 @@ Pipelinen (v3):
   har ingen RSS) plus release-feeds for Codex, Claude Code, Gemini CLI og OpenClaw.
 - **Redaktionelt lag:** dedup på URL-, emne- og kildesæt-fingerprints mod de sidste
   14 dages udgaver, score-tærskel og krav om primær kilde.
-- **Tekst:** `AI_NEWS_LLM=1` (standard i automatikken) beder headless Claude Code om
-  unik per-historie-analyse (hvad/hvorfor/verificér/usikkerhed) ud fra kildeteksten;
-  ved enhver fejl falder pipelinen tilbage til den deterministiske skabelon, så
-  publiceringen aldrig blokerer. Frontmatter-feltet `news.copySource` viser hvilket
-  lag der skrev teksten.
+- **Tekst:** den automatiske runner bruger `--require-llm` og beder en isoleret,
+  tool-fri Claude Code-session om unik per-historie-analyse
+  (hvad/hvorfor/verificér/usikkerhed) ud fra kildeteksten. Hvis teksten mangler,
+  overskrider grænserne eller bliver afvist, stopper publiceringen. Den generiske
+  skabelon er kun fallback for manuelle udkast og kan ikke auto-merges.
+- **Automatisk kvalitetsport:** `npm run ai-news:quality -- --date YYYY-MM-DD`
+  kræver `news.copySource: llm`, høj signalværdi, mindst to historier, DA/EN-
+  kildeparitet, fyldige felter, en separat source-bound AI-faktakontrol og ingen
+  gentaget skabelontekst. Kilder med for tynd dokumentation frasorteres. GitHub Actions
+  genkører porten for alle ændrede AI News-udgaver før merge.
 - **Billeder:** hero- og og:image-varianter genereres som JPEG (mozjpeg, ~100-300 KB);
   forsiden bruger 320×180 WebP-thumbs.
 - **Arkivvedligehold:** `node scripts/ai-news-regenerate.mjs` kan genopbygge ældre
@@ -250,31 +264,38 @@ Pipelinen (v3):
   `--date`, `--no-llm`). Dage uden nye kilder renderes som ærlige
   gentagelses-udgaver med `signal: low`.
 
-**Anbefalet setup (systemd user timer):**
+**Windows 11 setup (kanonisk):**
 
-```bash
-bash scripts/install-systemd-ai-news-timer.sh
+```powershell
+git clone https://github.com/Hovborg/smartbolig-starlight.git C:\codex_projekts\.automation\smartbolig-ai-news
+& C:\codex_projekts\.automation\smartbolig-ai-news\scripts\smartbolig-ai-news-daily.ps1 -Preflight
+& C:\codex_projekts\.automation\smartbolig-ai-news\scripts\install-windows-ai-news-task.ps1
 ```
+
+Hver kørsel bruger et nyt isoleret worktree fra den eksakte `origin/main` SHA.
+Tasken bruger ejerens interaktive GitHub- og Claude-login og indhenter en misset
+kørsel efter næste login; den må først aktiveres efter en grøn `-Preflight`.
+Hvis et retry ser dagens tosprogede issue i `origin/main`, genoptager det den
+eksakte main-deploy og offentlige fingerprint-kontrol i stedet for at behandle
+artiklen som en stille `skip`.
 
 Det installerer:
 
-| Unit | Funktion |
+| Scheduled Task | Funktion |
 |------|----------|
-| `smartbolig-ai-news.timer` | Kører dagligt kl. 07:20 (Persistent — indhenter missede kørsler) |
-| `smartbolig-ai-news.service` | Kører pipeline-scriptet og åbner en PR til redaktionelt review |
-| `smartbolig-ai-news-failure.service` | Opretter et GitHub-issue hvis kørslen fejler |
+| `Shark Smartbolig AI News` | Kører dagligt kl. 07:20, indhenter missede kørsler, merger først efter grøn CI og verificerer den offentlige URL |
 
 Drift-kommandoer:
 
-```bash
-systemctl --user list-timers smartbolig-ai-news.timer   # næste kørsel
-systemctl --user start smartbolig-ai-news.service       # kør manuelt nu
-journalctl --user -u smartbolig-ai-news.service -e      # se logs
+```powershell
+Get-ScheduledTask -TaskName 'Shark Smartbolig AI News'
+Start-ScheduledTask -TaskName 'Shark Smartbolig AI News'
+Get-ChildItem C:\codex_projekts\05-data\smartbolig-ai-news\logs | Sort-Object LastWriteTime -Descending
 ```
 
-> **Legacy:** `scripts/install-openclaw-ai-news-cron.sh` (OpenClaw cron-job) er det
-> tidligere setup. Det krævede at agent-harnesset eksponerede et exec-tool og gik i
-> stykker ved harness-ændringer — brug systemd-timeren i stedet.
+> **Legacy:** `scripts/openclaw-ai-news-daily.sh`, systemd-installeren og OpenClaw-
+> cron-installeren er Linux-artefakter fra før Windows-migreringen. De er bevaret
+> som historik/fallback, men må ikke bruges til den aktive drift.
 
 ---
 

@@ -521,7 +521,8 @@ test("deploy runs every local quality gate before publishing", async () => {
   const wrangler = JSON.parse(await read("wrangler.jsonc"));
   const gitignore = await read(".gitignore");
   assert.match(workflow, /pull_request:\s*\n\s+branches:\s*\[main\]/);
-  assert.equal((workflow.match(/github\.event_name != 'pull_request'/g) || []).length, 2);
+  assert.equal((workflow.match(/github\.event_name == 'push' && github\.ref == 'refs\/heads\/main'/g) || []).length, 2);
+  assert.doesNotMatch(workflow, /github\.event_name != 'pull_request'/);
   for (const command of [
     "npm run site:test",
     "npm run ai-news:test",
@@ -529,10 +530,8 @@ test("deploy runs every local quality gate before publishing", async () => {
     "python3 scripts/content-audit.py",
     "npm run build",
     "npm run seo:validate",
-    // Back on 'high' (2026-08-13). The temporary 'critical' exception from
-    // 2026-07-29 covered four high advisories in astro 6.4.8's dependency tree
-    // that blocked every deploy; Astro 7 removes all four. See issue #104.
-    "npm audit --omit=dev --audit-level=high",
+    "python3 -m unittest discover -s scripts -p 'test_*.py'",
+    "npm audit --audit-level=high",
   ]) {
     assert.ok(workflow.includes(command), `missing pre-deploy gate: ${command}`);
   }

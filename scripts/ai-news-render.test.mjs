@@ -29,6 +29,7 @@ test("renderIssue writes v3 evidence metadata and a complete editorial contract"
     assert.match(output, /signal: low/);
     assert.match(output, /\b(Kilde|Source): \[/);
     assert.match(output, /storyFingerprint: "[a-f0-9]{64}"/);
+    assert.match(output, /issueFingerprint: "[a-f0-9]{64}"/);
     assert.match(output, /sourceSetFingerprint: "[a-f0-9]{64}"/);
     assert.match(output, /scoped permissions for home agents/i);
     assert.match(output, /permission|tilladel/i);
@@ -94,6 +95,7 @@ test("renderIssue neutralizes active Markdown links, images, and code from feed 
 test("renderIssue uses validated LLM copy and escapes it like feed text", () => {
   const editorialPackage = selectEditorialPackage([item], []);
   const copy = {
+    semanticReview: "passed",
     lede: { da: "Dagens vigtigste ændring handler om tilladelser.", en: "Today's main change concerns permissions." },
     stories: [{
       what: { da: "OpenAI har tilføjet {styrede} tilladelser.", en: "OpenAI added {scoped} permissions." },
@@ -106,6 +108,8 @@ test("renderIssue uses validated LLM copy and escapes it like feed text", () => 
   const en = renderIssue({ locale: "en", date: "2026-07-11", editorialPackage, copy });
 
   assert.match(da, /copySource: llm/);
+  assert.match(da, /semanticReview: passed/);
+  assert.match(da, /data-issue-fingerprint="[a-f0-9]{64}"/);
   assert.match(da, /Dagens vigtigste ændring handler om tilladelser\./);
   assert.match(da, /Det begrænser hvad en agent kan udløse\./);
   assert.doesNotMatch(da, /\{styrede\}/);

@@ -9,8 +9,9 @@ import { promisify } from 'node:util';
 
 const execFileAsync = promisify(execFile);
 const rootDir = path.resolve(import.meta.dirname, '..');
+const bashTest = process.platform === 'win32' ? test.skip : test;
 
-test('systemd AI News timer installer writes correct units and disables the legacy OpenClaw job', async () => {
+bashTest('systemd AI News timer installer writes correct units and disables the legacy OpenClaw job', async () => {
   const tmp = await mkdtemp(path.join(tmpdir(), 'smartbolig-ai-news-timer-'));
   const unitDir = path.join(tmp, 'units');
   const callsFile = path.join(tmp, 'calls.jsonl');
@@ -130,7 +131,7 @@ process.exit(2);
   }
 });
 
-test('AI News failure notifier requires gh and exits cleanly when an issue already exists', async () => {
+bashTest('AI News failure notifier requires gh and exits cleanly when an issue already exists', async () => {
   const tmp = await mkdtemp(path.join(tmpdir(), 'smartbolig-ai-news-notify-'));
   const callsFile = path.join(tmp, 'calls.jsonl');
 

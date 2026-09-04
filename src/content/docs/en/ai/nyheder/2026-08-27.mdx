@@ -1,0 +1,112 @@
+---
+title: "AI News, 27 August 2026"
+description: "Curated AI brief for 27 August 2026: models, products, ChatGPT, Claude, Gemini, API pricing, privacy, and agent workflows."
+date: 2026-08-27
+lastUpdated: 2026-08-27
+heroImage:
+  src: "/images/ai-news/2026-08-27.jpg"
+  alt: "Editorial AI news image about Claude Code releases, OpenAI Codex releases, OpenClaw releases, Gemini CLI releases"
+  caption: "Editorial AI news image about Claude Code releases, OpenAI Codex releases, OpenClaw releases, Gemini CLI releases"
+news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "462e1b25eedae396abfa6e5e33a36c64d3232ce5397bfbb62659c3dc0277169f"
+  issueFingerprint: "5ff828666bb86bc2f94fd8fb2037eb54e699544b5e336cb54f56bc8cc3b21f03"
+  sourceSetFingerprint: "9776e762cf9d0a341a598f71b13b85c7b20036399ce9da1c686c6ee10b75f527"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.239"
+    - "https://github.com/openai/codex/releases/tag/rust-v0.150.0"
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.8.1-beta.3"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.57.0"
+sidebar:
+  label: "27 August 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="5ff828666bb86bc2f94fd8fb2037eb54e699544b5e336cb54f56bc8cc3b21f03">By SmartBolig.net Editorial · <time datetime="2026-08-27">27 August 2026</time> · 4 selected sources</p>
+
+<p class="ai-news-lede">Today's issue centers on a Claude Code update that adds a premium to the bill for data-residency workspaces and gives Python developers an official upgrade path. OpenAI Codex also gets better handling of multiple running tasks, the OpenClaw beta adds more GPT-5.6 models and Chrome integration, and Gemini CLI fixes a couple of login and IDE bugs.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. Claude Code releases: v2.1.239
+
+**What changed:** Claude Code releases published the update on 21 Aug 2026. Claude Code 2.1.239 adds a 1.1x premium for US-only inference to cost estimates in /cost, the status line and --max-budget-usd for data-residency workspaces. Bedrock, Vertex, Foundry and other previously excluded setups now get a one-time fullscreen renderer offer, so new installs there start in fullscreen. A new /claude-api upgrade command migrates Python projects from anthropic package version 0.x to 1.x, including changed timeout handling.
+
+> Short source excerpt: What's changed Cost estimates &#40; /cost , status line, --max-budget-usd &#41; now include the 1.1× US-only-inference premium for data-residency workspaces…
+
+**Why it matters:** Teams with data-residency requirements will see Claude Code cost more in practice, since US-only inference now carries an extra premium. Python developers using the Anthropic API get an official path to upgrade without manually rewriting timeout calls.
+
+**How to verify it:** Check your organization's /cost output or status line after updating to see whether the new 1.1x premium appears, and run /claude-api upgrade in a test environment before migrating production code.
+
+**Uncertainty:** It's unclear which countries or regions count as data-residency workspaces, or whether the premium is permanent. The source also doesn't show whether the Python migration covers every project type.
+
+Source: [v2.1.239](https://github.com/anthropics/claude-code/releases/tag/v2.1.239)
+
+### 2. OpenAI Codex releases: 0.150.0
+
+**What changed:** OpenAI Codex releases published the update on 26 Aug 2026. OpenAI Codex 0.150.0 lets you reference other Codex tasks with @ mentions, so agents can read, create or message tasks directly from the terminal. The /copy command now offers a picker for full responses, individual code blocks or blockquotes. Unnamed terminal tasks automatically receive descriptive titles, and /rename suggests an editable title based on the conversation. Markdown links appear as clickable labels in terminals that support it, while visible URLs are kept elsewhere.
+
+> Short source excerpt: New Features Reference other Codex tasks with @ mentions, and ask agents to read, create, or message tasks from the…
+
+**Why it matters:** It makes it easier to track and coordinate multiple running Codex agents from the terminal without switching interfaces. Copying individual code blocks becomes more precise, and clickable links save manual copy-pasting.
+
+**How to verify it:** Update the Codex CLI to 0.150.0 and test @ mentions against a running task, and check that /copy shows the new picker, in your preferred terminal.
+
+**Uncertainty:** The source doesn't specify which terminals support clickable links, or whether @ mentions work across projects and machines. The reliability of automatic title generation isn't described either.
+
+Source: [0.150.0](https://github.com/openai/codex/releases/tag/rust-v0.150.0)
+
+### 3. OpenClaw releases: OpenClaw 2026.8.1-beta.3
+
+**What changed:** OpenClaw releases published the update on 24 Aug 2026. OpenClaw 2026.8.1-beta.3 adds support for the GPT-5.6 models Sol, Terra, Luna and Ultra in both OpenClaw and the Codex runtime. The Control UI first-run setup now continues from model setup into Custodian and optional channel setup. It adds a Puppeteer-compatible CDP relay for paired Chrome sessions, explicit lifecycle supervision for external Gateway processes with restart handoff, and commands for SQLite backup and restore to a fresh target.
+
+> Short source excerpt: Highlights GPT-5.6 Sol, Terra, Luna, and Ultra reasoning support across OpenClaw and the Codex runtime. Control UI first-run setup now…
+
+**Why it matters:** More model variants let you pick a reasoning level per task, while the Chrome relay opens browser control to existing Puppeteer scripts. The backup and restart features can make a self-hosted OpenClaw setup less fragile when something fails.
+
+**How to verify it:** This is a beta release, so test the SQLite backup and restore on a copy of your data, and confirm the GPT-5.6 model you expect to use is actually available in your setup.
+
+**Uncertainty:** As a beta, features may change or contain bugs. The source doesn't show pricing or access limits for the GPT-5.6 models, and it doesn't say whether the CDP relay requires special Chrome configuration.
+
+Source: [OpenClaw 2026.8.1-beta.3](https://github.com/openclaw/openclaw/releases/tag/v2026.8.1-beta.3)
+
+### 4. Gemini CLI releases: Release v0.57.0
+
+**What changed:** Gemini CLI releases published the update on 25 Aug 2026. Gemini CLI v0.57.0 fixes an OAuth bug where the Cloud Workstations proxy redirect URI wasn't resolved correctly, and a bug where directory mismatches in IDE connections were silently swallowed. The release also adds an eval validation tool and a tool-call formatter with failure summaries, and stabilizes a slow end-to-end test. The source material is a list of developer and test fixes without further description.
+
+> Short source excerpt: What's Changed fix&#40;core&#41;: dynamically resolve Cloud Workstations proxy redirect URI for OAuth flows by @amelidev in #28688 fix&#40;core&#41;: resolve swallowed…
+
+**Why it matters:** The fixes mostly target developers building or testing with Gemini CLI, not everyday use. The OAuth fix, though, may mean login via Cloud Workstations now works for users who previously hit errors there.
+
+**How to verify it:** If you use Gemini CLI with Cloud Workstations or an IDE integration, update to v0.57.0 and retry login and directory switching to see whether the earlier errors are gone.
+
+**Uncertainty:** The source is a raw commit list without explaining how widespread the fixed bugs were, or whether the new eval tools introduce new issues. There's no information on when the update rolls out broadly.
+
+Source: [Release v0.57.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.57.0)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| Claude Code releases | [v2.1.239](https://github.com/anthropics/claude-code/releases/tag/v2.1.239) | 21 Aug 2026 |
+| OpenAI Codex releases | [0.150.0](https://github.com/openai/codex/releases/tag/rust-v0.150.0) | 26 Aug 2026 |
+| OpenClaw releases | [OpenClaw 2026.8.1-beta.3](https://github.com/openclaw/openclaw/releases/tag/v2026.8.1-beta.3) | 24 Aug 2026 |
+| Gemini CLI releases | [Release v0.57.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.57.0) | 25 Aug 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.
