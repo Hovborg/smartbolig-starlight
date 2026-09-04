@@ -5,6 +5,8 @@ dist/
 
 # compiled Pages Functions router for Workers deployment
 .worker/
+.wrangler/
+__pycache__/
 
 # dependencies
 node_modules/

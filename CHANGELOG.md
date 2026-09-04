@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- All news fetchers share host, redirect, DNS-address, deadline and streamed response-size controls. HTTPS connections use the validated addresses, including archive regeneration and source-health checks.
+- Updated Wrangler to 4.129.0; CI audits development dependencies as well as site dependencies.
+- Fixed native Windows Bash checks and URL path handling in the content audit, empty remote branch handling in the daily publisher, and English-only changed-issue quality checks.
+- RSS omits navigation indexes and unavailable publication dates instead of inventing dates. Both languages use the same selection rules.
+- Chat Enter respects text composition. Theme controls tolerate unavailable browser storage and reconnection.
+- Removed mutable repository MCP startup entries, consolidated the build task, and refreshed contributor documentation.
+
 ## 2026-07-31
 
 - Extended the Gemma timeout after production tail logs proved that otherwise

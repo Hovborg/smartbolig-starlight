@@ -208,20 +208,26 @@ npm ci
 npm run site:test
 npm run ai-news:test
 npm run ai-news:validate
+python3 -m unittest discover -s scripts -p "test_*.py"
 python3 scripts/content-audit.py
-npm audit --omit=dev --audit-level=critical
+npm audit --audit-level=high
 npm run build
 npm run seo:validate
 npm run worker:build
 npx wrangler deploy --dry-run
 ```
 
-> **Midlertidig undtagelse (2026-07-29):** afhængighedstjekket er sænket fra
-> `--audit-level=high` til `critical`. Otte high-advisories i projektets
-> afhængighedstræ blokerede al deployment fra 26. juli, inklusive de daglige
-> AI News-udgivelser. Sitet bygges fuldt statisk, så eksponeringen er begrænset.
-> Gaten sættes tilbage til `high` som del af Astro 7-opgraderingen —
-> se [issue #104](https://github.com/Hovborg/smartbolig-starlight/issues/104).
+Afhængighedskontrollen omfatter også udviklingsværktøjer. Den tidligere
+midlertidige undtagelse er ophævet. På Windows bruges den installerede Python
+og Git for Windows Bash; indholdskontrollen behøver ikke WSL.
+
+Nyhedskilder hentes gennem én fælles kontrol med HTTPS, værtsallowlist,
+kontrol af hver redirect, binding til godkendte offentlige DNS-adresser,
+timeout og bytegrænser (2 MB for feeds/kildestatus, 1,5 MB for artikler).
+Reference-URL'er kontrolleres med status alene, og deres svarindhold annulleres.
+Tests bruger lokale mocks og kalder hverken private netværksadresser eller AI.
+Projektets MCP-fil starter ingen eksterne pakker; udviklerværktøjer styres af
+værtens egen MCP-konfiguration.
 
 ---
 

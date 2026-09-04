@@ -162,7 +162,7 @@ async function fetchItems() {
 
   const failedFeeds = [];
   const { start, end } = dateWindow(targetDate, lookbackDays);
-  const items = await fetchCandidates(FEEDS, fetch, {
+  const items = await fetchCandidates(FEEDS, undefined, {
     onFeedError(feed, error) {
       failedFeeds.push(feed);
       console.warn(`Could not fetch ${feed.name}: ${error.message}`);

@@ -15,12 +15,18 @@ const label = isDa ? "Skift mellem lys og mørk tilstand" : "Toggle light and da
 
 <script>
   class SmartBoligThemeToggle extends HTMLElement {
+    toggleTheme = () => {
+      const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
+      document.documentElement.dataset.theme = next;
+      try { localStorage.setItem("starlight-theme", next); } catch { /* Theme still works without storage. */ }
+    };
+
     connectedCallback() {
-      this.querySelector("button")?.addEventListener("click", () => {
-        const next = document.documentElement.dataset.theme === "light" ? "dark" : "light";
-        document.documentElement.dataset.theme = next;
-        localStorage.setItem("starlight-theme", next);
-      });
+      this.querySelector("button")?.addEventListener("click", this.toggleTheme);
+    }
+
+    disconnectedCallback() {
+      this.querySelector("button")?.removeEventListener("click", this.toggleTheme);
     }
   }
   if (!customElements.get("theme-toggle")) customElements.define("theme-toggle", SmartBoligThemeToggle);

@@ -1,5 +1,6 @@
 import dns from "node:dns/promises";
 import { BlockList, isIP } from "node:net";
+import { pinnedHttpsRequest } from "./public-https.mjs";
 
 const ARTICLE_TEXT_LIMIT = 40_000;
 
@@ -81,6 +82,7 @@ async function assertPublicHost(url, lookup) {
       throw new Error(`blocked address ${entry.address} for ${bare}`);
     }
   }
+  return addresses;
 }
 
 // Linear-time replacement helpers. The previous implementations used lazy
@@ -331,6 +333,7 @@ export function parseHtmlListing(html, source) {
 async function readBodyCapped(response, maxBytes) {
   const declared = Number(response.headers.get("content-length"));
   if (Number.isFinite(declared) && declared > maxBytes) {
+    await response.body?.cancel().catch(() => {});
     throw new Error(`response exceeds ${maxBytes} bytes`);
   }
   if (!response.body) {
@@ -357,30 +360,61 @@ async function readBodyCapped(response, maxBytes) {
 // Guarded fetch: HTTPS-only, allowlisted hosts, no IP literals, no private or
 // metadata destinations (DNS-checked), redirects validated hop by hop, and a
 // hard byte cap on the body.
-async function fetchText(fetchImpl, url, { headers, allowedHosts, lookup, maxBytes }) {
+export async function fetchPublicText(url, {
+  fetchImpl,
+  headers = {},
+  source = { url },
+  allowedHosts = feedAllowedHosts(source),
+  lookup = (host, opts) => dns.lookup(host, opts),
+  maxBytes = FEED_BYTE_LIMIT,
+  timeoutMs = 20_000,
+  allowHttpErrors = false,
+  readBody = true,
+} = {}) {
   let current = new URL(url);
+  const signal = AbortSignal.timeout(timeoutMs);
   for (let hop = 0; hop <= MAX_REDIRECTS; hop += 1) {
     if (current.protocol !== "https:") throw new Error(`blocked non-HTTPS URL ${current}`);
+    if (current.username || current.password || current.port) throw new Error("blocked URL credentials or non-default port");
     if (!hostAllowed(current.hostname, allowedHosts)) throw new Error(`blocked host ${current.hostname}`);
-    await assertPublicHost(current, lookup);
-    const response = await fetchImpl(current.toString(), {
+    signal.throwIfAborted();
+    const addresses = await new Promise((resolve, reject) => {
+      const onAbort = () => reject(signal.reason);
+      signal.addEventListener('abort', onAbort, { once: true });
+      assertPublicHost(current, lookup).then(resolve, reject).finally(() => signal.removeEventListener('abort', onAbort));
+    });
+    signal.throwIfAborted();
+    const response = await (fetchImpl || pinnedHttpsRequest)(current.toString(), {
       headers,
       redirect: "manual",
-      signal: AbortSignal.timeout(20_000),
+      signal,
+      addresses,
     });
     if ([301, 302, 303, 307, 308].includes(response.status)) {
+      await response.body?.cancel().catch(() => {});
       const location = response.headers.get("location");
       if (!location) throw new Error(`redirect without Location from ${current.hostname}`);
       current = new URL(location, current);
       continue;
     }
-    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`.trim());
-    return readBodyCapped(response, maxBytes);
+    if (!response.ok && !allowHttpErrors) {
+      await response.body?.cancel().catch(() => {});
+      throw new Error(`${response.status} ${response.statusText}`.trim());
+    }
+    if (!readBody) {
+      await response.body?.cancel().catch(() => {});
+      return { ok: response.ok, status: response.status, text: '' };
+    }
+    return { ok: response.ok, status: response.status, text: await readBodyCapped(response, maxBytes) };
   }
   throw new Error(`too many redirects for ${url}`);
 }
 
-export async function fetchCandidates(feeds, fetchImpl = fetch, options = {}) {
+async function fetchText(fetchImpl, url, options) {
+  return (await fetchPublicText(url, { ...options, fetchImpl })).text;
+}
+
+export async function fetchCandidates(feeds, fetchImpl, options = {}) {
   const lookup = options.lookup || ((host, opts) => dns.lookup(host, opts));
   const candidates = [];
   for (const feed of feeds) {

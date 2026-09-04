@@ -9,6 +9,22 @@ import path from 'node:path';
 
 const rootDir = path.resolve(import.meta.dirname, '..');
 
+test('Windows publisher handles git ls-remote returning no branch', { skip: process.platform !== 'win32' }, async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig-empty-remote-'));
+  try {
+    execFileSync('git', ['init', '--bare', dir], { stdio: 'ignore' });
+    const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
+    const statement = runner.split(/\r?\n/).find((line) => line.includes('$remoteLine =') && line.includes('git ls-remote'));
+    assert.ok(statement, 'the test exercises the real remote-branch read');
+    const probe = path.join(dir, 'probe.ps1');
+    await writeFile(probe, `$ErrorActionPreference = 'Stop'\n$branch = 'ai-news/not-created-yet'\n${statement.replace('origin ', '. ')}\nif ($LASTEXITCODE -ne 0 -or $remoteLine) { throw 'Unexpected remote result' }\nWrite-Output 'EMPTY_REMOTE_OK'\n`);
+    const output = execFileSync('pwsh', ['-NoProfile', '-File', probe], { cwd: dir, encoding: 'utf8' });
+    assert.match(output, /EMPTY_REMOTE_OK/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test('Windows runner requires editorial LLM copy and completes the verified publish chain', async () => {
   const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
   const prValidation = runner.indexOf("Wait-GitHubRun -Commit $prCommit");

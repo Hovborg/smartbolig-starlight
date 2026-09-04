@@ -225,7 +225,7 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Could not look for an existing AI News pull request' }
     $prs = @($prJson | ConvertFrom-Json)
     if ($prs.Count -gt 1) { throw "Multiple open PRs found for deterministic branch $branch" }
-    $remoteLine = (& git ls-remote --heads origin "refs/heads/$branch").Trim()
+    $remoteLine = (@(& git ls-remote --heads origin "refs/heads/$branch") -join "`n").Trim()
     if ($LASTEXITCODE -ne 0) { throw "Could not inspect remote branch: $branch" }
     if ($prs.Count -eq 1) {
         $prUrl = $prs[0].url
