@@ -24,12 +24,13 @@ function Get-CopenhagenDate {
 }
 
 function Invoke-Native {
-    param(
-        [Parameter(Mandatory = $true)][string]$Command,
-        [Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments
-    )
-    & $Command @Arguments
-    if ($LASTEXITCODE -ne 0) { throw "$Command failed with exit code $LASTEXITCODE" }
+    # Keep native flags out of PowerShell parameter binding: git -C must not
+    # bind to a wrapper parameter named Command.
+    if ($args.Count -eq 0) { throw 'A native command is required' }
+    $nativeCommand = $args[0]
+    $nativeArguments = @($args | Select-Object -Skip 1)
+    & $nativeCommand @nativeArguments
+    if ($LASTEXITCODE -ne 0) { throw "$nativeCommand failed with exit code $LASTEXITCODE" }
 }
 
 function Assert-Preflight {
