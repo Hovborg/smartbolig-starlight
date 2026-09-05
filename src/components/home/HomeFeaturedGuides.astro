@@ -17,13 +17,13 @@ const { copy } = Astro.props;
   <div class="home-featured__layout">
     <article class="home-featured__lead">
       <img class="home-featured__photo" src="/images/produkter/zigbee-koordinatorer/hero.jpg" alt={copy.lead.href.startsWith('/da/') ? 'Detalje af et printkort med chips og forbindelser.' : 'Close-up of a circuit board with chips and connections.'} width="1200" height="800" loading="lazy" decoding="async" />
-      <div class="home-featured__illustration" aria-hidden="true">
+      <div class="home-featured__illustration" data-motion-stage aria-hidden="true">
         <svg viewBox="0 0 480 210" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M82 105h95m126 0h95M240 46V24m0 140v24" stroke="currentColor" stroke-width="2" stroke-dasharray="4 6" opacity=".45" />
+          <path class="home-motion home-flow" d="M82 105h95m126 0h95M240 46V24m0 140v24" stroke="currentColor" stroke-width="2" stroke-dasharray="4 6" opacity=".45" />
           <rect x="171" y="38" width="138" height="134" rx="25" fill="currentColor" opacity=".09" />
           <path d="m204 97 36-31 36 31m-63-7v50h54V90m-36 50v-28h18v28" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-          <circle cx="67" cy="105" r="28" stroke="currentColor" opacity=".4" /><path d="m67 91-9 16h10l-2 12 10-17H65l2-11Z" stroke="currentColor" stroke-linejoin="round" />
-          <circle cx="413" cy="105" r="28" stroke="currentColor" opacity=".4" /><path d="M404 103a9 9 0 0 1 18 0c0 5-5 6-5 11h-8c0-5-5-6-5-11Zm6 15h6" stroke="currentColor" stroke-linecap="round" />
+          <circle class="home-motion home-ring" cx="67" cy="105" r="28" stroke="currentColor" opacity=".4" /><path d="m67 91-9 16h10l-2 12 10-17H65l2-11Z" stroke="currentColor" stroke-linejoin="round" />
+          <circle class="home-motion home-ring" cx="413" cy="105" r="28" stroke="currentColor" opacity=".4" /><path d="M404 103a9 9 0 0 1 18 0c0 5-5 6-5 11h-8c0-5-5-6-5-11Zm6 15h6" stroke="currentColor" stroke-linecap="round" />
           <circle cx="240" cy="22" r="4" fill="currentColor" /><circle cx="240" cy="189" r="4" fill="currentColor" />
         </svg>
       </div>

@@ -1,6 +1,8 @@
 ---
 // Homepage composition uses the same Galaxy tokens as the guide pages.
+import HomeMotionStyles from './home/HomeMotionStyles.astro';
 ---
+<HomeMotionStyles />
 <style is:global>
   :root {
     --home-bg: var(--sl-color-bg);
@@ -127,21 +129,6 @@
   .home-portal a:hover { text-decoration: underline; text-underline-offset: .25em; }
   .home-portal .home-btn:hover, .home-navigator__rows a:hover { text-decoration: none; }
   .home-navigator__rows a:hover { border-color: var(--sl-color-accent); }
-  @media (prefers-reduced-motion: no-preference) {
-    .home-flow { animation: home-flow 12s linear infinite; }
-    .home-ring { transform-box: fill-box; transform-origin: center; animation: home-ring 5s ease-in-out infinite; }
-    .home-lamp { animation: home-lamp 6s ease-in-out infinite; }
-    .home-hero__media:has(.home-motion-toggle:not(:checked)) .home-motion { animation-play-state: paused; }
-    .home-btn, .home-navigator__rows a { transition: transform 180ms ease,border-color 180ms ease,box-shadow 180ms ease; }
-    .home-btn:hover, .home-navigator__rows a:hover { transform: translateY(-3px); box-shadow: 0 12px 28px #00000015; }
-    .home-navigator__rows a:is(:hover,:focus-visible) svg { animation: home-icon 700ms ease both; }
-    .home-featured__illustration:is(:hover,:focus-within) svg { animation: home-icon 900ms ease both; }
-    @keyframes home-flow { to { stroke-dashoffset: -168; } }
-    @keyframes home-ring { 50% { transform: scale(1.18); opacity: .35; } }
-    @keyframes home-lamp { 50% { opacity: .3; } }
-    @keyframes home-icon { 45% { transform: translateY(-4px) rotate(-5deg); } }
-  }
-  @media (prefers-reduced-motion: reduce) { .home-scene__bar label { display: none; } }
   @media (max-width: 1050px) {
     .home-hero__inner { gap: 1.8rem; }
     .home-hero h1 { font-size: clamp(2.5rem,5vw,3.6rem); }

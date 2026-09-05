@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Gave the three latest published AI news articles a prominent section directly below the homepage hero, with images, dates, archive/RSS links and a direct news link in the hero in both languages.
+- Expanded homepage motion with five distinct animated SVG topic scenes, travelling signals and light/radar effects in the hero, scroll entrances, interactive news/guide cards and an animated starter journey. A visible, shared Start/Pause control supports explicit reduced-motion opt-in, saved preferences and device-setting reset; offscreen scenes and hidden tabs pause. Static content remains visible without JavaScript.
 - Redesigned the homepage around Galaxy's existing blue/gray visual identity, with a custom animated SVG connected-home scene, a native pause control, reduced-motion support, larger topic cards, a connected starter journey and photographic guide imagery. Shared header and guide styling remain theme-owned.
 - Fixed Windows news-runner argument forwarding: Git's `-C` no longer binds to the wrapper's command parameter, and quoted GitHub JSON field lists survive script adapters. Added regressions in Windows PowerShell 5.1 and PowerShell 7, including paths with spaces and native failures.
 - Refreshed both homepages with a larger home photograph, green accents, clearer typography, topic icons, an illustrated featured guide and responsive news cards. Preserved guide navigation, search, chat, light/dark themes and reduced-motion support without adding client JavaScript or dependencies.

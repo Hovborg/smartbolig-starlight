@@ -311,7 +311,7 @@ typede DA/EN copy-model i `src/lib/home-copy.ts`:
 
 1. Hero med et animeret SVG-husdiagram, én primær CTA, emnemarkører og et responsivt AVIF/WebP-boligfoto
 2. De tre senest publicerede AI-nyheder lige under heroen, med billeder, datoer, arkiv og RSS; heroen linker også direkte til nyhedsarkivet
-3. Målnavigator med begynderspor til `/start/` og fem klikbare emnefelter med dekorative SVG-ikoner
+3. Målnavigator med begynderspor til `/start/` og fem klikbare emnefelter med hver sin animerede SVG-scene (hjem, automation, ESP32, enheder og AI)
 4. Feltguide med en forbundet, vandret etaperute på computer og lodret forløb på mobil
 5. Udvalgte guides med elektronikfoto, SVG-illustration og separate guidekort
 6. Trust-sektion med efterprøvelige links (kilder, privatliv, affiliate, rettelser)
@@ -319,11 +319,17 @@ typede DA/EN copy-model i `src/lib/home-copy.ts`:
 
 Forsiden arver Galaxy-temaets blå accenter, baggrund, Inter-skrifttype og både lys
 og mørk visning direkte fra guidernes CSS-variabler. Headeren har ingen særskilt
-forsidepalet. SVG-animationerne kan pauses med kontrollen "Animationer" og er
-statiske ved reduceret bevægelse. Diagrammet er markeret som en illustration.
+forsidepalet. Den synlige Start/Pause-kontrol styrer SVG-scener, indgangsanimationer
+ved scrolling og hover-effekter samlet. Reduceret bevægelse respekteres som standard;
+brugerens eksplicitte valg kan starte animationer og gemmes lokalt under
+`smartbolig-motion-v1`. "Følg enheden" nulstiller dette valg. Scener uden for skærmen
+og skjulte faner sættes på pause. Diagrammerne er illustrationer, ikke live-data.
 Homepage-CSS er scoped til `.home-*` i `HomeStyles.astro`; de få tilpasninger
 af Starlight-rammen kræver `body:has(.home-portal)`, så guides beholder deres layout.
-Der er ingen ekstra klient-JavaScript, fonte eller afhængigheder til forsiden.
+`HomeMotionControls.astro` indlæser den lille controller `src/lib/home-motion.mjs`.
+Indholdet er stadig statisk og synligt uden JavaScript; ingen nye fonte eller
+afhængigheder. `HomeMotionStyles.astro` samler animationerne. Controllerens tilstande,
+reduced motion, utilgængeligt lager og oprydning kontrolleres i `site-motion.test.mjs`.
 Pagefind-søgning dækker fortsat guides og nyheder.
 
 Hero-masteren ligger under `src/assets/homepage/`. Generér de seks responsive

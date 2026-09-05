@@ -15,7 +15,7 @@ const { copy } = Astro.props;
     <h2 id="home-fieldguide-title">{copy.title}</h2>
     <p>{copy.intro}</p>
   </div>
-  <ol class="home-fieldguide__steps">
+  <ol class="home-fieldguide__steps" data-motion-stage>
     {copy.steps.map((step, index) => (
       <li>
         <span class="home-fieldguide__stage" aria-hidden="true">{index + 1}</span>
