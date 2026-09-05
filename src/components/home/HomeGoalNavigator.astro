@@ -1,6 +1,7 @@
 ---
 // Five topic links with decorative icons, plus a separate beginner route.
 import type { HomeNavigatorCopy } from "../../lib/home-copy";
+import HomeTopicScene from './HomeTopicScene.astro';
 import HomeTopicIcon from './HomeTopicIcon.astro';
 
 interface Props {
@@ -25,7 +26,8 @@ const { copy } = Astro.props;
   <ul class="home-navigator__rows">
     {copy.rows.map((row, index) => (
       <li>
-        <a href={row.href}>
+        <a href={row.href} data-motion-stage>
+          <HomeTopicScene topic={index} />
           <span class="home-navigator__icon"><HomeTopicIcon topic={index} /></span>
           <h3>{row.title}</h3>
           <p>{row.description}</p>

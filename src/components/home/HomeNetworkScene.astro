@@ -15,7 +15,7 @@ const { danish } = Astro.props;
     <path d="M180 244V146l180-105 180 105v98" stroke-width="2" stroke-opacity=".55"/>
     <path d="m180 146 180 106 180-106M360 252v103" stroke-opacity=".3"/>
     <path d="m154 141 206-122 206 122M360 19v23" stroke-width="2.5" stroke-linecap="round"/>
-    <path d="m214 149 54 32v57l-54-32Zm224 29 62-37v57l-62 37Z" fill="currentColor" fill-opacity=".075" stroke-opacity=".65"/>
+    <path class="home-motion home-lamp home-delay" d="m214 149 54 32v57l-54-32Zm224 29 62-37v57l-62 37Z" fill="currentColor" fill-opacity=".075" stroke-opacity=".65"/>
     <path d="M241 165v57m228-63v57" stroke-opacity=".4"/>
     <path d="m231 264 64-37 71 41-64 37Z" fill="currentColor" fill-opacity=".1"/>
     <path d="M231 264v23l71 41 64-37v-23M302 305v23m-71-41v15m135-11v15" stroke-opacity=".5"/>
@@ -29,7 +29,14 @@ const { danish } = Astro.props;
     <path class="home-motion home-flow" d="m361 336 97 88h155"/>
     <path class="home-motion home-flow" d="m339 330-166 95H90"/>
   </g>
+  <g stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-dasharray="1 280">
+    <path class="home-motion home-packet" d="M348 308 115 171H80"/>
+    <path class="home-motion home-packet home-delay" d="m369 309 220-127h50"/>
+    <path class="home-motion home-packet" d="m361 336 97 88h155"/>
+    <path class="home-motion home-packet home-delay" d="m339 330-166 95H90"/>
+  </g>
   <g transform="translate(360 315)">
+    <ellipse class="home-motion home-ring home-delay" rx="70" ry="40" stroke="currentColor" stroke-opacity=".2"/>
     <ellipse class="home-motion home-ring" rx="51" ry="30" stroke="currentColor" stroke-opacity=".6"/>
     <path d="m-34-4 34-20 34 20v23L0 39-34 19Z" class="home-network__hub" stroke="currentColor" stroke-width="2"/>
     <path d="M-34-4 0 16 34-4M0 16v23" stroke="currentColor" stroke-opacity=".5"/>

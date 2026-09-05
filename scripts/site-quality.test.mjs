@@ -171,7 +171,7 @@ test("homepage keeps one number series and neutralises theme list counters", asy
   assert.match(styles, /\.home-hero h1[^{]*\{[^}]*background:\s*none/s, "theme gradient heading must be reset in the hero");
 });
 
-test("home components stay static with no homepage-specific client JavaScript", async () => {
+test("editorial home components stay static with motion owned by the separate controller", async () => {
   for (const path of HOME_COMPONENTS) {
     const source = await read(path);
     assert.doesNotMatch(source, /<script/i, `${path} must not ship client JavaScript`);

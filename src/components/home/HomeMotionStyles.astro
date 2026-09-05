@@ -1,0 +1,55 @@
+<style is:global>
+  .home-motion-space:has(.home-motion-controls:not([hidden])) { height: 56px; }
+  .home-motion-controls { position: fixed; left: 0; right: 0; top: var(--sl-nav-height, 4rem); z-index: 9; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: .35rem 1rem; padding: .45rem .75rem; background: var(--sl-color-bg-nav); border-bottom: 1px solid var(--home-line); color: var(--home-muted); font: .75rem var(--sl-font); }
+  .home-motion-controls[hidden], .home-motion-controls [hidden] { display: none; }
+  .home-motion-controls button { min-height: 36px; padding: .4rem .6rem; border: 1px solid var(--home-line); border-radius: 6px; background: var(--home-panel); color: var(--home-text); font: inherit; cursor: pointer; }
+  .home-motion-controls button:focus-visible { outline: 3px solid var(--home-accent); outline-offset: 2px; }
+  .home-motion-controls__mark { color: var(--home-accent); }
+  .home-navigator__rows .home-topic-scene { grid-column: 1/-1; grid-row: 1; width: 100%; height: 140px; margin: -.5rem 0 1.25rem; color: var(--home-accent); }
+  .home-navigator__rows .home-navigator__icon { grid-row: 2; }
+  .home-navigator__rows .home-navigator__arrow { grid-row: 2; }
+  .home-navigator__rows a::after { display: none; }
+  .home-motion { animation-play-state: paused; }
+  .home-flow { animation: home-flow 12s linear infinite paused; }
+  .home-packet { animation: home-packet 7s linear infinite paused; }
+  .home-ring { transform-box: fill-box; transform-origin: center; animation: home-ring 5s ease-in-out infinite paused; }
+  .home-lamp { animation: home-lamp 6s ease-in-out infinite paused; }
+  .home-float { animation: home-float 7s ease-in-out infinite paused; }
+  .home-scan { animation: home-scan 4s ease-in-out infinite paused; }
+  .home-switch { animation: home-switch 6s ease-in-out infinite paused; }
+  .home-node { animation: home-node 4s ease-in-out infinite paused; }
+  .home-delay { animation-delay: -2.5s; }
+  :root[data-home-motion="on"] [data-motion-in-view="true"] .home-motion { animation-play-state: running; }
+  :root[data-home-motion="on"] .home-reveal-play { animation: home-reveal 700ms cubic-bezier(.2,.7,.2,1) both; }
+  :root[data-home-motion="on"] .home-navigator__rows li:nth-child(2n).home-reveal-play,
+  :root[data-home-motion="on"] .home-news-row:nth-child(2).home-reveal-play { animation-delay: 90ms; }
+  :root[data-home-motion="on"] .home-news-row:nth-child(3).home-reveal-play { animation-delay: 180ms; }
+  :root[data-home-motion="on"] :is(.home-btn,.home-navigator__rows a,.home-news-row,.home-featured__list li) { transition: transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease; }
+  :root[data-home-motion="on"] :is(.home-btn,.home-navigator__rows a):is(:hover,:focus-visible) { transform: translateY(-5px); box-shadow: 0 16px 32px #00000018; }
+  :root[data-home-motion="on"] :is(.home-news-row,.home-featured__list li):is(:hover,:focus-within) { border-color: var(--home-accent); box-shadow: 0 12px 30px #00000012; }
+  :root[data-home-motion="on"] :is(.home-news-row__thumb,.home-featured__photo,.home-navigator__arrow) { transition: transform 450ms cubic-bezier(.2,.7,.2,1); }
+  :root[data-home-motion="on"] .home-news-row:is(:hover,:focus-within) .home-news-row__thumb,
+  :root[data-home-motion="on"] .home-featured__lead:is(:hover,:focus-within) .home-featured__photo { transform: scale(1.035); }
+  :root[data-home-motion="on"] .home-navigator__rows a:is(:hover,:focus-visible) .home-navigator__arrow { transform: translateX(5px); }
+  :root[data-home-motion="on"] .home-fieldguide__steps[data-motion-in-view="true"] li::after { background-size: 200% 200%; animation: home-timeline 4s linear infinite; }
+  :root[data-home-motion="on"] .home-fieldguide__steps[data-motion-in-view="true"] .home-fieldguide__stage { animation: home-stage 6s ease-in-out infinite; }
+  :root[data-home-motion="on"] .home-fieldguide__steps li:nth-child(2) .home-fieldguide__stage { animation-delay: -4s; }
+  :root[data-home-motion="on"] .home-fieldguide__steps li:nth-child(3) .home-fieldguide__stage { animation-delay: -2s; }
+  @keyframes home-flow { to { stroke-dashoffset: -168; } }
+  @keyframes home-packet { to { stroke-dashoffset: -281; } }
+  @keyframes home-ring { 50% { transform: scale(1.2); opacity: .18; } }
+  @keyframes home-lamp { 50% { opacity: .3; } }
+  @keyframes home-float { 50% { transform: translateY(-5px); } }
+  @keyframes home-scan { 50% { transform: translateY(12px); opacity: .3; } }
+  @keyframes home-switch { 35%,65% { transform: translateX(18px); } }
+  @keyframes home-node { 50% { fill: currentColor; } }
+  @keyframes home-reveal { from { opacity: .25; transform: translateY(22px); } to { opacity: 1; transform: none; } }
+  @keyframes home-timeline { to { background-position: -200% 0; } }
+  @keyframes home-stage { 35% { box-shadow: 0 0 0 7px color-mix(in srgb,var(--home-accent) 10%,transparent); } }
+  @media (max-width: 520px) {
+    .home-motion-controls { gap: .3rem .5rem; }
+    .home-motion-controls [data-motion-status] { display: none; }
+    .home-navigator__rows .home-topic-scene { height: 125px; margin-bottom: 1rem; }
+    .home-navigator__rows .home-navigator__icon { grid-row: 2/4; }
+  }
+</style>

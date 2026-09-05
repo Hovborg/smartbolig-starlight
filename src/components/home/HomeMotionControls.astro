@@ -1,0 +1,28 @@
+---
+interface Props { danish: boolean }
+const { danish } = Astro.props;
+---
+<div class="home-motion-space">
+<div class="home-motion-controls" data-home-controls hidden
+  data-start={danish ? 'Start animationer' : 'Start animations'}
+  data-pause={danish ? 'Pause animationer' : 'Pause animations'}
+  data-system={danish ? 'Følger din enhed' : 'Following your device'}
+  data-manual={danish ? 'Dit valg' : 'Your preference'}>
+  <span class="home-motion-controls__mark" aria-hidden="true">◉</span>
+  <button type="button" data-motion-toggle aria-pressed="false">{danish ? 'Start animationer' : 'Start animations'}</button>
+  <span data-motion-status></span>
+  <button type="button" data-motion-system hidden>{danish ? 'Følg enheden' : 'Use device setting'}</button>
+</div>
+</div>
+<script>
+  import { mountHomeMotion } from '../../lib/home-motion.mjs';
+  let cleanup: (() => void) | undefined;
+  function init() {
+    cleanup?.();
+    const control = document.querySelector('[data-home-controls]');
+    cleanup = control ? mountHomeMotion(window, document, control) : undefined;
+  }
+  init();
+  document.addEventListener('astro:page-load', init);
+  document.addEventListener('astro:before-swap', () => { cleanup?.(); cleanup = undefined; });
+</script>
