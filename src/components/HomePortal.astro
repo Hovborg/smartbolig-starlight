@@ -17,10 +17,6 @@ const copy = getHomeCopy(locale);
 ---
 
 <div class="home-portal">
-  <HomeGoalNavigator copy={copy.navigator} />
-  <HomeFieldGuide copy={copy.fieldGuide} />
-  <HomeFeaturedGuides copy={copy.guides} />
-  <HomeTrustEvidence copy={copy.trust} />
   <section class="home-section home-news" aria-labelledby="home-news-title">
     <div class="home-section__heading">
       <p class="home-eyebrow">{copy.news.eyebrow}</p>
@@ -28,5 +24,9 @@ const copy = getHomeCopy(locale);
     </div>
     <slot name="editorial-news" />
   </section>
+  <HomeGoalNavigator copy={copy.navigator} />
+  <HomeFieldGuide copy={copy.fieldGuide} />
+  <HomeFeaturedGuides copy={copy.guides} />
+  <HomeTrustEvidence copy={copy.trust} />
   <HomeClosingCta copy={copy.closing} />
 </div>

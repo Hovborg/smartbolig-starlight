@@ -26,6 +26,7 @@ const { copy } = Astro.props;
       <ul class="home-hero__topics" role="list">
         {copy.topics.map((topic) => <li><span aria-hidden="true">✓</span>{topic}</li>)}
       </ul>
+      <a class="home-hero__news-link home-text-link" href={copy.newsLink.href}>{copy.newsLink.label}<span aria-hidden="true"> →</span></a>
     </div>
     <div class="home-hero__media">
       <div class="home-scene">

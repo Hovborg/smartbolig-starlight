@@ -310,11 +310,11 @@ under `src/components/home/`, orkestreret af `HomePortal.astro` og styret af den
 typede DA/EN copy-model i `src/lib/home-copy.ts`:
 
 1. Hero med et animeret SVG-husdiagram, én primær CTA, emnemarkører og et responsivt AVIF/WebP-boligfoto
-2. Målnavigator med begynderspor til `/start/` og fem klikbare emnefelter med dekorative SVG-ikoner
-3. Feltguide med en forbundet, vandret etaperute på computer og lodret forløb på mobil
-4. Udvalgte guides med elektronikfoto, SVG-illustration og separate guidekort
-5. Trust-sektion med efterprøvelige links (kilder, privatliv, affiliate, rettelser)
-6. AI-nyheder med billedkort og et responsivt layout, valgt read-only fra content collection
+2. De tre senest publicerede AI-nyheder lige under heroen, med billeder, datoer, arkiv og RSS; heroen linker også direkte til nyhedsarkivet
+3. Målnavigator med begynderspor til `/start/` og fem klikbare emnefelter med dekorative SVG-ikoner
+4. Feltguide med en forbundet, vandret etaperute på computer og lodret forløb på mobil
+5. Udvalgte guides med elektronikfoto, SVG-illustration og separate guidekort
+6. Trust-sektion med efterprøvelige links (kilder, privatliv, affiliate, rettelser)
 7. Afsluttende CTA, der ikke gentager startruten
 
 Forsiden arver Galaxy-temaets blå accenter, baggrund, Inter-skrifttype og både lys

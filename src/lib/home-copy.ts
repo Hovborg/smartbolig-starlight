@@ -11,6 +11,7 @@ export interface HomeHeroCopy {
   tagline: string;
   primary: HomeLink;
   secondary: HomeLink;
+  newsLink: HomeLink;
   imageAlt: string;
   imageCaption: string;
   topics: string[];
@@ -103,6 +104,7 @@ export const homeCopy: Record<HomeLocale, HomeCopy> = {
         "Gennemarbejdede guides til Home Assistant, ESPHome og automationer — med lokal kontrol og privatliv i fokus.",
       primary: { label: "Start her", href: "/da/start/" },
       secondary: { label: "Gå direkte til guidebiblioteket", href: "/da/home-assistant/" },
+      newsLink: { label: "Læs AI-nyheder", href: "/da/ai/nyheder/" },
       imageAlt:
         "Roligt aftenlys i en moderne stue og et køkken, hvor diskret smart home-teknologi falder naturligt ind i boligen.",
       imageCaption: "Teknologi, der passer ind i dit hjem.",
@@ -232,7 +234,7 @@ export const homeCopy: Record<HomeLocale, HomeCopy> = {
     },
     news: {
       eyebrow: "AI-nyheder",
-      title: "Kort nyt om AI",
+      title: "Seneste AI-nyheder",
     },
     closing: {
       title: "Byg videre i dit eget tempo",
@@ -250,6 +252,7 @@ export const homeCopy: Record<HomeLocale, HomeCopy> = {
         "Thorough guides to Home Assistant, ESPHome and automations — with local control and privacy in focus.",
       primary: { label: "Start here", href: "/en/start/" },
       secondary: { label: "Go straight to the guide library", href: "/en/home-assistant/" },
+      newsLink: { label: "Read AI news", href: "/en/ai/nyheder/" },
       imageAlt:
         "Calm evening light in a modern living room and kitchen where discreet smart home technology blends into the home.",
       imageCaption: "Technology that feels at home.",
@@ -378,7 +381,7 @@ export const homeCopy: Record<HomeLocale, HomeCopy> = {
     },
     news: {
       eyebrow: "AI news",
-      title: "AI, briefly",
+      title: "Latest AI news",
     },
     closing: {
       title: "Keep building at your own pace",

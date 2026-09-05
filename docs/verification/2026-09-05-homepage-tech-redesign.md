@@ -11,9 +11,12 @@ static version. The diagram is explicitly labelled as an illustration, not a
 live dashboard, and its SVG is decorative. A photograph provides the connection
 to the physical home. The guide feature adds an existing electronics photograph.
 
-Topic navigation uses five larger cards. The three-stage starter route is now
+The three latest published AI news articles appear directly after the hero,
+with real publication dates, images and archive/RSS links. The hero also links
+directly to the news archive. No articles or publication dates are generated
+by this homepage change. Topic navigation uses five larger cards. The three-stage starter route is now
 horizontal on desktop and vertical on small screens, followed by the illustrated
-guide feature, source/trust links, news cards and the closing CTA. All existing
+guide feature, source/trust links and the closing CTA. All existing
 destinations and the bilingual copy structure are preserved. No new dependencies
 or client JavaScript are required.
 

@@ -122,7 +122,7 @@ test("homepage portal is a thin orchestrator with the editorial section order", 
     assert.match(portal, new RegExp(`import ${component} from`), `portal must compose ${component}`);
   }
   assert.match(portal, /getHomeCopy|homeCopy\[/);
-  const order = ["<HomeGoalNavigator", "<HomeFieldGuide", "<HomeFeaturedGuides", "<HomeTrustEvidence", 'slot name="editorial-news"', "<HomeClosingCta"];
+  const order = ['slot name="editorial-news"', "<HomeGoalNavigator", "<HomeFieldGuide", "<HomeFeaturedGuides", "<HomeTrustEvidence", "<HomeClosingCta"];
   const positions = order.map((needle) => portal.indexOf(needle));
   for (const [index, position] of positions.entries()) {
     assert.ok(position >= 0, `portal missing section: ${order[index]}`);
@@ -178,7 +178,7 @@ test("home components stay static with no homepage-specific client JavaScript", 
   }
 });
 
-test("compact news module sits low on the page and defers its images", async () => {
+test("homepage news module defers its below-hero images", async () => {
   const news = await read("src/components/HomeLatestNews.astro");
   assert.match(news, /loading="lazy"/);
   assert.doesNotMatch(news, /loading=\{?["']?eager/, "below-the-fold news images must not be eager");
