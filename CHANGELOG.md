@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Redesigned the homepage around Galaxy's existing blue/gray visual identity, with a custom animated SVG connected-home scene, a native pause control, reduced-motion support, larger topic cards, a connected starter journey and photographic guide imagery. Shared header and guide styling remain theme-owned.
 - Fixed Windows news-runner argument forwarding: Git's `-C` no longer binds to the wrapper's command parameter, and quoted GitHub JSON field lists survive script adapters. Added regressions in Windows PowerShell 5.1 and PowerShell 7, including paths with spaces and native failures.
 - Refreshed both homepages with a larger home photograph, green accents, clearer typography, topic icons, an illustrated featured guide and responsive news cards. Preserved guide navigation, search, chat, light/dark themes and reduced-motion support without adding client JavaScript or dependencies.
 

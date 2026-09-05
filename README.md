@@ -309,16 +309,19 @@ Forsiden er en redaktionel "smart-home field guide" bygget af små komponenter
 under `src/components/home/`, orkestreret af `HomePortal.astro` og styret af den
 typede DA/EN copy-model i `src/lib/home-copy.ts`:
 
-1. Stor hero med ét løfte, én primær CTA, emnemarkører og et responsivt AVIF/WebP-boligfoto
+1. Hero med et animeret SVG-husdiagram, én primær CTA, emnemarkører og et responsivt AVIF/WebP-boligfoto
 2. Målnavigator med begynderspor til `/start/` og fem klikbare emnefelter med dekorative SVG-ikoner
-3. Feltguide med sidens eneste nummerserie (etape 1–3), tilpasset computer og mobil
-4. Udvalgte guides med en illustreret hovedguide og en kort liste
+3. Feltguide med en forbundet, vandret etaperute på computer og lodret forløb på mobil
+4. Udvalgte guides med elektronikfoto, SVG-illustration og separate guidekort
 5. Trust-sektion med efterprøvelige links (kilder, privatliv, affiliate, rettelser)
-6. AI-nyheder med billedkort på computer og kompakte rækker på mobil, valgt read-only fra content collection
+6. AI-nyheder med billedkort og et responsivt layout, valgt read-only fra content collection
 7. Afsluttende CTA, der ikke gentager startruten
 
-Forsiden bruger grønne accenter, tydelig sans-serif-typografi og både lys og mørk
-visning. Homepage-CSS er scoped til `.home-*` i `HomeStyles.astro`; de få tilpasninger
+Forsiden arver Galaxy-temaets blå accenter, baggrund, Inter-skrifttype og både lys
+og mørk visning direkte fra guidernes CSS-variabler. Headeren har ingen særskilt
+forsidepalet. SVG-animationerne kan pauses med kontrollen "Animationer" og er
+statiske ved reduceret bevægelse. Diagrammet er markeret som en illustration.
+Homepage-CSS er scoped til `.home-*` i `HomeStyles.astro`; de få tilpasninger
 af Starlight-rammen kræver `body:has(.home-portal)`, så guides beholder deres layout.
 Der er ingen ekstra klient-JavaScript, fonte eller afhængigheder til forsiden.
 Pagefind-søgning dækker fortsat guides og nyheder.
