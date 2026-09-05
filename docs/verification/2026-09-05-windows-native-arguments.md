@@ -6,7 +6,9 @@ the runner attempted to execute the repository directory as a command.
 
 The helper now takes its executable and arguments directly from `$args`. Native
 flags bypass PowerShell's named-parameter binding, paths with spaces remain
-single arguments, and non-zero native exit codes still stop the runner.
+single arguments, and non-zero native exit codes still stop the runner. GitHub's
+CSV field lists are explicitly quoted so a PowerShell script adapter forwards
+each `--json` value as one native argument.
 
 ## Regression and real preflight
 
@@ -15,7 +17,10 @@ single arguments, and non-zero native exit codes still stop the runner.
   and checks that a failed native command throws. It failed before the repair
   with the directory-as-command error and passed after it in Windows PowerShell
   5.1 and PowerShell 7.
-- `npm run ai-news:test`: 77 passed, 8 Linux-only tests skipped, zero failures.
+- The GitHub argument regression extracts the actual `--json` field expressions
+  and forwards them through a PowerShell function to a Node argv probe. The
+  unquoted lists reproduced separate field arguments before the repair.
+- `npm run ai-news:test`: 78 passed, 8 Linux-only tests skipped, zero failures.
 - `npm run site:test`: 108 passed.
 - Python content-audit tests: 3 passed. Content audit: `TOTAL ISSUES: 0`.
 - `npm run ai-news:validate`: 62 bilingual issue pairs passed.
@@ -25,6 +30,9 @@ single arguments, and non-zero native exit codes still stop the runner.
 - Actual `-Preflight` using the repaired script and the dedicated automation
   checkout completed in both Windows shells:
   `PREFLIGHT_OK github=authenticated remote=reachable claude=authenticated source_status=200 public_status=200`.
+- Real read-only GitHub `run list`, `pr list` and `pr view` via the host adapter
+  passed in both shells with the quoted field lists:
+  `GITHUB_READBACK_OK run=list pr=list,view csv_fields=preserved`.
 
 The host preflight used an explicit local GitHub CLI adapter: the existing Git
 Credential Manager credential is supplied only to the GitHub CLI child process.

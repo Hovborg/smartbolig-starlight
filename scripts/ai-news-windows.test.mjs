@@ -38,6 +38,28 @@ Write-Output 'NATIVE_ARGUMENTS_OK'
   }
 });
 
+test('GitHub JSON field lists survive PowerShell script forwarding in both Windows shells', { skip: process.platform !== 'win32' }, async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig gh arguments '));
+  try {
+    const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
+    const expressions = [...runner.matchAll(/--json\s+('[^']*'|[\w,]+)/g)].map((match) => match[1]);
+    assert.equal(expressions.length, 4, 'exercise each actual gh --json field expression');
+    const spy = path.join(dir, 'arguments.mjs');
+    await writeFile(spy, 'console.log(JSON.stringify(process.argv.slice(2)));');
+    const probe = path.join(dir, 'probe.ps1');
+    const invocations = expressions.map((expression) => `Forward-GitHubArguments --json ${expression}`).join('\n');
+    await writeFile(probe, `function Forward-GitHubArguments { & node '${spy.replaceAll("'", "''")}' @args }\n${invocations}\n`);
+    const expected = expressions.map((expression) => ['--json', expression.replace(/^'|'$/g, '')]);
+    for (const shell of ['powershell.exe', 'pwsh.exe']) {
+      const output = execFileSync(shell, ['-NoProfile', '-NonInteractive', '-File', probe], { encoding: 'utf8' });
+      const actual = output.trim().split(/\r?\n/).map((line) => JSON.parse(line));
+      assert.deepEqual(actual, expected, shell);
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test('Windows publisher handles git ls-remote returning no branch', { skip: process.platform !== 'win32' }, async () => {
   const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig-empty-remote-'));
   try {
