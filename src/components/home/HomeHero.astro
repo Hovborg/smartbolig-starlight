@@ -19,12 +19,15 @@ const { copy } = Astro.props;
       </h1>
       <p class="home-hero__tagline">{copy.tagline}</p>
       <div class="home-hero__cta">
-        <a href={copy.primary.href} class="home-btn home-btn--primary">{copy.primary.label}</a>
+        <a href={copy.primary.href} class="home-btn home-btn--primary">{copy.primary.label}<span aria-hidden="true"> ↗</span></a>
         <a href={copy.secondary.href} class="home-text-link">{copy.secondary.label}<span aria-hidden="true"> →</span></a>
       </div>
+      <ul class="home-hero__topics" role="list">
+        {copy.topics.map((topic) => <li><span aria-hidden="true">✓</span>{topic}</li>)}
+      </ul>
     </div>
     <div class="home-hero__media">
-      <div class="home-hero__frame">
+      <figure class="home-hero__frame">
         <picture>
           <source
             type="image/avif"
@@ -46,7 +49,8 @@ const { copy } = Astro.props;
             decoding="async"
           />
         </picture>
-      </div>
+        <figcaption><span class="home-hero__caption-mark" aria-hidden="true">⌂</span>{copy.imageCaption}</figcaption>
+      </figure>
     </div>
   </div>
 </section>

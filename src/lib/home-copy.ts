@@ -12,6 +12,8 @@ export interface HomeHeroCopy {
   primary: HomeLink;
   secondary: HomeLink;
   imageAlt: string;
+  imageCaption: string;
+  topics: string[];
 }
 
 export interface HomeNavigatorRow {
@@ -103,6 +105,8 @@ export const homeCopy: Record<HomeLocale, HomeCopy> = {
       secondary: { label: "Gå direkte til guidebiblioteket", href: "/da/home-assistant/" },
       imageAlt:
         "Roligt aftenlys i en moderne stue og et køkken, hvor diskret smart home-teknologi falder naturligt ind i boligen.",
+      imageCaption: "Teknologi, der passer ind i dit hjem.",
+      topics: ["Home Assistant", "ESPHome", "Lokal kontrol"],
     },
     navigator: {
       eyebrow: "Vælg din retning",
@@ -248,6 +252,8 @@ export const homeCopy: Record<HomeLocale, HomeCopy> = {
       secondary: { label: "Go straight to the guide library", href: "/en/home-assistant/" },
       imageAlt:
         "Calm evening light in a modern living room and kitchen where discreet smart home technology blends into the home.",
+      imageCaption: "Technology that feels at home.",
+      topics: ["Home Assistant", "ESPHome", "Local control"],
     },
     navigator: {
       eyebrow: "Choose your route",
