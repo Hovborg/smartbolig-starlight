@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Refreshed both homepages with a larger home photograph, green accents, clearer typography, topic icons, an illustrated featured guide and responsive news cards. Preserved guide navigation, search, chat, light/dark themes and reduced-motion support without adding client JavaScript or dependencies.
+
 - All news fetchers share host, redirect, DNS-address, deadline and streamed response-size controls. HTTPS connections use the validated addresses, including archive regeneration and source-health checks.
 - Updated Wrangler to 4.129.0; CI audits development dependencies as well as site dependencies.
 - Fixed native Windows Bash checks and URL path handling in the content audit, empty remote branch handling in the daily publisher, and English-only changed-issue quality checks.
