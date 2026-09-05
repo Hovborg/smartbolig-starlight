@@ -1,0 +1,54 @@
+---
+interface Props { danish: boolean }
+const { danish } = Astro.props;
+---
+<svg class="home-network" viewBox="0 0 720 490" fill="none" aria-hidden="true" focusable="false">
+  <defs>
+    <pattern id="home-network-grid" width="32" height="32" patternUnits="userSpaceOnUse"><path d="M32 0H0V32" stroke="currentColor" opacity=".1" /></pattern>
+    <linearGradient id="home-network-floor" x1="200" y1="160" x2="530" y2="410" gradientUnits="userSpaceOnUse"><stop stop-color="currentColor" stop-opacity=".18"/><stop offset="1" stop-color="currentColor" stop-opacity=".03"/></linearGradient>
+  </defs>
+  <rect width="720" height="490" fill="url(#home-network-grid)"/>
+  <ellipse cx="365" cy="377" rx="220" ry="72" fill="currentColor" opacity=".035"/>
+  <g stroke="currentColor" stroke-linejoin="round">
+    <path d="m156 257 204-119 204 119-204 120Z" fill="url(#home-network-floor)" stroke-opacity=".55"/>
+    <path d="M156 257v45l204 120 204-120v-45M360 377v45" stroke-opacity=".25"/>
+    <path d="M180 244V146l180-105 180 105v98" stroke-width="2" stroke-opacity=".55"/>
+    <path d="m180 146 180 106 180-106M360 252v103" stroke-opacity=".3"/>
+    <path d="m154 141 206-122 206 122M360 19v23" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="m214 149 54 32v57l-54-32Zm224 29 62-37v57l-62 37Z" fill="currentColor" fill-opacity=".075" stroke-opacity=".65"/>
+    <path d="M241 165v57m228-63v57" stroke-opacity=".4"/>
+    <path d="m231 264 64-37 71 41-64 37Z" fill="currentColor" fill-opacity=".1"/>
+    <path d="M231 264v23l71 41 64-37v-23M302 305v23m-71-41v15m135-11v15" stroke-opacity=".5"/>
+    <path d="m399 293 40-23 58 34-40 23Zm0 0v18l58 34 40-23v-18m-40 23v18" fill="currentColor" fill-opacity=".05" stroke-opacity=".55"/>
+    <path d="M420 136v35m-15 9 15-9 15 9-15 9Z" stroke-width="2"/>
+    <path class="home-motion home-lamp" d="m420 190-32 68 67-1Z" fill="currentColor" fill-opacity=".16" stroke="none"/>
+  </g>
+  <g class="home-network__routes" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 9">
+    <path class="home-motion home-flow" d="M348 308 115 171H80"/>
+    <path class="home-motion home-flow" d="m369 309 220-127h50"/>
+    <path class="home-motion home-flow" d="m361 336 97 88h155"/>
+    <path class="home-motion home-flow" d="m339 330-166 95H90"/>
+  </g>
+  <g transform="translate(360 315)">
+    <ellipse class="home-motion home-ring" rx="51" ry="30" stroke="currentColor" stroke-opacity=".6"/>
+    <path d="m-34-4 34-20 34 20v23L0 39-34 19Z" class="home-network__hub" stroke="currentColor" stroke-width="2"/>
+    <path d="M-34-4 0 16 34-4M0 16v23" stroke="currentColor" stroke-opacity=".5"/>
+    <path d="m-13-5 13-8 13 8m-21-3V2L0 7l8-5V-8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <g class="home-network__node">
+    <rect x="27" y="106" width="142" height="61" rx="12"/>
+    <circle cx="48" cy="127" r="4" fill="currentColor" stroke="none"/>
+    <text x="62" y="132">{danish ? 'Sensorer' : 'Sensors'}</text>
+    <text class="home-network__detail" x="44" y="152">Zigbee · ESPHome</text>
+    <rect x="552" y="107" width="141" height="61" rx="12"/>
+    <path d="m572 124 4-6-2 6h5l-5 8 1-6h-5" stroke-width="1.5"/>
+    <text x="589" y="132">{danish ? 'Lys & energi' : 'Light & energy'}</text>
+    <text class="home-network__detail" x="569" y="152">Matter · Thread</text>
+    <rect x="25" y="409" width="159" height="56" rx="12"/>
+    <text x="42" y="432">{danish ? 'Dine automationer' : 'Your automations'}</text>
+    <text class="home-network__detail" x="42" y="450">{danish ? 'Dit hjem. Dine regler.' : 'Your home. Your rules.'}</text>
+    <rect x="525" y="409" width="169" height="56" rx="12"/>
+    <text x="542" y="432">Home Assistant</text>
+    <text class="home-network__detail" x="542" y="450">{danish ? 'Forbind det hele lokalt' : 'Connect it all locally'}</text>
+  </g>
+</svg>

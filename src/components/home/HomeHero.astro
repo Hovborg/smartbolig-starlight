@@ -1,6 +1,7 @@
 ---
 // Homepage hero — markup only; styling lives in HomeStyles.astro (.home-hero*).
 import type { HomeHeroCopy } from "../../lib/home-copy";
+import HomeNetworkScene from './HomeNetworkScene.astro';
 
 interface Props {
   copy: HomeHeroCopy;
@@ -25,8 +26,14 @@ const { copy } = Astro.props;
       <ul class="home-hero__topics" role="list">
         {copy.topics.map((topic) => <li><span aria-hidden="true">✓</span>{topic}</li>)}
       </ul>
+      <a class="home-hero__news-link home-text-link" href={copy.newsLink.href}>{copy.newsLink.label}<span aria-hidden="true"> →</span></a>
     </div>
     <div class="home-hero__media">
+      <div class="home-scene">
+        <div class="home-scene__bar"><span>{copy.primary.href.startsWith('/da/') ? 'Et forbundet hjem' : 'A connected home'}</span><label><input class="home-motion-toggle" type="checkbox" checked /><span>{copy.primary.href.startsWith('/da/') ? 'Animationer' : 'Animations'}</span></label></div>
+        <HomeNetworkScene danish={copy.primary.href.startsWith('/da/')} />
+        <p class="home-scene__note">{copy.primary.href.startsWith('/da/') ? 'Illustration · Fra enkelte enheder til ét samlet hjem' : 'Illustration · From individual devices to one connected home'}</p>
+      </div>
       <figure class="home-hero__frame">
         <picture>
           <source
