@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Fixed Windows news-runner argument forwarding: Git's `-C` no longer binds to the wrapper's command parameter, and quoted GitHub JSON field lists survive script adapters. Added regressions in Windows PowerShell 5.1 and PowerShell 7, including paths with spaces and native failures.
 - Refreshed both homepages with a larger home photograph, green accents, clearer typography, topic icons, an illustrated featured guide and responsive news cards. Preserved guide navigation, search, chat, light/dark themes and reduced-motion support without adding client JavaScript or dependencies.
 
 - All news fetchers share host, redirect, DNS-address, deadline and streamed response-size controls. HTTPS connections use the validated addresses, including archive regeneration and source-health checks.

@@ -9,6 +9,57 @@ import path from 'node:path';
 
 const rootDir = path.resolve(import.meta.dirname, '..');
 
+test('native runner preserves git -C arguments and fails on native errors in both Windows shells', { skip: process.platform !== 'win32' }, async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig native args '));
+  try {
+    execFileSync('git', ['init', dir], { stdio: 'ignore' });
+    const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
+    const helper = runner.slice(runner.indexOf('function Invoke-Native {'), runner.indexOf('function Assert-Preflight {'));
+    const probe = path.join(dir, 'probe.ps1');
+    const quotedDir = dir.replaceAll("'", "''");
+    await writeFile(probe, `$ErrorActionPreference = 'Stop'
+${helper}
+$actual = Invoke-Native git -C '${quotedDir}' rev-parse --show-toplevel
+if ([IO.Path]::GetFullPath($actual) -ne [IO.Path]::GetFullPath('${quotedDir}')) { throw 'Wrong native working directory' }
+$failedAsExpected = $false
+try { Invoke-Native cmd.exe /d /c exit 7 } catch {
+    if ($_.Exception.Message -ne 'cmd.exe failed with exit code 7') { throw }
+    $failedAsExpected = $true
+}
+if (-not $failedAsExpected) { throw 'Native failure was ignored' }
+Write-Output 'NATIVE_ARGUMENTS_OK'
+`);
+    for (const shell of ['powershell.exe', 'pwsh.exe']) {
+      const output = execFileSync(shell, ['-NoProfile', '-NonInteractive', '-File', probe], { encoding: 'utf8' });
+      assert.match(output, /NATIVE_ARGUMENTS_OK/, shell);
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('GitHub JSON field lists survive PowerShell script forwarding in both Windows shells', { skip: process.platform !== 'win32' }, async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig gh arguments '));
+  try {
+    const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
+    const expressions = [...runner.matchAll(/--json\s+('[^']*'|[\w,]+)/g)].map((match) => match[1]);
+    assert.equal(expressions.length, 4, 'exercise each actual gh --json field expression');
+    const spy = path.join(dir, 'arguments.mjs');
+    await writeFile(spy, 'console.log(JSON.stringify(process.argv.slice(2)));');
+    const probe = path.join(dir, 'probe.ps1');
+    const invocations = expressions.map((expression) => `Forward-GitHubArguments --json ${expression}`).join('\n');
+    await writeFile(probe, `function Forward-GitHubArguments { & node '${spy.replaceAll("'", "''")}' @args }\n${invocations}\n`);
+    const expected = expressions.map((expression) => ['--json', expression.replace(/^'|'$/g, '')]);
+    for (const shell of ['powershell.exe', 'pwsh.exe']) {
+      const output = execFileSync(shell, ['-NoProfile', '-NonInteractive', '-File', probe], { encoding: 'utf8' });
+      const actual = output.trim().split(/\r?\n/).map((line) => JSON.parse(line));
+      assert.deepEqual(actual, expected, shell);
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test('Windows publisher handles git ls-remote returning no branch', { skip: process.platform !== 'win32' }, async () => {
   const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig-empty-remote-'));
   try {

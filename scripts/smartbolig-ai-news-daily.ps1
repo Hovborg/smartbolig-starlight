@@ -24,12 +24,13 @@ function Get-CopenhagenDate {
 }
 
 function Invoke-Native {
-    param(
-        [Parameter(Mandatory = $true)][string]$Command,
-        [Parameter(ValueFromRemainingArguments = $true)][string[]]$Arguments
-    )
-    & $Command @Arguments
-    if ($LASTEXITCODE -ne 0) { throw "$Command failed with exit code $LASTEXITCODE" }
+    # Keep native flags out of PowerShell parameter binding: git -C must not
+    # bind to a wrapper parameter named Command.
+    if ($args.Count -eq 0) { throw 'A native command is required' }
+    $nativeCommand = $args[0]
+    $nativeArguments = @($args | Select-Object -Skip 1)
+    & $nativeCommand @nativeArguments
+    if ($LASTEXITCODE -ne 0) { throw "$nativeCommand failed with exit code $LASTEXITCODE" }
 }
 
 function Assert-Preflight {
@@ -60,7 +61,7 @@ function Wait-GitHubRun {
         [Parameter(Mandatory = $true)][string]$Phase
     )
     for ($attempt = 1; $attempt -le 24; $attempt++) {
-        $json = & gh run list --repo Hovborg/smartbolig-starlight --workflow deploy.yml --commit $Commit --event $Event --limit 5 --json databaseId,status,conclusion,event,headBranch,headSha 2>$null
+        $json = & gh run list --repo Hovborg/smartbolig-starlight --workflow deploy.yml --commit $Commit --event $Event --limit 5 --json 'databaseId,status,conclusion,event,headBranch,headSha' 2>$null
         if ($LASTEXITCODE -eq 0 -and $json) {
             $runs = @($json | ConvertFrom-Json | Where-Object { $_.event -eq $Event -and $_.headSha -eq $Commit -and $_.headBranch -eq $ExpectedRef })
             if ($runs.Count -eq 1) {
@@ -221,7 +222,7 @@ try {
     if ($stagedPaths.Count -eq 0 -or @($stagedPaths | Where-Object { $_ -notin $allowedPaths }).Count -gt 0) { throw 'Staged path allowlist verification failed' }
     Invoke-Native git commit -m "feat(ai-news): publish $Date brief"
     $prCommit = (& git rev-parse HEAD).Trim()
-    $prJson = & gh pr list --repo Hovborg/smartbolig-starlight --state open --head $branch --json url,headRefOid
+    $prJson = & gh pr list --repo Hovborg/smartbolig-starlight --state open --head $branch --json 'url,headRefOid'
     if ($LASTEXITCODE -ne 0) { throw 'Could not look for an existing AI News pull request' }
     $prs = @($prJson | ConvertFrom-Json)
     if ($prs.Count -gt 1) { throw "Multiple open PRs found for deterministic branch $branch" }
@@ -245,7 +246,7 @@ try {
     Write-Host "PR_READY $prUrl"
 
     Wait-GitHubRun -Commit $prCommit -Event pull_request -ExpectedRef $branch -Phase 'pull-request' | Out-Null
-    $prState = & gh pr view $prUrl --repo Hovborg/smartbolig-starlight --json headRefOid,baseRefName,state | ConvertFrom-Json
+    $prState = & gh pr view $prUrl --repo Hovborg/smartbolig-starlight --json 'headRefOid,baseRefName,state' | ConvertFrom-Json
     if ($LASTEXITCODE -ne 0 -or $prState.state -ne 'OPEN' -or $prState.baseRefName -ne 'main' -or $prState.headRefOid -ne $prCommit) {
         throw "PR identity changed after validation: expected_head=$prCommit actual_head=$($prState.headRefOid) base=$($prState.baseRefName) state=$($prState.state)"
     }

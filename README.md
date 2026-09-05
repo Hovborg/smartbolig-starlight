@@ -233,8 +233,9 @@ værtens egen MCP-konfiguration.
 
 ## 🤖 Daglig AI-news automation
 
-AI-nyhedssektionen opdateres dagligt kl. 07:20 af Windows Scheduled Task
-`Shark Smartbolig AI News`. Runneren `scripts/smartbolig-ai-news-daily.ps1`
+Windows Scheduled Task `Shark Smartbolig AI News` er beregnet til daglig
+opdatering kl. 07:20, når den er installeret og aktiveret på værten. Runneren
+`scripts/smartbolig-ai-news-daily.ps1`
 henter officielle kilder, genererer artikler (da+en), bygger og validerer, åbner
 en PR, venter på den grønne GitHub Actions-kørsel, merger, venter på
   Cloudflare-deploy og kontrollerer til sidst både dansk og engelsk artikel og
@@ -275,6 +276,9 @@ git clone https://github.com/Hovborg/smartbolig-starlight.git C:\codex_projekts\
 Hver kørsel bruger et nyt isoleret worktree fra den eksakte `origin/main` SHA.
 Tasken bruger ejerens interaktive GitHub- og Claude-login og indhenter en misset
 kørsel efter næste login; den må først aktiveres efter en grøn `-Preflight`.
+Runnerens native kommandoer videresender argumenter uden PowerShell-binding,
+så eksempelvis `git -C <sti>` også virker i Windows PowerShell 5.1. Regressionen
+kontrolleres i både Windows PowerShell 5.1 og PowerShell 7 af `npm run ai-news:test`.
 Hvis et retry ser dagens tosprogede issue i `origin/main`, genoptager det den
 eksakte main-deploy og offentlige fingerprint-kontrol i stedet for at behandle
 artiklen som en stille `skip`.
