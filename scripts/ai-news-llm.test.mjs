@@ -40,6 +40,21 @@ test("buildCopyPrompt states every numeric word limit", () => {
   assert.match(prompt, /max 55 words/);
 });
 
+test("drafter and reviewer both receive audience evidence near the excerpt limits", () => {
+  const evidence = [{
+    ...items[0],
+    summary: `${"s".repeat(520)} For regulated financial institutions. ${"s".repeat(400)} SUMMARY_OUTSIDE_LIMIT`,
+    bodyText: `${"b".repeat(1420)} Access uses the firm's existing subscription. ${"b".repeat(850)} BODY_OUTSIDE_LIMIT`,
+  }];
+  const draftPrompt = buildCopyPrompt({ date: "2026-07-11", items: evidence });
+  const reviewPrompt = buildReviewPrompt({ date: "2026-07-11", items: evidence, copy: validCopy });
+  for (const prompt of [draftPrompt, reviewPrompt]) {
+    assert.match(prompt, /For regulated financial institutions\./);
+    assert.match(prompt, /Access uses the firm's existing subscription\./);
+    assert.doesNotMatch(prompt, /SUMMARY_OUTSIDE_LIMIT|BODY_OUTSIDE_LIMIT/);
+  }
+});
+
 test("generateIssueCopy retries once with feedback when the first draft fails validation", async () => {
   const overLimit = structuredClone(validCopy);
   overLimit.stories[0].why.da = Array.from({ length: 90 }, () => "ord").join(" ");
