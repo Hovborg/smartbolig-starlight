@@ -29,7 +29,17 @@ function Invoke-Native {
     if ($args.Count -eq 0) { throw 'A native command is required' }
     $nativeCommand = $args[0]
     $nativeArguments = @($args | Select-Object -Skip 1)
-    & $nativeCommand @nativeArguments
+    Get-Command $nativeCommand -ErrorAction Stop | Out-Null
+    # Route native output through the host so Scheduled Task transcripts keep it.
+    # PS 5.1 turns redirected stderr into ErrorRecords even on exit 0.
+    $ErrorActionPreference = 'Continue'
+    try {
+        & $nativeCommand @nativeArguments 2>&1 | ForEach-Object {
+            if ($_ -is [System.Management.Automation.ErrorRecord]) { Write-Host $_.ToString() } else { $_ }
+        }
+    } finally {
+        $ErrorActionPreference = 'Stop'
+    }
     if ($LASTEXITCODE -ne 0) { throw "$nativeCommand failed with exit code $LASTEXITCODE" }
 }
 
@@ -61,7 +71,14 @@ function Wait-GitHubRun {
         [Parameter(Mandatory = $true)][string]$Phase
     )
     for ($attempt = 1; $attempt -le 24; $attempt++) {
-        $json = & gh run list --repo Hovborg/smartbolig-starlight --workflow deploy.yml --commit $Commit --event $Event --limit 5 --json 'databaseId,status,conclusion,event,headBranch,headSha' 2>$null
+        # PS 5.1 can throw on a harmless stderr notice even with 2>$null.
+        # The poll handles failed exits by retrying and still validates the JSON.
+        $ErrorActionPreference = 'Continue'
+        try {
+            $json = & gh run list --repo Hovborg/smartbolig-starlight --workflow deploy.yml --commit $Commit --event $Event --limit 5 --json 'databaseId,status,conclusion,event,headBranch,headSha' 2>$null
+        } finally {
+            $ErrorActionPreference = 'Stop'
+        }
         if ($LASTEXITCODE -eq 0 -and $json) {
             $runs = @($json | ConvertFrom-Json | Where-Object { $_.event -eq $Event -and $_.headSha -eq $Commit -and $_.headBranch -eq $ExpectedRef })
             if ($runs.Count -eq 1) {
@@ -267,6 +284,7 @@ try {
     $removeRunRoot = $true
 } catch {
     $exitCode = 1
+    Write-Host "AI_NEWS_FAILED stage=$stage date=$Date run_root=$runRoot error=$($_.Exception.Message)"
     [Console]::Error.WriteLine("AI_NEWS_FAILED stage=$stage date=$Date run_root=$runRoot error=$($_.Exception.Message)")
 } finally {
     Set-Location -LiteralPath $RepoRoot
@@ -275,7 +293,10 @@ try {
         $runsPrefix = [IO.Path]::GetFullPath($runsRoot).TrimEnd('\') + '\'
         if (-not $resolvedRunRoot.StartsWith($runsPrefix, [StringComparison]::OrdinalIgnoreCase)) { throw "Refusing to remove unexpected run path: $resolvedRunRoot" }
         & git -C $RepoRoot worktree remove --force $resolvedRunRoot
-        if ($LASTEXITCODE -ne 0) { [Console]::Error.WriteLine("Could not remove completed run worktree: $resolvedRunRoot") }
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "Could not remove completed run worktree: $resolvedRunRoot"
+            [Console]::Error.WriteLine("Could not remove completed run worktree: $resolvedRunRoot")
+        }
         & git -C $RepoRoot worktree prune
     }
     if ($lockTaken) { $mutex.ReleaseMutex() }

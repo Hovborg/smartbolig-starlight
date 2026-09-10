@@ -9,6 +9,96 @@ import path from 'node:path';
 
 const rootDir = path.resolve(import.meta.dirname, '..');
 
+test('task transcripts retain native output, stderr and the failing stage without an attached console', { skip: process.platform !== 'win32' }, async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig task transcript '));
+  try {
+    const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
+    const helper = runner.slice(runner.indexOf('function Invoke-Native {'), runner.indexOf('function Assert-Preflight {'));
+    const failure = runner.slice(runner.lastIndexOf('} catch {') + '} catch {'.length, runner.lastIndexOf('} finally {'));
+    assert.ok(failure.includes('AI_NEWS_FAILED'));
+    const nativeScript = path.join(dir, 'native.mjs');
+    await writeFile(nativeScript, `const code = Number(process.argv[2]);
+console.log('native-output-' + code);
+console.error('native-diagnostic-' + code);
+process.exit(code);
+`);
+    await writeFile(path.join(dir, 'rejected.ps1'), "throw 'script-adapter-rejected'\n");
+    const probe = path.join(dir, 'probe.ps1');
+    await writeFile(probe, `param([string]$NativeScript, [string]$LogPath)
+$ErrorActionPreference = 'Stop'
+${helper}
+$stage = 'test-native-output'
+$Date = '2026-09-10'
+$runRoot = $PSScriptRoot
+$exitCode = 0
+Start-Transcript -LiteralPath $LogPath | Out-Null
+try {
+    Invoke-Native node $NativeScript 0
+    $captured = Invoke-Native node $NativeScript 0
+    if ($captured -cne 'native-output-0') { throw 'Stderr polluted the captured stdout' }
+    if ($ErrorActionPreference -ne 'Stop') { throw 'Native helper changed the caller preference' }
+    $scriptRejected = $false
+    try { Invoke-Native (Join-Path $PSScriptRoot 'rejected.ps1') } catch {
+        if ($_.Exception.Message -ne 'script-adapter-rejected') { throw }
+        $scriptRejected = $true
+    }
+    if (-not $scriptRejected) { throw 'A script adapter failure was ignored' }
+    Invoke-Native node $NativeScript 17
+} catch {
+${failure}
+} finally {
+    Stop-Transcript | Out-Null
+}
+if ($exitCode -ne 1) { throw 'The runner did not record the native failure' }
+`);
+    for (const shell of ['powershell.exe', 'pwsh.exe']) {
+      const log = path.join(dir, `${shell}.log`);
+      execFileSync(shell, ['-NoProfile', '-NonInteractive', '-File', probe, '-NativeScript', nativeScript, '-LogPath', log], { stdio: 'ignore', timeout: 30_000 });
+      const transcript = await readFile(log, 'utf8');
+      for (const marker of ['native-output-0', 'native-diagnostic-0', 'native-output-17', 'native-diagnostic-17', 'AI_NEWS_FAILED stage=test-native-output', 'node failed with exit code 17']) {
+        assert.ok(transcript.includes(marker), `${shell}: missing ${marker} from task transcript`);
+      }
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('GitHub polling preserves JSON and retries despite notices on stderr in both Windows shells', { skip: process.platform !== 'win32' }, async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig github polling '));
+  try {
+    const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
+    const helper = runner.slice(runner.indexOf('function Invoke-Native {'), runner.indexOf('function Assert-Preflight {'));
+    const polling = runner.slice(runner.indexOf('function Wait-GitHubRun {'), runner.indexOf('function Wait-PublicIssue {'));
+    const spy = path.join(dir, 'github.mjs');
+    await writeFile(spy, `import fs from 'node:fs';
+if (process.argv[2] === 'run' && process.argv[3] === 'list') {
+  console.error('harmless-notice');
+  if (!fs.existsSync('attempted')) { fs.writeFileSync('attempted', 'yes'); process.exit(4); }
+  console.log(JSON.stringify([{databaseId:123, event:'push', headSha:'${'a'.repeat(40)}', headBranch:'main'}]));
+} else if (process.argv[2] !== 'run' || process.argv[3] !== 'watch') { process.exit(2); }
+`);
+    const probe = path.join(dir, 'probe.ps1');
+    await writeFile(probe, `$ErrorActionPreference = 'Stop'
+Set-Location -LiteralPath $PSScriptRoot
+Remove-Item -LiteralPath (Join-Path $PSScriptRoot 'attempted') -ErrorAction SilentlyContinue
+function gh { & node (Join-Path $PSScriptRoot 'github.mjs') @args; $global:LASTEXITCODE = $LASTEXITCODE }
+function Start-Sleep { }
+${helper}
+${polling}
+$id = Wait-GitHubRun -Commit '${'a'.repeat(40)}' -Event push -ExpectedRef main -Phase 'test'
+if ($id -ne '123' -or $ErrorActionPreference -ne 'Stop') { throw 'Polling changed the result or caller preference' }
+Write-Output 'GITHUB_NOTICE_RETRY_OK'
+`);
+    for (const shell of ['powershell.exe', 'pwsh.exe']) {
+      const output = execFileSync(shell, ['-NoProfile', '-NonInteractive', '-File', probe], { encoding: 'utf8', timeout: 30_000 });
+      assert.match(output, /GITHUB_NOTICE_RETRY_OK/, shell);
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test('draft generation keeps its result path and live LLM mode out of later quality checks', { skip: process.platform !== 'win32' }, async () => {
   const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig draft environment '));
   try {
