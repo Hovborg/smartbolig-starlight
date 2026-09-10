@@ -9,6 +9,45 @@ import path from 'node:path';
 
 const rootDir = path.resolve(import.meta.dirname, '..');
 
+test('draft generation keeps its result path and live LLM mode out of later quality checks', { skip: process.platform !== 'win32' }, async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig draft environment '));
+  try {
+    const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
+    const generation = runner.slice(runner.indexOf("    $stage = 'draft-generation'"), runner.indexOf("    $stage = 'image-rendering'"));
+    assert.ok(generation.includes('scripts/ai-news-publish.mjs'));
+    const probe = path.join(dir, 'probe.ps1');
+    await writeFile(probe, `param([switch]$FailGeneration)
+$ErrorActionPreference = 'Stop'
+$Date = '2026-09-10'
+$removeRunRoot = $false
+function Invoke-Native {
+    if ($args[0] -ne 'node' -or $args[1] -ne 'scripts/ai-news-publish.mjs' -or '--require-llm' -notin $args) {
+        throw 'Generation must still require real LLM copy'
+    }
+    if ($FailGeneration) { throw 'Expected generation failure' }
+    [IO.File]::WriteAllText($env:AI_NEWS_RESULT_PATH, '{"status":"publish","copySource":"llm","semanticReview":"passed","storyFingerprint":"${'a'.repeat(64)}","issueFingerprint":"${'b'.repeat(64)}"}')
+}
+try {
+${generation}
+} catch {
+    if (-not $FailGeneration -or $_.Exception.Message -ne 'Expected generation failure') { throw }
+}
+& node -e 'console.log(JSON.stringify(Object.fromEntries(Object.entries(process.env).filter(([key]) => /^AI_NEWS_(LLM|REQUIRE_LLM|RESULT_PATH)$/.test(key)))))'
+if (Test-Path -LiteralPath $resultPath) { Remove-Item -LiteralPath $resultPath -Force; throw 'Generation result was not cleaned up' }
+`);
+    const env = { ...process.env };
+    for (const key of ['AI_NEWS_LLM', 'AI_NEWS_REQUIRE_LLM', 'AI_NEWS_RESULT_PATH']) delete env[key];
+    for (const shell of ['powershell.exe', 'pwsh.exe']) {
+      for (const mode of [[], ['-FailGeneration']]) {
+        const output = execFileSync(shell, ['-NoProfile', '-NonInteractive', '-File', probe, ...mode], { encoding: 'utf8', env });
+        assert.deepEqual(JSON.parse(output.trim()), {}, `${shell}: ${mode.join(' ') || 'success'}`);
+      }
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test('native runner preserves git -C arguments and fails on native errors in both Windows shells', { skip: process.platform !== 'win32' }, async () => {
   const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig native args '));
   try {

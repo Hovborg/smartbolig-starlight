@@ -155,17 +155,22 @@ try {
 
     $stage = 'dependencies-and-sources'
     Invoke-Native npm ci
+    Invoke-Native npm audit --audit-level=high
     Invoke-Native npm run ai-news:source-health
 
     $stage = 'draft-generation'
     $resultPath = Join-Path $env:TEMP "smartbolig-ai-news-$Date-$PID.json"
     $env:AI_NEWS_RESULT_PATH = $resultPath
-    $env:AI_NEWS_LLM = '1'
-    $env:AI_NEWS_REQUIRE_LLM = '1'
     $env:AI_NEWS_DISABLE_AI = '1'
-    Invoke-Native node scripts/ai-news-publish.mjs --write --require-llm --date $Date --days 10 --max-items 4
-    $result = Get-Content -Raw -LiteralPath $resultPath | ConvertFrom-Json
-    Remove-Item -LiteralPath $resultPath -Force -ErrorAction SilentlyContinue
+    try {
+        # --require-llm enables generation and semantic review for this command.
+        # Process-wide LLM flags would make subsequent fixture tests call Claude.
+        Invoke-Native node scripts/ai-news-publish.mjs --write --require-llm --date $Date --days 10 --max-items 4
+        $result = Get-Content -Raw -LiteralPath $resultPath | ConvertFrom-Json
+    } finally {
+        Remove-Item Env:AI_NEWS_RESULT_PATH -ErrorAction SilentlyContinue
+        Remove-Item -LiteralPath $resultPath -Force -ErrorAction SilentlyContinue
+    }
     if ($result.status -eq 'skip') {
         Write-Host "AI_NEWS_STATUS=skip reason=$($result.reason)"
         $removeRunRoot = $true

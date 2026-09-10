@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Fixed the Windows AI News runner leaking live Claude-generation flags and its result path into fixture tests. Generation still requires independently reviewed LLM copy; temporary result state is cleaned up even on failure. Both Windows shells have a regression check.
+- Updated Astro to 7.2.8, Sharp to 0.35.4 and Wrangler to 4.131.0, including patched js-yaml/SVGO dependencies. Preserved the existing Markdown/GFM processor with Astro's explicit compatible peer dependency. The daily runner audits all dependencies before spending time on news generation.
 - Gave the three latest published AI news articles a prominent section directly below the homepage hero, with images, dates, archive/RSS links and a direct news link in the hero in both languages.
 - Expanded homepage motion with five distinct animated SVG topic scenes, travelling signals and light/radar effects in the hero, scroll entrances, interactive news/guide cards and an animated starter journey. A visible, shared Start/Pause control supports explicit reduced-motion opt-in, saved preferences and device-setting reset; offscreen scenes and hidden tabs pause. Static content remains visible without JavaScript.
 - Redesigned the homepage around Galaxy's existing blue/gray visual identity, with a custom animated SVG connected-home scene, a native pause control, reduced-motion support, larger topic cards, a connected starter journey and photographic guide imagery. Shared header and guide styling remain theme-owned.

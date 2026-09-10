@@ -276,6 +276,15 @@ git clone https://github.com/Hovborg/smartbolig-starlight.git C:\codex_projekts\
 Hver kørsel bruger et nyt isoleret worktree fra den eksakte `origin/main` SHA.
 Tasken bruger ejerens interaktive GitHub- og Claude-login og indhenter en misset
 kørsel efter næste login; den må først aktiveres efter en grøn `-Preflight`.
+På SHARK bruges den eksisterende afgrænsede host-startfil
+`C:\codex_projekts\.automation\smartbolig-ai-news-host\start.ps1 -Publish`
+som task-action. Den giver kun GitHub CLI adgang til den eksisterende
+Git Credential Manager-adgang; `npm`, Node og Claude får ikke GitHub-tokenet.
+Den generiske installer ovenfor er til værter med almindeligt `gh`-login og
+må ikke overskrive SHARKs host-action. Kontrollér altid den installerede action.
+Runneren sikkerhedskontrollerer alle afhængigheder før generering. Kun selve
+genereringskommandoen får `--require-llm`; efterfølgende fixture-tests arver
+hverken en aktiveret LLM-tilstand eller genereringens midlertidige resultatsti.
 Runnerens native kommandoer videresender argumenter uden PowerShell-binding,
 så eksempelvis `git -C <sti>` også virker i Windows PowerShell 5.1. Regressionen
 kontrolleres i både Windows PowerShell 5.1 og PowerShell 7 af `npm run ai-news:test`.
