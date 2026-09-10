@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url';
 import { FEEDS, HIGH_SIGNAL_KEYWORDS, OFFICIAL_SOURCE_URLS } from './ai-news-sources.mjs';
 import { canonicalizeUrl, fetchCandidates, parseFeed } from './lib/ai-news-discovery.mjs';
 import { selectEditorialPackage, storyFingerprint } from './lib/ai-news-editorial.mjs';
-import { generateIssueCopy, reviewIssueCopy } from './lib/ai-news-llm.mjs';
+import { generateReviewedIssueCopy } from './lib/ai-news-llm.mjs';
 import { issueFingerprint, renderIssue } from './lib/ai-news-render.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -301,17 +301,13 @@ async function main() {
 
   // Unique editorial prose via headless Claude when enabled; the deterministic
   // template remains the always-available fallback so publishing never blocks.
+  // The orchestrator drafts, reviews independently, and allows exactly one
+  // corrected candidate after an explained rejection before failing closed.
   let copy = null;
   if (llmEnabled) {
     try {
-      copy = await generateIssueCopy({ date: targetDate, items: selected });
-      console.log('LLM editorial copy accepted.');
-      const semanticReview = await reviewIssueCopy({ date: targetDate, items: selected, copy });
-      if (!semanticReview.pass) {
-        throw new Error(`Semantic review rejected the draft: ${semanticReview.issues.slice(0, 5).join('; ')}`);
-      }
-      copy.semanticReview = 'passed';
-      console.log('Independent semantic review passed.');
+      copy = await generateReviewedIssueCopy({ date: targetDate, items: selected });
+      console.log('LLM editorial copy accepted and independent semantic review passed.');
     } catch (error) {
       if (requireLlm) {
         throw new Error(`Required LLM editorial copy was not accepted: ${error.message}`);
