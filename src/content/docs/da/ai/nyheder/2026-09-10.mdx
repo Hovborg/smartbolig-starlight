@@ -1,0 +1,112 @@
+---
+title: "AI-nyheder, 10. september 2026"
+description: "Kurateret AI-overblik for 10. september 2026: modeller, produkter, ChatGPT, Claude, Gemini, API-priser, privacy og agent-workflows."
+date: 2026-09-10
+lastUpdated: 2026-09-10
+heroImage:
+  src: "/images/ai-news/2026-09-10.jpg"
+  alt: "Redaktionelt AI-nyhedsbillede om OpenAI Codex releases, Claude Code releases, OpenAI News, Gemini CLI releases"
+  caption: "Redaktionelt AI-nyhedsbillede om OpenAI Codex releases, Claude Code releases, OpenAI News, Gemini CLI releases"
+news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "d368d1084a2f9780cb696241162cec7632f8e9d313c8e5c372ef519636c6cc1f"
+  issueFingerprint: "500a4ff48aaeca92a0bbbdb1d9ad842cf702a1fc7621323665aa565b7a23eb09"
+  sourceSetFingerprint: "ab794c9fe45a1e92cf06c4932834ba5b52b5935ca5d7a4b75c09678a916dc45c"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openai/codex/releases/tag/rust-v0.154.0"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.268"
+    - "https://openai.com/index/introducing-chatgpt-financial-services"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.60.0-preview.0"
+sidebar:
+  label: "10. september 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="500a4ff48aaeca92a0bbbdb1d9ad842cf702a1fc7621323665aa565b7a23eb09">Af SmartBolig.net Redaktionen · <time datetime="2026-09-10">10. september 2026</time> · 4 udvalgte kilder</p>
+
+<p class="ai-news-lede">Dagens udgave handler om OpenAI's Codex-opdatering, der tilføjer modellen GPT-6-Astra og eksperimentel worktree-støtte til CLI-værktøjet. Vi ser også på en ny gateway-prisfunktion i Claude Code, OpenAI's nye produkt til finanssektoren og sikkerhedsrettelser i den seneste Gemini CLI-preview.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. OpenAI Codex releases: 0.154.0
+
+**Hvad ændrede sig:** OpenAI Codex releases offentliggjorde opdateringen 9. sep. 2026. Codex 0.154.0 tilføjer modellen GPT-6-Astra til modelvælgeren og til Amazon Bedrock-kataloget. Udgivelsen introducerer også eksperimentel worktree-støtte, hvor du med --worktree eller /worktree kan oprette isolerede checkouts til nye eller forgrenede sessioner og senere gennemse og genoptage dem. Desuden kan du nu besvare spørgsmål undervejs, mens Codex fortsætter arbejdet, ved hjælp af foreslåede svar eller egen tekst, uden at miste dit hovedudkast.
+
+> Kort kildeuddrag: New Features GPT-6-Astra is now available in the model picker and Amazon Bedrock catalogs. &#40; #42879 , #42619 &#41; Experimental…
+
+**Hvorfor det er relevant:** For folk der bruger Codex til kodning giver flere modelvalg mulighed for at sammenligne resultater og priser. Worktree-støtten gør det lettere at køre flere sessioner parallelt uden at sessionerne blander filer sammen, og inline-svar betyder du kan styre agenten uden at afbryde dens igangværende arbejde.
+
+**Sådan verificerer du det:** Opdater Codex til version 0.154.0, tjek i modelvælgeren om GPT-6-Astra er tilgængelig for din konto, og afprøv --worktree på en test-session.
+
+**Usikkerhed:** Kilden afslører ikke priser for GPT-6-Astra via Bedrock, hvor stabil worktree-funktionen er i praksis, eller hvornår den forlader det eksperimentelle stadie.
+
+Kilde: [0.154.0](https://github.com/openai/codex/releases/tag/rust-v0.154.0)
+
+### 2. Claude Code releases: v2.1.268
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 10. sep. 2026. Claude Code 2.1.268 lader signerede klienter på en organisations Claude-gateway modtage de priser, der er sat i gateway.yaml, så /cost og telemetri matcher det faktiske forbrug. Udgivelsen tilføjer en opstartsadvarsel, når access&#95;control.allow&#95;cidrs er tom, plus en engangsadvarsel første gang en forespørgsel kommer fra en offentlig adresse. Der er også en ny indstilling, gatewayInternalNetworks, som administratorer kan bruge til at styre login til gatewayen.
+
+> Kort kildeuddrag: What's changed Added to the Claude apps gateway: with pricing: set in gateway.yaml , signed-in Claude Code clients receive the…
+
+**Hvorfor det er relevant:** Ændringen retter sig mod virksomheder, der selv driver en Claude-gateway. Præcis prissynkronisering gør forbrugstal pålidelige, og advarslerne mod tomme adgangslister mindsker risikoen for, at gatewayen ved en fejl står åben for offentlig adgang.
+
+**Sådan verificerer du det:** Har din organisation en Claude-gateway, så tjek gateway.yaml for pricing-feltet, og kontroller at access&#95;control.allow&#95;cidrs faktisk er udfyldt, før du opdaterer.
+
+**Usikkerhed:** Kilden beskriver ikke, hvad der sker, hvis pricing-feltet mangler, eller hvordan ændringen påvirker almindelige enkeltbrugere uden gateway-opsætning.
+
+Kilde: [v2.1.268](https://github.com/anthropics/claude-code/releases/tag/v2.1.268)
+
+### 3. OpenAI News: Introducing ChatGPT for Financial Services
+
+**Hvad ændrede sig:** OpenAI News offentliggjorde opdateringen 10. sep. 2026. OpenAI har lanceret ChatGPT for Financial Services, et produkt der kombinerer indbygget finansiel data med modellen GPT-6 Astra til research, modellering og udarbejdelse af kundeklart materiale. Ifølge OpenAI sker dataadgangen gennem firmaers eksisterende abonnementer, og produktet skal give mere pålidelige forbindelser til finansielle dataudbydere samt sikkerheds- og governance-funktioner rettet mod finanssektoren.
+
+> Kort kildeuddrag: Introducing ChatGPT for Financial Services, combining built-in financial data and GPT-6 Astra for research, modeling, and client-ready materials. Introducing ChatGPT…
+
+**Hvorfor det er relevant:** Produktet er rettet mod finansielle virksomheder, ikke private brugere, men det viser at GPT-6 Astra nu rulles ud i specialiserede fagprodukter. For almindelige ChatGPT-brugere ændrer det ikke noget direkte, men det peger på, hvor OpenAI prioriterer modellens videre udvikling.
+
+**Sådan verificerer du det:** Arbejder du i en finansiel virksomhed, så kontakt OpenAI's salgsafdeling for at se, hvilke dataudbydere og priser der faktisk indgår, før du regner med adgang.
+
+**Usikkerhed:** Kilden nævner ikke pris, hvilke lande produktet lanceres i, eller hvilke specifikke dataudbydere der er tilsluttet.
+
+Kilde: [Introducing ChatGPT for Financial Services](https://openai.com/index/introducing-chatgpt-financial-services)
+
+### 4. Gemini CLI releases: Release v0.60.0-preview.0
+
+**Hvad ændrede sig:** Gemini CLI releases offentliggjorde opdateringen 8. sep. 2026. Gemini CLI v0.60.0-preview.0 retter destinationsvalidering og forbindelsesrouting i CLI'ens web fetch-funktion og håndhæver RFC 9207-udsteder-identifikation i MCP OAuth-flowet. Udgivelsen isolerer også den midlertidige mappe, der bruges af macOS' Seatbelt-sandbox, så sessioner ikke længere deler samme temp-område.
+
+> Kort kildeuddrag: What's Changed fix&#40;core&#41;: improve destination validation and connection routing in web fetch utilities by @diegogodinezr in #29120 fix&#40;core&#41;: enforce RFC…
+
+**Hvorfor det er relevant:** Rettelserne lukker potentielle sikkerhedshuller: strammere validering i web fetch mindsker risikoen for at blive omdirigeret til uventede mål, og den skærpede OAuth-kontrol gør det sværere at forfalske en udsteder i MCP-integrationer. Isoleringen på macOS reducerer risikoen for at sessioner utilsigtet deler filer.
+
+**Sådan verificerer du det:** Opdater til v0.60.0-preview.0 og tjek versionsnummeret med gemini --version, hvis du bruger MCP-forbindelser eller web fetch i din opsætning.
+
+**Usikkerhed:** Det er en preview-udgivelse, så stabiliteten er ikke garanteret, og kilden viser ikke, om rettelserne allerede har påvirket brugere i praksis.
+
+Kilde: [Release v0.60.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.60.0-preview.0)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| OpenAI Codex releases | [0.154.0](https://github.com/openai/codex/releases/tag/rust-v0.154.0) | 9. sep. 2026 |
+| Claude Code releases | [v2.1.268](https://github.com/anthropics/claude-code/releases/tag/v2.1.268) | 10. sep. 2026 |
+| OpenAI News | [Introducing ChatGPT for Financial Services](https://openai.com/index/introducing-chatgpt-financial-services) | 10. sep. 2026 |
+| Gemini CLI releases | [Release v0.60.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.60.0-preview.0) | 8. sep. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
