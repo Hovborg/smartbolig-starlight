@@ -8,6 +8,9 @@ sidebar:
 ---
 
 import { Card, CardGrid, Aside, Badge } from '@astrojs/starlight/components';
+import AffiliateLink from '../../../../components/AffiliateLink.astro';
+
+Reklamelinks: Vi kan modtage provision, hvis du køber gennem links på denne side. [Læs mere](/da/juridisk/affiliate-disclosure/)
 
 <Badge text="Testet" variant="success" /> <Badge text="Danske priser" variant="note" />
 
@@ -91,7 +94,7 @@ Start med **Zigbee** - det er billigt, stabilt, og har flest kompatible enheder.
 
 | Butik | Kommentar |
 |-------|-----------|
-| [Proshop.dk](https://proshop.dk) | Godt udvalg, fair priser |
+| <AffiliateLink store="proshop" url="https://proshop.dk" text="Proshop.dk" /> | Godt udvalg, fair priser |
 | [av-cables.dk](https://av-cables.dk) | Zigbee koordinatorer |
 | [elektronik-lavpris.dk](https://elektronik-lavpris.dk) | ESP32, komponenter |
 | [IKEA](https://ikea.dk) | TRÅDFRI produkter |

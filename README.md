@@ -366,6 +366,20 @@ Aktuelle guideforløb omfatter blandt andet:
 
 ---
 
+## Vedligeholdelse af reklamelinks
+
+`src/lib/affiliate.ts` er den fælles partnerliste og deeplink-generator for
+`AffiliateLink.astro` og `ProductCard.astro`. Brug kun godkendte aftaler og den
+produktlink-bannerkode, der er vist på Partner-Ads-kontoen. De aktive aftaler er
+Proshop, Specialkamera, RobotterOnline, WATTOO og Batteribyen. Links valideres mod
+den valgte butiks domæne, så en forkert kombination stopper bygget.
+
+Brug komponenten til kommercielle købslinks, skriv en tydelig reklameoplysning før
+første købslink, og ajourfør partnerlisten i begge sprog. En kategorihenvisning
+skal hedde eksempelvis "Se udvalget"; et produktlink skal matche den præcise model.
+Tilføj ikke afventende aftaler eller ubekræftede priser, lager- eller
+kompatibilitetspåstande. URL-adfærden kontrolleres af `npm run site:test`.
+
 ## 📄 Licens
 
 Indholdet på smartbolig.net er ophavsretligt beskyttet.

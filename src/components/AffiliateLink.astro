@@ -7,8 +7,10 @@
  * <AffiliateLink store="proshop" url="https://www.proshop.dk/Smart-Home/..." text="Køb hos Proshop" />
  */
 
+import { affiliateMerchants, buildAffiliateUrl, type AffiliateStore } from '../lib/affiliate';
+
 interface Props {
-  store: 'proshop' | 'specialkamera' | 'amazon' | 'aliexpress';
+  store: AffiliateStore;
   url: string;
   text?: string;
   price?: string;
@@ -17,70 +19,30 @@ interface Props {
 
 const { store, url, text, price, class: className } = Astro.props;
 
-// Affiliate configurations
-const affiliateConfig = {
-  proshop: {
-    partnerId: '55881',
-    bannerId: '67785',
-    baseUrl: 'https://www.partner-ads.com/dk/klikbanner.php',
-    name: 'Proshop',
-    icon: '🛒',
-  },
-  specialkamera: {
-    partnerId: '55881',
-    bannerId: '65506',
-    baseUrl: 'https://www.partner-ads.com/dk/klikbanner.php',
-    name: 'Specialkamera',
-    icon: '📷',
-  },
-  amazon: {
-    // Placeholder for future Amazon affiliate
-    partnerId: '',
-    bannerId: '',
-    baseUrl: '',
-    name: 'Amazon',
-    icon: '📦',
-  },
-  aliexpress: {
-    // Placeholder for future AliExpress affiliate
-    partnerId: '',
-    bannerId: '',
-    baseUrl: '',
-    name: 'AliExpress',
-    icon: '🌏',
-  },
-};
-
-const config = affiliateConfig[store];
-
-// Generate affiliate URL
-function generateAffiliateUrl(productUrl: string): string {
-  if (store === 'proshop' || store === 'specialkamera') {
-    const encodedUrl = encodeURIComponent(productUrl);
-    return `${config.baseUrl}?partnerid=${config.partnerId}&bannerid=${config.bannerId}&htmlurl=${encodedUrl}`;
-  }
-  // For unconfigured stores, return original URL
-  return productUrl;
-}
-
-const affiliateUrl = generateAffiliateUrl(url);
-const displayText = text || `Køb hos ${config.name}`;
+const config = affiliateMerchants[store];
+const lang = Astro.url.pathname.startsWith('/en/') ? 'en' : 'da';
+const affiliateUrl = buildAffiliateUrl(store, url);
+const displayText = text || `${lang === 'en' ? 'Buy at' : 'Køb hos'} ${config.name}`;
 ---
 
 <a
   href={affiliateUrl}
   target="_blank"
-  rel="noopener sponsored"
+  rel="noopener sponsored nofollow"
   class:list={['affiliate-link', `affiliate-${store}`, className]}
 >
-  <span class="affiliate-icon">{config.icon}</span>
+  <span class="affiliate-icon" aria-hidden="true">{config.icon}</span>
   <span class="affiliate-text">{displayText}</span>
+  <span class="affiliate-label">{lang === 'en' ? 'Ad link' : 'Reklamelink'}</span>
   {price && <span class="affiliate-price">{price}</span>}
+  <span class="sr-only">{lang === 'en' ? '(opens in a new tab)' : '(åbner i ny fane)'}</span>
 </a>
 
 <style>
   .affiliate-link {
     display: inline-flex;
+    flex-wrap: wrap;
+    max-width: 100%;
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem 1rem;
@@ -118,6 +80,11 @@ const displayText = text || `Køb hos ${config.name}`;
 
   .affiliate-icon {
     font-size: 1.1rem;
+  }
+
+  .affiliate-label {
+    font-size: 0.75rem;
+    font-weight: 400;
   }
 
   .affiliate-price {
