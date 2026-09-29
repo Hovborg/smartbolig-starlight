@@ -17,12 +17,14 @@
  * </ProductCard>
  */
 
+import { affiliateMerchants, buildAffiliateUrl, type AffiliateStore } from '../lib/affiliate';
+
 interface Props {
   name: string;
   image?: string;
   price?: string;
   rating?: number;
-  store?: 'proshop' | 'specialkamera' | 'amazon' | 'aliexpress';
+  store?: AffiliateStore;
   url?: string;
   badge?: string;
 }
@@ -32,34 +34,7 @@ const { name, image, price, rating, store, url, badge } = Astro.props;
 // Locale-aware UI text (same URL-based detection as FAQ.astro / Head.astro).
 const lang = Astro.url.pathname.startsWith('/en/') ? 'en' : 'da';
 
-// Affiliate configurations (kept in sync with AffiliateLink.astro)
-const affiliateConfig = {
-  proshop: {
-    partnerId: '55881',
-    bannerId: '67785',
-    baseUrl: 'https://www.partner-ads.com/dk/klikbanner.php',
-    name: 'Proshop',
-  },
-  specialkamera: {
-    partnerId: '55881',
-    bannerId: '65506',
-    baseUrl: 'https://www.partner-ads.com/dk/klikbanner.php',
-    name: 'Specialkamera',
-  },
-  amazon: { partnerId: '', bannerId: '', baseUrl: '', name: 'Amazon' },
-  aliexpress: { partnerId: '', bannerId: '', baseUrl: '', name: 'AliExpress' },
-};
-
-function generateAffiliateUrl(productUrl: string, storeName: string): string {
-  if (storeName === 'proshop' || storeName === 'specialkamera') {
-    const config = affiliateConfig[storeName];
-    const encodedUrl = encodeURIComponent(productUrl);
-    return `${config.baseUrl}?partnerid=${config.partnerId}&bannerid=${config.bannerId}&htmlurl=${encodedUrl}`;
-  }
-  return productUrl;
-}
-
-const affiliateUrl = url && store ? generateAffiliateUrl(url, store) : url;
+const affiliateUrl = url && store ? buildAffiliateUrl(store, url) : url;
 const stars = rating ? '★'.repeat(rating) + '☆'.repeat(5 - rating) : null;
 ---
 
@@ -100,10 +75,11 @@ const stars = rating ? '★'.repeat(rating) + '☆'.repeat(5 - rating) : null;
         <a
           href={affiliateUrl}
           target="_blank"
-          rel="noopener sponsored"
+          rel="noopener sponsored nofollow"
           class="product-buy-btn"
         >
-          {lang === 'en' ? 'Buy at' : 'Køb hos'} {affiliateConfig[store].name} →
+          {lang === 'en' ? 'Buy at' : 'Køb hos'} {affiliateMerchants[store].name} →
+          <span class="affiliate-label">{lang === 'en' ? 'Ad link' : 'Reklamelink'}</span>
           <span class="sr-only">{lang === 'en' ? '(opens in a new tab)' : '(åbner i ny fane)'}</span>
         </a>
       )}
@@ -209,6 +185,8 @@ const stars = rating ? '★'.repeat(rating) + '☆'.repeat(5 - rating) : null;
 
   .product-buy-btn {
     display: inline-flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
     align-items: center;
     padding: 0.5rem 1rem;
     background: linear-gradient(135deg, #00a0e3 0%, #0077b6 100%);
@@ -218,6 +196,11 @@ const stars = rating ? '★'.repeat(rating) + '☆'.repeat(5 - rating) : null;
     font-size: 0.85rem;
     font-weight: 500;
     transition: all 0.2s ease;
+  }
+
+  .affiliate-label {
+    font-size: 0.75rem;
+    font-weight: 400;
   }
 
   .product-buy-btn:hover {

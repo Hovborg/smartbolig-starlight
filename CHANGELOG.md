@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Centralized approved Partner-Ads merchants and validated deeplink destinations for Proshop, Specialkamera, RobotterOnline, WATTOO and Batteribyen. Purchase buttons now disclose advertising in both locales, Danish product guides disclose before purchase links, raw commercial links use the shared component, and partner disclosures reflect the active agreements.
+
 - A rejected AI News draft now gets exactly one corrected candidate within the same run: the independent review's reasons (at most five, clipped, delimiter-stripped) are quoted back to the drafter as untrusted data, and the new candidate must pass a fresh independent review. A second rejection, a process failure or a malformed verdict still fails closed. Drafts preserve the source's actual audience instead of inventing household benefits, and the drafter receives the same bounded source excerpts as the reviewer.
 - Kept native stdout, stderr and the failing stage in Windows AI News task transcripts, including tasks without an attached console. Harmless GitHub CLI notices no longer abort Windows PowerShell 5.1 polling; genuine failures and exact commit checks remain enforced.
 - Fixed the Windows AI News runner leaking live Claude-generation flags and its result path into fixture tests. Generation still requires independently reviewed LLM copy; temporary result state is cleaned up even on failure. Both Windows shells have a regression check.
