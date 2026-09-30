@@ -2,6 +2,12 @@ import { request as httpsRequest } from 'node:https';
 import { Readable, pipeline } from 'node:stream';
 import { createBrotliDecompress, createGunzip, createInflate } from 'node:zlib';
 
+const DECODERS = new Map([
+  ['gzip', createGunzip],
+  ['deflate', createInflate],
+  ['br', createBrotliDecompress],
+]);
+
 // Connect only to the records already checked by the caller. Keep the original
 // hostname for Host, SNI and certificate verification; never resolve it again.
 export function pinnedHttpsRequest(url, { headers, addresses, signal }, requestImpl = httpsRequest) {
@@ -20,36 +26,41 @@ export function pinnedHttpsRequest(url, { headers, addresses, signal }, requestI
         callback(null, records[0].address, records[0].family);
       },
     }, (incoming) => {
-      const responseHeaders = new Headers();
-      for (const [name, value] of Object.entries(incoming.headers)) {
-        if (value !== undefined) responseHeaders.set(name, Array.isArray(value) ? value.join(', ') : value);
-      }
-      const status = incoming.statusCode;
-      if (status < 200 || status > 599) {
-        incoming.destroy();
-        reject(new Error('Invalid response status'));
-        return;
-      }
-      if ([204, 205, 304].includes(status)) {
-        incoming.resume();
-        resolve(new Response(null, { status, headers: responseHeaders }));
-        return;
-      }
-      let body = incoming;
-      const encoding = responseHeaders.get('content-encoding')?.toLowerCase();
-      if (encoding && encoding !== 'identity') {
-        const decoder = { gzip: createGunzip, deflate: createInflate, br: createBrotliDecompress }[encoding];
-        if (!decoder) {
+      try {
+        const responseHeaders = new Headers();
+        for (const [name, value] of Object.entries(incoming.headers)) {
+          if (value !== undefined) responseHeaders.set(name, Array.isArray(value) ? value.join(', ') : value);
+        }
+        const status = incoming.statusCode;
+        if (status < 200 || status > 599) {
           incoming.destroy();
-          reject(new Error('Unsupported response encoding'));
+          reject(new Error('Invalid response status'));
           return;
         }
-        body = decoder();
-        pipeline(incoming, body, () => {});
-        responseHeaders.delete('content-encoding');
-        responseHeaders.delete('content-length');
+        if ([204, 205, 304].includes(status)) {
+          incoming.resume();
+          resolve(new Response(null, { status, headers: responseHeaders }));
+          return;
+        }
+        let body = incoming;
+        const encoding = responseHeaders.get('content-encoding')?.toLowerCase();
+        if (encoding && encoding !== 'identity') {
+          const decoder = DECODERS.get(encoding);
+          if (!decoder) {
+            incoming.destroy();
+            reject(new Error('Unsupported response encoding'));
+            return;
+          }
+          body = decoder();
+          pipeline(incoming, body, () => {});
+          responseHeaders.delete('content-encoding');
+          responseHeaders.delete('content-length');
+        }
+        resolve(new Response(Readable.toWeb(body), { status, headers: responseHeaders, statusText: incoming.statusMessage }));
+      } catch (error) {
+        incoming.destroy();
+        reject(error);
       }
-      resolve(new Response(Readable.toWeb(body), { status, headers: responseHeaders, statusText: incoming.statusMessage }));
     });
     request.once('error', reject);
     request.end();

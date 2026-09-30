@@ -132,7 +132,10 @@ function fieldProblems(value, limit, label) {
 
 export function validateIssueCopy(copy, itemCount) {
   const problems = [];
-  if (!copy || typeof copy !== "object") return { ok: false, problems: ["copy is not an object"] };
+  if (!copy || typeof copy !== "object" || Array.isArray(copy)) return { ok: false, problems: ["copy is not an object"] };
+  for (const key of Object.keys(copy)) {
+    if (key !== "lede" && key !== "stories") problems.push(`unexpected top-level field: ${key}`);
+  }
 
   for (const locale of LOCALES) {
     problems.push(...fieldProblems(copy.lede?.[locale], WORD_LIMITS.lede, `lede.${locale}`));

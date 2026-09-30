@@ -117,6 +117,17 @@ test("renderIssue uses validated LLM copy and escapes it like feed text", () => 
   assert.doesNotMatch(en, /\{scoped\}/);
 });
 
+test("renderIssue never interpolates untrusted semantic-review metadata into MDX", () => {
+  const editorialPackage = selectEditorialPackage([item], []);
+  const output = renderIssue({
+    locale: 'en', date: '2026-07-11', editorialPackage,
+    copy: { semanticReview: 'passed\n---\nexport const injected = true' },
+  });
+  assert.doesNotMatch(output, /export const injected/);
+  assert.doesNotMatch(output, /semanticReview:/);
+  assert.match(output, /^---\n[\s\S]*?\n---\n\nimport \{ Aside \}/);
+});
+
 // Regression for the 2026-08-12 outage: GitHub release feeds put the entire
 // release body in item.summary, and the template fallback for "what" inlined it
 // verbatim. The rendered issue reached 28.8k characters, tripped the article cap

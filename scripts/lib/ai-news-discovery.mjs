@@ -14,6 +14,12 @@ const MAX_FEED_BLOCKS = 100;
 const MAX_ARTICLE_FETCHES_PER_FEED = 12;
 const MAX_REDIRECTS = 3;
 
+// HTML/XML tag names are ASCII. Unicode lowercasing can expand characters
+// (for example İ), shifting offsets used to slice the original input.
+export function asciiLower(value) {
+  return String(value).replace(/[A-Z]/g, (letter) => letter.toLowerCase());
+}
+
 // Loopback, private, link-local (incl. cloud metadata), CGNAT, multicast,
 // and reserved ranges — never fetched, in any redirect hop.
 const FORBIDDEN_RANGES = new BlockList();
@@ -150,7 +156,7 @@ function decodeEntities(value = "") {
 // section swallows the remainder of the input (its content is never text).
 function stripSections(value, tagName) {
   const parts = [];
-  const lower = value.toLowerCase();
+  const lower = asciiLower(value);
   const open = `<${tagName}`;
   const close = `</${tagName}`;
   let index = 0;
@@ -180,21 +186,59 @@ export function stripHtml(value = "") {
   let text = decodeEntities(value);
   text = stripSections(text, "script");
   text = stripSections(text, "style");
-  return text
-    .replace(/<[^>]+>/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+  const parts = [];
+  let index = 0;
+  while (index < text.length) {
+    const start = text.indexOf("<", index);
+    if (start === -1) break;
+    const end = text.indexOf(">", start + 1);
+    if (end === -1) break;
+    if (end === start + 1) {
+      // The previous parser treated an empty <> pair as text.
+      parts.push(text.slice(index, end + 1));
+    } else {
+      parts.push(text.slice(index, start), " ");
+    }
+    index = end + 1;
+  }
+  parts.push(text.slice(index));
+  return parts.join("").replace(/\s+/g, " ").trim();
+}
+
+function findOpeningTag(lower, tagName, from = 0) {
+  const open = `<${tagName.toLowerCase()}`;
+  let start = lower.indexOf(open, from);
+  while (start !== -1) {
+    const boundary = lower[start + open.length];
+    if (boundary === undefined || /[\s>/]/.test(boundary)) {
+      const end = lower.indexOf(">", start + open.length);
+      return end === -1 ? null : { start, end };
+    }
+    start = lower.indexOf(open, start + open.length);
+  }
+  return null;
 }
 
 function readTag(block, tagName) {
-  const match = block.match(new RegExp(`<${tagName}\\b[^>]*>([\\s\\S]*?)<\\/${tagName}>`, "i"));
-  return match ? stripHtml(match[1]) : "";
+  const lower = asciiLower(block);
+  const opening = findOpeningTag(lower, tagName);
+  if (!opening) return "";
+  const close = lower.indexOf(`</${tagName.toLowerCase()}>`, opening.end + 1);
+  return close === -1 ? "" : stripHtml(block.slice(opening.end + 1, close));
 }
 
 function readLink(block) {
   const textLink = readTag(block, "link");
   if (textLink) return textLink;
-  const linkTags = [...block.matchAll(/<link\b[^>]*>/gi)].map((match) => match[0]);
+  const lower = asciiLower(block);
+  const linkTags = [];
+  let index = 0;
+  for (;;) {
+    const opening = findOpeningTag(lower, "link", index);
+    if (!opening) break;
+    linkTags.push(block.slice(opening.start, opening.end + 1));
+    index = opening.end + 1;
+  }
   const preferred = linkTags.find((tag) => /rel=["']alternate["']/i.test(tag))
     || linkTags.find((tag) => !/\brel=/i.test(tag))
     || linkTags[0];
@@ -222,7 +266,7 @@ export function canonicalizeUrl(value) {
 // Extracts up to MAX_FEED_BLOCKS <item>/<entry> blocks with a linear scan.
 function extractFeedBlocks(xml) {
   const blocks = [];
-  const lower = xml.toLowerCase();
+  const lower = asciiLower(xml);
   for (const tagName of ["item", "entry"]) {
     const open = `<${tagName}`;
     const close = `</${tagName}`;
@@ -288,7 +332,7 @@ export function parseHtmlListing(html, source) {
   const seen = new Set();
   const items = [];
   const text = String(html);
-  const lower = text.toLowerCase();
+  const lower = asciiLower(text);
   let index = 0;
 
   while (items.length < MAX_FEED_BLOCKS) {
@@ -306,8 +350,8 @@ export function parseHtmlListing(html, source) {
 
     const href = segment.match(/^<a\b[^>]*href="(\/news\/[a-z0-9][a-z0-9-]*)"/i)?.[1];
     if (!href) continue;
-    const title = stripHtml(segment.match(/<h[2-4][^>]*>([\s\S]*?)<\/h[2-4]>/i)?.[1] || "");
-    const publishedRaw = stripHtml(segment.match(/<time[^>]*>([\s\S]*?)<\/time>/i)?.[1] || "");
+    const title = readTag(segment, "h2") || readTag(segment, "h3") || readTag(segment, "h4");
+    const publishedRaw = readTag(segment, "time");
     const published = new Date(publishedRaw);
     const url = new URL(href, base).toString();
     const canonicalUrl = canonicalizeUrl(url);
