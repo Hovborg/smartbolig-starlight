@@ -1,0 +1,250 @@
+---
+title: Bevægelseslys med manuel overstyring
+description: Styr ganglys med bevægelse, en tydelig manuel overstyring og forudsigelig adfærd efter genstart eller genindlæsning.
+lastUpdated: 2026-09-30
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Aside, Badge, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Mellem" variant="note" /> <Badge text="25 min" variant="success" />
+
+Et almindeligt bevægelseslys er nemt, indtil nogen vil have lampen tændt under
+rengøring, slukket under en film eller styret manuelt en hel aften. Hvis
+automationen prøver at gætte, at et tryk på vægkontakten betyder “manuel
+tilstand”, bliver resultatet hurtigt uforudsigeligt.
+
+Her får automationen derfor sin egen kontakt:
+`input_boolean.gang_automatisk_lys`. Når hjælperen er **til**, må automationen
+styre lampen. Når den er **fra**, rører automationen ikke lampen. Du vælger selv
+lampens ønskede tilstand.
+
+<Aside type="caution" title="Brug ikke mønstret til kritisk lys">
+Eksemplet er egnet til gang-, bryggers- og dekorationslys. Brug ikke en enkelt
+bevægelsessensor og denne automation som eneste styring af nødlys, trappelys
+eller andet lys, hvor en fejl kan skabe fare.
+</Aside>
+
+## Adfærden, før du bygger
+
+| Situation | Resultat |
+|---|---|
+| Hjælper til, bevægelse og mørkt | Lampen tændes |
+| Sensoren har været `off` i to minutter, hjælper til | Lampen slukkes |
+| Hjælper fra | Den aktuelle kørsel stoppes; lampen ændres ikke |
+| Hjælper tændes igen | Automationens regler tager over igen |
+| Solen går ned, mens sensoren allerede er `on` | Lampen tændes |
+| Home Assistant starter | Tilstanden vurderes igen efter en kort ventetid |
+
+Overstyringen er bevidst eksplicit. Et almindeligt tryk på lampens kontakt
+ændrer **ikke** hjælperen automatisk. Slå først hjælperen fra, hvis du vil styre
+lampen manuelt; slå den til igen, når bevægelsesstyringen skal have kontrollen.
+
+## 1. Opret kontakten til automatisk drift
+
+<Steps>
+1. Gå til **Indstillinger → Enheder og tjenester → Hjælpere**.
+2. Vælg **Opret hjælper → Kontakt**.
+3. Kald den `Gang – automatisk lys`.
+4. Sæt under hjælperens indstillinger entitets-id'et til
+   `input_boolean.gang_automatisk_lys`, eller erstat id'et alle steder i YAML.
+5. Tilføj hjælperen til det dashboard, hvor den er nem at finde.
+</Steps>
+
+En kontakt-hjælper har en reel `on`/`off`-tilstand, som kan bruges af triggere
+og betingelser. Uden en fast `initial`-værdi gendanner Home Assistant normalt
+den senest gemte værdi; hvis ingen værdi findes, starter den som `off`. Det er
+beskrevet i den officielle
+[dokumentation for Input boolean](https://www.home-assistant.io/integrations/input_boolean/#restore-state).
+
+## 2. Opret automationen
+
+Opret en tom automation, åbn menuen med de tre prikker, og vælg **Rediger i
+YAML**. Indsæt hele eksemplet. Erstat sensor og lampe, hvis dine entitets-id'er
+er anderledes. Blokken er én automation til editoren, uden en listebindestreg
+eller en `automation:`-wrapper.
+
+```yaml title="Automation: Ganglys med manuel overstyring"
+alias: "Ganglys med manuel overstyring"
+description: "Bevægelseslys, som kun styrer lampen, når automatisk drift er til"
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.gang_bevaegelse
+    to: "on"
+    id: motion_on
+
+  - trigger: state
+    entity_id: binary_sensor.gang_bevaegelse
+    to: "off"
+    for: "00:02:00"
+    id: motion_clear
+
+  - trigger: state
+    entity_id: input_boolean.gang_automatisk_lys
+    to: "on"
+    id: auto_enabled
+
+  - trigger: state
+    entity_id: input_boolean.gang_automatisk_lys
+    to: "off"
+    id: auto_disabled
+
+  - trigger: state
+    entity_id: sun.sun
+    to: "below_horizon"
+    id: darkness_started
+
+  - trigger: homeassistant
+    event: start
+    id: ha_started
+
+conditions: []
+
+actions:
+  # Giv sensor, sol-entitet og radio-integrationer tid til at komme tilbage.
+  - if:
+      - condition: trigger
+        id: ha_started
+    then:
+      - delay: "00:00:30"
+
+  - choose:
+      # Tænd ved bevægelse, genaktivering, mørkets start eller HA-start.
+      - conditions:
+          - condition: trigger
+            id:
+              - motion_on
+              - auto_enabled
+              - darkness_started
+              - ha_started
+          - condition: state
+            entity_id: input_boolean.gang_automatisk_lys
+            state: "on"
+          - condition: state
+            entity_id: binary_sensor.gang_bevaegelse
+            state: "on"
+          - condition: state
+            entity_id: sun.sun
+            state: "below_horizon"
+        sequence:
+          - action: light.turn_on
+            target:
+              entity_id: light.gang
+
+      # Sluk kun efter en naturlig to-minutters off-trigger.
+      - conditions:
+          - condition: trigger
+            id: motion_clear
+          - condition: state
+            entity_id: input_boolean.gang_automatisk_lys
+            state: "on"
+          - condition: state
+            entity_id: binary_sensor.gang_bevaegelse
+            state: "off"
+        sequence:
+          - action: light.turn_off
+            target:
+              entity_id: light.gang
+
+      # Ved start, genaktivering eller solnedgang: kræv off, vent og kontrollér igen.
+      - conditions:
+          - condition: trigger
+            id:
+              - auto_enabled
+              - ha_started
+              - darkness_started
+          - condition: state
+            entity_id: input_boolean.gang_automatisk_lys
+            state: "on"
+          - condition: state
+            entity_id: binary_sensor.gang_bevaegelse
+            state: "off"
+        sequence:
+          - delay: "00:02:00"
+          - condition: state
+            entity_id: input_boolean.gang_automatisk_lys
+            state: "on"
+          - condition: state
+            entity_id: binary_sensor.gang_bevaegelse
+            state: "off"
+          - action: light.turn_off
+            target:
+              entity_id: light.gang
+
+mode: restart
+```
+
+Trigger-id'erne vælger den relevante gren. Mørkekravet ligger kun i grenen,
+der tænder; det blokerer derfor ikke en senere slukning. `auto_disabled` har
+med vilje ingen handlingsgren. Fordi automationen bruger `mode: restart`,
+stopper den trigger en eventuel igangværende ventetid, men ændrer ikke lampen.
+Den officielle oversigt over
+[automationstilstande](https://www.home-assistant.io/docs/automation/modes/)
+forklarer, at `restart` stopper den forrige kørsel og starter den nye.
+
+## Genstart og genindlæsning
+
+Home Assistant dokumenterer, at en trigger med `for:` **ikke** overlever en
+genstart eller genindlæsning af automationer; ventetiden nulstilles. Derfor
+lover eksemplet ikke at fortsætte præcis dér, hvor nedtællingen var nået til.
+Se begrænsningen under
+[automationstriggere](https://www.home-assistant.io/docs/automation/trigger/#state-trigger).
+
+Ved en fuld Home Assistant-start udløser `ha_started` en ny vurdering efter 30
+sekunder. Er sensoren tydeligt `on`, kan lampen tændes, hvis det er mørkt. Er
+sensoren tydeligt `off`, starter en ny fuld ventetid på to minutter før
+slukning. Er sensoren `unknown` eller `unavailable`, matcher ingen af delene,
+og automationen slukker ikke lampen. Tredive sekunder er kun en buffer; en
+langsom Zigbee-, Z-Wave- eller netværksintegration kan bruge længere tid.
+[Home Assistant-starttriggeren](https://www.home-assistant.io/triggers/homeassistant/)
+kører, når Home Assistant er færdig med at starte, men garanterer ikke, at alle
+fysiske enheder allerede svarer.
+
+Ved **Genindlæs automationer** kommer der ingen Home Assistant-starttrigger.
+Hvis sensoren allerede er `off`, kommer slukningen derfor først efter en ny
+bevægelsescyklus. Du kan også slå hjælperen fra og til; når den tændes igen,
+starter automationen en ny vurdering og en ny to-minutters ventetid. Det er en
+bevidst, synlig handling frem for en skjult gætning.
+
+Hvis solnedgang afbryder en ventende slukning efter start eller genaktivering,
+starter den samme `off`-gren en ny fuld to-minutters ventetid. Lampen kan derfor
+være tændt lidt længere, men slukningen bliver ikke efterladt uden en ny kørsel.
+
+## Test de vigtige grænser
+
+Test med naturlige tilstandsændringer, fordi **Kør handlinger** ikke leverer et
+af de trigger-id'er, som grenene bruger. Det er også den begrænsning, Home
+Assistant beskriver i sin
+[vejledning til test af automationer](https://www.home-assistant.io/docs/automation/troubleshooting/#running-the-entire-automation).
+
+1. Slå hjælperen til, fremkald bevægelse efter solnedgang, og kontrollér tænding.
+2. Vent til sensoren har været `off` i to minutter, og kontrollér slukning.
+3. Slå hjælperen fra under ventetiden. Lampen må ikke blive ændret bagefter.
+4. Styr lampen manuelt med hjælperen fra; vent og fremkald bevægelse.
+5. Slå hjælperen til med sensoren først `on` og derefter `off`.
+6. Genaktivér med sensoren `off` tæt på solnedgang, og kontrollér at slukningen
+   sker to minutter efter solnedgang, hvis den afbrød en ventetid.
+7. Genstart Home Assistant på et ufarligt tidspunkt og kontrollér både `on`,
+   `off` og `unavailable` i automationens spor.
+
+Hvis lampen også styres af en anden automation, adaptiv belysning eller en
+smart vægkontakt, kan systemerne kæmpe om samme tilstand. Vælg én tydelig ejer
+af automatisk tænd/sluk, eller giv de andre flows samme hjælper som fælles
+grænse. Brug [Aktivitet og Spor](/da/home-assistant/aktivitet-og-spor/) til at
+se, hvem der senest ændrede lampen. Er automationer helt nye for dig, begynd
+med [din første automation](/da/home-assistant/foerste-automation/).
+
+YAML-eksemplet er statisk kontrolleret. Afprøv det på dit eget anlæg med
+trinnene ovenfor, før du lader det styre lyset i hverdagen.
+
+## Officielle kilder
+
+- [Input boolean og gendannelse af tilstand](https://www.home-assistant.io/integrations/input_boolean/)
+- [Automationstriggere, trigger-id'er og `for:`](https://www.home-assistant.io/docs/automation/trigger/)
+- [Home Assistant-starttrigger](https://www.home-assistant.io/triggers/homeassistant/)
+- [Automationstilstande](https://www.home-assistant.io/docs/automation/modes/)
+- [Automationshandlinger](https://www.home-assistant.io/docs/automation/action/)
+- [Test og fejlfinding af automationer](https://www.home-assistant.io/docs/automation/troubleshooting/)

@@ -1,0 +1,196 @@
+---
+title: Secure remote access to Home Assistant
+description: Set up remote access with Home Assistant Cloud or a private VPN, protect sign-in with MFA and test your connection over mobile data step by step.
+lastUpdated: 2026-09-30
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+You want to check the temperature at home or turn on a lamp from your phone
+while you are away. Before changing your router, choose an access method and
+decide how to verify it. This guide walks through Home Assistant Cloud and
+helps you choose a private VPN if you already maintain your own network.
+
+The goal is a connection that works away from home Wi-Fi, requires your own
+login and can be removed again. Home Assistant must already work locally.
+The Cloud setup needs neither a new automation nor a public IP address.
+
+## Choose an access method
+
+| Your need | A suitable starting point | Your maintenance responsibility |
+|---|---|---|
+| Simple access for the household's phones | Home Assistant Cloud | Subscription, user accounts and app connection |
+| Private access from selected devices | VPN, such as Tailscale | VPN clients, access policies and an available host at home |
+| Your own domain and existing proxy | Reverse proxy with HTTPS | Certificate, proxy, firewall and correct trust settings |
+
+Home Assistant's [official remote access guide](https://www.home-assistant.io/docs/configuration/remote/)
+recommends Cloud as the easiest option for most people. Cloud provides access
+without opening an inbound router port. A VPN is another option, but the phone
+must be connected when you use the home address reachable through that VPN.
+
+<Aside type="caution" title="Start with one access method">
+Avoid setting up Cloud, a VPN and port forwarding at the same time. That makes
+it difficult to identify which connection your phone is using. Cloud is the
+main walkthrough here, with a private VPN as an alternative.
+</Aside>
+
+## Prepare your account first
+
+Check local access before changing remote access. Keep your working local
+address and a [current backup](/en/home-assistant/backup-sikkerhed/).
+Use a strong, unique password and give household members separate accounts; grant administrator privileges only
+to people maintaining the installation. See Home Assistant's
+[security checklist](https://www.home-assistant.io/docs/configuration/securing/).
+
+Open your user profile's **Security** tab and enable multi-factor authentication
+with an authenticator app. Store the setup's secret key securely; keep both the
+key and QR code out of screenshots you share. Test sign-in in a separate
+private browser window while keeping your original session open. Home Assistant
+documents the setup in its [MFA guide](https://www.home-assistant.io/docs/authentication/multi-factor-auth/).
+
+<Aside type="note" title="Two separate accounts">
+Your Nabu Casa account manages the Cloud subscription. Your Home Assistant
+user signs in to your home. Enable Home Assistant MFA for that user; doing so
+does not automatically enable MFA on other services.
+</Aside>
+
+## Set up Home Assistant Cloud
+
+Have local access and your Cloud account ready. Check current pricing and terms
+at [Nabu Casa](https://www.nabucasa.com/) instead of relying on a subscription
+price quoted in an older guide.
+
+<Steps>
+1. **Sign in locally**
+
+   Open **Settings → Home Assistant Cloud** and sign in to your Cloud account.
+
+2. **Enable remote access**
+
+   Turn on **Remote access**. Wait if the connection or certificate is still
+   being prepared.
+
+3. **Save the displayed address**
+
+   Copy the Cloud address from that page. Use the exact HTTPS address shown.
+
+4. **Try the address in a browser**
+
+   Open it in a new private window and sign in as your Home Assistant user.
+
+5. **Continue with the test below**
+
+   Access over home Wi-Fi does not yet prove the phone works remotely.
+</Steps>
+
+The process and optional external activation setting are documented in
+[Nabu Casa's official instructions](https://support.nabucasa.com/hc/en-us/articles/26474279202973-Enabling-remote-access-to-Home-Assistant).
+Choose external activation deliberately if you want to re-enable a disabled
+connection from your Cloud account. Ordinary use with remote access already
+enabled does not require that extra setting.
+
+## Test over mobile data
+
+Use a simple check you can repeat after changes:
+
+1. Turn off the phone's Wi-Fi and confirm mobile data is active. Also disable
+   the VPN during the **Cloud test** so you exercise the selected route.
+2. Open the Cloud address in the browser. Confirm sign-in works and there is
+   no certificate warning.
+3. Choose a harmless test lamp. Turn it on and ask someone at home to confirm
+   the light, or check the physical lamp when you return.
+4. Turn it off again. Record the time and whether the app and browser agreed.
+5. Sign out of the private test window and confirm another visit requires login.
+
+Avoid door locks, garage doors and heating appliances as your first test. A
+page loading proves network access; a changed dashboard indicator alone does
+not prove the physical device responded.
+
+Once the browser works, open **Settings → Companion app** and the relevant
+server's connection settings. Select the Cloud connection if offered, or enter
+the external address you tested. Internal addresses and choosing a connection
+by Wi-Fi name may require additional permissions. Follow the
+[Companion app networking guide](https://companion.home-assistant.io/docs/troubleshooting/networking/)
+and repeat the mobile-data test in the app. Menu names can differ between iOS
+and Android.
+
+## If you choose Tailscale instead
+
+A private VPN makes sense if you already have a maintained, always-on Tailscale
+host. Your phone and home device must belong to your private Tailscale network,
+called a *tailnet*. Use this checklist for that route:
+
+- Install each device's client using Tailscale's instructions for its OS.
+- If the Home Assistant host can run the client itself, use its Tailscale
+  address. With Home Assistant OS, choose a separate supported access method;
+  this guide does not assume you can install the client directly into the OS.
+- If another host must provide access to Home Assistant's LAN address, configure
+  a [subnet router](https://tailscale.com/docs/features/subnet-routers).
+  Follow its OS-specific instructions, approve the route and restrict access.
+- Review the [access policy](https://tailscale.com/docs/features/access-control/acls).
+  A new tailnet may allow all its devices to communicate. Limit the relevant
+  users to Home Assistant's address and required port, normally TCP 8123.
+  Other broad rules can still provide additional access.
+- Connect the phone's VPN, turn off Wi-Fi and repeat the browser and lamp tests
+  with the address reachable through the VPN.
+
+Home Assistant sign-in is still required. A subnet router provides a network
+route; it does not automatically make Home Assistant an HTTPS server. Tailscale
+encryption protects the VPN connection as far as the subnet router; HTTP on the
+remaining LAN segment is still HTTP. Use HTTPS there too if your network's risks
+require it. Do not bypass browser certificate warnings.
+
+## Find the fault in the right layer
+
+| Symptom | First check | Next step |
+|---|---|---|
+| Works on Wi-Fi but fails on mobile data | Is the phone using a local address? | Test the Cloud address or VPN connection in the browser |
+| Browser works but app fails | The server's app settings | Correct the external address or Cloud selection; retest |
+| Sign-in is refused | The specific Home Assistant user | Check the account, MFA and whether local-only sign-in is enabled |
+| VPN connects but the page does not open | Destination, access policy and any subnet route | Check each part; avoid granting the whole LAN for troubleshooting |
+| Certificate warning | Address and certificate hostname | Correct the cause instead of accepting the warning |
+| Cloud is offline | Local Home Assistant and home internet | Restore local access first and inspect Cloud status |
+
+If you previously configured `trusted_networks`, confirm that ordinary Home
+Assistant sign-in remains available. The Cloud address cannot use that login
+method; see [Nabu Casa's explanation](https://support.nabucasa.com/hc/en-us/articles/26205125179549-Remote-control-Computer-not-allowed).
+Do not trust the entire VPN network simply to skip sign-in.
+
+## Keep control of access
+
+Record the access method, who can use it and the last successful mobile-data
+test. Repeat the test after replacing a phone, changing a router or updating
+user accounts. If a phone is lost, remove its access from both the relevant
+VPN service and Home Assistant sessions/tokens; a change in one place may not
+be sufficient. Home Assistant's [account profile](https://www.home-assistant.io/docs/authentication/#your-account-profile)
+shows the relevant token settings.
+
+Keep local access as your recovery path. Disable Cloud remote access or the
+relevant VPN access when you stop using it. Old port forwards are a separate
+access route: review only rules for your own Home Assistant and remove them
+after testing the replacement and identifying what those rules serve.
+
+<CardGrid>
+  <Card title="A secure foundation" icon="setting">
+    Review [network security](/en/sikkerhed/) and [safe updates](/en/home-assistant/sikre-opdateringer-2026/).
+  </Card>
+  <Card title="Messages to your phone" icon="document">
+    Continue with [mobile notifications](/en/home-assistant/mobilnotifikationer/) and test delivery separately.
+  </Card>
+</CardGrid>
+
+## Official sources
+
+Sources and instructions reviewed on September 30, 2026. Test your own network
+and phones using the checklist above.
+
+- [Home Assistant: remote access](https://www.home-assistant.io/docs/configuration/remote/)
+- [Home Assistant: security](https://www.home-assistant.io/docs/configuration/securing/)
+- [Home Assistant: multi-factor authentication](https://www.home-assistant.io/docs/authentication/multi-factor-auth/)
+- [Nabu Casa: enable remote access](https://support.nabucasa.com/hc/en-us/articles/26474279202973-Enabling-remote-access-to-Home-Assistant)
+- [Companion: networking and app connections](https://companion.home-assistant.io/docs/troubleshooting/networking/)
+- [Tailscale: subnet routers](https://tailscale.com/docs/features/subnet-routers) and [access policies](https://tailscale.com/docs/features/access-control/acls)

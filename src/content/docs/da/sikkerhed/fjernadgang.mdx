@@ -1,0 +1,196 @@
+---
+title: Sikker fjernadgang til Home Assistant
+description: Opsæt fjernadgang med Home Assistant Cloud eller en privat VPN, beskyt login med MFA og test forbindelsen fra mobilnettet trin for trin.
+lastUpdated: 2026-09-30
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+Du vil se temperaturen hjemme eller tænde en lampe fra telefonen, mens du er
+ude. Før du ændrer routeren, skal du vælge en adgangsvej og vide, hvordan du
+kontrollerer den. Denne guide fører dig gennem Home Assistant Cloud og hjælper
+dig med at vælge en privat VPN, hvis du allerede vedligeholder dit eget netværk.
+
+Målet er en forbindelse, som virker uden hjemmets Wi-Fi, kræver dit eget login
+og kan fjernes igen. Home Assistant skal allerede fungere lokalt. Du behøver
+hverken en ny automation eller en offentlig IP-adresse til Cloud-forløbet.
+
+## Vælg adgangsvej
+
+| Dit behov | Et passende udgangspunkt | Det skal du vedligeholde |
+|---|---|---|
+| Enkel adgang for familiens telefoner | Home Assistant Cloud | Abonnement, brugerkonti og appens forbindelse |
+| Privat adgang fra bestemte enheder | VPN, eksempelvis Tailscale | VPN-klienter, adgangsregler og en tilgængelig vært hjemme |
+| Eget domæne og eksisterende proxy | Reverse proxy med HTTPS | Certifikat, proxy, firewall og korrekte tillidsregler |
+
+Home Assistants [officielle fjernadgangsguide](https://www.home-assistant.io/docs/configuration/remote/)
+anbefaler Cloud som det letteste valg for de fleste. Cloud etablerer adgang
+uden indgående portåbning på routeren. En VPN er også en mulighed, men skal
+være forbundet på telefonen, når du bruger den hjemmefra-adresse, VPN'en giver
+adgang til.
+
+<Aside type="caution" title="Begynd med én adgangsvej">
+Undgå at oprette Cloud, VPN og port forwarding samtidig. Det gør det svært at
+afgøre, hvilken forbindelse din telefon faktisk bruger. Denne guide bruger
+Cloud som hovedforløb og en privat VPN som alternativ.
+</Aside>
+
+## Gør kontoen klar først
+
+Kontrollér lokal adgang, før du ændrer fjernadgang. Gem din fungerende lokale
+adresse, og sørg for at have en [aktuel backup](/da/home-assistant/backup-sikkerhed/).
+Brug en stærk, unik adgangskode og særskilte konti til personer i hjemmet; giv kun administratorrettigheder
+til dem, der vedligeholder installationen. Se Home Assistants
+[sikkerhedstjekliste](https://www.home-assistant.io/docs/configuration/securing/).
+
+Åbn din brugerprofil og fanen **Sikkerhed**, og aktivér multifaktor med en
+authenticator-app. Gem opsætningens hemmelige nøgle forsvarligt, og del hverken
+nøglen eller QR-koden i screenshots. Afprøv login i et separat privat
+browservindue, mens din oprindelige session stadig er åben. Home Assistant
+beskriver opsætningen i [MFA-dokumentationen](https://www.home-assistant.io/docs/authentication/multi-factor-auth/).
+
+<Aside type="note" title="To forskellige konti">
+Din Nabu Casa-konto administrerer Cloud-abonnementet. Din Home Assistant-bruger
+logger ind i selve hjemmet. MFA på Home Assistant skal aktiveres for den
+pågældende bruger; det aktiverer ikke automatisk MFA på andre tjenester.
+</Aside>
+
+## Opsæt Home Assistant Cloud
+
+Hav lokal adgang og din Cloud-konto klar. Den aktuelle pris og vilkårene finder
+du hos [Nabu Casa](https://www.nabucasa.com/); vælg abonnement dér frem for at
+regne med en pris fra en gammel guide.
+
+<Steps>
+1. **Log ind lokalt**
+
+   Åbn **Indstillinger → Home Assistant Cloud**, og log ind på Cloud-kontoen.
+
+2. **Aktivér fjernadgang**
+
+   Slå **Fjernadgang / Remote access** til. Vent, hvis forbindelsen eller
+   certifikatet stadig forberedes.
+
+3. **Gem den viste adresse**
+
+   Kopiér Cloud-adressen fra siden. Brug præcis den viste HTTPS-adresse.
+
+4. **Prøv adressen i browseren**
+
+   Åbn den i et nyt privat vindue, og log ind som din Home Assistant-bruger.
+
+5. **Fortsæt med testen nedenfor**
+
+   Lokal Wi-Fi-adgang alene beviser endnu ikke, at telefonen virker udefra.
+</Steps>
+
+Fremgangsmåden og indstillingen for eventuel ekstern aktivering står i
+[Nabu Casas officielle opsætning](https://support.nabucasa.com/hc/en-us/articles/26474279202973-Enabling-remote-access-to-Home-Assistant).
+Vælg ekstern aktivering bevidst, hvis du vil kunne slå en deaktiveret forbindelse
+til fra Cloud-kontoen. Det er ikke nødvendigt for almindelig brug, når
+fjernadgang allerede er slået til.
+
+## Test fra mobilnettet
+
+Lav en enkel kontrol, som du kan gentage efter ændringer:
+
+1. Slå Wi-Fi fra på telefonen, og kontrollér at mobildata er aktive. Slå også
+   VPN fra under **Cloud-testen**, så du afprøver den valgte vej.
+2. Åbn Cloud-adressen i browseren. Bekræft at login virker, og at du ikke får
+   en certifikatadvarsel.
+3. Vælg en ufarlig testlampe. Tænd den, og få en person hjemme til at bekræfte
+   lyset eller kontrollér lampens faktiske tilstand, når du kommer hjem.
+4. Sluk lampen igen. Notér tidspunktet og om appen og browseren gav samme resultat.
+5. Log ud af det private testvindue, og bekræft at et nyt besøg kræver login.
+
+Brug ikke dørlåse, garageporte eller varmeapparater som første test. En side,
+der indlæses, beviser netværksadgang; en ændret dashboardindikator beviser ikke
+alene, at den fysiske enhed reagerede.
+
+Når browseren virker, åbner du Companion-appens **Indstillinger → Companion
+app** og den relevante servers forbindelsesindstillinger. Vælg Cloud-forbindelse,
+hvis den tilbydes, eller angiv den testede eksterne adresse. Interne adresser
+og valg efter Wi-Fi-navn kan kræve yderligere tilladelser. Følg
+[Companion-appens netværksvejledning](https://companion.home-assistant.io/docs/troubleshooting/networking/),
+og gentag mobilnettesten i appen. Appens menunavne kan variere mellem iOS og Android.
+
+## Hvis du vælger Tailscale i stedet
+
+En privat VPN er oplagt, hvis du allerede har en vedligeholdt, altid tændt
+Tailscale-vært. Telefonen og enheden hjemme skal være tilmeldt dit private
+Tailscale-netværk, kaldet et *tailnet*. Her er kontrollisten for den løsning:
+
+- Installér klienten efter Tailscales vejledning for hver enheds operativsystem.
+- Kan Home Assistant-værten selv køre klienten, så brug dens Tailscale-adresse.
+  På Home Assistant OS skal du vælge en særskilt, understøttet adgangsvej;
+  denne guide forudsætter ikke, at klienten kan installeres direkte i OS'et.
+- Hvis en anden vært skal give adgang til Home Assistants LAN-adresse, opsætter
+  du en [subnet-router](https://tailscale.com/docs/features/subnet-routers).
+  Følg vejledningen for dens operativsystem, godkend ruten og begræns adgangen.
+- Gennemgå [adgangspolitikken](https://tailscale.com/docs/features/access-control/acls).
+  Et nyt tailnet kan have regler, som tillader alle enheder at kommunikere.
+  Begræns de relevante brugere til Home Assistants adresse og nødvendige port,
+  normalt TCP 8123. Andre brede regler kan stadig give mere adgang.
+- Forbind telefonens VPN, slå Wi-Fi fra og gentag browser- og lampetesten med
+  adressen, som er tilgængelig gennem VPN'en.
+
+Home Assistants login skal stadig bruges. En subnet-router giver en netværksvej;
+den gør ikke automatisk Home Assistant til en HTTPS-server. Tailscale-krypteringen
+beskytter VPN-forbindelsen frem til subnet-routeren; HTTP videre på LAN'et er
+stadig HTTP. Brug HTTPS også på den strækning, hvis dit netværks risici kræver det.
+Undgå at omgå browserens certifikatadvarsler.
+
+## Find fejlen i det rigtige lag
+
+| Symptom | Første kontrol | Næste skridt |
+|---|---|---|
+| Virker på Wi-Fi, men ikke mobildata | Bruger telefonen en lokal adresse? | Test Cloud-adressen eller VPN-forbindelsen i browseren |
+| Browser virker, app fejler | Serverens appindstillinger | Ret den eksterne adresse eller Cloud-valget; gentest |
+| Login afvises | Den konkrete Home Assistant-bruger | Kontrollér konto, MFA og om brugeren kun må logge ind lokalt |
+| VPN er forbundet, men siden åbner ikke | Mål, adgangspolitik og eventuel subnet-rute | Kontrollér hver del; åbn ikke hele LAN'et som fejlfinding |
+| Certifikatadvarsel | Adresse og certifikatets navn | Ret årsagen; undlad at acceptere advarslen |
+| Cloud er offline | Lokal Home Assistant og hjemmets internet | Gendan lokal adgang først, og se Cloud-status |
+
+Hvis du tidligere har opsat `trusted_networks`, skal du kontrollere, at almindelig
+Home Assistant-login stadig er tilgængelig. Cloud-adressen kan ikke bruge den
+loginmetode; se [Nabu Casas forklaring](https://support.nabucasa.com/hc/en-us/articles/26205125179549-Remote-control-Computer-not-allowed).
+Tilføj ikke hele VPN-netværket som betroet for at springe login over.
+
+## Bevar kontrollen over adgangen
+
+Notér adgangsvej, hvem der har adgang og den sidste vellykkede mobilnettest.
+Gentag testen efter telefonudskiftning, routerændringer eller ændrede
+brugerkonti. Hvis en telefon mistes, skal dens adgang fjernes både i den
+relevante VPN-tjeneste og i Home Assistants sessioner/tokens; en ændring ét sted
+er ikke nødvendigvis nok. Home Assistants [kontoprofil](https://www.home-assistant.io/docs/authentication/#your-account-profile)
+viser de relevante tokenindstillinger.
+
+Behold den lokale adgang som din vej tilbage. Deaktivér Cloud-fjernadgang eller
+den relevante VPN-adgang, hvis du ikke længere bruger den. Gamle portåbninger
+er en separat adgangsvej: gennemgå kun regler til din egen Home Assistant, og
+fjern dem først, når du har afprøvet den nye løsning og ved, hvad reglerne bruges til.
+
+<CardGrid>
+  <Card title="Sikkert grundlag" icon="setting">
+    Gennemgå [netværkssikkerhed](/da/sikkerhed/) og [sikre opdateringer](/da/home-assistant/sikre-opdateringer-2026/).
+  </Card>
+  <Card title="Beskeder til telefonen" icon="document">
+    Byg videre med [mobilnotifikationer](/da/home-assistant/mobilnotifikationer/), og test dem særskilt.
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+Kilder og fremgangsmåde gennemgået 30. september 2026. Dit eget netværk og dine
+telefoner skal afprøves med kontrollisten ovenfor.
+
+- [Home Assistant: fjernadgang](https://www.home-assistant.io/docs/configuration/remote/)
+- [Home Assistant: sikkerhed](https://www.home-assistant.io/docs/configuration/securing/)
+- [Home Assistant: multifaktor](https://www.home-assistant.io/docs/authentication/multi-factor-auth/)
+- [Nabu Casa: aktivér fjernadgang](https://support.nabucasa.com/hc/en-us/articles/26474279202973-Enabling-remote-access-to-Home-Assistant)
+- [Companion: netværk og appforbindelse](https://companion.home-assistant.io/docs/troubleshooting/networking/)
+- [Tailscale: subnet-routere](https://tailscale.com/docs/features/subnet-routers) og [adgangspolitikker](https://tailscale.com/docs/features/access-control/acls)

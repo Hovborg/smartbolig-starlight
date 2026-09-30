@@ -398,6 +398,16 @@ export default defineConfig({
               link: "/automationer/",
             },
             {
+              label: "Bevægelseslys med overstyring",
+              translations: { en: "Motion Lighting with Override" },
+              link: "/automationer/bevaegelseslys-med-overstyring/",
+            },
+            {
+              label: "Sensorovervågning",
+              translations: { en: "Sensor Health Monitoring" },
+              link: "/automationer/sensorovervaagning/",
+            },
+            {
               label: "Din første automation",
               translations: { en: "Your First Automation" },
               link: "/home-assistant/foerste-automation/",
@@ -680,6 +690,11 @@ export default defineConfig({
               label: "Netværkssikkerhed",
               translations: { en: "Network Security" },
               link: "/sikkerhed/",
+            },
+            {
+              label: "Sikker fjernadgang",
+              translations: { en: "Secure Remote Access" },
+              link: "/sikkerhed/fjernadgang/",
             },
             {
               label: "Backup & Sikkerhed",

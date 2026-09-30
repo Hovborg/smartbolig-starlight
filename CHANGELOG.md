@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Added Danish/English guides for secure Home Assistant remote access, motion lighting with explicit manual override and sensor health monitoring. Linked all three pairs from translated sidebar entries and category overviews, with official sources, practical verification steps and documented restart or connectivity limits.
+
 - Centralized approved Partner-Ads merchants and validated deeplink destinations for Proshop, Specialkamera, RobotterOnline, WATTOO and Batteribyen. Purchase buttons now disclose advertising in both locales, Danish product guides disclose before purchase links, raw commercial links use the shared component, and partner disclosures reflect the active agreements.
 
 - A rejected AI News draft now gets exactly one corrected candidate within the same run: the independent review's reasons (at most five, clipped, delimiter-stripped) are quoted back to the drafter as untrusted data, and the new candidate must pass a fresh independent review. A second rejection, a process failure or a malformed verdict still fails closed. Drafts preserve the source's actual audience instead of inventing household benefits, and the drafter receives the same bounded source excerpts as the reviewer.
