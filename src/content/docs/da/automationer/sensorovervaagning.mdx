@@ -1,0 +1,201 @@
+---
+title: Overvåg sensorernes helbred
+description: Få én daglig besked om udvalgte sensorer, der er ukendte, utilgængelige eller har lavt batteri, uden falske 0 %-alarmer.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+lastUpdated: 2026-09-30
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Mellem" variant="note" /> <Badge text="Home Assistant" variant="success" />
+
+En dørkontakt, der er utilgængelig, kan gøre en ellers god automation tavs. Et
+lavt batteri kan give samme resultat et par dage senere. Denne guide laver ét
+roligt, dagligt helbredstjek af de sensorer, du selv vælger. Du får kun en
+besked, når listen indeholder et reelt problem.
+
+Home Assistant skelner mellem `unknown`, hvor tilstanden endnu ikke er kendt,
+og `unavailable`, hvor entiteten ikke er tilgængelig. Det fremgår af den
+[officielle sensordokumentation](https://www.home-assistant.io/integrations/sensor/).
+Begge tilstande fortjener et eftersyn, men de beviser ikke alene, at hardwaren
+er defekt.
+
+## Vælg de sensorer, der betyder noget
+
+Undgå at gennemsøge hele Home Assistant automatisk. En systemdækkende søgning
+finder testentiteter, deaktiverede enheder og cloudtjenester, som ikke behøver
+en daglig alarm. Start med en kort liste:
+
+- kontakt-, lækage- og bevægelsessensorer, som indgår i vigtige automationer;
+- temperatur- eller frysesensorer, du faktisk reagerer på;
+- de numeriske batterisensorer, der hører til de samme enheder.
+
+Find de præcise entitets-id'er under **Indstillinger → Værktøjer (Tools) →
+Tilstande**, eller åbn [Tilstande direkte](https://my.home-assistant.io/redirect/developer_states).
+Ældre versioner kalder siden Udviklerværktøjer. Batterisensorer med `device_class: battery` bruger normalt procent.
+Nogle enheder leverer i stedet en binær lav-batteri-sensor; eksemplet her er
+bevidst afgrænset til numeriske batteriprocenter. Home Assistants
+[batterivejledning](https://www.home-assistant.io/docs/templating/tutorial-battery-alerts/)
+forklarer forskellen.
+
+<Aside type="caution" title="Del ikke mere end nødvendigt">
+En notifikation kan ses på en låst skærm. Brug et forståeligt rumnavn, men undgå
+adresser, alarmkoder, oplysninger om fravær eller andre følsomme detaljer.
+</Aside>
+
+Kontrollér også, at en testbesked når din telefon. Eksemplet kræver en
+tilgængelig `notify`-entitet, som beskrevet i [notifikationsdokumentationen](https://www.home-assistant.io/integrations/notify/).
+Har du kun en ældre `notify.mobile_app_...`-handling, skal du bruge den konkrete
+telefons handling i stedet for eksemplets sidste `notify.send_message`-handling.
+[Guiden om mobilnotifikationer](/da/home-assistant/mobilnotifikationer/) viser
+opsætning og test af de nyere modtagere.
+
+## Opret det daglige tjek
+
+Eksemplet kører kl. 09.00. En valgfri opstartstrigger er medtaget, men slået
+fra. Den venter fem minutter, hvis du aktiverer den, så integrationerne får tid
+til at starte. Home Assistant dokumenterer både den almindelige
+[tidstrigger](https://www.home-assistant.io/docs/automation/trigger/) og den
+særlige [Home Assistant-opstartstrigger](https://www.home-assistant.io/triggers/homeassistant/).
+
+<Steps>
+1. **Opret en tom automation**
+
+   Gå til **Indstillinger → Automationer og scener → Opret automation → Opret
+   ny automation**. Åbn menuen med tre prikker, og vælg **Rediger i YAML**.
+
+2. **Indsæt hele eksemplet nedenfor**
+
+   Erstat entitets-id'erne i de to lister. `notify.my_phone` er kun et eksempel;
+   vælg din egen `notify`-entitet eller notifikationsgruppe.
+
+3. **Gem med et tydeligt navn**
+
+   Kør først den manuelle test nedenfor. Aktivér kun opstartstriggeren, hvis du
+   også ønsker et tjek fem minutter efter en genstart.
+</Steps>
+
+```yaml title="Automationseditor – komplet automation"
+alias: "Sensorhelbred: dagligt tjek"
+description: "Giver besked om udvalgte utilgængelige sensorer og lave batterier"
+mode: single
+triggers:
+  - trigger: time
+    at: "09:00:00"
+    id: daily
+  - trigger: homeassistant
+    event: start
+    id: startup
+    enabled: false
+variables:
+  watched_entities:
+    - binary_sensor.hoveddoer_kontakt
+    - binary_sensor.bryggers_laekage
+    - sensor.fryser_temperatur
+  battery_entities:
+    - sensor.hoveddoer_batteri
+    - sensor.bryggers_laekage_batteri
+  battery_limit: 20
+actions:
+  - if:
+      - condition: trigger
+        id: startup
+    then:
+      - delay: "00:05:00"
+  - variables:
+      health_report: >-
+        {% set ns = namespace(lines=[]) %}
+        {% for entity_id in watched_entities + battery_entities %}
+          {% set value = states(entity_id) %}
+          {% set name = state_attr(entity_id, 'friendly_name') or entity_id %}
+          {% if value in ['unknown', 'unavailable'] %}
+            {% set ns.lines = ns.lines + [name ~ ': ' ~ value] %}
+          {% endif %}
+        {% endfor %}
+        {% for entity_id in battery_entities %}
+          {% set value = states(entity_id) %}
+          {% set name = state_attr(entity_id, 'friendly_name') or entity_id %}
+          {% if is_number(value) and value | float < battery_limit %}
+            {% set ns.lines = ns.lines + [name ~ ': ' ~ value ~ '%'] %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.lines | join('\n') }}
+  - condition: template
+    value_template: "{{ health_report | trim != '' }}"
+  - action: notify.send_message
+    target:
+      entity_id: notify.my_phone
+    data:
+      title: "Sensorer kræver opmærksomhed"
+      message: "{{ health_report | trim }}"
+```
+
+Hvis du vedligeholder `automations.yaml` manuelt, er destinationen filens liste
+af automationer: tilføj `-` foran `alias`, og indryk resten af blokken to
+mellemrum. Indsæt ikke den filvariant i editoren.
+
+## Hvorfor batteritjekket ikke bruger `float(0)`
+
+Alle entitetstilstande læses som tekst. `unknown | float(0)` bliver derfor 0 og
+kan udløse en falsk alarm om et tomt batteri. Eksemplet kræver først
+`is_number(value)` og sammenligner kun derefter tallet med grænsen. Det følger
+Home Assistants dokumentation om
+[typer og konvertering](https://www.home-assistant.io/docs/templating/types/)
+og holder utilgængelighed adskilt fra lavt batteri. En batterisensor med
+`unknown` eller `unavailable` står derfor med den tilstand i beskeden, aldrig
+som 0 %.
+
+En batteriværdi på præcis 20 % udløser ikke eksemplet; grænsen er “under 20”.
+Tilpas tallet efter batteritype og erfaring. Daglig kontrol giver som regel
+mere ro end en besked ved hver lille ændring.
+
+## Sovende sensorer og “sidst ændret”
+
+Batteridrevne Zigbee-, Z-Wave- og Matter-sensorer kan sove mellem rapporter for
+at spare strøm. En gammel temperaturværdi er derfor ikke automatisk et udfald.
+Tjek enhedens normale rapporteringsmønster og integrationens egne diagnostiske
+oplysninger, før du kalder den død.
+
+`last_changed` er heller ikke en universel “sidst set”-måling. Home Assistants
+[state object](https://www.home-assistant.io/docs/configuration/state_object)
+opdaterer feltet, når selve tilstanden ændres, men ikke når kun attributter
+ændres. En dørsensor, der bliver ved med at være lukket, kan derfor have en
+meget gammel `last_changed`, selv om enheden har kommunikeret. `last_reported`
+afhænger desuden af, om integrationen skriver uændrede rapporter. Brug derfor
+ikke en vilkårlig 6-, 12- eller 24-timersgrænse på tværs af alle sensorer.
+
+## Test uden at gætte
+
+1. Gem automationen, og vælg **Kør handlinger**. Hvis alt er sundt, stopper
+   template-betingelsen uden at sende noget.
+2. Skift midlertidigt én `watched_entities`-post til et ikke-eksisterende
+   test-id. Kør igen, og kontrollér at beskeden viser `unknown`.
+3. Hæv midlertidigt `battery_limit` over en kendt, numerisk batteriværdi. Kør
+   igen, og kontrollér tekst og modtager.
+4. Gendan begge ændringer. Se automationens **Spor** for den seneste kørsel.
+5. Test derefter den rigtige telefon fysisk. En gennemført notify-handling er
+   ikke bevis for, at telefonen viste beskeden.
+
+Det afprøver skabelonen og notifikationen på dit eget anlæg. Eksemplet på denne
+side er kun statisk kontrolleret; det er ikke kørt mod din Home Assistant.
+
+<CardGrid>
+  <Card title="Flere modtagere" icon="setting">
+    Saml telefonerne med [én notifikationsgruppe](/da/home-assistant/mobilnotifikationer/).
+  </Card>
+  <Card title="Find årsagen" icon="document">
+    Brug [Aktivitet og Spor](/da/home-assistant/aktivitet-og-spor/) før du ændrer integrationer.
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+- [Sensor states og device classes](https://www.home-assistant.io/integrations/sensor/)
+- [Daglige batteriadvarsler med templates](https://www.home-assistant.io/docs/templating/tutorial-battery-alerts/)
+- [Automation triggers](https://www.home-assistant.io/docs/automation/trigger/)
+- [Home Assistant start trigger](https://www.home-assistant.io/triggers/homeassistant/)
+- [Template types og konvertering](https://www.home-assistant.io/docs/templating/types/)
+- [State object: `last_changed`, `last_updated` og `last_reported`](https://www.home-assistant.io/docs/configuration/state_object)

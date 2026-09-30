@@ -1,0 +1,205 @@
+---
+title: Monitor sensor health
+description: Get one daily alert for selected sensors that are unknown, unavailable, or low on battery, without false 0% battery warnings.
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+lastUpdated: 2026-09-30
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Intermediate" variant="note" /> <Badge text="Home Assistant" variant="success" />
+
+An unavailable door contact can silently undermine an otherwise good
+automation. A low battery can produce the same result a few days later. This
+guide creates one quiet, daily health check for sensors you choose yourself.
+It sends a message only when the list contains a real problem.
+
+Home Assistant distinguishes `unknown`, where the state is not yet known, from
+`unavailable`, where the entity is unavailable. These definitions come from
+the [official sensor documentation](https://www.home-assistant.io/integrations/sensor/).
+Both states deserve investigation, but neither one proves by itself that the
+hardware has failed.
+
+## Select the sensors that matter
+
+Avoid scanning every entity in Home Assistant automatically. A system-wide
+search catches test entities, disabled devices, and cloud services that do not
+need a daily alert. Start with a short list:
+
+- contact, leak, and motion sensors used by important automations;
+- temperature or freezer sensors whose readings require action;
+- the numeric battery sensors belonging to those same devices.
+
+Find the exact entity IDs under **Settings → Tools → States**.
+Battery sensors with `device_class: battery` normally use percentages. Some
+devices expose a binary low-battery sensor instead; this example deliberately
+handles numeric battery percentages only. Home Assistant's
+[battery tutorial](https://www.home-assistant.io/docs/templating/tutorial-battery-alerts/)
+explains the difference.
+
+<Aside type="caution" title="Keep notifications discreet">
+A notification may be visible on a locked screen. Use a helpful room name, but
+avoid addresses, alarm codes, absence information, or other sensitive details.
+</Aside>
+
+You can also [open States directly](https://my.home-assistant.io/redirect/developer_states).
+Older versions call that page Developer tools.
+
+Confirm that a test message reaches your phone. The example requires an
+available `notify` entity, as described in the [notification documentation](https://www.home-assistant.io/integrations/notify/).
+If you only have an older `notify.mobile_app_...` action, use that phone's
+specific action instead of the final `notify.send_message` action in the example.
+The [mobile notifications guide](/en/home-assistant/mobilnotifikationer/) covers
+setup and testing of the newer recipients.
+
+## Create the daily check
+
+The example runs at 09:00. It includes an optional startup trigger, disabled
+by default. If you enable it, the action waits five minutes so integrations
+have time to start. Home Assistant documents both the normal
+[time trigger](https://www.home-assistant.io/docs/automation/trigger/) and the
+special [Home Assistant startup trigger](https://www.home-assistant.io/triggers/homeassistant/).
+
+<Steps>
+1. **Create an empty automation**
+
+   Go to **Settings → Automations & scenes → Create automation → Create new
+   automation**. Open the three-dot menu and select **Edit in YAML**.
+
+2. **Paste the complete example below**
+
+   Replace the entity IDs in both lists. `notify.my_phone` is illustrative;
+   select your own `notify` entity or notification group.
+
+3. **Save it with a clear name**
+
+   Run the manual test below first. Enable the startup trigger only if you also
+   want a check five minutes after a restart.
+</Steps>
+
+```yaml title="Automation editor – complete automation"
+alias: "Sensor health: daily check"
+description: "Alerts for selected unavailable sensors and low batteries"
+mode: single
+triggers:
+  - trigger: time
+    at: "09:00:00"
+    id: daily
+  - trigger: homeassistant
+    event: start
+    id: startup
+    enabled: false
+variables:
+  watched_entities:
+    - binary_sensor.front_door_contact
+    - binary_sensor.utility_room_leak
+    - sensor.freezer_temperature
+  battery_entities:
+    - sensor.front_door_battery
+    - sensor.utility_room_leak_battery
+  battery_limit: 20
+actions:
+  - if:
+      - condition: trigger
+        id: startup
+    then:
+      - delay: "00:05:00"
+  - variables:
+      health_report: >-
+        {% set ns = namespace(lines=[]) %}
+        {% for entity_id in watched_entities + battery_entities %}
+          {% set value = states(entity_id) %}
+          {% set name = state_attr(entity_id, 'friendly_name') or entity_id %}
+          {% if value in ['unknown', 'unavailable'] %}
+            {% set ns.lines = ns.lines + [name ~ ': ' ~ value] %}
+          {% endif %}
+        {% endfor %}
+        {% for entity_id in battery_entities %}
+          {% set value = states(entity_id) %}
+          {% set name = state_attr(entity_id, 'friendly_name') or entity_id %}
+          {% if is_number(value) and value | float < battery_limit %}
+            {% set ns.lines = ns.lines + [name ~ ': ' ~ value ~ '%'] %}
+          {% endif %}
+        {% endfor %}
+        {{ ns.lines | join('\n') }}
+  - condition: template
+    value_template: "{{ health_report | trim != '' }}"
+  - action: notify.send_message
+    target:
+      entity_id: notify.my_phone
+    data:
+      title: "Sensors need attention"
+      message: "{{ health_report | trim }}"
+```
+
+If you maintain `automations.yaml` manually, the destination is its list of
+automations: add `-` before `alias` and indent the rest of the block by two
+spaces. Do not paste that file-style variant into the editor.
+
+## Why the battery check does not use `float(0)`
+
+Every entity state is read as text. `unknown | float(0)` therefore becomes 0
+and can cause a false empty-battery alert. The example first requires
+`is_number(value)` and only then compares the number with the threshold. This
+follows Home Assistant's documentation for
+[types and conversion](https://www.home-assistant.io/docs/templating/types/)
+and keeps unavailability separate from a low battery. A battery sensor with
+`unknown` or `unavailable` therefore appears with that state in the message,
+never as 0%.
+
+A battery at exactly 20% does not trigger this example; the threshold means
+“below 20.” Adjust the number for the battery type and your experience. One
+daily check usually creates less noise than a message for every small change.
+
+## Sleeping sensors and “last changed”
+
+Battery-powered Zigbee, Z-Wave, and Matter sensors may sleep between reports
+to conserve energy. An old temperature value is therefore not automatically
+an outage. Check the device's normal reporting pattern and its integration's
+own diagnostics before declaring it dead.
+
+`last_changed` is not a universal “last seen” measurement either. Home
+Assistant's [state object](https://www.home-assistant.io/docs/configuration/state_object)
+updates that field when the state itself changes, but not when only attributes
+change. A door contact that remains closed can therefore have a very old
+`last_changed` even if it has communicated. `last_reported` also depends on
+whether the integration writes unchanged reports. Do not apply an arbitrary
+6-, 12-, or 24-hour threshold to every kind of sensor.
+
+## Test without guessing
+
+1. Save the automation and select **Run actions**. If everything is healthy,
+   the template condition stops execution without sending a message.
+2. Temporarily replace one `watched_entities` entry with a nonexistent test
+   ID. Run it again and confirm that the message reports `unknown`.
+3. Temporarily raise `battery_limit` above a known numeric battery value. Run
+   it again and verify the wording and recipient.
+4. Restore both edits. Inspect the latest run under the automation's
+   **Traces**.
+5. Test the real phone physically. A completed notify action does not prove
+   that the phone displayed the message.
+
+These steps exercise the template and notification on your own installation.
+The example on this page has only been checked statically; it has not been run
+against your Home Assistant instance.
+
+<CardGrid>
+  <Card title="Several recipients" icon="setting">
+    Combine phones in [one notification group](/en/home-assistant/mobilnotifikationer/).
+  </Card>
+  <Card title="Find the cause" icon="document">
+    Use [Activity and Traces](/en/home-assistant/aktivitet-og-spor/) before changing integrations.
+  </Card>
+</CardGrid>
+
+## Official sources
+
+- [Sensor states and device classes](https://www.home-assistant.io/integrations/sensor/)
+- [Daily battery alerts with templates](https://www.home-assistant.io/docs/templating/tutorial-battery-alerts/)
+- [Automation triggers](https://www.home-assistant.io/docs/automation/trigger/)
+- [Home Assistant start trigger](https://www.home-assistant.io/triggers/homeassistant/)
+- [Template types and conversion](https://www.home-assistant.io/docs/templating/types/)
+- [State object: `last_changed`, `last_updated`, and `last_reported`](https://www.home-assistant.io/docs/configuration/state_object)

@@ -1,0 +1,249 @@
+---
+title: Motion lighting with manual override
+description: Control hallway lighting with motion, an explicit manual override, and predictable behavior after restarts or automation reloads.
+lastUpdated: 2026-09-30
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Aside, Badge, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Intermediate" variant="note" /> <Badge text="25 min" variant="success" />
+
+A basic motion light is easy until somebody wants the lamp to stay on while
+cleaning, remain off during a film, or be controlled manually for an evening.
+If the automation tries to guess that using an ordinary wall switch means
+“manual mode”, its behavior quickly becomes unpredictable.
+
+This design gives the automation its own explicit switch:
+`input_boolean.gang_automatisk_lys`. When the helper is **on**, the automation
+may control the lamp. When it is **off**, the automation leaves the lamp alone.
+You choose the lamp's desired state.
+
+<Aside type="caution" title="Do not use this pattern for critical lighting">
+This example suits hallway, utility-room, and decorative lights. Do not use a
+single motion sensor and this automation as the only control for emergency,
+stairway, or other lighting where failure could create a hazard.
+</Aside>
+
+## Decide the behavior before building
+
+| Situation | Result |
+|---|---|
+| Helper on, motion detected, and dark | Lamp turns on |
+| Sensor has been `off` for two minutes, helper on | Lamp turns off |
+| Helper off | Current run stops; lamp does not change |
+| Helper turned on again | The automation's rules take control again |
+| Sun sets while the sensor is already `on` | Lamp turns on |
+| Home Assistant starts | State is evaluated again after a short delay |
+
+The override is deliberately explicit. Operating the lamp's regular switch
+does **not** automatically change the helper. Turn the helper off before you
+control the lamp manually, then turn it on when motion control should resume.
+
+## 1. Create the automatic-mode switch
+
+<Steps>
+1. Go to **Settings → Devices & services → Helpers**.
+2. Select **Create helper → Toggle**.
+3. Name it `Hallway – automatic light`.
+4. Change its entity ID in the helper settings to
+   `input_boolean.gang_automatisk_lys`, or replace that ID throughout the YAML.
+5. Put the helper on a dashboard where it is easy to find.
+</Steps>
+
+A toggle helper has a real `on`/`off` state that triggers and conditions can
+use. Without a fixed `initial` value, Home Assistant normally restores the
+last saved value; if none is available, it starts as `off`. This is documented
+in the official
+[Input boolean documentation](https://www.home-assistant.io/integrations/input_boolean/#restore-state).
+
+## 2. Create the automation
+
+Create an empty automation, open the three-dot menu, and select **Edit in
+YAML**. Paste the complete example. Replace the sensor and light entity IDs if
+yours are different. This is one automation for the editor, without a leading
+list dash or an `automation:` wrapper.
+
+```yaml title="Automation: Hallway light with manual override"
+alias: "Hallway light with manual override"
+description: "Motion light that only controls the lamp when automatic mode is on"
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.gang_bevaegelse
+    to: "on"
+    id: motion_on
+
+  - trigger: state
+    entity_id: binary_sensor.gang_bevaegelse
+    to: "off"
+    for: "00:02:00"
+    id: motion_clear
+
+  - trigger: state
+    entity_id: input_boolean.gang_automatisk_lys
+    to: "on"
+    id: auto_enabled
+
+  - trigger: state
+    entity_id: input_boolean.gang_automatisk_lys
+    to: "off"
+    id: auto_disabled
+
+  - trigger: state
+    entity_id: sun.sun
+    to: "below_horizon"
+    id: darkness_started
+
+  - trigger: homeassistant
+    event: start
+    id: ha_started
+
+conditions: []
+
+actions:
+  # Allow sensors, the sun entity, and radio integrations time to return.
+  - if:
+      - condition: trigger
+        id: ha_started
+    then:
+      - delay: "00:00:30"
+
+  - choose:
+      # Turn on for motion, re-enabling, darkness starting, or HA starting.
+      - conditions:
+          - condition: trigger
+            id:
+              - motion_on
+              - auto_enabled
+              - darkness_started
+              - ha_started
+          - condition: state
+            entity_id: input_boolean.gang_automatisk_lys
+            state: "on"
+          - condition: state
+            entity_id: binary_sensor.gang_bevaegelse
+            state: "on"
+          - condition: state
+            entity_id: sun.sun
+            state: "below_horizon"
+        sequence:
+          - action: light.turn_on
+            target:
+              entity_id: light.gang
+
+      # Turn off only after a natural two-minute off trigger.
+      - conditions:
+          - condition: trigger
+            id: motion_clear
+          - condition: state
+            entity_id: input_boolean.gang_automatisk_lys
+            state: "on"
+          - condition: state
+            entity_id: binary_sensor.gang_bevaegelse
+            state: "off"
+        sequence:
+          - action: light.turn_off
+            target:
+              entity_id: light.gang
+
+      # On start, re-enabling or sunset: require off, wait, and check again.
+      - conditions:
+          - condition: trigger
+            id:
+              - auto_enabled
+              - ha_started
+              - darkness_started
+          - condition: state
+            entity_id: input_boolean.gang_automatisk_lys
+            state: "on"
+          - condition: state
+            entity_id: binary_sensor.gang_bevaegelse
+            state: "off"
+        sequence:
+          - delay: "00:02:00"
+          - condition: state
+            entity_id: input_boolean.gang_automatisk_lys
+            state: "on"
+          - condition: state
+            entity_id: binary_sensor.gang_bevaegelse
+            state: "off"
+          - action: light.turn_off
+            target:
+              entity_id: light.gang
+
+mode: restart
+```
+
+The trigger IDs select the relevant branch. The darkness check exists only in
+the turn-on branch, so it cannot block a later turn-off. `auto_disabled`
+intentionally has no action branch. Because the automation uses
+`mode: restart`, that trigger stops any running delay but does not change the
+lamp. The official overview of
+[automation modes](https://www.home-assistant.io/docs/automation/modes/)
+explains that `restart` stops the previous run before starting the new one.
+
+## Restarts and automation reloads
+
+Home Assistant documents that a trigger's `for:` period does **not** survive a
+restart or automation reload; the wait is reset. This example therefore does
+not claim to continue a countdown from its previous elapsed time. See the note
+under [automation triggers](https://www.home-assistant.io/docs/automation/trigger/#state-trigger).
+
+After a full Home Assistant start, `ha_started` begins a new evaluation after
+30 seconds. If the sensor explicitly reports `on`, the lamp can turn on when
+it is dark. If it explicitly reports `off`, a new full two-minute wait begins
+before turn-off. If the sensor is `unknown` or `unavailable`, neither state
+matches and the automation does not turn the lamp off. Thirty seconds is only
+a buffer; a slow Zigbee, Z-Wave, or network integration may need longer. The
+[Home Assistant start trigger](https://www.home-assistant.io/triggers/homeassistant/)
+runs after Home Assistant finishes starting, but does not guarantee that every
+physical device is already responding.
+
+**Reload automations** does not produce a Home Assistant start trigger. If the
+sensor is already `off`, turn-off therefore waits until a new motion cycle.
+Alternatively, turn the helper off and on. Re-enabling it starts a fresh
+evaluation and a new two-minute wait. That is a visible, deliberate action
+rather than a hidden guess.
+
+If sunset interrupts a pending switch-off after startup or re-enabling, the
+same `off` branch starts a fresh full two-minute delay. The lamp may stay on
+a little longer, but the switch-off is not left without another run.
+
+## Test the important boundaries
+
+Test with natural state changes because **Run actions** does not supply one of
+the trigger IDs used by the branches. Home Assistant documents the same
+limitation in its
+[automation testing guide](https://www.home-assistant.io/docs/automation/troubleshooting/#running-the-entire-automation).
+
+1. Turn the helper on, cause motion after sunset, and verify turn-on.
+2. Let the sensor remain `off` for two minutes and verify turn-off.
+3. Turn the helper off during the wait. The lamp must not change afterward.
+4. Control the lamp manually with the helper off; wait and cause motion.
+5. Turn the helper on with the sensor first `on`, then `off`.
+6. Re-enable with the sensor `off` near sunset. Check that switch-off occurs
+   two minutes after sunset if it interrupted a pending delay.
+7. Restart Home Assistant at a safe time and inspect the `on`, `off`, and
+   `unavailable` cases in the automation trace.
+
+If another automation, adaptive-lighting setup, or smart wall switch also
+controls the lamp, the systems may fight over its state. Choose one clear owner
+for automatic on/off, or give the other flows the same helper as a shared
+boundary. Use [Activity and Traces](/en/home-assistant/aktivitet-og-spor/) to
+identify what last changed the lamp. If automations are new to you, start with
+[your first automation](/en/home-assistant/foerste-automation/).
+
+The YAML example has been checked statically. Test it on your own installation
+using the steps above before relying on it for daily lighting control.
+
+## Official sources
+
+- [Input boolean and state restoration](https://www.home-assistant.io/integrations/input_boolean/)
+- [Automation triggers, trigger IDs, and `for:`](https://www.home-assistant.io/docs/automation/trigger/)
+- [Home Assistant start trigger](https://www.home-assistant.io/triggers/homeassistant/)
+- [Automation modes](https://www.home-assistant.io/docs/automation/modes/)
+- [Automation actions](https://www.home-assistant.io/docs/automation/action/)
+- [Testing and troubleshooting automations](https://www.home-assistant.io/docs/automation/troubleshooting/)

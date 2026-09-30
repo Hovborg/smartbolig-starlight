@@ -21,6 +21,11 @@ overskueligt og driftssikkert smart home. Fokus er på:
 
 Sitet er tilgængeligt på både dansk og engelsk.
 
+Praktiske guides til fjernadgang, bevægelseslys med manuel overstyring og
+sensorovervågning findes som MDX-par under `sikkerhed/` og `automationer/`.
+Begge sprog bruger samme danske filsti og oversatte sidebar-labels. Guiderne
+henviser til officielle kilder og beskriver konkrete testtrin i læserens eget hjem.
+
 ---
 
 ## 🛠️ Teknisk Stack
