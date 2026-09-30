@@ -281,7 +281,9 @@ export function renderIssue({ locale, date, editorialPackage, copy = null }) {
     setHash,
     issueHash,
     copySource: copy ? "llm" : "template",
-    extra: copy?.semanticReview ? [`  semanticReview: ${copy.semanticReview}`] : [],
+    // Only the trusted reviewer may add this marker. Never interpolate model
+    // output into frontmatter, even if a caller skipped copy validation.
+    extra: copy?.semanticReview === "passed" ? ["  semanticReview: passed"] : [],
   });
   const publicFingerprint = issueHash;
   const storiesHeading = da

@@ -6,6 +6,7 @@ import {
   fetchCandidates,
   parseFeed,
   parseHtmlListing,
+  stripHtml,
 } from "./lib/ai-news-discovery.mjs";
 
 test("parseHtmlListing extracts dated Anthropic-style articles and skips undated ones", () => {
@@ -25,6 +26,17 @@ test("parseHtmlListing extracts dated Anthropic-style articles and skips undated
   assert.equal(items[0].primary, true);
   assert.equal(Number.isNaN(items[0].published.getTime()), false);
   assert.equal(items[1].title, "Redeploying Fable 5");
+});
+
+test("HTML cleanup and inner-tag parsing stay bounded on malformed source text", () => {
+  const malformed = '<'.repeat(500_000);
+  const started = performance.now();
+  assert.equal(stripHtml(malformed), malformed);
+  assert.deepEqual(parseFeed(`<item><title${malformed}</item>`, source), []);
+  assert.deepEqual(parseHtmlListing(`<a href="/news/example"><h2${malformed}</a>`, {
+    id: 'listing', name: 'Listing', url: 'https://example.com/news', kind: 'html-listing',
+  }), []);
+  assert.ok(performance.now() - started < 1_000, 'malformed markup must not consume a feed request budget');
 });
 
 const source = {
@@ -62,6 +74,14 @@ test("parseFeed prefers the Atom alternate link and preserves CDATA text", () =>
   assert.equal(candidate.canonicalUrl, "https://example.com/story");
   assert.equal(candidate.summary, "Evidence with a literal marker.");
   assert.equal(candidate.primary, true);
+});
+
+test("Unicode source text does not shift HTML/XML tag offsets", () => {
+  const feed = `<item><title>İ New model</title><link>https://example.com/story</link><pubDate>Sat, 11 Jul 2026 08:00:00 GMT</pubDate><description>İ Summary</description></item>`;
+  assert.equal(parseFeed(feed, source)[0].title, 'İ New model');
+  assert.equal(stripHtml('İ<script>hidden</script><p>Visible</p>'), 'İ Visible');
+  const listing = `<a href="/news/example"><h2>İ New model</h2><time>Jun 30, 2026</time></a>`;
+  assert.equal(parseHtmlListing(listing, { ...source, url: 'https://example.com/news' })[0].title, 'İ New model');
 });
 
 // Deterministic stand-in for DNS: every hostname resolves to a public address.

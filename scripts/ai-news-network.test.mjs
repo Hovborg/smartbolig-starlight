@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { fetchSourceMaterial } from './ai-news-regenerate.mjs';
+import { extractMetaDescription, fetchSourceMaterial } from './ai-news-regenerate.mjs';
 import { checkReferenceUrl, fetchText as fetchHealthText } from './ai-news-source-health.mjs';
 import { changedIssueDates } from './ai-news-quality-changed.mjs';
 import { fetchPublicText } from './lib/ai-news-discovery.mjs';
@@ -117,6 +117,43 @@ test('the body ceiling applies after decompression and cancels the response', as
     return request;
   });
   await assert.rejects(fetchPublicText(officialUrl, { fetchImpl, lookup, maxBytes: 100 }), /exceeds 100 bytes/);
+});
+
+test('regeneration extracts standard description attributes in either order without rescanning malformed tags', () => {
+  assert.equal(extractMetaDescription('<meta property="og:description" content="First">'), 'First');
+  assert.equal(extractMetaDescription('<meta content="Second" name="description">'), 'Second');
+  assert.equal(extractMetaDescription('İ<meta content="Third" name="description">'), 'Third');
+  assert.equal(extractMetaDescription('<meta name="description" content="Performance > 90%">'), 'Performance > 90%');
+  assert.equal(extractMetaDescription('<meta content="Performance > 90%" name="description">'), 'Performance > 90%');
+  const malformed = '<meta' + '<'.repeat(500_000);
+  const started = performance.now();
+  assert.equal(extractMetaDescription(malformed), '');
+  assert.ok(performance.now() - started < 1_000, 'malformed metadata must stay within the source budget');
+});
+
+test('an inherited Content-Encoding name is rejected without throwing from the response callback', async () => {
+  const requestImpl = (_url, _options, callback) => {
+    const request = new EventEmitter();
+    request.end = () => setImmediate(() => callback(Object.assign(Readable.from(['body']), {
+      statusCode: 200, statusMessage: 'OK', headers: { 'content-encoding': '__proto__' },
+    })));
+    return request;
+  };
+  await assert.rejects(
+    pinnedHttpsRequest(officialUrl, { addresses: await lookup() }, requestImpl),
+    /Unsupported response encoding/,
+  );
+});
+
+test('malformed response headers reject inside the asynchronous callback', async () => {
+  const requestImpl = (_url, _options, callback) => {
+    const request = new EventEmitter();
+    request.end = () => setImmediate(() => callback(Object.assign(Readable.from(['body']), {
+      statusCode: 200, statusMessage: 'OK', headers: { 'x-invalid': 'line\nbreak' },
+    })));
+    return request;
+  };
+  await assert.rejects(pinnedHttpsRequest(officialUrl, { addresses: await lookup() }, requestImpl));
 });
 
 test('DNS lookup is included in the overall request deadline', async () => {

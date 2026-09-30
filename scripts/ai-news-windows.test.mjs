@@ -9,6 +9,59 @@ import path from 'node:path';
 
 const rootDir = path.resolve(import.meta.dirname, '..');
 
+test('Windows network checks use the guarded helper and honor native failures in both shells', { skip: process.platform !== 'win32' }, async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig guarded HTTP '));
+  try {
+    const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
+    const publicCheck = runner.slice(runner.indexOf('function Wait-PublicIssue {'), runner.indexOf('\n$Date = if'));
+    const preflightStart = runner.indexOf('    $networkJson = & node');
+    const preflightCheck = runner.slice(preflightStart, runner.indexOf('\n}', preflightStart));
+    assert.ok(publicCheck.includes('ai-news-public-check.mjs'));
+    assert.ok(preflightCheck.includes('ai-news-public-check.mjs'));
+    const probe = path.join(dir, 'probe.ps1');
+    await writeFile(probe, `$ErrorActionPreference = 'Stop'
+$RepoRoot = Join-Path $PSScriptRoot 'repo with spaces'
+$script:issueCalls = 0
+$script:preflightFail = $false
+function node {
+    if ($args[0] -ne (Join-Path $RepoRoot 'scripts/ai-news-public-check.mjs')) { throw 'Wrong helper path' }
+    if ($args[1] -eq 'issue') {
+        if ($args[2] -ne '2026-09-30' -or $args[3] -ne '${'a'.repeat(64)}') { throw 'Wrong issue arguments' }
+        $script:issueCalls++
+        if ($script:issueCalls -eq 1) { $global:LASTEXITCODE = 1; return }
+        $global:LASTEXITCODE = 0
+        'PUBLIC_ISSUE_OK'
+        return
+    }
+    if ($args[1] -eq 'preflight' -and $args.Count -eq 2) {
+        $global:LASTEXITCODE = if ($script:preflightFail) { 1 } else { 0 }
+        if (-not $script:preflightFail) { '{"sourceStatus":200,"publicStatus":200}' }
+        return
+    }
+    throw 'Unexpected helper mode'
+}
+function Start-Sleep { }
+${publicCheck}
+Wait-PublicIssue -IssueDate '2026-09-30' -IssueFingerprint '${'a'.repeat(64)}'
+if ($script:issueCalls -ne 2) { throw 'Public readback did not retry a nonzero native exit' }
+${preflightCheck}
+$script:preflightFail = $true
+$failed = $false
+try {
+${preflightCheck}
+} catch { $failed = $true }
+if (-not $failed) { throw 'Preflight accepted a nonzero native exit' }
+Write-Output 'GUARDED_HTTP_OK'
+`);
+    for (const shell of ['powershell.exe', 'pwsh.exe']) {
+      const output = execFileSync(shell, ['-NoProfile', '-NonInteractive', '-File', probe], { encoding: 'utf8', timeout: 30_000 });
+      assert.match(output, /GUARDED_HTTP_OK/, shell);
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test('task transcripts retain native output, stderr and the failing stage without an attached console', { skip: process.platform !== 'win32' }, async () => {
   const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig task transcript '));
   try {
@@ -226,7 +279,7 @@ test('Windows runner requires editorial LLM copy and completes the verified publ
   assert.match(runner, /ai-news\/\$Date-\$\(\$result\.storyFingerprint\.Substring/);
   assert.match(runner, /-Event pull_request -ExpectedRef \$branch/);
   assert.match(runner, /-Event push -ExpectedRef main/);
-  assert.match(runner, /data-issue-fingerprint/);
+  assert.match(runner, /ai-news-public-check\.mjs/);
   assert.ok(runner.indexOf('ai-news-retry-state.mjs') < runner.indexOf('ai-news-publish.mjs'));
   assert.ok(prValidation >= 0 && prValidation < merge, 'PR validation must finish before merge');
   assert.ok(merge < deployment && deployment < publicCheck, 'merge must be deployed and publicly verified in order');

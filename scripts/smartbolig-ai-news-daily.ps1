@@ -57,10 +57,11 @@ function Assert-Preflight {
     $claudeAuth = $claudeStatus | ConvertFrom-Json
     if ($claudeAuth.loggedIn -ne $true) { throw 'Claude is not logged in for the Scheduled Task owner' }
 
-    $source = Invoke-WebRequest -Uri 'https://openai.com/news/rss.xml' -UseBasicParsing -TimeoutSec 20
-    $public = Invoke-WebRequest -Uri 'https://smartbolig.net/da/ai/nyheder/' -UseBasicParsing -TimeoutSec 20
-    if ($source.StatusCode -ne 200 -or $public.StatusCode -ne 200) { throw 'Network preflight returned a non-200 response' }
-    Write-Host "PREFLIGHT_OK github=authenticated remote=reachable claude=authenticated source_status=$($source.StatusCode) public_status=$($public.StatusCode)"
+    $networkJson = & node (Join-Path $RepoRoot 'scripts/ai-news-public-check.mjs') preflight
+    if ($LASTEXITCODE -ne 0) { throw 'Guarded network preflight failed' }
+    $network = $networkJson | ConvertFrom-Json
+    if ($network.sourceStatus -ne 200 -or $network.publicStatus -ne 200) { throw 'Network preflight returned a non-200 response' }
+    Write-Host "PREFLIGHT_OK github=authenticated remote=reachable claude=authenticated source_status=$($network.sourceStatus) public_status=$($network.publicStatus)"
 }
 
 function Wait-GitHubRun {
@@ -99,22 +100,12 @@ function Wait-PublicIssue {
         [Parameter(Mandatory = $true)][string]$IssueDate,
         [Parameter(Mandatory = $true)][string]$IssueFingerprint
     )
-    $targets = @(
-        @{ Name = 'da-article'; Url = "https://smartbolig.net/da/ai/nyheder/$IssueDate/"; Marker = "data-issue-fingerprint=`"$IssueFingerprint`"" },
-        @{ Name = 'en-article'; Url = "https://smartbolig.net/en/ai/nyheder/$IssueDate/"; Marker = "data-issue-fingerprint=`"$IssueFingerprint`"" },
-        @{ Name = 'da-index'; Url = 'https://smartbolig.net/da/ai/nyheder/'; Marker = "/da/ai/nyheder/$IssueDate" },
-        @{ Name = 'en-index'; Url = 'https://smartbolig.net/en/ai/nyheder/'; Marker = "/en/ai/nyheder/$IssueDate" }
-    )
     for ($attempt = 1; $attempt -le 60; $attempt++) {
         try {
-            $results = foreach ($target in $targets) {
-                $response = Invoke-WebRequest -Uri $target.Url -UseBasicParsing -TimeoutSec 15
-                [pscustomobject]@{ Name = $target.Name; Ok = $response.StatusCode -eq 200 -and $response.Content.Contains($target.Marker) }
-            }
-            if (@($results | Where-Object { -not $_.Ok }).Count -eq 0) {
-                Write-Host "PUBLIC_OK date=$IssueDate fingerprint=$IssueFingerprint da_article=200 en_article=200 da_index=200 en_index=200"
-                return
-            }
+            & node (Join-Path $RepoRoot 'scripts/ai-news-public-check.mjs') issue $IssueDate $IssueFingerprint | Out-Null
+            if ($LASTEXITCODE -ne 0) { throw 'Guarded public issue check failed' }
+            Write-Host "PUBLIC_OK date=$IssueDate fingerprint=$IssueFingerprint da_article=200 en_article=200 da_index=200 en_index=200"
+            return
         } catch { Write-Host "Public verification attempt $attempt/60 is not ready yet." }
         Start-Sleep -Seconds 10
     }

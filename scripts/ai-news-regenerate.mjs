@@ -12,7 +12,7 @@ import { existsSync } from 'node:fs';
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { canonicalizeUrl, fetchPublicText, stripHtml } from './lib/ai-news-discovery.mjs';
+import { asciiLower, canonicalizeUrl, fetchPublicText, stripHtml } from './lib/ai-news-discovery.mjs';
 import { isOfficialUrl } from './lib/ai-news-official.mjs';
 import { generateIssueCopy } from './lib/ai-news-llm.mjs';
 import { sourceSetFingerprint } from './lib/ai-news-editorial.mjs';
@@ -91,6 +91,60 @@ function parseSourceTable(content) {
   return items;
 }
 
+export function extractMetaDescription(html) {
+  const lower = asciiLower(html);
+  function tagEnd(from) {
+    let quote = '';
+    for (let cursor = from; cursor < html.length; cursor++) {
+      const char = html[cursor];
+      if (quote) {
+        if (char === quote) quote = '';
+      } else if (char === '"' || char === "'") {
+        quote = char;
+      } else if (char === '>') {
+        return cursor;
+      }
+    }
+    return -1;
+  }
+  let index = 0;
+  while (index < html.length) {
+    const start = lower.indexOf('<meta', index);
+    if (start === -1) break;
+    const boundary = lower[start + 5];
+    if (boundary !== undefined && !/[\s/>]/.test(boundary)) {
+      index = start + 5;
+      continue;
+    }
+    const end = tagEnd(start + 5);
+    if (end === -1) break;
+    const attributes = new Map();
+    let cursor = start + 5;
+    while (cursor < end) {
+      while (cursor < end && /[\s/]/.test(html[cursor])) cursor++;
+      const nameStart = cursor;
+      while (cursor < end && /[\w:.-]/.test(html[cursor])) cursor++;
+      if (cursor === nameStart) { cursor++; continue; }
+      const name = lower.slice(nameStart, cursor);
+      while (cursor < end && /\s/.test(html[cursor])) cursor++;
+      if (html[cursor] !== '=') continue;
+      cursor++;
+      while (cursor < end && /\s/.test(html[cursor])) cursor++;
+      if (html[cursor] !== '"') continue;
+      const valueStart = ++cursor;
+      const valueEnd = html.indexOf('"', cursor);
+      if (valueEnd === -1 || valueEnd > end) break;
+      attributes.set(name, html.slice(valueStart, valueEnd));
+      cursor = valueEnd + 1;
+    }
+    if ((attributes.get('property')?.toLowerCase() === 'og:description'
+      || attributes.get('name')?.toLowerCase() === 'description')
+      && attributes.get('content')) return attributes.get('content');
+    index = end + 1;
+  }
+  return '';
+}
+
 export async function fetchSourceMaterial(item, { fetchImpl, lookup } = {}) {
   // Source tables are repo content, but still only ever fetch verified
   // official HTTPS URLs (security review H-2: no arbitrary deep-reading).
@@ -106,9 +160,7 @@ export async function fetchSourceMaterial(item, { fetchImpl, lookup } = {}) {
         Accept: 'text/html, application/xhtml+xml;q=0.9, text/plain;q=0.8',
       },
     });
-    const description = html.match(/<meta[^>]+(?:property="og:description"|name="description")[^>]+content="([^"]+)"/i)?.[1]
-      || html.match(/<meta[^>]+content="([^"]+)"[^>]+(?:property="og:description"|name="description")/i)?.[1]
-      || '';
+    const description = extractMetaDescription(html);
     item.summary = stripHtml(description).slice(0, 500);
     item.bodyText = stripHtml(html).slice(0, 20_000);
   } catch {

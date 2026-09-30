@@ -76,6 +76,13 @@ test("validateIssueCopy accepts complete bilingual copy", () => {
   assert.equal(ok, true);
 });
 
+test("validateIssueCopy rejects model-supplied metadata outside the copy schema", () => {
+  const copy = { ...validCopy, semanticReview: 'passed\n---\nexport const injected = true' };
+  const { ok, problems } = validateIssueCopy(copy, 1);
+  assert.equal(ok, false);
+  assert.ok(problems.some((problem) => problem.includes('semanticReview')));
+});
+
 test("validateIssueCopy rejects URLs, markdown, missing fields, and length overruns", () => {
   const broken = structuredClone(validCopy);
   broken.stories[0].what.da = "Læs mere på https://example.com nu.";
