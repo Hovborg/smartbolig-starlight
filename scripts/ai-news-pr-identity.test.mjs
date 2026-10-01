@@ -10,6 +10,7 @@ const own = {
   url: "https://github.com/Hovborg/smartbolig-starlight/pull/10",
   number: 10,
   headRefName: "ai-news/2026-10-02-openclaw",
+  baseRefName: "main",
   headRefOid: commit,
   isCrossRepository: false,
   headRepositoryOwner: { login: "Hovborg" },
@@ -25,13 +26,17 @@ const fork = {
 test("same-name fork PR cannot be selected as the publisher's PR", () => {
   assert.equal(currentOwnedPr([fork, own], "Hovborg", own.headRefName, commit)?.url, own.url);
   assert.equal(currentOwnedPr([fork], "Hovborg", own.headRefName, commit), null);
+  const wrongBase = { ...own, baseRefName: "release" };
+  assert.equal(currentOwnedPr([wrongBase], "Hovborg", own.headRefName, commit), null);
+  assert.equal(currentOwnedPr([wrongBase, own], "Hovborg", own.headRefName, commit)?.url, own.url);
   assert.throws(() => currentOwnedPr([{ ...own, headRefOid: "b".repeat(40) }], "Hovborg", own.headRefName, commit), /head commit/);
 });
 
 test("stale cleanup only selects owned OpenClaw drafts, leaving Windows PRs alone", () => {
   const stale = { ...own, number: 12, headRefName: "ai-news/2026-10-01-openclaw" };
   const windowsPublisher = { ...own, number: 14, headRefName: "ai-news/2026-10-01-deadbeefcafe" };
-  assert.deepEqual(staleOwnedPrNumbers([fork, own, stale, windowsPublisher, { ...fork, number: 13, headRefName: stale.headRefName }], "Hovborg", own.headRefName), [12]);
+  const wrongBase = { ...stale, number: 15, baseRefName: "release" };
+  assert.deepEqual(staleOwnedPrNumbers([fork, own, stale, windowsPublisher, wrongBase, { ...fork, number: 13, headRefName: stale.headRefName }], "Hovborg", own.headRefName), [12]);
 });
 
 test("CLI ignores a fork collision and returns only the owned URL", () => {

@@ -10,7 +10,7 @@ function sameRepositoryPr(pr, owner) {
 
 export function currentOwnedPr(prs, owner, branch, expectedHead = "") {
   if (!Array.isArray(prs)) throw new TypeError("GitHub PR response must be an array");
-  const matches = prs.filter((pr) => sameRepositoryPr(pr, owner) && pr.headRefName === branch);
+  const matches = prs.filter((pr) => sameRepositoryPr(pr, owner) && pr.headRefName === branch && pr.baseRefName === "main");
   if (matches.length > 1) throw new Error(`Multiple same-repository PRs found for ${branch}`);
   const pr = matches[0] || null;
   if (pr && expectedHead && pr.headRefOid !== expectedHead) {
@@ -28,6 +28,7 @@ export function staleOwnedPrNumbers(prs, owner, currentBranch) {
     && typeof pr.headRefName === "string"
     && /^ai-news\/\d{4}-\d{2}-\d{2}-openclaw$/.test(pr.headRefName)
     && pr.headRefName !== currentBranch
+    && pr.baseRefName === "main"
     && Number.isSafeInteger(pr.number) && pr.number > 0)
     .map((pr) => pr.number);
 }

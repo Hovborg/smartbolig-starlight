@@ -235,7 +235,7 @@ try {
     if ($stagedPaths.Count -eq 0 -or @($stagedPaths | Where-Object { $_ -notin $allowedPaths }).Count -gt 0) { throw 'Staged path allowlist verification failed' }
     Invoke-Native git commit -m "feat(ai-news): publish $Date brief"
     $prCommit = (& git rev-parse HEAD).Trim()
-    $prJson = & gh pr list --repo Hovborg/smartbolig-starlight --state open --head $branch --limit 1000 --json 'url,headRefOid,headRefName,isCrossRepository,headRepositoryOwner'
+    $prJson = & gh pr list --repo Hovborg/smartbolig-starlight --state open --head $branch --limit 1000 --json 'url,headRefOid,headRefName,baseRefName,isCrossRepository,headRepositoryOwner'
     if ($LASTEXITCODE -ne 0) { throw 'Could not look for an existing AI News pull request' }
     # A fork can reuse the predictable branch name. Ignore it when locating our PR.
     $prUrls = @($prJson | & node scripts/lib/ai-news-pr-identity.mjs current Hovborg $branch)

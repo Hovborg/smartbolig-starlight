@@ -310,7 +310,7 @@ main() {
   # PR owned by the target account and pointing to our pushed commit is ours.
   for ((attempt=1; attempt<=5; attempt++)); do
     pr_json="$(gh pr list --repo "${REPO}" --head "${BRANCH}" --state open --limit 1000 \
-      --json url,headRefName,headRefOid,isCrossRepository,headRepositoryOwner)"
+      --json url,headRefName,headRefOid,baseRefName,isCrossRepository,headRepositoryOwner)"
     if pr_url="$(printf '%s' "${pr_json}" | node scripts/lib/ai-news-pr-identity.mjs current "${owner}" "${BRANCH}" "${pr_commit}")"; then
       break
     fi
@@ -343,7 +343,7 @@ close_stale_ai_news_prs() {
   local stale_pr pr_json stale_prs owner
   owner="${REPO%%/*}"
   pr_json="$(gh pr list --repo "${REPO}" --state open --limit 1000 \
-    --json number,headRefName,isCrossRepository,headRepositoryOwner)"
+    --json number,headRefName,baseRefName,isCrossRepository,headRepositoryOwner)"
   stale_prs="$(printf '%s' "${pr_json}" | node scripts/lib/ai-news-pr-identity.mjs stale "${owner}" "${BRANCH}")"
   while IFS= read -r stale_pr; do
     [[ -n "${stale_pr}" ]] || continue
