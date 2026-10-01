@@ -2,13 +2,13 @@
 import { FEEDS, OFFICIAL_SOURCE_URLS } from './ai-news-sources.mjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { fetchPublicText } from './lib/ai-news-discovery.mjs';
+import { fetchPublicText, parseHtmlListing } from './lib/ai-news-discovery.mjs';
 
 const timeoutMs = Number(process.env.AI_NEWS_SOURCE_TIMEOUT_MS || 20000);
 
-function countEntries(feed, body) {
+export function countEntries(feed, body) {
   if (feed.kind === 'html-listing') {
-    return new Set([...body.matchAll(/href="(\/news\/[a-z0-9][a-z0-9-]*)"/gi)].map((match) => match[1])).size;
+    return parseHtmlListing(body, feed).length;
   }
   return (body.match(/<item\b|<entry\b/gi) || []).length;
 }

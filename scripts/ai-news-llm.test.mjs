@@ -40,6 +40,16 @@ test("buildCopyPrompt states every numeric word limit", () => {
   assert.match(prompt, /max 55 words/);
 });
 
+test("buildCopyPrompt forbids invented details and test procedures for thin release notes", () => {
+  const release = [{ ...items[0], sourceName: "Gemini CLI releases",
+    title: "Release v0.62.0-nightly", bodyText: "",
+    summary: "fix(cli): distinguish missing MCP enablement config from malformed JSON" }];
+  const prompt = buildCopyPrompt({ date: "2026-10-01", items: release });
+  assert.match(prompt, /release-note bullet/i);
+  assert.match(prompt, /do not infer file names, error wording, or a broader scope/i);
+  assert.match(prompt, /do not invent a reproduction or test procedure/i);
+});
+
 test("drafter and reviewer both receive audience evidence near the excerpt limits", () => {
   const evidence = [{
     ...items[0],
@@ -269,7 +279,7 @@ test("generateReviewedIssueCopy hands an explained rejection back as bounded fee
   assert.ok(orchestration.logs.some((line) => /rejected/i.test(line) && /corrected/i.test(line)));
 });
 
-test("generateReviewedIssueCopy stops after exactly two reviewed candidates", async () => {
+test("generateReviewedIssueCopy accepts a third candidate only after its own fresh review", async () => {
   const orchestration = orchestrate({
     generateResults: [validCopy, correctedCopy, correctedCopy],
     reviewResults: [
@@ -278,9 +288,27 @@ test("generateReviewedIssueCopy stops after exactly two reviewed candidates", as
       { pass: true, issues: [] },
     ],
   });
-  await assert.rejects(orchestration.run(), /Semantic review rejected the corrected draft: second reason/);
-  assert.equal(orchestration.generateCalls.length, 2);
-  assert.equal(orchestration.reviewCalls.length, 2);
+  const copy = await orchestration.run();
+  assert.deepEqual(copy, { ...correctedCopy, semanticReview: "passed" });
+  assert.equal(orchestration.generateCalls.length, 3);
+  assert.equal(orchestration.reviewCalls.length, 3);
+  assert.deepEqual(orchestration.generateCalls[2].reviewFeedback, ["second reason"]);
+  assert.deepEqual(orchestration.reviewCalls[2].copy, correctedCopy);
+});
+
+test("generateReviewedIssueCopy fails closed after three reviewed candidates", async () => {
+  const orchestration = orchestrate({
+    generateResults: [validCopy, correctedCopy, correctedCopy, correctedCopy],
+    reviewResults: [
+      { pass: false, issues: ["first reason"] },
+      { pass: false, issues: ["second reason"] },
+      { pass: false, issues: ["third reason"] },
+      { pass: true, issues: [] },
+    ],
+  });
+  await assert.rejects(orchestration.run(), /Semantic review rejected the final draft: third reason/);
+  assert.equal(orchestration.generateCalls.length, 3);
+  assert.equal(orchestration.reviewCalls.length, 3);
 });
 
 test("generateReviewedIssueCopy does not retry generation failures or malformed verdicts", async () => {
@@ -320,9 +348,27 @@ test("generateReviewedIssueCopy caps the feedback at five short reasons", async 
   await orchestration.run();
   const feedback = orchestration.generateCalls[1].reviewFeedback;
   assert.equal(feedback.length, 5);
-  assert.ok(feedback.every((reason) => reason.length <= 241), "each reason is clipped");
+  assert.ok(feedback.every((reason) => reason.length <= 641), "each reason is clipped");
   assert.match(feedback[0], /^reason 1 /);
   assert.match(feedback[4], /^reason 5 /);
+});
+
+test("review feedback preserves the actual Gemini source correction", async () => {
+  const issue = "Gemini CLI story: the source says it distinguishes a missing MCP enablement config from malformed JSON. The copy broadens this to general 'MCP configuration' (what/why) and to a missing versus invalid 'file' and a clearer 'error message' (verify, both languages). The source states none of these details, so the suggested test of a deliberate MCP config error may not exercise the change.";
+  assert.ok(issue.length > 240);
+  const orchestration = orchestrate({
+    generateResults: [validCopy, correctedCopy],
+    reviewResults: [
+      { pass: false, issues: [issue] },
+      { pass: true, issues: [] },
+    ],
+  });
+  await orchestration.run();
+  assert.deepEqual(orchestration.generateCalls[1].reviewFeedback, [issue]);
+  assert.match(
+    buildCopyPrompt({ date: "2026-07-11", items, reviewFeedback: orchestration.generateCalls[1].reviewFeedback }),
+    /The source states none of these details/,
+  );
 });
 
 test("buildCopyPrompt quotes reviewer feedback as delimited untrusted data after the rules and sources", () => {

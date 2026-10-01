@@ -227,6 +227,22 @@ function readTag(block, tagName) {
   return close === -1 ? "" : stripHtml(block.slice(opening.end + 1, close));
 }
 
+function readTagByClass(block, tagName, classPattern) {
+  const lower = asciiLower(block);
+  let index = 0;
+  for (;;) {
+    const opening = findOpeningTag(lower, tagName, index);
+    if (!opening) return "";
+    const openingTag = block.slice(opening.start, opening.end + 1);
+    const className = openingTag.match(/(?:^|\s)class\s*=\s*["']([^"']*)["']/i)?.[1] || "";
+    if (classPattern.test(className)) {
+      const close = lower.indexOf(`</${tagName.toLowerCase()}>`, opening.end + 1);
+      return close === -1 ? "" : stripHtml(block.slice(opening.end + 1, close));
+    }
+    index = opening.end + 1;
+  }
+}
+
 function readLink(block) {
   const textLink = readTag(block, "link");
   if (textLink) return textLink;
@@ -360,9 +376,15 @@ export function parseHtmlListing(html, source) {
 
     const href = segment.match(/^<a\b[^>]*href="(\/news\/[a-z0-9][a-z0-9-]*)"/i)?.[1];
     if (!href) continue;
-    const title = readTag(segment, "h2") || readTag(segment, "h3") || readTag(segment, "h4");
+    const title = readTag(segment, "h2")
+      || readTag(segment, "h3")
+      || readTag(segment, "h4")
+      || readTagByClass(segment, "span", /(?:^|[\s_-])title(?:$|[\s_-])/i);
     const publishedRaw = readTag(segment, "time");
-    const published = new Date(publishedRaw);
+    // A displayed date has no timezone. Treat it as a calendar day in UTC,
+    // or CEST midnight becomes the previous day when serialized to ISO.
+    const published = new Date(/^[A-Za-z]+\s+\d{1,2},\s+\d{4}$/.test(publishedRaw)
+      ? `${publishedRaw} UTC` : publishedRaw);
     const url = new URL(href, base).toString();
     const canonicalUrl = canonicalizeUrl(url);
     if (!title || !canonicalUrl || Number.isNaN(published.getTime()) || seen.has(canonicalUrl)) continue;
@@ -468,6 +490,21 @@ async function fetchText(fetchImpl, url, options) {
   return (await fetchPublicText(url, { ...options, fetchImpl })).text;
 }
 
+function articleEvidenceText(html, candidate, feed) {
+  const text = stripHtml(html);
+  const feedUrl = new URL(feed.url);
+  if (feedUrl.hostname === "github.com" && feedUrl.pathname.endsWith("/releases.atom")) {
+    // GitHub release pages begin with thousands of characters of navigation.
+    // Locate the Atom notes in the page; if markup changes, keep the feed's
+    // own notes instead of giving the editor unrelated site chrome.
+    const notes = String(candidate.summary || "").trim();
+    const anchor = notes.slice(0, 80);
+    const start = anchor.length >= 40 ? text.indexOf(anchor) : -1;
+    return (start >= 0 ? text.slice(start) : notes).slice(0, ARTICLE_TEXT_LIMIT);
+  }
+  return text.slice(0, ARTICLE_TEXT_LIMIT);
+}
+
 export async function fetchCandidates(feeds, fetchImpl, options = {}) {
   const lookup = options.lookup || ((host, opts) => dns.lookup(host, opts));
   const candidates = [];
@@ -516,7 +553,7 @@ export async function fetchCandidates(feeds, fetchImpl, options = {}) {
           lookup,
           maxBytes: ARTICLE_BYTE_LIMIT,
         });
-        candidate.bodyText = stripHtml(html).slice(0, ARTICLE_TEXT_LIMIT);
+        candidate.bodyText = articleEvidenceText(html, candidate, feed);
       } catch (error) {
         options.onArticleError?.(candidate, error);
       }
