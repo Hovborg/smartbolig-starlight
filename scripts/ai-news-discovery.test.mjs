@@ -62,6 +62,14 @@ test("canonicalizeUrl stays bounded on a long slash run followed by a non-slash"
   assert.ok(performance.now() - started < 750, "canonicalization must remain linear on feed input");
 });
 
+test("canonicalizeUrl stays bounded with many tracking parameters", () => {
+  const query = Array.from({ length: 8_000 }, (_, index) => `utm_${index}=x`).join("&");
+  const started = performance.now();
+  assert.equal(canonicalizeUrl(`https://example.com/story?${query}&id=1&id=2`),
+    "https://example.com/story?id=1&id=2");
+  assert.ok(performance.now() - started < 750, "tracking-filtering must remain linear on feed input");
+});
+
 test("canonicalizeUrl rejects plain-HTTP urls", () => {
   assert.equal(canonicalizeUrl("http://example.com/story"), "");
 });
