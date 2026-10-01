@@ -256,7 +256,12 @@ export function canonicalizeUrl(value) {
       if (/^(?:utm_.+|fbclid|gclid|mc_cid|mc_eid)$/i.test(key)) url.searchParams.delete(key);
     }
     url.hostname = url.hostname.toLowerCase();
-    if (url.pathname !== "/") url.pathname = url.pathname.replace(/\/+$/, "");
+    const pathname = url.pathname;
+    if (pathname !== "/" && pathname.endsWith("/")) {
+      let end = pathname.length;
+      while (end > 1 && pathname.charCodeAt(end - 1) === 47) end--;
+      url.pathname = pathname.slice(0, end);
+    }
     return url.toString().replace(/\/$/, url.search ? "" : "");
   } catch {
     return "";

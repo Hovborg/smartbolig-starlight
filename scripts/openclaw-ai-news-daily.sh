@@ -300,18 +300,33 @@ main() {
 
   close_stale_ai_news_prs
 
-  local body_file pr_url
+  local body_file pr_url pr_json pr_commit owner attempt
   body_file="$(pr_body_file)"
   # Clean up the temp body file even if a gh command below fails (set -e).
   trap 'rm -f "${body_file}"' EXIT
-  pr_url="$(gh pr list --repo "${REPO}" --head "${BRANCH}" --state open --json url --jq '.[0].url // ""')"
+  owner="${REPO%%/*}"
+  pr_commit="$(git rev-parse HEAD)"
+  # --head matches fork PRs with the same branch name. Only a same-repository
+  # PR owned by the target account and pointing to our pushed commit is ours.
+  for ((attempt=1; attempt<=5; attempt++)); do
+    pr_json="$(gh pr list --repo "${REPO}" --head "${BRANCH}" --state open --limit 1000 \
+      --json url,headRefName,headRefOid,isCrossRepository,headRepositoryOwner)"
+    if pr_url="$(printf '%s' "${pr_json}" | node scripts/lib/ai-news-pr-identity.mjs current "${owner}" "${BRANCH}" "${pr_commit}")"; then
+      break
+    fi
+    if ((attempt == 5)); then
+      echo "Could not verify the owned AI News PR head commit" >&2
+      return 1
+    fi
+    sleep 2
+  done
   if [[ -n "${pr_url}" ]]; then
     gh pr edit "${pr_url}" --repo "${REPO}" --body-file "${body_file}" >/dev/null
   else
     pr_url="$(gh pr create \
       --repo "${REPO}" \
       --base main \
-      --head "${BRANCH}" \
+      --head "${owner}:${BRANCH}" \
       --title "Draft AI news for ${DATE}" \
       --body-file "${body_file}")"
   fi
@@ -325,16 +340,16 @@ main() {
 }
 
 close_stale_ai_news_prs() {
-  local stale_pr
+  local stale_pr pr_json stale_prs owner
+  owner="${REPO%%/*}"
+  pr_json="$(gh pr list --repo "${REPO}" --state open --limit 1000 \
+    --json number,headRefName,isCrossRepository,headRepositoryOwner)"
+  stale_prs="$(printf '%s' "${pr_json}" | node scripts/lib/ai-news-pr-identity.mjs stale "${owner}" "${BRANCH}")"
   while IFS= read -r stale_pr; do
     [[ -n "${stale_pr}" ]] || continue
     gh pr close "${stale_pr}" --repo "${REPO}" --delete-branch \
       --comment "Closed automatically — superseded by ${BRANCH}" >/dev/null || true
-  done < <(
-    gh pr list --repo "${REPO}" --state open --json number,headRefName \
-      --jq '.[] | select(.headRefName | startswith("ai-news/")) | "\(.number) \(.headRefName)"' \
-      | awk -v current="${BRANCH}" '$2 != current { print $1 }'
-  )
+  done <<< "${stale_prs}"
 }
 
 # Guarded so the GPU-queue helpers can be sourced and tested in isolation

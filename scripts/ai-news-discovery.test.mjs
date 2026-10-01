@@ -55,6 +55,13 @@ test("canonicalizeUrl removes tracking parameters and fragments", () => {
   assert.equal(canonicalizeUrl("javascript:alert(1)"), "");
 });
 
+test("canonicalizeUrl stays bounded on a long slash run followed by a non-slash", () => {
+  const candidate = `https://openai.com/${"/".repeat(80_000)}a`;
+  const started = performance.now();
+  assert.equal(canonicalizeUrl(candidate), candidate);
+  assert.ok(performance.now() - started < 750, "canonicalization must remain linear on feed input");
+});
+
 test("canonicalizeUrl rejects plain-HTTP urls", () => {
   assert.equal(canonicalizeUrl("http://example.com/story"), "");
 });

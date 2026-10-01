@@ -235,14 +235,15 @@ try {
     if ($stagedPaths.Count -eq 0 -or @($stagedPaths | Where-Object { $_ -notin $allowedPaths }).Count -gt 0) { throw 'Staged path allowlist verification failed' }
     Invoke-Native git commit -m "feat(ai-news): publish $Date brief"
     $prCommit = (& git rev-parse HEAD).Trim()
-    $prJson = & gh pr list --repo Hovborg/smartbolig-starlight --state open --head $branch --json 'url,headRefOid'
+    $prJson = & gh pr list --repo Hovborg/smartbolig-starlight --state open --head $branch --limit 1000 --json 'url,headRefOid,headRefName,isCrossRepository,headRepositoryOwner'
     if ($LASTEXITCODE -ne 0) { throw 'Could not look for an existing AI News pull request' }
-    $prs = @($prJson | ConvertFrom-Json)
-    if ($prs.Count -gt 1) { throw "Multiple open PRs found for deterministic branch $branch" }
+    # A fork can reuse the predictable branch name. Ignore it when locating our PR.
+    $prUrls = @($prJson | & node scripts/lib/ai-news-pr-identity.mjs current Hovborg $branch)
+    if ($LASTEXITCODE -ne 0 -or $prUrls.Count -gt 1) { throw "Could not verify same-repository PR identity for $branch" }
+    $prUrl = if ($prUrls.Count -eq 1) { [string]$prUrls[0] } else { '' }
     $remoteLine = (@(& git ls-remote --heads origin "refs/heads/$branch") -join "`n").Trim()
     if ($LASTEXITCODE -ne 0) { throw "Could not inspect remote branch: $branch" }
-    if ($prs.Count -eq 1) {
-        $prUrl = $prs[0].url
+    if ($prUrl) {
         if (-not $remoteLine) { throw "Existing PR has no remote branch: $branch" }
         $remoteOid = ($remoteLine -split '\s+')[0]
         Invoke-Native git push "--force-with-lease=refs/heads/$branch`:$remoteOid" --set-upstream origin "HEAD:refs/heads/$branch"
@@ -253,14 +254,14 @@ try {
         } else {
             Invoke-Native git push --set-upstream origin "HEAD:refs/heads/$branch"
         }
-        $prUrl = & gh pr create --repo Hovborg/smartbolig-starlight --base main --head $branch --title "Publish AI news for $Date" --body "Automated bilingual AI News brief generated with isolated LLM copy and an independent source-grounded semantic review. It passed source, content, image, site, build, and SEO gates. This PR merges automatically only after GitHub Actions validation passes."
+        $prUrl = & gh pr create --repo Hovborg/smartbolig-starlight --base main --head "Hovborg:$branch" --title "Publish AI news for $Date" --body "Automated bilingual AI News brief generated with isolated LLM copy and an independent source-grounded semantic review. It passed source, content, image, site, build, and SEO gates. This PR merges automatically only after GitHub Actions validation passes."
         if ($LASTEXITCODE -ne 0 -or -not $prUrl) { throw 'Could not create the AI News pull request' }
     }
     Write-Host "PR_READY $prUrl"
 
     Wait-GitHubRun -Commit $prCommit -Event pull_request -ExpectedRef $branch -Phase 'pull-request' | Out-Null
-    $prState = & gh pr view $prUrl --repo Hovborg/smartbolig-starlight --json 'headRefOid,baseRefName,state' | ConvertFrom-Json
-    if ($LASTEXITCODE -ne 0 -or $prState.state -ne 'OPEN' -or $prState.baseRefName -ne 'main' -or $prState.headRefOid -ne $prCommit) {
+    $prState = & gh pr view $prUrl --repo Hovborg/smartbolig-starlight --json 'headRefOid,headRefName,headRepositoryOwner,isCrossRepository,baseRefName,state' | ConvertFrom-Json
+    if ($LASTEXITCODE -ne 0 -or $prState.state -ne 'OPEN' -or $prState.baseRefName -ne 'main' -or $prState.headRefOid -ne $prCommit -or $prState.headRefName -ne $branch -or $prState.isCrossRepository -ne $false -or $prState.headRepositoryOwner.login -ine 'Hovborg') {
         throw "PR identity changed after validation: expected_head=$prCommit actual_head=$($prState.headRefOid) base=$($prState.baseRefName) state=$($prState.state)"
     }
     Invoke-Native gh pr merge $prUrl --repo Hovborg/smartbolig-starlight --squash --delete-branch --match-head-commit $prCommit

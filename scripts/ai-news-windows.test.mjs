@@ -374,3 +374,29 @@ test('manual workflow dispatch validates but cannot deploy or ping search engine
   assert.equal([...workflow.matchAll(protectedCondition)].length, 2);
   assert.doesNotMatch(workflow, /if: github\.event_name != 'pull_request'/);
 });
+
+
+test('Windows PR lookup ignores same-name fork PRs', { skip: process.platform !== 'win32' }, async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig-pr-identity-'));
+  try {
+    const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
+    const selection = runner.split(/\r?\n/).find((line) => line.includes('$prUrls = @('));
+    assert.ok(selection?.includes('ai-news-pr-identity.mjs current Hovborg $branch'));
+    const fixture = path.join(dir, 'prs.json');
+    const probe = path.join(dir, 'probe.ps1');
+    const branch = 'ai-news/2026-10-02-abcdef123456';
+    const fork = { url: 'https://github.com/Hovborg/smartbolig-starlight/pull/11', headRefName: branch, headRefOid: 'a'.repeat(40), isCrossRepository: true, headRepositoryOwner: { login: 'attacker' } };
+    const own = { ...fork, url: 'https://github.com/Hovborg/smartbolig-starlight/pull/12', isCrossRepository: false, headRepositoryOwner: { login: 'Hovborg' } };
+    await writeFile(probe, `$ErrorActionPreference = 'Stop'\n$branch = '${branch}'\n$prJson = Get-Content -Raw -LiteralPath '${fixture.replaceAll("'", "''")}'\n${selection}\nif ($LASTEXITCODE -ne 0) { throw 'helper failed' }\nWrite-Output ($prUrls -join '|')\n`);
+    await writeFile(fixture, JSON.stringify([fork, own]));
+    let output = execFileSync('pwsh', ['-NoProfile', '-NonInteractive', '-File', probe], { cwd: rootDir, encoding: 'utf8' });
+    assert.equal(output.trim(), own.url);
+    await writeFile(fixture, JSON.stringify([fork]));
+    output = execFileSync('pwsh', ['-NoProfile', '-NonInteractive', '-File', probe], { cwd: rootDir, encoding: 'utf8' });
+    assert.equal(output.trim(), '');
+    assert.match(runner, /headRepositoryOwner\.login -ine 'Hovborg'/);
+    assert.match(runner, /--head "Hovborg:\$branch"/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
