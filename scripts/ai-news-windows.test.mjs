@@ -270,7 +270,8 @@ test('Windows runner requires editorial LLM copy and leaves a green PR for human
   assert.match(runner, /worktree add --detach \$runRoot \$baseCommit/);
   assert.doesNotMatch(runner, /git stash/);
   assert.doesNotMatch(runner, /git switch -c/);
-  assert.doesNotMatch(runner, /gh pr merge/);
+  assert.doesNotMatch(runner, /gh pr merge|merges automatically/);
+  assert.match(runner, /human editorial review are required before manual merge/);
   assert.match(runner, /headRefOid -ne \$prCommit/);
   assert.match(runner, /baseRefName -ne 'main'/);
   assert.match(runner, /force-with-lease=refs\/heads\/\$branch/);

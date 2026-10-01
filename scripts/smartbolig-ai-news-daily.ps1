@@ -254,7 +254,7 @@ try {
         } else {
             Invoke-Native git push --set-upstream origin "HEAD:refs/heads/$branch"
         }
-        $prUrl = & gh pr create --repo Hovborg/smartbolig-starlight --base main --head "Hovborg:$branch" --title "Publish AI news for $Date" --body "Automated bilingual AI News brief generated with isolated LLM copy and an independent source-grounded semantic review. It passed source, content, image, site, build, and SEO gates. This PR merges automatically only after GitHub Actions validation passes."
+        $prUrl = & gh pr create --repo Hovborg/smartbolig-starlight --base main --head "Hovborg:$branch" --title "Publish AI news for $Date" --body "Automated bilingual AI News draft. Local source, content, image, site, build, and SEO checks passed. CI and human editorial review are required before manual merge. Verify both language versions against their primary sources."
         if ($LASTEXITCODE -ne 0 -or -not $prUrl) { throw 'Could not create the AI News pull request' }
     }
     Write-Host "PR_READY $prUrl"
