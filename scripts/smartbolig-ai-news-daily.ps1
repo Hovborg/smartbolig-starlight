@@ -264,15 +264,9 @@ try {
     if ($LASTEXITCODE -ne 0 -or $prState.state -ne 'OPEN' -or $prState.baseRefName -ne 'main' -or $prState.headRefOid -ne $prCommit -or $prState.headRefName -ne $branch -or $prState.isCrossRepository -ne $false -or $prState.headRepositoryOwner.login -ine 'Hovborg') {
         throw "PR identity changed after validation: expected_head=$prCommit actual_head=$($prState.headRefOid) base=$($prState.baseRefName) state=$($prState.state)"
     }
-    Invoke-Native gh pr merge $prUrl --repo Hovborg/smartbolig-starlight --squash --delete-branch --match-head-commit $prCommit
-    $mergeCommit = (& gh pr view $prUrl --repo Hovborg/smartbolig-starlight --json mergeCommit --jq '.mergeCommit.oid').Trim()
-    if ($LASTEXITCODE -ne 0 -or -not $mergeCommit) { throw 'Merged PR has no merge commit' }
-
-    $stage = 'cloudflare-deploy'
-    Wait-GitHubRun -Commit $mergeCommit -Event push -ExpectedRef main -Phase 'main-deploy' | Out-Null
-    $stage = 'public-verification'
-    Wait-PublicIssue -IssueDate $Date -IssueFingerprint $result.issueFingerprint
-    Write-Host "AI_NEWS_STATUS=published date=$Date pr=$prUrl commit=$mergeCommit"
+    # External feed text can influence both LLM passes. Only a human may
+    # approve the final PR before its merge triggers the Cloudflare deployment.
+    Write-Host "AI_NEWS_STATUS=awaiting-editorial-review date=$Date pr=$prUrl commit=$prCommit"
     $removeRunRoot = $true
 } catch {
     $exitCode = 1

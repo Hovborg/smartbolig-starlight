@@ -225,7 +225,7 @@ test('GitHub JSON field lists survive PowerShell script forwarding in both Windo
   try {
     const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
     const expressions = [...runner.matchAll(/--json\s+('[^']*'|[\w,]+)/g)].map((match) => match[1]);
-    assert.equal(expressions.length, 4, 'exercise each actual gh --json field expression');
+    assert.equal(expressions.length, 3, 'exercise each actual gh --json field expression');
     const spy = path.join(dir, 'arguments.mjs');
     await writeFile(spy, 'console.log(JSON.stringify(process.argv.slice(2)));');
     const probe = path.join(dir, 'probe.ps1');
@@ -258,12 +258,10 @@ test('Windows publisher handles git ls-remote returning no branch', { skip: proc
   }
 });
 
-test('Windows runner requires editorial LLM copy and completes the verified publish chain', async () => {
+test('Windows runner requires editorial LLM copy and leaves a green PR for human review', async () => {
   const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
   const prValidation = runner.indexOf("Wait-GitHubRun -Commit $prCommit");
-  const merge = runner.indexOf('gh pr merge');
-  const deployment = runner.indexOf("Wait-GitHubRun -Commit $mergeCommit");
-  const publicCheck = runner.lastIndexOf('Wait-PublicIssue -IssueDate $Date');
+  const reviewReady = runner.indexOf('AI_NEWS_STATUS=awaiting-editorial-review');
 
   assert.match(runner, /--require-llm/);
   assert.match(runner, /copySource -ne 'llm'/);
@@ -272,7 +270,7 @@ test('Windows runner requires editorial LLM copy and completes the verified publ
   assert.match(runner, /worktree add --detach \$runRoot \$baseCommit/);
   assert.doesNotMatch(runner, /git stash/);
   assert.doesNotMatch(runner, /git switch -c/);
-  assert.match(runner, /--match-head-commit \$prCommit/);
+  assert.doesNotMatch(runner, /gh pr merge/);
   assert.match(runner, /headRefOid -ne \$prCommit/);
   assert.match(runner, /baseRefName -ne 'main'/);
   assert.match(runner, /force-with-lease=refs\/heads\/\$branch/);
@@ -281,8 +279,7 @@ test('Windows runner requires editorial LLM copy and completes the verified publ
   assert.match(runner, /-Event push -ExpectedRef main/);
   assert.match(runner, /ai-news-public-check\.mjs/);
   assert.ok(runner.indexOf('ai-news-retry-state.mjs') < runner.indexOf('ai-news-publish.mjs'));
-  assert.ok(prValidation >= 0 && prValidation < merge, 'PR validation must finish before merge');
-  assert.ok(merge < deployment && deployment < publicCheck, 'merge must be deployed and publicly verified in order');
+  assert.ok(prValidation >= 0 && prValidation < reviewReady, 'PR validation must finish before editorial review');
   assert.doesNotMatch(runner, /wsl\.exe|systemctl/);
   assert.match(runner, /Unexpected generated paths/);
   assert.match(runner, /git add -- \$allowedPaths/);
