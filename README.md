@@ -254,13 +254,17 @@ Pipelinen (v3):
 
 - **Kilder:** OpenAI News, Google AI Blog og Anthropic News (HTML-listing — Anthropic
   har ingen RSS) plus release-feeds for Codex, Claude Code, Gemini CLI og OpenClaw.
+  Anthropic-listens viste dato bruges som kalenderdato; GitHub-release-noter
+  udtrækkes før sidens navigation, med Atom-feedets noter som sikker fallback.
 - **Redaktionelt lag:** dedup på URL-, emne- og kildesæt-fingerprints mod de sidste
   14 dages udgaver, score-tærskel og krav om primær kilde.
 - **Tekst:** den automatiske runner bruger `--require-llm` og beder en isoleret,
   tool-fri Claude Code-session om unik per-historie-analyse
   (hvad/hvorfor/verificér/usikkerhed) ud fra kildeteksten. Hvis teksten mangler,
-  overskrider grænserne eller bliver afvist, stopper publiceringen. Den generiske
-  skabelon er kun fallback for manuelle udkast og kan ikke auto-merges.
+  overskrider grænserne eller bliver afvist, stopper publiceringen. Ved en
+  begrundet faktuel afvisning må den forsøge højst to korrigerede udkast; hvert
+  udkast skal bestå en ny selvstændig kontrol. Den generiske skabelon er kun
+  fallback for manuelle udkast og kan ikke auto-merges.
 - **Automatisk kvalitetsport:** `npm run ai-news:quality -- --date YYYY-MM-DD`
   kræver `news.copySource: llm`, høj signalværdi, mindst to historier, DA/EN-
   kildeparitet, fyldige felter, en separat source-bound AI-faktakontrol og ingen

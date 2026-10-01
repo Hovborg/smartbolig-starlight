@@ -28,6 +28,29 @@ test("parseHtmlListing extracts dated Anthropic-style articles and skips undated
   assert.equal(items[1].title, "Redeploying Fable 5");
 });
 
+test("parseHtmlListing reads Anthropic span titles and keeps the displayed calendar date", () => {
+  const listingSource = { id: "anthropic-news", name: "Anthropic News", url: "https://www.anthropic.com/news", kind: "html-listing", primary: true };
+  const html = `<a href="/news/barclays-scales-claude" class="listItem">
+    <time class="date">Oct 1, 2026</time>
+    <span class="subject">Announcements</span>
+    <span class="title body-3">Barclays scales Claude to upgrade operations and improve client experience</span>
+  </a>`;
+  const items = parseHtmlListing(html, listingSource);
+
+  assert.equal(items.length, 1);
+  assert.equal(items[0].title, "Barclays scales Claude to upgrade operations and improve client experience");
+  assert.equal(items[0].publishedRaw, "Oct 1, 2026");
+  assert.equal(items[0].published.toISOString().slice(0, 10), "2026-10-01");
+});
+
+test("parseHtmlListing does not mistake data-class for the title class", () => {
+  const source = { id: "anthropic-news", name: "Anthropic News", url: "https://www.anthropic.com/news", kind: "html-listing" };
+  const html = `<a href="/news/example"><time>Oct 1, 2026</time>
+    <span data-class="title" class="subject">Announcements</span>
+    <span class="title body-3">Actual article title</span></a>`;
+  assert.equal(parseHtmlListing(html, source)[0]?.title, "Actual article title");
+});
+
 test("HTML cleanup and inner-tag parsing stay bounded on malformed source text", () => {
   const malformed = '<'.repeat(500_000);
   const started = performance.now();
@@ -127,6 +150,49 @@ test("fetchCandidates tolerates a failed non-critical feed and fetches capped ar
   assert.equal(candidates.length, 1);
   assert.match(candidates[0].bodyText, /^Strong update evidence/);
   assert.ok(candidates[0].bodyText.length <= 40_000);
+});
+
+test("fetchCandidates puts GitHub release notes before page navigation in source evidence", async () => {
+  const releaseFeed = {
+    id: "gemini-cli", name: "Gemini CLI releases",
+    url: "https://github.com/google-gemini/gemini-cli/releases.atom", primary: true,
+  };
+  const releaseUrl = "https://github.com/google-gemini/gemini-cli/releases/tag/v0.62.0-nightly";
+  const notes = "What's Changed fix(cli): distinguish missing MCP enablement config from malformed JSON.";
+  const xml = `<feed><entry><title>Release v0.62.0-nightly</title><link rel="alternate" href="${releaseUrl}" />
+    <updated>2026-09-25T01:23:00Z</updated><summary><![CDATA[<h2>What's Changed</h2><p>fix(cli): distinguish missing MCP enablement config from malformed JSON.</p>]]></summary>
+  </entry></feed>`;
+  const html = `<html><body><nav>${"navigation ".repeat(400)}</nav><main><h2>What's Changed</h2><p>fix(cli): distinguish missing MCP enablement config from malformed JSON.</p></main></body></html>`;
+  const candidates = await fetchCandidates([releaseFeed], async (url) => {
+    if (url === releaseFeed.url) return new Response(xml, { status: 200 });
+    if (url === releaseUrl) return new Response(html, { status: 200 });
+    throw new Error(`unexpected URL ${url}`);
+  }, { lookup: publicLookup });
+
+  assert.equal(candidates.length, 1);
+  assert.equal(candidates[0].summary, notes);
+  assert.match(candidates[0].bodyText, /^What's Changed fix\(cli\): distinguish/);
+  assert.equal(candidates[0].bodyText.slice(0, 2_200).includes("malformed JSON"), true);
+  assert.equal(candidates[0].bodyText.includes("navigation"), false);
+});
+
+test("fetchCandidates falls back to Atom notes when a GitHub release page has no matching notes", async () => {
+  const releaseFeed = {
+    id: "gemini-cli", name: "Gemini CLI releases",
+    url: "https://github.com/google-gemini/gemini-cli/releases.atom", primary: true,
+  };
+  const releaseUrl = "https://github.com/google-gemini/gemini-cli/releases/tag/v0.62.0-nightly";
+  const summary = "Release notes describe missing MCP enablement config versus malformed JSON in the Gemini CLI.";
+  const xml = `<feed><entry><title>Release v0.62.0-nightly</title><link rel="alternate" href="${releaseUrl}" />
+    <updated>2026-09-25T01:23:00Z</updated><summary>${summary}</summary>
+  </entry></feed>`;
+  const candidates = await fetchCandidates([releaseFeed], async (url) => {
+    if (url === releaseFeed.url) return new Response(xml, { status: 200 });
+    if (url === releaseUrl) return new Response(`<nav>${"navigation ".repeat(400)}</nav>`, { status: 200 });
+    throw new Error(`unexpected URL ${url}`);
+  }, { lookup: publicLookup });
+
+  assert.equal(candidates[0].bodyText, summary);
 });
 
 test("fetchCandidates deep-reads only candidates accepted by the prefilter", async () => {

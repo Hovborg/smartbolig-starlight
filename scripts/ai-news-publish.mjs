@@ -299,10 +299,10 @@ async function main() {
     process.exit(0);
   }
 
-  // Unique editorial prose via headless Claude when enabled; the deterministic
-  // template remains the always-available fallback so publishing never blocks.
-  // The orchestrator drafts, reviews independently, and allows exactly one
-  // corrected candidate after an explained rejection before failing closed.
+  // Unique editorial prose via headless Claude when enabled. Manual runs may
+  // fall back to the deterministic template; --require-llm fails closed.
+  // The orchestrator drafts, reviews independently, and allows at most two
+  // corrected candidates after explained rejections before failing closed.
   let copy = null;
   if (llmEnabled) {
     try {
