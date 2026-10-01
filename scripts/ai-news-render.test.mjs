@@ -1,5 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkGfm from "remark-gfm";
+import remarkRehype from "remark-rehype";
+import rehypeStringify from "rehype-stringify";
 
 import { selectEditorialPackage } from "./lib/ai-news-editorial.mjs";
 import { renderIssue, renderRepeatIssue } from "./lib/ai-news-render.mjs";
@@ -90,6 +95,31 @@ test("renderIssue neutralizes active Markdown links, images, and code from feed 
   // The words themselves must survive as plain text.
   assert.match(output, /click/);
   assert.match(output, /track/);
+});
+
+test("renderIssue breaks automatic links in untrusted source and LLM prose", async () => {
+  const hostile = { ...item, summary: "Visit www.attacker.example or team@attacker.example." };
+  const editorialPackage = selectEditorialPackage([hostile], []);
+  const copy = {
+    semanticReview: "passed",
+    lede: { da: "Se www.attacker.example", en: "See https://attacker.example and team@attacker.example" },
+    stories: [{
+      what: { da: "Se www.attacker.example", en: "See www.attacker.example" },
+      why: { da: "Test", en: "Test" },
+      verify: { da: "Test", en: "Test" },
+      uncertainty: { da: "Test", en: "Test" },
+    }],
+  };
+  const output = renderIssue({ locale: "en", date: "2026-07-11", editorialPackage, copy });
+  assert.match(output, /www<wbr\/>\.attacker\.example/);
+  assert.match(output, /https:\/\/<wbr\/>attacker\.example/);
+  assert.match(output, /team@<wbr\/>attacker\.example/);
+  for (const line of output.split("\n").filter((value) => value.includes("attacker.example"))) {
+    const html = String(await unified().use(remarkParse).use(remarkGfm)
+      .use(remarkRehype, { allowDangerousHtml: true })
+      .use(rehypeStringify, { allowDangerousHtml: true }).process(line));
+    assert.doesNotMatch(html, /<a\b/i);
+  }
 });
 
 test("renderIssue uses validated LLM copy and escapes it like feed text", () => {

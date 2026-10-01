@@ -242,10 +242,13 @@ Windows Scheduled Task `Shark Smartbolig AI News` er beregnet til daglig
 opdatering kl. 07:20, når den er installeret og aktiveret på værten. Runneren
 `scripts/smartbolig-ai-news-daily.ps1`
 henter officielle kilder, genererer artikler (da+en), bygger og validerer, åbner
-en PR, venter på den grønne GitHub Actions-kørsel, merger, venter på
-  Cloudflare-deploy og kontrollerer til sidst både dansk og engelsk artikel og
-  oversigt mod udgavens unikke fingerprint. Fingerprintet dækker dato, alle
-  kilder og kildeuddrag samt hele den tosprogede redaktionelle tekst.
+en PR og venter på den grønne GitHub Actions-kørsel. PR'en bliver stående
+til menneskelig redaktionel gennemgang; Scheduled Tasken merger ikke selv.
+Når PR'en er godkendt og manuelt merget, udløser `main` Cloudflare-deploy.
+Genkør samme dato med host-startfilens `-Publish -Date YYYY-MM-DD` for at
+verificere deploy og den offentlige danske og engelske artikel og oversigt
+mod udgavens unikke fingerprint. Fingerprintet dækker dato, alle kilder og
+kildeuddrag samt hele den tosprogede redaktionelle tekst.
 
 Pipelinen (v3):
 
@@ -301,7 +304,7 @@ Det installerer:
 
 | Scheduled Task | Funktion |
 |------|----------|
-| `Shark Smartbolig AI News` | Kører dagligt kl. 07:20, indhenter missede kørsler, merger først efter grøn CI og verificerer den offentlige URL |
+| `Shark Smartbolig AI News` | Kører dagligt kl. 07:20, indhenter missede kørsler og åbner en valideret PR til menneskelig gennemgang |
 
 Drift-kommandoer:
 

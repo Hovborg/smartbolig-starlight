@@ -136,3 +136,11 @@ printf '%s\\n' "$*" >> "\${SYSTEMCTL_FAKE_CALLS}"
     await rm(tmp, { recursive: true, force: true });
   }
 });
+
+
+test('OpenClaw PR selection uses repository identity and the pushed head', async () => {
+  const runner = await readFile(path.join(rootDir, 'scripts/openclaw-ai-news-daily.sh'), 'utf8');
+  assert.match(runner, /ai-news-pr-identity\.mjs current "\$\{owner\}" "\$\{BRANCH\}" "\$\{pr_commit\}"/);
+  assert.match(runner, /ai-news-pr-identity\.mjs stale "\$\{owner\}" "\$\{BRANCH\}"/);
+  assert.match(runner, /--head "\$\{owner\}:\$\{BRANCH\}"/);
+});

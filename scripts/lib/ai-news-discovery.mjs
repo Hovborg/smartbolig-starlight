@@ -252,11 +252,21 @@ export function canonicalizeUrl(value) {
     // fetching must never be downgradable to plaintext by feed content.
     if (url.protocol !== "https:") return "";
     url.hash = "";
-    for (const key of [...url.searchParams.keys()]) {
-      if (/^(?:utm_.+|fbclid|gclid|mc_cid|mc_eid)$/i.test(key)) url.searchParams.delete(key);
+    const keptParams = [];
+    let removedTracking = false;
+    for (const [key, value] of url.searchParams) {
+      if (/^(?:utm_.+|fbclid|gclid|mc_cid|mc_eid)$/i.test(key)) removedTracking = true;
+      else keptParams.push([key, value]);
     }
+    // URLSearchParams.delete scans the whole query each time; rebuild once.
+    if (removedTracking) url.search = new URLSearchParams(keptParams).toString();
     url.hostname = url.hostname.toLowerCase();
-    if (url.pathname !== "/") url.pathname = url.pathname.replace(/\/+$/, "");
+    const pathname = url.pathname;
+    if (pathname !== "/" && pathname.endsWith("/")) {
+      let end = pathname.length;
+      while (end > 1 && pathname.charCodeAt(end - 1) === 47) end--;
+      url.pathname = pathname.slice(0, end);
+    }
     return url.toString().replace(/\/$/, url.search ? "" : "");
   } catch {
     return "";

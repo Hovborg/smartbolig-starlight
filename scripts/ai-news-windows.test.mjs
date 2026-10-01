@@ -225,7 +225,7 @@ test('GitHub JSON field lists survive PowerShell script forwarding in both Windo
   try {
     const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
     const expressions = [...runner.matchAll(/--json\s+('[^']*'|[\w,]+)/g)].map((match) => match[1]);
-    assert.equal(expressions.length, 4, 'exercise each actual gh --json field expression');
+    assert.equal(expressions.length, 3, 'exercise each actual gh --json field expression');
     const spy = path.join(dir, 'arguments.mjs');
     await writeFile(spy, 'console.log(JSON.stringify(process.argv.slice(2)));');
     const probe = path.join(dir, 'probe.ps1');
@@ -258,12 +258,10 @@ test('Windows publisher handles git ls-remote returning no branch', { skip: proc
   }
 });
 
-test('Windows runner requires editorial LLM copy and completes the verified publish chain', async () => {
+test('Windows runner requires editorial LLM copy and leaves a green PR for human review', async () => {
   const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
   const prValidation = runner.indexOf("Wait-GitHubRun -Commit $prCommit");
-  const merge = runner.indexOf('gh pr merge');
-  const deployment = runner.indexOf("Wait-GitHubRun -Commit $mergeCommit");
-  const publicCheck = runner.lastIndexOf('Wait-PublicIssue -IssueDate $Date');
+  const reviewReady = runner.indexOf('AI_NEWS_STATUS=awaiting-editorial-review');
 
   assert.match(runner, /--require-llm/);
   assert.match(runner, /copySource -ne 'llm'/);
@@ -272,7 +270,8 @@ test('Windows runner requires editorial LLM copy and completes the verified publ
   assert.match(runner, /worktree add --detach \$runRoot \$baseCommit/);
   assert.doesNotMatch(runner, /git stash/);
   assert.doesNotMatch(runner, /git switch -c/);
-  assert.match(runner, /--match-head-commit \$prCommit/);
+  assert.doesNotMatch(runner, /gh pr merge|merges automatically/);
+  assert.match(runner, /human editorial review are required before manual merge/);
   assert.match(runner, /headRefOid -ne \$prCommit/);
   assert.match(runner, /baseRefName -ne 'main'/);
   assert.match(runner, /force-with-lease=refs\/heads\/\$branch/);
@@ -281,8 +280,7 @@ test('Windows runner requires editorial LLM copy and completes the verified publ
   assert.match(runner, /-Event push -ExpectedRef main/);
   assert.match(runner, /ai-news-public-check\.mjs/);
   assert.ok(runner.indexOf('ai-news-retry-state.mjs') < runner.indexOf('ai-news-publish.mjs'));
-  assert.ok(prValidation >= 0 && prValidation < merge, 'PR validation must finish before merge');
-  assert.ok(merge < deployment && deployment < publicCheck, 'merge must be deployed and publicly verified in order');
+  assert.ok(prValidation >= 0 && prValidation < reviewReady, 'PR validation must finish before editorial review');
   assert.doesNotMatch(runner, /wsl\.exe|systemctl/);
   assert.match(runner, /Unexpected generated paths/);
   assert.match(runner, /git add -- \$allowedPaths/);
@@ -373,4 +371,30 @@ test('manual workflow dispatch validates but cannot deploy or ping search engine
   const protectedCondition = /if: github\.event_name == 'push' && github\.ref == 'refs\/heads\/main'/g;
   assert.equal([...workflow.matchAll(protectedCondition)].length, 2);
   assert.doesNotMatch(workflow, /if: github\.event_name != 'pull_request'/);
+});
+
+
+test('Windows PR lookup ignores same-name fork PRs', { skip: process.platform !== 'win32' }, async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig-pr-identity-'));
+  try {
+    const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
+    const selection = runner.split(/\r?\n/).find((line) => line.includes('$prUrls = @('));
+    assert.ok(selection?.includes('ai-news-pr-identity.mjs current Hovborg $branch'));
+    const fixture = path.join(dir, 'prs.json');
+    const probe = path.join(dir, 'probe.ps1');
+    const branch = 'ai-news/2026-10-02-abcdef123456';
+    const fork = { url: 'https://github.com/Hovborg/smartbolig-starlight/pull/11', headRefName: branch, baseRefName: 'main', headRefOid: 'a'.repeat(40), isCrossRepository: true, headRepositoryOwner: { login: 'attacker' } };
+    const own = { ...fork, url: 'https://github.com/Hovborg/smartbolig-starlight/pull/12', isCrossRepository: false, headRepositoryOwner: { login: 'Hovborg' } };
+    await writeFile(probe, `$ErrorActionPreference = 'Stop'\n$branch = '${branch}'\n$prJson = Get-Content -Raw -LiteralPath '${fixture.replaceAll("'", "''")}'\n${selection}\nif ($LASTEXITCODE -ne 0) { throw 'helper failed' }\nWrite-Output ($prUrls -join '|')\n`);
+    await writeFile(fixture, JSON.stringify([fork, own]));
+    let output = execFileSync('pwsh', ['-NoProfile', '-NonInteractive', '-File', probe], { cwd: rootDir, encoding: 'utf8' });
+    assert.equal(output.trim(), own.url);
+    await writeFile(fixture, JSON.stringify([fork]));
+    output = execFileSync('pwsh', ['-NoProfile', '-NonInteractive', '-File', probe], { cwd: rootDir, encoding: 'utf8' });
+    assert.equal(output.trim(), '');
+    assert.match(runner, /headRepositoryOwner\.login -ine 'Hovborg'/);
+    assert.match(runner, /--head "Hovborg:\$branch"/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 });

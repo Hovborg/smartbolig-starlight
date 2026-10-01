@@ -85,12 +85,11 @@ integrity hashes.
    but not hash-pinned).
 4. **npm advisory status** — `npm audit` runs in CI (`--omit=dev
    --audit-level=high`); the review could not verify advisories offline.
-5. **LLM semantic injection (historical finding, superseded 2026-08-28)** —
-   the July pipeline required human review because it had no grounding gate.
-   The Windows auto-publisher now rejects thin source bodies, drafts with a
-   tool-free isolated LLM call, and performs a second isolated source-bound
-   semantic review that fails closed on unsupported claims or DA/EN factual
-   disagreement. CI requires `semanticReview: passed`; the rendered public
-   issue fingerprint binds the date, every source/evidence body, and the full
-   bilingual copy. Human review remains available but is no longer the sole
-   mandatory mitigation for the automatic daily path.
+5. **LLM semantic injection (follow-up 2026-10-01)** — the isolated LLM
+   draft and source-bound semantic review reject many unsupported claims, but
+   both see external feed text and cannot provide an independent trust boundary.
+   The Windows runner now stops after a green PR run, leaving merge to human
+   editorial review. CI still requires `semanticReview: passed`, and the
+   fingerprint binds the bilingual copy and source evidence. Untrusted prose
+   is also rendered without automatic GFM links. A manual merge triggers the
+   normal `main` deployment; rerunning the same date verifies the public issue.
