@@ -76,12 +76,25 @@ function Wait-GitHubRun {
         # The poll handles failed exits by retrying and still validates the JSON.
         $ErrorActionPreference = 'Continue'
         try {
-            $json = & gh run list --repo Hovborg/smartbolig-starlight --workflow deploy.yml --commit $Commit --event $Event --limit 5 --json 'databaseId,status,conclusion,event,headBranch,headSha' 2>$null
+            if ($Event -eq 'pull_request') {
+                # gh run list omits the head repository. A fork PR can reuse both
+                # our branch name and commit; select only runs from this repo.
+                $apiPath = "repos/Hovborg/smartbolig-starlight/actions/workflows/deploy.yml/runs?head_sha=$Commit&event=pull_request&per_page=100"
+                $json = & gh api --paginate $apiPath --jq '.workflow_runs[] | {databaseId: .id, event: .event, headSha: .head_sha, headBranch: .head_branch, headRepository: .head_repository.full_name}' 2>$null
+            } else {
+                $json = & gh run list --repo Hovborg/smartbolig-starlight --workflow deploy.yml --commit $Commit --event $Event --limit 5 --json 'databaseId,status,conclusion,event,headBranch,headSha' 2>$null
+            }
         } finally {
             $ErrorActionPreference = 'Stop'
         }
         if ($LASTEXITCODE -eq 0 -and $json) {
-            $runs = @($json | ConvertFrom-Json | Where-Object { $_.event -eq $Event -and $_.headSha -eq $Commit -and $_.headBranch -eq $ExpectedRef })
+            if ($Event -eq 'pull_request') {
+                $runs = @($json | ForEach-Object { $_ | ConvertFrom-Json } | Where-Object {
+                    $_.event -eq $Event -and $_.headSha -eq $Commit -and $_.headBranch -eq $ExpectedRef -and $_.headRepository -ieq 'Hovborg/smartbolig-starlight'
+                })
+            } else {
+                $runs = @($json | ConvertFrom-Json | Where-Object { $_.event -eq $Event -and $_.headSha -eq $Commit -and $_.headBranch -eq $ExpectedRef })
+            }
             if ($runs.Count -eq 1) {
                 $runId = [string]$runs[0].databaseId
                 Write-Host "$Phase GitHub Actions run: $runId event=$Event ref=$ExpectedRef sha=$Commit"

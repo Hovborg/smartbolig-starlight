@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import { FEEDS, OFFICIAL_SOURCE_URLS } from "../../scripts/ai-news-sources.mjs";
+import { slug } from "github-slugger";
 
 type Locale = "da" | "en";
 type Signal = "high" | "medium" | "low";
@@ -55,25 +56,30 @@ const sourceName = (url: string) => {
   }
 };
 
-const slugifyHeading = (value: string) =>
+// AI News headings contain fixed word breaks and escaped feed characters.
+// Astro displays this as text, while its Markdown heading IDs use github-slugger.
+const namedHeadlineEntities: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: "\"", apos: "'" };
+const decodeHeadline = (value: string) =>
   value
-    .trim()
-    .toLowerCase()
-    .replace(/[^\p{Letter}\p{Number}\s-]/gu, "")
-    .replace(/\s+/g, "-");
+    .replace(/<wbr\s*\/?>/gi, "")
+    .replace(/&#(?:x([0-9a-f]+)|([0-9]+));/gi, (entity, hex, decimal) => {
+      const codePoint = Number.parseInt(hex || decimal, hex ? 16 : 10);
+      return codePoint <= 0x10ffff ? String.fromCodePoint(codePoint) : entity;
+    })
+    .replace(/&(amp|lt|gt|quot|apos);/gi, (entity, name) => namedHeadlineEntities[name.toLowerCase()] || entity);
 
 const extractHeadlines = (body: unknown, issueHref: string, sources: string[]) => {
   if (typeof body !== "string") return [];
   return [...body.matchAll(/^###\s+(.+)$/gm)]
     .map((match, index) => {
-      const heading = match[1]?.trim() || "";
+      const heading = decodeHeadline(match[1]?.trim() || "");
       const title = heading.replace(/^\d+\.\s+/, "");
       const rawSourceUrl = sources[index] || "";
       // Only http(s) URLs may reach href= — frontmatter can be hand-edited.
       const sourceUrl = /^https?:\/\//i.test(rawSourceUrl) ? rawSourceUrl : "";
       return {
         title,
-        href: `${issueHref}#${slugifyHeading(heading)}`,
+        href: `${issueHref}#${slug(heading)}`,
         provider: sourceUrl ? sourceLabel(sourceUrl) : "AI",
         sourceUrl,
         sourceName: sourceUrl ? sourceName(sourceUrl) : "",
