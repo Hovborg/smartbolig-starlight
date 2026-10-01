@@ -292,6 +292,8 @@ På SHARK bruges den eksisterende afgrænsede host-startfil
 `C:\codex_projekts\.automation\smartbolig-ai-news-host\start.ps1 -Publish`
 som task-action. Den giver kun GitHub CLI adgang til den eksisterende
 Git Credential Manager-adgang; `npm`, Node og Claude får ikke GitHub-tokenet.
+PR-kørslens repository kontrolleres via et afgrænset, læsebaseret GitHub API-kald;
+Sharks host-wrapper tillader kun deploy-workflowets run-liste for netop dette repo.
 Den generiske installer ovenfor er til værter med almindeligt `gh`-login og
 må ikke overskrive SHARKs host-action. Kontrollér altid den installerede action.
 Runneren sikkerhedskontrollerer alle afhængigheder før generering. Kun selve

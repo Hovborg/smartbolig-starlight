@@ -122,6 +122,59 @@ test("renderIssue breaks automatic links in untrusted source and LLM prose", asy
   }
 });
 
+test("renderIssue prevents numeric-prefixed feed URLs from becoming GFM links", async () => {
+  const hostile = {
+    ...item,
+    title: "2https://attacker.example release",
+    summary: "Details at 2https://attacker.example and 2http://attacker.example",
+    bodyText: "",
+  };
+  const output = renderIssue({
+    locale: "en",
+    date: "2026-07-11",
+    editorialPackage: selectEditorialPackage([hostile], []),
+  });
+  assert.match(output, /2https:\/\/<wbr\/>attacker\.example/);
+  assert.match(output, /2http:\/\/<wbr\/>attacker\.example/);
+  for (const line of output.split("\n").filter((value) => value.includes("attacker.example"))) {
+    const html = String(await unified().use(remarkParse).use(remarkGfm)
+      .use(remarkRehype, { allowDangerousHtml: true })
+      .use(rehypeStringify, { allowDangerousHtml: true }).process(line));
+    assert.doesNotMatch(html, /<a\b[^>]*href="https?:\/\/attacker\.example/i);
+  }
+});
+
+test("renderIssue keeps Markdown-escaped URL punctuation inert", async () => {
+  const hostile = {
+    ...item,
+    title: "https\\://attacker.example",
+    summary: "Read www\\.attacker.example",
+    bodyText: "",
+  };
+  const copy = {
+    semanticReview: "passed",
+    lede: { da: "Se kilderne", en: "See https\\://attacker.example" },
+    stories: [{
+      what: { da: "Læs kilden", en: "See www\\.attacker.example" },
+      why: { da: "Test", en: "Test" },
+      verify: { da: "Test", en: "Test" },
+      uncertainty: { da: "Test", en: "Test" },
+    }],
+  };
+  const output = renderIssue({
+    locale: "en",
+    date: "2026-07-11",
+    editorialPackage: selectEditorialPackage([hostile], []),
+    copy,
+  });
+  for (const line of output.split("\n").filter((value) => value.includes("attacker.example"))) {
+    const html = String(await unified().use(remarkParse).use(remarkGfm)
+      .use(remarkRehype, { allowDangerousHtml: true })
+      .use(rehypeStringify, { allowDangerousHtml: true }).process(line));
+    assert.doesNotMatch(html, /<a\b[^>]*href="(?:https?:\/\/)?(?:www\.)?attacker\.example/i);
+  }
+});
+
 test("renderIssue uses validated LLM copy and escapes it like feed text", () => {
   const editorialPackage = selectEditorialPackage([item], []);
   const copy = {

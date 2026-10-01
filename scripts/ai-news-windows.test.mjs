@@ -152,6 +152,61 @@ Write-Output 'GITHUB_NOTICE_RETRY_OK'
   }
 });
 
+test('Windows PR CI polling ignores fork runs with the same branch and commit', { skip: process.platform !== 'win32' }, async () => {
+  const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig PR run identity '));
+  try {
+    const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
+    const helper = runner.slice(runner.indexOf('function Invoke-Native {'), runner.indexOf('function Assert-Preflight {'));
+    const polling = runner.slice(runner.indexOf('function Wait-GitHubRun {'), runner.indexOf('function Wait-PublicIssue {'));
+    const sha = 'a'.repeat(40);
+    const branch = 'ai-news/2026-10-02-abc123';
+    const fork = { databaseId: 101, id: 101, event: 'pull_request', headSha: sha, head_sha: sha, headBranch: branch, head_branch: branch, head_repository: { full_name: 'attacker/smartbolig-starlight' }, headRepository: 'attacker/smartbolig-starlight' };
+    const own = { ...fork, databaseId: 202, id: 202, head_repository: { full_name: 'Hovborg/smartbolig-starlight' }, headRepository: 'Hovborg/smartbolig-starlight' };
+    const probe = path.join(dir, 'probe.ps1');
+    await writeFile(probe, `$ErrorActionPreference = 'Stop'
+$script:onlyFork = $false
+$script:watched = ''
+function gh {
+    if ($args[0] -eq 'run' -and $args[1] -eq 'list') {
+        $global:LASTEXITCODE = 0
+        '${JSON.stringify([fork, own])}'
+        return
+    }
+    if ($args[0] -eq 'api') {
+        $global:LASTEXITCODE = 0
+        '${JSON.stringify(fork)}'
+        if (-not $script:onlyFork) { '${JSON.stringify(own)}' }
+        return
+    }
+    if ($args[0] -eq 'run' -and $args[1] -eq 'watch') {
+        $script:watched = [string]$args[2]
+        $global:LASTEXITCODE = 0
+        return
+    }
+    throw 'Unexpected gh call'
+}
+function Start-Sleep { }
+${helper}
+${polling}
+$id = Wait-GitHubRun -Commit '${sha}' -Event pull_request -ExpectedRef '${branch}' -Phase test
+if ($id -ne '202' -or $script:watched -ne '202') { throw 'Fork run won PR CI selection' }
+$script:onlyFork = $true
+$script:watched = ''
+$failed = $false
+try { Wait-GitHubRun -Commit '${sha}' -Event pull_request -ExpectedRef '${branch}' -Phase test | Out-Null }
+catch { if ($_.Exception.Message -notmatch 'No exact GitHub Actions run') { throw }; $failed = $true }
+if (-not $failed -or $script:watched) { throw 'Fork-only run passed PR CI selection' }
+Write-Output 'FORK_RUN_IGNORED_OK'
+`);
+    for (const shell of ['powershell.exe', 'pwsh.exe']) {
+      const output = execFileSync(shell, ['-NoProfile', '-NonInteractive', '-File', probe], { encoding: 'utf8', timeout: 30_000 });
+      assert.match(output, /FORK_RUN_IGNORED_OK/, shell);
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
 test('draft generation keeps its result path and live LLM mode out of later quality checks', { skip: process.platform !== 'win32' }, async () => {
   const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig draft environment '));
   try {

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Blocked numeric-prefixed and Markdown-escaped URL autolinks in AI News text, restored plain news-overview headlines and matching section links, and limited Windows PR CI polling to workflow runs whose head repository is SmartBolig itself.
+
 - Added Danish/English guides for secure Home Assistant remote access, motion lighting with explicit manual override and sensor health monitoring. Linked all three pairs from translated sidebar entries and category overviews, with official sources, practical verification steps and documented restart or connectivity limits.
 
 - Centralized approved Partner-Ads merchants and validated deeplink destinations for Proshop, Specialkamera, RobotterOnline, WATTOO and Batteribyen. Purchase buttons now disclose advertising in both locales, Danish product guides disclose before purchase links, raw commercial links use the shared component, and partner disclosures reflect the active agreements.
