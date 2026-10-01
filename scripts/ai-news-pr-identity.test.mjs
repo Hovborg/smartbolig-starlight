@@ -28,9 +28,10 @@ test("same-name fork PR cannot be selected as the publisher's PR", () => {
   assert.throws(() => currentOwnedPr([{ ...own, headRefOid: "b".repeat(40) }], "Hovborg", own.headRefName, commit), /head commit/);
 });
 
-test("stale cleanup only selects same-repository AI News PRs", () => {
+test("stale cleanup only selects owned OpenClaw drafts, leaving Windows PRs alone", () => {
   const stale = { ...own, number: 12, headRefName: "ai-news/2026-10-01-openclaw" };
-  assert.deepEqual(staleOwnedPrNumbers([fork, own, stale, { ...fork, number: 13, headRefName: stale.headRefName }], "Hovborg", own.headRefName), [12]);
+  const windowsPublisher = { ...own, number: 14, headRefName: "ai-news/2026-10-01-deadbeefcafe" };
+  assert.deepEqual(staleOwnedPrNumbers([fork, own, stale, windowsPublisher, { ...fork, number: 13, headRefName: stale.headRefName }], "Hovborg", own.headRefName), [12]);
 });
 
 test("CLI ignores a fork collision and returns only the owned URL", () => {

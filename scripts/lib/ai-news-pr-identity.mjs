@@ -26,7 +26,7 @@ export function staleOwnedPrNumbers(prs, owner, currentBranch) {
   if (!Array.isArray(prs)) throw new TypeError("GitHub PR response must be an array");
   return prs.filter((pr) => sameRepositoryPr(pr, owner)
     && typeof pr.headRefName === "string"
-    && pr.headRefName.startsWith("ai-news/")
+    && /^ai-news\/\d{4}-\d{2}-\d{2}-openclaw$/.test(pr.headRefName)
     && pr.headRefName !== currentBranch
     && Number.isSafeInteger(pr.number) && pr.number > 0)
     .map((pr) => pr.number);
