@@ -54,6 +54,11 @@ function safeText(value) {
     .replace(/`/g, "&#96;")
     .replace(/\*/g, "&#42;")
     .replace(/_/g, "&#95;")
+    // GFM autolinks plain www., protocol and email text even after entity escaping.
+    // A fixed word-break tag keeps untrusted prose readable without adding a link.
+    .replace(/\b(https?:\/\/)/gi, "$1<wbr/>")
+    .replace(/\b(www)\./gi, "$1<wbr/>.")
+    .replace(/@/g, "@<wbr/>")
     .trim();
 }
 
