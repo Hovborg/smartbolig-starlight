@@ -22,12 +22,15 @@ export function currentOwnedPr(prs, owner, branch, expectedHead = "") {
   return pr;
 }
 
+const OPENCLAW_BRANCH = /^ai-news\/(\d{4}-\d{2}-\d{2})-openclaw$/;
+
 export function staleOwnedPrNumbers(prs, owner, currentBranch) {
   if (!Array.isArray(prs)) throw new TypeError("GitHub PR response must be an array");
+  const currentDate = OPENCLAW_BRANCH.exec(currentBranch)?.[1];
+  if (!currentDate) return [];
   return prs.filter((pr) => sameRepositoryPr(pr, owner)
     && typeof pr.headRefName === "string"
-    && /^ai-news\/\d{4}-\d{2}-\d{2}-openclaw$/.test(pr.headRefName)
-    && pr.headRefName !== currentBranch
+    && OPENCLAW_BRANCH.exec(pr.headRefName)?.[1] < currentDate
     && pr.baseRefName === "main"
     && Number.isSafeInteger(pr.number) && pr.number > 0)
     .map((pr) => pr.number);

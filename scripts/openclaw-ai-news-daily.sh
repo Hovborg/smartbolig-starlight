@@ -347,8 +347,7 @@ close_stale_ai_news_prs() {
   stale_prs="$(printf '%s' "${pr_json}" | node scripts/lib/ai-news-pr-identity.mjs stale "${owner}" "${BRANCH}")"
   while IFS= read -r stale_pr; do
     [[ -n "${stale_pr}" ]] || continue
-    gh pr close "${stale_pr}" --repo "${REPO}" --delete-branch \
-      --comment "Closed automatically — superseded by ${BRANCH}" >/dev/null || true
+    gh pr close "${stale_pr}" --repo "${REPO}" >/dev/null || true
   done <<< "${stale_prs}"
 }
 

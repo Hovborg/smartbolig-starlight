@@ -36,7 +36,10 @@ test("stale cleanup only selects owned OpenClaw drafts, leaving Windows PRs alon
   const stale = { ...own, number: 12, headRefName: "ai-news/2026-10-01-openclaw" };
   const windowsPublisher = { ...own, number: 14, headRefName: "ai-news/2026-10-01-deadbeefcafe" };
   const wrongBase = { ...stale, number: 15, baseRefName: "release" };
-  assert.deepEqual(staleOwnedPrNumbers([fork, own, stale, windowsPublisher, wrongBase, { ...fork, number: 13, headRefName: stale.headRefName }], "Hovborg", own.headRefName), [12]);
+  const future = { ...stale, number: 16, headRefName: "ai-news/2026-10-03-openclaw" };
+  const manual = { ...stale, number: 17, headRefName: "ai-news/editorial-project" };
+  assert.deepEqual(staleOwnedPrNumbers([fork, own, stale, windowsPublisher, wrongBase, future, manual, { ...fork, number: 13, headRefName: stale.headRefName }], "Hovborg", own.headRefName), [12]);
+  assert.deepEqual(staleOwnedPrNumbers([stale], "Hovborg", "ai-news/manual-draft"), []);
 });
 
 test("CLI ignores a fork collision and returns only the owned URL", () => {
