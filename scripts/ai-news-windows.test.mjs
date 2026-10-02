@@ -280,7 +280,7 @@ test('GitHub JSON field lists survive PowerShell script forwarding in both Windo
   try {
     const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
     const expressions = [...runner.matchAll(/--json\s+('[^']*'|[\w,]+)/g)].map((match) => match[1]);
-    assert.equal(expressions.length, 3, 'exercise each actual gh --json field expression');
+    assert.equal(expressions.length, 4, 'exercise each actual gh --json field expression');
     const spy = path.join(dir, 'arguments.mjs');
     await writeFile(spy, 'console.log(JSON.stringify(process.argv.slice(2)));');
     const probe = path.join(dir, 'probe.ps1');
@@ -316,7 +316,7 @@ test('Windows publisher handles git ls-remote returning no branch', { skip: proc
 test('Windows runner requires editorial LLM copy and leaves a green PR for human review', async () => {
   const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
   const prValidation = runner.indexOf("Wait-GitHubRun -Commit $prCommit");
-  const reviewReady = runner.indexOf('AI_NEWS_STATUS=awaiting-editorial-review');
+  const reviewReady = runner.lastIndexOf('AI_NEWS_STATUS=awaiting-editorial-review');
 
   assert.match(runner, /--require-llm/);
   assert.match(runner, /copySource -ne 'llm'/);
@@ -449,6 +449,48 @@ test('Windows PR lookup ignores same-name fork PRs', { skip: process.platform !=
     assert.equal(output.trim(), '');
     assert.match(runner, /headRepositoryOwner\.login -ine 'Hovborg'/);
     assert.match(runner, /--head "Hovborg:\$branch"/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('same-day owned review PR stops a rerun before LLM work while fork PRs do not', { skip: process.platform !== 'win32' }, async () => {
+  const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
+  const start = runner.indexOf("    $stage = 'pending-editorial-review'");
+  const end = runner.indexOf("    $stage = 'dependencies-and-sources'");
+  assert.ok(start > 0 && end > start, 'review guard must precede dependencies and generation');
+  const guard = runner.slice(start, end);
+  const owned = {
+    url: 'https://github.com/Hovborg/smartbolig-starlight/pull/165',
+    headRefName: 'ai-news/2026-10-02-deadbeefcafe',
+    baseRefName: 'main', isCrossRepository: false,
+    headRepositoryOwner: { login: 'Hovborg' },
+  };
+  const fork = { ...owned, url: 'https://github.com/Hovborg/smartbolig-starlight/pull/166', isCrossRepository: true, headRepositoryOwner: { login: 'attacker' } };
+  const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig-review-guard-'));
+  try {
+    const probe = path.join(dir, 'probe.ps1');
+    await writeFile(probe, `param([switch]$Own)
+$ErrorActionPreference = 'Stop'
+$Date = '2026-10-02'
+$RepoRoot = '${rootDir.replaceAll("'", "''")}'
+Set-Location -LiteralPath $RepoRoot
+$script:prJson = if ($Own) { '${JSON.stringify([fork, owned])}' } else { '${JSON.stringify([fork])}' }
+function gh { if ($args[0] -ne 'pr' -or $args[1] -ne 'list') { throw 'Unexpected gh call' }; $global:LASTEXITCODE = 0; $script:prJson }
+function RunGuard {
+${guard}
+    Write-Output 'CONTINUED_TO_GENERATION'
+}
+RunGuard
+`);
+    for (const shell of ['powershell.exe', 'pwsh.exe']) {
+      const ownedOutput = execFileSync(shell, ['-NoProfile', '-NonInteractive', '-File', probe, '-Own'], { cwd: rootDir, encoding: 'utf8', timeout: 30_000 });
+      assert.match(ownedOutput, /AI_NEWS_STATUS=awaiting-editorial-review date=2026-10-02 pr=https:\/\/github.com\/Hovborg\/smartbolig-starlight\/pull\/165/);
+      assert.doesNotMatch(ownedOutput, /CONTINUED_TO_GENERATION/);
+      const forkOutput = execFileSync(shell, ['-NoProfile', '-NonInteractive', '-File', probe], { cwd: rootDir, encoding: 'utf8', timeout: 30_000 });
+      assert.match(forkOutput, /CONTINUED_TO_GENERATION/);
+      assert.doesNotMatch(forkOutput, /AI_NEWS_STATUS=awaiting-editorial-review/);
+    }
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

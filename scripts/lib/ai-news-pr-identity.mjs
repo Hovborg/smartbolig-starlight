@@ -22,6 +22,23 @@ export function currentOwnedPr(prs, owner, branch, expectedHead = "") {
   return pr;
 }
 
+const WINDOWS_BRANCH = /^ai-news\/(\d{4}-\d{2}-\d{2})-[a-f0-9]{12}$/;
+
+export function pendingOwnedWindowsPr(prs, owner, date) {
+  if (!Array.isArray(prs)) throw new TypeError("GitHub PR response must be an array");
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error(`Invalid date: ${date}`);
+  const matches = prs.filter((pr) => sameRepositoryPr(pr, owner)
+    && typeof pr.headRefName === "string"
+    && WINDOWS_BRANCH.exec(pr.headRefName)?.[1] === date
+    && pr.baseRefName === "main");
+  if (matches.length > 1) throw new Error(`Multiple same-repository Windows PRs found for ${date}`);
+  const pr = matches[0] || null;
+  if (pr && (typeof pr.url !== "string" || !pr.url.startsWith("https://github.com/"))) {
+    throw new Error("Existing PR has no valid GitHub URL");
+  }
+  return pr;
+}
+
 const OPENCLAW_BRANCH = /^ai-news\/(\d{4}-\d{2}-\d{2})-openclaw$/;
 
 export function staleOwnedPrNumbers(prs, owner, currentBranch) {
@@ -39,10 +56,13 @@ export function staleOwnedPrNumbers(prs, owner, currentBranch) {
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const [mode, owner, branch, expectedHead = ""] = process.argv.slice(2);
-    if (!owner || !branch || !["current", "stale"].includes(mode)) throw new Error("Invalid PR identity arguments");
+    if (!owner || !branch || !["current", "pending", "stale"].includes(mode)) throw new Error("Invalid PR identity arguments");
     const prs = JSON.parse(readFileSync(0, "utf8"));
     if (mode === "current") {
       const pr = currentOwnedPr(prs, owner, branch, expectedHead);
+      if (pr) process.stdout.write(`${pr.url}\n`);
+    } else if (mode === "pending") {
+      const pr = pendingOwnedWindowsPr(prs, owner, branch);
       if (pr) process.stdout.write(`${pr.url}\n`);
     } else {
       for (const number of staleOwnedPrNumbers(prs, owner, branch)) process.stdout.write(`${number}\n`);

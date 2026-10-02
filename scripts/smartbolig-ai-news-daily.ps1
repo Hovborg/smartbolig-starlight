@@ -174,6 +174,20 @@ try {
         return
     }
 
+    # A human may be reviewing today's draft. A scheduled rerun must not
+    # regenerate or force-push it, even when a new feed item appears.
+    $stage = 'pending-editorial-review'
+    $openPrJson = & gh pr list --repo Hovborg/smartbolig-starlight --state open --limit 1000 --json 'url,headRefName,baseRefName,isCrossRepository,headRepositoryOwner'
+    if ($LASTEXITCODE -ne 0) { throw 'Could not inspect open AI News pull requests' }
+    $pendingPrUrls = @($openPrJson | & node scripts/lib/ai-news-pr-identity.mjs pending Hovborg $Date)
+    if ($LASTEXITCODE -ne 0 -or $pendingPrUrls.Count -gt 1) { throw "Could not verify pending AI News PR identity for $Date" }
+    if ($pendingPrUrls.Count -eq 1) {
+        $prUrl = [string]$pendingPrUrls[0]
+        Write-Host "AI_NEWS_STATUS=awaiting-editorial-review date=$Date pr=$prUrl"
+        $removeRunRoot = $true
+        return
+    }
+
     $stage = 'dependencies-and-sources'
     Invoke-Native npm ci
     Invoke-Native npm audit --audit-level=high

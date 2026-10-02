@@ -3,7 +3,7 @@ import { spawnSync } from "node:child_process";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
-import { currentOwnedPr, staleOwnedPrNumbers } from "./lib/ai-news-pr-identity.mjs";
+import { currentOwnedPr, pendingOwnedWindowsPr, staleOwnedPrNumbers } from "./lib/ai-news-pr-identity.mjs";
 
 const commit = "a".repeat(40);
 const own = {
@@ -49,4 +49,27 @@ test("CLI ignores a fork collision and returns only the owned URL", () => {
   });
   assert.equal(result.status, 0, result.stderr);
   assert.equal(result.stdout.trim(), own.url);
+});
+
+test("pending Windows draft selection ignores fork, OpenClaw and wrong-base collisions", () => {
+  const windows = { ...own, headRefName: "ai-news/2026-10-02-deadbeefcafe" };
+  const forkWindows = { ...windows, isCrossRepository: true, headRepositoryOwner: { login: "attacker" } };
+  const wrongBase = { ...windows, baseRefName: "release" };
+  const wrongDate = { ...windows, headRefName: "ai-news/2026-10-03-deadbeefcafe" };
+  const wrongSuffix = { ...windows, headRefName: "ai-news/2026-10-02-openclaw" };
+  assert.equal(pendingOwnedWindowsPr([forkWindows, own, wrongBase, wrongDate, wrongSuffix, windows], "Hovborg", "2026-10-02")?.url, windows.url);
+  assert.equal(pendingOwnedWindowsPr([forkWindows, own], "Hovborg", "2026-10-02"), null);
+  assert.throws(() => pendingOwnedWindowsPr([windows, { ...windows, url: "https://github.com/Hovborg/smartbolig-starlight/pull/99" }], "Hovborg", "2026-10-02"), /Multiple/);
+  assert.throws(() => pendingOwnedWindowsPr([windows], "Hovborg", "invalid"), /Invalid date/);
+});
+
+test("pending CLI returns the owned draft URL without selecting a fork", () => {
+  const command = new URL("./lib/ai-news-pr-identity.mjs", import.meta.url);
+  const windows = { ...own, headRefName: "ai-news/2026-10-02-deadbeefcafe" };
+  const forkWindows = { ...windows, isCrossRepository: true, headRepositoryOwner: { login: "attacker" } };
+  const result = spawnSync(process.execPath, [fileURLToPath(command), "pending", "Hovborg", "2026-10-02"], {
+    input: JSON.stringify([forkWindows, windows]), encoding: "utf8",
+  });
+  assert.equal(result.status, 0, result.stderr);
+  assert.equal(result.stdout.trim(), windows.url);
 });
