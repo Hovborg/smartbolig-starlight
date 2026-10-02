@@ -51,13 +51,16 @@ test("CLI ignores a fork collision and returns only the owned URL", () => {
   assert.equal(result.stdout.trim(), own.url);
 });
 
-test("pending Windows draft selection ignores fork, OpenClaw and wrong-base collisions", () => {
+test("pending Windows draft blocks any review date while ignoring forks and OpenClaw", () => {
   const windows = { ...own, headRefName: "ai-news/2026-10-02-deadbeefcafe" };
   const forkWindows = { ...windows, isCrossRepository: true, headRepositoryOwner: { login: "attacker" } };
   const wrongBase = { ...windows, baseRefName: "release" };
   const wrongDate = { ...windows, headRefName: "ai-news/2026-10-03-deadbeefcafe" };
   const wrongSuffix = { ...windows, headRefName: "ai-news/2026-10-02-openclaw" };
-  assert.equal(pendingOwnedWindowsPr([forkWindows, own, wrongBase, wrongDate, wrongSuffix, windows], "Hovborg", "2026-10-02")?.url, windows.url);
+  assert.equal(pendingOwnedWindowsPr([forkWindows, own, wrongSuffix, windows], "Hovborg", "2026-10-02")?.url, windows.url);
+  assert.equal(pendingOwnedWindowsPr([wrongDate], "Hovborg", "2026-10-02")?.url, wrongDate.url);
+  assert.throws(() => pendingOwnedWindowsPr([wrongBase], "Hovborg", "2026-10-02"), /base/i);
+  assert.throws(() => pendingOwnedWindowsPr([windows, wrongDate], "Hovborg", "2026-10-02"), /Multiple/);
   assert.equal(pendingOwnedWindowsPr([forkWindows, own], "Hovborg", "2026-10-02"), null);
   assert.throws(() => pendingOwnedWindowsPr([windows, { ...windows, url: "https://github.com/Hovborg/smartbolig-starlight/pull/99" }], "Hovborg", "2026-10-02"), /Multiple/);
   assert.throws(() => pendingOwnedWindowsPr([windows], "Hovborg", "invalid"), /Invalid date/);

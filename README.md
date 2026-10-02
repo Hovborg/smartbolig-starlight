@@ -244,6 +244,12 @@ opdatering kl. 07:20, når den er installeret og aktiveret på værten. Runneren
 henter officielle kilder, genererer artikler (da+en), bygger og validerer, åbner
 en PR og venter på den grønne GitHub Actions-kørsel. PR'en bliver stående
 til menneskelig redaktionel gennemgang; Scheduled Tasken merger ikke selv.
+Så længe én af runnerens egne Windows-PR'er er åben, stopper senere kørsler
+før ny artikelgenerering, også på en ny dato. Kontrollen gentages lige før
+push, hvis et udkast er åbnet under genereringen. Hvert forsøg får et nyt
+branchnavn, og push opretter kun en gren, hvis den ikke findes i forvejen;
+et åbent udkast overskrives aldrig. Hvis flere sådanne PR'er allerede er
+åbne, stopper runneren og kræver redaktionel oprydning.
 Når PR'en er godkendt og manuelt merget, udløser `main` Cloudflare-deploy.
 Genkør samme dato med host-startfilens `-Publish -Date YYYY-MM-DD` for at
 verificere deploy og den offentlige danske og engelske artikel og oversigt
