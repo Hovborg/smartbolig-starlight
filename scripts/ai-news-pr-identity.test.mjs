@@ -63,6 +63,16 @@ test("pending Windows draft selection ignores fork, OpenClaw and wrong-base coll
   assert.throws(() => pendingOwnedWindowsPr([windows], "Hovborg", "invalid"), /Invalid date/);
 });
 
+test("pending Windows draft refuses a saturated open-PR listing", () => {
+  const unrelated = { ...own, headRefName: "unrelated-branch" };
+  const owned = { ...own, headRefName: "ai-news/2026-10-02-deadbeefcafe" };
+  const saturated = Array.from({ length: 1000 }, () => unrelated);
+  assert.equal(pendingOwnedWindowsPr(saturated.slice(1), "Hovborg", "2026-10-02"), null);
+  assert.equal(pendingOwnedWindowsPr([...saturated.slice(2), owned], "Hovborg", "2026-10-02")?.url, owned.url);
+  assert.throws(() => pendingOwnedWindowsPr(saturated, "Hovborg", "2026-10-02"), /limit|truncat/i);
+  assert.throws(() => pendingOwnedWindowsPr([...saturated.slice(1), owned], "Hovborg", "2026-10-02"), /limit|truncat/i);
+});
+
 test("pending CLI returns the owned draft URL without selecting a fork", () => {
   const command = new URL("./lib/ai-news-pr-identity.mjs", import.meta.url);
   const windows = { ...own, headRefName: "ai-news/2026-10-02-deadbeefcafe" };

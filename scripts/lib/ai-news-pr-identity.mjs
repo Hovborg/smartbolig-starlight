@@ -27,6 +27,8 @@ const WINDOWS_BRANCH = /^ai-news\/(\d{4}-\d{2}-\d{2})-[a-f0-9]{12}$/;
 export function pendingOwnedWindowsPr(prs, owner, date) {
   if (!Array.isArray(prs)) throw new TypeError("GitHub PR response must be an array");
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) throw new Error(`Invalid date: ${date}`);
+  // The Windows runner requests at most 1000 open PRs; a full page may be truncated.
+  if (prs.length >= 1000) throw new Error("Open PR listing reached its 1000-result limit");
   const matches = prs.filter((pr) => sameRepositoryPr(pr, owner)
     && typeof pr.headRefName === "string"
     && WINDOWS_BRANCH.exec(pr.headRefName)?.[1] === date
