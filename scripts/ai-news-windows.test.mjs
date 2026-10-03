@@ -471,7 +471,7 @@ test('Windows PR lookup ignores same-name fork PRs', { skip: process.platform !=
   }
 });
 
-test('any owned review PR stops a rerun before LLM work while fork PRs do not', { skip: process.platform !== 'win32' }, async () => {
+test('same-date owned review PR stops a rerun before LLM work while fork PRs do not', { skip: process.platform !== 'win32' }, async () => {
   const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
   const start = runner.indexOf("    $stage = 'pending-editorial-review'");
   const end = runner.indexOf("    $stage = 'dependencies-and-sources'");
@@ -479,7 +479,7 @@ test('any owned review PR stops a rerun before LLM work while fork PRs do not', 
   const guard = runner.slice(start, end);
   const owned = {
     url: 'https://github.com/Hovborg/smartbolig-starlight/pull/165',
-    headRefName: 'ai-news/2026-10-01-deadbeefcafe',
+    headRefName: 'ai-news/2026-10-02-deadbeefcafe',
     baseRefName: 'main', isCrossRepository: false,
     headRepositoryOwner: { login: 'Hovborg' },
   };
@@ -522,7 +522,7 @@ test('late review check sees a PR opened during generation before pushing', { sk
   const guard = runner.slice(start, end);
   const owned = {
     url: 'https://github.com/Hovborg/smartbolig-starlight/pull/165',
-    headRefName: 'ai-news/2026-10-01-deadbeefcafe',
+    headRefName: 'ai-news/2026-10-02-deadbeefcafe',
     baseRefName: 'main', isCrossRepository: false,
     headRepositoryOwner: { login: 'Hovborg' },
   };

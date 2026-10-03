@@ -31,7 +31,7 @@ export function pendingOwnedWindowsPr(prs, owner, date) {
   if (prs.length >= 1000) throw new Error("Open PR listing reached its 1000-result limit");
   const matches = prs.filter((pr) => sameRepositoryPr(pr, owner)
     && typeof pr.headRefName === "string"
-    && WINDOWS_BRANCH.test(pr.headRefName));
+    && WINDOWS_BRANCH.exec(pr.headRefName)?.[1] === date);
   if (matches.length > 1) throw new Error("Multiple open same-repository Windows AI News PRs found");
   const pr = matches[0] || null;
   if (pr && pr.baseRefName !== "main") throw new Error(`Existing Windows PR targets unexpected base: ${pr.baseRefName}`);

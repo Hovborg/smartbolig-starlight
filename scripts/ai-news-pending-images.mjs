@@ -3,9 +3,17 @@ import { existsSync } from 'node:fs';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import sharp from 'sharp';
 
 const defaultRootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const imageSuffixes = ['', '-16x9', '-4x3', '-1x1'];
+const lastLegacyDateWithoutRequiredHero = '2026-04-11';
+const expectedImages = [
+  { suffix: '', extension: 'jpg', format: 'jpeg', label: 'JPEG', width: 1200, height: 630 },
+  { suffix: '-16x9', extension: 'jpg', format: 'jpeg', label: 'JPEG', width: 1200, height: 675 },
+  { suffix: '-4x3', extension: 'jpg', format: 'jpeg', label: 'JPEG', width: 1200, height: 900 },
+  { suffix: '-1x1', extension: 'jpg', format: 'jpeg', label: 'JPEG', width: 1200, height: 1200 },
+  { suffix: '-thumb', extension: 'webp', format: 'webp', label: 'WebP', width: 320, height: 180 },
+];
 
 function parseArgs(argv) {
   const args = new Map();
@@ -25,24 +33,54 @@ function parseArgs(argv) {
   return args;
 }
 
-function extractHeroImageSrc(content) {
+function frontmatterSectionValue(content, section, key) {
   const frontmatter = content.match(/^---\r?\n([\s\S]*?)\r?\n---/);
   if (!frontmatter) return '';
-
   const lines = frontmatter[1].split(/\r?\n/);
-  const heroIndex = lines.findIndex((line) => line.trim() === 'heroImage:');
-  if (heroIndex === -1) return '';
-
-  for (const line of lines.slice(heroIndex + 1)) {
+  const sectionIndex = lines.findIndex((line) => line.trim() === `${section}:`);
+  if (sectionIndex === -1) return '';
+  for (const line of lines.slice(sectionIndex + 1)) {
     if (/^\S/.test(line)) break;
-    const match = line.match(/^\s+src:\s*["']?([^"'\s]+)["']?\s*$/);
-    if (match) return match[1];
+    const match = line.match(/^\s+([A-Za-z]+):\s*(.*)$/);
+    if (match?.[1] !== key) continue;
+    const value = match[2].trim();
+    if (value.startsWith('"')) {
+      try { return JSON.parse(value); } catch { return ''; }
+    }
+    return value.replace(/^'|'$/g, '');
   }
   return '';
 }
 
-function expectedImagePaths(date) {
-  return imageSuffixes.map((suffix) => `public/images/ai-news/${date}${suffix}.jpg`);
+function extractHeroImageSrc(content) {
+  return frontmatterSectionValue(content, 'heroImage', 'src');
+}
+
+function expectedImageAssets(date) {
+  return expectedImages.map((image) => ({
+    ...image,
+    relativePath: `public/images/ai-news/${date}${image.suffix}.${image.extension}`,
+  }));
+}
+
+async function validateImageAsset(rootDir, asset) {
+  const absolutePath = path.join(rootDir, asset.relativePath);
+  try {
+    const metadata = await sharp(absolutePath).metadata();
+    const problems = [];
+    if (metadata.format !== asset.format) {
+      problems.push(`${asset.relativePath} must be ${asset.label}, got ${metadata.format || 'unknown format'}`);
+    }
+    if (metadata.width !== asset.width || metadata.height !== asset.height) {
+      problems.push(`${asset.relativePath} must be ${asset.width}x${asset.height}, got ${metadata.width || '?'}x${metadata.height || '?'}`);
+    }
+    if (problems.length > 0) return problems;
+    // Only fully decode files with the expected bounds. PR assets are untrusted.
+    await sharp(absolutePath, { limitInputPixels: 1_500_000 }).stats();
+    return problems;
+  } catch {
+    return [`${asset.relativePath} is not a decodable ${asset.label}`];
+  }
 }
 
 async function findPendingImages({ rootDir, dateFilter }) {
@@ -64,15 +102,56 @@ async function findPendingImages({ rootDir, dateFilter }) {
     const content = await readFile(articlePath, 'utf8');
     const heroSrc = extractHeroImageSrc(content);
     const expectedSrc = `/images/ai-news/${date}.jpg`;
-    if (!heroSrc) continue;
-
     const problems = [];
+    if (!heroSrc) {
+      if (date > lastLegacyDateWithoutRequiredHero) {
+        problems.push(`heroImage.src is required after ${lastLegacyDateWithoutRequiredHero}`);
+        pending.push({ date, article, expectedSrc, heroSrc, missing: [], problems });
+      }
+      continue;
+    }
+
     if (heroSrc !== expectedSrc) {
       problems.push(`heroImage.src must be ${expectedSrc}, got ${heroSrc}`);
     }
+    const danishAlt = frontmatterSectionValue(content, 'heroImage', 'alt');
+    const danishCaption = frontmatterSectionValue(content, 'heroImage', 'caption');
+    const danishHeadline = frontmatterSectionValue(content, 'news', 'imageHeadline');
+    if (!danishAlt) problems.push('Danish heroImage.alt is required');
+    if (!danishCaption) problems.push('Danish heroImage.caption is required');
+    if (danishHeadline && (!danishAlt.includes(danishHeadline) || !danishCaption.includes(danishHeadline))) {
+      problems.push('Danish hero metadata must describe news.imageHeadline');
+    }
 
-    const missing = expectedImagePaths(date)
-      .filter((imagePath) => !existsSync(path.join(rootDir, imagePath)));
+    const englishRelativePath = `src/content/docs/en/ai/nyheder/${date}.mdx`;
+    const englishPath = path.join(rootDir, englishRelativePath);
+    if (!existsSync(englishPath)) {
+      problems.push(`missing English article ${englishRelativePath}`);
+    } else {
+      const englishContent = await readFile(englishPath, 'utf8');
+      const englishHeroSrc = extractHeroImageSrc(englishContent);
+      const englishAlt = frontmatterSectionValue(englishContent, 'heroImage', 'alt');
+      const englishCaption = frontmatterSectionValue(englishContent, 'heroImage', 'caption');
+      const englishHeadline = frontmatterSectionValue(englishContent, 'news', 'imageHeadline');
+      if (englishHeroSrc !== expectedSrc) {
+        problems.push(`English heroImage.src must be ${expectedSrc}, got ${englishHeroSrc || 'missing'}`);
+      }
+      if (!englishAlt) problems.push('English heroImage.alt is required');
+      if (!englishCaption) problems.push('English heroImage.caption is required');
+      if (danishHeadline !== englishHeadline) problems.push('English news.imageHeadline must match Danish');
+      if (englishHeadline && (!englishAlt.includes(englishHeadline) || !englishCaption.includes(englishHeadline))) {
+        problems.push('English hero metadata must describe news.imageHeadline');
+      }
+    }
+
+    const assets = expectedImageAssets(date);
+    const missing = assets
+      .filter((asset) => !existsSync(path.join(rootDir, asset.relativePath)))
+      .map((asset) => asset.relativePath);
+    const presentAssets = assets.filter((asset) => !missing.includes(asset.relativePath));
+    for (const asset of presentAssets) {
+      problems.push(...await validateImageAsset(rootDir, asset));
+    }
 
     if (problems.length > 0 || missing.length > 0) {
       pending.push({ date, article, expectedSrc, heroSrc, missing, problems });

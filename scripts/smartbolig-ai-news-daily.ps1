@@ -174,8 +174,8 @@ try {
         return
     }
 
-    # Keep one Windows AI News draft awaiting human review across dates.
-    # A scheduled run must not generate another issue while it is open.
+    # Keep one Windows AI News draft per date awaiting human review.
+    # A rerun of that date must not overwrite an open editorial draft.
     $stage = 'pending-editorial-review'
     $openPrJson = & gh pr list --repo Hovborg/smartbolig-starlight --state open --limit 1000 --json 'url,headRefName,baseRefName,isCrossRepository,headRepositoryOwner'
     if ($LASTEXITCODE -ne 0) { throw 'Could not inspect open AI News pull requests' }
@@ -190,7 +190,7 @@ try {
 
     $stage = 'dependencies-and-sources'
     Invoke-Native npm ci
-    Invoke-Native npm audit --audit-level=high
+    Invoke-Native npm run security:audit
     Invoke-Native npm run ai-news:source-health
 
     $stage = 'draft-generation'

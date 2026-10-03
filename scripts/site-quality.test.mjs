@@ -528,11 +528,12 @@ test("deploy runs every local quality gate before publishing", async () => {
     "npm run site:test",
     "npm run ai-news:test",
     "npm run ai-news:validate",
+    "npm run ai-news:pending-images -- --fail-on-pending",
     "python3 scripts/content-audit.py",
     "npm run build",
     "npm run seo:validate",
     "python3 -m unittest discover -s scripts -p 'test_*.py'",
-    "npm audit --audit-level=high",
+    "npm run security:audit",
   ]) {
     assert.ok(workflow.includes(command), `missing pre-deploy gate: ${command}`);
   }
