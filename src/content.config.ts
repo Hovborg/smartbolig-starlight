@@ -13,6 +13,7 @@ export const collections = {
 					.object({
 						editorialVersion: z.union([z.literal(2), z.literal(3)]).optional(),
 						copySource: z.enum(['llm', 'template', 'repeat']).optional(),
+						imageHeadline: z.string().min(1).max(88).optional(),
 						semanticReview: z.enum(['passed']).optional(),
 						repeatOf: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 						storyFingerprint: z.string().regex(/^[a-f0-9]{64}$/).optional(),

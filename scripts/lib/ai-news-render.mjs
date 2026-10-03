@@ -92,8 +92,15 @@ function formatSourceDate(date, locale) {
   }).format(date);
 }
 
+function evidenceText(value) {
+  const clean = String(value || "").replace(/\s+/g, " ").trim();
+  // Some article scrapers lead with the publisher name and navigation rather
+  // than a source sentence. Omitting that fragment is more honest than quoting it.
+  return /^(?:[\w.-]+\s+)?skip to main content\b/i.test(clean) ? "" : clean;
+}
+
 function sourceExcerpt(item) {
-  const text = `${item.summary || ""} ${item.bodyText || ""}`.replace(/\s+/g, " ").trim();
+  const text = [evidenceText(item.summary), evidenceText(item.bodyText)].filter(Boolean).join(" ");
   // 20 words keeps the rendered blockquote inside the validator's 25-word cap
   // even with the localized label prefix in front.
   const words = text.split(" ").filter(Boolean).slice(0, 20);
@@ -110,7 +117,7 @@ function sourceExcerpt(item) {
 const TEMPLATE_WHAT_WORDS = 90;
 
 function templateWhat(item, locale) {
-  const summary = String(item.summary || "").replace(/\s+/g, " ").trim();
+  const summary = evidenceText(item.summary) || evidenceText(item.bodyText);
   if (!summary) {
     return locale === "da"
       ? "Den officielle side beskriver ændringen og dens aktuelle omfang."
@@ -222,18 +229,48 @@ function signalLevel(count) {
   return count === 2 ? "medium" : "low";
 }
 
+function compactHeadline(value, limit = 88) {
+  const clean = String(value || "").replace(/\s+/g, " ").trim();
+  if (clean.length <= limit) return clean;
+  const prefix = clean.slice(0, limit - 1);
+  const lastSpace = prefix.lastIndexOf(" ");
+  return `${lastSpace > limit / 2 ? prefix.slice(0, lastSpace) : prefix}…`;
+}
+
+function metadataText(value) {
+  return String(value || "")
+    .replace(/\S*(?:https?:\/\/|www\.)\S*/gi, " ")
+    .replace(/\S+@\S+\.\S+/g, " ")
+    .replace(/[<>{}\[\]`*\\]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function leadHeadline(item) {
+  const source = metadataText(provider(item)).replace(/\s+(?:releases|news)$/i, "") || "AI";
+  const title = metadataText(item.title);
+  if (!title) return source;
+  if (title.toLowerCase().startsWith(source.toLowerCase())) return compactHeadline(title);
+  return compactHeadline(`${source}${/^[vr]?\d+(?:\.\d+)+/i.test(title) ? " " : ": "}${title}`);
+}
+
 function issueFrontmatter({ locale, date, items, setHash, issueHash, copySource, signalOverride, extra = [] }) {
   const da = locale === "da";
   const formattedDate = formatDate(date, da ? "da-DK" : "en-GB");
-  const title = da ? `AI-nyheder, ${formattedDate}` : `AI News, ${formattedDate}`;
-  const description = da
-    ? `Kurateret AI-overblik for ${formattedDate}: modeller, produkter, ChatGPT, Claude, Gemini, API-priser, privacy og agent-workflows.`
-    : `Curated AI brief for ${formattedDate}: models, products, ChatGPT, Claude, Gemini, API pricing, privacy, and agent workflows.`;
+  const imageHeadline = leadHeadline(items[0]);
+  const title = da
+    ? `AI-nyheder, ${formattedDate}: ${imageHeadline}`
+    : `AI News, ${formattedDate}: ${imageHeadline}`;
+  const descriptionBase = da
+    ? `Dagens AI-overblik har ${imageHeadline} som hovedhistorie og bygger på ${items.length} ${items.length === 1 ? "officiel kilde" : "officielle kilder"}.`
+    : `Today's AI brief leads with ${imageHeadline} and draws on ${items.length} official ${items.length === 1 ? "source" : "sources"}.`;
+  const description = [...descriptionBase].length >= 80
+    ? descriptionBase
+    : `${descriptionBase} ${da ? "Se kilder og forbehold i artiklen." : "Read source links and caveats in the article."}`;
   const sourceUrls = items.map((item) => safeUrl(item.canonicalUrl || item.url));
-  const providers = [...new Set(items.map(provider))].join(", ");
   const imageAlt = da
-    ? `Redaktionelt AI-nyhedsbillede om ${providers}`
-    : `Editorial AI news image about ${providers}`;
+    ? `Redaktionel illustration om ${imageHeadline}`
+    : `Editorial illustration about ${imageHeadline}`;
   return {
     formattedDate,
     frontmatter: [
@@ -249,6 +286,7 @@ function issueFrontmatter({ locale, date, items, setHash, issueHash, copySource,
       "news:",
       "  editorialVersion: 3",
       `  copySource: ${copySource}`,
+      `  imageHeadline: ${yamlString(imageHeadline)}`,
       `  storyFingerprint: ${yamlString(storyFingerprint(items[0]))}`,
       `  issueFingerprint: ${yamlString(issueHash)}`,
       `  sourceSetFingerprint: ${yamlString(setHash)}`,

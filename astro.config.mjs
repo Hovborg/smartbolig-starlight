@@ -7,6 +7,7 @@ import remarkGfm from "remark-gfm";
 // https://astro.build/config
 export default defineConfig({
   site: "https://smartbolig.net",
+  output: "static",
 
   // Starlight's MDX pipeline does not enable GFM tables by default.
   markdown: {

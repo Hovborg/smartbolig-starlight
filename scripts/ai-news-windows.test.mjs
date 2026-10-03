@@ -280,7 +280,7 @@ test('GitHub JSON field lists survive PowerShell script forwarding in both Windo
   try {
     const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
     const expressions = [...runner.matchAll(/--json\s+('[^']*'|[\w,]+)/g)].map((match) => match[1]);
-    assert.equal(expressions.length, 3, 'exercise each actual gh --json field expression');
+    assert.equal(expressions.length, 5, 'exercise each actual gh --json field expression');
     const spy = path.join(dir, 'arguments.mjs');
     await writeFile(spy, 'console.log(JSON.stringify(process.argv.slice(2)));');
     const probe = path.join(dir, 'probe.ps1');
@@ -316,7 +316,7 @@ test('Windows publisher handles git ls-remote returning no branch', { skip: proc
 test('Windows runner requires editorial LLM copy and leaves a green PR for human review', async () => {
   const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
   const prValidation = runner.indexOf("Wait-GitHubRun -Commit $prCommit");
-  const reviewReady = runner.indexOf('AI_NEWS_STATUS=awaiting-editorial-review');
+  const reviewReady = runner.lastIndexOf('AI_NEWS_STATUS=awaiting-editorial-review');
 
   assert.match(runner, /--require-llm/);
   assert.match(runner, /copySource -ne 'llm'/);
@@ -330,7 +330,7 @@ test('Windows runner requires editorial LLM copy and leaves a green PR for human
   assert.match(runner, /headRefOid -ne \$prCommit/);
   assert.match(runner, /baseRefName -ne 'main'/);
   assert.match(runner, /force-with-lease=refs\/heads\/\$branch/);
-  assert.match(runner, /ai-news\/\$Date-\$\(\$result\.storyFingerprint\.Substring/);
+  assert.match(runner, /ai-news\/\$Date-\$\(\[Guid\]::NewGuid\(\)/);
   assert.match(runner, /-Event pull_request -ExpectedRef \$branch/);
   assert.match(runner, /-Event push -ExpectedRef main/);
   assert.match(runner, /ai-news-public-check\.mjs/);
@@ -367,7 +367,23 @@ test('post-merge retry resumes deploy and public readback instead of silently ge
   }
 });
 
-test('a retry updates the deterministic remote branch while the failed detached worktree remains', async () => {
+test('Windows publisher uses a fresh hex branch for every attempt', { skip: process.platform !== 'win32' }, async () => {
+  const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
+  const branchLine = runner.split(/\r?\n/).find((line) => line.trim().startsWith('$branch = "ai-news/'));
+  assert.ok(branchLine, 'exercise the actual branch assignment');
+  for (const shell of ['powershell.exe', 'pwsh.exe']) {
+    const script = `$Date = '2026-08-27'; $result = [pscustomobject]@{ storyFingerprint = '${'a'.repeat(64)}' }; ${branchLine}; Write-Output $branch; ${branchLine}; Write-Output $branch`;
+    const branches = execFileSync(shell, ['-NoProfile', '-NonInteractive', '-Command', script], { cwd: rootDir, encoding: 'utf8' }).trim().split(/\r?\n/);
+    assert.equal(branches.length, 2);
+    for (const branch of branches) assert.match(branch, /^ai-news\/2026-08-27-[a-f0-9]{12}$/);
+    assert.notEqual(branches[0], branches[1], 'a retry must not reuse a review branch');
+  }
+});
+
+test('branch creation refuses to replace an existing remote head', async () => {
+  const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
+  assert.ok(runner.includes('"--force-with-lease=refs/heads/$branch`:"'), 'publisher must require an absent remote branch');
+  assert.doesNotMatch(runner, /force-with-lease=refs\/heads\/\$branch`:\$remoteOid/);
   const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig-ai-news-retry-'));
   const remote = path.join(dir, 'remote.git');
   const base = path.join(dir, 'base');
@@ -386,6 +402,7 @@ test('a retry updates the deterministic remote branch while the failed detached 
     git(base, 'push', '-u', 'origin', 'main');
     const baseCommit = git(base, 'rev-parse', 'HEAD');
     const branch = 'ai-news/2026-08-27-deadbeefcafe';
+    const alternate = 'ai-news/2026-08-27-abcdef123456';
 
     git(base, 'worktree', 'add', '--detach', first, baseCommit);
     await writeFile(path.join(first, 'issue.txt'), 'first attempt\n');
@@ -399,10 +416,10 @@ test('a retry updates the deterministic remote branch while the failed detached 
     git(retry, 'add', 'issue.txt');
     git(retry, 'commit', '-m', 'retry attempt');
     const retryCommit = git(retry, 'rev-parse', 'HEAD');
-    git(retry, 'push', `--force-with-lease=refs/heads/${branch}:${firstCommit}`, 'origin', `HEAD:refs/heads/${branch}`);
-
-    const remoteCommit = git(base, 'ls-remote', '--heads', 'origin', `refs/heads/${branch}`).split(/\s+/)[0];
-    assert.equal(remoteCommit, retryCommit);
+    assert.throws(() => git(retry, 'push', `--force-with-lease=refs/heads/${branch}:`, 'origin', `HEAD:refs/heads/${branch}`));
+    assert.equal(git(base, 'ls-remote', '--heads', 'origin', `refs/heads/${branch}`).split(/\s+/)[0], firstCommit);
+    git(retry, 'push', `--force-with-lease=refs/heads/${alternate}:`, 'origin', `HEAD:refs/heads/${alternate}`);
+    assert.equal(git(base, 'ls-remote', '--heads', 'origin', `refs/heads/${alternate}`).split(/\s+/)[0], retryCommit);
     assert.equal(git(first, 'rev-parse', '--abbrev-ref', 'HEAD'), 'HEAD');
     assert.equal(git(retry, 'rev-parse', '--abbrev-ref', 'HEAD'), 'HEAD');
   } finally {
@@ -449,6 +466,89 @@ test('Windows PR lookup ignores same-name fork PRs', { skip: process.platform !=
     assert.equal(output.trim(), '');
     assert.match(runner, /headRepositoryOwner\.login -ine 'Hovborg'/);
     assert.match(runner, /--head "Hovborg:\$branch"/);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('same-date owned review PR stops a rerun before LLM work while fork PRs do not', { skip: process.platform !== 'win32' }, async () => {
+  const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
+  const start = runner.indexOf("    $stage = 'pending-editorial-review'");
+  const end = runner.indexOf("    $stage = 'dependencies-and-sources'");
+  assert.ok(start > 0 && end > start, 'review guard must precede dependencies and generation');
+  const guard = runner.slice(start, end);
+  const owned = {
+    url: 'https://github.com/Hovborg/smartbolig-starlight/pull/165',
+    headRefName: 'ai-news/2026-10-02-deadbeefcafe',
+    baseRefName: 'main', isCrossRepository: false,
+    headRepositoryOwner: { login: 'Hovborg' },
+  };
+  const fork = { ...owned, url: 'https://github.com/Hovborg/smartbolig-starlight/pull/166', isCrossRepository: true, headRepositoryOwner: { login: 'attacker' } };
+  const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig-review-guard-'));
+  try {
+    const probe = path.join(dir, 'probe.ps1');
+    await writeFile(probe, `param([switch]$Own)
+$ErrorActionPreference = 'Stop'
+$Date = '2026-10-02'
+$RepoRoot = '${rootDir.replaceAll("'", "''")}'
+Set-Location -LiteralPath $RepoRoot
+$script:prJson = if ($Own) { '${JSON.stringify([fork, owned])}' } else { '${JSON.stringify([fork])}' }
+function gh { if ($args[0] -ne 'pr' -or $args[1] -ne 'list') { throw 'Unexpected gh call' }; $global:LASTEXITCODE = 0; $script:prJson }
+function RunGuard {
+${guard}
+    Write-Output 'CONTINUED_TO_GENERATION'
+}
+RunGuard
+`);
+    for (const shell of ['powershell.exe', 'pwsh.exe']) {
+      const ownedOutput = execFileSync(shell, ['-NoProfile', '-NonInteractive', '-File', probe, '-Own'], { cwd: rootDir, encoding: 'utf8', timeout: 30_000 });
+      assert.match(ownedOutput, /AI_NEWS_STATUS=awaiting-editorial-review date=2026-10-02 pr=https:\/\/github.com\/Hovborg\/smartbolig-starlight\/pull\/165/);
+      assert.doesNotMatch(ownedOutput, /CONTINUED_TO_GENERATION/);
+      const forkOutput = execFileSync(shell, ['-NoProfile', '-NonInteractive', '-File', probe], { cwd: rootDir, encoding: 'utf8', timeout: 30_000 });
+      assert.match(forkOutput, /CONTINUED_TO_GENERATION/);
+      assert.doesNotMatch(forkOutput, /AI_NEWS_STATUS=awaiting-editorial-review/);
+    }
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
+});
+
+test('late review check sees a PR opened during generation before pushing', { skip: process.platform !== 'win32' }, async () => {
+  const runner = await readFile(path.join(rootDir, 'scripts/smartbolig-ai-news-daily.ps1'), 'utf8');
+  const committed = runner.indexOf('Invoke-Native git commit -m "feat(ai-news): publish $Date brief"');
+  const start = runner.indexOf("    $stage = 'pre-push-editorial-review'", committed);
+  const end = runner.indexOf("    $stage = 'github-publish'", start);
+  assert.ok(committed > 0 && start > committed && end > start, 'all open owned PRs must be rechecked after commit and before push');
+  const guard = runner.slice(start, end);
+  const owned = {
+    url: 'https://github.com/Hovborg/smartbolig-starlight/pull/165',
+    headRefName: 'ai-news/2026-10-02-deadbeefcafe',
+    baseRefName: 'main', isCrossRepository: false,
+    headRepositoryOwner: { login: 'Hovborg' },
+  };
+  const fork = { ...owned, url: 'https://github.com/Hovborg/smartbolig-starlight/pull/166', isCrossRepository: true, headRepositoryOwner: { login: 'attacker' } };
+  const dir = await mkdtemp(path.join(tmpdir(), 'smartbolig-late-review-guard-'));
+  try {
+    const probe = path.join(dir, 'probe.ps1');
+    await writeFile(probe, `param([switch]$Own)
+$ErrorActionPreference = 'Stop'
+$Date = '2026-10-02'
+Set-Location -LiteralPath '${rootDir.replaceAll("'", "''")}'
+$script:prJson = if ($Own) { '${JSON.stringify([fork, owned])}' } else { '${JSON.stringify([fork])}' }
+function gh { if ($args[0] -ne 'pr' -or $args[1] -ne 'list') { throw 'Unexpected gh call' }; $global:LASTEXITCODE = 0; $script:prJson }
+function RunGuard {
+${guard}
+    Write-Output 'CONTINUED_TO_PUSH'
+}
+RunGuard
+`);
+    for (const shell of ['powershell.exe', 'pwsh.exe']) {
+      const ownedOutput = execFileSync(shell, ['-NoProfile', '-NonInteractive', '-File', probe, '-Own'], { cwd: rootDir, encoding: 'utf8', timeout: 30_000 });
+      assert.match(ownedOutput, /AI_NEWS_STATUS=awaiting-editorial-review date=2026-10-02 pr=https:\/\/github.com\/Hovborg\/smartbolig-starlight\/pull\/165/);
+      assert.doesNotMatch(ownedOutput, /CONTINUED_TO_PUSH/);
+      const forkOutput = execFileSync(shell, ['-NoProfile', '-NonInteractive', '-File', probe], { cwd: rootDir, encoding: 'utf8', timeout: 30_000 });
+      assert.match(forkOutput, /CONTINUED_TO_PUSH/);
+    }
   } finally {
     await rm(dir, { recursive: true, force: true });
   }

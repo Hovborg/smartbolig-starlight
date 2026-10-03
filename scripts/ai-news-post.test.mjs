@@ -44,8 +44,8 @@ test('AI News draft renders as a blog-style article with a narrative lead and so
 
     assert.match(stdout, /OpenAI Codex 9\.9\.9 improves review workflows/);
     assert.match(stdout, /heroImage:\n  src: "\/images\/ai-news\/2026-04-19\.jpg"/);
-    assert.match(stdout, /alt: "Redaktionelt AI-nyhedsbillede/);
-    assert.match(stdout, /caption: "Redaktionelt AI-nyhedsbillede/);
+    assert.match(stdout, /alt: "Redaktionel illustration om OpenAI Codex 9\.9\.9/);
+    assert.match(stdout, /caption: "Redaktionel illustration om OpenAI Codex 9\.9\.9/);
     assert.match(stdout, /editorialVersion: 3/);
     assert.match(stdout, /storyFingerprint: "[a-f0-9]{64}"/);
     assert.match(stdout, /issueFingerprint: "[a-f0-9]{64}"/);
@@ -95,7 +95,7 @@ test('AI News copy is broad AI coverage, not only CLI release notes', async () =
     );
 
     assert.match(stdout, /ChatGPT adds personal memory for everyday planning/);
-    assert.match(stdout, /modeller, produkter, ChatGPT, Claude, Gemini, API-priser, privacy og agent-workflows/);
+    assert.match(stdout, /description: ".*ChatGPT adds personal memory for everyday planning/);
     assert.match(stdout, /AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed/);
     assert.doesNotMatch(stdout, /Fokus er release notes, CLI-agent ændringer og API-ændringer/);
     assert.doesNotMatch(stdout, /AI CLI'er, coding agents, API-brug, priser eller sikkerhed/);

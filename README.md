@@ -213,18 +213,26 @@ npm ci
 npm run site:test
 npm run ai-news:test
 npm run ai-news:validate
+npm run ai-news:pending-images -- --fail-on-pending
 python3 -m unittest discover -s scripts -p "test_*.py"
 python3 scripts/content-audit.py
-npm audit --audit-level=high
+npm run security:audit
 npm run build
 npm run seo:validate
 npm run worker:build
 npx wrangler deploy --dry-run
 ```
 
-Afhængighedskontrollen omfatter også udviklingsværktøjer. Den tidligere
-midlertidige undtagelse er ophævet. På Windows bruges den installerede Python
-og Git for Windows Bash; indholdskontrollen behøver ikke WSL.
+Afhængighedskontrollen kører den fulde `npm audit --audit-level=high` inklusiv
+udviklingsværktøjer. Den accepterer frem til 17. oktober 2026 kun den præcist
+gennemgåede GHSA-ch52-4w7c-c8xp i Astro 7.2.8 og `http-cache-semantics`
+4.2.0 ved statisk build; enhver anden høj/kritisk advisory, ændret version,
+auditfejl, ændret Worker-kilde eller lockfil, eller udløbet frist stopper
+build og nyhedsrunner. Den rå audit
+viser fortsat fundet. Begrundelse og verifikation ligger i
+`docs/verification/2026-10-03-ai-news-cache-advisory.md`.
+På Windows bruges den installerede Python og Git for Windows Bash;
+indholdskontrollen behøver ikke WSL.
 
 Nyhedskilder hentes gennem én fælles kontrol med HTTPS, værtsallowlist,
 kontrol af hver redirect, binding til godkendte offentlige DNS-adresser,
@@ -244,6 +252,15 @@ opdatering kl. 07:20, når den er installeret og aktiveret på værten. Runneren
 henter officielle kilder, genererer artikler (da+en), bygger og validerer, åbner
 en PR og venter på den grønne GitHub Actions-kørsel. PR'en bliver stående
 til menneskelig redaktionel gennemgang; Scheduled Tasken merger ikke selv.
+Så længe én af runnerens egne Windows-PR'er for samme dato er åben, stopper
+en genkørsel af den dato før ny artikelgenerering. Nye datoer kan få egne
+udkast, men de skal gennemgås og merges manuelt, før de ses på sitet.
+Kontrollen gentages lige før push. Hvert forsøg får et nyt branchnavn,
+og push opretter kun en gren, hvis den ikke findes i forvejen; et åbent
+udkast overskrives aldrig. Hvis flere PR'er for samme dato allerede er åbne,
+stopper runneren og kræver redaktionelt valg mellem dem. Den tidligere
+manuelle GitHub-workflow til AI News er fjernet, fordi den ikke kunne udføre
+LLM-gennemgangen eller levere de påkrævede billedfiler.
 Når PR'en er godkendt og manuelt merget, udløser `main` Cloudflare-deploy.
 Genkør samme dato med host-startfilens `-Publish -Date YYYY-MM-DD` for at
 verificere deploy og den offentlige danske og engelske artikel og oversigt

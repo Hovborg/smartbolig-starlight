@@ -244,3 +244,51 @@ test("renderRepeatIssue writes an honest low-signal repeat digest", () => {
   assert.match(output, /\/da\/ai\/nyheder\/2026-05-16\//);
   assert.match(output, /Kilde: /);
 });
+
+test("daily metadata and image headline identify the official lead story", () => {
+  const lead = {
+    ...item,
+    source: { id: "openclaw", name: "OpenClaw releases", primary: true },
+    sourceId: "openclaw",
+    sourceName: "OpenClaw releases",
+    title: "2026.8.34",
+    url: "https://github.com/openclaw/openclaw/releases/tag/v2026.8.34",
+    canonicalUrl: "https://github.com/openclaw/openclaw/releases/tag/v2026.8.34",
+  };
+  const editorialPackage = { status: "publish", items: [lead] };
+  for (const locale of ["da", "en"]) {
+    const output = renderIssue({ locale, date: "2026-07-11", editorialPackage });
+    assert.match(output, /title: "(?:AI-nyheder|AI News).*OpenClaw 2026\.8\.34"/);
+    assert.match(output, /description: ".*OpenClaw 2026\.8\.34/);
+    assert.match(output, /alt: ".*OpenClaw 2026\.8\.34/);
+    assert.match(output, /imageHeadline: "OpenClaw 2026\.8\.34"/);
+    assert.doesNotMatch(output, /modeller, produkter, ChatGPT, Claude, Gemini, API-priser/);
+  }
+});
+
+test("renderIssue omits navigation boilerplate instead of quoting it as source evidence", () => {
+  const noisy = {
+    ...item,
+    summary: "Anthropic Skip to main content Products Research Pricing Company",
+    bodyText: "The official announcement describes a new deployment for customers.",
+  };
+  const output = renderIssue({
+    locale: "en", date: "2026-07-11",
+    editorialPackage: { status: "publish", items: [noisy] },
+  });
+  assert.doesNotMatch(output, /> Short source excerpt: Anthropic Skip to main content/);
+  assert.match(output, /Source: \[OpenAI adds scoped permissions/);
+});
+
+
+test("short official headlines retain SEO length in both languages", () => {
+  const shortLead = { ...item, title: "v1" };
+  const editorialPackage = { status: "publish", items: [shortLead] };
+  for (const locale of ["da", "en"]) {
+    const output = renderIssue({ locale, date: "2026-07-11", editorialPackage });
+    const line = output.split("\n").find((entry) => entry.startsWith("description: "));
+    const description = JSON.parse(line.slice("description: ".length));
+    assert.ok([...description].length >= 80 && [...description].length <= 165,
+      `${locale} description is ${[...description].length} characters`);
+  }
+});

@@ -174,9 +174,23 @@ try {
         return
     }
 
+    # Keep one Windows AI News draft per date awaiting human review.
+    # A rerun of that date must not overwrite an open editorial draft.
+    $stage = 'pending-editorial-review'
+    $openPrJson = & gh pr list --repo Hovborg/smartbolig-starlight --state open --limit 1000 --json 'url,headRefName,baseRefName,isCrossRepository,headRepositoryOwner'
+    if ($LASTEXITCODE -ne 0) { throw 'Could not inspect open AI News pull requests' }
+    $pendingPrUrls = @($openPrJson | & node scripts/lib/ai-news-pr-identity.mjs pending Hovborg $Date)
+    if ($LASTEXITCODE -ne 0 -or $pendingPrUrls.Count -gt 1) { throw "Could not verify pending AI News PR identity for $Date" }
+    if ($pendingPrUrls.Count -eq 1) {
+        $prUrl = [string]$pendingPrUrls[0]
+        Write-Host "AI_NEWS_STATUS=awaiting-editorial-review date=$Date pr=$prUrl"
+        $removeRunRoot = $true
+        return
+    }
+
     $stage = 'dependencies-and-sources'
     Invoke-Native npm ci
-    Invoke-Native npm audit --audit-level=high
+    Invoke-Native npm run security:audit
     Invoke-Native npm run ai-news:source-health
 
     $stage = 'draft-generation'
@@ -228,7 +242,7 @@ try {
     }
 
     $stage = 'github-publish'
-    $branch = "ai-news/$Date-$($result.storyFingerprint.Substring(0, 12))"
+    $branch = "ai-news/$Date-$([Guid]::NewGuid().ToString('N').Substring(0, 12))"
     $allowedPaths = @(
         "src/content/docs/da/ai/nyheder/$Date.mdx",
         "src/content/docs/en/ai/nyheder/$Date.mdx",
@@ -248,28 +262,33 @@ try {
     if ($stagedPaths.Count -eq 0 -or @($stagedPaths | Where-Object { $_ -notin $allowedPaths }).Count -gt 0) { throw 'Staged path allowlist verification failed' }
     Invoke-Native git commit -m "feat(ai-news): publish $Date brief"
     $prCommit = (& git rev-parse HEAD).Trim()
+    # Another owned draft may have opened while this issue was being generated.
+    $stage = 'pre-push-editorial-review'
+    $openPrJson = & gh pr list --repo Hovborg/smartbolig-starlight --state open --limit 1000 --json 'url,headRefName,baseRefName,isCrossRepository,headRepositoryOwner'
+    if ($LASTEXITCODE -ne 0) { throw 'Could not recheck open AI News pull requests before push' }
+    $pendingPrUrls = @($openPrJson | & node scripts/lib/ai-news-pr-identity.mjs pending Hovborg $Date)
+    if ($LASTEXITCODE -ne 0 -or $pendingPrUrls.Count -gt 1) { throw "Could not recheck pending AI News PR identity for $Date" }
+    if ($pendingPrUrls.Count -eq 1) {
+        $prUrl = [string]$pendingPrUrls[0]
+        Write-Host "AI_NEWS_STATUS=awaiting-editorial-review date=$Date pr=$prUrl"
+        $removeRunRoot = $true
+        return
+    }
+    $stage = 'github-publish'
     $prJson = & gh pr list --repo Hovborg/smartbolig-starlight --state open --head $branch --limit 1000 --json 'url,headRefOid,headRefName,baseRefName,isCrossRepository,headRepositoryOwner'
     if ($LASTEXITCODE -ne 0) { throw 'Could not look for an existing AI News pull request' }
-    # A fork can reuse the predictable branch name. Ignore it when locating our PR.
+    # A fork can reuse the branch name after it becomes visible. Ignore its PR.
     $prUrls = @($prJson | & node scripts/lib/ai-news-pr-identity.mjs current Hovborg $branch)
     if ($LASTEXITCODE -ne 0 -or $prUrls.Count -gt 1) { throw "Could not verify same-repository PR identity for $branch" }
-    $prUrl = if ($prUrls.Count -eq 1) { [string]$prUrls[0] } else { '' }
+    if ($prUrls.Count -ne 0) { throw "Fresh AI News branch already has an open PR: $branch" }
     $remoteLine = (@(& git ls-remote --heads origin "refs/heads/$branch") -join "`n").Trim()
     if ($LASTEXITCODE -ne 0) { throw "Could not inspect remote branch: $branch" }
-    if ($prUrl) {
-        if (-not $remoteLine) { throw "Existing PR has no remote branch: $branch" }
-        $remoteOid = ($remoteLine -split '\s+')[0]
-        Invoke-Native git push "--force-with-lease=refs/heads/$branch`:$remoteOid" --set-upstream origin "HEAD:refs/heads/$branch"
-    } else {
-        if ($remoteLine) {
-            $remoteOid = ($remoteLine -split '\s+')[0]
-            Invoke-Native git push "--force-with-lease=refs/heads/$branch`:$remoteOid" --set-upstream origin "HEAD:refs/heads/$branch"
-        } else {
-            Invoke-Native git push --set-upstream origin "HEAD:refs/heads/$branch"
-        }
-        $prUrl = & gh pr create --repo Hovborg/smartbolig-starlight --base main --head "Hovborg:$branch" --title "Publish AI news for $Date" --body "Automated bilingual AI News draft. Local source, content, image, site, build, and SEO checks passed. CI and human editorial review are required before manual merge. Verify both language versions against their primary sources."
-        if ($LASTEXITCODE -ne 0 -or -not $prUrl) { throw 'Could not create the AI News pull request' }
-    }
+    if ($remoteLine) { throw "Fresh AI News branch already exists: $branch" }
+    # An empty expected value is an atomic create-only lease. Never replace a
+    # branch that a reviewer could have opened between the PR check and push.
+    Invoke-Native git push "--force-with-lease=refs/heads/$branch`:" --set-upstream origin "HEAD:refs/heads/$branch"
+    $prUrl = & gh pr create --repo Hovborg/smartbolig-starlight --base main --head "Hovborg:$branch" --title "Publish AI news for $Date" --body "Automated bilingual AI News draft. Local source, content, image, site, build, and SEO checks passed. CI and human editorial review are required before manual merge. Verify both language versions against their primary sources."
+    if ($LASTEXITCODE -ne 0 -or -not $prUrl) { throw 'Could not create the AI News pull request' }
     Write-Host "PR_READY $prUrl"
 
     Wait-GitHubRun -Commit $prCommit -Event pull_request -ExpectedRef $branch -Phase 'pull-request' | Out-Null
