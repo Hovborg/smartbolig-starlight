@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- The AI News PR-identity helper accepts the single leading byte-order mark that Windows PowerShell 5.1 adds to piped GitHub JSON in a UTF-8 (code page 65001) console. Manual runs from such a console no longer stop at the pending-editorial-review check; any other malformed input is still rejected.
+
 - Blocked numeric-prefixed and Markdown-escaped URL autolinks in AI News text, restored plain news-overview headlines and matching section links, and limited Windows PR CI polling to workflow runs whose head repository is SmartBolig itself.
 
 - Added Danish/English guides for secure Home Assistant remote access, motion lighting with explicit manual override and sensor health monitoring. Linked all three pairs from translated sidebar entries and category overviews, with official sources, practical verification steps and documented restart or connectivity limits.
