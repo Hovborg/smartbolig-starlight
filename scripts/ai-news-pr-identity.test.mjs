@@ -86,3 +86,18 @@ test("pending CLI returns the owned draft URL without selecting a fork", () => {
   assert.equal(result.status, 0, result.stderr);
   assert.equal(result.stdout.trim(), windows.url);
 });
+
+test("CLI accepts one leading BOM from a Windows PowerShell pipe and nothing more", () => {
+  const command = fileURLToPath(new URL("./lib/ai-news-pr-identity.mjs", import.meta.url));
+  const windows = { ...own, headRefName: "ai-news/2026-10-02-deadbeefcafe" };
+  const json = JSON.stringify([windows]);
+  const run = (input) => spawnSync(process.execPath, [command, "pending", "Hovborg", "2026-10-02"], { input, encoding: "utf8" });
+  const withBom = run(`﻿${json}`);
+  assert.equal(withBom.status, 0, withBom.stderr);
+  assert.equal(withBom.stdout.trim(), windows.url);
+  for (const input of [`﻿﻿${json}`, `x${json}`, `${json}﻿`]) {
+    const rejected = run(input);
+    assert.equal(rejected.status, 1, `accepted ${JSON.stringify(input.slice(0, 3))}`);
+    assert.equal(rejected.stdout, "");
+  }
+});

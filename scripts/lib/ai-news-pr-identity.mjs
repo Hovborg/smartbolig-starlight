@@ -59,7 +59,8 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   try {
     const [mode, owner, branch, expectedHead = ""] = process.argv.slice(2);
     if (!owner || !branch || !["current", "pending", "stale"].includes(mode)) throw new Error("Invalid PR identity arguments");
-    const prs = JSON.parse(readFileSync(0, "utf8"));
+    // Windows PowerShell 5.1 prefixes piped native input with a BOM in a UTF-8 (65001) console.
+    const prs = JSON.parse(readFileSync(0, "utf8").replace(/^﻿/, ""));
     if (mode === "current") {
       const pr = currentOwnedPr(prs, owner, branch, expectedHead);
       if (pr) process.stdout.write(`${pr.url}\n`);
