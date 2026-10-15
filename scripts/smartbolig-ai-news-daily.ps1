@@ -222,7 +222,9 @@ try {
     $stage = 'quality-gates'
     Invoke-Native npm run ai-news:test
     Invoke-Native npm run ai-news:validate
-    Invoke-Native npm run ai-news:quality -- --date $Date
+    # Call node directly: PS 5.1 resolves npm to npm.ps1, which drops `--`,
+    # and npm 12 rejects the script's --date flag as an unknown npm option.
+    Invoke-Native node scripts/ai-news-quality.mjs --date $Date
     Invoke-Native node scripts/ai-news-pending-images.mjs --date $Date --fail-on-pending
     Invoke-Native npm run site:test
     Invoke-Native npm run build

@@ -321,7 +321,9 @@ test('Windows runner requires editorial LLM copy and leaves a green PR for human
   assert.match(runner, /--require-llm/);
   assert.match(runner, /copySource -ne 'llm'/);
   assert.match(runner, /semanticReview -ne 'passed'/);
-  assert.match(runner, /npm run ai-news:quality -- --date \$Date/);
+  assert.match(runner, /Invoke-Native node scripts\/ai-news-quality\.mjs --date \$Date/);
+  // PS 5.1 binds `npm` to npm.ps1 and drops `--`; npm 12 then rejects the script's flags.
+  assert.doesNotMatch(runner, /Invoke-Native npm [^\r\n]* -- /);
   assert.match(runner, /worktree add --detach \$runRoot \$baseCommit/);
   assert.doesNotMatch(runner, /git stash/);
   assert.doesNotMatch(runner, /git switch -c/);
