@@ -1,0 +1,112 @@
+---
+title: "AI News, 2 October 2026"
+description: "Curated AI brief for 2 October 2026: models, products, ChatGPT, Claude, Gemini, API pricing, privacy, and agent workflows."
+date: 2026-10-02
+lastUpdated: 2026-10-02
+heroImage:
+  src: "/images/ai-news/2026-10-02.jpg"
+  alt: "Editorial AI news image about Claude Code releases, OpenAI Codex releases, Gemini CLI releases, Anthropic News"
+  caption: "Editorial AI news image about Claude Code releases, OpenAI Codex releases, Gemini CLI releases, Anthropic News"
+news:
+  editorialVersion: 3
+  copySource: llm
+  storyFingerprint: "41e9255e955e35904b57da64dfe3f0969fdbea5d4d9b39c0cb3f61f88f121815"
+  issueFingerprint: "5ebccec0f4948a751f22f0500a410f3733f6b52c8dd1e60d69b0b17080951015"
+  sourceSetFingerprint: "3a8a61c499bb545d8f21a2347e3d0e99cf78b82b2c517977447277941f4d5190"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.286"
+    - "https://github.com/openai/codex/releases/tag/rust-v0.160.0"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.63.0-preview.0"
+    - "https://www.anthropic.com/news/barclays-scales-claude"
+sidebar:
+  label: "2 October 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="5ebccec0f4948a751f22f0500a410f3733f6b52c8dd1e60d69b0b17080951015">By SmartBolig.net Editorial · <time datetime="2026-10-02">2 October 2026</time> · 4 selected sources</p>
+
+<p class="ai-news-lede">Today's issue leads with Claude Code v2.1.286, a release bundling fixes for login handling, session resumption and errors after tool calls. Newer versions of Codex and Gemini CLI follow, with bug fixes and smaller improvements. Last is Barclays' wider use of Claude, an enterprise announcement that documents no changes for private users.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. Claude Code releases: v2.1.286
+
+**What changed:** Claude Code releases published the update on 30 Sept 2026. Claude Code v2.1.286 adds a count such as '2 of 5' when several permission requests stack up. Fixes cover multiple login browsers opening when gcpAuthRefresh or awsAuthRefresh credentials expire, turns lost by claude --resume and --continue after parallel tool calls, and API 400 errors when a tool returned something other than text. If the API refuses a model, Claude Code now retries once on the previous model of the same tier.
+
+> Short source excerpt: What's changed Added a count such as "2 of 5" to the permission prompt when several permission requests stack up…
+
+**Why it matters:** This concerns people running Claude Code in a terminal or IDE. The --resume fix matters if you pick up sessions after a crash. The release also corrects the spend meter of the Claude apps gateway, which only affects setups that use that gateway.
+
+**How to verify it:** Check which Claude Code version you have installed and read the v2.1.286 release notes before relying on any individual fix in your own setup.
+
+**Uncertainty:** The excerpt is cut off, so not every item is included. The source does not show how often the bugs occurred, which accounts or platforms were hit hardest, or whether the fixes hold in every environment.
+
+Source: [v2.1.286](https://github.com/anthropics/claude-code/releases/tag/v2.1.286)
+
+### 2. OpenAI Codex releases: 0.160.0
+
+**What changed:** OpenAI Codex releases published the update on 1 Oct 2026. Codex 0.160.0 lets you browse older tasks in the agent command center through a keyboard-accessible 'Show more' action. Sessions can start outside a project with workspace defaults when policy permits. Unsent queued messages resume after reconnection without duplicates. Other fixes address the Windows sandbox, SQLite stalls and model catalogs from explicitly configured providers.
+
+> Short source excerpt: New Features Browse older tasks in the agent command center with a keyboard-accessible “Show more” action. &#40; #49106 &#41; Select…
+
+**Why it matters:** The release is for people using Codex as a coding agent, particularly on Windows, where several fixes touch the sandbox and background console windows. Resuming queued messages without duplicates may spare you repeated actions on an unreliable connection.
+
+**How to verify it:** Check your installed Codex version and go through the 0.160.0 release notes. If you use a custom provider, also read the clarified documentation on env&#95;key and credential storage.
+
+**Uncertainty:** The source does not describe how the opt-in Guardian capabilities work in practice, and the changelog is truncated. It also does not show whether every change applies on all platforms.
+
+Source: [0.160.0](https://github.com/openai/codex/releases/tag/rust-v0.160.0)
+
+### 3. Gemini CLI releases: Release v0.63.0-preview.0
+
+**What changed:** Gemini CLI releases published the update on 29 Sept 2026. Gemini CLI v0.63.0-preview.0 is a preview build. It shows a progress indicator during connection recovery, tells a missing MCP enablement config apart from malformed JSON, bounds tool output size in long-running agent loops, and cleans up a temporary directory when a background shell exits. It also fixes an endless authentication loop and enables autonomous plan execution in non-interactive mode.
+
+> Short source excerpt: What's Changed fix&#40;cli&#41;: display retry progress indicator during connection recovery &#40; #28340 &#41; by @<wbr/>amelidev in #29468 Changelog for v0.61.0-preview.1…
+
+**Why it matters:** This mostly matters to people who deliberately try the preview channel of Gemini CLI. The changes touch long-running sessions, MCP setup and login, but the source states no concrete benefit for everyday use.
+
+**How to verify it:** Check whether you run a preview, nightly or stable build of Gemini CLI and read the release notes before switching. Stay on a stable build if you do not want pre-release software.
+
+**Uncertainty:** The source is a list of fixes without explanations, so it does not show how each change behaves in practice. It also does not say when, or whether, these items reach a stable release.
+
+Source: [Release v0.63.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.63.0-preview.0)
+
+### 4. Anthropic News: Barclays scales Claude to upgrade operations and improve client experience
+
+**What changed:** Anthropic News published the update on 1 Oct 2026. Barclays, a British bank, is expanding its collaboration with Anthropic to use Claude across the organisation for software development, modernising legacy systems and operational efficiency. The bank expects Claude Code to reach 50 percent of its developers by the end of 2026 and a majority of software engineers in 2027.
+
+> Short source excerpt: Barclays scales Claude to upgrade operations and improve client experience &#92; Anthropic Skip to main content Skip to footer Research…
+
+**Why it matters:** The announcement concerns a large, regulated bank and its developers and operations. The bank mentions faster customer support among its aims. The source describes no changes to prices, access or plans for private users or small setups.
+
+**How to verify it:** There is nothing here to test yourself. To find out whether your own Claude tools have changed, look at the official release notes and your plan details.
+
+**Uncertainty:** The adoption figures are Barclays' expectations, not results. The source shows no measured effects on customer service, no timeline for individual parts and no technical detail about the setup.
+
+Source: [Barclays scales Claude to upgrade operations and improve client experience](https://www.anthropic.com/news/barclays-scales-claude)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| Claude Code releases | [v2.1.286](https://github.com/anthropics/claude-code/releases/tag/v2.1.286) | 30 Sept 2026 |
+| OpenAI Codex releases | [0.160.0](https://github.com/openai/codex/releases/tag/rust-v0.160.0) | 1 Oct 2026 |
+| Gemini CLI releases | [Release v0.63.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.63.0-preview.0) | 29 Sept 2026 |
+| Anthropic News | [Barclays scales Claude to upgrade operations and improve client experience](https://www.anthropic.com/news/barclays-scales-claude) | 1 Oct 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.
