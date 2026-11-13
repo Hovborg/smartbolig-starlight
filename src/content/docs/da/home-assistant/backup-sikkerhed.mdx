@@ -39,9 +39,9 @@ Home Assistant 2025.1 introducerede et **helt nyt backup-system**:
 
 | Feature | Beskrivelse |
 |---------|-------------|
-| **Automatiske backups** | Planlagte backups uden add-ons |
+| **Automatiske backups** | Planlagte backups uden apps eller andre tilføjelser |
 | **Flere lokationer** | Cloud + NAS + lokal samtidig |
-| **Kryptering** | Standard for cloud, valgfri for lokal |
+| **Kryptering** | Slået til som standard; kan slås fra pr. lokation (ikke for Home Assistant Cloud) |
 | **Retention policies** | Automatisk sletning af gamle backups |
 | **Nem opsætning** | Wizard til hurtig konfiguration |
 
@@ -53,11 +53,11 @@ Home Assistant 2025.1 introducerede et **helt nyt backup-system**:
 2. Klik **Konfigurer automatiske backups**
 
 3. Vælg tidsplan:
-   - Dagligt, ugentligt, eller efter opdateringer
+   - Dagligt eller udvalgte ugedage (**Brugerdefinerede dage**, på engelsk Custom days)
    - Tidspunkt (f.eks. kl. 04:00)
 
 4. Vælg retention:
-   - Antal backups der gemmes (f.eks. 3)
+   - Antal backups eller antal dage, de gemmes (f.eks. 3 backups)
 
 5. Vælg lokationer:
    - Lokal
@@ -73,7 +73,7 @@ Home Assistant 2025.1 introducerede et **helt nyt backup-system**:
 </Steps>
 
 <Aside type="danger" title="Vigtigt!">
-Hvis du mister din krypteringsnøgle, kan du **ikke** gendanne dine backups. Gem nøglen et sikkert sted - gerne flere steder.
+Hvis du mister din krypteringsnøgle, kan du **ikke** gendanne dine backups. Home Assistant lader dig hente nøglen som en tekstfil ("emergency kit"). Gem den et sikkert sted - gerne flere steder.
 </Aside>
 
 ---
@@ -83,26 +83,24 @@ Hvis du mister din krypteringsnøgle, kan du **ikke** gendanne dine backups. Gem
 ### Google Drive (Native 2025.2+)
 
 <Steps>
-1. Gå til **Indstillinger → Enheder & Tjenester**
+1. Opret egne Google OAuth-legitimationsoplysninger (Client ID og Client Secret) i Google Cloud Console, og aktivér Google Drive API. Redirect-URI'en er `https://my.home-assistant.io/redirect/oauth`. Følg trinene i [Home Assistants dokumentation](https://www.home-assistant.io/integrations/google_drive/)
 
-2. Klik **Tilføj Integration** → søg "Google Drive"
+2. Gå til **Indstillinger → Enheder & Tjenester**
 
-3. Følg Google OAuth flow:
-   - Log ind på din Google-konto
-   - Giv adgang til Google Drive
+3. Klik **Tilføj Integration** → søg "Google Drive"
 
-4. Gå til **Indstillinger → System → Backups → Lokationer**
+4. Indtast Client ID og Client Secret, og giv adgang til din Google-konto
 
-5. Tilføj Google Drive som backup-lokation
+5. Vælg Google Drive som backup-lokation under de automatiske backupindstillinger
 
-6. Backups gemmes automatisk i mappe "Home Assistant"
+6. Backups gemmes i mappen "Home Assistant" med en undermappe for hver Home Assistant-installation
 </Steps>
 
 **Gratis lagerplads:** 15 GB (delt med Gmail og Photos)
 
 ### OneDrive (Native 2025.2+)
 
-Samme proces som Google Drive - brug OneDrive integrationen.
+Tilføj OneDrive-integrationen under **Indstillinger → Enheder & Tjenester**. Som standard leverer Home Assistant selv klient-id og hemmelighed, og du logger ind hos Microsoft. Kun personlige OneDrive-konti understøttes.
 
 ### Home Assistant Cloud (Nabu Casa)
 
@@ -118,7 +116,7 @@ Hvis du abonnerer på Home Assistant Cloud:
 4. Tilføj som backup-lokation under Backups
 </Steps>
 
-**Pris:** ~€7.50/måned (inkluderer fjernaccess, Alexa/Google integration)
+**Pris:** €7,50 om måneden eller €75 om året ifølge [Nabu Casa](https://www.nabucasa.com/pricing/), ekskl. moms. Prisen inkluderer fjernadgang og Alexa/Google-integration. Cloud gemmer én backup på højst 5 GB. Nabu Casa omdøber tjenesten til Home Assistant Link den 2. december.
 
 ---
 
@@ -159,7 +157,7 @@ Hvis du abonnerer på Home Assistant Cloud:
 <Steps>
 1. Gå til **Indstillinger → System → Storage**
 
-2. Klik **Tilføj Netværkslagring**
+2. Klik **Tilføj lagring** (Add storage), og vælg SMB/CIFS eller NFS
 
 3. Udfyld:
    ```text
@@ -252,12 +250,12 @@ Ved opdateringer:
 
 3. Klik på backup → **Gendan**
 
-4. Vælg hvad der skal gendannes:
-   - Alt
-   - Kun konfiguration
-   - Specifikke add-ons
+4. Vælg, hvad der skal gendannes (Select what to restore):
+   - Home Assistant-indstillinger
+   - Historik, medier, share-mappe og lokale apps
+   - Apps (alle, ingen eller udvalgte)
 
-5. Vent på gendannelse (kan tage 5-30 min)
+5. Vent på gendannelse (store installationer kan tage omkring 45 minutter). Sluk ikke strømmen undervejs
 
 6. Log ind igen efter genstart
 </Steps>
@@ -325,11 +323,11 @@ http:
 ### Aktiver 2FA
 
 <Steps>
-1. Gå til dit **Profilbillede** (nederst til venstre)
+1. Gå til din **Brugerprofil** (nederst til venstre)
 
-2. Scroll til **Multifactor Authentication Modules**
+2. Åbn fanen **Sikkerhed** og find **Multifaktor-godkendelsesmoduler** (Multi-factor authentication modules)
 
-3. Aktiver **Time-based One-Time Password**
+3. Aktiver **Authenticator app** (TOTP)
 
 4. Scan QR-kode med authenticator app:
    - Google Authenticator
@@ -410,7 +408,7 @@ http:
   },
   {
     question: "Hvad inkluderer en backup?",
-    answer: "Alt! Konfiguration, automationer, dashboards, add-ons og deres data, integrationer, historik (hvis valgt). Det eneste der ikke inkluderes er selve Home Assistant OS."
+    answer: "Det afhænger af, hvad du vælger. Home Assistant-indstillinger (konfiguration, automationer, dashboards) er altid med i automatiske backups. Historik, medier, share-mappen og apps med deres data kan vælges til. Logs og cache indgår ikke, og eksterne databaser som MariaDB eller PostgreSQL er kun med, hvis de kører som app på Home Assistant OS."
   },
   {
     question: "Skal jeg bruge kryptering på lokal backup?",
@@ -437,4 +435,4 @@ http:
 
 ---
 
-*Sidst opdateret: December 2025*
+*Sidst opdateret: November 2026*

@@ -51,25 +51,25 @@ import FAQ from '../../../../components/FAQ.astro';
 
 ## 📦 Installation
 
-### Som Home Assistant Add-on
+### Som Home Assistant-app (tidligere add-on)
 
 <Steps>
-1. Gå til **Indstillinger → Add-ons**
+1. Gå til **Indstillinger → Apps** (hed før Home Assistant 2026.2 *Add-ons*)
 
-2. Klik **Add-on Store** (nederst til højre)
+2. Klik **Install app**
 
 3. Søg efter "Node-RED"
 
 4. Vælg **Node-RED** og klik **Installer**
 
-5. Konfigurer add-on:
+5. Konfigurer appen:
    ```yaml
    # Vigtige indstillinger:
    ssl: false  # Sæt til true hvis du har SSL
    credential_secret: "din-hemmelige-nøgle"
    ```
 
-6. Start add-on og aktiver:
+6. Start appen og aktiver:
    - ✅ Start on boot
    - ✅ Watchdog
    - ✅ Show in sidebar
@@ -98,6 +98,8 @@ services:
 ---
 
 ## 🔗 Home Assistant Integration
+
+Node-RED-appen er forudkonfigureret, så serverforbindelsen til Home Assistant er sat op fra start. Får du advarslen "Unauthorized WebSocket access!" efter en opdatering, så dobbeltklik på en Home Assistant-node, klik på blyanten ved Server, og kontrollér, at **I use the Home Assistant App** er markeret. Trinnene nedenfor skal du kun bruge, hvis Node-RED kører i Docker eller på en anden maskine.
 
 ### Opret Access Token
 
@@ -206,7 +208,7 @@ let y = global.get("globalVar");
 |------|----------|------|
 | **events: state** | Trigger ved tilstandsændring | Start automationer |
 | **current state** | Læs aktuel tilstand | Betingelser |
-| **call service** | Kald HA service | Handlinger |
+| **action** | Udfør en HA-handling (action) | Handlinger |
 | **wait until** | Vent på tilstand | Forsinkelser med betingelse |
 | **trigger: state** | Trigger med flere betingelser | Avancerede triggers |
 | **api** | Generel API-adgang | Alt muligt |
@@ -245,16 +247,15 @@ If State: "on"
 # Hvis ikke → Output 2 (eller stop)
 ```
 
-### call service Node
+### action Node
 
 Udfør handlinger i Home Assistant:
 
 ```yaml
 # Eksempel: Tænd lys
-Domain: light
-Service: turn_on
+Action: light.turn_on
 Entity: light.stue
-Data: {"brightness": 255, "color_temp": 350}
+Data: {"brightness": 255, "color_temp_kelvin": 2850}
 ```
 
 ---
@@ -264,10 +265,10 @@ Data: {"brightness": 255, "color_temp": 350}
 ### Eksempel 1: Simpel Bevægelsesbelysning
 
 ```
-[events: state]──►[call service]
+[events: state]──►[action]
    motion_sensor      light.turn_on
 
-[events: state]──►[delay]──►[call service]
+[events: state]──►[delay]──►[action]
    motion_sensor    2 min     light.turn_off
    (off)
 ```
@@ -295,7 +296,7 @@ Data: {"brightness": 255, "color_temp": 350}
 ### Eksempel 2: Betinget Automation (Kun om natten)
 
 ```
-[events: state]──►[current state]──►[call service]
+[events: state]──►[current state]──►[action]
    motion            sun.sun          light.turn_on
                      (below_horizon)
 ```
@@ -307,10 +308,10 @@ Sun entity bruges til at tjekke om det er nat før lyset tændes.
 Lys der slukker efter 5 minutter uden bevægelse, men resetter hvis der er ny bevægelse:
 
 ```
-[events: state]──►[stoptimer]──►[call service]
+[events: state]──►[stoptimer]──►[action]
    motion (on)      reset          (ingenting)
        │
-       └──────────►[stoptimer]──►[call service]
+       └──────────►[stoptimer]──►[action]
                     start 5min     light.turn_off
 ```
 
@@ -448,7 +449,7 @@ Installer via **Menu → Manage palette → Install**:
 1. Opret ny token i HA
 2. Opdater server config i Node-RED
 3. Deploy alle flows
-4. Genstart Node-RED add-on
+4. Genstart Node-RED-appen
 ```
 
 ---
@@ -482,8 +483,7 @@ Installer via **Menu → Manage palette → Install**:
 
 Node-RED flows gemmes i:
 ```
-# Add-on:
-/config/node-red/flows.json
+# App: flows.json ligger i appens konfigurationsmappe
 
 # Docker:
 ./nodered-data/flows.json
@@ -533,4 +533,4 @@ Inkluder denne fil i din Home Assistant backup!
 
 ---
 
-*Sidst opdateret: December 2025*
+*Sidst opdateret: November 2026*

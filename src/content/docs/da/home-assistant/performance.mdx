@@ -25,7 +25,7 @@ Et langsomt Home Assistant er frustrerende. Dashboards der tager evigheder at lo
 | **Treg historik** | Grafer tager lang tid | SQLite flaskehals |
 | **Høj CPU** | Konstant 80%+ belastning | For mange integrations polling |
 | **SD-kort slid** | Korrupt database, crashes | For mange database-skrivninger |
-| **Langsom opstart** | 5+ minutter til boot | Stor database, mange add-ons |
+| **Langsom opstart** | 5+ minutter til boot | Stor database, mange apps |
 
 ---
 
@@ -123,11 +123,11 @@ For større installationer anbefales MariaDB fremfor SQLite.
 ### Installation
 
 <Steps>
-1. Gå til **Indstillinger → Add-ons → Add-on Store**
+1. Gå til **Indstillinger → Apps → Install app** (hed før Home Assistant 2026.2 *Add-ons*)
 
 2. Søg "MariaDB" og installer
 
-3. Konfigurer add-on:
+3. Konfigurer appen:
    ```yaml
    databases:
      - homeassistant
@@ -139,7 +139,7 @@ For større installationer anbefales MariaDB fremfor SQLite.
        database: homeassistant
    ```
 
-4. Start add-on
+4. Start appen
 
 5. Opdater `configuration.yaml`:
    ```yaml
@@ -157,7 +157,7 @@ Når du skifter til MariaDB, starter du med tom database. Din gamle SQLite-histo
 
 ### MariaDB Tuning
 
-For bedre performance, tilføj options i add-on config:
+For bedre performance kan du tilføje ekstra serverargumenter med `mariadb_server_args` i appens konfiguration (nyttigt til store databaser, hvis du har RAM nok):
 
 ```json
 {
@@ -174,17 +174,17 @@ For bedre performance, tilføj options i add-on config:
       "database": "homeassistant"
     }
   ],
-  "options": {
-    "innodb_buffer_pool_size": "256M",
-    "max_connections": 200
-  }
+  "mariadb_server_args": [
+    "--innodb_buffer_pool_size=256M",
+    "--max_connections=200"
+  ]
 }
 ```
 
 | Parameter | Værdi | Beskrivelse |
 |-----------|-------|-------------|
-| `innodb_buffer_pool_size` | 256M-512M | RAM til database cache |
-| `max_connections` | 200 | Samtidige forbindelser |
+| `--innodb_buffer_pool_size` | 256M-512M | RAM til database cache |
+| `--max_connections` | 200 | Samtidige forbindelser |
 
 ---
 
@@ -293,31 +293,20 @@ Tomme nøgler som `zeroconf:` eller `ssdp:` i `configuration.yaml` aktiverer int
 ### Tjek Database Størrelse
 
 ```yaml
-# Automation til at tracke database størrelse
-sensor:
-  - platform: sql
+# configuration.yaml
+sql:
+  - name: Database Size
     db_url: mysql://homeassistant:password@core-mariadb/homeassistant?charset=utf8mb4
-    queries:
-      - name: Database Size
-        query: "SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) as size FROM information_schema.TABLES WHERE table_schema = 'homeassistant'"
-        column: "size"
-        unit_of_measurement: "MB"
+    query: >
+      SELECT table_schema "database", Round(Sum(data_length + index_length) / POWER(1024,2), 1) "value"
+      FROM information_schema.tables WHERE table_schema="homeassistant" GROUP BY table_schema;
+    column: "value"
+    unit_of_measurement: "MiB"
 ```
 
 ### System Monitor Integration
 
-```yaml
-# configuration.yaml
-sensor:
-  - platform: systemmonitor
-    resources:
-      - type: processor_use
-      - type: memory_use_percent
-      - type: disk_use_percent
-        arg: /
-      - type: load_1m
-      - type: load_5m
-```
+System monitor sættes op i brugerfladen: **Indstillinger → Enheder & Tjenester → Tilføj integration → System monitor**. Aktivér de sensorer, du vil bruge (de er slået fra som standard): *Processor use*, *Memory usage (%)*, *Disk usage (%)* og *Load (1 min)* / *Load (5 min)*.
 
 ---
 
@@ -340,8 +329,8 @@ sensor:
 Hvis databasen er blevet for stor:
 
 ```yaml
-# Developer Tools → Services
-service: recorder.purge
+# Indstillinger → Tools → Handlinger (Actions)
+action: recorder.purge
 data:
   keep_days: 3
   repack: true
@@ -418,4 +407,4 @@ data:
 
 ---
 
-*Sidst opdateret: December 2025*
+*Sidst opdateret: November 2026*

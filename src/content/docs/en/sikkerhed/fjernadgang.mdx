@@ -1,7 +1,7 @@
 ---
 title: Secure remote access to Home Assistant
 description: Set up remote access with Home Assistant Cloud or a private VPN, protect sign-in with MFA and test your connection over mobile data step by step.
-lastUpdated: 2026-09-30
+lastUpdated: 2026-11-13
 sidebar:
   badge:
     text: Guide
@@ -133,8 +133,10 @@ called a *tailnet*. Use this checklist for that route:
   Follow its OS-specific instructions, approve the route and restrict access.
 - Review the [access policy](https://tailscale.com/docs/features/access-control/acls).
   A new tailnet may allow all its devices to communicate. Limit the relevant
-  users to Home Assistant's address and required port, normally TCP 8123.
-  Other broad rules can still provide additional access.
+  users to Home Assistant's address and required port, normally TCP 8123 (newer
+  Home Assistant OS installations use port 80; check the actual port under
+  **Settings → System → Network**). Other broad rules can still provide
+  additional access.
 - Connect the phone's VPN, turn off Wi-Fi and repeat the browser and lamp tests
   with the address reachable through the VPN.
 
@@ -166,7 +168,7 @@ Record the access method, who can use it and the last successful mobile-data
 test. Repeat the test after replacing a phone, changing a router or updating
 user accounts. If a phone is lost, remove its access from both the relevant
 VPN service and Home Assistant sessions/tokens; a change in one place may not
-be sufficient. Home Assistant's [account profile](https://www.home-assistant.io/docs/authentication/#your-account-profile)
+be sufficient. Home Assistant's [account profile](https://www.home-assistant.io/docs/authentication/#managing-account-access)
 shows the relevant token settings.
 
 Keep local access as your recovery path. Disable Cloud remote access or the

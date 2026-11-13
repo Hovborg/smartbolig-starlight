@@ -38,11 +38,11 @@ Z-Wave er en **pålidelig trådløs protokol** til smart home med excellent ræk
 | **Zooz ZST39** | 800 | ✅ (kun US) | ~$35 | Bedste værdi, pålidelig |
 | **Aeotec Z-Stick 7** | 700 | ❌ | ~$45 | Velkendt, stabil |
 | **Aeotec Z-Stick 10 Pro** | 800 | ✅ | ~$60 | Dual: Z-Wave + Zigbee |
-| **Home Assistant Connect ZWA-2** | 800 | ✅ | ~$30 | Officiel HA hardware |
+| **Home Assistant Connect ZWA-2** | 800 | ✅ | $69 / €59 | Officiel HA hardware |
 | **HomeSeer SmartStick G8** | 800 | ✅ | ~$50 | God support |
 
 <Aside type="caution" title="Z-Wave Long Range">
-**Long Range** er kun tilgængelig i **US/CA/MX** pga. frekvensregulering. I Europa (868 MHz) får du stadig fordelene ved 800-serien: bedre rækkevidde, lavere strømforbrug og S2 sikkerhed.
+**Long Range** kræver en adapter, der understøtter det (f.eks. ZWA-2), og enhederne skal også understøtte det. Home Assistant har RF-regionerne **USA (Long Range)** og **Europe (Long Range)**; ZWA-2 har Long Range-frekvenser til både USA og EU. Enheder kan ikke skifte frekvens, så de skal passe til din region. Uden Long Range får du stadig fordelene ved 800-serien: bedre rækkevidde, lavere strømforbrug og S2-sikkerhed.
 </Aside>
 
 ### GPIO Moduler (til Raspberry Pi)
@@ -56,10 +56,10 @@ Z-Wave er en **pålidelig trådløs protokol** til smart home med excellent ræk
 
 ## 📦 Installation
 
-### Z-Wave JS Add-on (Anbefalet for begyndere)
+### Z-Wave JS-appen (tidligere add-on, anbefalet for begyndere)
 
 <Steps>
-1. Gå til **Settings → Add-ons → Add-on Store**
+1. Gå til **Settings → Apps → Install app** (hed før Home Assistant 2026.2 *Add-ons*)
 
 2. Søg efter **Z-Wave JS** og installer
 
@@ -67,12 +67,12 @@ Z-Wave er en **pålidelig trådløs protokol** til smart home med excellent ræk
    - **Settings → System → Hardware → ⋮ → All Hardware**
    - Brug `/dev/serial/by-id/...` stien (stabil)
 
-4. Konfigurer add-on:
+4. Konfigurer appen:
    ```yaml
    device: /dev/serial/by-id/usb-Silicon_Labs_...
    ```
 
-5. Start add-on og tjek logs
+5. Start appen og tjek logs
 
 6. Gå til **Settings → Devices & Services**
    - Z-Wave integration opdages automatisk
@@ -80,12 +80,14 @@ Z-Wave er en **pålidelig trådløs protokol** til smart home med excellent ræk
 
 ### Z-Wave JS UI (Avanceret)
 
+Z-Wave JS-appen indeholder nu selv den funktionsrige brugerflade. Home Assistant udfaser Z-Wave JS UI-appen, men den understøttes stadig en tid.
+
 <Tabs>
-  <TabItem label="HA Add-on">
+  <TabItem label="HA-app">
     <Steps>
     1. Tilføj repository: `https://github.com/hassio-addons/repository`
     
-    2. Installer **Z-Wave JS UI** add-on
+    2. Installer **Z-Wave JS UI**-appen
     
     3. Konfigurer USB device
     
@@ -98,8 +100,7 @@ Z-Wave er en **pålidelig trådløs protokol** til smart home med excellent ræk
        - S2 Access Control
     
     6. Tilføj Z-Wave integration i HA:
-       - Websocket URL: `ws://localhost:3000`
-       - Den nøjagtige vært afhænger af add-on'et — find den korrekte adresse på add-on'ets info-side under **Indstillinger → Add-ons**.
+       - Websocket URL: `ws://a0d7b954-zwavejs2mqtt:3000` (Z-Wave JS UI-appen). Uden for Home Assistant OS er standarden `ws://localhost:3000`.
     </Steps>
   </TabItem>
   <TabItem label="Docker">
@@ -160,7 +161,7 @@ Gem dem sikkert (f.eks. password manager).
 ### Standard Inclusion
 
 <Steps>
-1. Åbn Z-Wave JS UI eller HA integration
+1. Gå til **Settings → Connectivity → Z-Wave** i Home Assistant (eller åbn Z-Wave JS UI)
 
 2. Klik **Add Device** / **Inclusion**
 
@@ -186,7 +187,7 @@ Gem dem sikkert (f.eks. password manager).
 
 3. Scan QR kode eller indtast DSK
 
-4. Enheden tilføjes automatisk når den tændes
+4. Enheden tilføjes automatisk inden for 10 minutter efter, at den er tændt
 </Steps>
 
 ### Exclusion (Fjern Enhed)
@@ -349,11 +350,11 @@ Viser:
 <FAQ questions={[
   {
     question: "Skal jeg vælge Z-Wave JS eller Z-Wave JS UI?",
-    answer: "Z-Wave JS er simplere og integreret direkte i HA. Z-Wave JS UI giver mere kontrol, MQTT support og bedre debugging. For de fleste er Z-Wave JS nok."
+    answer: "Vælg Z-Wave JS-appen. Den indeholder nu selv den funktionsrige brugerflade, og Home Assistant udfaser Z-Wave JS UI-appen, selvom den understøttes en tid endnu. Z-Wave JS UI er først relevant, hvis du kører Docker eller har brug for dens ekstra funktioner som MQTT."
   },
   {
     question: "Kan jeg migrere fra 500/700-serien til 800-serien?",
-    answer: "Ja! Du kan backup/restore netværket via Z-Wave JS UI. Dog kræver det specifik firmware-version (7.19.0+). Tjek dokumentation for din nye stick."
+    answer: "Ja. Brug Settings → Connectivity → Z-Wave → Migrate adapter. Home Assistant anbefaler en 800-serie-stick med firmware 7.23.2 eller nyere, og en 500-serie-stick skal først opdateres til SDK 6.61+. Aeotec Z-Stick 10 Pro bør også have firmware 7.23.2+, ellers kan migreringen fejle."
   },
   {
     question: "Hvorfor ser jeg ikke alle entiteter?",
@@ -361,7 +362,7 @@ Viser:
   },
   {
     question: "Er Z-Wave Long Range værd at vente på i Europa?",
-    answer: "Nej, Long Range er kun US/CA/MX pga. frekvensregulering. Men 800-serien har stadig bedre rækkevidde, lavere strømforbrug og nyeste sikkerhed i Europa."
+    answer: "Du behøver ikke vente. Home Assistant har en RF-region, der hedder Europe (Long Range), og en 800-serie-stick som ZWA-2 understøtter den. Enhederne skal dog også understøtte Long Range, og de kan ikke skifte frekvens. Uden Long Range har 800-serien stadig bedre rækkevidde, lavere strømforbrug og nyeste sikkerhed."
   }
 ]} />
 
@@ -384,4 +385,4 @@ Viser:
 
 ---
 
-*Sidst opdateret: December 2025*
+*Sidst opdateret: November 2026*

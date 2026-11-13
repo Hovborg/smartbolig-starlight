@@ -28,7 +28,7 @@ Raspberry Pi is the most popular way to run Home Assistant. Cheap, silent, and u
 |------|-------------|-------|
 | Raspberry Pi 4 (4GB) | Recommended model | ~$55 |
 | Power supply | Official 15W USB-C | ~$15 |
-| SD card 32GB+ | Samsung EVO or SanDisk | ~$10 |
+| SD card 32GB+ (A2) | Samsung EVO or SanDisk | ~$10 |
 | Ethernet cable | Cat5e/Cat6 | ~$5 |
 | **Total** | | **~$85** |
 
@@ -69,7 +69,7 @@ SD cards die after 1-3 years with Home Assistant. Use SSD from the start if poss
 6. **Flash:**
    - Click **"Write"**
    - Confirm data will be erased
-   - Wait 5-10 minutes
+   - Wait for the write to finish
 </Steps>
 
 <Aside type="tip">
@@ -93,7 +93,7 @@ You do NOT need to configure WiFi or SSH in Imager. Home Assistant OS handles ev
 </Steps>
 
 <Aside type="note">
-First boot takes **10-20 minutes**. Do NOT turn off power while waiting!
+The page at homeassistant.local:8123 is normally reachable within a few minutes (within a minute on a Pi 4 or 5). Do NOT turn off power while waiting!
 </Aside>
 
 ## 🌐 Open Home Assistant
@@ -114,7 +114,7 @@ First boot takes **10-20 minutes**. Do NOT turn off power while waiting!
   </TabItem>
 </Tabs>
 
-You'll first see **"Preparing Home Assistant"** - wait 10-20 minutes.
+You'll first see **"Preparing Home Assistant"** while the latest version is downloaded - this can take 20 minutes or more, depending on hardware and internet connection.
 
 ## ⚙️ First Setup
 
@@ -165,11 +165,11 @@ NEVER store backups only on the SD card. If the card dies, you lose everything!
 3. Restart if necessary
 </Steps>
 
-### 3. Install useful add-ons
+### 3. Install useful apps
 
-Go to **Settings** → **Add-ons** → **Add-on store**:
+Go to **Settings** → **Apps** → **Install app** (called *Add-ons* before Home Assistant 2026.2):
 
-| Add-on | What it does |
+| App | What it does |
 |--------|--------------|
 | **File Editor** | Edit config files in browser |
 | **Terminal & SSH** | Command line access |
@@ -179,19 +179,21 @@ Go to **Settings** → **Add-ons** → **Add-on store**:
 
 <Aside type="tip" title="homeassistant.local doesn't work?">
 **Try these things:**
-1. Wait 5 more minutes and try again
+1. Wait a few more minutes and try again
 2. Find IP in your router and use `http://IP:8123`
 3. Try a different browser
 4. Check that Pi has green light (power) and blinking light (activity)
 </Aside>
 
 <Aside type="tip" title="'Preparing Home Assistant' takes forever?">
-**Normal time:** 10-20 minutes on first boot.
+**Normal time:** up to 20 minutes or more, depending on hardware and internet connection.
 
-**If it takes longer:**
-- Wait up to 30 minutes
+**If the page does not appear at all after 5 minutes (Pi 4 or 5):**
 - Check that Pi has internet (ethernet cable connected?)
-- Try restarting by unplugging and replugging power
+- Connect a monitor via HDMI and read the console output
+- Reflash the card, possibly with a different SD card
+
+Do not reflash while "Preparing Home Assistant" is showing.
 </Aside>
 
 <Aside type="tip" title="Pi is getting very hot?">

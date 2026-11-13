@@ -14,7 +14,7 @@ import { Aside, Badge, Card, CardGrid, Steps, TabItem, Tabs } from '@astrojs/sta
 Gemini CLI is Google's open source AI agent for the terminal. It can read files, understand large projects, use tools, and run commands depending on your settings and permissions.
 
 <Aside type="caution" title="Important change on June 18, 2026">
-Google is shutting down Gemini CLI's free access (Google sign-in), Google AI Pro, and Google AI Ultra on June 18, 2026. After that, Gemini CLI requires a paid Gemini API key or a Code Assist Standard/Enterprise license. Google's successor is [Antigravity CLI (agy) — see our guide](/en/ai/ai-cli/antigravity-cli-kom-godt-i-gang/).
+On June 18, 2026, Google replaced Gemini CLI with Antigravity CLI for free users and Google One users, and Gemini CLI stopped serving Google AI Pro and Google AI Ultra. Gemini CLI can still be used with a paid Gemini API key or a Code Assist Standard/Enterprise license. Google's successor is [Antigravity CLI (agy) — see our guide](/en/ai/ai-cli/antigravity-cli-kom-godt-i-gang/).
 </Aside>
 
 ## Requirements
@@ -47,8 +47,6 @@ Google currently recommends macOS 15+, Windows 11 24H2+, or Ubuntu 20.04+.
     ```bash
     brew install gemini-cli
     ```
-
-    Note: this Homebrew formula is deprecated as of June 18, 2026, when Gemini CLI's free access is shut down (see the warning at the top).
   </TabItem>
 </Tabs>
 
@@ -64,7 +62,7 @@ Common auth options:
 
 | Method | Best for |
 |---|---|
-| Google sign-in | Personal accounts, high free starting quota, and manual CLI use |
+| Google sign-in (OAuth) | A paid Code Assist license from an organization (set `GOOGLE_CLOUD_PROJECT`) |
 | `GEMINI_API_KEY` | Script mode, servers, CI, and clear API billing |
 | Vertex AI | Enterprise, Google Cloud quotas, governance, and project-based billing |
 
@@ -78,7 +76,7 @@ gemini
 Do not store API keys in screenshots, guides, or prompts.
 
 <Aside type="note" title="Choose auth by use case">
-Google sign-in is best for learning the tool. An API key is best when a script must run without browser login. Vertex AI is best when the organization already controls access, quotas, and billing in Google Cloud.
+Google sign-in fits a paid Code Assist license from your organization. An API key is best when a script must run without browser login. Vertex AI is best when the organization already controls access, quotas, and billing in Google Cloud.
 </Aside>
 
 ## First safe session
@@ -113,8 +111,8 @@ Google sign-in is best for learning the tool. An API key is best when a script m
   <Card title="Google ecosystem" icon="seti:config">
     Choose Gemini CLI when you already use Google, Gemini API, Vertex AI, or Google Workspace.
   </Card>
-  <Card title="Free start" icon="rocket">
-    Google sign-in gives a high daily request quota for personal use according to the Gemini CLI docs.
+  <Card title="After June 18, 2026" icon="rocket">
+    Free personal use has moved to Antigravity CLI. Gemini CLI is now used with a paid Gemini API key or a Code Assist license.
   </Card>
   <Card title="Experiments" icon="branch">
     Checkpointing, worktrees, headless JSON/JSONL, and sandboxing make the CLI strong for testing and automation.
@@ -190,7 +188,7 @@ If you ask Gemini to analyze unknown code or run third-party commands, use a con
 
 ## Sources
 
-Last checked: April 11, 2026.
+Last checked: November 13, 2026.
 
 - [Gemini CLI GitHub](https://github.com/google-gemini/gemini-cli)
 - [Gemini CLI installation](https://geminicli.com/docs/get-started/installation/)

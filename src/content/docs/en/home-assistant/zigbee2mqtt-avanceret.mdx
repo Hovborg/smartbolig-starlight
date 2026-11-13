@@ -84,15 +84,15 @@ You do **NOT** need to re-pair devices after firmware update!
 ### SONOFF ZBDongle-P (CC2652P)
 
 ```bash
-# Download firmware
-wget https://github.com/Koenkk/Z-Stack-firmware/raw/master/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20240710.zip
+# Download the newest coordinator firmware (CC1352P2_CC2652P_launchpad_coordinator_<date>.zip)
+# from https://github.com/Koenkk/Z-Stack-firmware/releases
 
-# Extract
-unzip CC1352P2_CC2652P_launchpad_coordinator_20240710.zip
+# Extract (replace <date> with the date in the file name)
+unzip CC1352P2_CC2652P_launchpad_coordinator_<date>.zip
 
 # Flash with cc2538-bsl
 python3 cc2538-bsl.py -e -v -w --bootloader-sonoff-usb \
-  CC1352P2_CC2652P_launchpad_coordinator_20240710.hex \
+  CC1352P2_CC2652P_launchpad_coordinator_<date>.hex \
   -p /dev/ttyUSB0
 ```
 
@@ -116,14 +116,11 @@ advanced:
   # Network key (generate unique)
   network_key: GENERATE
   
-  # Transmit power (max for better range)
+  # Transmit power (max for better range; 20 dBm needs an adapter with a power amplifier, e.g. CC2652P)
   transmit_power: 20
   
-  # Channel (avoid WiFi overlap)
-  # Zigbee channel 11 = WiFi channel 1
-  # Zigbee channel 15 = WiFi channel 6
-  # Zigbee channel 20 = WiFi channel 11
-  # Zigbee channel 25 = Overlap-free
+  # Channel (use a ZLL channel: 11, 15, 20 or 25; default is 11)
+  # Changing the channel may require re-pairing some devices
   channel: 25
   
   # PAN ID (let Z2M generate)
@@ -377,14 +374,6 @@ advanced:
   # Network
   last_seen: 'ISO_8601'
   elapsed: true
-  
-  # Security
-  permit_join: false
-  
-  # Home Assistant
-  homeassistant_legacy_entity_attributes: false
-  legacy_api: false
-  legacy_availability_payload: false
 ```
 
 ---
@@ -398,7 +387,7 @@ advanced:
     ```bash
     # 1. Enable permit join on specific router
     mosquitto_pub -t 'zigbee2mqtt/bridge/request/permit_join' \
-      -m '{"value": true, "device": "nearby_router"}'
+      -m '{"time": 60, "device": "nearby_router"}'
     
     # 2. Factory reset the device (see manual)
     
@@ -498,7 +487,7 @@ advanced:
   },
   {
     question: "Which channel should I use?",
-    answer: "Channel 25 has the least WiFi overlap. Alternatively: channels 11, 15, or 20 depending on your WiFi channels. Avoid channel 25 if you have many Zigbee 3.0 devices requiring channel change."
+    answer: "Use a ZLL channel: 11 (default), 15, 20 or 25. Pick the one furthest from your WiFi channels. Changing the channel may require re-pairing some devices."
   }
 ]} />
 
@@ -521,4 +510,4 @@ advanced:
 
 ---
 
-*Last updated: December 2025*
+*Last updated: November 2026*

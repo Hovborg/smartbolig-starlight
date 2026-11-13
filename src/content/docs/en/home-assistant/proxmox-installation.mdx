@@ -43,7 +43,7 @@ Proxmox is a fantastic platform for running Home Assistant OS. You get full VM i
 
 ## 🚀 Method 1: Community Helper Script (Recommended)
 
-The easiest method uses the official community script from [community-scripts.github.io/ProxmoxVE](https://community-scripts.github.io/ProxmoxVE/).
+The easiest method uses a community script (not official from Proxmox or Home Assistant) from [community-scripts.github.io/ProxmoxVE](https://community-scripts.github.io/ProxmoxVE/).
 
 <Aside type="note" title="Open Source">
 The Proxmox VE Helper Scripts are open source and community-maintained. See the [GitHub repository](https://github.com/community-scripts/ProxmoxVE) for all available scripts.
@@ -65,11 +65,14 @@ The Proxmox VE Helper Scripts are open source and community-maintained. See the 
 
 3. **Follow the installation wizard**
    
-   The script will ask about:
+   In advanced mode the script asks about the following (default mode uses default values):
+   - **HAOS version**: `stable`, `beta` or `dev`
    - **VM ID**: Pick an unused number (e.g. `100`)
    - **Machine Type**: Choose `q35` (modern, better performance)
-   - **BIOS**: Choose `OVMF (UEFI)` - required for HAOS
+   - **BIOS**: Set by the script to `OVMF (UEFI)` - required for HAOS
    - **Disk size**: Minimum `32GB`, recommended `64GB+`
+   - **Disk cache**: Default `writethrough`
+   - **CPU model**: Default `kvm64` (`host` gives full CPU support)
    - **CPU cores**: Minimum `2`, recommended `4`
    - **RAM**: Minimum `4096MB`, recommended `4096-8192MB`
    - **Bridge**: Your network bridge (typically `vmbr0`)
@@ -95,9 +98,9 @@ The Proxmox VE Helper Scripts are open source and community-maintained. See the 
 The script automatically configures:
 - UEFI boot with an EFI disk
 - VirtIO SCSI controller (best performance)
-- CPU type `host` (full CPU feature support)
+- CPU model `kvm64` by default (can be changed to `host`)
 - QEMU Guest Agent
-- Optimal disk cache settings
+- No disk cache in default mode (`writethrough` is only the preselected value in advanced mode)
 </Aside>
 
 ## 🔧 Method 2: Manual installation

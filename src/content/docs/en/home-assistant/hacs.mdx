@@ -9,11 +9,15 @@ import { Steps, Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/compo
 import HowTo from '../../../../components/HowTo.astro';
 import FAQ from '../../../../components/FAQ.astro';
 
-**Home Assistant Community Store (HACS)** is a custom integration that gives you access to thousands of community-developed integrations, themes, and Lovelace cards. HACS is almost a must-have for all Home Assistant users.
+**Home Assistant Community Store (HACS)** gives you access to community-developed integrations, themes, and dashboard cards. HACS is almost a must-have for all Home Assistant users.
+
+<Aside type="caution" title="From Home Assistant 2026.11, HACS is called Marketplace">
+Home Assistant 2026.11 (released 4 November 2026) moved HACS into Home Assistant as the **Marketplace** under **Settings → Marketplace**. The HACS installer stops at 2026.11, so HACS can no longer be installed separately, and the old HACS will not get new releases. If you have HACS installed, Home Assistant migrates it automatically at startup: installed projects, custom repositories and update entities carry over, and HACS links open the Marketplace. This guide covers both the Marketplace and the older HACS installation.
+</Aside>
 
 
 <Aside type="tip">
-HACS is not an official Home Assistant add-on, but a community project that runs directly in Home Assistant. Always create a backup before installation!
+Everything in the Marketplace and HACS is made by the community. The projects are not tested, audited or supported by the Home Assistant project. Always create a backup before you install anything!
 </Aside>
 
 ## What is HACS?
@@ -23,7 +27,7 @@ HACS works as an "app store" for Home Assistant, where you can:
 - **Discover** new custom integrations and components
 - **Install** with just a few clicks directly from the UI
 - **Update** everything from one place
-- **Manage** your installed add-ons
+- **Manage** your installed projects
 
 <LinkCard 
   title="HACS on GitHub" 
@@ -36,17 +40,38 @@ HACS works as an "app store" for Home Assistant, where you can:
 Before you start, you need:
 
 - ✅ Home Assistant running (OS, Supervised, Container or Core)
-- ✅ A free [GitHub account](https://github.com/signup)
+- ✅ A free [GitHub account](https://github.com/signup) (only needed for custom repositories in the Marketplace and for HACS before 2026.11)
 - ✅ Access to Home Assistant web interface
 - ✅ A backup of your system
 
 <Aside type="caution">
-HACS installs custom components that run directly in Home Assistant. There's always a small risk that something can go wrong - always create a backup first!
+Custom components run directly in Home Assistant and can affect stability. There's always a small risk that something can go wrong - always create a backup first!
 </Aside>
 
-## Installation
+## Marketplace (Home Assistant 2026.11 and newer)
 
-The installation method depends on your Home Assistant installation type. You can see your type under **Settings → About**.
+The Marketplace comes with Home Assistant, so there is nothing to install. Only administrators can open it.
+
+<Steps>
+1. Update to Home Assistant 2026.11 or newer. If you already have HACS, you don't need to do anything
+2. Open **Settings → Marketplace**
+3. The first time, accept a warning that the content is made and published by the community and is not tested, audited or supported by the Home Assistant project
+4. Use **Filters** to show only integrations, dashboards, themes, templates or only installed projects
+5. Open a repository, select **Install**, check the version and confirm
+</Steps>
+
+- An integration opens its setup page when it can be loaded right away. Some integrations, for example those that use YAML configuration, need a restart, and updates take effect after a restart.
+- Dashboards need a browser reload. Themes and templates load automatically.
+- You add custom repositories with **Add from link** (a GitHub URL or `owner/repository`). The repository must be public and contain a `hacs.json` file. This requires connecting the Marketplace to GitHub through GitHub's device sign-in, which does not give access to private repositories.
+- Browsing, installing and updating content from the catalog does not require GitHub.
+- Installed projects get update entities and appear under **Settings → Updates**.
+- Bookmarks to `/hacs` open the Marketplace.
+
+Sources: [Home Assistant 2026.11](https://www.home-assistant.io/blog/2026/11/04/release-202611/) and the [Marketplace integration](https://www.home-assistant.io/integrations/marketplace/).
+
+## Installation before 2026.11 (HACS)
+
+If you run an older Home Assistant version, install HACS as described below. The installation method depends on your Home Assistant installation type. You can see your type under **Settings → About**.
 
 <HowTo
   name="Install HACS on Home Assistant"
@@ -58,15 +83,15 @@ The installation method depends on your Home Assistant installation type. You ca
     },
     {
       name: "Add HACS repository (OS/Supervised)",
-      text: "Click this link to add the HACS add-on repository: https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fhacs%2Faddons - or add manually via Settings → Add-ons → Add-on store → ⋮ → Repositories → add: https://github.com/hacs/addons"
+      text: "Click this link to add the HACS app repository (formerly called add-on): https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fhacs%2Faddons - or add manually via Settings → Apps → Install app → ⋮ → Repositories → add: https://github.com/hacs/addons"
     },
     {
-      name: "Install HACS add-on",
-      text: "Find 'HACS' in the add-on store and click Install. Start the add-on when installation is complete."
+      name: "Install the HACS app",
+      text: "Find 'HACS' in the app store and click Install. Start the app when installation is complete."
     },
     {
       name: "Follow log instructions",
-      text: "Go to the add-on's Log tab and follow the instructions shown there."
+      text: "Go to the app's Log tab and follow the instructions shown there."
     },
     {
       name: "Restart Home Assistant",
@@ -89,7 +114,7 @@ The installation method depends on your Home Assistant installation type. You ca
 
 ### Container/Core Installation
 
-If you're running Home Assistant Container or Core, run this script:
+If you're running Home Assistant Container or Core (before 2026.11), run this script:
 
 ```bash
 # Run in your Home Assistant config directory
@@ -98,16 +123,16 @@ wget -O - https://get.hacs.xyz | bash -
 
 Then restart Home Assistant and continue from step 6 above.
 
-## First Time in HACS
+## First Time in the Marketplace/HACS
 
-After installation, you'll find HACS in the sidebar menu. Here's an overview of the sections:
+In the Marketplace (2026.11+) you find the content under **Settings → Marketplace**. In HACS before 2026.11 you find it in the sidebar. Here's an overview of what you can get:
 
 <CardGrid>
   <Card title="Integrations" icon="puzzle">
     Custom integrations that add new devices and services to Home Assistant
   </Card>
-  <Card title="Frontend" icon="laptop">
-    Lovelace cards, themes and other UI components for your dashboard
+  <Card title="Dashboards, themes and templates" icon="laptop">
+    Dashboard cards, themes and templates for your user interface (grouped under Frontend in HACS before 2026.11)
   </Card>
 </CardGrid>
 
@@ -116,18 +141,15 @@ After installation, you'll find HACS in the sidebar menu. Here's an overview of 
 Let's install a popular integration as an example:
 
 <Steps>
-1. Click **HACS** in the sidebar
-2. Select **Integrations**
-3. Click **+ Explore & download repositories** (bottom right)
-4. Search for e.g. "Nordpool" (electricity price integration)
-5. Click on the integration and read the description
-6. Click **Download** → select version → **Download**
-7. **Restart Home Assistant** when prompted
-8. Add the integration via Settings → Devices & Services → Add integration
+1. Open **Settings → Marketplace**
+2. Search for e.g. "Energi Data Service" (Danish electricity price integration). If it isn't in the catalog, you can add it with **Add from link** and `MTrab/energidataservice`
+3. Open the integration and read the description
+4. Select **Install**, check the version and confirm
+5. Open the integration's setup, or add it via Settings → Devices & Services → Add integration
 </Steps>
 
 <Aside type="tip">
-After downloading an integration, you must always restart Home Assistant and then add the integration under Devices & Services.
+In the Marketplace a new integration normally doesn't need a restart, but some do (for example those with YAML configuration). In HACS before 2026.11 you had to restart Home Assistant after downloading: sidebar **HACS** → **Integrations** → **+ Explore & download repositories** → **Download**.
 </Aside>
 
 ## Popular HACS Integrations
@@ -136,7 +158,8 @@ Here are some of the most popular integrations you can install:
 
 | Integration | Description | GitHub |
 |-------------|-------------|--------|
-| **Nordpool** | Electricity prices from Nord Pool | [GitHub](https://github.com/custom-components/nordpool) |
+| **Energi Data Service** | Danish electricity prices with tariffs | [GitHub](https://github.com/MTrab/energidataservice) |
+| **Nordpool** | Electricity prices from Nord Pool (Home Assistant also has a built-in Nord Pool integration since 2024.12, but without VAT and fees) | [GitHub](https://github.com/custom-components/nordpool) |
 | **EPEX Spot** | European electricity prices | [GitHub](https://github.com/mampfes/ha_epex_spot) |
 | **Adaptive Lighting** | Automatic light adaptation | [GitHub](https://github.com/basnijholt/adaptive-lighting) |
 | **Browser Mod** | Advanced browser control | [GitHub](https://github.com/thomasloven/hass-browser_mod) |
@@ -155,29 +178,29 @@ Here are some of the most popular integrations you can install:
 HACS makes it easy to keep everything updated:
 
 <Steps>
-1. Go to **HACS** in the sidebar
-2. Look for an **orange badge** showing available updates
-3. Click on the component with an update
-4. Click **Update** and follow the instructions
-5. Restart Home Assistant if required
+1. Go to **Settings → Updates**
+2. Find the installed project with an available update
+3. Click **Update** and follow the instructions
+4. Restart Home Assistant if required
 </Steps>
 
-From HACS 2.0, updates also appear in Home Assistant's normal update overview.
+Installed projects in the Marketplace get update entities, so updates appear in Home Assistant's normal update overview. They did in HACS 2.0 too, where you could also use HACS in the sidebar.
 
 ## Troubleshooting
 
-### HACS doesn't show after installation
+### Marketplace or HACS doesn't show
 
+- The Marketplace requires Home Assistant 2026.11 or newer and an administrator user
 - Make sure you've restarted Home Assistant
 - Clear browser cache (Ctrl+F5)
-- Check that HACS files are in `custom_components/hacs/`
+- HACS before 2026.11: check that HACS files are in `custom_components/hacs/`
 
 ### GitHub API limit
 
-HACS uses the GitHub API, which has limitations. If you get errors:
+The Marketplace and HACS use the GitHub API, which has limitations. If you get errors:
 
 - Wait 1 hour and try again
-- Make sure your GitHub account is properly connected
+- Make sure your GitHub account is properly connected. The connection raises the request limit
 
 ### Integration doesn't work after download
 
@@ -190,7 +213,7 @@ HACS uses the GitHub API, which has limitations. If you get errors:
   questions={[
     {
       question: "Is HACS safe to use?",
-      answer: "HACS is a community project with over 5,000 stars on GitHub. However, individual integrations are not officially approved by the Home Assistant team, so always read the documentation and reviews before installation."
+      answer: "Everything in the Marketplace and HACS is made by the community and is not tested, audited or supported by the Home Assistant project. Always read the documentation and reviews, and check that the project is maintained, before you install."
     },
     {
       question: "Can HACS break my Home Assistant installation?",
@@ -198,28 +221,28 @@ HACS uses the GitHub API, which has limitations. If you get errors:
     },
     {
       question: "Why do I need a GitHub account?",
-      answer: "HACS fetches all components from GitHub. A free GitHub account gives you access to more API calls and better speed."
+      answer: "In the Marketplace you don't need a GitHub account to browse, install and update content from the catalog. The connection is required to add custom repositories and gives you more API calls. Before 2026.11, HACS always required a GitHub login."
     },
     {
       question: "How do I remove a HACS integration?",
-      answer: "Go to HACS → find the integration → click on it → click the three dots → Remove → Restart Home Assistant."
+      answer: "Open the Marketplace → find the project → click the three dots → Uninstall. You can't uninstall an integration while it is still set up: remove its setup first, or use Delete and uninstall, which also deletes its devices and entities. In HACS before 2026.11 it was HACS → the project → three dots → Remove → restart."
     },
     {
       question: "Does HACS work with all Home Assistant installation types?",
-      answer: "Yes, HACS works with Home Assistant OS, Supervised, Container and Core. However, the installation method varies - OS/Supervised use the add-on method, while Container/Core use the script method."
+      answer: "Before 2026.11, HACS worked with Home Assistant OS, Supervised, Container and Core, but the installation method varied: OS/Supervised used the app method (formerly add-on), while Container/Core used the script method. From 2026.11 the Marketplace comes with Home Assistant, and HACS can no longer be installed separately on that version."
     }
   ]}
 />
 
 ## Next Steps
 
-Now that you have HACS installed, you can:
+Now that you have the Marketplace (or HACS) ready, you can:
 
 <CardGrid>
   <LinkCard 
     title="Electricity Price Integration" 
     href="/en/home-assistant/elpris-integration/"
-    description="Install Nordpool or EPEX Spot to get electricity prices in Home Assistant"
+    description="Install Energi Data Service and get Danish electricity prices in Home Assistant"
   />
   <LinkCard 
     title="First Automation" 
@@ -230,4 +253,4 @@ Now that you have HACS installed, you can:
 
 ---
 
-*Last updated: December 2025*
+*Last updated: November 2026*

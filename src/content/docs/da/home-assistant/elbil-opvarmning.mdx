@@ -27,20 +27,24 @@ Når bilen er tilsluttet lader, bruger opvarmningen strøm fra nettet i stedet f
 | Komponent | Beskrivelse |
 |-----------|-------------|
 | **Home Assistant** | Med Tesla, Polestar, VW eller anden elbil-integration |
-| **Elbil-integration** | Tesla Custom Integration, Volkswagen We Connect, Polestar API, etc. |
+| **Elbil-integration** | Tesla Fleet, Tesla Custom Integration, Volkswagen We Connect, Polestar API, etc. |
 | **Mobiltelefon** | Til notifikationer |
 
 ### Understøttede elbiler
 
 | Mærke | Integration | HACS |
 |-------|-------------|:----:|
-| **Tesla** | Tesla Custom Integration | ✅ |
+| **Tesla** | Tesla Fleet (indbygget siden 2024.8) eller Tesla Custom Integration | Kun custom-integrationen |
 | **Volkswagen/Audi/Skoda** | Volkswagen We Connect ID | ✅ |
 | **Polestar** | Polestar API | ✅ |
-| **BMW** | BMW Connected Drive | ✅ |
+| **BMW** | BMW CarData (custom integration, kun EU-registrerede biler; se advarsel nedenfor) | Ja, som custom repository |
 | **Mercedes** | Mercedes ME | ✅ |
 | **Hyundai/Kia** | Hyundai/Kia Connect | ✅ |
-| **Renault** | Renault ZE Services | ✅ |
+| **Renault** | Renault (indbygget siden 2021.8) | Nej |
+
+<Aside type="caution" title="Tjek integrationens status først">
+BMW blokerede i september 2025 tredjepartsadgang til sine servere (kilde: [Home Assistant-alert](https://alerts.home-assistant.io/alerts/bmw_connected_drive/)), og den indbyggede BMW Connected Drive-integration blev fjernet i Home Assistant 2026.4. Til EU-registrerede biler findes custom-integrationen [BMW CarData](https://github.com/kvanbiesen/bmw-cardata-ha), som bruger BMW's CarData-API (kilde: [udgivelsesnoterne til 2026.4](https://www.home-assistant.io/blog/2026/04/01/release-20264/)). Tesla Fleet kræver en Tesla-udviklerapp og et domæne til din offentlige nøgle, og Tesla giver 10 USD i månedlig kredit til personlig brug ifølge [Home Assistants dokumentation](https://www.home-assistant.io/integrations/tesla_fleet/). Tjek altid den enkelte integrations dokumentation og status, før du bygger automationer på den.
+</Aside>
 
 <Aside type="note" title="Tesla eksempel">
 Denne guide bruger Tesla som eksempel, men principperne er de samme for andre mærker. Tilpas entity_id'er til din bil.
@@ -234,12 +238,12 @@ automation:
       # Tænd sædevarme på begge forsæder
       - service: select.select_option
         target:
-          entity_id: select.bil_seat_heater_left
+          entity_id: select.bil_seat_heater_front_left
         data:
           option: "high"
       - service: select.select_option
         target:
-          entity_id: select.bil_seat_heater_right
+          entity_id: select.bil_seat_heater_front_right
         data:
           option: "high"
       # Sæt til medium efter 5 min
@@ -248,8 +252,8 @@ automation:
       - service: select.select_option
         target:
           entity_id:
-            - select.bil_seat_heater_left
-            - select.bil_seat_heater_right
+            - select.bil_seat_heater_front_left
+            - select.bil_seat_heater_front_right
         data:
           option: "medium"
 ```

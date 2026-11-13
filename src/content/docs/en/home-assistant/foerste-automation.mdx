@@ -28,6 +28,8 @@ All automations have three parts:
 
 **Think of it as:** "When X happens, and if Y is true, then do Z."
 
+From Home Assistant 2026.7, purpose-specific triggers and conditions are the default in the automation editor. The steps below use the generic triggers, which still work. See [Automations in 2026.7](/en/home-assistant/automationer-2026-7/) for the new workflow.
+
 ## 🌅 Example 1: Light at Sunset
 
 The classic first automation!
@@ -170,7 +172,7 @@ Requires smart plug with power monitoring (e.g., IKEA INSPELNING or Sonoff S31):
 **Check these things:**
 
 1. **Entity ID** - Typos are the most common error!
-   - Find correct ID under **Developer Tools** → **States**
+   - Find correct ID under **Settings** → **Tools** → **States** (formerly Developer Tools)
 
 2. **Logs** - See error messages
    - **Settings** → **System** → **Logs**
@@ -179,7 +181,7 @@ Requires smart plug with power monitoring (e.g., IKEA INSPELNING or Sonoff S31):
    - Click automation → **Traces** (at bottom)
 
 4. **Test trigger manually**
-   - **Developer Tools** → **States** → Change entity state
+   - **Settings** → **Tools** → **States** → Change entity state
 </Aside>
 
 ## 📚 Useful Trigger Types

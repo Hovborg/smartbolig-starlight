@@ -246,10 +246,10 @@ automation:
   <TabItem label="Home Assistant">
     ### MEATER Integration
     
-    Via **MEATER HACS integration**:
+    Via den indbyggede **MEATER-integration**:
     
     ```yaml
-    # HACS → Integrations → MEATER
+    # Indstillinger → Enheder → Tilføj integration → MEATER
     # Kræver MEATER Cloud konto
     
     # Entiteter:
@@ -316,35 +316,28 @@ automation:
 ### Home Assistant
 
 ```yaml
-# Via Anova integration (community)
-# HACS → Integrations → Anova
+# Indbygget Anova-integration (kun Wi-Fi-modeller, ikke Anova Nano)
+# Indstillinger → Enheder → Tilføj integration → Anova
+# Integrationen har kun sensorer - opvarmningen starter du i Anova-appen
 
-# Entiteter:
-# - climate.anova_cooker
-# - sensor.anova_current_temp
-# - sensor.anova_target_temp
+# Entiteter (eksempler):
+# - sensor.anova_precision_cooker_water_temperature
+# - sensor.anova_precision_cooker_target_temperature
+# - sensor.anova_precision_cooker_cook_time_remaining
 
-# Eksempel: Start sous vide på vej hjem
+# Eksempel: Få besked, når vandet har nået temperaturen
 automation:
-  - alias: "Start sous vide ved afgang fra arbejde"
+  - alias: "Sous vide - vandet er varmt"
     trigger:
-      - platform: zone
-        entity_id: person.brian
-        zone: zone.work
-        event: leave
-    condition:
-      - condition: state
-        entity_id: input_boolean.sous_vide_scheduled
-        state: "on"
+      - platform: template
+        value_template: >
+          {{ states('sensor.anova_precision_cooker_water_temperature') | float(0)
+             >= states('sensor.anova_precision_cooker_target_temperature') | float(999) }}
     action:
-      - service: climate.set_temperature
-        entity_id: climate.anova_cooker
-        data:
-          temperature: 57  # Perfekt bøf
       - service: notify.mobile_app
         data:
-          title: "🥩 Sous vide startet"
-          message: "Anova varmer op til 57°C"
+          title: "🥩 Sous vide klar"
+          message: "Vandet har nået måltemperaturen"
 ```
 
 ---
@@ -537,7 +530,7 @@ automation:
   },
   {
     question: "Kan jeg lave sous vide automatiseringer?",
-    answer: "Ja! Anova har HACS integration. Du kan starte opvarmning baseret på tidspunkt, eller når du forlader arbejdet, så maden er klar når du kommer hjem."
+    answer: "Delvist. Den indbyggede Anova-integration i Home Assistant har kun sensorer, blandt andet vandtemperatur, måltemperatur og resterende tid. Du kan derfor få besked, når vandet er varmt, eller maden er færdig, men selve opvarmningen starter du i Anova-appen."
   }
 ]} />
 

@@ -41,7 +41,7 @@ High humidity in basements or bathrooms can lead to mold, musty smells, and expe
 | **Smart plug with power monitoring** | Shelly Plug S, NOUS A1T | €15-30 |
 
 <Aside type="note" title="Tuya dehumidifier recommendation">
-Tuya-based dehumidifiers can be integrated directly into Home Assistant via the **Local Tuya** integration - no cloud required! They often have a built-in humidity sensor, but a separate sensor provides more accurate readings.
+Tuya-based dehumidifiers can be integrated into Home Assistant via the unofficial **Local Tuya** integration, which controls the device locally. For setup you do need the device's Local Key, and the Local Tuya documentation recommends a Tuya IoT Platform (cloud API) account for that. They often have a built-in humidity sensor, but a separate sensor provides more accurate readings.
 </Aside>
 
 ## Setup
@@ -57,7 +57,7 @@ Tuya-based dehumidifiers can be integrated directly into Home Assistant via the 
 
 **Test your sensor:**
 ```yaml
-# Go to Developer Tools → States
+# Go to Settings → Tools → States
 # Search for "humidity"
 # Your sensor should show a value between 30-80%
 ```
@@ -200,7 +200,7 @@ automation:
 ### Via Local Tuya (recommended)
 
 <Steps>
-1. Install **Local Tuya** via HACS
+1. Install **Local Tuya** via the Marketplace (HACS before 2026.11)
 2. Find your dehumidifier's **Device ID** and **Local Key** via Tuya IoT Platform
 3. Add the device in Local Tuya
 4. Select entity type: **Humidifier** (dehumidifier mode)

@@ -26,7 +26,7 @@ Zigbee2MQTT is open source! Check out the [Zigbee2MQTT GitHub](https://github.co
 | Feature | Zigbee2MQTT | Manufacturer Hub (IKEA/Hue) |
 |---------|-------------|--------------------------|
 | Price | ~$25 (one time) | $40-70 per hub |
-| Devices | 2800+ from all brands | Only own brand |
+| Devices | 5,800+ from all brands | Only own brand |
 | Local | ✅ 100% local | ⚠️ Often cloud |
 | Open | ✅ Open source | ❌ Closed |
 
@@ -51,7 +51,7 @@ ALWAYS use a USB extension cable (1-2m). WiFi and Zigbee interfere - distance he
     <Steps>
     1. **Install Mosquitto MQTT broker**
        
-       Go to **Settings** → **Add-ons** → **Add-on store**
+       Go to **Settings** → **Apps** → **Install app** (called *Add-ons* before Home Assistant 2026.2)
        
        Search **"Mosquitto broker"** → **Install** → **Start**
 
@@ -65,7 +65,7 @@ ALWAYS use a USB extension cable (1-2m). WiFi and Zigbee interfere - distance he
 
     3. **Add Zigbee2MQTT repository**
        
-       **Settings** → **Add-ons** → **Add-on store** → **⋮** (three dots) → **Repositories**
+       **Settings** → **Apps** → **Install app** → **⋮** (three dots) → **Repositories**
        
        Add:
        ```
@@ -74,7 +74,7 @@ ALWAYS use a USB extension cable (1-2m). WiFi and Zigbee interfere - distance he
 
     4. **Install Zigbee2MQTT**
        
-       Search **"Zigbee2MQTT"** → **Install** (use edge version for latest features)
+       Search **"Zigbee2MQTT"** → **Install** (choose the stable **Zigbee2MQTT**; **Zigbee2MQTT Edge** tracks the dev branch with unreleased fixes)
 
     5. **Find your USB dongle**
        
@@ -85,23 +85,23 @@ ALWAYS use a USB extension cable (1-2m). WiFi and Zigbee interfere - distance he
        /dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus-if00-port0
        ```
 
-    6. **Configure Zigbee2MQTT**
+    6. **Start and complete onboarding**
        
-       Click Zigbee2MQTT add-on → **Configuration**:
+       Start the app from the **Info** tab and click **Open Web UI**. Select your adapter under **Found Devices** and enter the closest WiFi channel so a good Zigbee channel is picked. A 502 error usually means the app is still starting. If it takes more than about two minutes, check the **Log** tab.
+
+    7. **If no adapter is found**
+       
+       Add the `serial` settings in the app configuration (do not type the `serial:` line itself if the configuration field is already that section). For a Sonoff Dongle Plus use `zstack`. The MQTT settings live in the same configuration:
        ```yaml
-       serial:
-         port: /dev/serial/by-id/usb-Silicon_Labs_Sonoff...
+       adapter: zstack
+       port: /dev/serial/by-id/usb-Silicon_Labs_Sonoff...
+       ```
+       ```yaml
        mqtt:
          server: mqtt://core-mosquitto
          user: mqtt
          password: your-mqtt-password
-       frontend:
-         port: 8080
        ```
-
-    7. **Start and open**
-       
-       Click **Start** and open: `http://homeassistant.local:8080`
     </Steps>
   </TabItem>
   <TabItem label="Docker">
@@ -119,12 +119,12 @@ ALWAYS use a USB extension cable (1-2m). WiFi and Zigbee interfere - distance he
 
       zigbee2mqtt:
         container_name: zigbee2mqtt
-        image: koenkk/zigbee2mqtt
+        image: ghcr.io/koenkk/zigbee2mqtt
         volumes:
           - ./zigbee2mqtt/data:/app/data
           - /run/udev:/run/udev:ro
         devices:
-          - /dev/ttyUSB0:/dev/ttyUSB0
+          - /dev/serial/by-id/usb-YOUR-DONGLE-if00:/dev/ttyACM0
         ports:
           - "8080:8080"
         environment:
@@ -182,8 +182,9 @@ Place smart bulbs/plugs strategically in your home. They act as repeaters and ex
 
 Zigbee and WiFi both use 2.4 GHz. Avoid problems:
 
-- Set WiFi to channel **1** or **11**
-- Let Zigbee2MQTT choose channel automatically (default 11)
+- Use a ZLL channel for Zigbee: **11**, **15**, **20** or **25** (default is 11)
+- During onboarding in the Home Assistant app you enter the closest WiFi channel so the Zigbee channel is chosen from it
+- Changing the Zigbee channel may require re-pairing some devices
 - Use USB extension cable for coordinator
 
 ## 🔧 Troubleshooting

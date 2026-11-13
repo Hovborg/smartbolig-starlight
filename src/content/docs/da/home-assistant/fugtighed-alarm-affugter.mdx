@@ -41,7 +41,7 @@ Høj fugtighed i kælder eller badeværelse kan føre til skimmel, muglugt og dy
 | **Smart stik med strømmåling** | Shelly Plug S, NOUS A1T | 150-250 kr |
 
 <Aside type="note" title="Tuya affugter anbefaling">
-Tuya-baserede affugtere kan integreres direkte i Home Assistant via **Local Tuya** integrationen - ingen cloud nødvendig! De har ofte indbygget fugtighedsmåler, men en separat sensor giver mere præcise målinger.
+Tuya-baserede affugtere kan integreres i Home Assistant via den ikke-officielle **Local Tuya** integration, som styrer enheden lokalt. Til opsætningen skal du dog hente enhedens Local Key, og Local Tuyas dokumentation anbefaler en Tuya IoT Platform-konto (cloud API) til det. De har ofte indbygget fugtighedsmåler, men en separat sensor giver mere præcise målinger.
 </Aside>
 
 ## Opsætning
@@ -57,7 +57,7 @@ Tuya-baserede affugtere kan integreres direkte i Home Assistant via **Local Tuya
 
 **Test din sensor:**
 ```yaml
-# Gå til Developer Tools → States
+# Gå til Indstillinger → Værktøjer → Tilstande (engelsk: Settings → Tools → States)
 # Søg efter "humidity"
 # Din sensor bør vise en værdi mellem 30-80%
 ```
@@ -206,7 +206,7 @@ automation:
 ### Via Local Tuya (anbefalet)
 
 <Steps>
-1. Installer **Local Tuya** via HACS
+1. Installer **Local Tuya** via Marketplace (HACS før 2026.11)
 2. Find din affugters **Device ID** og **Local Key** via Tuya IoT Platform
 3. Tilføj enheden i Local Tuya
 4. Vælg entity type: **Humidifier** (dehumidifier mode)
