@@ -1,0 +1,90 @@
+---
+// Description line and the "EDGE AI online" status chip under the header.
+import type { AssistantCopy } from '../../lib/assistant-copy';
+
+interface Props {
+  t: AssistantCopy;
+}
+
+const { t } = Astro.props;
+---
+
+<div class="smartbolig-ai__system-bar">
+  <p class="smartbolig-ai__description" id="smartbolig-ai-description">{t.description}</p>
+  <div class="smartbolig-ai__system-state" data-chat-system-status>
+    <span class="smartbolig-ai__status-dot" aria-hidden="true"></span>
+    <span>
+      <strong>{t.systemStatus}</strong>
+      <small>{t.systemDetail}</small>
+    </span>
+  </div>
+</div>
+
+<style>
+  .smartbolig-ai__system-bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.85rem;
+    padding: 0.7rem 1.05rem 0.72rem;
+    border-bottom: 1px solid var(--ai-line);
+    background: color-mix(in srgb, var(--sb-bg-subtle) 80%, transparent);
+  }
+
+  .smartbolig-ai__description {
+    margin: 0;
+    color: var(--ai-muted);
+    font-size: 0.7rem;
+    line-height: 1.45;
+  }
+
+  .smartbolig-ai__system-state {
+    display: flex;
+    align-items: center;
+    gap: 0.48rem;
+    min-width: 0;
+    padding: 0.42rem 0.52rem;
+    border: 1px solid color-mix(in srgb, var(--ai-signal) 25%, transparent);
+    border-radius: var(--sb-radius-sm);
+    background: var(--sb-accent-soft);
+  }
+
+  .smartbolig-ai__system-state > span:last-child {
+    display: grid;
+    gap: 0.08rem;
+  }
+
+  .smartbolig-ai__system-state strong,
+  .smartbolig-ai__system-state small {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .smartbolig-ai__system-state strong {
+    color: var(--sb-accent-strong);
+    font-family: var(--sb-font-mono);
+    font-size: 0.51rem;
+    letter-spacing: 0.06em;
+  }
+
+  .smartbolig-ai__system-state small {
+    max-width: 148px;
+    color: var(--ai-muted);
+    font-size: 0.49rem;
+  }
+
+  @media (max-width: 360px) {
+    .smartbolig-ai__description {
+      display: none;
+    }
+
+    .smartbolig-ai__system-bar {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .smartbolig-ai__system-state {
+      justify-self: start;
+    }
+  }
+</style>
