@@ -533,10 +533,14 @@ test("deploy runs every local quality gate before publishing", async () => {
     "npm run build",
     "npm run seo:validate",
     "python3 -m unittest discover -s scripts -p 'test_*.py'",
-    "npm run security:audit",
+    'npm run security:audit -- --auto --base "$AUDIT_BASE"',
   ]) {
     assert.ok(workflow.includes(command), `missing pre-deploy gate: ${command}`);
   }
+  // The audit gate needs full history and must never be downgraded to a report.
+  assert.match(workflow, /fetch-depth: 0/);
+  assert.doesNotMatch(workflow, /security:audit[^\n]*--report/);
+  assert.match(workflow, /AUDIT_BASE: \$\{\{ steps\.audit-base\.outputs\.sha \}\}/);
 
   assert.equal(wrangler.pages_build_output_dir, undefined);
   assert.equal(wrangler.main, "./.worker/index.js");
