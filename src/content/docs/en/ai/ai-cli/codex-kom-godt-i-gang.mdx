@@ -19,13 +19,13 @@ Start in a Git repository and begin with a read-only task. Do not use `--yolo` o
 
 ## Requirements
 
-- macOS, Linux, or Windows through WSL
-- Node.js/npm or Homebrew
+- macOS, Linux, or Windows (PowerShell or WSL2)
+- Node.js/npm or Homebrew, if you do not use the installer script
 - Git
 - A ChatGPT account or OpenAI API key
 - A project you can test on
 
-OpenAI documents Windows support, but WSL is the best Windows path for most CLI workflows.
+OpenAI provides a PowerShell installer for Windows, and Windows has its own sandbox. Under WSL2, Codex uses the Linux sandbox; WSL1 is no longer supported as of Codex 0.115.
 
 ## Install Codex CLI
 
@@ -42,12 +42,12 @@ OpenAI documents Windows support, but WSL is the best Windows path for most CLI 
     codex --version
     ```
   </TabItem>
-  <TabItem label="Windows/WSL">
-    Install Node.js or Homebrew inside WSL, then run:
-
-    ```bash
-    npm install -g @openai/codex
+  <TabItem label="Windows (PowerShell)">
+    ```powershell
+    powershell -ExecutionPolicy ByPass -c "irm https://chatgpt.com/codex/install.ps1 | iex"
     ```
+
+    On macOS and Linux the equivalent is `curl -fsSL https://chatgpt.com/codex/install.sh | sh`. If you use WSL, you can instead run the npm or Homebrew command above inside WSL.
   </TabItem>
 </Tabs>
 
@@ -98,11 +98,13 @@ Codex uses sandboxing and approval prompts. Useful in-session commands:
 | `/review` | Run a local code review |
 | `/status` | Show active directory, sandbox, and session |
 
-OpenAI currently recommends `gpt-5.5` for most Codex tasks, and you can also just let Codex use the default model:
+OpenAI currently recommends GPT-6.1 Sol (`gpt-6.1-sol`) for complex work, GPT-6 Astra (`gpt-6-astra`) for the hardest work, GPT-6.1 Terra (`gpt-6.1-terra`) for fast, efficient tasks, and GPT-6 Luna (`gpt-6-luna`) for focused, high-volume tasks. The documentation does not name a fixed default model: if you pick none, the CLI uses a recommended one. You can choose a model at launch:
 
 ```bash
-codex --model gpt-5.5
+codex --model gpt-6.1-sol
 ```
+
+GPT-5.5 was retired from Codex with ChatGPT sign-in on October 14, 2026; API-key sessions are not affected.
 
 ## Three Good Codex Workflows
 
@@ -202,11 +204,11 @@ Codex can use ChatGPT login with included limits or an API key with token-based 
 - you use subagents
 - the agent rereads many files
 
-For routine work, `gpt-5.5-mini` can stretch local-message limits further than heavier models. Use `gpt-5.5` for hard debugging, architecture, and high-risk changes.
+For routine work, `gpt-6-luna` can stretch local-message limits further than heavier models (on Plus 350-3,000 versus 15-160 for GPT-6.1 Sol per 5 hours). Use `gpt-6.1-sol` or `gpt-6-astra` for hard debugging, architecture, and high-risk changes.
 
 ## Sources
 
-Last checked: April 11, 2026.
+Last checked: November 13, 2026.
 
 - [OpenAI Codex quickstart](https://developers.openai.com/codex/quickstart#setup)
 - [Codex CLI](https://developers.openai.com/codex/cli)

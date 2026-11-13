@@ -1,7 +1,7 @@
 ---
 title: Sikker fjernadgang til Home Assistant
 description: Opsæt fjernadgang med Home Assistant Cloud eller en privat VPN, beskyt login med MFA og test forbindelsen fra mobilnettet trin for trin.
-lastUpdated: 2026-09-30
+lastUpdated: 2026-11-13
 sidebar:
   badge:
     text: Guide
@@ -134,7 +134,9 @@ Tailscale-netværk, kaldet et *tailnet*. Her er kontrollisten for den løsning:
 - Gennemgå [adgangspolitikken](https://tailscale.com/docs/features/access-control/acls).
   Et nyt tailnet kan have regler, som tillader alle enheder at kommunikere.
   Begræns de relevante brugere til Home Assistants adresse og nødvendige port,
-  normalt TCP 8123. Andre brede regler kan stadig give mere adgang.
+  normalt TCP 8123 (nyere Home Assistant OS-installationer bruger port 80;
+  tjek den faktiske port under **Indstillinger → System → Netværk**). Andre
+  brede regler kan stadig give mere adgang.
 - Forbind telefonens VPN, slå Wi-Fi fra og gentag browser- og lampetesten med
   adressen, som er tilgængelig gennem VPN'en.
 
@@ -166,7 +168,7 @@ Notér adgangsvej, hvem der har adgang og den sidste vellykkede mobilnettest.
 Gentag testen efter telefonudskiftning, routerændringer eller ændrede
 brugerkonti. Hvis en telefon mistes, skal dens adgang fjernes både i den
 relevante VPN-tjeneste og i Home Assistants sessioner/tokens; en ændring ét sted
-er ikke nødvendigvis nok. Home Assistants [kontoprofil](https://www.home-assistant.io/docs/authentication/#your-account-profile)
+er ikke nødvendigvis nok. Home Assistants [kontoprofil](https://www.home-assistant.io/docs/authentication/#managing-account-access)
 viser de relevante tokenindstillinger.
 
 Behold den lokale adgang som din vej tilbage. Deaktivér Cloud-fjernadgang eller

@@ -92,8 +92,8 @@ sensor:
         key: !secret api_key
 
     ota:
-      platform: esphome
-      password: !secret ota_password
+      - platform: esphome
+        password: !secret ota_password
 
     logger:
       level: DEBUG
@@ -152,20 +152,16 @@ substitutions:
   friendly_name: "My Sensor"
 
 packages:
-  # Official ESPHome packages
-  voice_assistant:
-    url: https://github.com/esphome/firmware
-    files:
-      - voice-assistant/m5stack-atom-echo.yaml
-    refresh: 1d
-
-  # Community packages
+  # Your own (or another) repository with shared configuration
   common:
-    url: https://github.com/olegtarasov/esphome-common
+    url: https://github.com/username/esphome-packages
     ref: main
     files:
       - common/base.yaml
     refresh: 1d
+
+  # Same thing with the GitHub shorthand github://user/repo/file.yaml@branch-or-tag
+  # common: github://username/esphome-packages/common/base.yaml@main
 ```
 
 <Aside type="caution" title="Remote Package Limitations">
@@ -215,20 +211,19 @@ binary_sensor:
       return comfortable;
 ```
 
-### Text Sensors with Jinja2 (ESPHome 2025.7+)
+### Jinja2 Expressions in Substitutions (ESPHome 2025.7+)
 
 ```yaml
-# New in ESPHome 2025.7: Jinja2 in substitutions!
+# From ESPHome 2025.7: Jinja expressions in substitutions.
+# Expressions are written as ${ ... } (not {{ ... }}).
 substitutions:
-  # Dynamic values
-  compile_time: "{{ now().strftime('%Y-%m-%d %H:%M') }}"
-  random_suffix: "{{ range(1000, 9999) | random }}"
+  base_interval: 30
+  scale: 2
 
-text_sensor:
-  - platform: template
-    name: "Firmware Info"
-    lambda: |-
-      return {"Compiled: ${compile_time}"};
+sensor:
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: ${base_interval * scale}s  # becomes 60s
 ```
 
 ---
@@ -336,7 +331,7 @@ binary_sensor:
 # Status LED
 light:
   - platform: esp32_rmt_led_strip
-    rgb_order: GRB
+    channel_colors: GRB
     pin: GPIO25
     num_leds: 1
     chipset: WS2812
@@ -399,26 +394,28 @@ External components are custom ESPHome components hosted on GitHub. They extend 
 
 ```yaml
 external_components:
-  # LD2410 mmWave radar
-  - source: github://screek-workshop/ld2410@main
-    components: [ld2410]
+  # Short form (GitHub): github://user/repo@branch-or-tag
+  - source: github://ssieb/esphome_components@master
+    components: [serial_csv]
     refresh: 1d
 
-  # Custom sensor from community
+  # Same thing with the full git source
   - source:
       type: git
       url: https://github.com/ssieb/esphome_components
     components: [serial_csv]
 ```
 
+<Aside type="note" title="LD2410 and Bluetooth Proxy are built in">
+`ld2410` and `bluetooth_proxy` are part of ESPHome and should not be loaded as external components. See the [LD2410 guide](/en/esp32/ld2410-mmwave/) and [Bluetooth Proxy](/en/esp32/bluetooth-proxy/).
+</Aside>
+
 ### Popular External Components
 
 | Component | Function | GitHub |
 |-----------|----------|--------|
-| **ld2410** | mmWave radar | screek-workshop/ld2410 |
 | **ratgdo** | Garage door | ratgdo/esphome-ratgdo |
-| **bluetooth_proxy** | BLE proxy | esphome/bluetooth-proxies |
-| **improv** | Easy WiFi setup | esphome/improv |
+| **serial_csv** and others | Assorted sensors and helper components | ssieb/esphome_components |
 
 ### Write Your Own Component
 
@@ -566,4 +563,4 @@ sensor:
 
 ---
 
-*Last updated: December 2025*
+*Last updated: November 2026*

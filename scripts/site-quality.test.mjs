@@ -1,10 +1,16 @@
 import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 import { selectLatestNews } from "../src/lib/home-news.ts";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
+// The sidebar lives in config/sidebar/ (one file per section); concatenate them all.
+const readSidebarConfig = async (dir = "config/sidebar") => {
+  const entries = await readdir(new URL(`../${dir}/`, import.meta.url), { withFileTypes: true });
+  const parts = await Promise.all(entries.map((e) => (e.isDirectory() ? readSidebarConfig(`${dir}/${e.name}`) : read(`${dir}/${e.name}`))));
+  return parts.join("\n");
+};
 
 const HOME_COMPONENTS = [
   "src/components/home/HomeHero.astro",
@@ -250,7 +256,7 @@ test("homepage keeps a single main landmark and a visible skip-link target", asy
     read("src/components/PageTitle.astro"),
     read("src/components/ThemeSelect.astro"),
     read("src/components/HomeStyles.astro"),
-    read("astro.config.mjs"),
+    read("config/components.mjs"),
   ]);
   assert.doesNotMatch(portal, /<\/?main\b/);
   assert.match(pageTitle, /DefaultPageTitle/);
@@ -306,7 +312,7 @@ test("four-guide series stays bilingual, complete and globally scoped", async ()
     assert.doesNotMatch(source, /^# /m);
   }
 
-  const config = await read("astro.config.mjs");
+  const config = await readSidebarConfig();
   for (const route of [
     "/home-assistant/local-voice-assist/",
     "/esp32/bluetooth-proxy/",
@@ -376,7 +382,7 @@ test("six current Home Assistant guides stay bilingual and discoverable", async 
   }
 
   const [config, daHub, enHub] = await Promise.all([
-    read("astro.config.mjs"),
+    readSidebarConfig(),
     read("src/content/docs/da/home-assistant/index.mdx"),
     read("src/content/docs/en/home-assistant/index.mdx"),
   ]);
@@ -457,7 +463,7 @@ test("six illustrated Home Assistant guides stay bilingual, natural and discover
   }
 
   const [config, daHub, enHub] = await Promise.all([
-    read("astro.config.mjs"),
+    readSidebarConfig(),
     read("src/content/docs/da/home-assistant/index.mdx"),
     read("src/content/docs/en/home-assistant/index.mdx"),
   ]);

@@ -39,10 +39,12 @@ When an AI CLI works locally, the practical risks are not just "bad code". The m
 | Topic | Codex CLI | Claude Code | Gemini CLI |
 |---|---|---|---|
 | Read files | Yes, depending on sandbox | Yes, with permissions | Yes, depending on settings |
-| Write files | Requires mode/approval | Requires approval | Requires permissions |
-| Run commands | Controlled by sandbox/approvals | Requires approval | Controlled by permissions/sandbox |
-| Network | Limited in safer modes | Requires approval | Depends on settings/sandbox |
+| Write files | Requires mode/approval | Requires approval in Manual mode | Requires permissions |
+| Run commands | Controlled by sandbox/approvals | Requires approval in Manual mode | Controlled by permissions/sandbox |
+| Network | Limited in safer modes | Requires approval in Manual mode | Depends on settings/sandbox |
 | Instruction file | `AGENTS.md` | `CLAUDE.md` | `GEMINI.md` |
+
+From v2.1.283, Claude Code starts interactive terminal sessions in auto mode, where a classifier model reviews actions instead of you. If you want to approve actions yourself, use Manual mode (`default`) or `claude --permission-mode plan`, and switch mode with `Shift+Tab`. From v2.1.302, `claude -p` starts in Manual mode when you do not set a mode.
 
 ## Security Profiles
 
@@ -177,7 +179,7 @@ Do not make changes.
 
 ## Sources
 
-Last checked: April 11, 2026.
+Last checked: November 13, 2026.
 
 - [OpenAI agent approvals and security](https://developers.openai.com/codex/agent-approvals-security)
 - [Claude Code security](https://code.claude.com/docs/en/security)

@@ -10,7 +10,7 @@ import { Aside, Badge, Card, CardGrid } from '@astrojs/starlight/components';
 AI CLI'er kan betales på to måder: med et fast abonnement, hvor brug er inkluderet op til en grænse, eller med en API key, hvor du betaler efter tokens, værktøjskald og modelvalg.
 
 <Aside type="caution" title="Tjek altid før køb">
-Priser, modeller, kvoter og kampagner ændrer sig ofte. Tallene her er sidst tjekket 13. juli 2026. Den danske version viser cirka-priser i kroner, omregnet fra officielle USD-priser med 1 USD cirka 6,40 kr. Faktiske checkout-priser kan afvige på grund af moms, valutakurs og lokal prissætning.
+Priser, modeller, kvoter og kampagner ændrer sig ofte. Tallene her er sidst tjekket 13. november 2026. Den danske version viser cirka-priser i kroner, omregnet fra officielle USD-priser med 1 USD cirka 6,40 kr. Faktiske checkout-priser kan afvige på grund af moms, valutakurs og lokal prissætning.
 </Aside>
 
 ## Kort beslutning
@@ -52,10 +52,10 @@ Codex kan bruges med ChatGPT-login eller med OpenAI API key. ChatGPT-planer give
 
 | Plan | Pris | Relevans for Codex |
 |---|---:|---|
-| Free | 0 kr./md. | Hurtige testopgaver og læring. |
+| Free | 0 kr./md. | GPT-6 Luna ved standardhastighed i desktop-appen, afhængigt af udrulning. |
 | Go | Ca. 51 kr./md. | Lettere coding tasks. |
-| Plus | Ca. 128 kr./md. | Codex i web, CLI, IDE og iOS, nyere modeller og kreditter. |
-| Pro | Fra ca. 640 kr./md. | 5x eller 20x højere limits end Plus og prioriteret behandling. |
+| Plus | Ca. 128 kr./md. | Codex i web, CLI, IDE-udvidelse og iOS, cloud-integrationer som automatisk code review og Slack, GPT-6.1 Sol og GPT-6 Luna samt ekstra forbrug via ChatGPT-credits. |
+| Pro | Fra ca. 640 kr./md. | Planer til 100, 200 og 500 USD/md. (ca. 640, 1.280 og 3.200 kr.). Ingen 5-timers grænse i øjeblikket; Ultrafast-tilstand på 500 USD-planen. |
 | Business | Ca. 128 kr./sæde/md. årligt eller ca. 160 kr./md. | Team-workspace, admin controls, større VM'er og credits. |
 | Enterprise/Edu | Kontakt sales | Enterprise controls, audit logs, retention og data residency. |
 | API key | Tokenbaseret | Lokale Codex-opgaver i CLI/SDK/IDE, men uden cloud code review. |
@@ -64,53 +64,63 @@ Codex kan bruges med ChatGPT-login eller med OpenAI API key. ChatGPT-planer give
 
 | Model | Input / 1M tokens | Cached input / 1M tokens | Output / 1M tokens |
 |---|---:|---:|---:|
-| GPT-5.6 Sol | Ca. 32 kr. | Ca. 3,20 kr. | Ca. 192 kr. |
-| GPT-5.6 Terra | Ca. 16 kr. | Ca. 1,60 kr. | Ca. 96 kr. |
-| GPT-5.6 Luna | Ca. 6,40 kr. | Ca. 0,64 kr. | Ca. 38 kr. |
+| GPT-6 Astra | Ca. 64 kr. | Ca. 6,40 kr. | Ca. 320 kr. |
+| GPT-6.1 Sol | Ca. 12,80 kr. | Ca. 0,64 kr. | Ca. 64 kr. |
+| GPT-6.1 Terra | Ca. 6,40 kr. | Ca. 0,32 kr. | Ca. 32 kr. |
+| GPT-6 Luna | Ca. 0,64 kr. | Ca. 0,06 kr. | Ca. 3,20 kr. |
+| GPT-6 Sol | Ca. 12,80 kr. | Ca. 1,28 kr. | Ca. 64 kr. |
+| GPT-5.6 Sol | Ca. 25,60 kr. | Ca. 2,56 kr. | Ca. 128 kr. |
+| GPT-5.6 Terra | Ca. 12,80 kr. | Ca. 1,28 kr. | Ca. 77 kr. |
+| GPT-5.6 Luna | Ca. 1,28 kr. | Ca. 0,13 kr. | Ca. 7,70 kr. |
 | GPT-5.5 | Ca. 32 kr. | Ca. 3,20 kr. | Ca. 192 kr. |
 | GPT-5.4 | Ca. 16 kr. | Ca. 1,60 kr. | Ca. 96 kr. |
 | GPT-5.4 mini | Ca. 4,80 kr. | Ca. 0,48 kr. | Ca. 29 kr. |
 | GPT-5.4 nano | Ca. 1,30 kr. | Ca. 0,13 kr. | Ca. 8 kr. |
-| GPT-5.3-Codex | Ca. 11 kr. | — | Ca. 90 kr. |
+| GPT-5.3-Codex | Ca. 11 kr. | Ca. 1,12 kr. | Ca. 90 kr. |
 
-GPT-5.6 Sol er OpenAI's nyeste flagskibsmodel, mens Terra og Luna er de mellemstore og små 5.6-varianter. Data residency og regional processing kan give et 10% tillæg for modeller udgivet efter 5. marts 2026.
+Priserne gælder standardniveauet ved korte kontekster (op til 272K input-tokens). OpenAI's prisliste fører nu GPT-6 Astra, GPT-6.1 Sol, GPT-6.1 Terra, GPT-6 Luna og GPT-6 Sol foran GPT-5.6-modellerne. Data residency og regional processing kan give et 10% tillæg for modeller udgivet efter 5. marts 2026.
 
 ### Codex credits
 
-Codex credits bruges til at fortsætte efter inkluderede limits. For nye og eksisterende Business-kunder og nye Enterprise-kunder viste OpenAI denne tokenbaserede credit-rate:
+Codex credits bruges til at fortsætte efter inkluderede limits. OpenAI viser denne tokenbaserede credit-rate ved standardhastighed:
 
 | Model | Input / 1M tokens | Cached input / 1M tokens | Output / 1M tokens |
 |---|---:|---:|---:|
-| GPT-5.6 Sol | 125 credits | 12,5 credits | 750 credits |
-| GPT-5.6 Terra | 62,5 credits | 6,25 credits | 375 credits |
-| GPT-5.6 Luna | 25 credits | 2,5 credits | 150 credits |
-| GPT-5.5 | 125 credits | 12,5 credits | 750 credits |
-| GPT-5.4 | 62,5 credits | 6,25 credits | 375 credits |
-| GPT-5.4 mini | 18,75 credits | 1,875 credits | 113 credits |
+| GPT-6 Astra | 250 credits | 25 credits | 1.250 credits |
+| GPT-6.1 Sol | 50 credits | 2,5 credits | 250 credits |
+| GPT-6.1 Terra | 25 credits | 1,25 credits | 125 credits |
+| GPT-6 Sol | 50 credits | 5 credits | 250 credits |
+| GPT-6 Luna | 2,5 credits | 0,25 credits | 12,5 credits |
+| GPT-5.6 Sol | 100 credits | 10 credits | 500 credits |
+| GPT-5.6 Terra | 50 credits | 5 credits | 300 credits |
+| GPT-5.6 Luna | 5 credits | 0,5 credits | 30 credits |
 
-GPT-5.3-Codex-Spark er research preview og kun for ChatGPT Pro-brugere.
+Fast-tilstand bruger 2x og Ultrafast 6x standardsatsen ved købte credits. GPT-5.3-Codex-Spark udgik af Codex den 14. september 2026.
 
 ### Codex inkluderede limits
 
 OpenAI angiver limits som intervaller, fordi de afhænger af opgavens størrelse og model. Som praktisk tommelfingerregel bør du forvente, at store repos, lange prompts og subagents bruger grænsen hurtigere.
 
-| Plan | Eksempler på local messages pr. 5 timer |
+| Plan | Local messages pr. 5 timer |
 |---|---|
-| Plus/Business | GPT-5.6 Terra: 20-110 |
-| Pro 5x | GPT-5.6 Terra: 100-550 |
-| Pro 20x | GPT-5.6 Terra: 400-2.200 |
+| Plus og standard Business | GPT-6 Astra: 5-45 |
+| Plus og standard Business | GPT-6.1 Sol: 15-160 |
+| Plus og standard Business | GPT-6.1 Terra: 35-285 |
+| Plus og standard Business | GPT-6 Luna: 350-3.000 |
+| Pro | Ingen 5-timers grænse i øjeblikket |
 
-Cloud tasks og lokale beskeder kan dele samme 5-timers vindue, og ugentlige grænser kan også gælde.
+Tallene er estimater, og ugentlige grænser kan også gælde. Cloud tasks og lokale beskeder kan dele samme grænse.
 
 ## Anthropic Claude Code og Claude API
 
-Claude Code kan bruges via Claude-abonnementer eller via API-tokenforbrug. Claude Code viser tokenforbrug og plan-forbrug med `/usage`. Pro- og Max-abonnenter har brug inkluderet i abonnementet, mens API-brugere betaler pr. token. Abonnementerne giver adgang til Anthropics aktuelle modelfamilier: Fable, Opus, Sonnet og Haiku.
+Claude Code kan bruges via Claude-abonnementer eller via API-tokenforbrug. Claude Code viser tokenforbrug og plan-forbrug med `/usage`. Pro-, Max- og Ultra-abonnenter har brug inkluderet i abonnementet, mens API-brugere betaler pr. token. Abonnementerne giver adgang til Opus, Sonnet og Haiku; Fable er inkluderet på Max og Ultra (op til 50 % af de ugentlige grænser) og kan bruges via usage credits på Pro.
 
 | Plan | Pris | Relevans for Claude Code |
 |---|---:|---|
-| Free | 0 kr. | Prøv Claude i appen. |
+| Free | 0 kr. | Prøv Claude i appen. Inkluderer ikke Claude Code. |
 | Pro | Ca. 109 kr./md. årligt eller ca. 128 kr./md. månedligt | Mere brug, Claude Code, Claude Cowork og Projects. |
-| Max | Fra ca. 640 kr./md. | 5x eller 20x mere brug end Pro og højere output limits. |
+| Max | Ca. 640 kr./md. | 5x Pro-brug pr. 5 timer og pr. uge samt 100 USD/md. i API-credits. |
+| Ultra | Ca. 1.280 kr./md. | Ingen 5-timers grænse (for verificerede konti), 10x Pro-brug ugentligt og 200 USD/md. i API-credits. |
 | Team standard | Ca. 128 kr./sæde/md. årligt eller ca. 160 kr./md. | Teamfunktioner, Claude Code, SSO og admin. |
 | Team premium | Ca. 640 kr./sæde/md. årligt eller ca. 800 kr./md. | 5x mere brug end standard seats. |
 | Enterprise | Ca. 128 kr./sæde + API-forbrug | Enterprise controls, spend controls, audit logs og retention. |
@@ -122,14 +132,19 @@ Anthropic beskriver typiske enterprise-omkostninger for Claude Code som cirka 83
 
 | Model | Input / 1M tokens | Output / 1M tokens | Cache write / 1M | Cache read / 1M |
 |---|---:|---:|---:|---:|
+| Fable 5.2 | Ca. 51 kr. | Ca. 256 kr. | Ca. 64 kr. | Ca. 1,28 kr. |
+| Fable 5.1 | Ca. 64 kr. | Ca. 320 kr. | Ca. 80 kr. | Ca. 1,60 kr. |
 | Fable 5 | Ca. 64 kr. | Ca. 320 kr. | Ca. 80 kr. | Ca. 6,40 kr. |
-| Opus 4.8 | Ca. 32 kr. | Ca. 160 kr. | Ca. 40 kr. | Ca. 3,20 kr. |
-| Sonnet 5, intro til 31. aug. 2026 | Ca. 12,80 kr. | Ca. 64 kr. | Ca. 16 kr. | Ca. 1,28 kr. |
-| Sonnet 5, fra 1. sep. 2026 | Ca. 19 kr. | Ca. 96 kr. | Ca. 24 kr. | Ca. 1,90 kr. |
+| Opus 5.5 | Ca. 25,60 kr. | Ca. 128 kr. | Ca. 32 kr. | Ca. 1,28 kr. |
+| Opus 5 og 4.8 | Ca. 32 kr. | Ca. 160 kr. | Ca. 40 kr. | Ca. 3,20 kr. |
+| Sonnet 5.5 | Ca. 12,80 kr. | Ca. 64 kr. | Ca. 16 kr. | Ca. 0,64 kr. |
+| Sonnet 5 | Ca. 12,80 kr. | Ca. 64 kr. | Ca. 16 kr. | Ca. 1,28 kr. |
 | Sonnet 4.6 | Ca. 19 kr. | Ca. 96 kr. | Ca. 24 kr. | Ca. 1,90 kr. |
+| Haiku 5.5, prompts op til 100.000 tokens | Ca. 0,64 kr. | Ca. 3,20 kr. | Ca. 0,80 kr. | Ca. 0,06 kr. |
+| Haiku 5.5, prompts over 100.000 tokens | Ca. 3,20 kr. | Ca. 16 kr. | Ca. 4 kr. | Ca. 0,32 kr. |
 | Haiku 4.5 | Ca. 6,40 kr. | Ca. 32 kr. | Ca. 8 kr. | Ca. 0,64 kr. |
 
-Opus 4.7 og 4.6 koster det samme som Opus 4.8. Cache write-prisen gælder 5-minutters cache; 1-times cache koster 2x input-prisen. Bemærk at Fable 5, Sonnet 5 og Opus 4.7+ bruger en ny tokenizer, der giver cirka 30% flere tokens for samme tekst end Sonnet 4.6 og ældre — sammenlign derfor ikke kun på pris pr. token.
+Opus 4.7, 4.6 og 4.5 koster det samme som Opus 4.8. Sonnet 5's introduktionspris på 2/10 USD pr. million tokens (input/output) er nu standardprisen; den planlagte forhøjelse 1. september 2026 blev ikke gennemført. Cache write-prisen gælder 5-minutters cache; 1-times cache koster 2x input-prisen. Bemærk at Claude 4.7 og nyere modeller bruger en ny tokenizer, der giver cirka 30% flere tokens for samme tekst end Sonnet 4.6 og ældre. Sammenlign derfor ikke kun på pris pr. token.
 
 US-only inference koster 1,1x på alle tokenpriser. Claude web search koster ca. 64 kr. pr. 1.000 søgninger. Code execution er gratis sammen med web search/web fetch; ellers er der 1.550 gratis timer pr. måned pr. organisation og derefter ca. 0,32 kr. pr. time pr. container.
 
@@ -145,12 +160,13 @@ Google lukkede Gemini CLI's gratis adgang (Google-login, Gemini Code Assist for 
 |---|---:|---:|
 | Google account, Gemini Code Assist individual | Gratis | 1.000 requests pr. bruger pr. dag |
 | Google AI Pro | Ca. 128 kr./md. | 1.500 requests pr. bruger pr. dag |
-| Google AI Ultra | Ca. 1.600 kr./md. | 2.000 requests pr. bruger pr. dag |
+| Google AI Ultra | Fra ca. 640 kr./md. | 2.000 requests pr. bruger pr. dag |
 | Gemini API key, unpaid | Gratis tier | 250 requests pr. bruger pr. dag, Flash only |
 | Gemini API key, paid | Forbrugsafregnet | Varierer efter pricing tier og tokenforbrug |
 | Vertex AI | Forbrugsafregnet | Varierer efter Google Cloud-kvote og model |
 | Workspace Code Assist Standard | Sæde/licens | 1.500 requests pr. bruger pr. dag |
 | Workspace Code Assist Enterprise | Sæde/licens | 2.000 requests pr. bruger pr. dag |
+| Workspace AI Ultra | Sæde/licens | 2.000 requests pr. bruger pr. dag |
 
 Google AI Plus findes som forbrugerabonnement, men Gemini CLI-dokumentationen siger, at tiers som ikke er listet, inklusive Google AI Plus, ikke understøttes som CLI paid tier.
 
@@ -158,17 +174,21 @@ Google AI Plus findes som forbrugerabonnement, men Gemini CLI-dokumentationen si
 
 | Model og tier | Input / 1M tokens | Output / 1M tokens |
 |---|---:|---:|
-| Gemini 3.5 Flash, Standard | Ca. 9,60 kr. | Ca. 58 kr. |
-| Gemini 3.5 Flash, Batch | Ca. 4,80 kr. | Ca. 29 kr. |
-| Gemini 3.1 Pro, Standard, under 200k prompt | Ca. 13 kr. | Ca. 77 kr. |
-| Gemini 3.1 Pro, Standard, over 200k prompt | Ca. 26 kr. | Ca. 115 kr. |
-| Gemini 3.1 Pro, Batch, under 200k prompt | Ca. 6,40 kr. | Ca. 38 kr. |
-| Gemini 3.1 Flash-Lite, Standard text/image/video | Ca. 1,60 kr. | Ca. 9,60 kr. |
-| Gemini 3.1 Flash-Lite, Batch text/image/video | Ca. 0,80 kr. | Ca. 4,80 kr. |
+| Gemini 4 Carbon og Argon, Standard | Ca. 12,80 kr. til 30. nov. 2026, derefter ca. 25,60 kr. | Ca. 64 kr. til 30. nov. 2026, derefter ca. 128 kr. |
+| Gemini 4 Carbon og Argon, Batch | Ca. 6,40 kr. til 30. nov. 2026, derefter ca. 12,80 kr. | Ca. 32 kr. til 30. nov. 2026, derefter ca. 64 kr. |
+| Gemini 4 Hydrogen, Standard | Ca. 9,60 kr. | Ca. 48 kr. |
+| Gemini 4 Hydrogen, Batch | Ca. 4,80 kr. | Ca. 24 kr. |
+| Gemini 3.8 Flash, Standard | Ca. 4,80 kr. til 31. dec. 2026, derefter ca. 9,60 kr. | Ca. 24 kr. til 31. dec. 2026, derefter ca. 48 kr. |
+| Gemini 3.8 Flash, Batch | Ca. 2,40 kr. til 31. dec. 2026, derefter ca. 4,80 kr. | Ca. 12 kr. til 31. dec. 2026, derefter ca. 24 kr. |
+| Gemini 3.5 Flash-Lite, Standard | Ca. 1,92 kr. | Ca. 16 kr. |
+| Gemini 3.5 Flash-Lite, Batch | Ca. 0,96 kr. | Ca. 8 kr. |
+| Gemini 3.1 Pro Preview, Standard, under 200k prompt | Ca. 12,80 kr. | Ca. 77 kr. |
+| Gemini 3.1 Pro Preview, Standard, over 200k prompt | Ca. 25,60 kr. | Ca. 115 kr. |
+| Gemini 3.1 Pro Preview, Batch, under 200k prompt | Ca. 6,40 kr. | Ca. 38 kr. |
 
-Gemini 3.5 Flash er den nyeste Flash-model og har afløst Gemini 3 Flash som standardvalget til hurtige opgaver.
+Prissiden lister ikke længere Gemini 3.5 Flash. De nærmeste modeller er Gemini 3.8 Flash, forgængeren Gemini 3.6 Flash og Gemini 3.5 Flash-Lite. Gemini 4 Carbon og Argon har ikke gratis tier. Gemini CLI er ifølge Googles dokumentation ikke optimeret til Gemini 4 Argon.
 
-Grounding med Google Search for Gemini 3-modeller har 5.000 prompts pr. måned inkluderet og derefter ca. 90 kr. pr. 1.000 search queries. Batch API kan reducere tokenprisen, men er bedst til opgaver der kan vente.
+Grounding med Google Search for Gemini 3-modeller og nyere har 5.000 søgninger pr. måned inkluderet og derefter ca. 90 kr. pr. 1.000 søgninger. Batch API kan reducere tokenprisen, men er bedst til opgaver der kan vente.
 
 ## Budgetvalg i praksis
 
@@ -209,7 +229,7 @@ Den danske side viser cirka-beløb i kroner, fordi det gør planvalg nemmere. De
 
 ## Kilder
 
-Sidst tjekket: 13. juli 2026.
+Sidst tjekket: 13. november 2026.
 
 - [ChatGPT- og Codex-priser](https://learn.chatgpt.com/docs/pricing)
 - [OpenAI API pricing](https://developers.openai.com/api/docs/pricing)

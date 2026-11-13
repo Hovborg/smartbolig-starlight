@@ -64,7 +64,7 @@ api:
   encryption:
     key: "your-key"
 ota:
-  platform: esphome
+  - platform: esphome
 
 # PIR Motion Sensor
 binary_sensor:
@@ -95,7 +95,7 @@ wifi:
 <Steps>
 1. Click **INSTALL** → **Wirelessly** (or USB first time)
 
-2. Go to **Home Assistant** → **Developer Tools** → **States**
+2. Go to **Home Assistant** → **Settings** → **Tools** → **States**
 
 3. Search for `binary_sensor.hallway_motion`
 
@@ -132,12 +132,12 @@ PIR sensor uses ~60 seconds to calibrate when powered on. During this period it 
 ```yaml title="automations.yaml"
 automation:
   - alias: "Turn on hallway light on motion"
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.hallway_motion
         to: "on"
-    action:
-      - service: light.turn_on
+    actions:
+      - action: light.turn_on
         target:
           entity_id: light.hallway
 ```
@@ -147,22 +147,22 @@ automation:
 ```yaml title="automations.yaml"
 automation:
   - alias: "Turn on hallway light at night"
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.hallway_motion
         to: "on"
-    condition:
+    conditions:
       - condition: sun
         after: sunset
         before: sunrise
-    action:
-      - service: light.turn_on
+    actions:
+      - action: light.turn_on
         target:
           entity_id: light.hallway
         data:
           brightness_pct: 50
       - delay: "00:02:00"
-      - service: light.turn_off
+      - action: light.turn_off
         target:
           entity_id: light.hallway
 ```
@@ -173,22 +173,22 @@ automation:
 automation:
   - alias: "Smart hallway light"
     mode: restart  # Restart timer on new motion
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.hallway_motion
         to: "on"
-    action:
-      - service: light.turn_on
+    actions:
+      - action: light.turn_on
         target:
           entity_id: light.hallway
         data:
           brightness_pct: "{{ 30 if is_state('sun.sun', 'below_horizon') else 80 }}"
       - wait_for_trigger:
-          - platform: state
+          - trigger: state
             entity_id: binary_sensor.hallway_motion
             to: "off"
             for: "00:02:00"
-      - service: light.turn_off
+      - action: light.turn_off
         target:
           entity_id: light.hallway
 ```

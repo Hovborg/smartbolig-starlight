@@ -45,9 +45,9 @@ Start with a **WROOM-32 DevKit**. It's wide enough to see what you're doing, and
 ## ⚙️ Install ESPHome Add-on
 
 <Steps>
-1. **Open Home Assistant** and go to **Settings** → **Add-ons**
+1. **Open Home Assistant** and go to **Settings** → **Apps** (formerly called **Add-ons**)
 
-2. Click **Add-on Store** (bottom right)
+2. Open the store (bottom right)
 
 3. Search for **"ESPHome"** and click on it
 
@@ -104,14 +104,17 @@ api:
 
 # Wireless updates
 ota:
-  platform: esphome
+  - platform: esphome
 
 # WiFi connection
 wifi:
   ssid: "YOUR-WIFI-NAME"
   password: "YOUR-WIFI-PASSWORD"
+  # Fallback hotspot if WiFi fails (captive_portal requires ap)
+  ap:
+    ssid: "Test Sensor Fallback"
+    password: "YOUR-FALLBACK-PASSWORD"
 
-# Fallback hotspot if WiFi fails
 captive_portal:
 
 # Simple test sensor - WiFi signal strength
@@ -179,7 +182,7 @@ Your ESP32 is now connected! 🎉
 ## 🧪 Test It Works
 
 <Steps>
-1. Go to **Developer Tools** → **States**
+1. Go to **Settings** → **Tools** → **States**
 
 2. Search for `sensor.test_sensor_wifi_signal`
 
@@ -203,7 +206,7 @@ Your ESP32 is now connected! 🎉
 
 <Aside type="tip" title="WiFi won't connect?">
 - Double-check SSID and password (case-sensitive)
-- ESP32 only supports 2.4 GHz WiFi, not 5 GHz
+- The boards in this guide (WROOM-32, C3, S3) use 2.4 GHz WiFi; 5 GHz requires a newer chip such as the ESP32-C5
 - Try being closer to the router
 </Aside>
 

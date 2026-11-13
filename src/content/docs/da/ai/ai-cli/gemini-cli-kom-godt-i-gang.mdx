@@ -14,7 +14,7 @@ import { Aside, Badge, Card, CardGrid, Steps, TabItem, Tabs } from '@astrojs/sta
 Gemini CLI er Googles open source AI-agent til terminalen. Den kan læse filer, forstå store projekter, arbejde med værktøjer og køre kommandoer, afhængigt af dine indstillinger og tilladelser.
 
 <Aside type="caution" title="Vigtig ændring pr. 18. juni 2026">
-Google lukker Gemini CLI's gratis adgang (Google-login), Google AI Pro og Google AI Ultra den 18. juni 2026. Herefter kræver Gemini CLI en betalt Gemini API-nøgle eller en Code Assist Standard/Enterprise-licens. Googles efterfølger er [Antigravity CLI (agy) — se vores guide](/da/ai/ai-cli/antigravity-cli-kom-godt-i-gang/).
+Den 18. juni 2026 erstattede Google Gemini CLI med Antigravity CLI for gratis brugere og Google One-brugere, og Gemini CLI holdt op med at betjene Google AI Pro og Google AI Ultra. Gemini CLI kan fortsat bruges med en betalt Gemini API-nøgle eller en Code Assist Standard/Enterprise-licens. Googles efterfølger er [Antigravity CLI (agy) — se vores guide](/da/ai/ai-cli/antigravity-cli-kom-godt-i-gang/).
 </Aside>
 
 ## Hvad skal du bruge?
@@ -52,8 +52,6 @@ Google anbefaler aktuelt macOS 15+, Windows 11 24H2+ eller Ubuntu 20.04+.
     ```bash
     brew install gemini-cli
     ```
-
-    Bemærk: denne Homebrew-formel er forældet pr. 18. juni 2026, hvor Gemini CLI's gratis adgang lukkes (se advarslen øverst).
   </TabItem>
 </Tabs>
 
@@ -69,7 +67,7 @@ De mest almindelige login-veje:
 
 | Metode | Bedst til |
 |---|---|
-| Google sign-in | Personlig konto, høj gratis startkvote og manuel CLI-brug |
+| Google sign-in (OAuth) | Betalt Code Assist-licens fra en organisation (sæt `GOOGLE_CLOUD_PROJECT`) |
 | `GEMINI_API_KEY` | Script mode, servere, CI og tydelig API-billing |
 | Vertex AI | Enterprise, Google Cloud-kvoter, governance og project-baseret billing |
 
@@ -83,7 +81,7 @@ gemini
 Gem ikke API keys i guides, screenshots eller prompts.
 
 <Aside type="note" title="Vælg auth efter brug">
-Google sign-in er bedst til at lære værktøjet. API key er bedst når et script skal kunne køre uden browser-login. Vertex AI er bedst når organisationen allerede styrer adgang, kvoter og billing i Google Cloud.
+Google sign-in passer til en betalt Code Assist-licens fra din organisation. API key er bedst når et script skal kunne køre uden browser-login. Vertex AI er bedst når organisationen allerede styrer adgang, kvoter og billing i Google Cloud.
 </Aside>
 
 ## Din første sikre session
@@ -118,8 +116,8 @@ Google sign-in er bedst til at lære værktøjet. API key er bedst når et scrip
   <Card title="Google-økosystem" icon="seti:config">
     Vælg Gemini CLI når du allerede bruger Google, Gemini API, Vertex AI eller Google Workspace.
   </Card>
-  <Card title="Gratis start" icon="rocket">
-    Google sign-in giver ifølge Gemini CLI docs en høj daglig request-kvote til personlig start.
+  <Card title="Efter 18. juni 2026" icon="rocket">
+    Gratis personlig brug er flyttet til Antigravity CLI. Gemini CLI bruges nu med en betalt Gemini API-nøgle eller en Code Assist-licens.
   </Card>
   <Card title="Eksperimenter" icon="branch">
     Checkpointing, worktrees, headless JSON/JSONL og sandboxing gør CLI'en stærk til test og automation.
@@ -164,7 +162,6 @@ Nyttige memory-kommandoer:
 |---|---|
 | `/memory show` | Se indlæst kontekst |
 | `/memory reload` | Genindlæs kontekstfiler |
-| `/memory add` | Tilføj ny memory |
 
 Gemini kan læse global, workspace og just-in-time kontekst. I store repos betyder det, at en `GEMINI.md` tæt på den mappe agenten arbejder i kan være bedre end én lang rodfil.
 
@@ -216,7 +213,7 @@ Hvis du beder Gemini om at analysere ukendt kode eller køre tredjeparts-kommand
 
 ## Kilder
 
-Sidst tjekket: 11. april 2026.
+Sidst tjekket: 13. november 2026.
 
 - [Gemini CLI GitHub](https://github.com/google-gemini/gemini-cli)
 - [Gemini CLI installation](https://geminicli.com/docs/get-started/installation/)
