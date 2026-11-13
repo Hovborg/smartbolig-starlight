@@ -23,7 +23,7 @@ Home Assistant er **gratis software** der samler alle dine smart home enheder i 
 
 ### Hvad kan det?
 
-- 🔌 **Forbinde over 2.000 integrationer** - IKEA, Philips Hue, Sonos og mange flere
+- 🔌 **Forbinde tusindvis af mærker** - IKEA, Philips Hue, Sonos og mange flere
 - 🤖 **Lave automationer** - "Tænd lys når solen går ned"
 - 📊 **Vise data** - Grafer over strømforbrug, temperatur, osv.
 - 🔒 **Holde data lokalt** - Ingen cloud, ingen sporing
@@ -54,7 +54,7 @@ Du kan køre Home Assistant på mange forskellige måder. Her er de tre mest pop
 |---------|---------|
 | ✅ Alt virker out-of-the-box | ❌ Kræver dedikeret hardware |
 | ✅ Nem opdatering med ét klik | ❌ Mindre kraftfuld end PC |
-| ✅ Fuld add-on support | ❌ SD-kort kan slides |
+| ✅ Fuld app-support | ❌ SD-kort kan slides |
 | ✅ Lavt strømforbrug (~5W) | |
 
 **Hardware du skal bruge:**
@@ -81,7 +81,7 @@ Du kan køre Home Assistant på mange forskellige måder. Her er de tre mest pop
 | Fordele | Ulemper |
 |---------|---------|
 | ✅ Snapshots - rul tilbage med ét klik | ❌ Kræver Proxmox kendskab |
-| ✅ Fuld add-on support | ❌ USB passthrough kan være tricky |
+| ✅ Fuld app-support | ❌ USB passthrough kan være tricky |
 | ✅ Kør andre VMs/containers samtidig | |
 | ✅ Enterprise backup og restore | |
 | ✅ Nem skalering af ressourcer | |
@@ -106,7 +106,7 @@ Du kan køre Home Assistant på mange forskellige måder. Her er de tre mest pop
 
 | Fordele | Ulemper |
 |---------|---------|
-| ✅ Kører sammen med anden software | ❌ Ingen Supervisor/Add-ons |
+| ✅ Kører sammen med anden software | ❌ Ingen Supervisor/apps |
 | ✅ Fuld kontrol over systemet | ❌ Kræver Docker kendskab |
 | ✅ Lavt ressourceforbrug | ❌ Manuel opsætning af MQTT osv. |
 | ✅ Perfekt til NAS (Synology, QNAP) | |
@@ -124,7 +124,7 @@ Du kan køre Home Assistant på mange forskellige måder. Her er de tre mest pop
 | Feature | Raspberry Pi | Proxmox VM | Docker |
 |---------|-------------|------------|--------|
 | **Sværhedsgrad** | ⭐ Let | ⭐⭐ Medium | ⭐⭐⭐ Avanceret |
-| **Supervisor/Add-ons** | ✅ Fuld | ✅ Fuld | ❌ Nej |
+| **Supervisor/apps** | ✅ Fuld | ✅ Fuld | ❌ Nej |
 | **Snapshots** | ❌ Nej | ✅ Ja | ❌ Nej |
 | **Ressourceforbrug** | Lavt | Medium | Lavt |
 | **Opdateringer** | Auto | Auto | Manuel |
@@ -164,15 +164,15 @@ Du kan køre Home Assistant på mange forskellige måder. Her er de tre mest pop
 <FAQ items={[
   {
     question: "Koster Home Assistant noget?",
-    answer: "Nej! Home Assistant er 100% gratis og open source. Der er en valgfri cloud-service (Nabu Casa) til fjernadgang for ca. 50 kr/md, men den er ikke nødvendig."
+    answer: "Nej! Home Assistant er 100% gratis og open source. Der er en valgfri cloud-service (Nabu Casa) til fjernadgang for 7,50 euro/md ekskl. moms, men den er ikke nødvendig."
   },
   {
     question: "Kan jeg styre mine enheder når jeg ikke er hjemme?",
-    answer: "Ja, men det kræver ekstra opsætning. Du kan bruge Nabu Casa (nemmest, ca. 50 kr/md), VPN til dit hjemmenetværk, eller Cloudflare Tunnel (gratis, kræver opsætning)."
+    answer: "Ja, men det kræver ekstra opsætning. Du kan bruge Nabu Casa (nemmest, 7,50 euro/md ekskl. moms), VPN til dit hjemmenetværk, eller Cloudflare Tunnel (gratis, kræver opsætning)."
   },
   {
     question: "Virker mine IKEA/Philips/Sonos enheder?",
-    answer: "Ja! Home Assistant har over 2.000 integrationer. De fleste populære smart home-enheder understøttes direkte."
+    answer: "Ja! Home Assistant forbinder tusindvis af mærker. De fleste populære smart home-enheder understøttes direkte."
   },
   {
     question: "Skal jeg kunne programmere?",
