@@ -12,15 +12,15 @@ import HowTo from '../../../../components/HowTo.astro';
 
 <HowTo
   title="Opsæt Zigbee2MQTT med Home Assistant"
-  description="Komplet guide til installation af Zigbee2MQTT add-on i Home Assistant. Styr alle dine Zigbee-enheder fra IKEA, Aqara, Philips og flere med én USB-dongle."
+  description="Komplet guide til installation af Zigbee2MQTT-appen (tidligere add-on) i Home Assistant. Styr alle dine Zigbee-enheder fra IKEA, Aqara, Philips og flere med én USB-dongle."
   totalTime="PT30M"
   steps={[
     { name: "Køb Zigbee USB-dongle", text: "Anskaf en understøttet Zigbee coordinator som Sonoff Zigbee 3.0 USB Dongle Plus eller SLZB-06." },
     { name: "Tilslut dongle", text: "Sæt USB-donglen i din Home Assistant server (Raspberry Pi, Proxmox VM, etc.)." },
-    { name: "Installer Mosquitto broker", text: "Gå til Settings > Add-ons > Add-on Store. Søg efter Mosquitto broker og installer den." },
+    { name: "Installer Mosquitto broker", text: "Gå til Settings > Apps > Install app. Søg efter Mosquitto broker og installer den." },
     { name: "Konfigurer MQTT bruger", text: "Opret en dedikeret MQTT bruger i Home Assistant til Zigbee2MQTT." },
-    { name: "Installer Zigbee2MQTT add-on", text: "Tilføj Zigbee2MQTT repository og installer add-on fra Add-on Store." },
-    { name: "Konfigurer serial port", text: "Angiv den korrekte serial port for din USB-dongle i Zigbee2MQTT konfigurationen." },
+    { name: "Installer Zigbee2MQTT-appen", text: "Tilføj Zigbee2MQTT repository og installer appen fra app-butikken (tidligere Add-on Store)." },
+    { name: "Gennemfør onboarding", text: "Åbn Zigbee2MQTT Web UI og vælg din USB-dongle under Found Devices." },
     { name: "Par første enhed", text: "Aktiver parringstilstand og tilføj din første Zigbee-enhed." }
   ]}
 />
@@ -40,7 +40,7 @@ Zigbee2MQTT er open source! Se [Zigbee2MQTT på GitHub](https://github.com/Koenk
 | Feature | Zigbee2MQTT | Producent-hub (IKEA/Hue) |
 |---------|-------------|--------------------------|
 | Pris | ~200 kr (én gang) | 300-500 kr per hub |
-| Enheder | 2800+ fra alle mærker | Kun eget mærke |
+| Enheder | 5.800+ fra alle mærker | Kun eget mærke |
 | Lokal | ✅ 100% lokal | ⚠️ Ofte cloud |
 | Åben | ✅ Open source | ❌ Lukket |
 
@@ -65,7 +65,7 @@ Brug ALTID en USB-forlænger (1-2m). WiFi og Zigbee interfererer - afstand hjæl
     <Steps>
     1. **Installer Mosquitto MQTT broker**
        
-       Gå til **Indstillinger** → **Add-ons** → **Add-on butik**
+       Gå til **Indstillinger** → **Apps** → **Install app** (hed *Add-ons* før Home Assistant 2026.2)
        
        Søg **"Mosquitto broker"** → **Installer** → **Start**
 
@@ -79,7 +79,7 @@ Brug ALTID en USB-forlænger (1-2m). WiFi og Zigbee interfererer - afstand hjæl
 
     3. **Tilføj Zigbee2MQTT repository**
        
-       **Indstillinger** → **Add-ons** → **Add-on butik** → **⋮** (tre prikker) → **Repositories**
+       **Indstillinger** → **Apps** → **Install app** → **⋮** (tre prikker) → **Repositories**
        
        Tilføj:
        ```
@@ -88,7 +88,7 @@ Brug ALTID en USB-forlænger (1-2m). WiFi og Zigbee interfererer - afstand hjæl
 
     4. **Installer Zigbee2MQTT**
        
-       Søg **"Zigbee2MQTT"** → **Installer** (brug edge-versionen for nyeste features)
+       Søg **"Zigbee2MQTT"** → **Installer** (vælg den stabile **Zigbee2MQTT**; **Zigbee2MQTT Edge** følger dev-grenen med ikke-udgivne rettelser)
 
     5. **Find din USB-dongle**
        
@@ -99,23 +99,23 @@ Brug ALTID en USB-forlænger (1-2m). WiFi og Zigbee interfererer - afstand hjæl
        /dev/serial/by-id/usb-Silicon_Labs_Sonoff_Zigbee_3.0_USB_Dongle_Plus-if00-port0
        ```
 
-    6. **Konfigurer Zigbee2MQTT**
+    6. **Start og gennemfør onboarding**
        
-       Klik på Zigbee2MQTT add-on → **Konfiguration**:
+       Start appen under fanen **Info**, og klik **Åbn Web UI**. Vælg din adapter under **Found Devices**, og angiv den nærmeste WiFi-kanal, så der vælges en god Zigbee-kanal. En 502-fejl betyder som regel, at appen stadig starter. Tager det mere end ca. to minutter, så se fanen **Log**.
+
+    7. **Hvis ingen adapter findes**
+       
+       Tilføj `serial`-delen i appens konfiguration (skriv ikke selve `serial:`-linjen, hvis konfigurationsfeltet allerede er den sektion). Til en Sonoff Dongle Plus bruges `zstack`. MQTT-indstillingerne står i samme konfiguration:
        ```yaml
-       serial:
-         port: /dev/serial/by-id/usb-Silicon_Labs_Sonoff...
+       adapter: zstack
+       port: /dev/serial/by-id/usb-Silicon_Labs_Sonoff...
+       ```
+       ```yaml
        mqtt:
          server: mqtt://core-mosquitto
          user: mqtt
          password: dit-mqtt-password
-       frontend:
-         port: 8080
        ```
-
-    7. **Start og åbn**
-       
-       Klik **Start** og åbn: `http://homeassistant.local:8080`
     </Steps>
   </TabItem>
   <TabItem label="Docker">
@@ -133,12 +133,12 @@ Brug ALTID en USB-forlænger (1-2m). WiFi og Zigbee interfererer - afstand hjæl
 
       zigbee2mqtt:
         container_name: zigbee2mqtt
-        image: koenkk/zigbee2mqtt
+        image: ghcr.io/koenkk/zigbee2mqtt
         volumes:
           - ./zigbee2mqtt/data:/app/data
           - /run/udev:/run/udev:ro
         devices:
-          - /dev/ttyUSB0:/dev/ttyUSB0
+          - /dev/serial/by-id/usb-DIN-DONGLE-if00:/dev/ttyACM0
         ports:
           - "8080:8080"
         environment:
@@ -198,8 +198,9 @@ Placer smarte pærer/stikkontakter strategisk i hjemmet. De fungerer som repeate
 
 Zigbee og WiFi bruger begge 2.4 GHz. Undgå problemer:
 
-- Sæt WiFi på kanal **1** eller **11**
-- Lad Zigbee2MQTT vælge kanal automatisk (default 11)
+- Brug en ZLL-kanal til Zigbee: **11**, **15**, **20** eller **25** (standard er 11)
+- Ved onboarding i Home Assistant-appen angiver du den nærmeste WiFi-kanal, så Zigbee-kanalen vælges ud fra den
+- Skift af Zigbee-kanal kan kræve, at nogle enheder parres igen
 - Brug USB-forlænger til koordinatoren
 
 ## 🔧 Fejlfinding
@@ -220,7 +221,7 @@ Zigbee og WiFi bruger begge 2.4 GHz. Undgå problemer:
 <Aside type="tip" title="Zigbee2MQTT starter ikke?">
 1. Tjek at USB-stien er korrekt
 2. Tjek MQTT brugernavn/password
-3. Se logs i add-on for fejlbeskeder
+3. Se logs i appen for fejlbeskeder
 </Aside>
 
 ## 🛒 Anbefalede enheder
