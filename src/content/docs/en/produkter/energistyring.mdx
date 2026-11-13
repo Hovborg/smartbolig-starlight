@@ -292,8 +292,7 @@ IoTaWatt is the **community favorite** for advanced users:
 ### Home Assistant Integration
 
 ```yaml
-# IoTaWatt integrates via REST or MQTT
-# HACS: IoTaWatt integration
+# IoTaWatt has a built-in Home Assistant integration
 
 # Settings → Devices → Add Integration → IoTaWatt
 # Enter IoTaWatt IP address
@@ -371,12 +370,11 @@ Home Assistant's **Energy Dashboard** provides fantastic insights:
 # Options: Nordpool, Amber Electric, Octopus Energy
 
 # Example: Nordpool for Europe
-# HACS → Integrations → Nordpool
-
-nordpool:
+# Built-in integration: Settings → Devices & services → Add Integration → Nord Pool
+# Set up in the UI (choose area and currency), not in configuration.yaml
 
 # Energy Dashboard:
-# - Use entity tracking current price
+# - Use an entity tracking current price: sensor.nord_pool_<area>_current_price
 ```
 
 ---

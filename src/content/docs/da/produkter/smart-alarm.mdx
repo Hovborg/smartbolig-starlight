@@ -35,7 +35,7 @@ Et smart alarmsystem beskytter dit hjem med **dørsensorer, bevægelsesdetektore
 **Kommercielle systemer:**
 - **SimpliSafe** - Native HA integration (1.397+ brugere)
 - **Abode** - HomeKit + HA kompatibel
-- **Ring Alarm** - Alexa ecosystem (HACS kræves)
+- **Ring Alarm** - Alexa ecosystem (indbygget Ring-integration har ingen alarmpanel; brug ring-mqtt til alarmen)
 
 **DIY løsninger:**
 - **Konnected Alarm Panel Pro** - ESPHome, Works with HA ✅
@@ -56,7 +56,7 @@ Et smart alarmsystem beskytter dit hjem med **dørsensorer, bevægelsesdetektore
 | **Alarmo** | ✅ HACS | ✅ Ja | Gratis | ❌ Nej |
 | **SimpliSafe** | ✅ Native | ❌ Cloud | 💰💰 | Valgfrit |
 | **Abode** | ✅ Native | ❌ Cloud | 💰💰 | Valgfrit |
-| **Ring Alarm** | ⚠️ HACS | ❌ Cloud | 💰💰 | Valgfrit |
+| **Ring Alarm** | ⚠️ ring-mqtt | ❌ Cloud | 💰💰 | Valgfrit |
 
 ---
 
@@ -487,8 +487,8 @@ Et smart alarmsystem beskytter dit hjem med **dørsensorer, bevægelsesdetektore
     - ✅ Dyb Alexa integration
     - ✅ Z-Wave sensorer
     - ✅ Video doorbell integration
-    - ⚠️ Ingen native HA integration
-    - ⚠️ Kræver HACS/MQTT
+    - ⚠️ Den indbyggede HA-integration har ingen alarmpanel
+    - ⚠️ Alarmpanelet kræver ring-mqtt (MQTT)
     - ❌ Cloud-baseret
     
     <Aside type="caution" title="Privacy Bekymringer">
@@ -496,11 +496,11 @@ Et smart alarmsystem beskytter dit hjem med **dørsensorer, bevægelsesdetektore
     </Aside>
   </TabItem>
   <TabItem label="Home Assistant">
-    ### Ring Integration (HACS)
+    ### Ring Integration
     
     ```yaml
-    # HACS → Integrationer
-    # Søg "Ring" eller brug native integration
+    # Indbygget Ring-integration (kameraer, dørklokker, sensorer m.m.;
+    # den understøtter ikke alarmpanelet)
     
     # Native Ring integration:
     # Indstillinger → Enheder → Tilføj Integration

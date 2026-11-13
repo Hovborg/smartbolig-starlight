@@ -296,8 +296,7 @@ IoTaWatt er **community favoritten** for avancerede brugere:
 ### Home Assistant Integration
 
 ```yaml
-# IoTaWatt integreres via REST eller MQTT
-# HACS: IoTaWatt integration
+# IoTaWatt har en indbygget integration i Home Assistant
 
 # Indstillinger → Enheder → Tilføj Integration → IoTaWatt
 # Indtast IoTaWatt IP adresse
@@ -372,13 +371,11 @@ Home Assistants **Energy Dashboard** giver fantastisk overblik:
 
 ```yaml
 # Nordpool integration for dynamiske priser
-# HACS → Integrationer → Nordpool
-
-# configuration.yaml
-nordpool:
+# Indbygget integration: Indstillinger → Enheder → Tilføj integration → Nord Pool
+# Vælg område (fx DK1 eller DK2) og valuta - opsættes i brugerfladen, ikke i configuration.yaml
 
 # Energy Dashboard:
-# - Use an entity tracking current price: sensor.nordpool_kwh_dk1_dkk_3_10_025
+# - Brug en entitet med den aktuelle pris: sensor.nord_pool_<område>_current_price
 ```
 
 ---

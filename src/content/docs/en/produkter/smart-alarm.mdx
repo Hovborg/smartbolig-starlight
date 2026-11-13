@@ -32,7 +32,7 @@ A smart alarm system protects your home with **door sensors, motion detectors, s
 **Commercial systems:**
 - **SimpliSafe** - Native HA integration (1,397+ users)
 - **Abode** - HomeKit + HA compatible
-- **Ring Alarm** - Alexa ecosystem (HACS required)
+- **Ring Alarm** - Alexa ecosystem (the built-in Ring integration has no alarm panel; use ring-mqtt for the alarm)
 
 **DIY solutions:**
 - **Konnected Alarm Panel Pro** - ESPHome, Works with HA ✅
@@ -53,7 +53,7 @@ A smart alarm system protects your home with **door sensors, motion detectors, s
 | **Alarmo** | ✅ HACS | ✅ Yes | Free | ❌ No |
 | **SimpliSafe** | ✅ Native | ❌ Cloud | 💰💰 | Optional |
 | **Abode** | ✅ Native | ❌ Cloud | 💰💰 | Optional |
-| **Ring Alarm** | ⚠️ HACS | ❌ Cloud | 💰💰 | Optional |
+| **Ring Alarm** | ⚠️ ring-mqtt | ❌ Cloud | 💰💰 | Optional |
 
 ---
 
@@ -484,8 +484,8 @@ A smart alarm system protects your home with **door sensors, motion detectors, s
     - ✅ Deep Alexa integration
     - ✅ Z-Wave sensors
     - ✅ Video doorbell integration
-    - ⚠️ No native HA integration
-    - ⚠️ Requires HACS/MQTT
+    - ⚠️ The built-in HA integration has no alarm panel
+    - ⚠️ The alarm panel requires ring-mqtt (MQTT)
     - ❌ Cloud-based
     
     <Aside type="caution" title="Privacy Concerns">
@@ -493,11 +493,11 @@ A smart alarm system protects your home with **door sensors, motion detectors, s
     </Aside>
   </TabItem>
   <TabItem label="Home Assistant">
-    ### Ring Integration (HACS)
+    ### Ring Integration
     
     ```yaml
-    # HACS → Integrations
-    # Search "Ring" or use native integration
+    # Built-in Ring integration (cameras, doorbells, sensors etc.;
+    # it does not support the alarm panel)
     
     # Native Ring integration:
     # Settings → Devices → Add Integration
