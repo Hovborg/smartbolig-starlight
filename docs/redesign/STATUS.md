@@ -29,20 +29,11 @@ Sidst opdateret: 2026-11-13.
 
 1. Flet nyheds-PR'en. Kør workflowet med `dry_run`, derefter rigtigt. Skriv det målte forbrug
    ind i `docs/nyhedsflow.md`.
-2. Slå Windows-opgaven `Shark Smartbolig AI News` fra. Fjern Windows- og Linux-runnerne og deres
+2. Slå den tidligere Windows-opgave fra. Fjern Windows- og Linux-runnerne og deres
    tests i en opfølgende PR. Luk PR #170, #169, #147; afgør #166/#165.
 3. Flet guide-grenene én ad gangen efter gennemgang.
 4. Fase 2: designsystem på en ny gren fra `main` (opdel `astro.config.mjs`, fjern Galaxy-temaet,
    lyst/mørkt tema, egne sider, illustrationer).
 5. Følg tre dages nyhedsdrift (kan ikke bekræftes samme dag).
 
-## Adgange (kontrolleret 2026-11-13)
-
-| Tjeneste | Adgang herfra | Bemærkning |
-|---|---|---|
-| GitHub (`gh`) | Ja | repo, workflow, secrets |
-| Cloudflare (`wrangler` + konto-API) | Ja | Workers, KV, Workers AI, zone |
-| Google Search Console | Ja, via browser | |
-| Google AdSense | Nej | netværkets DNS blokerer domænet |
-| Google Analytics | Nej | netværkets DNS blokerer domænet |
-| Partner-Ads | Nej | ikke logget ind |
+Adgange og ting, der kræver ejeren, står i TIL-EJEREN.md.

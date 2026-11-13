@@ -22,14 +22,24 @@ Den anden kørsel stopper med det samme, hvis dagens udgave findes.
    skriv engelsk og dansk → formatkontrol → talkontrol mod kildeteksten → uafhængigt
    faktatjek hos en anden model → op til to rettelser → bestået eller kasseret.
    En kasseret historie tager ikke de andre med sig.
-4. **Stop ved 4 beståede.** Under 3 beståede: dagen springes over.
+4. **Stop ved 4 beståede.** Under 3 beståede: dagen springes over. Danner de beståede
+   et kildesæt, der gentager en nylig udgave, fortsættes med de resterende kandidater,
+   så en historie fra en anden kilde kan ændre sættet, før modelkaldene er brugt.
 5. **Indledning** skrives til sidst ud fra de beståede historier og faktatjekkes.
    Fejler den, bruges en fast, faktuel indledning.
-6. **Samme kontroller som ved udgivelse** køres, før noget når `main`.
+6. **Kontroller før commit.** Disse kører i kørslen, før noget når `main`:
+   `ai-news:test`, `ai-news:validate`, kvalitetskontrol og billedkontrol af den nye
+   udgave, `site:test`, `content-audit.py`, `build`, `seo:validate` og `worker:build`.
+   Kun i `deploy.yml` kører desuden `content-audit`-enhedstestene, sikkerhedsrevisionen
+   af afhængigheder, de to `wrangler deploy --dry-run` og kvalitetskontrollen af den
+   ændrede udgave (`ai-news:quality:changed`).
 7. **Commit til `main`**, kun de ni filer en udgave består af
    (`scripts/lib/ai-news-issue-files.mjs`), og udgivelse gennem `deploy.yml`.
+   Udgivelsen gælder altid den aktuelle spids af `origin/main`. Er `main` rykket
+   videre, når `deploy.yml` kører, udgiver den kørsel intet; det nyere push har sin egen.
 8. **Overvågning.** Jobbet `watch` åbner én GitHub-sag, når nyeste udgave er
-   3 dage gammel, og lukker den igen, når der udgives.
+   3 dage gammel, og lukker den igen, når der udgives. Sagen åbnes kun af den
+   sene kørsel (11:37 UTC) eller en manuel kørsel; lukning sker i alle kørsler.
 
 En dag uden nok kontrollerede historier er en vellykket kørsel, der intet udgiver.
 Den blokerer ikke næste dag: der gemmes ingen tilstand mellem kørsler.
@@ -55,7 +65,7 @@ Du får kun besked, når udgivelsen har stået stille i 3 dage (sagen med mærka
 | `Every writer model failed` to historier i træk | Modellen er udgået, eller Workers AI er nede. | Se "Skift model". |
 | `All critical feeds failed` | Kilderne kan ikke hentes fra GitHub. | Kør workflowet igen senere. |
 | Et kontroltrin efter skrivningen er rødt | Udgaven bestod ikke en kvalitetskontrol. Intet er committet. | Læs trinnets log. Svæk ikke kontrollen; ret årsagen. |
-| Jobbet `deploy` er rødt | Udgaven er på `main`, men ikke udgivet. | Næste kørsel opdager det (siden svarer 404) og udgiver selv. |
+| Jobbet `deploy` er rødt | Udgaven er på `main`, men ikke udgivet. | Næste kørsel læser den indcommittede `main` (ikke arbejdsmappen), opdager at siden svarer 404 og udgiver selv. Fejlede selve push, udgives intet. |
 
 Kør manuelt: Actions → AI News → **Run workflow**. Sæt `dry_run` for at køre alt
 uden commit og udgivelse.
@@ -91,7 +101,9 @@ Fravalgt: `deepseek-v4-pro` (1.977 neurons pr. kald), `llama-4-scout` og
 `mistral-small` (svagt dansk), `kimi-k2.6`, `glm-5.3` og `qwen3.8` (intet svar
 eller tidsfrist).
 
-Skriveren og kontrollen er altid to forskellige modeller.
+Skriver og kontrol er to forskellige modeller i standardlisterne. Det er en
+konvention i standardværdierne og er ikke tvunget: sættes en liste om, kan de to
+roller ende på samme model.
 
 ### Skift model
 
@@ -100,9 +112,10 @@ Skriveren og kontrollen er altid to forskellige modeller.
 2. Udrul relayet (se nedenfor).
 3. Kør workflowet med `dry_run`, og læs Summary.
 
-Midlertidigt uden kodeændring: sæt `AI_NEWS_WRITER_MODELS` eller
-`AI_NEWS_REVIEWER_MODELS` (kommasepareret) som variabel i workflowet. Modellen
-skal stadig stå i relayets liste.
+Workflowet læser ingen `vars.*`, så modeller kan ikke skiftes uden en kodeændring:
+den eneste vej er at rette `scripts/lib/news-llm/models.mjs` og relayets
+tilladelsesliste og så udrulle relayet. Miljøvariablerne `AI_NEWS_WRITER_MODELS`
+og `AI_NEWS_REVIEWER_MODELS` bruges kun ved lokale kørsler; workflowet sætter dem ikke.
 
 ## Relayet
 
