@@ -9,9 +9,20 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 // Titles and reasons come from external sources and model output. They are
-// shown as plain text: no links, markup or table breaks.
+// shown as plain text: no links, markup or table breaks. GitHub also turns bare
+// URLs, `www.` hosts and e-mail addresses into links, so a zero-width space is
+// inserted after `://`, `www.` and `@` to break the autolinking.
+const ZERO_WIDTH_SPACE = "\u200B";
+
 export function plain(value, maxChars = 200) {
-  return String(value ?? "").replace(/[<>[\]()`|*_#!\\]/g, " ").replace(/\s+/g, " ").trim().slice(0, maxChars);
+  return String(value ?? "")
+    .replace(/[<>[\]()`|*_#!\\]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .slice(0, maxChars)
+    .replace(/:\/\//g, `://${ZERO_WIDTH_SPACE}`)
+    .replace(/\bwww\./gi, (match) => `${match}${ZERO_WIDTH_SPACE}`)
+    .replace(/@/g, `@${ZERO_WIDTH_SPACE}`);
 }
 
 export function outcome(result, writeOutcome) {

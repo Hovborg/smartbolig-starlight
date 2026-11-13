@@ -37,8 +37,10 @@ test("every gate runs before the commit, and the commit is limited to main", () 
     'npm run ai-news:quality -- --date "$AI_NEWS_DATE"',
     'npm run ai-news:pending-images -- --date "$AI_NEWS_DATE" --fail-on-pending',
     "npm run site:test",
+    "python3 scripts/content-audit.py",
     "npm run build",
     "npm run seo:validate",
+    "npm run worker:build",
   ]) {
     const index = workflow.indexOf(gate);
     assert.ok(index !== -1 && index < push, `gate must run before the commit: ${gate}`);
@@ -47,6 +49,40 @@ test("every gate runs before the commit, and the commit is limited to main", () 
   assert.ok(workflow.indexOf("node scripts/ai-news-ci-stage.mjs") > push);
   assert.doesNotMatch(workflow, /git add /);
   assert.doesNotMatch(workflow, /push[^\n]*--force/);
+});
+
+test("the date input is matched as a whole string, so a newline cannot reach GITHUB_ENV", () => {
+  assert.ok(workflow.includes('if ! [[ "$date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then'));
+  assert.doesNotMatch(workflow, /grep -Eq/);
+  // Same anchoring as bash's [[ =~ ]] on the whole value (no multiline flag).
+  const check = (value) => /^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(value);
+  assert.equal(check("2026-11-13"), true);
+  assert.equal(check("2026-11-13\nEVIL=1"), false);
+  assert.equal(check("x\n2026-11-13"), false);
+  assert.equal(check("2026-11-13 "), false);
+});
+
+test("self-heal reads the committed tree of origin/main and never deploys a local commit", () => {
+  const decide = workflow.slice(step("Decide whether to deploy"), workflow.indexOf("\n  deploy:\n"));
+  assert.match(decide, /git fetch --quiet origin main/);
+  assert.match(decide, /git ls-tree --name-only origin\/main src\/content\/docs\/da\/ai\/nyheder\//);
+  assert.doesNotMatch(decide, /ai-news-staleness/);
+  assert.doesNotMatch(decide, /git rev-parse HEAD/);
+  assert.equal((decide.match(/ref="\$tip"/g) || []).length, 2);
+  assert.match(decide, /PUSH_OUTCOME" != 'failure'/);
+});
+
+test("the stalled-publishing issue is opened only by the later schedule or a manual run", () => {
+  assert.ok(workflow.includes("MAY_OPEN: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '37 11 * * *' }}"));
+  assert.ok(workflow.includes("[ \"$STALE\" = 'true' ] && [ -z \"$open\" ] && [ \"$MAY_OPEN\" = 'true' ]"));
+  // Closing carries no schedule condition.
+  assert.ok(workflow.includes("elif [ \"$STALE\" != 'true' ] && [ -n \"$open\" ]; then"));
+  assert.match(workflow, /- cron: '37 11 \* \* \*'/);
+});
+
+test("the lead image thumbnail is rendered for the issue date only", () => {
+  assert.ok(workflow.includes('node scripts/ai-news-thumbs.mjs --date "$AI_NEWS_DATE"'));
+  assert.doesNotMatch(workflow, /images:news-thumbs/);
 });
 
 test("a failed day does not fail the workflow, and only the watch job notifies", () => {
@@ -79,7 +115,10 @@ test("the run report states the outcome and shows external text as plain text", 
   assert.equal(outcome({ status: "skip" }, "success"), "skip");
   assert.equal(outcome({ status: "publish" }, "failure"), "failed");
   assert.equal(outcome(null, "success"), "failed");
-  assert.equal(plain("[click](https://evil.example) <img> `x` | y"), "click https://evil.example img x y");
+  assert.equal(plain("[click](https://evil.example) <img> `x` | y"), "click https://\u200Bevil.example img x y");
+  // Bare URLs, www. hosts and addresses must not autolink in the Summary.
+  assert.equal(plain("see http://a.example and www.b.example or c@d.example"), "see http://\u200Ba.example and www.\u200Bb.example or c@\u200Bd.example");
+  assert.doesNotMatch(plain("https://evil.example/x www.evil.example"), /:\/\/[^\u200B]|www\.[^\u200B]/);
 
   const published = renderReport({ date: "2026-11-13", status: "publish", stories: 4, ledeSource: "llm", calls: 16, neurons: 4200, dropped: [] }, "publish");
   assert.match(published, /\*\*Published\*\* 4 fact-checked stories/);

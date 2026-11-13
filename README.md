@@ -333,8 +333,13 @@ AI-nyhedernes hero-PNG'er. De genereres automatisk som første trin i
 `npm run build`; kør dem manuelt med:
 
 ```bash
-npm run images:news-thumbs
+npm run images:news-thumbs                        # kun manglende thumbnails
+npm run images:news-thumbs -- --date 2026-11-13   # (gen)render én dag
+npm run images:news-thumbs -- --force             # gen-render alle
 ```
+
+Filtider bruges ikke (de siger intet efter et git checkout): kun manglende
+thumbnails renderes uden flag.
 
 Aktuelle guideforløb omfatter blandt andet:
 
