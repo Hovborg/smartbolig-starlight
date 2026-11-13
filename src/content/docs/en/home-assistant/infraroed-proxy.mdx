@@ -49,8 +49,8 @@ documented path for learning and transmitting the required codes.
 | Solution | Advantage | Watch for |
 |---|---|---|
 | ESPHome Ready-Made IR Proxy | Local, open, and adoptable in ESPHome | Requires compatible hardware and line of sight |
-| Broadlink RM with official integration | Finished enclosure and learned commands | Features vary by model |
-| Another supported IR adapter | May fit equipment you already own | Confirm it creates an infrared entity |
+| Broadlink RM with official integration | Finished enclosure and learned commands | Provides a `remote` entity for learned commands, not an infrared entity; features vary by model |
+| Another supported IR adapter (e.g. SMLIGHT SLZB) | May fit equipment you already own | Confirm it creates an infrared entity |
 
 Home Assistant and ESPHome use the Seeed Studio XIAO IR Mate as a ready-made
 example. Do not buy on product name alone; check the current compatibility list
@@ -95,11 +95,11 @@ and test again before changing software.
 5. **Check the infrared entity**
 
    Open the proxy device page. Confirm the transmitter is available and
-   **Settings → Infrared** shows the adapter online.
+   **Settings → Connectivity → Infrared** shows the adapter online.
 
 6. **Add the appliance integration**
 
-   Add the supported TV, speaker, or appliance integration. When setup asks
+   Add the supported TV, speaker, or appliance integration, for example LG Infrared or Samsung Infrared. When setup asks
    for an IR transmitter, select the proxy's infrared entity.
 </Steps>
 

@@ -51,6 +51,8 @@ Shelly er bulgarsk producerede WiFi-enheder der bare virker. Ud af boksen. Ingen
 **Gen2/Plus** (Plus 1, Plus 2PM): ESP32-baseret, hurtigere, Bluetooth til opsætning
 
 **Pro** (Pro 4PM): DIN-skinne, display, Ethernet-mulighed
+
+Der findes også **Gen3** og **Gen4**. Home Assistants Shelly-integration understøtter Gen1 til Gen4. Gen1 kræver firmware 1.9 eller nyere; Gen2 og nyere kræver som udgangspunkt ingen ekstra opsætning.
 </Aside>
 
 ### Installation i Home Assistant
@@ -284,7 +286,8 @@ Du kan flashe ESPHome på mange Tasmota-kompatible enheder:
 # Eksempel: Sonoff Basic
 esphome:
   name: sonoff-koekken
-  platform: ESP8266
+
+esp8266:
   board: esp01_1m
 
 wifi:
@@ -296,7 +299,7 @@ api:
     key: "din-krypteringsnøgle"
 
 ota:
-  password: "ota-password"
+  - platform: esphome
 
 binary_sensor:
   - platform: gpio
@@ -448,4 +451,4 @@ Alle tre platforme understøtter 100% lokal kontrol:
 
 ---
 
-*Sidst opdateret: December 2025*
+*Sidst opdateret: November 2026*

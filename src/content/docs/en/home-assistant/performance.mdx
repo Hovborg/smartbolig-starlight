@@ -25,7 +25,7 @@ A slow Home Assistant is frustrating. Dashboards that take forever to load, auto
 | **Sluggish history** | Graphs take long time | SQLite bottleneck |
 | **High CPU** | Constant 80%+ load | Too many integrations polling |
 | **SD card wear** | Corrupt database, crashes | Too many database writes |
-| **Slow startup** | 5+ minutes to boot | Large database, many add-ons |
+| **Slow startup** | 5+ minutes to boot | Large database, many apps |
 
 ---
 
@@ -123,11 +123,11 @@ For larger installations, MariaDB is recommended over SQLite.
 ### Installation
 
 <Steps>
-1. Go to **Settings → Add-ons → Add-on Store**
+1. Go to **Settings → Apps → Install app** (called *Add-ons* before Home Assistant 2026.2)
 
 2. Search "MariaDB" and install
 
-3. Configure add-on:
+3. Configure the app:
    ```yaml
    databases:
      - homeassistant
@@ -139,7 +139,7 @@ For larger installations, MariaDB is recommended over SQLite.
        database: homeassistant
    ```
 
-4. Start add-on
+4. Start the app
 
 5. Update `configuration.yaml`:
    ```yaml
@@ -157,7 +157,7 @@ When switching to MariaDB, you start with an empty database. Your old SQLite his
 
 ### MariaDB Tuning
 
-For better performance, add options in add-on config:
+For better performance you can add extra server arguments with `mariadb_server_args` in the app configuration (useful for large databases, if you have enough RAM):
 
 ```json
 {
@@ -174,17 +174,17 @@ For better performance, add options in add-on config:
       "database": "homeassistant"
     }
   ],
-  "options": {
-    "innodb_buffer_pool_size": "256M",
-    "max_connections": 200
-  }
+  "mariadb_server_args": [
+    "--innodb_buffer_pool_size=256M",
+    "--max_connections=200"
+  ]
 }
 ```
 
 | Parameter | Value | Description |
 |-----------|-------|-------------|
-| `innodb_buffer_pool_size` | 256M-512M | RAM for database cache |
-| `max_connections` | 200 | Concurrent connections |
+| `--innodb_buffer_pool_size` | 256M-512M | RAM for database cache |
+| `--max_connections` | 200 | Concurrent connections |
 
 ---
 
@@ -293,31 +293,20 @@ Empty keys like `zeroconf:` or `ssdp:` in `configuration.yaml` enable those inte
 ### Check Database Size
 
 ```yaml
-# Automation to track database size
-sensor:
-  - platform: sql
+# configuration.yaml
+sql:
+  - name: Database Size
     db_url: mysql://homeassistant:password@core-mariadb/homeassistant?charset=utf8mb4
-    queries:
-      - name: Database Size
-        query: "SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) as size FROM information_schema.TABLES WHERE table_schema = 'homeassistant'"
-        column: "size"
-        unit_of_measurement: "MB"
+    query: >
+      SELECT table_schema "database", Round(Sum(data_length + index_length) / POWER(1024,2), 1) "value"
+      FROM information_schema.tables WHERE table_schema="homeassistant" GROUP BY table_schema;
+    column: "value"
+    unit_of_measurement: "MiB"
 ```
 
 ### System Monitor Integration
 
-```yaml
-# configuration.yaml
-sensor:
-  - platform: systemmonitor
-    resources:
-      - type: processor_use
-      - type: memory_use_percent
-      - type: disk_use_percent
-        arg: /
-      - type: load_1m
-      - type: load_5m
-```
+System monitor is set up in the UI: **Settings → Devices & Services → Add Integration → System monitor**. Enable the sensors you want (they are disabled by default): *Processor use*, *Memory usage (%)*, *Disk usage (%)* and *Load (1 min)* / *Load (5 min)*.
 
 ---
 
@@ -340,8 +329,8 @@ sensor:
 If the database has grown too large:
 
 ```yaml
-# Developer Tools → Services
-service: recorder.purge
+# Settings → Tools → Actions
+action: recorder.purge
 data:
   keep_days: 3
   repack: true
@@ -418,4 +407,4 @@ The `repack` option actually frees disk space by rebuilding the database. Withou
 
 ---
 
-*Last updated: December 2025*
+*Last updated: November 2026*

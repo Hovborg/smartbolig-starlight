@@ -49,8 +49,8 @@ apparatet eller en dokumenteret vej til at lære og sende de nødvendige koder.
 | Løsning | Fordel | Vær opmærksom på |
 |---|---|---|
 | ESPHome Ready-Made IR Proxy | Lokal, åben og kan adopteres i ESPHome | Kræver kompatibel hardware og frit udsyn |
-| Broadlink RM med officiel integration | Færdig boks og understøtter lærte kommandoer | Model og funktioner varierer |
-| Anden understøttet IR-adapter | Kan passe til eksisterende udstyr | Kontrollér at den opretter en infrarød entitet |
+| Broadlink RM med officiel integration | Færdig boks og understøtter lærte kommandoer | Giver en `remote`-entitet til lærte kommandoer, ikke en infrarød entitet; model og funktioner varierer |
+| Anden understøttet IR-adapter (f.eks. SMLIGHT SLZB) | Kan passe til eksisterende udstyr | Kontrollér at den opretter en infrarød entitet |
 
 Home Assistant og ESPHome viser Seeed Studio XIAO IR Mate som et færdigt
 eksempel. Køb ikke kun efter produktnavnet; kontrollér den aktuelle
@@ -95,11 +95,11 @@ igen, før du ændrer software.
 5. **Kontrollér den infrarøde entitet**
 
    Åbn proxyens enhedsside. Bekræft at senderen er tilgængelig, og at
-   **Indstillinger → Infrarød** viser adapteren som online.
+   **Indstillinger → Connectivity → Infrared** viser adapteren som online.
 
 6. **Tilføj apparatets integration**
 
-   Tilføj eksempelvis den understøttede TV- eller højttalerintegration. Når
+   Tilføj eksempelvis den understøttede TV- eller højttalerintegration, f.eks. LG Infrared eller Samsung Infrared. Når
    opsætningen spørger efter IR-sender, vælger du proxyens infrarøde entitet.
 </Steps>
 
