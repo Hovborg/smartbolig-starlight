@@ -8,7 +8,7 @@ import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/sta
 
 <Badge text="Medium" variant="caution" /> <Badge text="30 min" variant="note" />
 
-Shelly Wall Display er en 4" touchskærm med indbyggede sensorer og relæ. Den kan vise Home Assistant dashboards direkte på skærmen - perfekt som kontrolpanel i køkken, entre eller soveværelse.
+Shelly Wall Display (model SAWD1) er en 4" touchskærm med indbyggede sensorer og relæ. Shelly har også nyere modeller (Wall Display X2, X1i, X2i og XL); denne guide handler om den første model. Den kan vise Home Assistant dashboards direkte på skærmen - perfekt som kontrolpanel i køkken, entre eller soveværelse.
 
 ## 🤔 Hvad er Shelly Wall Display?
 
@@ -22,7 +22,7 @@ Shelly Wall Display er en alt-i-én løsning der kombinerer:
 | **Sensorer** | Temperatur, fugtighed, lysstyrke (LUX) |
 | **Relæ** | 5A indbygget switch |
 | **Forbindelse** | WiFi 2.4GHz |
-| **Strøm** | 110-230V AC (kræver neutral) |
+| **Strøm** | 230V AC, 50/60 Hz (kræver neutral) |
 | **Montering** | Standard EU indmuringsdåse |
 
 <Aside type="tip" title="Hvorfor Shelly Wall Display?">
@@ -186,7 +186,7 @@ Kiosk Mode er en HACS-integration der skjuler Home Assistants navigation bar, si
 #### Installation via HACS
 
 <Steps>
-1. Åbn **HACS** i Home Assistant
+1. Åbn **HACS** i Home Assistant (fra Home Assistant 2026.11 findes HACS under **Settings → Marketplace**)
 2. Gå til **Frontend** sektionen
 3. Klik **+ Udforsk og download repositories**
 4. Søg efter **Kiosk Mode** og installer
@@ -256,25 +256,25 @@ kiosk_mode:
 ```yaml
 automation:
   - alias: "Tænd ventilation ved høj fugtighed"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.shelly_wall_display_humidity
         above: 65
         for:
           minutes: 5
-    action:
-      - service: switch.turn_on
+    actions:
+      - action: switch.turn_on
         entity_id: switch.ventilation
     
   - alias: "Sluk ventilation ved normal fugtighed"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.shelly_wall_display_humidity
         below: 55
         for:
           minutes: 10
-    action:
-      - service: switch.turn_off
+    actions:
+      - action: switch.turn_off
         entity_id: switch.ventilation
 ```
 
@@ -283,16 +283,16 @@ automation:
 ```yaml
 automation:
   - alias: "Dæmpet lys om aftenen"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.shelly_wall_display_illuminance
         below: 50
-    condition:
+    conditions:
       - condition: time
         after: "18:00:00"
         before: "23:00:00"
-    action:
-      - service: light.turn_on
+    actions:
+      - action: light.turn_on
         entity_id: light.stue_accent
         data:
           brightness_pct: 30
