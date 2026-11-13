@@ -2,8 +2,11 @@
 // It exposes one OpenAI-compatible route and nothing else. See ../README.md.
 import { answerText, finishReason } from "./answer.js";
 import { authorized } from "./auth.js";
-import { dailyBudget, hasRoom, recordSpend, spentToday } from "./budget.js";
+import { dailyBudget, dayKey, reserveSpend, settleSpend } from "./budget.js";
+import { actualCost, worstCase } from "./prices.js";
 import { allowedModels, parseRequest } from "./request.js";
+
+export { BudgetCounter } from "./counter.js";
 
 const json = (body, status = 200) =>
   new Response(JSON.stringify(body), {
@@ -20,46 +23,56 @@ export default {
     const { success } = await env.CALL_LIMITER.limit({ key: "news" });
     if (!success) return json({ error: "rate_limited" }, 429);
 
-    let input;
+    let parsed;
     try {
-      input = await parseRequest(request, allowedModels(env));
+      parsed = await parseRequest(request, allowedModels(env));
     } catch (error) {
       return json({ error: "bad_request", detail: String(error?.message || error).slice(0, 200) }, 400);
     }
+    const { bodyBytes, input } = parsed;
+    const { model, ...options } = input;
 
-    // No readable counter means no call: the ceiling must never fail open.
+    // Book the worst case before the model runs. A call that is cut off, a
+    // second call at the same moment and a failed call are all counted. No
+    // reachable counter means no call: the ceiling must never fail open.
     const limit = dailyBudget(env);
-    let spent;
+    const day = dayKey();
+    const reserved = worstCase(model, bodyBytes, options.max_tokens);
+    let booking;
     try {
-      spent = await spentToday(env.BUDGET);
+      booking = await reserveSpend(env.BUDGET_COUNTER, day, reserved, limit);
     } catch {
       return json({ error: "budget_unavailable" }, 503);
     }
-    if (!hasRoom(spent, limit)) return json({ error: "daily_budget_exhausted", budget: { spent, limit } }, 429);
+    if (!booking.ok) return json({ error: "daily_budget_exhausted", budget: { spent: booking.spent, limit } }, 429);
 
-    const { model, ...options } = input;
     let result;
-    let failure;
     try {
       result = await env.AI.run(model, { ...options, stream: false });
     } catch (error) {
-      failure = String(error?.message || error).slice(0, 300);
+      // The failed call keeps its full reservation: it may have used neurons.
+      const detail = String(error?.message || error).slice(0, 300);
+      return json({ error: "upstream_failed", detail, budget: { spent: booking.spent, limit } }, 502);
     }
 
-    // A failed call may still have used neurons, so it is charged as well.
-    let total;
-    try {
-      total = await recordSpend(env.BUDGET, spent, result?.usage);
-    } catch {
-      return json({ error: "budget_unavailable" }, 503);
+    // Swap the reservation for the real cost. An answer without token counts
+    // keeps the worst case. If the swap cannot be written, the reservation
+    // stays, which is the higher number in every normal case.
+    const neurons = actualCost(model, result?.usage) ?? reserved;
+    let spent = booking.spent;
+    if (neurons !== reserved) {
+      try {
+        ({ spent } = await settleSpend(env.BUDGET_COUNTER, day, reserved, neurons));
+      } catch {
+        // Keep the reservation.
+      }
     }
-    if (failure !== undefined) return json({ error: "upstream_failed", detail: failure }, 502);
 
     return json({
       model,
       choices: [{ index: 0, message: { role: "assistant", content: answerText(result) }, finish_reason: finishReason(result) }],
-      usage: result?.usage ?? null,
-      budget: { spent: total, limit },
+      usage: { ...(result?.usage ?? {}), neurons },
+      budget: { spent, limit },
     });
   },
 };

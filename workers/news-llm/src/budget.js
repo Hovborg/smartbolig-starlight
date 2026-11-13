@@ -1,33 +1,26 @@
 // Hard daily ceiling on Workers AI spend. The account gets 10,000 neurons per
-// UTC day for free and pays for everything above, so the relay refuses calls
-// before that line. The site's chat shares the same allowance; the default
-// leaves room for it.
+// UTC day for free and pays for everything above, so the relay books every
+// call's worst-case cost before the model runs and refuses a call that would
+// pass the ceiling. The site's chat shares the allowance; the default leaves
+// room for it. The ledger itself lives in the BudgetCounter Durable Object.
 const DEFAULT_DAILY_NEURONS = 8000;
-// Room one call needs. The largest call measured on the allowed models was
-// about 650 neurons.
-const CALL_RESERVE = 700;
-// Charged when a call reports no usage, for example when it failed midway.
-const UNKNOWN_CALL_NEURONS = 700;
-const KEEP_SECONDS = 3 * 86_400;
 
-export const dayKey = (now = new Date()) => `neurons:${now.toISOString().slice(0, 10)}`;
+export const dayKey = (now = new Date()) => now.toISOString().slice(0, 10);
 
 export function dailyBudget(env) {
   const value = Number(env.DAILY_NEURON_BUDGET);
   return Number.isFinite(value) && value > 0 ? value : DEFAULT_DAILY_NEURONS;
 }
 
-// Throws when the counter cannot be read; the caller then refuses the call.
-export async function spentToday(kv, now = new Date()) {
-  const value = Number(await kv.get(dayKey(now)));
-  return Number.isFinite(value) && value > 0 ? value : 0;
+// Throws when the counter cannot be reached or answers with an error; the
+// caller then refuses the call, so the ceiling never fails open.
+async function ask(namespace, body) {
+  const counter = namespace.get(namespace.idFromName("global"));
+  const response = await counter.fetch("https://budget.internal/", { method: "POST", body: JSON.stringify(body) });
+  if (!response.ok) throw new Error(`budget counter answered ${response.status}`);
+  return response.json();
 }
 
-export const hasRoom = (spent, budget) => spent + CALL_RESERVE <= budget;
+export const reserveSpend = (namespace, day, cost, limit) => ask(namespace, { op: "reserve", day, cost, limit });
 
-export async function recordSpend(kv, spent, usage, now = new Date()) {
-  const neurons = Number(usage?.neurons);
-  const total = Math.ceil(spent + (Number.isFinite(neurons) && neurons > 0 ? neurons : UNKNOWN_CALL_NEURONS));
-  await kv.put(dayKey(now), String(total), { expirationTtl: KEEP_SECONDS });
-  return total;
-}
+export const settleSpend = (namespace, day, reserved, actual) => ask(namespace, { op: "settle", day, reserved, actual });
