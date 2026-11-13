@@ -57,7 +57,7 @@ Home Assistant 2024+ introducerede **Sections** - en ny måde at organisere card
 # Traditionel Grid Layout
 views:
   - title: Hjem
-    type: masonry  # eller grid
+    type: masonry  # eller sidebar, panel
     cards:
       - type: light
         entity: light.stue
@@ -83,17 +83,17 @@ views:
 ### Opret Nyt Dashboard
 
 <Steps>
-1. Gå til **Indstillinger → Dashboards**
+1. Gå til **Indstillinger → Betjeningspaneler** (engelsk: Settings → Dashboards)
 
-2. Klik **Tilføj Dashboard**
+2. Klik **Tilføj betjeningspanel** (Add dashboard)
 
-3. Vælg et navn og ikon
+3. Vælg **Nyt tomt betjeningspanel** (New dashboard from scratch)
 
-4. Vælg **Start med tomt dashboard**
+4. Vælg et navn og ikon, og klik **Opret**
 
-5. Klik på de tre prikker → **Rediger Dashboard**
+5. Åbn dashboardet og klik på redigeringsknappen øverst til højre
 
-6. Vælg **Sections** som layout type
+6. Brug **Afsnit** (Sections) som visningstype (det er standarden for nye visninger)
 </Steps>
 
 ---
@@ -105,15 +105,13 @@ Mushroom er den mest populære custom card-samling. Moderne design, fuld UI-edit
 ### Installation
 
 <Steps>
-1. Åbn **HACS → Frontend**
+1. Åbn **Indstillinger → Markedsplads** (Marketplace; HACS → **Frontend** før 2026.11)
 
 2. Søg efter "Mushroom"
 
 3. Installer **Mushroom** og **Mushroom Themes**
 
-4. Genstart Home Assistant
-
-5. Ryd browser cache (Ctrl+Shift+R)
+4. Genindlæs browseren og ryd cache (Ctrl+Shift+R). Genstart Home Assistant, hvis du bliver bedt om det
 </Steps>
 
 ### Mushroom Card Typer
@@ -217,7 +215,7 @@ Brug Mushroom Themes for ensartet look:
 frontend:
   themes: !include_dir_merge_named themes
 
-# Download themes via HACS:
+# Download themes via Marketplace (eller HACS før 2026.11):
 # - Mushroom Shadow (mørk)
 # - Mushroom Square (lys)
 ```
@@ -346,7 +344,7 @@ For tablet på væggen - navigation i bunden:
 
 ```yaml
 # Brug custom:layout-card eller
-# navbar integration fra HACS
+# navbar-kort fra Marketplace/HACS
 ```
 
 ---
@@ -355,7 +353,7 @@ For tablet på væggen - navigation i bunden:
 
 ### Mini Graph Card
 
-Til historik og grafer (installer via HACS):
+Til historik og grafer (installer via Marketplace eller HACS):
 
 ```yaml
 type: custom:mini-graph-card
@@ -373,7 +371,7 @@ show:
 
 ### Button Card
 
-Ekstrem fleksibel button (HACS):
+Ekstrem fleksibel button (Marketplace/HACS):
 
 ```yaml
 type: custom:button-card
@@ -423,7 +421,7 @@ cards:
 
 2. Opret mappe: `config/themes/`
 
-3. Download theme fra HACS eller manuelt
+3. Download theme fra Marketplace/HACS eller manuelt
 
 4. Genstart Home Assistant
 
@@ -434,11 +432,11 @@ cards:
 
 | Theme | Stil | Link |
 |-------|------|------|
-| **Mushroom Shadow** | Mørk, modern | HACS |
-| **Mushroom Square** | Lys, kantede corners | HACS |
-| **Catppuccin** | Pastel farver | HACS |
-| **iOS Theme** | Apple-inspireret | HACS |
-| **Noctis** | Mørk med accent | HACS |
+| **Mushroom Shadow** | Mørk, modern | Marketplace/HACS |
+| **Mushroom Square** | Lys, kantede corners | Marketplace/HACS |
+| **Catppuccin** | Pastel farver | Marketplace/HACS |
+| **iOS Theme** | Apple-inspireret | Marketplace/HACS |
+| **Noctis** | Mørk med accent | Marketplace/HACS |
 
 ### Custom Background
 
@@ -541,7 +539,7 @@ mushroom-shadow:
     [Se guide →](/da/home-assistant/node-red/)
   </Card>
   <Card title="HACS" icon="puzzle">
-    Flere custom cards og integrationer.
+    Flere custom cards og integrationer via Marketplace (tidligere HACS).
     
     [Se guide →](/da/home-assistant/hacs/)
   </Card>
@@ -549,4 +547,4 @@ mushroom-shadow:
 
 ---
 
-*Sidst opdateret: December 2025*
+*Sidst opdateret: November 2026*

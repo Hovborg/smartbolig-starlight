@@ -8,7 +8,7 @@ import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/sta
 <Badge text="Medium" variant="caution" /> <Badge text="30 min" variant="note" />
 
 
-Better Thermostat er en HACS integration der gør dine "dumme" radiator-termostater smarte. Den bruger en ekstern temperatursensor, vinduessensorer og vejrdata til at optimere varmen og spare energi.
+Better Thermostat er en custom integration (installeres via Marketplace eller HACS), der gør dine "dumme" radiator-termostater smarte. Den bruger en ekstern temperatursensor, vinduessensorer og vejrdata til at optimere varmen og spare energi.
 
 <Aside type="note" title="Open Source">
 Better Thermostat er open source! Se [Better Thermostat på GitHub](https://github.com/KartoffelToby/better_thermostat) for dokumentation og feature requests.
@@ -41,7 +41,7 @@ Ved at bruge en ekstern sensor og vinduesdetektion kan du typisk spare 15-25% p�
 | **Radiator termostat (TRV)** | Shelly TRV, TRÅDFRI, Sonoff TRVZB, Aqara | ✅ Ja |
 | **Temperatursensor** | Shelly Wall Display, Aqara, IKEA Vindstyrka | ✅ Anbefalet |
 | **Vinduessensor** | Aqara, Sonoff, Shelly | ⭐ Valgfri |
-| **Home Assistant** | Med HACS installeret | ✅ Ja |
+| **Home Assistant** | Med Marketplace (2026.11+) eller HACS | ✅ Ja |
 
 ### Et typisk udgangspunkt
 
@@ -52,13 +52,16 @@ Guiden tager udgangspunkt i en opsætning, mange allerede har:
 
 ## 🔧 Installation
 
-### Trin 1: Installer via HACS
+### Trin 1: Installer via Marketplace eller HACS
+
+<Aside type="caution" title="Opdater Better Thermostat, før du opdaterer til Home Assistant 2026.11">
+Udgivelsesnoterne til Better Thermostat 1.9.4 advarer om, at Home Assistant 2026.11 har fjernet `RestoreStateData.last_states`, og at gendannelsen af børnesikringskontakten kan forhindre termostaten i at starte. Anbefalet rækkefølge: opdatér Better Thermostat, genstart Home Assistant, og opdatér derefter til 2026.11. Kilde: [GitHub-udgivelser](https://github.com/KartoffelToby/better_thermostat/releases).
+</Aside>
 
 <Steps>
-1. Åbn **HACS** i Home Assistant
-2. Klik på **Integrations**
-3. Søg efter **Better Thermostat**
-4. Klik **Download** og genstart Home Assistant
+1. Åbn **Indstillinger → Markedsplads** (Marketplace; HACS i sidemenuen før 2026.11)
+2. Søg efter **Better Thermostat**
+3. Klik **Installér** (i HACS: **Download**) og genstart Home Assistant, hvis du bliver bedt om det
 </Steps>
 
 ### Trin 2: Tilføj Better Thermostat
@@ -284,9 +287,9 @@ Better Thermostat har ikke indbygget temperaturfaldsdetektion. Mangler du en fys
 Installer det matchende UI card for at se ekstra info:
 
 <Steps>
-1. Åbn **HACS** → **Frontend**
+1. Åbn **Indstillinger → Markedsplads** (HACS → **Frontend** før 2026.11)
 2. Søg **Better Thermostat UI Card**
-3. Installer og genstart browser
+3. Installer og genindlæs browseren
 </Steps>
 
 ```yaml
@@ -315,7 +318,7 @@ features:
 
 ## 🔧 Kalibrering
 
-Better Thermostat kalibrerer automatisk din TRV baseret på forskellen mellem TRV'ens indbyggede sensor og din eksterne sensor.
+Better Thermostat kalibrerer automatisk din TRV baseret på forskellen mellem TRV'ens indbyggede sensor og din eksterne sensor. Under opsætningen vælger du en **Calibration Type** (Target Temperature Based, Offset Based, som kun tilbydes hvis din TRV understøtter offset, eller Direct Valve Based, som kun tilbydes hvis Better Thermostat kan styre ventilen) og en **Calibration Mode** (bl.a. External Sensor Offset Only, Aggressive, AI Time Based som er anbefalet og standard, MPC Predictive, PID Controller, TPI Controller og No Calibration). Kilde: [better-thermostat.org](https://better-thermostat.org/configuration).
 
 ### Sådan virker det
 

@@ -37,9 +37,9 @@ Home Assistant 2025.1 introduced a **completely new backup system**:
 
 | Feature | Description |
 |---------|-------------|
-| **Automatic backups** | Scheduled backups without add-ons |
+| **Automatic backups** | Scheduled backups without apps or other extras |
 | **Multiple locations** | Cloud + NAS + local simultaneously |
-| **Encryption** | Default for cloud, optional for local |
+| **Encryption** | On by default; can be turned off per location (not for Home Assistant Cloud) |
 | **Retention policies** | Automatic deletion of old backups |
 | **Easy setup** | Wizard for quick configuration |
 
@@ -51,11 +51,11 @@ Home Assistant 2025.1 introduced a **completely new backup system**:
 2. Click **Configure automatic backups**
 
 3. Choose schedule:
-   - Daily, weekly, or after updates
+   - Daily or selected weekdays (Custom days)
    - Time (e.g., 4:00 AM)
 
 4. Choose retention:
-   - Number of backups to keep (e.g., 3)
+   - Number of backups or number of days to keep them (e.g., 3 backups)
 
 5. Choose locations:
    - Local
@@ -71,7 +71,7 @@ Home Assistant 2025.1 introduced a **completely new backup system**:
 </Steps>
 
 <Aside type="danger" title="Important!">
-If you lose your encryption key, you **cannot** restore your backups. Store the key in a safe place - preferably multiple places.
+If you lose your encryption key, you **cannot** restore your backups. Home Assistant lets you download the key as a text file ("emergency kit"). Store it in a safe place - preferably multiple places.
 </Aside>
 
 ---
@@ -81,26 +81,24 @@ If you lose your encryption key, you **cannot** restore your backups. Store the 
 ### Google Drive (Native 2025.2+)
 
 <Steps>
-1. Go to **Settings → Devices & Services**
+1. Create your own Google OAuth credentials (Client ID and Client Secret) in the Google Cloud Console, and enable the Google Drive API. The redirect URI is `https://my.home-assistant.io/redirect/oauth`. Follow the steps in the [Home Assistant documentation](https://www.home-assistant.io/integrations/google_drive/)
 
-2. Click **Add Integration** → search "Google Drive"
+2. Go to **Settings → Devices & Services**
 
-3. Follow Google OAuth flow:
-   - Log in to your Google account
-   - Grant access to Google Drive
+3. Click **Add Integration** → search "Google Drive"
 
-4. Go to **Settings → System → Backups → Locations**
+4. Enter the Client ID and Client Secret, and grant access to your Google account
 
-5. Add Google Drive as backup location
+5. Select Google Drive as a backup location in the automatic backup settings
 
-6. Backups are automatically stored in "Home Assistant" folder
+6. Backups are stored in the "Home Assistant" folder, with a subfolder for each Home Assistant instance
 </Steps>
 
 **Free storage:** 15 GB (shared with Gmail and Photos)
 
 ### OneDrive (Native 2025.2+)
 
-Same process as Google Drive - use the OneDrive integration.
+Add the OneDrive integration under **Settings → Devices & Services**. By default Home Assistant supplies the client ID and secret, and you sign in with Microsoft. Only personal OneDrive accounts are supported.
 
 ### Home Assistant Cloud (Nabu Casa)
 
@@ -116,7 +114,7 @@ If you subscribe to Home Assistant Cloud:
 4. Add as backup location under Backups
 </Steps>
 
-**Price:** ~€7.50/month (includes remote access, Alexa/Google integration)
+**Price:** €7.50 per month or €75 per year according to [Nabu Casa](https://www.nabucasa.com/pricing/), excl. VAT. The price includes remote access and Alexa/Google integration. Cloud stores one backup of up to 5 GB. Nabu Casa renames the service Home Assistant Link on 2 December.
 
 ---
 
@@ -157,7 +155,7 @@ If you subscribe to Home Assistant Cloud:
 <Steps>
 1. Go to **Settings → System → Storage**
 
-2. Click **Add Network Storage**
+2. Click **Add storage**, and choose SMB/CIFS or NFS
 
 3. Fill in:
    ```text
@@ -250,12 +248,12 @@ On updates:
 
 3. Click on backup → **Restore**
 
-4. Choose what to restore:
-   - Everything
-   - Configuration only
-   - Specific add-ons
+4. Choose what to restore (Select what to restore):
+   - Home Assistant settings
+   - History, media, share folder and local apps
+   - Apps (all, none or selected)
 
-5. Wait for restoration (can take 5-30 min)
+5. Wait for restoration (large installations can take about 45 minutes). Do not power off in the meantime
 
 6. Log in again after restart
 </Steps>
@@ -323,11 +321,11 @@ http:
 ### Enable 2FA
 
 <Steps>
-1. Go to your **Profile picture** (bottom left)
+1. Go to your **User profile** (bottom left)
 
-2. Scroll to **Multifactor Authentication Modules**
+2. Open the **Security** tab and find **Multi-factor authentication modules**
 
-3. Enable **Time-based One-Time Password**
+3. Enable **Authenticator app** (TOTP)
 
 4. Scan QR code with authenticator app:
    - Google Authenticator
@@ -408,7 +406,7 @@ http:
   },
   {
     question: "What's included in a backup?",
-    answer: "Everything! Configuration, automations, dashboards, add-ons and their data, integrations, history (if selected). The only thing not included is Home Assistant OS itself."
+    answer: "It depends on what you choose. Home Assistant settings (configuration, automations, dashboards) are always part of automatic backups. History, media, the share folder and apps with their data can be selected. Logs and caches are not included, and external databases such as MariaDB or PostgreSQL are only included if they run as an app on Home Assistant OS."
   },
   {
     question: "Should I use encryption on local backup?",
@@ -435,4 +433,4 @@ http:
 
 ---
 
-*Last updated: December 2025*
+*Last updated: November 2026*

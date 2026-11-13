@@ -29,7 +29,7 @@ Docker is the flexible way to run Home Assistant. Perfect if you already have a 
 
 - Are new to Home Assistant
 - Want everything to "just work"
-- Need Add-ons (Zigbee2MQTT, Node-RED, etc.)
+- Need apps (formerly add-ons) such as Zigbee2MQTT and Node-RED
 
 <Aside type="tip">
 New to Home Assistant? Start with [Raspberry Pi installation](/en/home-assistant/raspberry-pi-installation/) - it's much easier.
@@ -38,7 +38,7 @@ New to Home Assistant? Start with [Raspberry Pi installation](/en/home-assistant
 ## 📋 Prerequisites
 
 - ✅ Linux server (Ubuntu, Debian, or similar)
-- ✅ Docker installed
+- ✅ Docker Engine 23.0.0 or newer installed (Docker Desktop is not supported according to Home Assistant)
 - ✅ Basic terminal knowledge
 
 ## ⚙️ Install Docker
@@ -185,15 +185,15 @@ If you have a Zigbee USB stick or similar:
 
 | Feature | Docker Container | Home Assistant OS |
 |---------|------------------|-------------------|
-| Add-ons (Z2M, Node-RED) | ❌ Run separately | ✅ Integrated |
+| Apps (Z2M, Node-RED) | ❌ Run separately | ✅ Integrated |
 | Supervisor | ❌ No | ✅ Yes |
-| Auto-backup | ❌ Manual | ✅ Yes |
+| Built-in backup | ⚠️ Only settings and optional history | ✅ Yes, incl. apps |
 | Updates | Manual (`pull`) | ✅ One click |
 | Flexibility | ⭐⭐⭐ | ⭐⭐ |
 
 ## 💾 Backup
 
-Docker Container has no automatic backup. Do it manually:
+Home Assistant's built-in backup also works on Container, but it only covers settings and optional history, not apps or other containers. So also back up the whole config folder manually:
 
 ```bash
 # Stop HA first (optional, but safer)

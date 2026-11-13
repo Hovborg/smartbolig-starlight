@@ -21,7 +21,7 @@ Denne guide viser dig hvordan du installerer integrationen, opretter sensorer ti
 - 📊 **Spotpriser** for i dag og i morgen (offentliggøres ca. kl. 13) - siden oktober 2025 i 15-minutters opløsning
 - 💰 **Samlede priser** inkl. alle tariffer og afgifter
 - 📈 **Grafer** der viser prisudvikling
-- 🔮 **5-dages prognose** via Carnot.dk
+- 🔮 **5-dages prognose** via Carnot.dk (kræver en gratis konto og API-nøgle hos Carnot)
 - ⚡ **Live omkostninger** baseret på dit aktuelle forbrug
 - 📅 **Akkumuleret forbrug** pr. dag, måned og år
 
@@ -35,7 +35,7 @@ Denne guide viser dig hvordan du installerer integrationen, opretter sensorer ti
 
 Før du starter, skal du have:
 
-- ✅ [HACS installeret](/da/home-assistant/hacs/)
+- ✅ [Marketplace (Home Assistant 2026.11+) eller HACS (ældre versioner)](/da/home-assistant/hacs/)
 - ✅ Vide hvilket prisområde du bor i (DK1 eller DK2)
 - ✅ Vide hvem dit netselskab er (for korrekte tariffer)
 
@@ -51,20 +51,20 @@ Før du starter, skal du have:
   totalTime="PT10M"
   steps={[
     {
-      name: "Åbn HACS",
-      text: "Gå til HACS i sidemenuen i Home Assistant."
+      name: "Åbn Marketplace",
+      text: "Gå til Indstillinger → Markedsplads (Marketplace). Kører du en version før 2026.11, finder du HACS i sidemenuen."
     },
     {
       name: "Søg efter integrationen",
-      text: "Klik på Integrationer → + Udforsk og download repositories → søg efter 'Energi Data Service'."
+      text: "Søg efter 'Energi Data Service'. Findes den ikke i kataloget, kan du tilføje den med Tilføj fra link (Add from link) og 'MTrab/energidataservice'. I HACS før 2026.11: Integrationer → + Udforsk og download repositories."
     },
     {
-      name: "Download integrationen",
-      text: "Klik på Energi Data Service → Download → vælg seneste version → Download."
+      name: "Installer integrationen",
+      text: "Klik på Energi Data Service → Installér (i HACS: Download) → vælg seneste version og bekræft."
     },
     {
       name: "Genstart Home Assistant",
-      text: "Gå til Indstillinger → System → Genstart Home Assistant."
+      text: "Genstart Home Assistant, hvis du bliver bedt om det eller integrationen ikke dukker op: Indstillinger → System → Genstart Home Assistant."
     },
     {
       name: "Tilføj integrationen",
@@ -72,7 +72,7 @@ Før du starter, skal du have:
     },
     {
       name: "Konfigurer integrationen",
-      text: "Giv den et navn (f.eks. 'Elpriser'), vælg Danmark som land, vælg dit prisområde (DK1/DK2), vælg pris pr. kWh, aktiver automatiske tariffer og vælg dit netselskab."
+      text: "Giv den et unikt navn (f.eks. 'Elpriser'), vælg Danmark som land, vælg dit prisområde (DK1/DK2), vælg pris pr. kWh, aktiver automatiske tariffer og vælg dit netselskab (det er ikke nødvendigvis det selskab, du køber strøm af)."
     }
   ]}
 />
@@ -95,9 +95,8 @@ Efter installation har du disse sensorer:
 | Sensor | Beskrivelse |
 |--------|-------------|
 | `sensor.energi_data_service` | Aktuel elpris inkl. afgifter |
-| `sensor.energi_data_service_forecast` | Prognose for kommende dage |
 
-Sensoren har også **attributter** med alle dagens priser (`raw_today` og `raw_tomorrow`). Efter Nord Pools skift til 15-minutters opløsning i oktober 2025 kan listerne indeholde op til 96 punkter pr. dag i stedet for 24 - hvert punkt har sit eget tidsstempel, så kortene herunder virker uændret.
+Integrationen opretter én sensor. Prognosen fra Carnot ligger i attributten `forecast` og er kun tilgængelig, hvis du aktiverede den under opsætningen. Sensoren har også **attributter** med alle dagens priser (`raw_today` og `raw_tomorrow`). Efter Nord Pools skift til 15-minutters opløsning i oktober 2025 kan listerne indeholde op til 96 punkter pr. dag i stedet for 24 - hvert punkt har sit eget tidsstempel, så kortene herunder virker uændret.
 
 ## Dashboard-kort
 
@@ -105,14 +104,13 @@ Med sensorerne på plads kan du bygge dashboard-kort, der viser priserne som gra
 
 ### 1. Installer ApexCharts Card
 
-Først skal du installere ApexCharts Card via HACS:
+Først skal du installere ApexCharts Card via Marketplace (eller HACS før 2026.11):
 
 <Steps>
-1. Gå til **HACS** → **Frontend**
-2. Klik **+ Udforsk og download repositories**
-3. Søg efter "ApexCharts Card"
-4. Klik **Download** → **Download**
-5. Genindlæs browser (Ctrl+F5)
+1. Åbn **Indstillinger → Markedsplads** (HACS før 2026.11: **HACS** → **Frontend** → **+ Udforsk og download repositories**)
+2. Søg efter "ApexCharts Card"
+3. Klik **Installér** (HACS: **Download** → **Download**)
+4. Genindlæs browser (Ctrl+F5)
 </Steps>
 
 <LinkCard 
@@ -418,7 +416,7 @@ cards:
 
 ## Bonus: Dynamic Energy Cost Integration
 
-For endnu nemmere omkostningsberegning kan du installere **Dynamic Energy Cost** via HACS:
+For endnu nemmere omkostningsberegning kan du installere **Dynamic Energy Cost** via Marketplace (eller HACS):
 
 <LinkCard 
   title="Dynamic Energy Cost på GitHub" 
@@ -519,4 +517,4 @@ Priser for næste dag offentliggøres typisk omkring kl. 13:00. Før det tidspun
 
 ---
 
-*Sidst opdateret: December 2025*
+*Sidst opdateret: November 2026*

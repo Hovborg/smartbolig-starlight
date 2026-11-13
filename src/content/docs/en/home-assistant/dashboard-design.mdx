@@ -57,7 +57,7 @@ Home Assistant 2024+ introduced **Sections** - a new way to organize cards:
 # Traditional Grid Layout
 views:
   - title: Home
-    type: masonry  # or grid
+    type: masonry  # or sidebar, panel
     cards:
       - type: light
         entity: light.living_room
@@ -85,15 +85,15 @@ views:
 <Steps>
 1. Go to **Settings → Dashboards**
 
-2. Click **Add Dashboard**
+2. Click **Add dashboard**
 
-3. Choose a name and icon
+3. Choose the template **New dashboard from scratch** (an empty dashboard)
 
-4. Select **Start with an empty dashboard**
+4. Choose a name and icon, and click **Create**
 
-5. Click the three dots → **Edit Dashboard**
+5. Open the dashboard and click the edit button in the top right
 
-6. Choose **Sections** as layout type
+6. Use **Sections** as the view type (it is the default for new views)
 </Steps>
 
 ---
@@ -105,15 +105,13 @@ Mushroom is the most popular custom card collection. Modern design, full UI edit
 ### Installation
 
 <Steps>
-1. Open **HACS → Frontend**
+1. Open **Settings → Marketplace** (HACS → **Frontend** before 2026.11)
 
 2. Search for "Mushroom"
 
 3. Install **Mushroom** and **Mushroom Themes**
 
-4. Restart Home Assistant
-
-5. Clear browser cache (Ctrl+Shift+R)
+4. Reload the browser and clear the cache (Ctrl+Shift+R). Restart Home Assistant if prompted
 </Steps>
 
 ### Mushroom Card Types
@@ -217,7 +215,7 @@ Use Mushroom Themes for unified look:
 frontend:
   themes: !include_dir_merge_named themes
 
-# Download themes via HACS:
+# Download themes via the Marketplace (or HACS before 2026.11):
 # - Mushroom Shadow (dark)
 # - Mushroom Square (light)
 ```
@@ -346,7 +344,7 @@ For wall-mounted tablets - navigation at bottom:
 
 ```yaml
 # Use custom:layout-card or
-# navbar integration from HACS
+# navbar card from the Marketplace/HACS
 ```
 
 ---
@@ -355,7 +353,7 @@ For wall-mounted tablets - navigation at bottom:
 
 ### Mini Graph Card
 
-For history and graphs (install via HACS):
+For history and graphs (install via the Marketplace or HACS):
 
 ```yaml
 type: custom:mini-graph-card
@@ -373,7 +371,7 @@ show:
 
 ### Button Card
 
-Extremely flexible button (HACS):
+Extremely flexible button (Marketplace/HACS):
 
 ```yaml
 type: custom:button-card
@@ -423,7 +421,7 @@ cards:
 
 2. Create folder: `config/themes/`
 
-3. Download theme from HACS or manually
+3. Download theme from the Marketplace/HACS or manually
 
 4. Restart Home Assistant
 
@@ -434,11 +432,11 @@ cards:
 
 | Theme | Style | Source |
 |-------|-------|--------|
-| **Mushroom Shadow** | Dark, modern | HACS |
-| **Mushroom Square** | Light, sharp corners | HACS |
-| **Catppuccin** | Pastel colors | HACS |
-| **iOS Theme** | Apple-inspired | HACS |
-| **Noctis** | Dark with accents | HACS |
+| **Mushroom Shadow** | Dark, modern | Marketplace/HACS |
+| **Mushroom Square** | Light, sharp corners | Marketplace/HACS |
+| **Catppuccin** | Pastel colors | Marketplace/HACS |
+| **iOS Theme** | Apple-inspired | Marketplace/HACS |
+| **Noctis** | Dark with accents | Marketplace/HACS |
 
 ### Custom Background
 
@@ -541,7 +539,7 @@ mushroom-shadow:
     [See guide →](/en/home-assistant/node-red/)
   </Card>
   <Card title="HACS" icon="puzzle">
-    More custom cards and integrations.
+    More custom cards and integrations via the Marketplace (formerly HACS).
     
     [See guide →](/en/home-assistant/hacs/)
   </Card>
@@ -549,4 +547,4 @@ mushroom-shadow:
 
 ---
 
-*Last updated: December 2025*
+*Last updated: November 2026*
