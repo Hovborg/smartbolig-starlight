@@ -1,7 +1,7 @@
 ---
 title: Motion lighting with manual override
 description: Control hallway lighting with motion, an explicit manual override, and predictable behavior after restarts or automation reloads.
-lastUpdated: 2026-09-30
+lastUpdated: 2026-11-13
 sidebar:
   badge:
     text: Guide
@@ -190,7 +190,7 @@ explains that `restart` stops the previous run before starting the new one.
 Home Assistant documents that a trigger's `for:` period does **not** survive a
 restart or automation reload; the wait is reset. This example therefore does
 not claim to continue a countdown from its previous elapsed time. See the note
-under [automation triggers](https://www.home-assistant.io/docs/automation/trigger/#state-trigger).
+under [automation triggers](https://www.home-assistant.io/triggers/state/).
 
 After a full Home Assistant start, `ha_started` begins a new evaluation after
 30 seconds. If the sensor explicitly reports `on`, the lamp can turn on when
@@ -217,7 +217,7 @@ a little longer, but the switch-off is not left without another run.
 Test with natural state changes because **Run actions** does not supply one of
 the trigger IDs used by the branches. Home Assistant documents the same
 limitation in its
-[automation testing guide](https://www.home-assistant.io/docs/automation/troubleshooting/#running-the-entire-automation).
+[automation testing guide](https://www.home-assistant.io/docs/automation/troubleshooting/#automation-fails-with-run-actions-but-works-when-the-trigger-happens-because-there-is-no-trigger-data).
 
 1. Turn the helper on, cause motion after sunset, and verify turn-on.
 2. Let the sensor remain `off` for two minutes and verify turn-off.

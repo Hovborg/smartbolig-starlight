@@ -57,7 +57,7 @@ Ny til ESP32? Start med vores [Kom godt i gang guide](/da/esp32/kom-godt-i-gang/
 </Steps>
 
 <Aside type="note" title="Pull-up-modstand">
-Bruger du en nøgen 4-bens DHT22, skal der sidde en 10 kΩ modstand (pull-up) mellem DATA og 3.3V for stabile aflæsninger. De fleste 3-bens moduler på breakout-print har modstanden indbygget, så der rækker de tre ledninger.
+Bruger du en nøgen 4-bens DHT22, skal der sidde en pull-up-modstand på ca. 4,7 kΩ mellem DATA og 3.3V for stabile aflæsninger (ESPHome angiver, at 1-10 kΩ som regel virker). De fleste 3-bens moduler på breakout-print har modstanden indbygget, så der rækker de tre ledninger.
 </Aside>
 
 <Aside type="danger" title="Forsyn sensoren fra 3.3V">
@@ -81,7 +81,7 @@ api:
   encryption:
     key: "din-nøgle-her"
 ota:
-  platform: esphome
+  - platform: esphome
 
 # DHT22 Sensor
 sensor:
@@ -187,7 +187,7 @@ title: Stue Klima
 **Tjek disse ting:**
 1. Er ledningerne sat rigtigt i? (VCC→3.3V)
 2. Er GPIO-pin korrekt i konfigurationen?
-3. Nøgen sensor: sidder 10 kΩ pull-up-modstanden mellem DATA og 3.3V?
+3. Nøgen sensor: sidder pull-up-modstanden (ca. 4,7 kΩ) mellem DATA og 3.3V?
 4. Prøv en anden GPIO-pin (f.eks. GPIO5)
 5. Tjek ESPHome-loggen for fejlbeskeder
 </Aside>
@@ -228,19 +228,19 @@ humidity:
 ```yaml title="Eksempel: Advar ved høj fugtighed"
 automation:
   - alias: "Alarm ved høj fugtighed"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.stue_fugtighed
         above: 70
         for: "00:30:00"
-    action:
-      - service: notify.mobile_app_din_telefon  # udskift med din egen enheds notify-tjeneste
+    actions:
+      - action: notify.mobile_app_din_telefon  # udskift med din egen enheds notify-tjeneste
         data:
           title: "⚠️ Høj fugtighed"
           message: "Fugtigheden i stuen er {{ states('sensor.stue_fugtighed') }}%"
 ```
 
-Udskift `notify.mobile_app_din_telefon` med navnet på din egen telefons notify-tjeneste - du finder det under **Udviklerværktøjer** → **Handlinger**.
+Udskift `notify.mobile_app_din_telefon` med navnet på din egen telefons notify-tjeneste - du finder det under **Indstillinger** → **Værktøjer** → **Handlinger**.
 
 ## 🚀 Næste skridt
 

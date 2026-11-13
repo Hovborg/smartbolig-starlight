@@ -21,13 +21,13 @@ Start i et Git-repo og begynd med en læseopgave. Brug ikke `--yolo` eller fuld 
 
 ## Hvad skal du bruge?
 
-- macOS, Linux eller Windows via WSL
-- Node.js/npm eller Homebrew
+- macOS, Linux eller Windows (PowerShell eller WSL2)
+- Node.js/npm eller Homebrew, hvis du ikke bruger installer-scriptet
 - Git
 - En ChatGPT-konto eller OpenAI API key
 - Et projekt du kan teste på
 
-OpenAI beskriver Windows-support som mulig, men den bedste Windows-oplevelse er via WSL.
+OpenAI har en PowerShell-installer til Windows, og Windows har en egen sandbox. Under WSL2 bruger Codex Linux-sandboxen; WSL1 understøttes ikke længere fra Codex 0.115.
 
 ## Installer Codex CLI
 
@@ -54,12 +54,12 @@ OpenAI beskriver Windows-support som mulig, men den bedste Windows-oplevelse er 
     codex --version
     ```
   </TabItem>
-  <TabItem label="Windows/WSL">
-    Installer Node.js eller Homebrew i WSL, og kør derefter en af kommandoerne ovenfor inde i WSL.
-
-    ```bash
-    npm install -g @openai/codex
+  <TabItem label="Windows (PowerShell)">
+    ```powershell
+    powershell -ExecutionPolicy ByPass -c "irm https://chatgpt.com/codex/install.ps1 | iex"
     ```
+
+    På macOS og Linux findes tilsvarende `curl -fsSL https://chatgpt.com/codex/install.sh | sh`. Bruger du WSL, kan du i stedet køre npm- eller Homebrew-kommandoen ovenfor inde i WSL.
   </TabItem>
 </Tabs>
 
@@ -117,11 +117,13 @@ Nyttige kommandoer inde i Codex:
 | `/review` | Få en lokal kode-review af ændringer |
 | `/status` | Se aktiv mappe, sandbox og session |
 
-OpenAI anbefaler aktuelt `gpt-5.5` til de fleste Codex-opgaver, og du kan også bare lade Codex bruge standardmodellen. Du kan vælge model ved start:
+OpenAI anbefaler aktuelt GPT-6.1 Sol (`gpt-6.1-sol`) til komplekse opgaver, GPT-6 Astra (`gpt-6-astra`) til det sværeste arbejde, GPT-6.1 Terra (`gpt-6.1-terra`) til hurtige, effektive opgaver og GPT-6 Luna (`gpt-6-luna`) til fokuserede højvolumen-opgaver. Dokumentationen nævner ikke en fast standardmodel: vælger du ingen, bruger CLI'en en anbefalet model. Du kan vælge model ved start:
 
 ```bash
-codex --model gpt-5.5
+codex --model gpt-6.1-sol
 ```
+
+GPT-5.5 er udgået fra Codex med ChatGPT-login den 14. oktober 2026; API-nøgle-sessioner er ikke berørt.
 
 ## Tre gode Codex-workflows
 
@@ -225,7 +227,7 @@ Codex kan bruge ChatGPT-login med inkluderede limits eller API key med tokenbase
 - du bruger subagents
 - agenten læser mange filer flere gange
 
-Til rutineopgaver kan `gpt-5.5-mini` give længere local-message limits end de tungere modeller. Brug `gpt-5.5` til svær debugging, arkitektur og ændringer med høj risiko.
+Til rutineopgaver kan `gpt-6-luna` give længere local-message limits end de tungere modeller (på Plus 350-3.000 mod 15-160 for GPT-6.1 Sol pr. 5 timer). Brug `gpt-6.1-sol` eller `gpt-6-astra` til svær debugging, arkitektur og ændringer med høj risiko.
 
 ## Fejlfinding
 
@@ -239,7 +241,7 @@ Til rutineopgaver kan `gpt-5.5-mini` give længere local-message limits end de t
 
 ## Kilder
 
-Sidst tjekket: 11. april 2026.
+Sidst tjekket: 13. november 2026.
 
 - [OpenAI Codex quickstart](https://developers.openai.com/codex/quickstart#setup)
 - [Codex CLI](https://developers.openai.com/codex/cli)

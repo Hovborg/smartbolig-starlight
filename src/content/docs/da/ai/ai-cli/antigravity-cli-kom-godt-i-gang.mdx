@@ -16,7 +16,7 @@ Antigravity CLI (kommandoen hedder `agy`) er Googles nye AI-agent til terminalen
 `agy` deler agent-motor med **Antigravity 2.0** (Googles desktop-app til AI-udvikling), men kører som en letvægts terminal-app optimeret til tastatur-arbejde og SSH-sessioner.
 
 <Aside type="tip" title="Skiftet fra Gemini CLI">
-Google lukker Gemini CLI's gratis adgang, Google AI Pro og Google AI Ultra den **18. juni 2026**. Antigravity CLI er den officielle efterfølger. Hvis du bruger Gemini CLI i dag, er det nu du skal skifte.
+Den **18. juni 2026** erstattede Google Gemini CLI med Antigravity CLI for gratis brugere og Google One-brugere, og Gemini CLI holdt op med at betjene Google AI Pro og Google AI Ultra. Antigravity CLI er den officielle efterfølger. Hvis du stadig bruger Gemini CLI uden betalt API-nøgle eller Code Assist-licens, er det nu du skal skifte.
 </Aside>
 
 ## Hvad er forskellen på agy og Gemini CLI?
@@ -25,7 +25,7 @@ Google lukker Gemini CLI's gratis adgang, Google AI Pro og Google AI Ultra den *
 |---|---|---|
 | Teknologi | Node.js-baseret (kræver Node 20+) | Én selvstændig Go-binær — ingen Node.js |
 | Opstart | Sekunder | Millisekunder, lavt RAM-forbrug |
-| Status | Gratis adgang lukker 18. juni 2026 | Googles aktivt udviklede CLI |
+| Status | Erstattet af agy for gratis brugere 18. juni 2026 | Googles aktivt udviklede CLI |
 | Agent-motor | Egen | Delt med Antigravity 2.0 desktop-appen |
 | Samtaler | Sessions | Persistent historik, kan eksporteres til desktop-appen |
 
@@ -96,7 +96,7 @@ Login foregår med din Google-konto:
 Adgangstokenet gemmes sikkert i systemets keyring, så du ikke skal logge ind hver gang.
 
 <Aside type="note" title="Kvoter og G1-credits">
-agy bruger din Google-kontos kvote (Gemini 3.5 Flash er standardmodel). Når kvoten er brugt, kan du aktivere **G1-credits** som ekstra forbrug — se status og køb via `/credits`-panelet inde i CLI'en.
+agy bruger kvoten fra din plan. Når kvoten er brugt, kan du slå indstillingen "Use AI Credits" (`useG1Credits`) til via `/config` eller `/settings`, så CLI'en bruger dine personlige credits som ekstra forbrug. `/credits`-panelet viser forbrug og åbner køb og opgradering.
 </Aside>
 
 ## Din første sikre session
@@ -148,7 +148,7 @@ Brug ikke `--dangerously-skip-permissions`, før du forstår hvad agenten kan g�
 
 ## Vigtige flags og kommandoer
 
-Verificeret med `agy --help` (version 1.0.3):
+Verificeret med `agy --help` (version 1.5.3):
 
 | Flag/kommando | Brug |
 |---|---|
@@ -158,6 +158,7 @@ Verificeret med `agy --help` (version 1.0.3):
 | `agy --conversation <id>` | Genoptag en bestemt samtale |
 | `agy -i "..."` | Start interaktivt med en prompt |
 | `agy --add-dir <sti>` | Tilføj ekstra mappe til workspace (kan gentages) |
+| `agy --mode <tilstand>` | Start i en udførelsestilstand: `accept-edits`, `auto` eller `plan` |
 | `agy --sandbox` | Kør i sandbox med terminal-begrænsninger |
 | `agy update` | Opdater CLI'en |
 | `agy changelog` | Se ændringer i nyeste versioner |

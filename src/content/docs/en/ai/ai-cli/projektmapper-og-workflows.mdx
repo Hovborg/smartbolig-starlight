@@ -109,7 +109,7 @@ Codex reads from the root down toward your current folder. Instructions closer t
 
 ## Claude Code: CLAUDE.md and .claude/rules
 
-Claude Code reads `CLAUDE.md`, not `AGENTS.md`. If your repository already uses `AGENTS.md`, make `CLAUDE.md` import it:
+Claude Code reads `CLAUDE.md`. If there is only an `AGENTS.md` and no `CLAUDE.md`, Claude Code reads `AGENTS.md` directly (requires v2.1.277 or later). If both exist, only `CLAUDE.md` is read. If your repository already uses `AGENTS.md` and you want both included, make `CLAUDE.md` import it:
 
 ```md title="CLAUDE.md"
 @AGENTS.md
@@ -149,7 +149,6 @@ Useful Gemini CLI commands:
 |---|---|
 | `/memory show` | Show the combined context. |
 | `/memory reload` | Reload `GEMINI.md` files. |
-| `/memory add <text>` | Add global memory. |
 | `/stats model` | Show model and token usage. |
 
 ## Monorepo model
@@ -264,7 +263,7 @@ Instruction files are sent as context. Never put API keys, tokens, cookies, priv
 
 ## Sources
 
-Last checked: April 11, 2026.
+Last checked: November 13, 2026.
 
 - [Codex AGENTS.md](https://developers.openai.com/codex/guides/agents-md)
 - [Claude Code memory](https://code.claude.com/docs/en/memory)
