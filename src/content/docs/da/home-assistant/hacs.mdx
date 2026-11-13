@@ -13,7 +13,7 @@ import FAQ from '../../../../components/FAQ.astro';
 **Home Assistant Community Store (HACS)** giver dig adgang til community-udviklede integrationer, themes og dashboard-kort. HACS er næsten et must-have for alle Home Assistant brugere.
 
 <Aside type="caution" title="Fra Home Assistant 2026.11 hedder HACS Marketplace">
-Home Assistant 2026.11 (udgivet 4. november 2026) har flyttet HACS ind i Home Assistant som **Marketplace** under **Indstillinger → Marketplace**. Installationsprogrammet til HACS stopper ved 2026.11, så HACS kan ikke længere installeres separat, og det gamle HACS får ikke nye udgaver. Opdaterer du med HACS installeret, migrerer Home Assistant det automatisk ved opstart: installerede projekter, egne repositories og opdateringsentiteter følger med, og HACS-links åbner Marketplace. Guiden beskriver både Marketplace og den ældre HACS-installation.
+Home Assistant 2026.11 (udgivet 4. november 2026) har flyttet HACS ind i Home Assistant som **Marketplace**. I den danske brugerflade hedder menupunktet **Markedsplads**, og du finder det under **Indstillinger → Markedsplads** (engelsk: Settings → Marketplace). Installationsprogrammet til HACS stopper ved 2026.11, så HACS kan ikke længere installeres separat, og det gamle HACS får ikke nye udgaver. Opdaterer du med HACS installeret, migrerer Home Assistant det automatisk ved opstart: installerede projekter, egne repositories og opdateringsentiteter følger med, og HACS-links åbner Marketplace. Guiden beskriver både Marketplace og den ældre HACS-installation.
 </Aside>
 
 <Aside type="tip">
@@ -54,15 +54,15 @@ Marketplace følger med Home Assistant, så der er ikke noget at installere. Kun
 
 <Steps>
 1. Opdater til Home Assistant 2026.11 eller nyere. Har du HACS i forvejen, behøver du ikke gøre noget
-2. Åbn **Indstillinger → Marketplace**
+2. Åbn **Indstillinger → Markedsplads**
 3. Første gang skal du acceptere en advarsel om, at indholdet er lavet og udgivet af community'et og ikke er testet, auditeret eller understøttet af Home Assistant-projektet
-4. Brug **Filters** til kun at se integrationer, dashboards, temaer, skabeloner eller kun installerede projekter
-5. Åbn et repository, vælg **Install**, kontrollér versionen og bekræft
+4. Brug **Filtre** (Filters) til kun at se integrationer, dashboards, temaer, skabeloner eller kun installerede projekter
+5. Åbn et repository, vælg **Installér** (Install), kontrollér versionen og bekræft
 </Steps>
 
 - En integration åbner sin opsætningsside, når den kan indlæses med det samme. Nogle integrationer, fx dem der bruger YAML-konfiguration, kræver genstart, og opdateringer træder i kraft efter en genstart.
 - Dashboards kræver, at du genindlæser browseren. Temaer og skabeloner indlæses automatisk.
-- Egne repositories tilføjer du med **Add from link** (GitHub-URL eller `ejer/repository`). Repositoryet skal være offentligt og indeholde en `hacs.json`. Det kræver, at du forbinder Marketplace med GitHub via GitHubs device-login, som ikke giver adgang til private repositories.
+- Egne repositories tilføjer du med **Tilføj fra link** (Add from link) ved at angive en GitHub-URL eller `ejer/repository`. Repositoryet skal være offentligt og indeholde en `hacs.json`. Det kræver, at du forbinder Marketplace med GitHub via GitHubs device-login, som ikke giver adgang til private repositories.
 - Det kræver ikke GitHub at gennemse, installere og opdatere indhold fra kataloget.
 - Installerede projekter får opdateringsentiteter og vises under **Indstillinger → Opdateringer**.
 - Bogmærker til `/hacs` åbner Marketplace.
@@ -83,7 +83,7 @@ Kører du en ældre Home Assistant-version, installerer du HACS som beskrevet ne
     },
     {
       name: "Tilføj HACS repository (OS/Supervised)",
-      text: "Klik på dette link for at tilføje HACS-app repository'et (tidligere kaldet add-on): https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fhacs%2Faddons - eller tilføj manuelt via Indstillinger → Apps → Install app → ⋮ → Repositories → tilføj: https://github.com/hacs/addons"
+      text: "Klik på dette link for at tilføje HACS-app repository'et (tidligere kaldet add-on): https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fhacs%2Faddons - eller tilføj manuelt via Indstillinger → Apps → Installér app → ⋮ → Repositorier → tilføj: https://github.com/hacs/addons"
     },
     {
       name: "Installer HACS-appen",
@@ -125,7 +125,7 @@ Genstart derefter Home Assistant og fortsæt fra trin 6 ovenfor.
 
 ## Første gang i Marketplace/HACS
 
-I Marketplace (2026.11+) finder du indholdet under **Indstillinger → Marketplace**. I HACS før 2026.11 finder du det i sidemenuen. Her er et overblik over, hvad du kan hente:
+I Marketplace (2026.11+) finder du indholdet under **Indstillinger → Markedsplads**. I HACS før 2026.11 finder du det i sidemenuen. Her er et overblik over, hvad du kan hente:
 
 <CardGrid>
   <Card title="Integrationer" icon="puzzle">
@@ -141,10 +141,10 @@ I Marketplace (2026.11+) finder du indholdet under **Indstillinger → Marketpla
 Lad os installere en populær integration som eksempel:
 
 <Steps>
-1. Åbn **Indstillinger → Marketplace**
-2. Søg efter f.eks. "Energi Data Service" (dansk elpris-integration). Findes den ikke i kataloget, kan du tilføje den med **Add from link** og `MTrab/energidataservice`
+1. Åbn **Indstillinger → Markedsplads**
+2. Søg efter f.eks. "Energi Data Service" (dansk elpris-integration). Findes den ikke i kataloget, kan du tilføje den med **Tilføj fra link** og `MTrab/energidataservice`
 3. Åbn integrationen og læs beskrivelsen
-4. Vælg **Install**, kontrollér versionen og bekræft
+4. Vælg **Installér**, kontrollér versionen og bekræft
 5. Åbn integrationens opsætning, eller tilføj den via Indstillinger → Enheder og tjenester → Tilføj integration
 </Steps>
 
@@ -160,6 +160,7 @@ Her er nogle af de mest populære integrationer du kan installere:
 |-------------|-------------|--------|
 | **Energi Data Service** | Danske elpriser med tariffer | [GitHub](https://github.com/MTrab/energidataservice) |
 | **Nordpool** | Elpriser fra Nord Pool (Home Assistant har også en indbygget Nord Pool-integration siden 2024.12, men uden moms og afgifter) | [GitHub](https://github.com/custom-components/nordpool) |
+| **EPEX Spot** | Europæiske elpriser | [GitHub](https://github.com/mampfes/ha_epex_spot) |
 | **Adaptive Lighting** | Automatisk lystilpasning | [GitHub](https://github.com/basnijholt/adaptive-lighting) |
 | **Browser Mod** | Avanceret browser-kontrol | [GitHub](https://github.com/thomasloven/hass-browser_mod) |
 
@@ -224,11 +225,11 @@ Marketplace og HACS bruger GitHub API'en, som har begrænsninger. Hvis du får f
     },
     {
       question: "Hvordan fjerner jeg en HACS integration?",
-      answer: "Åbn Marketplace → find projektet → klik på de tre prikker → Uninstall. En integration kan ikke afinstalleres, mens den stadig er sat op: fjern først opsætningen, eller brug Delete and uninstall, som også sletter dens enheder og entiteter. I HACS før 2026.11 var det HACS → projektet → tre prikker → Fjern → genstart."
+      answer: "Åbn Marketplace → find projektet → klik på de tre prikker → Afinstallér (Uninstall). En integration kan ikke afinstalleres, mens den stadig er sat op: fjern først opsætningen, eller brug Slet og afinstallér (Delete and uninstall), som også sletter dens enheder og entiteter. I HACS før 2026.11 var det HACS → projektet → tre prikker → Fjern → genstart."
     },
     {
       question: "Virker HACS med alle Home Assistant installationstyper?",
-      answer: "Før 2026.11 virkede HACS med Home Assistant OS, Supervised, Container og Core, men installationsmetoden varierede: OS/Supervised brugte app-metoden (tidligere add-on), mens Container/Core brugte script-metoden. Fra 2026.11 følger Marketplace med Home Assistant, og installationsprogrammet til HACS findes ikke længere."
+      answer: "Før 2026.11 virkede HACS med Home Assistant OS, Supervised, Container og Core, men installationsmetoden varierede: OS/Supervised brugte app-metoden (tidligere add-on), mens Container/Core brugte script-metoden. Fra 2026.11 følger Marketplace med Home Assistant, og HACS kan ikke længere installeres separat på den version."
     }
   ]}
 />

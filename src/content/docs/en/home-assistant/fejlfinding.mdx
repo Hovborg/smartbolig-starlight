@@ -202,7 +202,7 @@ ls -la /dev/serial/by-id/
 
 ```yaml
 # Settings → Tools → Actions
-service: automation.trigger
+action: automation.trigger
 target:
   entity_id: automation.your_automation
 data:
@@ -323,11 +323,12 @@ See [Performance Guide](/en/home-assistant/performance/) for database optimizati
 # Check resource is added:
 # Settings → Dashboards → Resources
 
-# Or in configuration.yaml (the /hacsfiles/ path applies to HACS before 2026.11):
+# Or in configuration.yaml. From 2026.11, Marketplace cards are served from /local/community/
+# (the old /hacsfiles/ paths keep working):
 lovelace:
-  mode: yaml
+  resource_mode: yaml
   resources:
-    - url: /hacsfiles/button-card/button-card.js
+    - url: /local/community/button-card/button-card.js
       type: module
 ```
 

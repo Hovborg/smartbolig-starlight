@@ -37,13 +37,13 @@ When the car is plugged in, preheating uses power from the grid instead of the b
 | **Tesla** | Tesla Fleet (built in since 2024.8) or Tesla Custom Integration | Only the custom integration |
 | **Volkswagen/Audi/Skoda** | Volkswagen We Connect ID | Yes |
 | **Polestar** | Polestar API | Yes |
-| **BMW** | BMW Connected Drive (built in, see warning below) | No |
+| **BMW** | BMW CarData (custom integration, EU-registered cars only; see warning below) | Yes, as a custom repository |
 | **Mercedes** | Mercedes ME | Yes |
 | **Hyundai/Kia** | Hyundai/Kia Connect | Yes |
 | **Renault** | Renault (built in since 2021.8) | No |
 
 <Aside type="caution" title="Check the integration's status first">
-In September 2025 BMW blocked third-party access to its servers, so the BMW Connected Drive integration may have trouble logging in (source: [Home Assistant alert](https://alerts.home-assistant.io/alerts/bmw_connected_drive/)). Tesla Fleet requires a Tesla developer app and a domain for your public key, and Tesla gives a USD 10 monthly credit for personal use according to the [Home Assistant documentation](https://www.home-assistant.io/integrations/tesla_fleet/). Always check each integration's documentation and status before you build automations on it.
+In September 2025 BMW blocked third-party access to its servers (source: [Home Assistant alert](https://alerts.home-assistant.io/alerts/bmw_connected_drive/)), and the built-in BMW Connected Drive integration was removed in Home Assistant 2026.4. For EU-registered cars there is the custom integration [BMW CarData](https://github.com/kvanbiesen/bmw-cardata-ha), which uses BMW's CarData API (source: [2026.4 release notes](https://www.home-assistant.io/blog/2026/04/01/release-20264/)). Tesla Fleet requires a Tesla developer app and a domain for your public key, and Tesla gives a USD 10 monthly credit for personal use according to the [Home Assistant documentation](https://www.home-assistant.io/integrations/tesla_fleet/). Always check each integration's documentation and status before you build automations on it.
 </Aside>
 
 <Aside type="note" title="Tesla example">

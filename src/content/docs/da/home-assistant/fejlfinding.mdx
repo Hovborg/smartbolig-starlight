@@ -102,7 +102,7 @@ Safe mode starter HA uden custom integrations, custom dashboard-kort og temaer. 
 
 ```yaml
 # Valider configuration FØR genstart
-# Indstillinger → Tools → YAML → Check configuration
+# Indstillinger → Værktøjer (Tools, tidligere Udviklerværktøjer) → YAML → Tjek konfiguration
 
 # Eller via kommandolinje:
 ha core check
@@ -191,18 +191,18 @@ ls -la /dev/serial/by-id/
 
 3. **Conditions opfyldt?**
    - Test hver condition individuelt
-   - Brug Indstillinger → Tools → States
+   - Brug Indstillinger → Værktøjer → Tilstande
 
 4. **Actions fejler?**
    - Tjek logs for fejl
-   - Test handlingen manuelt via Indstillinger → Tools → Actions
+   - Test handlingen manuelt via Indstillinger → Værktøjer → Handlinger
 </Steps>
 
 ### Test Automation Manuelt
 
 ```yaml
-# Indstillinger → Tools → Actions
-service: automation.trigger
+# Indstillinger → Værktøjer → Handlinger
+action: automation.trigger
 target:
   entity_id: automation.din_automation
 data:
@@ -323,11 +323,12 @@ Se [Performance Guide](/da/home-assistant/performance/) for database optimering.
 # Tjek at resource er tilføjet:
 # Indstillinger → Dashboards → Resources
 
-# Eller i configuration.yaml (stien /hacsfiles/ gælder HACS før 2026.11):
+# Eller i configuration.yaml. Fra 2026.11 ligger Marketplace-kort under /local/community/
+# (de gamle /hacsfiles/-stier virker stadig):
 lovelace:
-  mode: yaml
+  resource_mode: yaml
   resources:
-    - url: /hacsfiles/button-card/button-card.js
+    - url: /local/community/button-card/button-card.js
       type: module
 ```
 
@@ -398,18 +399,18 @@ ha backups new
 ha backups list
 ```
 
-### Tools (tidligere Developer Tools)
+### Værktøjer (tidligere Udviklerværktøjer)
 
-Find dem under **Indstillinger → Tools**.
+Find dem under **Indstillinger → Værktøjer** (engelsk: Settings → Tools).
 
 | Værktøj | Brug |
 |---------|------|
 | **YAML** | Tjek konfiguration og genindlæs YAML |
-| **States** | Se/ændre entity states |
-| **Actions** | Test handlinger (tidligere services) manuelt |
-| **Template** | Test Jinja2 templates |
-| **Events** | Se/fire events |
-| **Statistics** | Fix statistik problemer |
+| **Tilstande** (States) | Se/ændre entity states |
+| **Handlinger** (Actions) | Test handlinger (tidligere services) manuelt |
+| **Skabelon** (Template) | Test Jinja2 templates |
+| **Hændelser** (Events) | Se/fire events |
+| **Statistikker** (Statistics) | Fix statistik problemer |
 
 ---
 
