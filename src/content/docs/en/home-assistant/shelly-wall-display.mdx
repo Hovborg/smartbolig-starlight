@@ -8,7 +8,7 @@ import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/sta
 <Badge text="Medium" variant="caution" /> <Badge text="30 min" variant="note" />
 
 
-Shelly Wall Display is a 4" touchscreen with built-in sensors and relay. It can show Home Assistant dashboards directly on the screen - perfect as a control panel in kitchen, hallway or bedroom.
+Shelly Wall Display (model SAWD1) is a 4" touchscreen with built-in sensors and relay. Shelly also has newer models (Wall Display X2, X1i, X2i and XL); this guide covers the first model. It can show Home Assistant dashboards directly on the screen - perfect as a control panel in kitchen, hallway or bedroom.
 
 ![Shelly Wall Display overview](/images/guides/shelly-wall-display/overview.svg)
 
@@ -22,7 +22,7 @@ Shelly Wall Display is an all-in-one solution that combines:
 | **Sensors** | Temperature, humidity, brightness (LUX) |
 | **Relay** | 5A built-in switch |
 | **Connection** | WiFi 2.4GHz |
-| **Power** | 110-230V AC (requires neutral) |
+| **Power** | 230V AC, 50/60 Hz (requires neutral) |
 | **Mounting** | Standard wall box |
 
 <Aside type="tip" title="Why Shelly Wall Display?">
@@ -168,12 +168,11 @@ Kiosk Mode is open source! Check out the [Kiosk Mode GitHub](https://github.com/
 #### Installation via HACS
 
 <Steps>
-1. Open **HACS** in Home Assistant
-2. Go to **Frontend** section
-3. Click **+ Explore & download repositories**
-4. Search for **Kiosk Mode** and install
-5. **Restart Home Assistant**
-6. Clear browser cache or hard refresh (Ctrl+Shift+R)
+1. Open **Settings → Marketplace** (HACS before Home Assistant 2026.11)
+2. Search for **Kiosk Mode**
+3. Select **Install**
+4. **Restart Home Assistant**
+5. Clear browser cache or hard refresh (Ctrl+Shift+R)
 </Steps>
 
 #### Method 1: URL Parameter (Simple)
@@ -196,14 +195,14 @@ http://192.168.1.190:8123/dashboard-wall-display?kiosk
 ```yaml
 automation:
   - alias: "Turn on ventilation at high humidity"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.shelly_wall_display_humidity
         above: 65
         for:
           minutes: 5
-    action:
-      - service: switch.turn_on
+    actions:
+      - action: switch.turn_on
         entity_id: switch.ventilation
 ```
 
@@ -212,16 +211,16 @@ automation:
 ```yaml
 automation:
   - alias: "Dim light in evening"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.shelly_wall_display_illuminance
         below: 50
-    condition:
+    conditions:
       - condition: time
         after: "18:00:00"
         before: "23:00:00"
-    action:
-      - service: light.turn_on
+    actions:
+      - action: light.turn_on
         entity_id: light.living_room_accent
         data:
           brightness_pct: 30

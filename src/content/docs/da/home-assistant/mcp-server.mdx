@@ -72,11 +72,20 @@ HTTP uden for dit lokale net.
 
    Brug ikke ejerkontoen. Opret en særskilt, normalt ikke-administratorbruger til
    forbindelsen, medmindre et dokumenteret behov kræver mere. Det gør adgang og
-   tilbagekaldelse lettere at skelne fra din egen konto.
+   tilbagekaldelse lettere at skelne fra din egen konto. Bemærk: hovedadressen
+   `/api/mcp` kræver som standard en administratorkonto. Skal en ikke-administrator
+   bruge den, skal du slå **Require an administrator account** fra. Brug ikke den
+   særskilte adresse `/api/mcp/assist` til første test: de særskilte adresser
+   ignorerer indstillingerne og er aldrig Read-only.
 
 4. **Slå styring fra til første test**
 
-   Deaktivér muligheden for at styre Home Assistant. Første mål er at bevise
+   Åbn **Indstillinger → Enheder og tjenester → Model Context Protocol → Configure**.
+   Slå **Read-only** til, så kun værktøjer, der ikke ændrer noget, er tilgængelige.
+   Slå også **Expose all AI tools** fra, og vælg kun *Device control* (samme
+   værktøjer som Assist, begrænset til eksponerede entiteter). Værktøjssættet
+   *Home Assistant* kan læse alle entiteter, logs og historik og udføre enhver
+   handling og kræver altid en administratorkonto. Første mål er at bevise
    godkendelse og læsning uden handlinger.
 
 5. **Gennemgå eksponerede entiteter**
@@ -87,8 +96,9 @@ HTTP uden for dit lokale net.
 
 6. **Notér MCP-adressen**
 
-   Standard-endpointet er `/api/mcp` på din Home Assistant-adresse. Kopiér
-   aldrig en adgangstoken ind i en guide, prompt eller delt konfigurationsfil.
+   Standard-endpointet er `/api/mcp` på din Home Assistant-adresse; du kan også
+   kopiere server-URL'en fra **Indstillinger → System → AI**. Kopiér aldrig en
+   adgangstoken ind i en guide, prompt eller delt konfigurationsfil.
 </Steps>
 
 ## Remote klient med OAuth
@@ -152,7 +162,7 @@ bevis; værdien skal matche den rigtige entitet.
 Når læsetesten er bestået:
 
 <Steps>
-1. Aktivér styring i MCP Server-integrationens indstillinger.
+1. Slå **Read-only** fra i MCP Server-integrationens indstillinger.
 2. Eksponér ét almindeligt testlys og ingen sikkerhedskritiske enheder.
 3. Bed klienten forklare den planlagte handling uden at udføre den.
 4. Bed derefter om at tænde testlyset.
@@ -162,7 +172,7 @@ Når læsetesten er bestået:
 </Steps>
 
 Hvis klienten udfører handlingen uden den godkendelse, du forventede, skal du
-stoppe testen, deaktivere styring og gennemgå klientens permissions.
+stoppe testen, slå **Read-only** til og gennemgå klientens permissions.
 
 ## Eksponer kun det nødvendige
 
@@ -234,7 +244,7 @@ Genforbind klienten efter ændring, hvis værktøjslisten er cachet.
 
 ### Klienten kan for meget
 
-Deaktivér straks styring, fjern eksponerede enheder og tilbagekald OAuth-session
+Slå straks **Read-only** til, fjern eksponerede enheder og tilbagekald OAuth-session
 eller token. Tilføj derefter én tilladelse ad gangen.
 
 ## Fjern adgangen igen

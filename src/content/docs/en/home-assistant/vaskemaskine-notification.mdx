@@ -31,7 +31,7 @@ When power consumption drops from high (over 10W) to low (under 5W) for more tha
 
 | Component | Examples | Price |
 |-----------|----------|-------|
-| **Smart plug with power monitoring** | Shelly Plug S, NOUS A1T, TP-Link KP115 | $20-35 |
+| **Smart plug with power monitoring** | Shelly Plug S, NOUS A1Z, TP-Link KP115 | $20-35 |
 
 <Aside type="caution" title="Important: Capacity!">
 Washing machines can draw up to **2500W**. Make sure your smart plug is rated for at least **16A / 3680W**!
@@ -41,8 +41,8 @@ Washing machines can draw up to **2500W**. Make sure your smart plug is rated fo
 
 | Model | Max W | Protocol | Recommendation |
 |-------|-------|----------|----------------|
-| **Shelly Plug S** | 2500W | WiFi | ✅ Local, reliable |
-| **NOUS A1T** | 3680W | Zigbee | ✅ Good price, Zigbee |
+| **Shelly Plug S** | 2300W (10 A) | WiFi | ⚠️ Only machines below 2300 W |
+| **NOUS A1Z** | 3680W | Zigbee | ✅ Good price, Zigbee |
 | **TP-Link KP115** | 1800W | WiFi | ⚠️ Maybe too low capacity |
 
 ## 🔧 Setup
@@ -86,18 +86,18 @@ Done:           ~2W
 automation:
   - alias: "Washing machine done notification"
     description: "Send message when washing machine is done"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.washing_machine_power
         below: 5
         for:
           minutes: 3
-    condition:
+    conditions:
       - condition: state
         entity_id: input_select.washing_machine_status
         state: "running"
-    action:
-      - service: notify.mobile_app_your_phone
+    actions:
+      - action: notify.mobile_app_your_phone
         data:
           title: "🧺 Washing Machine"
           message: "The laundry is done!"
@@ -111,14 +111,14 @@ automation:
 automation:
   # When machine starts
   - alias: "Washing Machine: Started"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.washing_machine_power
         above: 10
         for:
           minutes: 1
-    action:
-      - service: input_select.select_option
+    actions:
+      - action: input_select.select_option
         target:
           entity_id: input_select.washing_machine_status
         data:
@@ -126,23 +126,23 @@ automation:
 
   # When machine is done
   - alias: "Washing Machine: Done"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.washing_machine_power
         below: 5
         for:
           minutes: 3
-    condition:
+    conditions:
       - condition: state
         entity_id: input_select.washing_machine_status
         state: "running"
-    action:
-      - service: input_select.select_option
+    actions:
+      - action: input_select.select_option
         target:
           entity_id: input_select.washing_machine_status
         data:
           option: "done"
-      - service: notify.mobile_app_your_phone
+      - action: notify.mobile_app_your_phone
         data:
           title: "🧺 Washing Machine"
           message: "The laundry is done! Remember to empty the machine."
@@ -161,15 +161,15 @@ If you (like most people) ignore the first notification:
 ```yaml
 automation:
   - alias: "Washing Machine: Repeat reminder"
-    trigger:
-      - platform: time_pattern
+    triggers:
+      - trigger: time_pattern
         minutes: "/15"  # Every 15 minutes
-    condition:
+    conditions:
       - condition: state
         entity_id: input_select.washing_machine_status
         state: "done"
-    action:
-      - service: notify.mobile_app_your_phone
+    actions:
+      - action: notify.mobile_app_your_phone
         data:
           title: "🧺 Washing Machine - REMINDER"
           message: "The laundry is still waiting!"
@@ -182,18 +182,18 @@ automation:
 ```yaml
 automation:
   - alias: "Washing Machine: TTS announcement"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.washing_machine_power
         below: 5
         for:
           minutes: 3
-    condition:
+    conditions:
       - condition: state
         entity_id: input_select.washing_machine_status
         state: "running"
-    action:
-      - service: input_select.select_option
+    actions:
+      - action: input_select.select_option
         target:
           entity_id: input_select.washing_machine_status
         data:

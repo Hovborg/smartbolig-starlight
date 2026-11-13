@@ -1,6 +1,6 @@
 ---
 title: Fully local voice control with Home Assistant Assist
-description: Build and verify a local Assist pipeline with Speech-to-Phrase or Whisper, Piper, the Companion app and optional dedicated voice hardware.
+description: Build and verify a local Assist pipeline with Whisper (or Speech-to-Phrase for supported languages), Piper, the Companion app and optional dedicated voice hardware.
 sidebar:
   badge:
     text: Local
@@ -49,9 +49,11 @@ You need:
 - spare CPU and RAM for Speech-to-Phrase/Whisper and Piper;
 - sensible areas, entity names and language settings.
 
-Speech-to-Phrase is usually the lightest local starting point for home control.
-Whisper understands freer speech, but slow hardware can make the experience
-unusable. Measure latency on your system.
+Speech-to-Phrase is light and fast (under one second on a Raspberry Pi 4 or Home Assistant Green), but only understands known sentences. Whisper understands freer speech, but takes about 8 seconds on a Raspberry Pi 4 and under one second on an Intel NUC, so slow hardware can make the experience unusable. Measure latency on your system.
+
+<Aside type="caution" title="Danish and Speech-to-Phrase">
+Danish (`da`) is not on the Speech-to-Phrase project's list of supported languages (OHF-Voice/speech-to-phrase, checked 13 November 2026). For a Danish pipeline choose Whisper unless the list has been extended. Check the list before you install.
+</Aside>
 
 ## Install Speech-to-Phrase or Whisper and Piper
 
@@ -62,8 +64,7 @@ unusable. Measure latency on your system.
 
 2. **Install one speech-to-text engine**
 
-   Start with Speech-to-Phrase for ordinary home control. Choose Whisper when
-   you need freer language and have sufficient hardware.
+   For Danish use Whisper, because Danish is not on Speech-to-Phrase's list of supported languages. For languages on the list you can start with Speech-to-Phrase for ordinary home control.
 
 3. **Install Piper**
 
