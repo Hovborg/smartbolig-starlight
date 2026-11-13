@@ -199,39 +199,12 @@ Smart baby equipment gives parents **peace of mind and oversight** - from HD vid
   </TabItem>
   <TabItem label="Home Assistant">
     ### Limited Integration
-    
-    Owlet currently has no official HA integration, but data can be retrieved via unofficial methods:
-    
-    ```yaml
-    # Via Owlet API (unofficial)
-    # Requires login credentials
-    
-    # Example sensor template
-    sensor:
-      - platform: rest
-        name: "Owlet Heart Rate"
-        resource: https://api.owletdata.com/...
-        headers:
-          Authorization: !secret owlet_token
-        value_template: "{{ value_json.heart_rate }}"
-        unit_of_measurement: "BPM"
-    
-    # Alarm automation
-    automation:
-      - alias: "Owlet - Low oxygen"
-        trigger:
-          - platform: numeric_state
-            entity_id: sensor.owlet_oxygen
-            below: 90
-        action:
-          - service: notify.mobile_app
-            data:
-              title: "⚠️ OWLET ALARM"
-              message: "Low oxygen saturation detected!"
-              data:
-                priority: high
-                ttl: 0
-    ```
+
+    Owlet has no official Home Assistant integration. There are unofficial community integrations for the Owlet Smart Sock 2/3 and Dream Sock, installed through HACS as a custom repository, that use the Owlet cloud. They can stop working if Owlet changes its API, and data is polled, so it can be delayed.
+
+    <Aside type="caution" title="Not an alarm system">
+    Do not use Home Assistant to alert you about your baby's heart rate or oxygen saturation. Rely on Owlet's own app and base station.
+    </Aside>
   </TabItem>
 </Tabs>
 

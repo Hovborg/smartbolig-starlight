@@ -202,39 +202,12 @@ Smart babyudstyr giver forældre **tryghed og overblik** - fra HD video-overvåg
   </TabItem>
   <TabItem label="Home Assistant">
     ### Begrænset Integration
-    
-    Owlet har pt. ingen officiel HA integration, men data kan hentes via uofficielle metoder:
-    
-    ```yaml
-    # Via Owlet API (uofficiel)
-    # Kræver login credentials
-    
-    # Eksempel sensor template
-    sensor:
-      - platform: rest
-        name: "Owlet Heart Rate"
-        resource: https://api.owletdata.com/...
-        headers:
-          Authorization: !secret owlet_token
-        value_template: "{{ value_json.heart_rate }}"
-        unit_of_measurement: "BPM"
-    
-    # Alarm automation
-    automation:
-      - alias: "Owlet - Lav iltmætning"
-        trigger:
-          - platform: numeric_state
-            entity_id: sensor.owlet_oxygen
-            below: 90
-        action:
-          - service: notify.mobile_app
-            data:
-              title: "⚠️ OWLET ALARM"
-              message: "Lav iltmætning registreret!"
-              data:
-                priority: high
-                ttl: 0
-    ```
+
+    Owlet har ingen officiel Home Assistant-integration. Der findes uofficielle community-integrationer til Owlet Smart Sock 2/3 og Dream Sock, som installeres via HACS som custom repository og bruger Owlets cloud. De kan holde op med at virke, hvis Owlet ændrer sin API, og data hentes ved polling, så de kan være forsinkede.
+
+    <Aside type="caution" title="Ikke et alarmsystem">
+    Brug ikke Home Assistant til at give alarmer om barnets puls eller iltmætning. Stol på Owlets egen app og base station.
+    </Aside>
   </TabItem>
 </Tabs>
 
