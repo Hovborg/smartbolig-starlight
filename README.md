@@ -223,14 +223,17 @@ npm run worker:build
 npx wrangler deploy --dry-run
 ```
 
-Afhængighedskontrollen kører den fulde `npm audit --audit-level=high` inklusiv
-udviklingsværktøjer. Den accepterer frem til 17. oktober 2026 kun den præcist
-gennemgåede GHSA-ch52-4w7c-c8xp i Astro 7.2.8 og `http-cache-semantics`
-4.2.0 ved statisk build; enhver anden høj/kritisk advisory, ændret version,
-auditfejl, ændret Worker-kilde eller lockfil, eller udløbet frist stopper
-build og nyhedsrunner. Den rå audit
-viser fortsat fundet. Begrundelse og verifikation ligger i
-`docs/verification/2026-10-03-ai-news-cache-advisory.md`.
+Afhængighedskontrollen (`scripts/security-audit.mjs`) kører den fulde `npm audit`
+inklusiv udviklingsværktøjer. Den har to tilstande (kontrolleret 2026-11-13):
+
+- **Port** (`npm run security:audit`): fejler ved ethvert højt eller kritisk fund.
+  Bruges altid, når `package.json` eller `package-lock.json` er ændret, og når
+  ændringsintervallet er ukendt.
+- **Rapport** (`--report`, eller `--auto` uden ændrede afhængigheder): viser
+  fundene uden at stoppe. En ny advarsel om en uændret pakke må ikke blokere
+  udgivelse af tekst; den stoppede de daglige nyheder i 25 dage i oktober 2026.
+
+Der er ingen undtagelsesliste. Et højt fund løses ved at opdatere pakken.
 På Windows bruges den installerede Python og Git for Windows Bash;
 indholdskontrollen behøver ikke WSL.
 

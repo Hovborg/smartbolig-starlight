@@ -63,7 +63,10 @@ jobs:
 
       # Build/deploy tools execute on maintainers' machines and CI too.
       - name: Audit all dependencies
-        run: npm run security:audit
+        env:
+          AUDIT_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        # Gate when dependencies changed (or the range is unknown); report otherwise.
+        run: npm run security:audit -- --auto --base "$AUDIT_BASE"
       
       - name: Build
         run: npm run build
