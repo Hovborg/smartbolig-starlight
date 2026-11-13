@@ -24,7 +24,7 @@ A rule that automatically performs actions based on triggers and conditions. E.g
 Interface that allows software to communicate with each other. Home Assistant uses APIs to control devices.
 
 ### Add-on
-Extension for Home Assistant that runs in a separate container. Examples: Zigbee2MQTT, Node-RED, MariaDB.
+Extension for Home Assistant that runs in a separate container. Called an *app* since Home Assistant 2026.2, and only available on Home Assistant OS. Examples: Zigbee2MQTT, Node-RED, MariaDB.
 
 ---
 
@@ -56,7 +56,7 @@ The central device in a Zigbee network. Manages the network and keeps track of a
 Requirement in an automation that must be met before actions execute. E.g., "only if sun is down".
 
 ### Custom Component
-Third-party integration for Home Assistant, often installed via HACS.
+Third-party integration for Home Assistant, often installed via the Marketplace (formerly HACS).
 
 ---
 
@@ -115,7 +115,7 @@ Collection of entities that can be controlled as one. E.g., all lights in the li
 ## H
 
 ### HACS (Home Assistant Community Store)
-Unofficial integration store for Home Assistant with custom components and frontend cards.
+Unofficial integration store for Home Assistant with custom components and frontend cards. From Home Assistant 2026.11, HACS has moved into Home Assistant as the Marketplace.
 
 ### HAOS (Home Assistant Operating System)
 Dedicated operating system optimized for running Home Assistant.
@@ -222,7 +222,7 @@ Home Assistant component that stores history in a database.
 In Zigbee: powered device that relays messages and extends the network.
 
 ### RSSI (Received Signal Strength Indicator)
-Measurement of WiFi or Zigbee signal strength. Lower (less negative) is better.
+Measurement of WiFi or Zigbee signal strength. Higher (closer to 0, i.e. less negative) is better.
 
 ---
 
@@ -232,16 +232,16 @@ Measurement of WiFi or Zigbee signal strength. Lower (less negative) is better.
 Pre-defined state for multiple devices. E.g., "Movie" that dims lights and turns on TV.
 
 ### Script
-Sequence of actions in Home Assistant that can be called as a service.
+Sequence of actions in Home Assistant that can be called as an action (formerly service).
 
 ### Service
-Function that can be called in Home Assistant. E.g., `light.turn_on`.
+Function that can be called in Home Assistant. Called an *action* in the UI today. E.g., `light.turn_on`.
 
 ### State
 Current condition of an entity. E.g., "on", "off", "25.5".
 
 ### Supervisor
-Component in HAOS that manages add-ons and system functions.
+Component in HAOS that manages apps (formerly add-ons) and system functions.
 
 ---
 
@@ -307,7 +307,7 @@ Native Zigbee integration in Home Assistant.
 Wireless mesh protocol popular for sensors and actuators. Requires coordinator.
 
 ### Zigbee2MQTT
-Add-on that connects Zigbee devices to Home Assistant via MQTT.
+App (formerly add-on) that connects Zigbee devices to Home Assistant via MQTT.
 
 ---
 
@@ -340,4 +340,4 @@ Add-on that connects Zigbee devices to Home Assistant via MQTT.
 
 ---
 
-*Last updated: December 2025*
+*Last updated: November 2026*

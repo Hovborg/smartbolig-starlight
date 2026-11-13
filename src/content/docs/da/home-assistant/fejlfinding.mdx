@@ -41,7 +41,7 @@ Noget virker ikke som det skal? Denne guide hjælper dig med at finde og løse d
 |----------|----------|
 | **Core logs** | Indstillinger → System → Logs |
 | **Supervisor logs** | Indstillinger → System → Logs → Supervisor |
-| **Add-on logs** | Indstillinger → Add-ons → [Add-on] → Log |
+| **App-logs** (tidligere add-on-logs) | Indstillinger → Apps → [app] → Log |
 | **Full log file** | `/config/home-assistant.log` |
 
 ### Aktiver Debug Logging
@@ -55,6 +55,7 @@ logger:
     homeassistant.components.zha: debug
     homeassistant.components.mqtt: debug
     # Eller en specifik integration
+    # HACS før 2026.11 (Marketplace har afløst HACS)
     custom_components.hacs: debug
 ```
 
@@ -95,13 +96,13 @@ Debug logging genererer MEGET data og kan fylde din disk. Slå det fra igen når
 ha core restart --safe-mode
 ```
 
-Safe mode starter HA uden custom integrations og add-ons.
+Safe mode starter HA uden custom integrations, custom dashboard-kort og temaer. Det varer til næste genstart.
 
 ### Configuration Fejl
 
 ```yaml
 # Valider configuration FØR genstart
-# Indstillinger → System → Udviklerværktøjer → YAML → Tjek konfiguration
+# Indstillinger → Værktøjer (Tools, tidligere Udviklerværktøjer) → YAML → Tjek konfiguration
 
 # Eller via kommandolinje:
 ha core check
@@ -190,18 +191,18 @@ ls -la /dev/serial/by-id/
 
 3. **Conditions opfyldt?**
    - Test hver condition individuelt
-   - Brug Developer Tools → States
+   - Brug Indstillinger → Værktøjer → Tilstande
 
 4. **Actions fejler?**
    - Tjek logs for fejl
-   - Test action manuelt via Services
+   - Test handlingen manuelt via Indstillinger → Værktøjer → Handlinger
 </Steps>
 
 ### Test Automation Manuelt
 
 ```yaml
-# Developer Tools → Services
-service: automation.trigger
+# Indstillinger → Værktøjer → Handlinger
+action: automation.trigger
 target:
   entity_id: automation.din_automation
 data:
@@ -292,7 +293,7 @@ Se [Performance Guide](/da/home-assistant/performance/) for database optimering.
 1. Fjern integration fra Enheder & Tjenester
 2. Slet mappe: /config/custom_components/[integration]
 3. Genstart HA
-4. Installer igen via HACS
+4. Installer igen via Marketplace eller HACS
 ```
 
 ---
@@ -322,11 +323,12 @@ Se [Performance Guide](/da/home-assistant/performance/) for database optimering.
 # Tjek at resource er tilføjet:
 # Indstillinger → Dashboards → Resources
 
-# Eller i configuration.yaml:
+# Eller i configuration.yaml. Fra 2026.11 ligger Marketplace-kort under /local/community/
+# (de gamle /hacsfiles/-stier virker stadig):
 lovelace:
-  mode: yaml
+  resource_mode: yaml
   resources:
-    - url: /hacsfiles/button-card/button-card.js
+    - url: /local/community/button-card/button-card.js
       type: module
 ```
 
@@ -337,16 +339,19 @@ lovelace:
 ### Glemt Password
 
 ```bash
-# Via kommandolinje
-ha auth reset --username DIT_BRUGERNAVN --password NYT_PASSWORD
+# Home Assistant OS: åbn konsollen på selve enheden (ikke SSH-appens terminal) og kør:
+auth reset --interactive
+
+# Home Assistant Container:
+docker exec -it homeassistant bash
+hass --script auth --config /config change_password BRUGERNAVN NYT_PASSWORD
 ```
+
+Er du stadig logget ind som ejer, kan du nulstille andre brugeres password under **Indstillinger → Personer**. Kilde: [Help, I'm locked out](https://www.home-assistant.io/docs/locked_out/).
 
 ### 2FA Mistet
 
-```bash
-# Fjern TOTP for bruger
-ha auth totp remove --username DIT_BRUGERNAVN
-```
+Er du stadig logget ind, kan du slå multifaktor fra under **Brugerprofil → Sikkerhed**. Home Assistants dokumentation beskriver ikke trin til at fjerne TOTP, hvis du har mistet din authenticator. Se [Multi-factor authentication](https://www.home-assistant.io/docs/authentication/multi-factor-auth/) og [Help, I'm locked out](https://www.home-assistant.io/docs/locked_out/).
 
 ### Locked Out
 
@@ -394,15 +399,18 @@ ha backups new
 ha backups list
 ```
 
-### Developer Tools
+### Værktøjer (tidligere Udviklerværktøjer)
+
+Find dem under **Indstillinger → Værktøjer** (engelsk: Settings → Tools).
 
 | Værktøj | Brug |
 |---------|------|
-| **States** | Se/ændre entity states |
-| **Services** | Test services manuelt |
-| **Template** | Test Jinja2 templates |
-| **Events** | Se/fire events |
-| **Statistics** | Fix statistik problemer |
+| **YAML** | Tjek konfiguration og genindlæs YAML |
+| **Tilstande** (States) | Se/ændre entity states |
+| **Handlinger** (Actions) | Test handlinger (tidligere services) manuelt |
+| **Skabelon** (Template) | Test Jinja2 templates |
+| **Hændelser** (Events) | Se/fire events |
+| **Statistikker** (Statistics) | Fix statistik problemer |
 
 ---
 
@@ -422,7 +430,7 @@ ha backups list
 Inkluder altid:
 
 ```markdown
-**Home Assistant version:** 2025.x.x
+**Home Assistant version:** 2026.x.x
 **Installation type:** HAOS / Docker / Core
 **Hardware:** RPi4 / Intel NUC / VM
 **Problem:** Kort beskrivelse
@@ -476,4 +484,4 @@ Inkluder altid:
 
 ---
 
-*Sidst opdateret: December 2025*
+*Sidst opdateret: November 2026*

@@ -24,7 +24,7 @@ En regel der automatisk udfører handlinger baseret på triggers og conditions. 
 Grænseflade der tillader software at kommunikere med hinanden. Home Assistant bruger API'er til at styre enheder.
 
 ### Add-on
-Udvidelse til Home Assistant der kører i en separat container. Eksempler: Zigbee2MQTT, Node-RED, MariaDB.
+Udvidelse til Home Assistant der kører i en separat container. Hedder siden Home Assistant 2026.2 *app* og findes kun på Home Assistant OS. Eksempler: Zigbee2MQTT, Node-RED, MariaDB.
 
 ---
 
@@ -56,7 +56,7 @@ Den centrale enhed i et Zigbee-netværk. Styrer netværket og holder styr på al
 Betingelse i en automation der skal være opfyldt før actions udføres. F.eks. "kun hvis solen er nede".
 
 ### Custom Component
-Tredjeparts-integration til Home Assistant, ofte installeret via HACS.
+Tredjeparts-integration til Home Assistant, ofte installeret via Marketplace (tidligere HACS).
 
 ---
 
@@ -115,7 +115,7 @@ Samling af entities der kan styres som én. F.eks. alle lys i stuen.
 ## H
 
 ### HACS (Home Assistant Community Store)
-Uofficiel integration-butik til Home Assistant med custom components og frontend-cards.
+Uofficiel integration-butik til Home Assistant med custom components og frontend-cards. Fra Home Assistant 2026.11 er HACS flyttet ind i Home Assistant som Marketplace.
 
 ### HAOS (Home Assistant Operating System)
 Dedikeret operativsystem optimeret til at køre Home Assistant.
@@ -222,7 +222,7 @@ Home Assistant komponent der gemmer historik i database.
 I Zigbee: strømforsynet enhed der videresender beskeder og udvider netværket.
 
 ### RSSI (Received Signal Strength Indicator)
-Måling af WiFi eller Zigbee signalstyrke. Lavere (mindre negativt) er bedre.
+Måling af WiFi eller Zigbee signalstyrke. Højere (tættere på 0, altså mindre negativt) er bedre.
 
 ---
 
@@ -232,16 +232,16 @@ Måling af WiFi eller Zigbee signalstyrke. Lavere (mindre negativt) er bedre.
 Foruddefineret tilstand for flere enheder. F.eks. "Film" der dæmper lys og tænder TV.
 
 ### Script
-Sekvens af actions i Home Assistant der kan kaldes som en service.
+Sekvens af actions i Home Assistant der kan kaldes som en action (tidligere service).
 
 ### Service
-Funktion der kan kaldes i Home Assistant. F.eks. `light.turn_on`.
+Funktion der kan kaldes i Home Assistant. Hedder i brugerfladen i dag *action*. F.eks. `light.turn_on`.
 
 ### State
 Aktuel tilstand af en entity. F.eks. "on", "off", "25.5".
 
 ### Supervisor
-Komponent i HAOS der styrer add-ons og systemfunktioner.
+Komponent i HAOS der styrer apps (tidligere add-ons) og systemfunktioner.
 
 ---
 
@@ -307,7 +307,7 @@ Native Zigbee-integration i Home Assistant.
 Trådløs mesh-protokol populær for sensorer og aktuatorer. Kræver coordinator.
 
 ### Zigbee2MQTT
-Add-on der forbinder Zigbee-enheder til Home Assistant via MQTT.
+App (tidligere add-on) der forbinder Zigbee-enheder til Home Assistant via MQTT.
 
 ---
 
@@ -340,4 +340,4 @@ Add-on der forbinder Zigbee-enheder til Home Assistant via MQTT.
 
 ---
 
-*Sidst opdateret: December 2025*
+*Sidst opdateret: November 2026*
