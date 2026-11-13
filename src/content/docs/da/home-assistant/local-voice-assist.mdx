@@ -1,6 +1,6 @@
 ---
 title: Lokal stemmestyring med Home Assistant Assist
-description: Byg og verificér en lokal dansk Assist-pipeline med Speech-to-Phrase eller Whisper, Piper, Companion-appen og valgfri voice-hardware.
+description: Byg og verificér en lokal dansk Assist-pipeline med Whisper (eller Speech-to-Phrase på de sprog, der understøttes), Piper, Companion-appen og valgfri voice-hardware.
 sidebar:
   badge:
     text: Lokal
@@ -49,9 +49,11 @@ Du skal have:
 - ledig CPU og RAM til Speech-to-Phrase/Whisper og Piper;
 - korrekte områder, enhedsnavne og sprog i Home Assistant.
 
-Speech-to-Phrase er normalt det letteste lokale udgangspunkt til styring af
-hjemmet. Whisper kan forstå friere formuleringer, men en langsom maskine kan give
-så lang svartid, at oplevelsen bliver dårlig. Mål ventetiden på dit eget udstyr.
+Speech-to-Phrase er let og hurtigt (under ét sekund på en Raspberry Pi 4 eller Home Assistant Green), men forstår kun kendte sætninger. Whisper kan forstå friere formuleringer, men tager omkring 8 sekunder på en Raspberry Pi 4 og under ét sekund på en Intel NUC, så en langsom maskine kan give så lang svartid, at oplevelsen bliver dårlig. Mål ventetiden på dit eget udstyr.
+
+<Aside type="caution" title="Dansk og Speech-to-Phrase">
+Dansk (`da`) er ikke på Speech-to-Phrase-projektets liste over understøttede sprog (OHF-Voice/speech-to-phrase, kontrolleret 13. november 2026). Til en dansk pipeline skal du derfor vælge Whisper, medmindre listen er blevet udvidet. Tjek listen, før du installerer.
+</Aside>
 
 ## Installér Speech-to-Phrase eller Whisper og Piper
 
@@ -62,8 +64,7 @@ så lang svartid, at oplevelsen bliver dårlig. Mål ventetiden på dit eget uds
 
 2. **Installér én tale-til-tekst-motor**
 
-   Begynd med Speech-to-Phrase til almindelig lokal boligstyring. Vælg Whisper,
-   hvis du har behov for friere tale og hardware til det.
+   Til dansk bruger du Whisper, fordi dansk ikke er på Speech-to-Phrase' liste over understøttede sprog. Til sprog, som er på listen, kan du begynde med Speech-to-Phrase til almindelig lokal boligstyring.
 
 3. **Installér Piper**
 
