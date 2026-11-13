@@ -1,0 +1,34 @@
+---
+/**
+ * The Home Assistant style "more-info" card. The browser script toggles
+ * `is-restarting` on this element; the parts below style that state.
+ */
+import type { NotFoundCopy } from "../../lib/not-found-copy";
+import CardHead from "./CardHead.astro";
+import CardState from "./CardState.astro";
+import CardAttributes from "./CardAttributes.astro";
+import CardLogbook from "./CardLogbook.astro";
+
+interface Props {
+  t: NotFoundCopy;
+}
+
+const { t } = Astro.props;
+---
+
+<section class="card" id="nf-card" aria-labelledby="nf-entity">
+  <CardHead t={t} />
+  <CardState t={t} />
+  <CardAttributes t={t} />
+  <CardLogbook t={t} />
+</section>
+
+<style>
+  .card {
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-md);
+    background: var(--sb-surface);
+    box-shadow: var(--sb-shadow-md);
+    overflow: hidden;
+  }
+</style>

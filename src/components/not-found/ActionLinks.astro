@@ -1,0 +1,67 @@
+---
+import type { NotFoundCopy } from "../../lib/not-found-copy";
+
+interface Props {
+  t: NotFoundCopy;
+}
+
+const { t } = Astro.props;
+---
+
+<nav class="actions">
+  <a id="nf-home" class="btn btn-primary" href={t.homePath}>{t.homeLink}</a>
+  <a id="nf-start" class="btn btn-ghost" href={t.startPath}>{t.startLink}</a>
+  <a id="nf-ha" class="btn btn-ghost" href={t.haPath}>{t.haLink}</a>
+  <a id="nf-esp" class="btn btn-ghost" href={t.espPath}>{t.espLink}</a>
+</nav>
+
+<style>
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 1.75rem;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.7rem 1.2rem;
+    border-radius: var(--sb-radius-sm);
+    border: 1px solid transparent;
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .btn-primary {
+    background: var(--sb-accent);
+    color: var(--sb-on-accent);
+  }
+
+  .btn-primary:hover,
+  .btn-primary:focus-visible {
+    background: var(--sb-accent-strong);
+  }
+
+  .btn-ghost {
+    border-color: var(--sb-line);
+    color: var(--sb-ink);
+  }
+
+  .btn-ghost:hover,
+  .btn-ghost:focus-visible {
+    border-color: var(--sb-line-strong);
+    color: var(--sb-accent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .btn {
+      transition:
+        background var(--sb-dur-fast) var(--sb-ease),
+        border-color var(--sb-dur-fast) var(--sb-ease),
+        color var(--sb-dur-fast) var(--sb-ease);
+    }
+  }
+</style>

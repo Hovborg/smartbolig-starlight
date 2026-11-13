@@ -1,0 +1,49 @@
+---
+import type { NotFoundCopy } from "../../lib/not-found-copy";
+
+interface Props {
+  t: NotFoundCopy;
+}
+
+const { t } = Astro.props;
+---
+
+<dl class="attrs">
+  <dt id="nf-attr-state">{t.attrState}</dt>
+  <dd id="nf-attr-state-value">{t.stateLabel}</dd>
+  <dt id="nf-attr-path">{t.attrPath}</dt>
+  <dd class="accent" id="nf-path">/</dd>
+  <dt id="nf-attr-device-class">{t.attrDeviceClass}</dt>
+  <dd id="nf-device-class">{t.deviceClassValue}</dd>
+  <dt id="nf-attr-restored">{t.attrRestored}</dt>
+  <dd>true</dd>
+  <dt id="nf-attr-changed">{t.attrChanged}</dt>
+  <dd id="nf-changed">{t.justNow}</dd>
+</dl>
+
+<style>
+  .attrs {
+    margin: 0;
+    padding: 0.9rem 1.15rem 1.15rem;
+    border-top: 1px solid var(--sb-line);
+    background: var(--sb-bg-subtle);
+    display: grid;
+    grid-template-columns: minmax(7.5rem, auto) 1fr;
+    gap: 0.5rem 1rem;
+    font-family: var(--sb-font-mono);
+    font-size: 0.83rem;
+  }
+
+  .attrs dt {
+    color: var(--sb-ink-muted);
+  }
+
+  .attrs dd {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .attrs dd.accent {
+    color: var(--sb-accent);
+  }
+</style>

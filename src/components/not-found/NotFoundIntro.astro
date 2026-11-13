@@ -1,0 +1,67 @@
+---
+import type { NotFoundCopy } from "../../lib/not-found-copy";
+
+interface Props {
+  t: NotFoundCopy;
+}
+
+const { t } = Astro.props;
+---
+
+<p class="eyebrow"><span class="dot"></span><span id="nf-eyebrow">{t.eyebrow}</span></p>
+<h1 id="nf-heading">{t.heading}</h1>
+<p class="lede" id="nf-description">{t.description}</p>
+
+<style>
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0 0 1rem;
+    color: var(--sb-accent);
+    font-family: var(--sb-font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+
+  .eyebrow .dot {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-radius: var(--sb-radius-pill);
+    background: var(--sb-warm-vivid);
+    outline: 0.22rem solid color-mix(in srgb, var(--sb-warm-vivid) 16%, transparent);
+  }
+
+  h1 {
+    margin: 0 0 0.75rem;
+    font-size: clamp(2.1rem, 6vw, 3.1rem);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+  }
+
+  .lede {
+    margin: 0 0 2rem;
+    max-width: 38rem;
+    color: var(--sb-ink-muted);
+    font-size: 1.02rem;
+    line-height: 1.65;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .eyebrow .dot {
+      animation: breathe 2.4s ease-in-out infinite;
+    }
+
+    @keyframes breathe {
+      0%,
+      100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.35;
+      }
+    }
+  }
+</style>
