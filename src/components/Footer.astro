@@ -65,15 +65,15 @@ const basePath = locale === 'en' ? '/en' : '/da';
   @layer starlight.core {
     footer {
       flex-direction: column;
-      gap: 1.5rem;
+      gap: var(--sb-space-5);
     }
     .meta {
-      gap: 0.75rem 3rem;
+      gap: var(--sb-space-3) var(--sb-space-7);
       justify-content: space-between;
       flex-wrap: wrap;
-      margin-top: 3rem;
-      font-size: var(--sl-text-sm);
-      color: var(--sl-color-gray-3);
+      margin-top: var(--sb-space-7);
+      font-size: var(--sb-text-sm);
+      color: var(--sb-ink-subtle);
     }
     .meta > :global(p:only-child) {
       margin-inline-start: auto;
@@ -81,55 +81,60 @@ const basePath = locale === 'en' ? '/en' : '/da';
   }
 
   .copyright-section {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--sl-color-gray-5);
+    margin-top: var(--sb-space-6);
+    padding-top: var(--sb-space-5);
+    border-top: 1px solid var(--sb-line);
     text-align: center;
   }
 
   .copyright-notice {
-    margin-bottom: 1rem;
+    margin-bottom: var(--sb-space-4);
   }
 
   .copyright-text {
-    font-size: var(--sl-text-sm);
+    font-size: var(--sb-text-sm);
     font-weight: 600;
-    color: var(--sl-color-gray-2);
+    color: var(--sb-ink-muted);
     margin: 0;
   }
 
   .no-reproduction {
-    font-size: var(--sl-text-xs);
-    color: var(--sl-color-gray-3);
-    margin: 0.5rem 0 0 0;
+    font-size: var(--sb-text-xs);
+    color: var(--sb-ink-subtle);
+    margin: var(--sb-space-2) 0 0 0;
   }
 
   .legal-links {
     display: flex;
     justify-content: center;
-    gap: 0.5rem;
+    gap: var(--sb-space-2);
     flex-wrap: wrap;
-    font-size: var(--sl-text-xs);
+    font-size: var(--sb-text-xs);
   }
 
   .legal-links a {
-    color: var(--sl-color-gray-3);
+    color: var(--sb-ink-subtle);
     text-decoration: none;
-    transition: color 0.2s ease;
   }
 
   .legal-links a:hover {
-    color: var(--sl-color-white);
+    color: var(--sb-accent);
     text-decoration: underline;
   }
 
   .legal-links a:focus-visible {
-    outline: 2px solid var(--sl-color-white);
+    outline: 2px solid var(--sb-accent);
     outline-offset: 2px;
-    border-radius: 2px;
+    border-radius: var(--sb-radius-sm);
   }
 
   .separator {
-    color: var(--sl-color-gray-5);
+    color: var(--sb-line-strong);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .legal-links a {
+      transition: color var(--sb-dur) var(--sb-ease);
+    }
   }
 </style>

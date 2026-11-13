@@ -44,53 +44,63 @@ const displayText = text || `${lang === 'en' ? 'Buy at' : 'Køb hos'} ${config.n
     flex-wrap: wrap;
     max-width: 100%;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    color: white;
+    gap: var(--sb-space-2);
+    padding: var(--sb-space-2) var(--sb-space-4);
+    background: var(--sb-accent);
+    color: var(--sb-on-accent);
     text-decoration: none;
-    border-radius: 0.5rem;
+    border-radius: var(--sb-radius-sm);
     font-weight: 500;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    font-size: var(--sb-text-sm);
+    box-shadow: var(--sb-shadow-sm);
   }
 
   .affiliate-link:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+    background: var(--sb-accent-strong);
+    box-shadow: var(--sb-shadow-md);
   }
 
-  .affiliate-proshop {
-    background: linear-gradient(135deg, #00a0e3 0%, #0077b6 100%);
+  .affiliate-link:focus-visible {
+    outline: 2px solid var(--sb-accent);
+    outline-offset: 2px;
   }
 
+  .affiliate-proshop,
   .affiliate-proshop:hover {
-    background: linear-gradient(135deg, #0077b6 0%, #005f8a 100%);
+    background: var(--sb-sky);
   }
 
-  .affiliate-specialkamera {
-    background: linear-gradient(135deg, #e63946 0%, #c1121f 100%);
-  }
-
+  .affiliate-specialkamera,
   .affiliate-specialkamera:hover {
-    background: linear-gradient(135deg, #c1121f 0%, #9b1b30 100%);
+    background: var(--sb-warm);
   }
 
   .affiliate-icon {
-    font-size: 1.1rem;
+    font-size: var(--sb-text-lg);
   }
 
   .affiliate-label {
-    font-size: 0.75rem;
+    font-size: var(--sb-text-xs);
     font-weight: 400;
   }
 
   .affiliate-price {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 0.85rem;
+    background: color-mix(in srgb, var(--sb-on-accent) 20%, transparent);
+    padding: 0.2rem var(--sb-space-2);
+    border-radius: var(--sb-radius-sm);
+    font-size: var(--sb-text-sm);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .affiliate-link {
+      transition:
+        background-color var(--sb-dur) var(--sb-ease),
+        box-shadow var(--sb-dur) var(--sb-ease),
+        transform var(--sb-dur) var(--sb-ease);
+    }
+
+    .affiliate-link:hover {
+      transform: translateY(-1px);
+    }
   }
 </style>
