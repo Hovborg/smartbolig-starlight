@@ -71,12 +71,20 @@ local network.
 
    Do not use the owner account. Create a dedicated, normally non-administrator
    user for the connection unless a documented need requires more. This keeps
-   access and revocation separate from your own account.
+   access and revocation separate from your own account. Note: the main URL
+   `/api/mcp` requires an administrator account by default. A non-administrator
+   needs **Require an administrator account** turned off, or the `/api/mcp/assist`
+   URL (*Device control* only).
 
 4. **Disable control for the first test**
 
-   Turn off the option that allows MCP clients to control Home Assistant. The
-   first goal is to prove authentication and reading without actions.
+   Open **Settings → Devices & services → Model Context Protocol → Configure**.
+   Turn **Read-only** on so only tools that do not change anything are available.
+   Also turn **Expose all AI tools** off and select only *Device control* (the
+   same tools as Assist, limited to exposed entities). The *Home Assistant* tool
+   set can read all entities, logs and history and perform any action, and always
+   requires an administrator account. The first goal is to prove authentication
+   and reading without actions.
 
 5. **Review exposed entities**
 
@@ -86,8 +94,9 @@ local network.
 
 6. **Note the MCP address**
 
-   The default endpoint is `/api/mcp` on your Home Assistant address. Never
-   copy an access token into a guide, prompt, or shared configuration file.
+   The default endpoint is `/api/mcp` on your Home Assistant address; you can
+   also copy the server URL from **Settings → System → AI**. Never copy an
+   access token into a guide, prompt, or shared configuration file.
 </Steps>
 
 ## Remote client with OAuth
@@ -151,7 +160,7 @@ evidence; the value must match the actual entity.
 After the read test passes:
 
 <Steps>
-1. Enable control in the MCP Server integration options.
+1. Turn **Read-only** off in the MCP Server integration options.
 2. Expose one ordinary test light and no safety-critical devices.
 3. Ask the client to explain the planned action without performing it.
 4. Then ask it to turn on the test light.
@@ -161,7 +170,7 @@ After the read test passes:
 </Steps>
 
 If the client performs the action without the approval you expected, stop the
-test, disable control, and review client permissions.
+test, turn **Read-only** on, and review client permissions.
 
 ## Expose only what is needed
 
@@ -232,7 +241,7 @@ the client after changing exposure if its tool list is cached.
 
 ### The client can do too much
 
-Immediately disable control, remove exposed entities, and revoke the OAuth
+Immediately turn **Read-only** on, remove exposed entities, and revoke the OAuth
 session or token. Add one permission at a time when rebuilding the connection.
 
 ## Remove access
