@@ -10,6 +10,10 @@ export const OFFICIAL_SOURCE_URLS = [
   'https://github.com/google-gemini/gemini-cli/releases.atom',
   'https://github.com/openclaw/openclaw/releases.atom',
   'https://github.com/openclaw/openclaw/releases',
+  'https://deepmind.google/blog/rss.xml',
+  'https://mistral.ai/rss.xml',
+  'https://github.com/ollama/ollama/releases.atom',
+  'https://www.home-assistant.io/atom.xml',
 ];
 
 export const FEEDS = [
@@ -64,6 +68,34 @@ export const FEEDS = [
     id: 'openclaw',
     name: 'OpenClaw releases',
     url: 'https://github.com/openclaw/openclaw/releases.atom',
+    priority: 3,
+    primary: true,
+  },
+  {
+    id: 'google-deepmind',
+    name: 'Google DeepMind Blog',
+    url: 'https://deepmind.google/blog/rss.xml',
+    priority: 8,
+    primary: true,
+  },
+  {
+    id: 'mistral-news',
+    name: 'Mistral AI News',
+    url: 'https://mistral.ai/rss.xml',
+    priority: 8,
+    primary: true,
+  },
+  {
+    id: 'home-assistant-blog',
+    name: 'Home Assistant Blog',
+    url: 'https://www.home-assistant.io/atom.xml',
+    priority: 9,
+    primary: true,
+  },
+  {
+    id: 'ollama',
+    name: 'Ollama releases',
+    url: 'https://github.com/ollama/ollama/releases.atom',
     priority: 3,
     primary: true,
   },

@@ -43,6 +43,29 @@ test("parseHtmlListing reads Anthropic span titles and keeps the displayed calen
   assert.equal(items[0].published.toISOString().slice(0, 10), "2026-10-01");
 });
 
+test("parseHtmlListing reads card and row containers where the date sits outside the link", () => {
+  const source = { id: "anthropic-news", name: "Anthropic News", url: "https://www.anthropic.com/news", kind: "html-listing", primary: true };
+  const html = `
+    <article class="tile"><header><p><a href="/news/announcements">Announcements</a></p><time>Nov 9, 2026</time></header>
+      <a class="tileLink" href="/claude-example-5"><h2>Introducing Claude Example 5</h2><p>Summary text.</p></a></article>
+    <article class="tile"><header><time>Oct 27, 2026</time></header>
+      <a href="https://evil.example/x"><h3>Off-host card</h3></a></article>
+    <article class="tile"><header><p>No date here</p></header><a href="/news/undated"><h3>Undated card</h3></a></article>
+    <ul><li class="row"><div><a href="/news/roadshow-example"><span><h3>Row title</h3></span></a>
+      <a tabindex="-1" href="/news/roadshow-example"><p>Row summary</p></a><div><time>Nov 10, 2026</time></div></div>
+      <div><a href="/news/roadshow-example"><h3>Row title</h3></a></div></li></ul>
+  `;
+  const items = parseHtmlListing(html, source);
+
+  assert.deepEqual(items.map((item) => item.canonicalUrl), [
+    "https://www.anthropic.com/claude-example-5",
+    "https://www.anthropic.com/news/roadshow-example",
+  ]);
+  assert.equal(items[0].title, "Introducing Claude Example 5");
+  assert.equal(items[0].published.toISOString().slice(0, 10), "2026-11-09");
+  assert.equal(items[1].title, "Row title");
+});
+
 test("parseHtmlListing does not mistake data-class for the title class", () => {
   const source = { id: "anthropic-news", name: "Anthropic News", url: "https://www.anthropic.com/news", kind: "html-listing" };
   const html = `<a href="/news/example"><time>Oct 1, 2026</time>

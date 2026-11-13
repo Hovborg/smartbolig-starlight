@@ -19,6 +19,10 @@ test("isOfficialUrl accepts the real official hosts and GitHub repos", () => {
   assert.ok(isOfficialUrl("https://github.com/openai/codex/releases"));
   assert.ok(isOfficialUrl("https://github.com/google-gemini/gemini-cli/releases.atom"));
   assert.ok(isOfficialUrl("https://github.com/openclaw/openclaw/releases"));
+  assert.ok(isOfficialUrl("https://deepmind.google/blog/some-story"));
+  assert.ok(isOfficialUrl("https://mistral.ai/news/some-story"));
+  assert.ok(isOfficialUrl("https://www.home-assistant.io/blog/2026/11/04/release-202611"));
+  assert.ok(isOfficialUrl("https://github.com/ollama/ollama/releases/tag/v0.40.16"));
 });
 
 test("isOfficialUrl rejects lookalike and embedded-domain urls", () => {
@@ -27,6 +31,8 @@ test("isOfficialUrl rejects lookalike and embedded-domain urls", () => {
   assert.equal(isOfficialUrl("https://attacker.example/?ref=anthropic.com"), false);
   assert.equal(isOfficialUrl("https://github.com/attacker/claude-code"), false);
   assert.equal(isOfficialUrl("https://github.com/anthropics-evil/claude-code"), false);
+  assert.equal(isOfficialUrl("https://github.com/ollama-evil/ollama"), false);
+  assert.equal(isOfficialUrl("https://home-assistant.io.attacker.example/"), false);
   assert.equal(isOfficialUrl("https://github.com"), false);
   assert.equal(isOfficialUrl("http://openai.com/downgraded-to-http"), false);
   assert.equal(isOfficialUrl("javascript:alert(1)"), false);
