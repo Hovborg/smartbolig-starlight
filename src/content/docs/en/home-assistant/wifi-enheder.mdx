@@ -51,6 +51,8 @@ Shelly devices are Bulgarian-made WiFi products that just work. Out of the box. 
 **Gen2/Plus** (Plus 1, Plus 2PM): ESP32-based, faster, Bluetooth for setup
 
 **Pro** (Pro 4PM): DIN rail mount, display, Ethernet option
+
+**Gen3** and **Gen4** exist too. Home Assistant's Shelly integration supports Gen1 through Gen4. Gen1 requires firmware 1.9 or newer; Gen2 and newer need no extra setup by default.
 </Aside>
 
 ### Installation in Home Assistant
@@ -284,7 +286,8 @@ You can flash ESPHome on many Tasmota-compatible devices:
 # Example: Sonoff Basic
 esphome:
   name: sonoff-kitchen
-  platform: ESP8266
+
+esp8266:
   board: esp01_1m
 
 wifi:
@@ -296,7 +299,8 @@ api:
     key: "your-encryption-key"
 
 ota:
-  password: "ota-password"
+  - platform: esphome
+    password: "ota-password"
 
 binary_sensor:
   - platform: gpio
@@ -449,4 +453,4 @@ All three platforms support 100% local control:
 
 ---
 
-*Last updated: December 2025*
+*Last updated: November 2026*
