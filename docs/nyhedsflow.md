@@ -116,8 +116,10 @@ roller ende på samme model.
 
 1. Ret listen i `scripts/lib/news-llm/models.mjs` og `ALLOWED_MODELS` i
    `workers/news-llm/wrangler.jsonc`.
-2. Udrul relayet (se nedenfor).
-3. Kør workflowet med `dry_run`, og læs Summary.
+2. Tilføj modellens pris i `workers/news-llm/src/prices.js`. Uden pris afviser
+   relayet modellen, og en test fejler.
+3. Udrul relayet (se nedenfor).
+4. Kør workflowet med `dry_run`, og læs Summary.
 
 Workflowet læser ingen `vars.*`, så modeller kan ikke skiftes uden en kodeændring:
 den eneste vej er at rette `scripts/lib/news-llm/models.mjs` og relayets

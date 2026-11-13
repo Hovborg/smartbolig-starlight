@@ -95,3 +95,13 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 
 ### B18. Arkivværktøjet `ai-news-regenerate.mjs` er fjernet
 - Det var et engangsværktøj fra juli 2026 og brugte det gamle tekstmodul.
+
+### B19. Relayets dagsloft: reservation før kaldet, talt ét sted
+- Fund i gennemgangen: det gamle loft læste tælleren, kaldte modellen og skrev bagefter. Et afbrudt
+  kald og to samtidige kald blev ikke talt, og forbruget byggede på et felt (`usage.neurons`), som
+  Cloudflare ikke dokumenterer.
+- Valg: regnskabet ligger i ét Durable Object, som behandler én forespørgsel ad gangen. Relayet
+  bogfører kaldets højeste mulige pris før modelkaldet og retter til den rigtige pris bagefter.
+  Prisen regnes fra de meldte tokens gange Cloudflares pris pr. model (`workers/news-llm/src/prices.js`).
+- Fravalgt: KV (ingen atomar læs-og-skriv) og en fast reserve pr. kald (for lav for store kald).
+- Durable Objects med SQLite-lager er med i Workers-planen; forbruget her er omkring 100 kald i døgnet.
