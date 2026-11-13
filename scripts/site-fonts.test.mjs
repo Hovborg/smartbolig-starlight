@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import test from "node:test";
 
@@ -36,7 +36,8 @@ test("the first variant of each family is the Latin file, which is the one the h
 });
 
 test("no font is loaded from another host", () => {
-  for (const path of ["config/head/index.mjs", "config/site.mjs", "src/components/Head.astro", "src/styles/index.css"]) {
+  const seoFiles = readdirSync(new URL("../src/lib/seo/", import.meta.url)).map((name) => `src/lib/seo/${name}`);
+  for (const path of ["config/head/index.mjs", "config/site.mjs", "src/components/Head.astro", ...seoFiles, "src/styles/index.css"]) {
     assert.equal(/fonts\.googleapis|fonts\.gstatic|use\.typekit|fonts\.bunny/.test(read(path)), false, path);
   }
 });

@@ -487,9 +487,11 @@ test("Astro renders the guides' GitHub-flavoured Markdown tables", async () => {
 });
 
 test("head metadata treats start pages as pages and preserves AI news schema", async () => {
-  const head = await read("src/components/Head.astro");
-  assert.match(head, /const isStartPage =/);
-  assert.match(head, /!isStartPage/);
+  // Head.astro is a thin component; the page-type and schema logic lives in src/lib/seo/.
+  const seoFiles = (await readdir(new URL("../src/lib/seo/", import.meta.url))).filter((name) => name.endsWith(".ts")).sort();
+  const head = (await Promise.all(["src/components/Head.astro", ...seoFiles.map((name) => `src/lib/seo/${name}`)].map(read))).join("\n");
+  assert.match(head, /isStartPage:\s*\//);
+  assert.match(head, /!kind\.isStartPage/);
   assert.doesNotMatch(head, /rel="preload"\s+as="image"/);
   for (const invariant of ["NewsArticle", "citation", "datePublished", "aiNewsRssHref"]) {
     assert.ok(head.includes(invariant), `missing AI news schema invariant: ${invariant}`);
