@@ -84,7 +84,7 @@ LED strips use A LOT of power:
       encryption:
         key: "your-key"
     ota:
-      platform: esphome
+      - platform: esphome
 
     wifi:
       ssid: "your-wifi"
@@ -93,7 +93,7 @@ LED strips use A LOT of power:
     # LED Strip
     light:
       - platform: esp32_rmt_led_strip
-        rgb_order: GRB
+        channel_colors: GRB
         chipset: WS2812
         pin: GPIO16
         num_leds: 60
@@ -114,7 +114,7 @@ LED strips use A LOT of power:
       encryption:
         key: "your-key"
     ota:
-      platform: esphome
+      - platform: esphome
 
     wifi:
       ssid: "your-wifi"
@@ -123,7 +123,7 @@ LED strips use A LOT of power:
     # LED Strip with effects
     light:
       - platform: esp32_rmt_led_strip
-        rgb_order: GRB
+        channel_colors: GRB
         chipset: WS2812
         pin: GPIO16
         num_leds: 60
@@ -152,7 +152,7 @@ LED strips use A LOT of power:
     ```yaml title="led-strip-rgbw.yaml"
     light:
       - platform: esp32_rmt_led_strip
-        rgb_order: GRBW
+        channel_colors: GRBW
         chipset: SK6812
         pin: GPIO16
         num_leds: 60
@@ -162,7 +162,7 @@ LED strips use A LOT of power:
 </Tabs>
 
 <Aside type="tip" title="Color order (GRB/RGB)">
-If colors are wrong (e.g., red shows green), try changing `type:` from `GRB` to `RGB` or `BRG`.
+If colors are wrong (e.g., red shows green), try changing `channel_colors:` from `GRB` to `RGB` or `BRG`. From ESPHome 2026.8, `channel_colors` replaces the earlier `rgb_order`, `is_rgbw` and `is_wrgb`. The old keys give a warning and only work until 2027.3.0.
 </Aside>
 
 ## 📤 Upload and Test
@@ -194,11 +194,11 @@ name: LED Strip
 ```yaml title="automations.yaml"
 automation:
   - alias: "Ambient light at sunset"
-    trigger:
-      - platform: sun
+    triggers:
+      - trigger: sun
         event: sunset
-    action:
-      - service: light.turn_on
+    actions:
+      - action: light.turn_on
         target:
           entity_id: light.led_strip
         data:
@@ -211,12 +211,12 @@ automation:
 ```yaml title="automations.yaml"
 automation:
   - alias: "Red alarm"
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: alarm_control_panel.home
         to: "triggered"
-    action:
-      - service: light.turn_on
+    actions:
+      - action: light.turn_on
         target:
           entity_id: light.led_strip
         data:
@@ -250,7 +250,7 @@ Want WLED? Flash it via [install.wled.me](https://install.wled.me) directly in b
 </Aside>
 
 <Aside type="tip" title="Wrong colors?">
-- Change `type:` between `GRB`, `RGB`, `BRG`
+- Change `channel_colors:` between `GRB`, `RGB`, `BRG`
 - WS2812B is typically GRB
 - SK6812 can be GRBW or RGBW
 </Aside>

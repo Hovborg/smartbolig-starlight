@@ -109,7 +109,7 @@ Codex læser fra roden ned mod din aktuelle mappe. Instruktioner tættere på ar
 
 ## Claude Code: CLAUDE.md og .claude/rules
 
-Claude Code læser `CLAUDE.md`, ikke `AGENTS.md`. Hvis repoet allerede bruger `AGENTS.md`, kan du lade `CLAUDE.md` importere den:
+Claude Code læser `CLAUDE.md`. Findes der kun en `AGENTS.md` og ingen `CLAUDE.md`, læser Claude Code `AGENTS.md` direkte (kræver v2.1.277 eller nyere). Findes begge, læses kun `CLAUDE.md`. Hvis repoet allerede bruger `AGENTS.md`, og du vil have begge med, kan du lade `CLAUDE.md` importere den:
 
 ```md title="CLAUDE.md"
 @AGENTS.md
@@ -149,7 +149,6 @@ Nyttige kommandoer i Gemini CLI:
 |---|---|
 | `/memory show` | Se den samlede kontekst. |
 | `/memory reload` | Genindlæs `GEMINI.md` filer. |
-| `/memory add <tekst>` | Tilføj global memory. |
 | `/stats model` | Se model- og tokenforbrug. |
 
 ## Monorepo-model
@@ -264,7 +263,7 @@ Instruktionsfiler bliver sendt med som kontekst. Læg aldrig API keys, tokens, c
 
 ## Kilder
 
-Sidst tjekket: 11. april 2026.
+Sidst tjekket: 13. november 2026.
 
 - [Codex AGENTS.md](https://developers.openai.com/codex/guides/agents-md)
 - [Claude Code memory](https://code.claude.com/docs/en/memory)

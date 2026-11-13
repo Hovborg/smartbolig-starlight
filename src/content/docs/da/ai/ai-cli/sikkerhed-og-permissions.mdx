@@ -41,10 +41,12 @@ Når en AI CLI arbejder lokalt, er de vigtigste risici ikke kun "dårlig kode". 
 | Emne | Codex CLI | Claude Code | Gemini CLI |
 |---|---|---|---|
 | Læse filer | Ja, afhængigt af sandbox | Ja, med permissions | Ja, afhængigt af settings |
-| Skrive filer | Kræver passende mode/godkendelse | Kræver godkendelse | Kræver passende permissions |
-| Køre commands | Styres af sandbox/approvals | Kræver godkendelse | Styres af permissions/sandbox |
-| Netværk | Begrænset som default i sikre modes | Kræver godkendelse | Afhænger af settings/sandbox |
+| Skrive filer | Kræver passende mode/godkendelse | Kræver godkendelse i Manual mode | Kræver passende permissions |
+| Køre commands | Styres af sandbox/approvals | Kræver godkendelse i Manual mode | Styres af permissions/sandbox |
+| Netværk | Begrænset som default i sikre modes | Kræver godkendelse i Manual mode | Afhænger af settings/sandbox |
 | Instruktionsfil | `AGENTS.md` | `CLAUDE.md` | `GEMINI.md` |
+
+Claude Code starter fra v2.1.283 interaktive terminalsessioner i auto mode, hvor en klassifikationsmodel vurderer handlinger i stedet for dig. Vil du godkende handlinger selv, så brug Manual mode (`default`) eller `claude --permission-mode plan`, og skift mode med `Shift+Tab`. Fra v2.1.302 starter `claude -p` i Manual mode, når du ikke vælger en mode.
 
 ## Sikkerhedsprofiler
 
@@ -179,7 +181,7 @@ Lav ingen ændringer.
 
 ## Kilder
 
-Sidst tjekket: 11. april 2026.
+Sidst tjekket: 13. november 2026.
 
 - [OpenAI agent approvals og security](https://developers.openai.com/codex/agent-approvals-security)
 - [Claude Code security](https://code.claude.com/docs/en/security)

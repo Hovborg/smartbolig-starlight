@@ -44,8 +44,8 @@ PIR sensors turn off the light while you're sitting on the toilet. mmWave detect
 
 | Model | Pins | Bluetooth | Recommendation |
 |-------|------|-----------|----------------|
-| **LD2410** | 1.25mm (needs adapter) | No | ⚠️ Hard to solder |
-| **LD2410B** | 1.25mm (needs adapter) | Yes | ⚠️ Hard to solder |
+| **LD2410** | 1.27mm (needs adapter) | No | ⚠️ Hard to solder |
+| **LD2410B** | 1.27mm (needs adapter) | Yes | ⚠️ Hard to solder |
 | **LD2410C** | 2.54mm standard | Yes | ✅ **Recommended** |
 
 <Aside type="caution" title="Choose LD2410C!">
@@ -61,11 +61,15 @@ LD2410C has standard 2.54mm pins that fit directly to Dupont wires. Other versio
 ```
 D1 Mini         LD2410C
 ───────         ───────
-3.3V    ───────  VCC
+5V      ───────  VCC
 GND     ───────  GND
 D7 (RX) ───────  TX
 D8 (TX) ───────  RX
 ```
+
+<Aside type="caution" title="VCC needs 5V">
+The LD2410 needs 5 V on VCC (the module accepts 5-12 V), as shown in the wiring diagram above. The serial and OUT signals, however, are 3.3 V, so they can be connected directly to the ESP32.
+</Aside>
 
 <Aside type="caution" title="RX and TX cross!">
 Remember that RX on ESP connects to TX on LD2410 and vice versa. That's how serial communication works.
@@ -99,8 +103,8 @@ api:
     key: !secret api_encryption_key
 
 ota:
-  platform: esphome
-  password: !secret ota_password
+  - platform: esphome
+    password: !secret ota_password
 
 # UART for LD2410
 uart:
@@ -193,8 +197,8 @@ api:
     key: !secret api_encryption_key
 
 ota:
-  platform: esphome
-  password: !secret ota_password
+  - platform: esphome
+    password: !secret ota_password
 
 uart:
   id: ld2410_uart
@@ -274,24 +278,24 @@ button:
 ```yaml
 automation:
   - alias: "Bathroom light ON on presence"
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.bathroom_presence
         to: "on"
-    action:
-      - service: light.turn_on
+    actions:
+      - action: light.turn_on
         target:
           entity_id: light.bathroom
 
   - alias: "Bathroom light OFF when empty"
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.bathroom_presence
         to: "off"
         for:
           seconds: 30
-    action:
-      - service: light.turn_off
+    actions:
+      - action: light.turn_off
         target:
           entity_id: light.bathroom
 ```

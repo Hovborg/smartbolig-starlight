@@ -66,7 +66,7 @@ api:
   encryption:
     key: "din-nøgle"
 ota:
-  platform: esphome
+  - platform: esphome
 
 # PIR Bevægelsessensor
 binary_sensor:
@@ -97,7 +97,7 @@ wifi:
 <Steps>
 1. Klik **INSTALL** → **Wirelessly** (eller USB første gang)
 
-2. Gå til **Home Assistant** → **Udviklerværktøjer** → **Tilstande**
+2. Gå til **Home Assistant** → **Indstillinger** → **Værktøjer** → **Tilstande**
 
 3. Søg efter `binary_sensor.entre_bevaegelse`
 
@@ -134,12 +134,12 @@ PIR sensoren bruger ~60 sekunder på at kalibrere når den tændes. I denne peri
 ```yaml title="automations.yaml"
 automation:
   - alias: "Tænd entré lys ved bevægelse"
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.entre_bevaegelse
         to: "on"
-    action:
-      - service: light.turn_on
+    actions:
+      - action: light.turn_on
         target:
           entity_id: light.entre
 ```
@@ -149,22 +149,22 @@ automation:
 ```yaml title="automations.yaml"
 automation:
   - alias: "Tænd entré lys om natten"
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.entre_bevaegelse
         to: "on"
-    condition:
+    conditions:
       - condition: sun
         after: sunset
         before: sunrise
-    action:
-      - service: light.turn_on
+    actions:
+      - action: light.turn_on
         target:
           entity_id: light.entre
         data:
           brightness_pct: 50
       - delay: "00:02:00"
-      - service: light.turn_off
+      - action: light.turn_off
         target:
           entity_id: light.entre
 ```
@@ -175,22 +175,22 @@ automation:
 automation:
   - alias: "Smart entre lys"
     mode: restart  # Genstart timer ved ny bevægelse
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.entre_bevaegelse
         to: "on"
-    action:
-      - service: light.turn_on
+    actions:
+      - action: light.turn_on
         target:
           entity_id: light.entre
         data:
           brightness_pct: "{{ 30 if is_state('sun.sun', 'below_horizon') else 80 }}"
       - wait_for_trigger:
-          - platform: state
+          - trigger: state
             entity_id: binary_sensor.entre_bevaegelse
             to: "off"
             for: "00:02:00"
-      - service: light.turn_off
+      - action: light.turn_off
         target:
           entity_id: light.entre
 ```
