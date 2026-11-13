@@ -37,12 +37,12 @@ langtidsstatistik.
 Brug ikke en effektsensor direkte som energi. Hvis kilden kun leverer kompatibel
 effekt, kan Home Assistants Integral/Riemann sum-integration beregne energi over
 tid. Kontrollér metode, tidsenhed og fortegn mod den officielle dokumentation;
-integration af støj eller huller kan skabe afvigelser.
+integration af støj eller huller kan skabe afvigelser. Fra Home Assistant 2026.11 tilbyder Energy-konfigurationen også selv at aflede en energisensor fra en effektsensor, når du tilføjer en enhed, solceller eller forbrug, der kun har en effektsensor ([udgivelsesnoter](https://www.home-assistant.io/blog/2026/11/04/release-202611/)).
 
 ## Forudsætninger og datakvalitet
 
-Før en sensor tilføjes, kontrollér i **Udviklerværktøjer → Tilstande** og
-**Indstillinger → Enheder og tjenester → Statistik**:
+Før en sensor tilføjes, kontrollér i **Indstillinger → Tools → States** og
+**Indstillinger → Tools → Statistics**:
 
 - enheden er W/kW for effekt eller Wh/kWh for energi;
 - `device_class` er `power`, `energy`, `gas` eller `water` efter målingen;
