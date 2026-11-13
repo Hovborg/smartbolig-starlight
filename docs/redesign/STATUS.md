@@ -36,4 +36,4 @@ Sidst opdateret: 2026-11-13.
    lyst/mørkt tema, egne sider, illustrationer).
 5. Følg tre dages nyhedsdrift (kan ikke bekræftes samme dag).
 
-Adgange og ting, der kræver ejeren, står i TIL-EJEREN.md.
+Ting, der kræver ejeren, står i TIL-EJEREN.md.

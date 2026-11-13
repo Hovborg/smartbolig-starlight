@@ -42,7 +42,8 @@ kontotoken, og fordi forbruget skal have et hårdt loft.
 
 Tælleren er ét Durable Object, som behandler én forespørgsel ad gangen. To kald
 på samme tid kan derfor ikke få den samme plads. Et kald, der afbrydes eller
-fejler, beholder hele sin reservation. Et svar uden tokental beholder den også.
+fejler, beholder hele sin reservation. Et svar uden tokental beholder den også; nul, tekst og `true` tæller som manglende tal.
+Er det samlede tokental større end input plus output, regnes forskellen som output.
 Kan tælleren ikke nås, svarer relayet 503 `budget_unavailable` uden at kalde
 modellen.
 
@@ -71,5 +72,7 @@ og skal være mindst 32 tegn. Adressen og nøglen ligger som GitHub-secrets; se
 
 ## Fjern den igen
 
-Slet mappen, fjern de to GitHub-secrets, og kør `npx wrangler delete --name smartbolig-news-llm`.
+Slet mappen, `scripts/ai-news-relay-worker.test.mjs` og trinnet "Validate the news relay Worker"
+i `.github/workflows/deploy.yml`. Fjern de to GitHub-secrets, og kør
+`npx wrangler delete --name smartbolig-news-llm`.
 Nyhedsjobbet falder da tilbage til `claude`-udbyderen, hvis den er sat op.

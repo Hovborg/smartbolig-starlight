@@ -22,11 +22,19 @@ export function neuronsFor(model, inputTokens, outputTokens) {
 // write more than max_tokens.
 export const worstCase = (model, bodyBytes, maxTokens) => neuronsFor(model, bodyBytes, maxTokens);
 
+const tokenCount = (value) => (typeof value === "number" && Number.isFinite(value) && value > 0 ? value : null);
+
 // What a finished call cost, from the token counts the model reported.
-// Returns null when they are missing, and the caller keeps the worst case.
+// Returns null unless both counts are real numbers above zero, and the caller
+// then keeps the worst case: a call always reads and writes something, so a
+// zero is a missing count, not a free call. When the total is larger than
+// input plus output (reasoning tokens reported outside the output count),
+// the difference is charged as output.
 export function actualCost(model, usage) {
-  const input = Number(usage?.prompt_tokens ?? usage?.input_tokens);
-  const output = Number(usage?.completion_tokens ?? usage?.output_tokens);
-  if (!Number.isFinite(input) || !Number.isFinite(output) || input < 0 || output < 0) return null;
+  const input = tokenCount(usage?.prompt_tokens ?? usage?.input_tokens);
+  const reported = tokenCount(usage?.completion_tokens ?? usage?.output_tokens);
+  if (input === null || reported === null) return null;
+  const total = tokenCount(usage?.total_tokens);
+  const output = total === null ? reported : Math.max(reported, total - input);
   return neuronsFor(model, input, output);
 }

@@ -154,6 +154,24 @@ test("prices: neurons from tokens, the worst case and the reported cost", () => 
   for (const usage of [undefined, null, {}, { prompt_tokens: 5 }, { prompt_tokens: "x", completion_tokens: 1 }, { prompt_tokens: -1, completion_tokens: 1 }]) {
     assert.equal(actualCost(MODEL, usage), null);
   }
+  // Zeros, empty strings, numeric strings and booleans are missing counts, not a free call.
+  for (const usage of [
+    { prompt_tokens: 0, completion_tokens: 0 },
+    { prompt_tokens: 1000, completion_tokens: 0 },
+    { prompt_tokens: 0, completion_tokens: 1000 },
+    { prompt_tokens: "", completion_tokens: "" },
+    { prompt_tokens: "1000", completion_tokens: "1000" },
+    { prompt_tokens: true, completion_tokens: true },
+    { prompt_tokens: Infinity, completion_tokens: 1 },
+    { input_tokens: 0, output_tokens: 0 },
+  ]) {
+    assert.equal(actualCost(MODEL, usage), null);
+  }
+  // Reasoning tokens that only show up in the total are charged as output.
+  assert.equal(actualCost(MODEL, { prompt_tokens: 1000, completion_tokens: 1000, total_tokens: 2000 }), 37);
+  assert.equal(actualCost(MODEL, { prompt_tokens: 1000, completion_tokens: 1000, total_tokens: 5000 }), neuronsFor(MODEL, 1000, 4000));
+  assert.equal(actualCost(MODEL, { prompt_tokens: 1000, completion_tokens: 1000, total_tokens: 1500 }), 37);
+  assert.equal(actualCost(MODEL, { prompt_tokens: 1000, completion_tokens: 1000, total_tokens: 0 }), 37);
   assert.equal(isPriced(MODEL), true);
   assert.equal(isPriced(UNPRICED), false);
   assert.equal(isPriced("constructor"), false);
@@ -374,6 +392,16 @@ test("a throwing model call gives 502, a bounded detail, and keeps its whole res
   assert.equal(counter.spent(), 200 + reserved);
 });
 
+test("an answer that reports zero tokens is charged the worst case", async () => {
+  const reserved = reservedFor(chatBody());
+  const { env, counter } = makeEnv({ run: () => ({ response: "x", usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 } }) });
+  const { status, body } = await call(post(chatBody()), env);
+  assert.equal(status, 200);
+  assert.equal(body.usage.neurons, reserved);
+  assert.equal(body.budget.spent, reserved);
+  assert.equal(counter.spent(), reserved);
+});
+
 test("a missing counter binding gives 503 and no model call", async () => {
   const { env, log } = makeEnv({ withCounter: false });
   assert.deepEqual(await call(post(chatBody()), env), { status: 503, body: { error: "budget_unavailable" } });
@@ -428,11 +456,11 @@ test("an answer without token counts is charged the worst case", async () => {
 
 test("a model that reports more than the worst case is charged what it reports", async () => {
   const reserved = reservedFor(chatBody({ max_tokens: 16 }));
-  const usage = { prompt_tokens: 100_000, completion_tokens: 0 };
+  const usage = { prompt_tokens: 100_000, completion_tokens: 1 };
   const { env, counter } = makeEnv({ run: () => ({ response: "x", usage }) });
   const { body } = await call(post(chatBody({ max_tokens: 16 })), env);
   assert.ok(body.usage.neurons > reserved);
-  assert.equal(counter.spent(), neuronsFor(MODEL, 100_000, 0));
+  assert.equal(counter.spent(), neuronsFor(MODEL, 100_000, 1));
 });
 
 test("a failing settlement still returns the answer and leaves the reservation on the books", async () => {

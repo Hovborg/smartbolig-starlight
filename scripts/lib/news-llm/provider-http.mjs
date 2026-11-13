@@ -53,6 +53,11 @@ export function createHttpChat({ url, key, fetchImpl = fetch, wait = sleep, onAt
       if (response.status === 429 && (await errorCode(response)) === "daily_budget_exhausted") {
         throw new DailyBudgetExhausted("The relay's daily model budget is used up");
       }
+      // The relay reached the model and the model failed. Another attempt books
+      // a new worst-case reservation, so the caller goes to the next model.
+      if (response.status === 502 && (await errorCode(response)) === "upstream_failed") {
+        throw new Error("LLM endpoint answered 502: the model call failed");
+      }
       if (RETRY_STATUS.has(response.status)) {
         lastError = new Error(`LLM endpoint answered ${response.status}`);
         continue;

@@ -78,8 +78,11 @@ døgn (UTC); forbrug derover koster penge. Derfor er der to lofter:
 - **Relayet** holder dagens forbrug under 8.000 neurons. Før hvert modelkald
   bogfører det kaldets højeste mulige pris; er der ikke plads, afvises kaldet.
   Efter svaret rettes tallet til den rigtige pris. Et afbrudt eller fejlet kald
-  beholder hele reservationen, og to kald på samme tid tælles begge. Kan
-  tælleren ikke nås, afvises kaldet.
+  beholder hele reservationen, og to kald på samme tid tælles begge. Det gør
+  også et svar, der melder nul tokens. Kan tælleren ikke nås, afvises kaldet.
+  Fejler modellen bag relayet (`upstream_failed`), prøver jobbet ikke samme
+  model igen, men går til reservemodellen: hvert forsøg bogfører en ny
+  reservation.
 - **Kørslen** (`scripts/lib/news-llm/limits.mjs`) stopper ved 40 kald eller
   6.000 neurons.
 

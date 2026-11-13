@@ -66,11 +66,12 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 ### B12. Modelvalg efter måling, ikke efter navn
 - Skriver: `deepseek-v4.1-flash`, reserve `gemma-4-26b`. Kontrol: `gpt-oss-120b`, reserve
   `nemotron-3-120b`. Målingerne står i `docs/nyhedsflow.md`.
-- Skriver og kontrol er altid to forskellige modeller.
+- Skriver og kontrol er to forskellige modeller i standardlisterne. Det er ikke tvunget:
+  sættes en liste om, kan rollerne ende på samme model (se `docs/nyhedsflow.md`).
 
 ### B13. Hårdt dagsloft på 8.000 neurons
-- Fund 2026-11-13: kontoen er Workers Paid. Forbrug over 10.000 neurons pr. døgn koster penge,
-  og dagens modelmålinger brugte ca. 20.700. Se `TIL-EJEREN.md`.
+- Fund 2026-11-13: forbrug over 10.000 neurons pr. døgn koster penge hos Cloudflare, og
+  modelmålingerne den dag gik over den grænse. Derfor et loft, der ikke kan omgås.
 - Ændring: relayet afviser kald, når dagens forbrug når 8.000 (chatten har resten). Kan tælleren
   ikke læses, afvises kaldet. En kørsel stopper selv ved 6.000.
 

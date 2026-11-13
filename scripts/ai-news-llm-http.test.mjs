@@ -143,6 +143,14 @@ test("any other 429 is still retried", async () => {
   }
 });
 
+test("a 502 where the relay says the model failed is not retried", async () => {
+  const failed = new Response(JSON.stringify({ error: "upstream_failed", detail: "boom" }), { status: 502 });
+  const { chat, requests, waits } = harness([failed, answer("never reached")]);
+  await assert.rejects(call(chat), (error) => /502: the model call failed/.test(error.message) && !(error instanceof CallBudgetExceeded));
+  assert.equal(requests.length, 1);
+  assert.deepEqual(waits, []);
+});
+
 test("a daily budget 429 after a retry still stops immediately", async () => {
   const { chat, requests, waits } = harness([status(503), json429({ error: "daily_budget_exhausted" })]);
   await assert.rejects(call(chat), DailyBudgetExhausted);
