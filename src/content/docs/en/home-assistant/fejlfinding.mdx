@@ -41,7 +41,7 @@ Something not working as expected? This guide helps you find and solve the most 
 |----------|----------|
 | **Core logs** | Settings → System → Logs |
 | **Supervisor logs** | Settings → System → Logs → Supervisor |
-| **Add-on logs** | Settings → Add-ons → [Add-on] → Log |
+| **App logs** (formerly add-on logs) | Settings → Apps → [app] → Log |
 | **Full log file** | `/config/home-assistant.log` |
 
 ### Enable Debug Logging
@@ -55,6 +55,7 @@ logger:
     homeassistant.components.zha: debug
     homeassistant.components.mqtt: debug
     # Or a specific integration
+    # HACS before 2026.11 (the Marketplace has replaced HACS)
     custom_components.hacs: debug
 ```
 
@@ -95,13 +96,13 @@ Debug logging generates A LOT of data and can fill your disk. Turn it off again 
 ha core restart --safe-mode
 ```
 
-Safe mode starts HA without custom integrations and add-ons.
+Safe mode starts HA without custom integrations, custom dashboard cards and themes. It lasts until the next restart.
 
 ### Configuration Errors
 
 ```yaml
 # Validate configuration BEFORE restart
-# Settings → System → Developer Tools → YAML → Check Configuration
+# Settings → Tools → YAML → Check configuration
 
 # Or via command line:
 ha core check
@@ -190,17 +191,17 @@ ls -la /dev/serial/by-id/
 
 3. **Conditions met?**
    - Test each condition individually
-   - Use Developer Tools → States
+   - Use Settings → Tools → States
 
 4. **Actions failing?**
    - Check logs for errors
-   - Test action manually via Services
+   - Test the action manually via Settings → Tools → Actions
 </Steps>
 
 ### Test Automation Manually
 
 ```yaml
-# Developer Tools → Services
+# Settings → Tools → Actions
 service: automation.trigger
 target:
   entity_id: automation.your_automation
@@ -292,7 +293,7 @@ See [Performance Guide](/en/home-assistant/performance/) for database optimizati
 1. Remove integration from Devices & Services
 2. Delete folder: /config/custom_components/[integration]
 3. Restart HA
-4. Install again via HACS
+4. Install again via the Marketplace (HACS before 2026.11)
 ```
 
 ---
@@ -322,7 +323,7 @@ See [Performance Guide](/en/home-assistant/performance/) for database optimizati
 # Check resource is added:
 # Settings → Dashboards → Resources
 
-# Or in configuration.yaml:
+# Or in configuration.yaml (the /hacsfiles/ path applies to HACS before 2026.11):
 lovelace:
   mode: yaml
   resources:
@@ -337,16 +338,19 @@ lovelace:
 ### Forgot Password
 
 ```bash
-# Via command line
-ha auth reset --username YOUR_USERNAME --password NEW_PASSWORD
+# Home Assistant OS: open the console on the device itself (not the SSH app terminal) and run:
+auth reset --interactive
+
+# Home Assistant Container:
+docker exec -it homeassistant bash
+hass --script auth --config /config change_password USERNAME NEW_PASSWORD
 ```
+
+If you are still logged in as the owner, you can reset other users' passwords under **Settings → People**. Source: [Help, I'm locked out](https://www.home-assistant.io/docs/locked_out/).
 
 ### 2FA Lost
 
-```bash
-# Remove TOTP for user
-ha auth totp remove --username YOUR_USERNAME
-```
+If you are still logged in, you can turn off multi-factor authentication under **User profile → Security**. The Home Assistant documentation does not describe steps to remove TOTP if you have lost your authenticator. See [Multi-factor authentication](https://www.home-assistant.io/docs/authentication/multi-factor-auth/) and [Help, I'm locked out](https://www.home-assistant.io/docs/locked_out/).
 
 ### Locked Out
 
@@ -394,12 +398,15 @@ ha backups new
 ha backups list
 ```
 
-### Developer Tools
+### Tools (formerly Developer Tools)
+
+Find them under **Settings → Tools**.
 
 | Tool | Use |
 |------|-----|
+| **YAML** | Check configuration and reload YAML |
 | **States** | View/change entity states |
-| **Services** | Test services manually |
+| **Actions** | Test actions (formerly services) manually |
 | **Template** | Test Jinja2 templates |
 | **Events** | View/fire events |
 | **Statistics** | Fix statistics problems |
@@ -422,7 +429,7 @@ ha backups list
 Always include:
 
 ```markdown
-**Home Assistant version:** 2025.x.x
+**Home Assistant version:** 2026.x.x
 **Installation type:** HAOS / Docker / Core
 **Hardware:** RPi4 / Intel NUC / VM
 **Problem:** Short description
@@ -476,4 +483,4 @@ Always include:
 
 ---
 
-*Last updated: December 2025*
+*Last updated: November 2026*
