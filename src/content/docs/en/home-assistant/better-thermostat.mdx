@@ -8,7 +8,7 @@ import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/sta
 <Badge text="Medium" variant="caution" /> <Badge text="30 min" variant="note" />
 
 
-Better Thermostat is a HACS integration that makes your "dumb" radiator thermostats smart. It uses an external temperature sensor, window sensors and weather data to optimize heating and save energy.
+Better Thermostat is a custom integration (installed via the Marketplace or HACS) that makes your "dumb" radiator thermostats smart. It uses an external temperature sensor, window sensors and weather data to optimize heating and save energy.
 
 <Aside type="note" title="Open Source">
 Better Thermostat is open source! See [Better Thermostat on GitHub](https://github.com/KartoffelToby/better_thermostat) for documentation and feature requests.
@@ -41,7 +41,7 @@ With an external sensor and window detection you can typically save 15-25% on yo
 | **Radiator thermostat (TRV)** | Shelly TRV, TRÅDFRI, Sonoff TRVZB, Aqara | ✅ Yes |
 | **Temperature sensor** | Shelly Wall Display, Aqara, IKEA Vindstyrka | ✅ Recommended |
 | **Window sensor** | Aqara, Sonoff, Shelly | ⭐ Optional |
-| **Home Assistant** | With HACS installed | ✅ Yes |
+| **Home Assistant** | With the Marketplace (2026.11+) or HACS | ✅ Yes |
 
 ### A typical starting point
 
@@ -52,13 +52,16 @@ The guide assumes a setup many people already have:
 
 ## 🔧 Installation
 
-### Step 1: Install via HACS
+### Step 1: Install via the Marketplace or HACS
+
+<Aside type="caution" title="Update Better Thermostat before you update to Home Assistant 2026.11">
+The Better Thermostat 1.9.4 release notes warn that Home Assistant 2026.11 removed `RestoreStateData.last_states`, and that restoring the child-lock switch can stop the thermostat from starting. Recommended order: update Better Thermostat, restart Home Assistant, then update to 2026.11. Source: [GitHub releases](https://github.com/KartoffelToby/better_thermostat/releases).
+</Aside>
 
 <Steps>
-1. Open **HACS** in Home Assistant
-2. Click **Integrations**
-3. Search for **Better Thermostat**
-4. Click **Download** and restart Home Assistant
+1. Open **Settings → Marketplace** (HACS in the sidebar before 2026.11)
+2. Search for **Better Thermostat**
+3. Click **Install** (in HACS: **Download**) and restart Home Assistant if prompted
 </Steps>
 
 ### Step 2: Add Better Thermostat
@@ -284,7 +287,7 @@ Better Thermostat has no built-in temperature-drop detection. If you lack a phys
 Install the matching UI card to see extra info:
 
 <Steps>
-1. Open **HACS** → **Frontend**
+1. Open **Settings → Marketplace** (HACS → **Frontend** before 2026.11)
 2. Search for **Better Thermostat UI Card**
 3. Install and reload your browser
 </Steps>
@@ -315,7 +318,7 @@ features:
 
 ## 🔧 Calibration
 
-Better Thermostat automatically calibrates your TRV based on the difference between the TRV's built-in sensor and your external sensor.
+Better Thermostat automatically calibrates your TRV based on the difference between the TRV's built-in sensor and your external sensor. During setup you choose a **Calibration Type** (Target Temperature Based, Offset Based, which is only offered if your TRV supports offset, or Direct Valve Based, which is only offered if Better Thermostat can control the valve) and a **Calibration Mode** (including External Sensor Offset Only, Aggressive, AI Time Based which is recommended and the default, MPC Predictive, PID Controller, TPI Controller and No Calibration). Source: [better-thermostat.org](https://better-thermostat.org/configuration).
 
 ### How it works
 
