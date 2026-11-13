@@ -5,19 +5,20 @@
     a {
       clip: rect(0, 0, 0, 0);
       position: fixed;
-      top: 0.75rem;
-      inset-inline-start: 0.75rem;
+      top: var(--sb-space-3);
+      inset-inline-start: var(--sb-space-3);
     }
 
     a:focus {
       clip: unset;
       z-index: var(--sl-z-index-skiplink);
       display: block;
-      padding: 0.5rem 1rem;
+      padding: var(--sb-space-2) var(--sb-space-4);
       text-decoration: none;
-      color: var(--sl-color-text-invert);
-      background-color: var(--sl-color-text-accent);
-      box-shadow: var(--sl-shadow-lg);
+      color: var(--sb-on-accent);
+      background-color: var(--sb-accent);
+      border-radius: var(--sb-radius-sm);
+      box-shadow: var(--sb-shadow-lg);
     }
   }
 </style>
