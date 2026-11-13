@@ -18,11 +18,21 @@
       }
     }
   ],
-  // Daily neuron counter. The relay refuses calls when it cannot be read.
-  "kv_namespaces": [
+  // Daily neuron ledger (src/counter.js). One object handles one request at
+  // a time, so two calls cannot book the same room. The relay refuses calls
+  // when it cannot be reached.
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "BUDGET_COUNTER",
+        "class_name": "BudgetCounter"
+      }
+    ]
+  },
+  "migrations": [
     {
-      "binding": "BUDGET",
-      "id": "e3521f57bc7f4dd085912459ffe31765"
+      "tag": "v1",
+      "new_sqlite_classes": ["BudgetCounter"]
     }
   ],
   "vars": {

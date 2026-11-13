@@ -75,14 +75,21 @@ uden commit og udgivelse.
 Modellerne kører på Cloudflare Workers AI. Kontoen har 10.000 neurons gratis pr.
 døgn (UTC); forbrug derover koster penge. Derfor er der to lofter:
 
-- **Relayet** (`workers/news-llm/src/budget.js`) afviser kald, når dagens forbrug
-  når 8.000 neurons. Tælleren ligger i KV. Kan den ikke læses, afvises kaldet.
+- **Relayet** holder dagens forbrug under 8.000 neurons. Før hvert modelkald
+  bogfører det kaldets højeste mulige pris; er der ikke plads, afvises kaldet.
+  Efter svaret rettes tallet til den rigtige pris. Et afbrudt eller fejlet kald
+  beholder hele reservationen, og to kald på samme tid tælles begge. Kan
+  tælleren ikke nås, afvises kaldet.
 - **Kørslen** (`scripts/lib/news-llm/limits.mjs`) stopper ved 40 kald eller
   6.000 neurons.
 
+Prisen regnes ud fra de tokens, modellen melder tilbage, gange modellens pris i
+`workers/news-llm/src/prices.js` (Cloudflares prisliste, neurons pr. million
+tokens). En model uden pris i den fil kan ikke kaldes. Ændrer Cloudflare en pris,
+rettes tallet dér.
+
 Sidens chat bruger samme gratis kvote; de 2.000 neurons mellem 8.000 og 10.000 er
-til den. En kørsel er anslået til 3.000–5.500 neurons; det målte tal står i hver
-kørsels Summary.
+til den. Det målte forbrug står i hver kørsels Summary.
 
 ## Modeller
 
