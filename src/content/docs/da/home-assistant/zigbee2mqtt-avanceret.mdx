@@ -84,15 +84,15 @@ Du behøver **IKKE** parre enheder igen efter firmware opdatering!
 ### SONOFF ZBDongle-P (CC2652P)
 
 ```bash
-# Download firmware
-wget https://github.com/Koenkk/Z-Stack-firmware/raw/master/coordinator/Z-Stack_3.x.0/bin/CC1352P2_CC2652P_launchpad_coordinator_20240710.zip
+# Download nyeste coordinator-firmware (CC1352P2_CC2652P_launchpad_coordinator_<dato>.zip)
+# fra https://github.com/Koenkk/Z-Stack-firmware/releases
 
-# Udpak
-unzip CC1352P2_CC2652P_launchpad_coordinator_20240710.zip
+# Udpak (erstat <dato> med datoen i filnavnet)
+unzip CC1352P2_CC2652P_launchpad_coordinator_<dato>.zip
 
 # Flash med cc2538-bsl
 python3 cc2538-bsl.py -e -v -w --bootloader-sonoff-usb \
-  CC1352P2_CC2652P_launchpad_coordinator_20240710.hex \
+  CC1352P2_CC2652P_launchpad_coordinator_<dato>.hex \
   -p /dev/ttyUSB0
 ```
 
@@ -116,14 +116,11 @@ advanced:
   # Netværksnøgle (generer en unik)
   network_key: GENERATE
   
-  # Transmit power (max for bedre rækkevidde)
+  # Transmit power (max for bedre rækkevidde; 20 dBm kræver en adapter med effektforstærker, f.eks. CC2652P)
   transmit_power: 20
   
-  # Kanal (undgå WiFi overlap)
-  # Zigbee kanal 11 = WiFi kanal 1
-  # Zigbee kanal 15 = WiFi kanal 6
-  # Zigbee kanal 20 = WiFi kanal 11
-  # Zigbee kanal 25 = Overlap-fri
+  # Kanal (brug en ZLL-kanal: 11, 15, 20 eller 25; standard er 11)
+  # Skift af kanal kan kræve, at nogle enheder parres igen
   channel: 25
   
   # PAN ID (lad Z2M generere)
@@ -378,13 +375,9 @@ advanced:
   last_seen: 'ISO_8601'
   elapsed: true
   
-  # Sikkerhed
-  permit_join: false
-  
   # Home Assistant
   homeassistant_legacy_entity_attributes: false
   legacy_api: false
-  legacy_availability_payload: false
 ```
 
 ---
@@ -398,7 +391,7 @@ advanced:
     ```bash
     # 1. Aktiver permit join på specifik router
     mosquitto_pub -t 'zigbee2mqtt/bridge/request/permit_join' \
-      -m '{"value": true, "device": "tæt_router"}'
+      -m '{"time": 60, "device": "tæt_router"}'
     
     # 2. Factory reset enheden (se manual)
     
@@ -498,7 +491,7 @@ advanced:
   },
   {
     question: "Hvilken kanal skal jeg bruge?",
-    answer: "Kanal 25 har mindst WiFi overlap. Alternativt: kanal 11, 15 eller 20 afhængigt af dine WiFi kanaler. Undgå kanal 25 hvis du har mange Zigbee 3.0 enheder der kræver channel change."
+    answer: "Brug en ZLL-kanal: 11 (standard), 15, 20 eller 25. Vælg den, der ligger længst fra dine WiFi-kanaler. Skift af kanal kan kræve, at nogle enheder parres igen."
   }
 ]} />
 
@@ -521,4 +514,4 @@ advanced:
 
 ---
 
-*Sidst opdateret: December 2025*
+*Sidst opdateret: November 2026*
