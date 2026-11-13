@@ -19,7 +19,7 @@ Claude Code har en tydelig permission-model. Det gør den god som første AI CLI
 
 - macOS, Linux, Windows eller WSL
 - Git
-- En Claude-konto, Anthropic Console-adgang eller anden understøttet provider
+- Et Claude-abonnement (Pro, Max, Ultra, Team eller Enterprise), en Claude Console-konto eller adgang via en understøttet cloud-provider. Gratisplanen inkluderer ikke Claude Code.
 - Et projekt du kan teste på
 
 ## Installer Claude Code
@@ -60,7 +60,7 @@ Anthropic anbefaler den native installer som primær metode.
 </Tabs>
 
 <Aside type="note" title="Opdateringer">
-Native installer opdaterer typisk Claude Code automatisk. Homebrew og WinGet skal opdateres via `brew upgrade --cask claude-code` eller `winget upgrade Anthropic.ClaudeCode`.
+Native installer opdaterer typisk Claude Code automatisk. Homebrew og WinGet opdaterer ikke automatisk. Brug `brew upgrade claude-code` (eller `brew upgrade claude-code@latest`, hvis du har den cask) eller `winget upgrade Anthropic.ClaudeCode`.
 </Aside>
 
 ## Log ind
@@ -181,12 +181,13 @@ Praktisk opdeling:
 | `claude auth status` | Tjek login |
 | `claude update` | Opdater CLI'en |
 | `claude mcp` | Administrer MCP-servere |
-| `/cost` | Se tokenforbrug ved API-baseret brug |
-| `/stats` | Se brugsmønstre ved abonnementsbaseret brug |
+| `/usage` | Se sessionens omkostning, plan-grænser og aktivitet (`/cost` og `/stats` er aliasser for den) |
 
 ## Permissions
 
-Claude Code starter med sikre tilladelser og spørger før handlinger som filændringer, kommandoer og netværksadgang. Svar nej, hvis du ikke kan se hvorfor handlingen er nødvendig.
+Claude Code styres af permission modes. Fra Claude Code v2.1.283 starter interaktive terminalsessioner i auto mode, hvor en separat klassifikationsmodel vurderer handlinger i stedet for dig og blokerer dem, den anser for usikre. I Manual mode (`default`) starter Claude Code med skrivebeskyttede rettigheder og spørger, før den redigerer filer, kører tests eller udfører kommandoer. `claude -p` starter også i Manual mode.
+
+Tryk `Shift+Tab` for at skifte mode i en session, eller start i en bestemt mode, fx `claude --permission-mode plan`. Svar nej, hvis du ikke kan se hvorfor en handling er nødvendig.
 
 <Aside type="caution" title="Undgå blind accept">
 Læs altid kommandoen før du godkender. Det gælder især commands der sletter filer, ændrer Git-state, installerer pakker eller sender data ud af maskinen.
@@ -225,7 +226,7 @@ Til daglig udvikling er Sonnet ofte det praktiske udgangspunkt. Brug en stærker
 
 ## Kilder
 
-Sidst tjekket: 11. april 2026.
+Sidst tjekket: 13. november 2026.
 
 - [Claude Code overview](https://code.claude.com/docs/en/overview)
 - [Claude Code quickstart](https://code.claude.com/docs/en/quickstart)

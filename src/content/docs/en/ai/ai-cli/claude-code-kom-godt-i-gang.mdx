@@ -17,7 +17,7 @@ Claude Code is Anthropic Claude as an agent in your terminal. It can read code, 
 
 - macOS, Linux, Windows, or WSL
 - Git
-- A Claude account, Anthropic Console access, or another supported provider
+- A Claude subscription (Pro, Max, Ultra, Team, or Enterprise), a Claude Console account, or access through a supported cloud provider. The free plan does not include Claude Code.
 - A project you can test on
 
 ## Install Claude Code
@@ -53,7 +53,7 @@ Anthropic currently recommends the native installer.
 </Tabs>
 
 <Aside type="note" title="Updates">
-The native installer usually updates Claude Code automatically. Homebrew and WinGet installs are updated with `brew upgrade --cask claude-code` or `winget upgrade Anthropic.ClaudeCode`.
+The native installer usually updates Claude Code automatically. Homebrew and WinGet installs do not update automatically. Use `brew upgrade claude-code` (or `brew upgrade claude-code@latest` if you installed that cask) or `winget upgrade Anthropic.ClaudeCode`.
 </Aside>
 
 ## Sign in
@@ -162,12 +162,13 @@ Practical split:
 | `claude auth status` | Check login |
 | `claude update` | Update the CLI |
 | `claude mcp` | Manage MCP servers |
-| `/cost` | Show token usage for API-based usage |
-| `/stats` | Show usage patterns for subscription-based usage |
+| `/usage` | Show session cost, plan limits, and activity (`/cost` and `/stats` are aliases for it) |
 
 ## Permissions
 
-Claude Code starts with safer permissions and asks before actions such as file edits, commands, and network access. Say no when you cannot see why an action is necessary.
+Claude Code is controlled by permission modes. From Claude Code v2.1.283, interactive terminal sessions start in auto mode, where a separate classifier model reviews actions instead of you and blocks the ones it judges unsafe. In Manual mode (`default`), Claude Code starts with read-only permissions and asks before it edits files, runs tests, or executes commands. `claude -p` also starts in Manual mode.
+
+Press `Shift+Tab` to switch mode in a session, or start in a specific mode, for example `claude --permission-mode plan`. Say no when you cannot see why an action is necessary.
 
 <Aside type="caution" title="Do not approve blindly">
 Always read the command before approving. This especially applies to commands that delete files, change Git state, install packages, or send data away from the machine.
@@ -197,7 +198,7 @@ For everyday development, Sonnet is often the practical starting point. Use a st
 
 ## Sources
 
-Last checked: April 11, 2026.
+Last checked: November 13, 2026.
 
 - [Claude Code overview](https://code.claude.com/docs/en/overview)
 - [Claude Code quickstart](https://code.claude.com/docs/en/quickstart)

@@ -10,7 +10,7 @@ import { Aside, Badge, Card, CardGrid } from '@astrojs/starlight/components';
 AI CLIs can be paid for in two ways: through a fixed subscription where usage is included up to a limit, or through an API key where you pay for tokens, tool calls, and model choice.
 
 <Aside type="caution" title="Check before buying">
-Prices, models, quotas, and promotions change often. The numbers here were last checked on July 13, 2026 and are in USD before local taxes, VAT, and currency fees.
+Prices, models, quotas, and promotions change often. The numbers here were last checked on November 13, 2026 and are in USD before local taxes, VAT, and currency fees.
 </Aside>
 
 ## Quick decision
@@ -52,10 +52,10 @@ Codex can use ChatGPT login or an OpenAI API key. ChatGPT plans include Codex ac
 
 | Plan | Price | Codex relevance |
 |---|---:|---|
-| Free | $0/mo. | Quick test tasks and learning. |
+| Free | $0/mo. | GPT-6 Luna at Standard speed in the desktop app, subject to rollout. |
 | Go | $8/mo. | Lightweight coding tasks. |
-| Plus | $20/mo. | Codex in web, CLI, IDE, and iOS, newer models, and credits. |
-| Pro | From $100/mo. | 5x or 20x higher limits than Plus and priority processing. |
+| Plus | $20/mo. | Codex in web, CLI, IDE extension, and iOS, cloud integrations such as automatic code review and Slack, GPT-6.1 Sol and GPT-6 Luna, and extra usage via ChatGPT credits. |
+| Pro | From $100/mo. | Plans at $100, $200, and $500 per month. No five-hour limit currently; Ultrafast mode on the $500 plan. |
 | Business | $20/user/mo. annual or $25/mo. | Team workspace, admin controls, larger VMs, and credits. |
 | Enterprise/Edu | Contact sales | Enterprise controls, audit logs, retention, and data residency. |
 | API key | Token-based | Local Codex tasks in CLI/SDK/IDE, but no cloud code review. |
@@ -64,53 +64,63 @@ Codex can use ChatGPT login or an OpenAI API key. ChatGPT plans include Codex ac
 
 | Model | Input / 1M tokens | Cached input / 1M tokens | Output / 1M tokens |
 |---|---:|---:|---:|
-| GPT-5.6 Sol | $5.00 | $0.50 | $30.00 |
-| GPT-5.6 Terra | $2.50 | $0.25 | $15.00 |
-| GPT-5.6 Luna | $1.00 | $0.10 | $6.00 |
+| GPT-6 Astra | $10.00 | $1.00 | $50.00 |
+| GPT-6.1 Sol | $2.00 | $0.10 | $10.00 |
+| GPT-6.1 Terra | $1.00 | $0.05 | $5.00 |
+| GPT-6 Luna | $0.10 | $0.01 | $0.50 |
+| GPT-6 Sol | $2.00 | $0.20 | $10.00 |
+| GPT-5.6 Sol | $4.00 | $0.40 | $20.00 |
+| GPT-5.6 Terra | $2.00 | $0.20 | $12.00 |
+| GPT-5.6 Luna | $0.20 | $0.02 | $1.20 |
 | GPT-5.5 | $5.00 | $0.50 | $30.00 |
 | GPT-5.4 | $2.50 | $0.25 | $15.00 |
 | GPT-5.4 mini | $0.75 | $0.075 | $4.50 |
 | GPT-5.4 nano | $0.20 | $0.02 | $1.25 |
-| GPT-5.3-Codex | $1.75 | — | $14.00 |
+| GPT-5.3-Codex | $1.75 | $0.175 | $14.00 |
 
-GPT-5.6 Sol is OpenAI's newest flagship model, with Terra and Luna as the mid-size and small 5.6 variants. Data residency and regional processing can add a 10% surcharge for models released after March 5, 2026.
+Prices are for the Standard tier at short context (up to 272K input tokens). OpenAI's price list now puts GPT-6 Astra, GPT-6.1 Sol, GPT-6.1 Terra, GPT-6 Luna, and GPT-6 Sol ahead of the GPT-5.6 models. Data residency and regional processing can add a 10% surcharge for models released after March 5, 2026.
 
 ### Codex credits
 
-Codex credits let you continue after included limits. For new and existing Business customers and new Enterprise customers, OpenAI showed this token-based credit card:
+Codex credits let you continue after included limits. OpenAI shows this token-based credit card at Standard speed:
 
 | Model | Input / 1M tokens | Cached input / 1M tokens | Output / 1M tokens |
 |---|---:|---:|---:|
-| GPT-5.6 Sol | 125 credits | 12.5 credits | 750 credits |
-| GPT-5.6 Terra | 62.5 credits | 6.25 credits | 375 credits |
-| GPT-5.6 Luna | 25 credits | 2.5 credits | 150 credits |
-| GPT-5.5 | 125 credits | 12.5 credits | 750 credits |
-| GPT-5.4 | 62.5 credits | 6.25 credits | 375 credits |
-| GPT-5.4 mini | 18.75 credits | 1.875 credits | 113 credits |
+| GPT-6 Astra | 250 credits | 25 credits | 1,250 credits |
+| GPT-6.1 Sol | 50 credits | 2.5 credits | 250 credits |
+| GPT-6.1 Terra | 25 credits | 1.25 credits | 125 credits |
+| GPT-6 Sol | 50 credits | 5 credits | 250 credits |
+| GPT-6 Luna | 2.5 credits | 0.25 credits | 12.5 credits |
+| GPT-5.6 Sol | 100 credits | 10 credits | 500 credits |
+| GPT-5.6 Terra | 50 credits | 5 credits | 300 credits |
+| GPT-5.6 Luna | 5 credits | 0.5 credits | 30 credits |
 
-GPT-5.3-Codex-Spark is a research preview available to ChatGPT Pro users only.
+Fast mode uses 2x and Ultrafast 6x the Standard rate for purchased credits. GPT-5.3-Codex-Spark was retired from Codex on September 14, 2026.
 
 ### Codex Included Limits
 
 OpenAI gives limits as ranges because they depend on task size and model. As a practical rule, large repositories, long prompts, and subagents use the allowance faster.
 
-| Plan | Example local messages per 5 hours |
+| Plan | Local messages per 5 hours |
 |---|---|
-| Plus/Business | GPT-5.6 Terra: 20-110 |
-| Pro 5x | GPT-5.6 Terra: 100-550 |
-| Pro 20x | GPT-5.6 Terra: 400-2,200 |
+| Plus and standard Business | GPT-6 Astra: 5-45 |
+| Plus and standard Business | GPT-6.1 Sol: 15-160 |
+| Plus and standard Business | GPT-6.1 Terra: 35-285 |
+| Plus and standard Business | GPT-6 Luna: 350-3,000 |
+| Pro | No five-hour limit currently |
 
-Cloud tasks and local messages can share the same five-hour window, and weekly limits can also apply.
+The figures are estimates, and weekly limits can also apply. Cloud tasks and local messages can share the same limit.
 
 ## Anthropic Claude Code and Claude API
 
-Claude Code can be used through Claude subscriptions or API token consumption. Claude Code shows token and plan usage with `/usage`. Pro and Max subscribers have usage included in their plan, while API users pay per token. Subscriptions give access to Anthropic's current model families: Fable, Opus, Sonnet, and Haiku.
+Claude Code can be used through Claude subscriptions or API token consumption. Claude Code shows token and plan usage with `/usage`. Pro, Max, and Ultra subscribers have usage included in their plan, while API users pay per token. Subscriptions give access to Opus, Sonnet, and Haiku; Fable is included on Max and Ultra (up to 50% of weekly limits) and available through usage credits on Pro.
 
 | Plan | Price | Claude Code relevance |
 |---|---:|---|
-| Free | $0 | Try Claude in the app. |
+| Free | $0 | Try Claude in the app. Does not include Claude Code. |
 | Pro | $17/mo. annual or $20/mo. monthly | More usage, Claude Code, Claude Cowork, and Projects. |
-| Max | From $100/mo. | 5x or 20x more usage than Pro and higher output limits. |
+| Max | $100/mo. | 5x Pro usage per 5 hours and per week, plus $100/mo. in API credits. |
+| Ultra | $200/mo. | No five-hour limit (for verified accounts), 10x Pro usage weekly, and $200/mo. in API credits. |
 | Team standard | $20/seat/mo. annual or $25/mo. | Team features, Claude Code, SSO, and admin. |
 | Team premium | $100/seat/mo. annual or $125/mo. | 5x more usage than standard seats. |
 | Enterprise | $20/seat + API-rate usage | Enterprise controls, spend controls, audit logs, and retention. |
@@ -122,14 +132,19 @@ Anthropic describes typical enterprise Claude Code costs as around $13 per devel
 
 | Model | Input / 1M tokens | Output / 1M tokens | Cache write / 1M | Cache read / 1M |
 |---|---:|---:|---:|---:|
+| Fable 5.2 | $8 | $40 | $10 | $0.20 |
+| Fable 5.1 | $10 | $50 | $12.50 | $0.25 |
 | Fable 5 | $10 | $50 | $12.50 | $1.00 |
-| Opus 4.8 | $5 | $25 | $6.25 | $0.50 |
-| Sonnet 5, intro through Aug 31, 2026 | $2 | $10 | $2.50 | $0.20 |
-| Sonnet 5, from Sep 1, 2026 | $3 | $15 | $3.75 | $0.30 |
+| Opus 5.5 | $4 | $20 | $5 | $0.20 |
+| Opus 5 and 4.8 | $5 | $25 | $6.25 | $0.50 |
+| Sonnet 5.5 | $2 | $10 | $2.50 | $0.10 |
+| Sonnet 5 | $2 | $10 | $2.50 | $0.20 |
 | Sonnet 4.6 | $3 | $15 | $3.75 | $0.30 |
+| Haiku 5.5, prompts up to 100,000 tokens | $0.10 | $0.50 | $0.125 | $0.01 |
+| Haiku 5.5, prompts over 100,000 tokens | $0.50 | $2.50 | $0.625 | $0.05 |
 | Haiku 4.5 | $1 | $5 | $1.25 | $0.10 |
 
-Opus 4.7 and 4.6 cost the same as Opus 4.8. Cache write prices are for the 5-minute cache; the 1-hour cache costs 2x the input price. Note that Fable 5, Sonnet 5, and Opus 4.7+ use a newer tokenizer that produces roughly 30% more tokens for the same text than Sonnet 4.6 and earlier, so don't compare on per-token price alone.
+Opus 4.7, 4.6, and 4.5 cost the same as Opus 4.8. Sonnet 5's introductory price of $2/$10 per million tokens (input/output) is now the standard price; the increase planned for September 1, 2026 did not happen. Cache write prices are for the 5-minute cache; the 1-hour cache costs 2x the input price. Note that Claude 4.7 and later models use a newer tokenizer that produces roughly 30% more tokens for the same text than Sonnet 4.6 and earlier, so don't compare on per-token price alone.
 
 US-only inference costs 1.1x on all token prices. Claude web search costs $10 per 1,000 searches. Code execution is free when used with web search/web fetch; otherwise it includes 1,550 free hours per month per organization, then $0.05 per hour per container.
 
@@ -145,12 +160,13 @@ Google shut down Gemini CLI's free access (Google sign-in, Gemini Code Assist fo
 |---|---:|---:|
 | Google account, Gemini Code Assist individual | Free | 1,000 requests per user per day |
 | Google AI Pro | $19.99/mo. | 1,500 requests per user per day |
-| Google AI Ultra | $249.99/mo. | 2,000 requests per user per day |
+| Google AI Ultra | From $99.99/mo. | 2,000 requests per user per day |
 | Gemini API key, unpaid | Free tier | 250 requests per user per day, Flash only |
 | Gemini API key, paid | Pay as you go | Varies by pricing tier and token usage |
 | Vertex AI | Pay as you go | Varies by Google Cloud quota and model |
 | Workspace Code Assist Standard | Seat/license | 1,500 requests per user per day |
 | Workspace Code Assist Enterprise | Seat/license | 2,000 requests per user per day |
+| Workspace AI Ultra | Seat/license | 2,000 requests per user per day |
 
 Google AI Plus exists as a consumer subscription, but the Gemini CLI documentation says tiers that are not listed, including Google AI Plus, are not supported as a CLI paid tier.
 
@@ -158,17 +174,21 @@ Google AI Plus exists as a consumer subscription, but the Gemini CLI documentati
 
 | Model and tier | Input / 1M tokens | Output / 1M tokens |
 |---|---:|---:|
-| Gemini 3.5 Flash, Standard | $1.50 | $9.00 |
-| Gemini 3.5 Flash, Batch | $0.75 | $4.50 |
-| Gemini 3.1 Pro, Standard, under 200k prompt | $2.00 | $12.00 |
-| Gemini 3.1 Pro, Standard, over 200k prompt | $4.00 | $18.00 |
-| Gemini 3.1 Pro, Batch, under 200k prompt | $1.00 | $6.00 |
-| Gemini 3.1 Flash-Lite, Standard text/image/video | $0.25 | $1.50 |
-| Gemini 3.1 Flash-Lite, Batch text/image/video | $0.125 | $0.75 |
+| Gemini 4 Carbon and Argon, Standard | $2.00 through Nov 30, 2026, then $4.00 | $10.00 through Nov 30, 2026, then $20.00 |
+| Gemini 4 Carbon and Argon, Batch | $1.00 through Nov 30, 2026, then $2.00 | $5.00 through Nov 30, 2026, then $10.00 |
+| Gemini 4 Hydrogen, Standard | $1.50 | $7.50 |
+| Gemini 4 Hydrogen, Batch | $0.75 | $3.75 |
+| Gemini 3.8 Flash, Standard | $0.75 through Dec 31, 2026, then $1.50 | $3.75 through Dec 31, 2026, then $7.50 |
+| Gemini 3.8 Flash, Batch | $0.375 through Dec 31, 2026, then $0.75 | $1.875 through Dec 31, 2026, then $3.75 |
+| Gemini 3.5 Flash-Lite, Standard | $0.30 | $2.50 |
+| Gemini 3.5 Flash-Lite, Batch | $0.15 | $1.25 |
+| Gemini 3.1 Pro Preview, Standard, under 200k prompt | $2.00 | $12.00 |
+| Gemini 3.1 Pro Preview, Standard, over 200k prompt | $4.00 | $18.00 |
+| Gemini 3.1 Pro Preview, Batch, under 200k prompt | $1.00 | $6.00 |
 
-Gemini 3.5 Flash is the latest Flash model and has replaced Gemini 3 Flash as the default choice for fast tasks.
+The pricing page no longer lists Gemini 3.5 Flash. The closest models are Gemini 3.8 Flash and Gemini 3.5 Flash-Lite. Gemini 4 Carbon and Argon have no free tier. According to Google's documentation, Gemini CLI is not optimized for Gemini 4 Argon.
 
-Grounding with Google Search for Gemini 3 models includes 5,000 prompts per month, then $14 per 1,000 search queries. Batch API can reduce token prices, but works best for tasks that can wait.
+Grounding with Google Search for Gemini 3 models and newer includes 5,000 searches per month, then $14 per 1,000 searches. Batch API can reduce token prices, but works best for tasks that can wait.
 
 ## Practical Budget Choices
 
@@ -209,7 +229,7 @@ The English page shows USD because that is how most official pricing pages publi
 
 ## Sources
 
-Last checked: July 13, 2026.
+Last checked: November 13, 2026.
 
 - [ChatGPT and Codex pricing](https://learn.chatgpt.com/docs/pricing)
 - [OpenAI API pricing](https://developers.openai.com/api/docs/pricing)

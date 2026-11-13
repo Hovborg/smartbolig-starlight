@@ -16,7 +16,7 @@ Antigravity CLI (the command is `agy`) is Google's new AI agent for the terminal
 `agy` shares its agent engine with **Antigravity 2.0** (Google's desktop app for AI development) but runs as a lightweight terminal app optimized for keyboard-driven work and SSH sessions.
 
 <Aside type="tip" title="The switch from Gemini CLI">
-Google is shutting down Gemini CLI's free access, Google AI Pro, and Google AI Ultra on **June 18, 2026**. Antigravity CLI is the official successor. If you use Gemini CLI today, now is the time to switch.
+On **June 18, 2026**, Google replaced Gemini CLI with Antigravity CLI for free users and Google One users, and Gemini CLI stopped serving Google AI Pro and Google AI Ultra. Antigravity CLI is the official successor. If you still use Gemini CLI without a paid API key or Code Assist license, now is the time to switch.
 </Aside>
 
 ## How is agy different from Gemini CLI?
@@ -25,7 +25,7 @@ Google is shutting down Gemini CLI's free access, Google AI Pro, and Google AI U
 |---|---|---|
 | Technology | Node.js-based (requires Node 20+) | A single self-contained Go binary — no Node.js |
 | Startup | Seconds | Milliseconds, low RAM usage |
-| Status | Free access shuts down June 18, 2026 | Google's actively developed CLI |
+| Status | Replaced by agy for free users on June 18, 2026 | Google's actively developed CLI |
 | Agent engine | Its own | Shared with the Antigravity 2.0 desktop app |
 | Conversations | Sessions | Persistent history, exportable to the desktop app |
 
@@ -96,7 +96,7 @@ Sign-in uses your Google account:
 The access token is stored securely in your system keyring, so you don't need to sign in every time.
 
 <Aside type="note" title="Quotas and G1 credits">
-agy uses your Google account's quota (Gemini 3.5 Flash is the default model). When the quota runs out, you can enable **G1 credits** as additional usage — check status and purchase via the `/credits` panel inside the CLI.
+agy uses the quota from your plan. When the quota runs out, you can turn on the "Use AI Credits" setting (`useG1Credits`) via `/config` or `/settings`, so the CLI uses your personal credits as additional usage. The `/credits` panel shows usage and opens purchasing and upgrades.
 </Aside>
 
 ## Your first safe session
@@ -158,6 +158,7 @@ Verified with `agy --help` (version 1.0.3):
 | `agy --conversation <id>` | Resume a specific conversation |
 | `agy -i "..."` | Start interactively with an initial prompt |
 | `agy --add-dir <path>` | Add an extra directory to the workspace (repeatable) |
+| `agy --mode <mode>` | Start in an execution mode: `accept-edits`, `auto`, or `plan` |
 | `agy --sandbox` | Run in a sandbox with terminal restrictions |
 | `agy update` | Update the CLI |
 | `agy changelog` | Show changes in recent versions |
