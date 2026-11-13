@@ -37,6 +37,7 @@ Den anden kørsel stopper med det samme, hvis dagens udgave findes.
    (`scripts/lib/ai-news-issue-files.mjs`), og udgivelse gennem `deploy.yml`.
    Udgivelsen gælder altid den aktuelle spids af `origin/main`. Er `main` rykket
    videre, når `deploy.yml` kører, udgiver den kørsel intet; det nyere push har sin egen.
+   Et kald fra nyhedsworkflowet udgiver kun, når den kontrol har sagt ja.
 8. **Overvågning.** Jobbet `watch` åbner én GitHub-sag, når nyeste udgave er
    3 dage gammel, og lukker den igen, når der udgives. Sagen åbnes kun af den
    sene kørsel (11:37 UTC) eller en manuel kørsel; lukning sker i alle kørsler.
@@ -78,13 +79,15 @@ døgn (UTC); forbrug derover koster penge. Derfor er der to lofter:
 - **Relayet** holder dagens forbrug under 8.000 neurons. Før hvert modelkald
   bogfører det kaldets højeste mulige pris; er der ikke plads, afvises kaldet.
   Efter svaret rettes tallet til den rigtige pris. Et afbrudt eller fejlet kald
-  beholder hele reservationen, og to kald på samme tid tælles begge. Det gør
-  også et svar, der melder nul tokens. Kan tælleren ikke nås, afvises kaldet.
+  beholder hele reservationen. Det samme gør et svar, der melder nul tokens
+  eller tal, der ikke er hele. To kald på samme tid tælles begge. Kan tælleren
+  ikke nås, afvises kaldet.
   Fejler modellen bag relayet (`upstream_failed`), prøver jobbet ikke samme
   model igen, men går til reservemodellen: hvert forsøg bogfører en ny
   reservation.
 - **Kørslen** (`scripts/lib/news-llm/limits.mjs`) stopper ved 40 kald eller
-  6.000 neurons.
+  6.000 neurons. Den tæller kun kald, der gav svar; fejlede kald ses kun af
+  relayets dagsloft.
 
 Prisen regnes ud fra de tokens, modellen melder tilbage, gange modellens pris i
 `workers/news-llm/src/prices.js` (Cloudflares prisliste, neurons pr. million

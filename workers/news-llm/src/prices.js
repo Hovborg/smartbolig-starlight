@@ -22,10 +22,11 @@ export function neuronsFor(model, inputTokens, outputTokens) {
 // write more than max_tokens.
 export const worstCase = (model, bodyBytes, maxTokens) => neuronsFor(model, bodyBytes, maxTokens);
 
-const tokenCount = (value) => (typeof value === "number" && Number.isFinite(value) && value > 0 ? value : null);
+// A token count is a whole number above zero that a double holds exactly.
+const tokenCount = (value) => (Number.isSafeInteger(value) && value > 0 ? value : null);
 
 // What a finished call cost, from the token counts the model reported.
-// Returns null unless both counts are real numbers above zero, and the caller
+// Returns null unless both counts are whole numbers above zero, and the caller
 // then keeps the worst case: a call always reads and writes something, so a
 // zero is a missing count, not a free call. When the total is larger than
 // input plus output (reasoning tokens reported outside the output count),

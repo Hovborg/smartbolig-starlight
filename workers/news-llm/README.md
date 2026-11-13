@@ -1,7 +1,7 @@
 # news-llm: relay til Workers AI
 
 Sidst kontrolleret: 2026-11-14.
-Kontrolleret ved: `node --test scripts/ai-news-relay-worker.test.mjs` (39 tests)
+Kontrolleret ved: `node --test scripts/ai-news-relay-worker.test.mjs` (40 tests)
 og `npx wrangler deploy --dry-run --config workers/news-llm/wrangler.jsonc`.
 Den udrullede Worker og dens første rigtige kald står i `docs/nyhedsflow.md`.
 

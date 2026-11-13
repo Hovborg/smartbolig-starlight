@@ -3,7 +3,7 @@
 Opdateres ved hver afsluttet delopgave, så arbejdet kan genoptages præcist.
 Plan: [PLAN.md](PLAN.md). Valg: [BESLUTNINGER.md](BESLUTNINGER.md). Til ejeren: [TIL-EJEREN.md](TIL-EJEREN.md).
 
-Sidst opdateret: 2026-11-13.
+Sidst opdateret: 2026-11-14.
 
 ## Færdigt
 
@@ -20,7 +20,8 @@ Sidst opdateret: 2026-11-13.
 
 - **Fase 1, nyhedsflow:** grenen `feat/news-actions-v2`. Ny kæde pr. historie, workflow
   `ai-news.yml`, `deploy.yml` kan kaldes, tests grønne lokalt (ai-news, site).
-  Mangler: uafhængig gennemgang, PR, fletning, første kørsel i GitHub Actions (først `dry_run`).
+  Uafhængigt gennemgået tre gange (sidste dom 2026-11-14: klar), PR #172.
+  Mangler: fletning, første kørsel i GitHub Actions (først `dry_run`).
 - **Fase 3, gennemgang af guides:** fire grene `content/review-*` (worktrees
   `smartbolig-guides-*`). Produkter og øvrige mapper er rettet og under uafhængig gennemgang.
   Home Assistant del A og B er i gang. Logge: `docs/redesign/guide-review/`.

@@ -534,7 +534,7 @@ test("deploy runs every local quality gate before publishing", async () => {
   assert.equal((workflow.match(/if: env\.SHOULD_DEPLOY == 'true'/g) || []).length, 2);
   assert.equal((workflow.match(/SHOULD_DEPLOY/g) || []).length, 3);
   // A call for a commit that is no longer the tip of main publishes nothing.
-  assert.equal((workflow.match(/if: env\.SHOULD_DEPLOY == 'true' && \(inputs\.ref == '' \|\| steps\.tip\.outputs\.current == 'true'\)/g) || []).length, 2);
+  assert.equal((workflow.match(/if: env\.SHOULD_DEPLOY == 'true' && \(inputs\.publish != true \|\| steps\.tip\.outputs\.current == 'true'\)/g) || []).length, 2);
   assert.match(workflow, /id: tip\r?\n\s+if: inputs\.ref != ''/);
   assert.match(workflow, /git fetch --quiet origin main/);
   assert.match(workflow, /echo "::notice::main has moved on/);

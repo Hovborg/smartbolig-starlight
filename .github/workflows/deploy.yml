@@ -147,7 +147,7 @@ jobs:
         run: npm exec --no -- wrangler deploy --dry-run --config workers/news-llm/wrangler.jsonc
 
       - name: Deploy to Cloudflare Workers
-        if: env.SHOULD_DEPLOY == 'true' && (inputs.ref == '' || steps.tip.outputs.current == 'true')
+        if: env.SHOULD_DEPLOY == 'true' && (inputs.publish != true || steps.tip.outputs.current == 'true')
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -156,7 +156,7 @@ jobs:
         run: npm exec --no -- wrangler deploy
 
       - name: Ping IndexNow
-        if: env.SHOULD_DEPLOY == 'true' && (inputs.ref == '' || steps.tip.outputs.current == 'true')
+        if: env.SHOULD_DEPLOY == 'true' && (inputs.publish != true || steps.tip.outputs.current == 'true')
         # The site is already deployed at this point — a failed search-engine
         # ping (e.g. missing key or IndexNow API hiccup) must not fail the run.
         continue-on-error: true

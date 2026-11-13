@@ -163,6 +163,9 @@ test("prices: neurons from tokens, the worst case and the reported cost", () => 
     { prompt_tokens: "1000", completion_tokens: "1000" },
     { prompt_tokens: true, completion_tokens: true },
     { prompt_tokens: Infinity, completion_tokens: 1 },
+    { prompt_tokens: 0.4, completion_tokens: 0.4 },
+    { prompt_tokens: 1000.5, completion_tokens: 1000 },
+    { prompt_tokens: 1e305, completion_tokens: 1 },
     { input_tokens: 0, output_tokens: 0 },
   ]) {
     assert.equal(actualCost(MODEL, usage), null);
@@ -172,6 +175,8 @@ test("prices: neurons from tokens, the worst case and the reported cost", () => 
   assert.equal(actualCost(MODEL, { prompt_tokens: 1000, completion_tokens: 1000, total_tokens: 5000 }), neuronsFor(MODEL, 1000, 4000));
   assert.equal(actualCost(MODEL, { prompt_tokens: 1000, completion_tokens: 1000, total_tokens: 1500 }), 37);
   assert.equal(actualCost(MODEL, { prompt_tokens: 1000, completion_tokens: 1000, total_tokens: 0 }), 37);
+  // A total no double holds exactly is ignored, so the cost stays a finite number.
+  assert.equal(actualCost(MODEL, { prompt_tokens: 1000, completion_tokens: 1000, total_tokens: 1e305 }), 37);
   assert.equal(isPriced(MODEL), true);
   assert.equal(isPriced(UNPRICED), false);
   assert.equal(isPriced("constructor"), false);
