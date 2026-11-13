@@ -29,7 +29,7 @@ Docker er den fleksible måde at køre Home Assistant på. Perfekt hvis du aller
 
 - Er ny til Home Assistant
 - Vil have alt til at "bare virke"
-- Har brug for Add-ons (Zigbee2MQTT, Node-RED, osv.)
+- Har brug for apps (tidligere add-ons) som Zigbee2MQTT og Node-RED
 
 <Aside type="tip">
 Ny til Home Assistant? Start med [Raspberry Pi installation](/da/home-assistant/raspberry-pi-installation/) - det er meget nemmere.
@@ -38,7 +38,7 @@ Ny til Home Assistant? Start med [Raspberry Pi installation](/da/home-assistant/
 ## 📋 Forudsætninger
 
 - ✅ Linux server (Ubuntu, Debian, eller lignende)
-- ✅ Docker installeret
+- ✅ Docker Engine 23.0.0 eller nyere installeret (Docker Desktop understøttes ikke ifølge Home Assistant)
 - ✅ Grundlæggende terminal-kendskab
 
 ## ⚙️ Installer Docker
@@ -190,19 +190,19 @@ Hvis du har en Zigbee USB stick eller lignende:
 
 | Feature | Docker Container | Home Assistant OS |
 |---------|------------------|-------------------|
-| Add-ons (Z2M, Node-RED) | ❌ Kør separat | ✅ Integreret |
+| Apps (Z2M, Node-RED) | ❌ Kør separat | ✅ Integreret |
 | Supervisor | ❌ Nej | ✅ Ja |
-| Auto-backup | ❌ Manuel | ✅ Ja |
+| Indbygget backup | ⚠️ Kun indstillinger og valgfri historik | ✅ Ja, inkl. apps |
 | Opdateringer | Manuel (`pull`) | ✅ Et klik |
 | Fleksibilitet | ⭐⭐⭐ | ⭐⭐ |
 
-<Aside type="tip" title="Vil du have Add-ons?">
-Du kan køre Zigbee2MQTT, Node-RED osv. som separate Docker containers. Se vores [Zigbee2MQTT guide](/da/home-assistant/zigbee2mqtt/).
+<Aside type="tip" title="Vil du have apps (tidligere add-ons)?">
+Du kan køre Zigbee2MQTT, Node-RED osv. som separate Docker containers, da Container-installationen ikke har adgang til apps. Se vores [Zigbee2MQTT guide](/da/home-assistant/zigbee2mqtt/).
 </Aside>
 
 ## 💾 Backup
 
-Docker Container har ikke automatisk backup. Lav det manuelt:
+Home Assistants indbyggede backup virker også på Container, men dækker kun indstillinger og valgfri historik, ikke apps eller andre containere. Tag derfor også en backup af hele config-mappen manuelt:
 
 ```bash
 # Stop HA først (valgfrit, men sikrere)
