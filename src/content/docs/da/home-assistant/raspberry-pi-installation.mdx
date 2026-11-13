@@ -19,7 +19,7 @@ import HowTo from '../../../../components/HowTo.astro';
     { name: "Download Raspberry Pi Imager", text: "Hent og installer Raspberry Pi Imager fra raspberrypi.com/software." },
     { name: "Flash Home Assistant OS", text: "Åbn Raspberry Pi Imager, vælg 'Other specific-purpose OS' > 'Home Assistant' > 'Home Assistant OS'. Vælg dit SD-kort og klik Write." },
     { name: "Tilslut hardware", text: "Sæt SD-kortet i Raspberry Pi, tilslut ethernet og strøm." },
-    { name: "Vent på opstart", text: "Vent 5-10 minutter mens Home Assistant installerer sig selv." },
+    { name: "Vent på opstart", text: "Vent et par minutter, mens Home Assistant starter. Er den ikke klar efter 5 minutter, så flash kortet igen." },
     { name: "Åbn onboarding", text: "Åbn homeassistant.local:8123 i din browser og opret din første bruger." }
   ]}
 />
@@ -43,7 +43,7 @@ Raspberry Pi er den mest populære måde at køre Home Assistant på. Billigt, s
 |-----|-------------|----------|
 | Raspberry Pi 4 (4GB) | Anbefalet model | 450 kr |
 | Strømforsyning | Official 15W USB-C | 100 kr |
-| SD-kort 32GB+ | Samsung EVO eller SanDisk | 80 kr |
+| SD-kort 32GB+ (A2) | Samsung EVO eller SanDisk | 80 kr |
 | Ethernetkabel | Cat5e/Cat6 | 30 kr |
 | **Total** | | **~660 kr** |
 
@@ -84,7 +84,7 @@ SD-kort dør efter 1-3 år med Home Assistant. Brug SSD fra starten hvis muligt,
 6. **Flash:**
    - Klik **"Write"**
    - Bekræft at data slettes
-   - Vent 5-10 minutter
+   - Vent til skrivningen er færdig
 </Steps>
 
 <Aside type="tip">
@@ -110,7 +110,7 @@ Du behøver IKKE konfigurere WiFi eller SSH i Imager. Home Assistant OS håndter
 </Steps>
 
 <Aside type="note">
-Første opstart tager **10-20 minutter**. Sluk IKKE for strømmen mens du venter!
+Home Assistant er normalt klar inden for få minutter (på en Pi 4 eller 5 typisk under ét minut). Sluk IKKE for strømmen mens du venter!
 </Aside>
 
 ## 🌐 Åbn Home Assistant
@@ -131,7 +131,7 @@ Første opstart tager **10-20 minutter**. Sluk IKKE for strømmen mens du venter
   </TabItem>
 </Tabs>
 
-Du ser først **"Preparing Home Assistant"** - vent 10-20 minutter.
+Du ser først **"Preparing Home Assistant"** - vent et par minutter.
 
 ## ⚙️ Første Opsætning
 
@@ -182,11 +182,11 @@ Gem ALDRIG kun backups på SD-kortet. Hvis kortet dør, mister du alt!
 3. Genstart hvis nødvendigt
 </Steps>
 
-### 3. Installer nyttige add-ons
+### 3. Installer nyttige apps
 
-Gå til **Indstillinger** → **Add-ons** → **Add-on butik**:
+Gå til **Indstillinger** → **Apps** → **Install app** (hed før Home Assistant 2026.2 *Add-ons*):
 
-| Add-on | Hvad gør den |
+| App | Hvad gør den |
 |--------|--------------|
 | **File Editor** | Rediger config-filer i browseren |
 | **Terminal & SSH** | Kommandolinje-adgang |
@@ -196,19 +196,19 @@ Gå til **Indstillinger** → **Add-ons** → **Add-on butik**:
 
 <Aside type="tip" title="homeassistant.local virker ikke?">
 **Prøv disse ting:**
-1. Vent 5 minutter mere og prøv igen
+1. Vent et par minutter mere og prøv igen
 2. Find IP i din router og brug `http://IP:8123`
 3. Prøv en anden browser
 4. Tjek at Pi'en har grønt lys (strøm) og blinkende lys (aktivitet)
 </Aside>
 
 <Aside type="tip" title="'Preparing Home Assistant' tager evigt?">
-**Normal tid:** 10-20 minutter på første boot.
+**Normal tid:** få minutter på første boot. Ifølge Home Assistants guide bør den være klar inden for ca. ét minut på en Pi 4 eller 5.
 
-**Hvis det tager længere:**
-- Vent op til 30 minutter
+**Hvis den ikke er klar efter 5 minutter:**
 - Tjek at Pi'en har internet (ethernet kabel sat i?)
-- Prøv at genstarte ved at tage strømmen og sætte den i igen
+- Tilslut en skærm via HDMI og se konsollens output
+- Flash kortet igen, eventuelt med et andet SD-kort
 </Aside>
 
 <Aside type="tip" title="Pi'en bliver meget varm?">
