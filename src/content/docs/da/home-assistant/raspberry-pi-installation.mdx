@@ -19,7 +19,7 @@ import HowTo from '../../../../components/HowTo.astro';
     { name: "Download Raspberry Pi Imager", text: "Hent og installer Raspberry Pi Imager fra raspberrypi.com/software." },
     { name: "Flash Home Assistant OS", text: "Åbn Raspberry Pi Imager, vælg 'Other specific-purpose OS' > 'Home Assistant' > 'Home Assistant OS'. Vælg dit SD-kort og klik Write." },
     { name: "Tilslut hardware", text: "Sæt SD-kortet i Raspberry Pi, tilslut ethernet og strøm." },
-    { name: "Vent på opstart", text: "Vent et par minutter, mens Home Assistant starter. Er den ikke klar efter 5 minutter, så flash kortet igen." },
+    { name: "Vent på opstart", text: "Siden på homeassistant.local:8123 er normalt klar inden for få minutter. Første klargøring (Preparing Home Assistant) kan derefter tage 20 minutter eller mere." },
     { name: "Åbn onboarding", text: "Åbn homeassistant.local:8123 i din browser og opret din første bruger." }
   ]}
 />
@@ -110,7 +110,7 @@ Du behøver IKKE konfigurere WiFi eller SSH i Imager. Home Assistant OS håndter
 </Steps>
 
 <Aside type="note">
-Home Assistant er normalt klar inden for få minutter (på en Pi 4 eller 5 typisk under ét minut). Sluk IKKE for strømmen mens du venter!
+Siden på homeassistant.local:8123 kan normalt nås inden for få minutter (på en Pi 4 eller 5 inden for ét minut). Sluk IKKE for strømmen mens du venter!
 </Aside>
 
 ## 🌐 Åbn Home Assistant
@@ -131,7 +131,7 @@ Home Assistant er normalt klar inden for få minutter (på en Pi 4 eller 5 typis
   </TabItem>
 </Tabs>
 
-Du ser først **"Preparing Home Assistant"** - vent et par minutter.
+Du ser først **"Preparing Home Assistant"**, mens nyeste version hentes - det kan tage 20 minutter eller mere, afhængigt af hardware og internetforbindelse.
 
 ## ⚙️ Første Opsætning
 
@@ -203,12 +203,14 @@ Gå til **Indstillinger** → **Apps** → **Install app** (hed før Home Assist
 </Aside>
 
 <Aside type="tip" title="'Preparing Home Assistant' tager evigt?">
-**Normal tid:** få minutter på første boot. Ifølge Home Assistants guide bør den være klar inden for ca. ét minut på en Pi 4 eller 5.
+**Normal tid:** op til 20 minutter eller mere, afhængigt af hardware og internetforbindelse.
 
-**Hvis den ikke er klar efter 5 minutter:**
+**Hvis siden slet ikke dukker op efter 5 minutter (Pi 4 eller 5):**
 - Tjek at Pi'en har internet (ethernet kabel sat i?)
 - Tilslut en skærm via HDMI og se konsollens output
 - Flash kortet igen, eventuelt med et andet SD-kort
+
+Flash ikke kortet igen, mens "Preparing Home Assistant" vises.
 </Aside>
 
 <Aside type="tip" title="Pi'en bliver meget varm?">

@@ -42,7 +42,7 @@ Z-Wave is a **reliable wireless protocol** for smart home with excellent range a
 | **HomeSeer SmartStick G8** | 800 | ✅ | ~$50 | Good support |
 
 <Aside type="caution" title="Z-Wave Long Range">
-**Long Range** requires an 800 series stick, and the devices must support it too. Home Assistant has the RF regions **USA (Long Range)** and **Europe (Long Range)**; the ZWA-2 has Long Range frequencies for both the US and the EU. Devices cannot change frequency, so they must match your region. Without Long Range you still get the benefits of the 800 series: better range, lower power consumption, and S2 security.
+**Long Range** requires an adapter that supports it (for example the ZWA-2), and the devices must support it too. Home Assistant has the RF regions **USA (Long Range)** and **Europe (Long Range)**; the ZWA-2 has Long Range frequencies for both the US and the EU. Devices cannot change frequency, so they must match your region. Without Long Range you still get the benefits of the 800 series: better range, lower power consumption, and S2 security.
 </Aside>
 
 ### GPIO Modules (for Raspberry Pi)
@@ -354,7 +354,7 @@ Shows:
   },
   {
     question: "Can I migrate from 500/700 series to 800 series?",
-    answer: "Yes. Use **Settings → Connectivity → Z-Wave → Migrate adapter**. Home Assistant recommends an 800 series stick with firmware 7.23.2 or newer, and a 500 series stick must first be updated to SDK 6.61+. The Aeotec Z-Stick 10 Pro should also have firmware 7.23.2+, otherwise the migration may fail."
+    answer: "Yes. Use Settings → Connectivity → Z-Wave → Migrate adapter. Home Assistant recommends an 800 series stick with firmware 7.23.2 or newer, and a 500 series stick must first be updated to SDK 6.61+. The Aeotec Z-Stick 10 Pro should also have firmware 7.23.2+, otherwise the migration may fail."
   },
   {
     question: "Why don't I see all entities?",

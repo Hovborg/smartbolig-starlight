@@ -59,3 +59,23 @@ Ikke rettet, fordi påstanden ikke kunne belægges i en åbnet kilde.
 - **sikre-opdateringer-2026:** stien Settings → System → Repairs.
 - **proxmox-installation:** note om EFI "pre-enrolled keys".
 - **Generelt:** danske UI-navne på de nye Connectivity-/Tools-stier er ikke kontrolleret (engelske navne er brugt), og stien Settings → System → Hardware i Z-Wave-/Z2M-guiderne er ikke genbekræftet.
+
+
+## Rettelser efter uafhængig gennemgang 2026-11-14
+
+Anvendt (DA og EN, medmindre andet er angivet):
+
+1. raspberry-pi-installation: 20 minutter eller mere ved "Preparing Home Assistant"; 5-minutters-rådet gælder kun, hvis siden slet ikke dukker op; ny sætning om ikke at flashe igen. EN har ingen tilsvarende opsummeringslinje som DA's HowTo-trin, så kun DA's trin er justeret.
+2. z-wave: asterisker fjernet i FAQ-svaret om Migrate adapter.
+3. mcp-server: tippet om /api/mcp/assist erstattet (individuelle adresser ignorerer indstillingerne og er aldrig read-only).
+4. shelly-wall-display: Kiosk Mode via Settings → Marketplace (DA: Indstillinger → Marketplace). Det gamle trin 4 ("Søg efter Kiosk Mode og installer") var nu dobbelt og er fjernet, så de tre nye trin erstatter de gamle trin 1-4; resten er omnummereret.
+5. z-wave: Long Range kræver en adapter, der understøtter det (f.eks. ZWA-2).
+6. zigbee2mqtt-avanceret: homeassistant_legacy_entity_attributes og legacy_api slettet, samt den nu tomme kommentar "# Home Assistant".
+7. node-red: color_temp 350 → color_temp_kelvin 2850.
+8. wifi-enheder: OTA-eksemplet uden password-linje. Ingen sætning forklarede adgangskoden, så der er ikke tilføjet en ny sætning om API-krypteringsnøglen.
+9. vaskemaskine-notification: Shelly Plug S → 2300W (10 A) med ⚠️; Frient Smart Plug Mini → 2300W (10 A) med ⚠️ (kun i DA, EN-siden har ikke rækken); Zigbee-modellen omdøbt NOUS A1T → NOUS A1Z i både tabel og eksempellisten. Tabellen stod med 2500W/✅ for Shelly Plug S, ikke med den ordlyd, punktet beskrev; det er rettet efter punktets hensigt.
+10. Danske menustier: Indstillinger → … i infraroed-proxy, radiofrekvens-proxy, mobilnotifikationer, robotstoevsuger-efter-omraade, thread-matter, zha-enhedshaandtering; performance: Værktøjer → Tools; local-voice-assist: Speech-to-Phrases liste; z-wave: "efter, at den er tændt".
+11. proxmox-installation: ingen disk cache i standardtilstand; writethrough kun forvalgt i avanceret tilstand.
+12. kom-godt-i-gang: Home Assistant Link-sætning føjet til FAQ-svaret om prisen på Nabu Casa.
+
+Sprunget over: ingen.

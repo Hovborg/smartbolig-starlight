@@ -42,7 +42,7 @@ Z-Wave er en **pålidelig trådløs protokol** til smart home med excellent ræk
 | **HomeSeer SmartStick G8** | 800 | ✅ | ~$50 | God support |
 
 <Aside type="caution" title="Z-Wave Long Range">
-**Long Range** kræver en 800-serie-stick, og enhederne skal også understøtte det. Home Assistant har RF-regionerne **USA (Long Range)** og **Europe (Long Range)**; ZWA-2 har Long Range-frekvenser til både USA og EU. Enheder kan ikke skifte frekvens, så de skal passe til din region. Uden Long Range får du stadig fordelene ved 800-serien: bedre rækkevidde, lavere strømforbrug og S2-sikkerhed.
+**Long Range** kræver en adapter, der understøtter det (f.eks. ZWA-2), og enhederne skal også understøtte det. Home Assistant har RF-regionerne **USA (Long Range)** og **Europe (Long Range)**; ZWA-2 har Long Range-frekvenser til både USA og EU. Enheder kan ikke skifte frekvens, så de skal passe til din region. Uden Long Range får du stadig fordelene ved 800-serien: bedre rækkevidde, lavere strømforbrug og S2-sikkerhed.
 </Aside>
 
 ### GPIO Moduler (til Raspberry Pi)
@@ -187,7 +187,7 @@ Gem dem sikkert (f.eks. password manager).
 
 3. Scan QR kode eller indtast DSK
 
-4. Enheden tilføjes automatisk, inden for 10 minutter efter den er tændt
+4. Enheden tilføjes automatisk inden for 10 minutter efter, at den er tændt
 </Steps>
 
 ### Exclusion (Fjern Enhed)
@@ -354,7 +354,7 @@ Viser:
   },
   {
     question: "Kan jeg migrere fra 500/700-serien til 800-serien?",
-    answer: "Ja. Brug **Settings → Connectivity → Z-Wave → Migrate adapter**. Home Assistant anbefaler en 800-serie-stick med firmware 7.23.2 eller nyere, og en 500-serie-stick skal først opdateres til SDK 6.61+. Aeotec Z-Stick 10 Pro bør også have firmware 7.23.2+, ellers kan migreringen fejle."
+    answer: "Ja. Brug Settings → Connectivity → Z-Wave → Migrate adapter. Home Assistant anbefaler en 800-serie-stick med firmware 7.23.2 eller nyere, og en 500-serie-stick skal først opdateres til SDK 6.61+. Aeotec Z-Stick 10 Pro bør også have firmware 7.23.2+, ellers kan migreringen fejle."
   },
   {
     question: "Hvorfor ser jeg ikke alle entiteter?",

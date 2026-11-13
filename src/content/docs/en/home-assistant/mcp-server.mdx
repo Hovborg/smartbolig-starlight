@@ -72,9 +72,10 @@ local network.
    Do not use the owner account. Create a dedicated, normally non-administrator
    user for the connection unless a documented need requires more. This keeps
    access and revocation separate from your own account. Note: the main URL
-   `/api/mcp` requires an administrator account by default. A non-administrator
-   needs **Require an administrator account** turned off, or the `/api/mcp/assist`
-   URL (*Device control* only).
+   `/api/mcp` requires an administrator account by default. For a non-administrator,
+   turn **Require an administrator account** off. Do not use the individual
+   `/api/mcp/assist` URL for the first test: individual URLs ignore these options
+   and are never read-only.
 
 4. **Disable control for the first test**
 

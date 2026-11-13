@@ -93,7 +93,7 @@ You do NOT need to configure WiFi or SSH in Imager. Home Assistant OS handles ev
 </Steps>
 
 <Aside type="note">
-Home Assistant is normally ready within a few minutes (typically under a minute on a Pi 4 or 5). Do NOT turn off power while waiting!
+The page at homeassistant.local:8123 is normally reachable within a few minutes (within a minute on a Pi 4 or 5). Do NOT turn off power while waiting!
 </Aside>
 
 ## 🌐 Open Home Assistant
@@ -114,7 +114,7 @@ Home Assistant is normally ready within a few minutes (typically under a minute 
   </TabItem>
 </Tabs>
 
-You'll first see **"Preparing Home Assistant"** - wait a few minutes.
+You'll first see **"Preparing Home Assistant"** while the latest version is downloaded - this can take 20 minutes or more, depending on hardware and internet connection.
 
 ## ⚙️ First Setup
 
@@ -186,12 +186,14 @@ Go to **Settings** → **Apps** → **Install app** (called *Add-ons* before Hom
 </Aside>
 
 <Aside type="tip" title="'Preparing Home Assistant' takes forever?">
-**Normal time:** a few minutes on first boot. According to Home Assistant's guide it should be ready within about a minute on a Pi 4 or 5.
+**Normal time:** up to 20 minutes or more, depending on hardware and internet connection.
 
-**If it is not ready after 5 minutes:**
+**If the page does not appear at all after 5 minutes (Pi 4 or 5):**
 - Check that Pi has internet (ethernet cable connected?)
 - Connect a monitor via HDMI and read the console output
 - Reflash the card, possibly with a different SD card
+
+Do not reflash while "Preparing Home Assistant" is showing.
 </Aside>
 
 <Aside type="tip" title="Pi is getting very hot?">

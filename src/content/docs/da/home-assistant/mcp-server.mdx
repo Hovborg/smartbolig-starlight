@@ -73,9 +73,10 @@ HTTP uden for dit lokale net.
    Brug ikke ejerkontoen. Opret en særskilt, normalt ikke-administratorbruger til
    forbindelsen, medmindre et dokumenteret behov kræver mere. Det gør adgang og
    tilbagekaldelse lettere at skelne fra din egen konto. Bemærk: hovedadressen
-   `/api/mcp` kræver som standard en administratorkonto. En ikke-administrator
-   kræver, at du slår **Require an administrator account** fra, eller at du bruger
-   `/api/mcp/assist` (kun *Device control*).
+   `/api/mcp` kræver som standard en administratorkonto. Skal en ikke-administrator
+   bruge den, skal du slå **Require an administrator account** fra. Brug ikke den
+   særskilte adresse `/api/mcp/assist` til første test: de særskilte adresser
+   ignorerer indstillingerne og er aldrig Read-only.
 
 4. **Slå styring fra til første test**
 
