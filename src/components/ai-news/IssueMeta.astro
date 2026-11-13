@@ -1,0 +1,20 @@
+---
+import type { AiNewsCopy } from "../../lib/ai-news-copy";
+import { formatDate, type NewsIssue } from "../../lib/ai-news-feed";
+import type { NewsLocale } from "../../lib/home-news";
+
+interface Props {
+  issue: Pick<NewsIssue, "date" | "dateString" | "sources">;
+  copy: AiNewsCopy;
+  locale: NewsLocale;
+}
+
+const { issue, copy, locale } = Astro.props;
+---
+
+<div class="issue-meta">
+  <time datetime={issue.dateString}>{formatDate(issue.date, locale)}</time>
+  <span>
+    {issue.sources.length} {issue.sources.length === 1 ? copy.source : copy.sourcesPlural}
+  </span>
+</div>

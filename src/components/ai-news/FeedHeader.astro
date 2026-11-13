@@ -1,0 +1,55 @@
+---
+import type { AiNewsCopy } from "../../lib/ai-news-copy";
+
+interface Props {
+  copy: AiNewsCopy;
+  latestHref: string;
+  rssHref: string;
+}
+
+const { copy, latestHref, rssHref } = Astro.props;
+---
+
+<div class="feed-header">
+  <p class="feed-eyebrow">{copy.eyebrow}</p>
+  <h2 id="ai-news-feed-title">{copy.title}</h2>
+  <p>{copy.intro}</p>
+  <div class="feed-actions">
+    <a class="feed-action primary" href={latestHref}>{copy.openLatest}</a>
+    <a class="feed-action" href={rssHref}>{copy.rss}</a>
+  </div>
+</div>
+
+<style>
+  .feed-header h2 {
+    margin-top: 0;
+  }
+
+  .feed-header p {
+    max-width: 68ch;
+  }
+
+  .feed-actions {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .feed-action {
+    border: 1px solid var(--sb-line-strong);
+    border-radius: var(--sb-radius-sm);
+    color: var(--sb-ink);
+    display: inline-flex;
+    font-weight: 700;
+    line-height: 1;
+    padding: 0.7rem 0.9rem;
+    text-decoration: none;
+  }
+
+  .feed-action.primary {
+    background: var(--sb-accent);
+    border-color: var(--sb-accent);
+    color: var(--sb-on-accent);
+  }
+</style>

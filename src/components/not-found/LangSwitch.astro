@@ -1,0 +1,31 @@
+---
+import type { NotFoundCopy } from "../../lib/not-found-copy";
+
+interface Props {
+  t: NotFoundCopy;
+}
+
+const { t } = Astro.props;
+---
+
+<p class="lang-switch">
+  <a id="nf-lang-switch" href={t.langSwitch.href}>{t.langSwitch.flag} {t.langSwitch.text}</a>
+</p>
+
+<style>
+  .lang-switch {
+    margin: 1.75rem 0 0;
+  }
+
+  .lang-switch a {
+    color: var(--sb-ink-muted);
+    font-size: 0.87rem;
+    text-decoration: none;
+  }
+
+  .lang-switch a:hover,
+  .lang-switch a:focus-visible {
+    color: var(--sb-accent);
+    text-decoration: underline;
+  }
+</style>
