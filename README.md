@@ -258,100 +258,30 @@ værtens egen MCP-konfiguration.
 
 ## 🤖 Daglig AI-news automation
 
-Windows Scheduled Task `Shark Smartbolig AI News` er beregnet til daglig
-opdatering kl. 07:20, når den er installeret og aktiveret på værten. Runneren
-`scripts/smartbolig-ai-news-daily.ps1`
-henter officielle kilder, genererer artikler (da+en), bygger og validerer, åbner
-en PR og venter på den grønne GitHub Actions-kørsel. PR'en bliver stående
-til menneskelig redaktionel gennemgang; Scheduled Tasken merger ikke selv.
-Så længe én af runnerens egne Windows-PR'er for samme dato er åben, stopper
-en genkørsel af den dato før ny artikelgenerering. Nye datoer kan få egne
-udkast, men de skal gennemgås og merges manuelt, før de ses på sitet.
-Kontrollen gentages lige før push. Hvert forsøg får et nyt branchnavn,
-og push opretter kun en gren, hvis den ikke findes i forvejen; et åbent
-udkast overskrives aldrig. Hvis flere PR'er for samme dato allerede er åbne,
-stopper runneren og kræver redaktionelt valg mellem dem. Den tidligere
-manuelle GitHub-workflow til AI News er fjernet, fordi den ikke kunne udføre
-LLM-gennemgangen eller levere de påkrævede billedfiler.
-Når PR'en er godkendt og manuelt merget, udløser `main` Cloudflare-deploy.
-Genkør samme dato med host-startfilens `-Publish -Date YYYY-MM-DD` for at
-verificere deploy og den offentlige danske og engelske artikel og oversigt
-mod udgavens unikke fingerprint. Fingerprintet dækker dato, alle kilder og
-kildeuddrag samt hele den tosprogede redaktionelle tekst.
+Den daglige AI-nyhed skrives, faktatjekkes og udgives af GitHub Actions
+(`.github/workflows/ai-news.yml`) uden en menneskelig gennemgang. Hele flowet,
+fejlfinding, omkostningsloft, modelvalg og nøgleskift står i
+[`docs/nyhedsflow.md`](docs/nyhedsflow.md). Kort:
 
-Pipelinen (v3):
+- **Kilder:** kun officielle kilder fra `scripts/ai-news-sources.mjs`, hentet
+  gennem den fælles sikre hentning.
+- **Tekst:** hver historie skrives for sig (engelsk og dansk) og kontrolleres mod
+  sin kilde af en anden model. En historie, der ikke kan rettes, kasseres; de
+  andre udgives. Under tre beståede historier udgives intet den dag.
+- **Kontroller:** de samme kontroller som ved udgivelse køres, før noget
+  committes til `main`. Derefter udgiver `deploy.yml`.
+- **Én oversigt:** hver kørsels Summary i GitHub Actions viser, hvad der skete
+  og hvorfor.
+- **Besked:** kun én GitHub-sag (`ai-news-stalled`), når der ikke er udgivet i
+  tre dage.
+- **Omkostning:** relayet `workers/news-llm/` stopper ved 8.000 neurons pr. døgn,
+  under Cloudflares gratis kvote.
 
-- **Kilder:** OpenAI News, Google AI Blog og Anthropic News (HTML-listing — Anthropic
-  har ingen RSS) plus release-feeds for Codex, Claude Code, Gemini CLI og OpenClaw.
-  Anthropic-listens viste dato bruges som kalenderdato; GitHub-release-noter
-  udtrækkes før sidens navigation, med Atom-feedets noter som sikker fallback.
-- **Redaktionelt lag:** dedup på URL-, emne- og kildesæt-fingerprints mod de sidste
-  14 dages udgaver, score-tærskel og krav om primær kilde.
-- **Tekst:** den automatiske runner bruger `--require-llm` og beder en isoleret,
-  tool-fri Claude Code-session om unik per-historie-analyse
-  (hvad/hvorfor/verificér/usikkerhed) ud fra kildeteksten. Hvis teksten mangler,
-  overskrider grænserne eller bliver afvist, stopper publiceringen. Ved en
-  begrundet faktuel afvisning må den forsøge højst to korrigerede udkast; hvert
-  udkast skal bestå en ny selvstændig kontrol. Den generiske skabelon er kun
-  fallback for manuelle udkast og kan ikke auto-merges.
-- **Automatisk kvalitetsport:** `npm run ai-news:quality -- --date YYYY-MM-DD`
-  kræver `news.copySource: llm`, høj signalværdi, mindst to historier, DA/EN-
-  kildeparitet, fyldige felter, en separat source-bound AI-faktakontrol og ingen
-  gentaget skabelontekst. Kilder med for tynd dokumentation frasorteres. GitHub Actions
-  genkører porten for alle ændrede AI News-udgaver før merge.
-- **Billeder:** hero- og og:image-varianter genereres som JPEG (mozjpeg, ~100-300 KB);
-  forsiden bruger 320×180 WebP-thumbs.
-- **Arkivvedligehold:** `node scripts/ai-news-regenerate.mjs` kan genopbygge ældre
-  udgaver med v3-rendereren ud fra hver artikels egen kildetabel (`--dry-run`,
-  `--date`, `--no-llm`). Dage uden nye kilder renderes som ærlige
-  gentagelses-udgaver med `signal: low`.
+Kør manuelt under Actions → AI News → Run workflow (`dry_run` udgiver intet).
 
-**Windows 11 setup (kanonisk):**
-
-```powershell
-git clone https://github.com/Hovborg/smartbolig-starlight.git C:\codex_projekts\.automation\smartbolig-ai-news
-& C:\codex_projekts\.automation\smartbolig-ai-news\scripts\smartbolig-ai-news-daily.ps1 -Preflight
-& C:\codex_projekts\.automation\smartbolig-ai-news\scripts\install-windows-ai-news-task.ps1
-```
-
-Hver kørsel bruger et nyt isoleret worktree fra den eksakte `origin/main` SHA.
-Tasken bruger ejerens interaktive GitHub- og Claude-login og indhenter en misset
-kørsel efter næste login; den må først aktiveres efter en grøn `-Preflight`.
-På SHARK bruges den eksisterende afgrænsede host-startfil
-`C:\codex_projekts\.automation\smartbolig-ai-news-host\start.ps1 -Publish`
-som task-action. Den giver kun GitHub CLI adgang til den eksisterende
-Git Credential Manager-adgang; `npm`, Node og Claude får ikke GitHub-tokenet.
-PR-kørslens repository kontrolleres via et afgrænset, læsebaseret GitHub API-kald;
-Sharks host-wrapper tillader kun deploy-workflowets run-liste for netop dette repo.
-Den generiske installer ovenfor er til værter med almindeligt `gh`-login og
-må ikke overskrive SHARKs host-action. Kontrollér altid den installerede action.
-Runneren sikkerhedskontrollerer alle afhængigheder før generering. Kun selve
-genereringskommandoen får `--require-llm`; efterfølgende fixture-tests arver
-hverken en aktiveret LLM-tilstand eller genereringens midlertidige resultatsti.
-Runnerens native kommandoer videresender argumenter uden PowerShell-binding,
-så eksempelvis `git -C <sti>` også virker i Windows PowerShell 5.1. Regressionen
-kontrolleres i både Windows PowerShell 5.1 og PowerShell 7 af `npm run ai-news:test`.
-Hvis et retry ser dagens tosprogede issue i `origin/main`, genoptager det den
-eksakte main-deploy og offentlige fingerprint-kontrol i stedet for at behandle
-artiklen som en stille `skip`.
-
-Det installerer:
-
-| Scheduled Task | Funktion |
-|------|----------|
-| `Shark Smartbolig AI News` | Kører dagligt kl. 07:20, indhenter missede kørsler og åbner en valideret PR til menneskelig gennemgang |
-
-Drift-kommandoer:
-
-```powershell
-Get-ScheduledTask -TaskName 'Shark Smartbolig AI News'
-Start-ScheduledTask -TaskName 'Shark Smartbolig AI News'
-Get-ChildItem C:\codex_projekts\05-data\smartbolig-ai-news\logs | Sort-Object LastWriteTime -Descending
-```
-
-> **Legacy:** `scripts/openclaw-ai-news-daily.sh`, systemd-installeren og OpenClaw-
-> cron-installeren er Linux-artefakter fra før Windows-migreringen. De er bevaret
-> som historik/fallback, men må ikke bruges til den aktive drift.
+Den tidligere Windows-opgave `Shark Smartbolig AI News` og dens scripts
+(`scripts/smartbolig-ai-news-daily.ps1` m.fl.) er udfaset 2026-11-13 og fjernes
+i en opfølgende ændring. De må ikke aktiveres igen ved siden af workflowet.
 
 ---
 

@@ -6,6 +6,23 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+  # The daily news workflow (ai-news.yml) publishes through this workflow, so
+  # there is one deploy path with one set of gates.
+  workflow_call:
+    inputs:
+      ref:
+        description: 'Commit to check out and deploy.'
+        required: true
+        type: string
+      quality_base:
+        description: 'Commit before the change, for the changed-issue quality check.'
+        required: false
+        type: string
+      publish:
+        description: 'Deploy after the gates pass.'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   deploy:
@@ -13,12 +30,22 @@ jobs:
     permissions:
       contents: read
       actions: read # read the last successful deploy for the audit base
+    # Production deploys run one at a time; pull requests only validate.
+    concurrency:
+      group: ${{ github.event_name == 'pull_request' && format('deploy-pr-{0}', github.event.number) || 'deploy-production' }}
+      cancel-in-progress: false
+    env:
+      # The only place that decides whether a run publishes: a push to main,
+      # or a call from the news workflow on main.
+      SHOULD_DEPLOY: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.publish == true) }}
 
     steps:
       - name: Checkout
         # SHA-pinned (v6); no persisted token — this job never pushes.
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
+          # Empty outside workflow_call: the event's own commit is used.
+          ref: ${{ inputs.ref }}
           fetch-depth: 0
           persist-credentials: false
 
@@ -53,7 +80,7 @@ jobs:
 
       - name: Validate automatically published AI News quality
         env:
-          QUALITY_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          QUALITY_BASE: ${{ inputs.quality_base || github.event.pull_request.base.sha || github.event.before }}
         run: npm run ai-news:quality:changed -- --base "$QUALITY_BASE"
 
       - name: Audit guide content
@@ -97,8 +124,12 @@ jobs:
       - name: Validate Workers deployment
         run: npm exec --no -- wrangler deploy --dry-run
 
+      - name: Validate the news relay Worker
+        # Validated here, deployed by hand: see workers/news-llm/README.md.
+        run: npm exec --no -- wrangler deploy --dry-run --config workers/news-llm/wrangler.jsonc
+
       - name: Deploy to Cloudflare Workers
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: env.SHOULD_DEPLOY == 'true'
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -107,7 +138,7 @@ jobs:
         run: npm exec --no -- wrangler deploy
 
       - name: Ping IndexNow
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: env.SHOULD_DEPLOY == 'true'
         # The site is already deployed at this point — a failed search-engine
         # ping (e.g. missing key or IndexNow API hiccup) must not fail the run.
         continue-on-error: true

@@ -522,8 +522,13 @@ test("deploy runs every local quality gate before publishing", async () => {
   const wrangler = JSON.parse(await read("wrangler.jsonc"));
   const gitignore = await read(".gitignore");
   assert.match(workflow, /pull_request:\s*\n\s+branches:\s*\[main\]/);
-  assert.equal((workflow.match(/github\.event_name == 'push' && github\.ref == 'refs\/heads\/main'/g) || []).length, 2);
+  // One definition of "this run publishes", used by exactly the two publishing
+  // steps. A pull request or a manual run can never satisfy it.
+  assert.ok(workflow.includes("SHOULD_DEPLOY: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.publish == true) }}"));
+  assert.equal((workflow.match(/if: env\.SHOULD_DEPLOY == 'true'/g) || []).length, 2);
+  assert.equal((workflow.match(/SHOULD_DEPLOY/g) || []).length, 3);
   assert.doesNotMatch(workflow, /github\.event_name != 'pull_request'/);
+  assert.match(workflow, /group: \$\{\{ github\.event_name == 'pull_request' && format\('deploy-pr-\{0\}', github\.event\.number\) \|\| 'deploy-production' \}\}/);
   for (const command of [
     "npm run site:test",
     "npm run ai-news:test",

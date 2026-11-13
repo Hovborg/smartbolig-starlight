@@ -9,4 +9,7 @@ This repository builds smartbolig.net with Astro 7, Starlight 0.41 and a Cloudfl
 - Windows content checks use native Git for Windows Bash and stdin. Do not introduce WSL dependencies.
 - MCP servers are managed by the developer's host configuration. Do not add repository-triggered `npx -y` or mutable `@latest` server installs.
 - Keep both locales and shared RSS behavior aligned. Test English-only news edits as well as Danish edits.
-- A local build or deployment dry run does not verify production bindings, real AI inference or Scheduled Task execution. Report those boundaries explicitly.
+- A local build or deployment dry run does not verify production bindings, real AI inference or a GitHub Actions run. Report those boundaries explicitly.
+- The daily news is written, fact-checked and published by `.github/workflows/ai-news.yml`; read `docs/nyhedsflow.md` before changing it. Each story is written and checked on its own in `scripts/lib/news-llm/` (one responsibility per file, shared limits in `limits.mjs`). Never publish copy without a passed fact check, and never loosen the source, duplicate or evidence rules to get more days published.
+- Model calls cost money above Cloudflare's free daily allowance. The relay `workers/news-llm/` enforces a daily neuron ceiling and the run has its own ceilings; do not raise them, and do not call the live relay from tests. A live run counts against the day's budget.
+- Redesign work in progress is tracked in `docs/redesign/STATUS.md` (done, next step), with choices in `docs/redesign/BESLUTNINGER.md` and items that need the owner in `docs/redesign/TIL-EJEREN.md`. Update them in the same commit as the change.
