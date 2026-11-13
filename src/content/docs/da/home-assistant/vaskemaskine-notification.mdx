@@ -62,7 +62,7 @@ Vaskemaskiner kan trække op til **2500W**. Sørg for at dit smart stik er rated
 Kør en vask og observer strømforbruget i Home Assistant:
 
 <Steps>
-1. Gå til **Developer Tools** → **States**
+1. Gå til **Settings** → **Tools** → **States** (før Home Assistant 2026.2: *Developer Tools*)
 2. Find din power sensor (f.eks. `sensor.vaskemaskine_power`)
 3. Observer værdierne under vask:
    - Standby: typisk 1-3W
@@ -98,8 +98,8 @@ For at tracke maskinens status:
 automation:
   - alias: "Vaskemaskine færdig notifikation"
     description: "Send besked når vaskemaskinen er færdig"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.vaskemaskine_power
         below: 5
         for:
@@ -107,8 +107,8 @@ automation:
     # Ingen condition nødvendig: numeric_state-triggeren fyrer kun,
     # når forbruget krydser fra over 5W til under 5W og bliver der i 3 min.
     # Ved genstart fyrer den derfor ikke af sig selv.
-    action:
-      - service: notify.mobile_app_din_telefon
+    actions:
+      - action: notify.mobile_app_din_telefon
         data:
           title: "🧺 Vaskemaskine"
           message: "Vasketøjet er færdigt!"
@@ -125,14 +125,14 @@ automation:
 automation:
   # Når maskinen starter
   - alias: "Vaskemaskine: Startet"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.vaskemaskine_power
         above: 10
         for:
           minutes: 1
-    action:
-      - service: input_select.select_option
+    actions:
+      - action: input_select.select_option
         target:
           entity_id: input_select.vaskemaskine_status
         data:
@@ -140,24 +140,24 @@ automation:
 
   # Når maskinen er færdig
   - alias: "Vaskemaskine: Færdig"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.vaskemaskine_power
         below: 5
         for:
           minutes: 3
-    condition:
+    conditions:
       - condition: state
         entity_id: input_select.vaskemaskine_status
         state: "kører"
-    action:
-      - service: input_select.select_option
+    actions:
+      - action: input_select.select_option
         target:
           entity_id: input_select.vaskemaskine_status
         data:
           option: "færdig"
       # Send notifikation
-      - service: notify.mobile_app_din_telefon
+      - action: notify.mobile_app_din_telefon
         data:
           title: "🧺 Vaskemaskine"
           message: "Vasketøjet er færdigt! Husk at tømme maskinen."
@@ -176,15 +176,15 @@ Hvis du (som de fleste) ignorerer den første notifikation:
 ```yaml
 automation:
   - alias: "Vaskemaskine: Gentag påmindelse"
-    trigger:
-      - platform: time_pattern
+    triggers:
+      - trigger: time_pattern
         minutes: "/15"  # Hvert 15. minut
-    condition:
+    conditions:
       - condition: state
         entity_id: input_select.vaskemaskine_status
         state: "færdig"
-    action:
-      - service: notify.mobile_app_din_telefon
+    actions:
+      - action: notify.mobile_app_din_telefon
         data:
           title: "🧺 Vaskemaskine - PÅMINDELSE"
           message: "Vasketøjet venter stadig!"
@@ -197,19 +197,19 @@ automation:
 ```yaml
 automation:
   - alias: "Vaskemaskine: TTS annoncering"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.vaskemaskine_power
         below: 5
         for:
           minutes: 3
-    condition:
+    conditions:
       - condition: state
         entity_id: input_select.vaskemaskine_status
         state: "kører"
-    action:
+    actions:
       # Opdater status
-      - service: input_select.select_option
+      - action: input_select.select_option
         target:
           entity_id: input_select.vaskemaskine_status
         data:
@@ -230,12 +230,12 @@ Skift farve på en LED strip ved bryggers:
 ```yaml
 automation:
   - alias: "Vaskemaskine: LED grøn når færdig"
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: input_select.vaskemaskine_status
         to: "færdig"
-    action:
-      - service: light.turn_on
+    actions:
+      - action: light.turn_on
         target:
           entity_id: light.bryggers_led
         data:
@@ -243,16 +243,16 @@ automation:
           brightness_pct: 50
 
   - alias: "Vaskemaskine: LED normal når tømt"
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: input_select.vaskemaskine_status
         to: "tømt"
-    action:
-      - service: light.turn_on
+    actions:
+      - action: light.turn_on
         target:
           entity_id: light.bryggers_led
         data:
-          color_temp: 350  # Varm hvid
+          color_temp_kelvin: 2850  # Varm hvid
           brightness_pct: 100
 ```
 
@@ -263,22 +263,22 @@ Hvis du har en dørsensor på vaskemaskinen:
 ```yaml
 automation:
   - alias: "Vaskemaskine: Tømt når låge åbnes"
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.vaskemaskine_laage
         to: "on"  # Låge åbnet
-    condition:
+    conditions:
       - condition: state
         entity_id: input_select.vaskemaskine_status
         state: "færdig"
-    action:
-      - service: input_select.select_option
+    actions:
+      - action: input_select.select_option
         target:
           entity_id: input_select.vaskemaskine_status
         data:
           option: "tømt"
       # Fjern notifikation
-      - service: notify.mobile_app_din_telefon
+      - action: notify.mobile_app_din_telefon
         data:
           message: "clear_notification"
           data:
@@ -320,37 +320,37 @@ input_select:
 # Automations
 automation:
   - alias: "Vaskemaskine: Startet"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.vaskemaskine_power
         above: 10
         for:
           minutes: 1
-    action:
-      - service: input_select.select_option
+    actions:
+      - action: input_select.select_option
         target:
           entity_id: input_select.vaskemaskine_status
         data:
           option: "kører"
 
   - alias: "Vaskemaskine: Færdig"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.vaskemaskine_power
         below: 5
         for:
           minutes: 3
-    condition:
+    conditions:
       - condition: state
         entity_id: input_select.vaskemaskine_status
         state: "kører"
-    action:
-      - service: input_select.select_option
+    actions:
+      - action: input_select.select_option
         target:
           entity_id: input_select.vaskemaskine_status
         data:
           option: "færdig"
-      - service: notify.mobile_app_din_telefon
+      - action: notify.mobile_app_din_telefon
         data:
           title: "🧺 Vaskemaskine"
           message: "Vasketøjet er færdigt!"
@@ -358,14 +358,14 @@ automation:
             tag: "vaskemaskine"
 
   - alias: "Vaskemaskine: Reset ved lav strøm"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.vaskemaskine_power
         below: 1
         for:
           hours: 1
-    action:
-      - service: input_select.select_option
+    actions:
+      - action: input_select.select_option
         target:
           entity_id: input_select.vaskemaskine_status
         data:

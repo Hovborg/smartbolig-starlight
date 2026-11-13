@@ -86,18 +86,18 @@ Done:           ~2W
 automation:
   - alias: "Washing machine done notification"
     description: "Send message when washing machine is done"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.washing_machine_power
         below: 5
         for:
           minutes: 3
-    condition:
+    conditions:
       - condition: state
         entity_id: input_select.washing_machine_status
         state: "running"
-    action:
-      - service: notify.mobile_app_your_phone
+    actions:
+      - action: notify.mobile_app_your_phone
         data:
           title: "🧺 Washing Machine"
           message: "The laundry is done!"
@@ -111,14 +111,14 @@ automation:
 automation:
   # When machine starts
   - alias: "Washing Machine: Started"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.washing_machine_power
         above: 10
         for:
           minutes: 1
-    action:
-      - service: input_select.select_option
+    actions:
+      - action: input_select.select_option
         target:
           entity_id: input_select.washing_machine_status
         data:
@@ -126,23 +126,23 @@ automation:
 
   # When machine is done
   - alias: "Washing Machine: Done"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.washing_machine_power
         below: 5
         for:
           minutes: 3
-    condition:
+    conditions:
       - condition: state
         entity_id: input_select.washing_machine_status
         state: "running"
-    action:
-      - service: input_select.select_option
+    actions:
+      - action: input_select.select_option
         target:
           entity_id: input_select.washing_machine_status
         data:
           option: "done"
-      - service: notify.mobile_app_your_phone
+      - action: notify.mobile_app_your_phone
         data:
           title: "🧺 Washing Machine"
           message: "The laundry is done! Remember to empty the machine."
@@ -161,15 +161,15 @@ If you (like most people) ignore the first notification:
 ```yaml
 automation:
   - alias: "Washing Machine: Repeat reminder"
-    trigger:
-      - platform: time_pattern
+    triggers:
+      - trigger: time_pattern
         minutes: "/15"  # Every 15 minutes
-    condition:
+    conditions:
       - condition: state
         entity_id: input_select.washing_machine_status
         state: "done"
-    action:
-      - service: notify.mobile_app_your_phone
+    actions:
+      - action: notify.mobile_app_your_phone
         data:
           title: "🧺 Washing Machine - REMINDER"
           message: "The laundry is still waiting!"
@@ -182,18 +182,18 @@ automation:
 ```yaml
 automation:
   - alias: "Washing Machine: TTS announcement"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.washing_machine_power
         below: 5
         for:
           minutes: 3
-    condition:
+    conditions:
       - condition: state
         entity_id: input_select.washing_machine_status
         state: "running"
-    action:
-      - service: input_select.select_option
+    actions:
+      - action: input_select.select_option
         target:
           entity_id: input_select.washing_machine_status
         data:
