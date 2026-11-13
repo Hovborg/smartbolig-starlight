@@ -57,7 +57,7 @@ New to ESP32? Start with our [Getting started guide](/en/esp32/kom-godt-i-gang/)
 </Steps>
 
 <Aside type="note" title="Pull-up resistor">
-A bare 4-pin DHT22 needs a 10 kΩ resistor (pull-up) between DATA and 3.3V for stable readings. Most 3-pin breakout modules have the resistor built in, so there the three wires are all you need.
+A bare 4-pin DHT22 needs a pull-up resistor of about 4.7 kΩ between DATA and 3.3V for stable readings (ESPHome states that 1-10 kΩ usually works). Most 3-pin breakout modules have the resistor built in, so there the three wires are all you need.
 </Aside>
 
 <Aside type="danger" title="Power the sensor from 3.3V">
@@ -81,7 +81,7 @@ api:
   encryption:
     key: "your-key-here"
 ota:
-  platform: esphome
+  - platform: esphome
 
 # DHT22 Sensor
 sensor:
@@ -187,7 +187,7 @@ title: Living Room Climate
 **Check these things:**
 1. Are the wires connected correctly? (VCC→3.3V)
 2. Is the GPIO pin correct in the configuration?
-3. Bare sensor: is the 10 kΩ pull-up resistor in place between DATA and 3.3V?
+3. Bare sensor: is the pull-up resistor (about 4.7 kΩ) in place between DATA and 3.3V?
 4. Try a different GPIO pin (e.g. GPIO5)
 5. Check the ESPHome log for error messages
 </Aside>
@@ -228,19 +228,19 @@ humidity:
 ```yaml title="Example: warn on high humidity"
 automation:
   - alias: "High humidity alert"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.living_room_humidity
         above: 70
         for: "00:30:00"
-    action:
-      - service: notify.mobile_app_your_phone  # replace with your own device's notify service
+    actions:
+      - action: notify.mobile_app_your_phone  # replace with your own device's notify service
         data:
           title: "⚠️ High humidity"
           message: "Humidity in the living room is {{ states('sensor.living_room_humidity') }}%"
 ```
 
-Replace `notify.mobile_app_your_phone` with the name of your own phone's notify service - you can find it under **Developer Tools** → **Actions**.
+Replace `notify.mobile_app_your_phone` with the name of your own phone's notify service - you can find it under **Settings** → **Tools** → **Actions**.
 
 ## 🚀 Next steps
 

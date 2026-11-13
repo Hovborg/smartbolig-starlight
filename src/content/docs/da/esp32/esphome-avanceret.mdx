@@ -92,8 +92,8 @@ sensor:
         key: !secret api_key
 
     ota:
-      platform: esphome
-      password: !secret ota_password
+      - platform: esphome
+        password: !secret ota_password
 
     logger:
       level: DEBUG
@@ -152,20 +152,16 @@ substitutions:
   friendly_name: "My Sensor"
 
 packages:
-  # Officielle ESPHome packages
-  voice_assistant:
-    url: https://github.com/esphome/firmware
-    files:
-      - voice-assistant/m5stack-atom-echo.yaml
-    refresh: 1d
-
-  # Community packages
+  # Dit eget (eller et andet) repository med fælles konfiguration
   common:
-    url: https://github.com/olegtarasov/esphome-common
+    url: https://github.com/brugernavn/esphome-pakker
     ref: main
     files:
       - common/base.yaml
     refresh: 1d
+
+  # Samme med GitHub-genvejen github://bruger/repo/fil.yaml@gren-eller-tag
+  # common: github://brugernavn/esphome-pakker/common/base.yaml@main
 ```
 
 <Aside type="caution" title="Remote Package Begrænsninger">
@@ -215,20 +211,19 @@ binary_sensor:
       return comfortable;
 ```
 
-### Text Sensors med Jinja2 (ESPHome 2025.7+)
+### Jinja2-udtryk i substitutions (ESPHome 2025.7+)
 
 ```yaml
-# Ny i ESPHome 2025.7: Jinja2 i substitutions!
+# Fra ESPHome 2025.7: Jinja-udtryk i substitutions.
+# Udtryk skrives som ${ ... } (ikke {{ ... }}).
 substitutions:
-  # Dynamiske værdier
-  compile_time: "{{ now().strftime('%Y-%m-%d %H:%M') }}"
-  random_suffix: "{{ range(1000, 9999) | random }}"
+  base_interval: 30
+  scale: 2
 
-text_sensor:
-  - platform: template
-    name: "Firmware Info"
-    lambda: |-
-      return {"Kompileret: ${compile_time}"};
+sensor:
+  - platform: wifi_signal
+    name: "WiFi Signal"
+    update_interval: ${base_interval * scale}s  # bliver til 60s
 ```
 
 ---
@@ -336,7 +331,7 @@ binary_sensor:
 # Status LED
 light:
   - platform: esp32_rmt_led_strip
-    rgb_order: GRB
+    channel_colors: GRB
     pin: GPIO25
     num_leds: 1
     chipset: WS2812
@@ -399,26 +394,28 @@ External components er custom ESPHome komponenter hostet på GitHub. De udvider 
 
 ```yaml
 external_components:
-  # LD2410 mmWave radar
-  - source: github://screek-workshop/ld2410@main
-    components: [ld2410]
+  # Kort form (GitHub): github://bruger/repo@gren-eller-tag
+  - source: github://ssieb/esphome_components@main
+    components: [serial_csv]
     refresh: 1d
 
-  # Custom sensor fra community
+  # Samme med fuld git-kilde
   - source:
       type: git
       url: https://github.com/ssieb/esphome_components
     components: [serial_csv]
 ```
 
+<Aside type="note" title="LD2410 og Bluetooth Proxy er indbygget">
+`ld2410` og `bluetooth_proxy` er en del af ESPHome og skal ikke hentes som external components. Se [LD2410-guiden](/da/esp32/ld2410-mmwave/) og [Bluetooth Proxy](/da/esp32/bluetooth-proxy/).
+</Aside>
+
 ### Populære External Components
 
 | Component | Funktion | GitHub |
 |-----------|----------|--------|
-| **ld2410** | mmWave radar | screek-workshop/ld2410 |
 | **ratgdo** | Garage door | ratgdo/esphome-ratgdo |
-| **bluetooth_proxy** | BLE proxy | esphome/bluetooth-proxies |
-| **improv** | Easy WiFi setup | esphome/improv |
+| **serial_csv** m.fl. | Diverse sensorer og hjælpekomponenter | ssieb/esphome_components |
 
 ### Skriv Din Egen Component
 
@@ -566,4 +563,4 @@ sensor:
 
 ---
 
-*Sidst opdateret: December 2025*
+*Sidst opdateret: November 2026*

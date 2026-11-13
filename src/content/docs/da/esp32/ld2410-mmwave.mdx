@@ -44,8 +44,8 @@ PIR sensorer slukker lyset mens du sidder på toilettet. mmWave detekterer din v
 
 | Model | Pins | Bluetooth | Anbefaling |
 |-------|------|-----------|------------|
-| **LD2410** | 1.25mm (kræver adapter) | Nej | ⚠️ Svær at lodde |
-| **LD2410B** | 1.25mm (kræver adapter) | Ja | ⚠️ Svær at lodde |
+| **LD2410** | 1.27mm (kræver adapter) | Nej | ⚠️ Svær at lodde |
+| **LD2410B** | 1.27mm (kræver adapter) | Ja | ⚠️ Svær at lodde |
 | **LD2410C** | 2.54mm standard | Ja | ✅ **Anbefalet** |
 
 <Aside type="caution" title="Vælg LD2410C!">
@@ -59,7 +59,7 @@ LD2410C har standard 2.54mm pins som passer direkte til Dupont ledninger. De and
 ```
 ESP32           LD2410C
 ─────           ───────
-3.3V    ───────  VCC
+5V/VIN  ───────  VCC
 GND     ───────  GND  
 GPIO16  ───────  TX (RX på ESP)
 GPIO17  ───────  RX (TX på ESP)
@@ -70,11 +70,15 @@ GPIO17  ───────  RX (TX på ESP)
 ```
 D1 Mini         LD2410C
 ───────         ───────
-3.3V    ───────  VCC
+5V      ───────  VCC
 GND     ───────  GND
 D7 (RX) ───────  TX
 D8 (TX) ───────  RX
 ```
+
+<Aside type="caution" title="VCC skal have 5V">
+LD2410 skal have 5 V på VCC (modulet tåler 5-12 V). Det passer med ledningsdiagrammet ovenfor. Seriel- og OUT-signalerne er derimod 3,3 V, så de kan forbindes direkte til ESP32'en.
+</Aside>
 
 <Aside type="caution" title="RX og TX krydses!">
 Husk at RX på ESP forbindes til TX på LD2410 og omvendt. Det er sådan seriel kommunikation virker.
@@ -115,8 +119,8 @@ api:
     key: !secret api_encryption_key
 
 ota:
-  platform: esphome
-  password: !secret ota_password
+  - platform: esphome
+    password: !secret ota_password
 
 # UART til LD2410
 uart:
@@ -245,8 +249,8 @@ api:
     key: !secret api_encryption_key
 
 ota:
-  platform: esphome
-  password: !secret ota_password
+  - platform: esphome
+    password: !secret ota_password
 
 # UART
 uart:
@@ -345,26 +349,26 @@ Start med høje thresholds (40-50) og sænk gradvist indtil sensoren detekterer 
 ```yaml
 automation:
   - alias: "Toilet lys ON ved tilstedeværelse"
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.toilet_tilstedevaerelse
         to: "on"
-    action:
-      - service: light.turn_on
+    actions:
+      - action: light.turn_on
         target:
           entity_id: light.toilet
         data:
           brightness_pct: 100
 
   - alias: "Toilet lys OFF når tom"
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: binary_sensor.toilet_tilstedevaerelse
         to: "off"
         for:
           seconds: 30  # Vent 30 sek efter sidste detektion
-    action:
-      - service: light.turn_off
+    actions:
+      - action: light.turn_off
         target:
           entity_id: light.toilet
 ```
@@ -374,16 +378,16 @@ automation:
 ```yaml
 automation:
   - alias: "Ventilator ON ved tilstedeværelse + høj fugt"
-    trigger:
-      - platform: numeric_state
+    triggers:
+      - trigger: numeric_state
         entity_id: sensor.toilet_humidity
         above: 70
-    condition:
+    conditions:
       - condition: state
         entity_id: binary_sensor.toilet_tilstedevaerelse
         state: "on"
-    action:
-      - service: fan.turn_on
+    actions:
+      - action: fan.turn_on
         target:
           entity_id: fan.toilet_ventilator
 ```
