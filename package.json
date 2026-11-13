@@ -24,18 +24,23 @@
     "worker:build": "wrangler pages functions build functions --outdir .worker --project-directory ."
   },
   "dependencies": {
-    "@astrojs/markdown-remark": "^7.3.9",
+    "@astrojs/markdown-remark": "7.2.4",
     "@astrojs/rss": "^4.0.19",
-    "@astrojs/starlight": "^0.43.1",
-    "@tailwindcss/vite": "^4.3.5",
-    "astro": "^7.4.12",
+    "@astrojs/starlight": "^0.41.7",
+    "@tailwindcss/vite": "^4.3.2",
+    "astro": "^7.2.8",
     "github-slugger": "2.0.0",
     "remark-gfm": "^4.0.1",
     "sharp": "^0.35.4",
     "starlight-theme-galaxy": "^0.8.0",
-    "tailwindcss": "^4.3.5"
+    "tailwindcss": "^4.3.2"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "workerd@1.20261109.1": true,
+    "sharp@0.34.5": true
   },
   "devDependencies": {
-    "wrangler": "4.162.0"
+    "wrangler": "4.159.0"
   }
 }

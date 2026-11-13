@@ -232,6 +232,15 @@ inklusiv udviklingsværktøjer. Den har to tilstande (kontrolleret 2026-11-13):
 - **Rapport** (`--report`, eller `--auto` uden ændrede afhængigheder): viser
   fundene uden at stoppe. En ny advarsel om en uændret pakke må ikke blokere
   udgivelse af tekst; den stoppede de daglige nyheder i 25 dage i oktober 2026.
+  Fundet vises som advarsel på kørslen i GitHub Actions.
+
+I CI sammenlignes der med det seneste commit, som blev udgivet uden fejl
+(trinnet "Resolve audit base" i `deploy.yml`), ikke med forrige push. En
+afhængighedsændring, der aldrig har bestået porten, bliver derfor ved med at
+være spærret, indtil en kørsel med den består.
+
+Nye pakkeversioner tages først i brug, når de er mindst tre døgn gamle. Det
+giver tid til, at en kompromitteret udgivelse bliver opdaget og trukket tilbage.
 
 Der er ingen undtagelsesliste. Et højt fund løses ved at opdatere pakken.
 På Windows bruges den installerede Python og Git for Windows Bash;

@@ -42,6 +42,18 @@ test('an invalid or inconsistent report fails closed in every mode', () => {
   }
 });
 
+test('only an explicit report mode passes with a blocking advisory', () => {
+  const summary = summarizeAuditReport(report({ vite: advisory('vite', 'high') }, { high: 1 }));
+  for (const mode of ['auto', 'Gate', undefined, '']) {
+    assert.equal(evaluate(summary, mode).ok, false, `mode ${mode} must gate`);
+  }
+});
+
+test('every severity count must match the listed entries', () => {
+  assert.equal(summarizeAuditReport(report({}, { moderate: 3 })).valid, false);
+  assert.equal(summarizeAuditReport(report({ a: advisory('a', 'low') }, { low: 1 })).valid, true);
+});
+
 test('auto mode gates dependency changes and unknown ranges, reports otherwise', () => {
   assert.equal(decideMode({ mode: 'auto', changedFiles: ['package-lock.json'] }), 'gate');
   assert.equal(decideMode({ mode: 'auto', changedFiles: ['src/a.mdx', 'package.json'] }), 'gate');

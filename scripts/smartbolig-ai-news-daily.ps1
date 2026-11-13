@@ -190,7 +190,7 @@ try {
 
     $stage = 'dependencies-and-sources'
     Invoke-Native npm ci
-    Invoke-Native npm run security:audit
+    Invoke-Native npm run security:audit -- --report
     Invoke-Native npm run ai-news:source-health
 
     $stage = 'draft-generation'

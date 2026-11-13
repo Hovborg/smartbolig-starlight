@@ -8,7 +8,8 @@
 //
 // Why two modes: a newly published advisory for an unchanged lockfile must not
 // block content publishing (it stopped the daily news for 25 days in 2026).
-// Dependency changes are always gated, and the scheduled monitor reports the rest.
+// Dependency changes are always gated. For unchanged dependencies the finding is
+// printed, annotated on the run and listed in the step summary instead.
 import { spawnSync } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
 import path from 'node:path';
@@ -42,7 +43,8 @@ export function summarizeAuditReport(report) {
   }
   const blocking = findings.filter((finding) => blockingSeverities.has(finding.severity));
   const totals = report.metadata.vulnerabilities;
-  if (blocking.length !== (totals.high ?? 0) + (totals.critical ?? 0)) {
+  const countOf = (severity) => findings.filter((finding) => finding.severity === severity).length;
+  if (severities.some((severity) => countOf(severity) !== (totals[severity] ?? 0))) {
     return { valid: false, reason: 'npm audit vulnerability counts do not match its entries' };
   }
   return { valid: true, findings, blocking };
@@ -60,9 +62,10 @@ export function evaluate(summary, mode) {
     return { ok: true, line: `SECURITY_AUDIT_OK no high or critical advisories (${summary.findings.length} lower findings)` };
   }
   const names = summary.blocking.map((finding) => `${finding.name}:${finding.severity}`).join(', ');
-  return mode === 'gate'
-    ? { ok: false, line: `SECURITY_AUDIT_FAILED high or critical advisories: ${names}` }
-    : { ok: true, line: `SECURITY_AUDIT_REPORT high or critical advisories (not blocking unchanged dependencies): ${names}` };
+  // Only an explicit report request may pass with findings; anything else gates.
+  return mode === 'report'
+    ? { ok: true, warn: true, line: `SECURITY_AUDIT_REPORT high or critical advisories (not blocking unchanged dependencies): ${names}` }
+    : { ok: false, line: `SECURITY_AUDIT_FAILED high or critical advisories: ${names}` };
 }
 
 export function auditInvocation(platform = process.platform) {
@@ -97,6 +100,8 @@ function main(argv) {
   }
   const result = evaluate(summary, mode);
   console[result.ok ? 'log' : 'error'](`${result.line} [mode=${mode}]`);
+  // Surfaces report-mode findings as an annotation on the workflow run.
+  if (result.warn && process.env.GITHUB_ACTIONS) console.log(`::warning title=Dependency advisories::${result.line}`);
   if (process.env.GITHUB_STEP_SUMMARY && summary.valid && summary.blocking.length > 0) {
     const rows = summary.blocking.map((f) => `| ${f.name} | ${f.severity} | ${f.fixAvailable ? 'yes' : 'no'} | ${f.advisories.join(' ')} |`);
     appendFileSync(process.env.GITHUB_STEP_SUMMARY,
