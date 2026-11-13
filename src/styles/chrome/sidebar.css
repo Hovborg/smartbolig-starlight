@@ -1,0 +1,107 @@
+/* Left navigation, table of contents on the right, and previous/next links. */
+
+/* --- Sidebar --------------------------------------------------------- */
+.sidebar-pane {
+  border-inline-end-color: var(--sb-line);
+}
+
+.sidebar-content {
+  --sl-sidebar-item-padding-inline: 0.75rem;
+}
+
+.sidebar-content a,
+.sidebar-content summary {
+  border-radius: var(--sb-radius-sm);
+  transition: background-color var(--sb-dur-fast) var(--sb-ease), color var(--sb-dur-fast) var(--sb-ease);
+}
+
+.sidebar-content a {
+  color: var(--sb-ink-muted);
+  font-size: var(--sb-text-sm);
+}
+
+.sidebar-content a:hover,
+.sidebar-content summary:hover {
+  background: var(--sb-bg-subtle);
+  color: var(--sb-ink-strong);
+}
+
+.sidebar-content a[aria-current="page"],
+.sidebar-content a[aria-current="page"]:hover {
+  background: var(--sb-accent-soft);
+  color: var(--sb-accent-strong);
+  font-weight: 650;
+}
+
+.sidebar-content .large {
+  font-family: var(--sb-font-display);
+  font-size: var(--sb-text-base);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--sb-ink-strong);
+}
+
+.sidebar-content ul ul li {
+  border-inline-start-color: var(--sb-line);
+}
+
+/* --- Table of contents ---------------------------------------------- */
+.right-sidebar {
+  border-inline-start-color: var(--sb-line);
+}
+
+starlight-toc h2,
+mobile-starlight-toc .toggle {
+  font-family: var(--sb-font-display);
+  letter-spacing: -0.01em;
+}
+
+starlight-toc a {
+  color: var(--sb-ink-subtle);
+  border-radius: var(--sb-radius-sm);
+  transition: color var(--sb-dur-fast) var(--sb-ease);
+}
+
+starlight-toc a:hover {
+  color: var(--sb-ink-strong);
+}
+
+starlight-toc a[aria-current="true"] {
+  color: var(--sb-accent);
+  font-weight: 600;
+}
+
+mobile-starlight-toc nav {
+  border-color: var(--sb-line);
+  background: var(--sb-bg);
+  background: color-mix(in srgb, var(--sb-bg) 86%, transparent);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+}
+
+/* --- Previous / next ------------------------------------------------- */
+.pagination-links a {
+  border-color: var(--sb-line);
+  border-radius: var(--sb-radius-lg);
+  background: var(--sb-surface);
+  box-shadow: var(--sb-shadow-sm);
+  transition: border-color var(--sb-dur) var(--sb-ease), transform var(--sb-dur) var(--sb-ease),
+    box-shadow var(--sb-dur) var(--sb-ease);
+}
+
+.pagination-links a:hover {
+  border-color: var(--sb-accent);
+  box-shadow: var(--sb-shadow-md);
+  transform: translateY(-2px);
+}
+
+.pagination-links .link-title {
+  font-family: var(--sb-font-display);
+  color: var(--sb-ink-strong);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pagination-links a:hover {
+    transform: none;
+  }
+}

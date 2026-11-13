@@ -1,0 +1,71 @@
+/* Page-wide basics: background, text rendering, selection, focus, headings. */
+html {
+  background: var(--sb-bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--sb-bg);
+  color: var(--sb-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* A soft wash of daylight behind the top of every page. Decorative only; a
+   browser without color-mix() simply shows the plain background. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0 0 auto 0;
+  height: 34rem;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(48rem 26rem at 88% -8%, color-mix(in srgb, var(--sb-accent-vivid) 16%, transparent), transparent 70%),
+    radial-gradient(40rem 24rem at 4% -6%, color-mix(in srgb, var(--sb-sky-vivid) 11%, transparent), transparent 70%);
+}
+
+::selection {
+  background: var(--sb-accent-soft);
+  color: var(--sb-ink-strong);
+}
+
+:focus-visible {
+  outline: 3px solid var(--sb-accent);
+  outline-offset: 2px;
+  border-radius: 0.25rem;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--sb-font-display);
+  font-weight: 650;
+  letter-spacing: -0.018em;
+  color: var(--sb-ink-strong);
+  text-wrap: balance;
+}
+
+h1 {
+  font-weight: 700;
+  letter-spacing: -0.028em;
+}
+
+p,
+li {
+  text-wrap: pretty;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media print {
+  body::before {
+    display: none;
+  }
+}

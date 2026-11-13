@@ -1,5 +1,6 @@
 ---
 import Default from "@astrojs/starlight/components/Head.astro";
+import { Font, fontData } from "astro:assets";
 
 type HeadEntry = {
   tag: string;
@@ -375,9 +376,19 @@ const combinedSchema = {
 // external sources (e.g. AI-news source URLs) can never break out of the
 // JSON-LD <script> block. JSON.stringify does NOT escape "</script>" on its own.
 const combinedSchemaJson = JSON.stringify(combinedSchema).replace(/</g, "\\u003c");
+
+const latinFontUrls = ["--font-body", "--font-display"]
+  .map((cssVariable) => fontData[cssVariable as keyof typeof fontData]?.[0]?.src[0]?.url)
+  .filter((url): url is string => Boolean(url));
 ---
 
 <Default {...Astro.props} />
+
+<!-- Self-hosted fonts (config/fonts.mjs). Only the Latin file of each family is
+     preloaded: it is the first variant, and it covers Danish and English. -->
+{latinFontUrls.map((href) => <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />)}
+<Font cssVariable="--font-body" />
+<Font cssVariable="--font-display" />
 
 <!-- Content Protection Meta Tags -->
 <meta name="robots" content={robotsContent} />
@@ -396,11 +407,3 @@ const combinedSchemaJson = JSON.stringify(combinedSchema).replace(/</g, "\\u003c
     document.cookie = "preferred-lang=" + lang + ";path=/;max-age=31536000;SameSite=Lax";
   } catch (e) {}
 </script>
-
-<style is:global>
-  /* Starlight's LinkCard description defaults to --sl-color-gray-3, which is
-     too dim against the dark card background. Lift it one step. */
-  .sl-link-card .description {
-    color: var(--sl-color-gray-2) !important;
-  }
-</style>

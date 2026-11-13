@@ -1,0 +1,80 @@
+/*
+ * Maps our tokens onto Starlight's own variables, so every built-in Starlight
+ * part (search, sidebar, asides, badges, tabs) follows the design system
+ * without being restyled one by one. Starlight's grey scale runs from the
+ * strongest foreground ("white") to the page background ("black") in both
+ * themes, which is why one mapping serves light and dark.
+ */
+:root,
+:root[data-theme="light"],
+:root[data-theme="dark"],
+::backdrop {
+  --sl-color-white: var(--sb-ink-strong);
+  --sl-color-gray-1: var(--sb-ink);
+  --sl-color-gray-2: var(--sb-ink-muted);
+  --sl-color-gray-3: var(--sb-ink-subtle);
+  --sl-color-gray-4: var(--sb-line-strong);
+  --sl-color-gray-5: var(--sb-line);
+  --sl-color-gray-6: var(--sb-bg-subtle);
+  --sl-color-gray-7: var(--sb-bg-subtle);
+  --sl-color-black: var(--sb-bg);
+
+  --sl-color-accent-low: var(--sb-accent-soft);
+  --sl-color-accent: var(--sb-accent);
+  --sl-color-accent-high: var(--sb-accent-strong);
+
+  --sl-color-orange-low: var(--sb-warm-soft);
+  --sl-color-orange: var(--sb-warm-vivid);
+  --sl-color-orange-high: var(--sb-warm);
+  --sl-color-green-low: var(--sb-accent-soft);
+  --sl-color-green: var(--sb-accent-vivid);
+  --sl-color-green-high: var(--sb-accent-strong);
+  --sl-color-blue-low: var(--sb-sky-soft);
+  --sl-color-blue: var(--sb-sky-vivid);
+  --sl-color-blue-high: var(--sb-sky);
+  --sl-color-purple-low: var(--sb-violet-soft);
+  --sl-color-purple: var(--sb-violet-vivid);
+  --sl-color-purple-high: var(--sb-violet);
+  --sl-color-red-low: var(--sb-danger-soft);
+  --sl-color-red: var(--sb-danger-vivid);
+  --sl-color-red-high: var(--sb-danger);
+
+  --sl-color-text: var(--sb-ink);
+  --sl-color-text-accent: var(--sb-accent);
+  --sl-color-text-invert: var(--sb-on-accent);
+  --sl-color-bg: var(--sb-bg);
+  --sl-color-bg-nav: var(--sb-bg);
+  --sl-color-bg-sidebar: var(--sb-bg);
+  --sl-color-bg-inline-code: var(--sb-bg-subtle);
+  --sl-color-bg-accent: var(--sb-accent);
+  --sl-color-hairline-light: var(--sb-line);
+  --sl-color-hairline: var(--sb-line);
+  --sl-color-hairline-shade: var(--sb-line);
+  --sl-color-backdrop-overlay: rgb(12 20 18 / 0.55);
+
+  --sl-shadow-sm: var(--sb-shadow-sm);
+  --sl-shadow-md: var(--sb-shadow-md);
+  --sl-shadow-lg: var(--sb-shadow-lg);
+
+  --sl-font: var(--sb-font-body);
+  --sl-font-mono: var(--sb-font-mono);
+  --sl-text-body: var(--sb-text-base);
+  --sl-text-h1: var(--sb-text-h1);
+  --sl-text-h2: var(--sb-text-h2);
+  --sl-text-h3: var(--sb-text-h3);
+  --sl-text-h4: var(--sb-text-h4);
+  --sl-line-height: var(--sb-leading);
+  --sl-line-height-headings: var(--sb-leading-tight);
+
+  --sl-nav-height: 4rem;
+  --sl-sidebar-width: 18rem;
+  --sl-content-width: var(--sb-measure);
+}
+
+@media (min-width: 50rem) {
+  :root {
+    --sl-nav-height: 4.5rem;
+    --sl-nav-pad-x: 1.5rem;
+    --sl-content-pad-x: 2rem;
+  }
+}

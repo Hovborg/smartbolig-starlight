@@ -25,10 +25,26 @@ test('reconnecting a theme toggle does not register a second click handler', asy
   assert.equal(fixture.document.documentElement.dataset.theme, 'light');
 });
 
-test('theme initialization still works when browser storage is disabled', async () => {
-  const source = await readFile(new URL('../config/head/theme-bootstrap.mjs', import.meta.url), 'utf8');
-  const script = source.slice(source.indexOf('// Force dark mode')).match(/content: `([\s\S]*?)`/)[1];
-  const document = { documentElement: { dataset: {} } };
-  vm.runInNewContext(script, { document, localStorage: { getItem() { throw new Error('Storage denied'); } } });
-  assert.equal(document.documentElement.dataset.theme, 'dark');
+test('theme follows the device and still initializes when browser storage is disabled', async () => {
+  const source = await readFile(new URL('../src/components/chrome/ThemeProvider.astro', import.meta.url), 'utf8');
+  const script = source.match(/<script is:inline>([\s\S]*?)<\/script>/)[1];
+  const run = ({ prefersDark, stored, storageThrows = false }) => {
+    const document = { documentElement: { dataset: {} } };
+    const listeners = [];
+    const media = { matches: prefersDark, addEventListener: (_type, fn) => listeners.push(fn) };
+    const localStorage = { getItem() { if (storageThrows) throw new Error('Storage denied'); return stored ?? null; } };
+    vm.runInNewContext(script, { document, localStorage, window: { matchMedia: () => media } });
+    return { document, media, listeners };
+  };
+  assert.equal(run({ prefersDark: true, storageThrows: true }).document.documentElement.dataset.theme, 'dark');
+  assert.equal(run({ prefersDark: false, storageThrows: true }).document.documentElement.dataset.theme, 'light');
+  assert.equal(run({ prefersDark: true, stored: 'light' }).document.documentElement.dataset.theme, 'light');
+  assert.equal(run({ prefersDark: false, stored: 'dark' }).document.documentElement.dataset.theme, 'dark');
+  // An unknown stored value is ignored instead of being written to the page.
+  assert.equal(run({ prefersDark: false, stored: '<x>' }).document.documentElement.dataset.theme, 'light');
+  // A device change is followed live while the visitor has not chosen.
+  const live = run({ prefersDark: false });
+  live.media.matches = true;
+  live.listeners.forEach((fn) => fn());
+  assert.equal(live.document.documentElement.dataset.theme, 'dark');
 });

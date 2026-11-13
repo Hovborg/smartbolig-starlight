@@ -1,0 +1,13 @@
+/*
+ * The site's theme. Loaded once through Starlight's customCss (config/site.mjs).
+ * Order matters: tokens first, then the Starlight mapping, then the parts.
+ * How to change a value or add a part: docs/designsystem.md.
+ */
+@import "./tokens/color.css";
+@import "./tokens/scale.css";
+@import "./starlight/bridge.css";
+@import "./base.css";
+@import "./chrome/header.css";
+@import "./chrome/sidebar.css";
+@import "./content/prose.css";
+@import "./content/blocks.css";

@@ -1,0 +1,25 @@
+---
+// Sets the theme before the first paint. The page follows the device's light
+// or dark setting until the visitor picks one with the theme switch
+// (ThemeSelect.astro stores the choice). Works when browser storage is blocked.
+---
+
+<script is:inline>
+  (() => {
+    const read = () => {
+      try {
+        const stored = localStorage.getItem("starlight-theme");
+        return stored === "light" || stored === "dark" ? stored : null;
+      } catch {
+        return null; // Storage can be blocked in private or embedded contexts.
+      }
+    };
+    const device = window.matchMedia("(prefers-color-scheme: dark)");
+    const apply = () => {
+      document.documentElement.dataset.theme = read() || (device.matches ? "dark" : "light");
+    };
+    apply();
+    // Follow the device live while the visitor has not chosen.
+    device.addEventListener?.("change", apply);
+  })();
+</script>

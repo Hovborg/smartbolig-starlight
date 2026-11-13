@@ -1,33 +1,15 @@
-// Site URL and scalar Starlight options: title, logo, theme CSS, code blocks, locales, social links.
+// Site URL and scalar Starlight options: title, theme CSS, code blocks, locales, social links.
 export const siteUrl = "https://smartbolig.net";
 
 export const starlightOptions = {
   title: "SmartBolig.net",
-  // Logo configuration - animated chip logo with glow
-  logo: {
-    light: "./src/assets/logo-light.svg",
-    dark: "./src/assets/logo-dark.svg",
-    replacesTitle: true,
-    alt: "SmartBolig logo",
-  },
-  // Galaxy visual system is wired explicitly so our accessible theme
-  // switch can replace the package override without plugin warnings.
-  customCss: ["starlight-theme-galaxy/styles/index.css"],
+  // The whole theme (tokens, Starlight mapping, parts): src/styles/index.css.
+  customCss: ["./src/styles/index.css"],
+  // Code blocks use Starlight's own light and dark themes, which follow the
+  // site theme and its colours.
   expressiveCode: {
-    themes: ["github-dark-high-contrast", "light-plus"],
     frames: { extractFileNameFromCode: false },
-    styleOverrides: {
-      borderRadius: "0.4rem",
-      borderColor: "var(--fb-code-block-bg-color)",
-      codeBackground: "var(--fb-code-block-bg-color)",
-      frames: {
-        shadowColor: "var(--sl-shadow-sm)",
-        editorActiveTabIndicatorTopColor: "unset",
-        editorActiveTabIndicatorBottomColor: "var(--sl-color-gray-3)",
-        editorTabBarBorderBottomColor: "var(--fb-code-block-bg-color)",
-        frameBoxShadowCssValue: "unset",
-      },
-    },
+    styleOverrides: { borderRadius: "0.875rem" },
   },
   // The custom 404 page lives at src/pages/404.astro — disable Starlight's
   // built-in 404 route so the two don't collide (collision becomes a hard
