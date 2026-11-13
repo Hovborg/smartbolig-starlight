@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
+import { readAssistantSource } from "./lib/assistant-source.mjs";
 import {
   FALLBACK_MODEL_TIMEOUT_MS,
   MAX_MODEL_RUNS,
@@ -19,7 +20,7 @@ test("custom footer mounts one global SmartBolig assistant", async () => {
 });
 
 test("assistant has a localized accessible dialog and smart-domain starter prompts", async () => {
-  const source = await read("src/components/SmartBoligAssistant.astro");
+  const source = await readAssistantSource();
 
   assert.match(source, /role="dialog"/);
   assert.match(source, /aria-labelledby="smartbolig-ai-title"/);
@@ -52,7 +53,7 @@ test("assistant has a localized accessible dialog and smart-domain starter promp
 });
 
 test("assistant uses same-origin bounded session-only chat without unsafe HTML sinks", async () => {
-  const source = await read("src/components/SmartBoligAssistant.astro");
+  const source = await readAssistantSource();
 
   assert.match(source, /fetch\(["']\/api\/chat["']/);
   assert.match(source, /sessionStorage/);
@@ -66,7 +67,7 @@ test("assistant uses same-origin bounded session-only chat without unsafe HTML s
 });
 
 test("assistant bounds persisted and outbound context without shortening the current rendered answer", async () => {
-  const source = await read("src/components/SmartBoligAssistant.astro");
+  const source = await readAssistantSource();
 
   assert.match(source, /history\.slice\(-MAX_HISTORY_MESSAGES\)\.map\(normalizeStoredMessage\)\.filter\(Boolean\)/);
   assert.match(source, /const MAX_HISTORY_CHARS\s*=\s*8_000/);
@@ -79,7 +80,7 @@ test("assistant bounds persisted and outbound context without shortening the cur
 });
 
 test("assistant safely formats model Markdown without an HTML sink", async () => {
-  const source = await read("src/components/SmartBoligAssistant.astro");
+  const source = await readAssistantSource();
 
   assert.match(source, /function createSafeRichText\(content\)/);
   assert.match(source, /function appendInlineFormatting\(element,\s*content\)/);
@@ -91,7 +92,7 @@ test("assistant safely formats model Markdown without an HTML sink", async () =>
 });
 
 test("assistant renders fenced technical code with a DOM-only copyable console", async () => {
-  const source = await read("src/components/SmartBoligAssistant.astro");
+  const source = await readAssistantSource();
 
   assert.match(source, /function createSafeCodeBlock\(code,\s*language\)/);
   assert.match(source, /document\.createElement\(["']pre["']\)/);
@@ -108,7 +109,7 @@ test("assistant renders fenced technical code with a DOM-only copyable console",
 });
 
 test("assistant shows allowlisted bilingual model, route, edge, trace and source diagnostics", async () => {
-  const source = await read("src/components/SmartBoligAssistant.astro");
+  const source = await readAssistantSource();
 
   for (const copy of [
     "MODEL",
@@ -142,7 +143,7 @@ test("assistant shows allowlisted bilingual model, route, edge, trace and source
 });
 
 test("assistant keeps four visible bilingual expert work modes beside the composer", async () => {
-  const source = await read("src/components/SmartBoligAssistant.astro");
+  const source = await readAssistantSource();
 
   for (const copy of [
     "ARBEJDSPROFIL",
@@ -177,7 +178,7 @@ test("assistant keeps four visible bilingual expert work modes beside the compos
 });
 
 test("assistant shows an honest elapsed edge request console and clears its timer", async () => {
-  const source = await read("src/components/SmartBoligAssistant.astro");
+  const source = await readAssistantSource();
 
   assert.match(source, /EDGE-FORESPØRGSEL AKTIV/);
   assert.match(source, /EDGE REQUEST ACTIVE/);
@@ -200,7 +201,7 @@ test("assistant shows an honest elapsed edge request console and clears its time
 });
 
 test("assistant renders copy controls and revalidates canonical SmartBolig and official sources", async () => {
-  const source = await read("src/components/SmartBoligAssistant.astro");
+  const source = await readAssistantSource();
 
   assert.match(source, /navigator\.clipboard\.writeText/);
   assert.match(source, /const SAFE_SOURCE_HOSTS\s*=\s*new Set/);
@@ -224,7 +225,7 @@ test("assistant renders copy controls and revalidates canonical SmartBolig and o
 });
 
 test("assistant handles loading, server failures, Escape and focus restoration", async () => {
-  const source = await read("src/components/SmartBoligAssistant.astro");
+  const source = await readAssistantSource();
 
   assert.match(source, /AbortController/);
   assert.match(source, /statusCode\s*===\s*429/);
@@ -254,7 +255,7 @@ test("assistant handles loading, server failures, Escape and focus restoration",
 });
 
 test("assistant is a fixed premium panel, a mobile bottom sheet and motion-safe", async () => {
-  const source = await read("src/components/SmartBoligAssistant.astro");
+  const source = await readAssistantSource();
 
   assert.match(source, /position:\s*fixed/);
   assert.match(source, /backdrop-filter:\s*blur/);
@@ -264,11 +265,25 @@ test("assistant is a fixed premium panel, a mobile bottom sheet and motion-safe"
   assert.match(source, /@media\s*\(max-width:\s*640px\)/);
   assert.match(source, /inset-inline:\s*0/);
   assert.match(source, /@media\s*\(prefers-reduced-motion:\s*reduce\)/);
-  assert.match(source, /\[data-theme=['"]light['"]\]\s+\.smartbolig-ai/);
+  // The design tokens switch themes by themselves, so the widget must not branch on the theme.
+  assert.doesNotMatch(source, /data-theme/);
+  assert.match(source, /@media\s*\(prefers-reduced-motion:\s*no-preference\)/);
+});
+
+test("assistant styles use design tokens instead of hard-coded colours, fonts and shadows", async () => {
+  const source = await readAssistantSource();
+  const styles = [...source.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map((match) => match[1]).join("\n");
+
+  assert.ok(styles.length > 0, "assistant styles must be readable");
+  assert.doesNotMatch(styles, /#[0-9a-fA-F]{3,8}\b/, "no hex colours");
+  assert.doesNotMatch(styles, /\b(?:rgba?|hsla?)\(/, "no rgb/hsl colours");
+  assert.doesNotMatch(styles, /font-family:\s*(?!\s|var\()/, "fonts come from --sb-font-*");
+  assert.doesNotMatch(styles, /box-shadow:\s*(?!\s|var\(--sb-shadow-|none)/, "shadows come from --sb-shadow-*");
+  assert.doesNotMatch(styles, /\bease(?:-in|-out|-in-out)?\s*[;,]/, "transitions use --sb-ease");
 });
 
 test("assistant presents a semantic smart-home intelligence console", async () => {
-  const source = await read("src/components/SmartBoligAssistant.astro");
+  const source = await readAssistantSource();
 
   assert.match(source, /data-chat-system-status/);
   assert.match(source, /EDGE AI/);

@@ -1,0 +1,44 @@
+---
+// The scrolling conversation area: message log, welcome visual and starter prompts.
+import type { AssistantCopy } from '../../lib/assistant-copy';
+import AssistantPrompts from './AssistantPrompts.astro';
+import AssistantWelcome from './AssistantWelcome.astro';
+
+interface Props {
+  t: AssistantCopy;
+}
+
+const { t } = Astro.props;
+---
+
+<div class="smartbolig-ai__conversation" data-chat-conversation>
+  <div
+    class="smartbolig-ai__messages"
+    role="log"
+    aria-live="polite"
+    aria-relevant="additions"
+    data-chat-messages
+  ></div>
+
+  <AssistantWelcome t={t} />
+  <AssistantPrompts t={t} />
+</div>
+
+<style>
+  .smartbolig-ai__conversation {
+    min-height: 0;
+    overflow: auto;
+    padding: 0.95rem 1rem 1rem;
+    scrollbar-color: color-mix(in srgb, var(--sb-ink-subtle) 40%, transparent) transparent;
+    scrollbar-width: thin;
+  }
+
+  .smartbolig-ai__messages {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .smartbolig-ai__messages[hidden] {
+    display: none;
+  }
+</style>

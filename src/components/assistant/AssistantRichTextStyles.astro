@@ -1,0 +1,119 @@
+---
+// Styles for formatted answers and the code console. Global: the client script creates these nodes.
+---
+
+<style is:global>
+  .smartbolig-ai__rich-text {
+    display: grid;
+    gap: 0.58rem;
+    color: var(--ai-text);
+    font-size: 0.79rem;
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+  }
+
+  .smartbolig-ai__rich-text h3 {
+    margin: 0.2rem 0 0;
+    color: var(--ai-text-strong);
+    font-size: 0.84rem;
+    font-weight: 760;
+    letter-spacing: -0.01em;
+    line-height: 1.35;
+  }
+
+  .smartbolig-ai__rich-text ul,
+  .smartbolig-ai__rich-text ol {
+    display: grid;
+    gap: 0.38rem;
+    margin: 0;
+    padding-inline-start: 1.2rem;
+  }
+
+  .smartbolig-ai__rich-text li::marker {
+    color: var(--ai-signal);
+  }
+
+  .smartbolig-ai__rich-text strong {
+    color: var(--ai-text-strong);
+    font-weight: 720;
+  }
+
+  .smartbolig-ai__rich-text code {
+    padding: 0.08rem 0.28rem;
+    border: 1px solid color-mix(in srgb, var(--ai-signal) 25%, transparent);
+    border-radius: var(--sb-radius-sm);
+    color: var(--sb-accent-strong);
+    background: var(--sb-accent-soft);
+    font-family: var(--sb-font-mono);
+    font-size: 0.72rem;
+  }
+
+  .smartbolig-ai__code-shell {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--ai-line-strong);
+    border-inline-start: 3px solid color-mix(in srgb, var(--ai-glow) 50%, transparent);
+    border-radius: var(--sb-radius-md);
+    background: var(--sb-bg);
+    box-shadow: var(--sb-shadow-sm);
+  }
+
+  .smartbolig-ai__code-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.42rem 0.55rem 0.4rem 0.68rem;
+    border-bottom: 1px solid var(--ai-line);
+    background: var(--sb-surface);
+  }
+
+  .smartbolig-ai__code-head > span {
+    color: var(--ai-signal);
+    font-family: var(--sb-font-mono);
+    font-size: 0.52rem;
+    font-weight: 760;
+    letter-spacing: 0.1em;
+  }
+
+  .smartbolig-ai__code-copy {
+    padding: 0.2rem 0.38rem;
+    border: 1px solid var(--ai-line);
+    border-radius: var(--sb-radius-sm);
+    color: var(--ai-muted);
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.55rem;
+    line-height: 1.2;
+  }
+
+  .smartbolig-ai__code-copy:hover {
+    border-color: color-mix(in srgb, var(--ai-signal) 40%, transparent);
+    color: var(--sb-accent-strong);
+    background: var(--sb-accent-soft);
+  }
+
+  .smartbolig-ai__code-shell pre {
+    margin: 0;
+    padding: 0.72rem 0.78rem 0.82rem;
+    overflow-x: auto;
+    scrollbar-color: color-mix(in srgb, var(--sb-ink-subtle) 40%, transparent) transparent;
+    scrollbar-width: thin;
+  }
+
+  .smartbolig-ai__code-shell code {
+    display: block;
+    width: max-content;
+    min-width: 100%;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    color: var(--ai-text);
+    background: transparent;
+    font-family: var(--sb-font-mono);
+    font-size: 0.68rem;
+    line-height: 1.55;
+    tab-size: 2;
+    white-space: pre;
+  }
+</style>

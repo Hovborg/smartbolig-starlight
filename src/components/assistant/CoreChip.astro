@@ -1,0 +1,98 @@
+---
+// The rounded glyph badge: "orb" on the launcher (with a pulse ring), "mark" in the header.
+import CoreGlyph from './CoreGlyph.astro';
+
+interface Props {
+  variant: 'orb' | 'mark';
+}
+
+const { variant } = Astro.props;
+---
+
+<span class={`smartbolig-ai__${variant} smartbolig-ai__core-chip`} aria-hidden="true">
+  {variant === 'orb' && <span class="smartbolig-ai__core-pulse"></span>}
+  <CoreGlyph />
+</span>
+
+<style>
+  .smartbolig-ai__orb,
+  .smartbolig-ai__mark {
+    position: relative;
+    display: grid;
+    place-items: center;
+    flex: 0 0 auto;
+    border: 1px solid color-mix(in srgb, var(--ai-signal) 45%, transparent);
+    border-radius: var(--sb-radius-md);
+    background:
+      radial-gradient(circle at 38% 28%, color-mix(in srgb, var(--sb-surface) 70%, transparent), transparent 28%),
+      linear-gradient(145deg, var(--sb-accent-soft), color-mix(in srgb, var(--ai-glow) 26%, var(--sb-accent-soft)));
+    box-shadow: var(--sb-shadow-sm);
+  }
+
+  .smartbolig-ai__orb {
+    width: 50px;
+    height: 50px;
+  }
+
+  .smartbolig-ai__mark {
+    width: 40px;
+    height: 40px;
+  }
+
+  .smartbolig-ai__orb :global(svg),
+  .smartbolig-ai__mark :global(svg) {
+    width: 60%;
+    overflow: visible;
+    fill: none;
+    stroke: var(--ai-signal-strong);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.5;
+  }
+
+  .smartbolig-ai__core-pulse {
+    position: absolute;
+    inset: -7px;
+    border: 1px solid color-mix(in srgb, var(--ai-signal) 16%, transparent);
+    border-radius: var(--sb-radius-lg);
+  }
+
+  @media (max-width: 640px) {
+    .smartbolig-ai__orb {
+      width: 44px;
+      height: 44px;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .smartbolig-ai__orb {
+      animation: smartbolig-ai-breathe 4s ease-in-out infinite;
+    }
+
+    .smartbolig-ai__core-pulse {
+      animation: smartbolig-ai-signal 2.8s ease-out infinite;
+    }
+  }
+
+  @keyframes smartbolig-ai-breathe {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.025);
+    }
+  }
+
+  @keyframes smartbolig-ai-signal {
+    0% {
+      opacity: 0.5;
+      transform: scale(0.86);
+    }
+    75%,
+    100% {
+      opacity: 0;
+      transform: scale(1.18);
+    }
+  }
+</style>

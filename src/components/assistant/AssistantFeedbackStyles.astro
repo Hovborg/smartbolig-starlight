@@ -1,0 +1,155 @@
+---
+// Styles for the loading console and the error alert. Global: the client script creates these nodes.
+---
+
+<style is:global>
+  .smartbolig-ai__typing {
+    display: inline-flex;
+    gap: 0.28rem;
+    justify-self: end;
+    padding: 0.05rem 0;
+  }
+
+  .smartbolig-ai__typing i {
+    width: 6px;
+    height: 6px;
+    border-radius: var(--sb-radius-pill);
+    background: var(--ai-glow);
+  }
+
+  .smartbolig-ai__loading-console {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.42rem 0.8rem;
+    min-width: 0;
+    font-family: var(--sb-font-mono);
+  }
+
+  .smartbolig-ai__loading-head {
+    display: flex;
+    grid-column: 1 / -1;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.7rem;
+    color: var(--ai-signal);
+    font-size: 0.54rem;
+    font-weight: 760;
+    letter-spacing: 0.075em;
+  }
+
+  .smartbolig-ai__loading-head span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .smartbolig-ai__loading-head strong {
+    flex: 0 0 auto;
+    color: var(--ai-signal);
+    font-size: 0.58rem;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+
+  .smartbolig-ai__loading-signal {
+    position: relative;
+    grid-column: 1 / -1;
+    height: 2px;
+    overflow: hidden;
+    border-radius: var(--sb-radius-pill);
+    background: color-mix(in srgb, var(--ai-signal) 14%, transparent);
+  }
+
+  .smartbolig-ai__loading-signal i {
+    position: absolute;
+    inset-block: 0;
+    left: -34%;
+    width: 34%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, transparent, var(--ai-glow), var(--ai-signal));
+  }
+
+  .smartbolig-ai__loading-console > small {
+    align-self: center;
+    overflow: hidden;
+    color: var(--ai-dim);
+    font-size: 0.46rem;
+    font-weight: 680;
+    letter-spacing: 0.08em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .smartbolig-ai__error {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.7rem;
+    padding: 0.72rem;
+    border: 1px solid color-mix(in srgb, var(--sb-danger) 35%, transparent);
+    border-radius: var(--sb-radius-md);
+    color: var(--sb-danger);
+    background: var(--sb-danger-soft);
+    font-size: 0.72rem;
+    line-height: 1.4;
+  }
+
+  .smartbolig-ai__error p {
+    margin: 0;
+  }
+
+  .smartbolig-ai__error button {
+    flex: 0 0 auto;
+    padding: 0.36rem 0.5rem;
+    border: 1px solid color-mix(in srgb, var(--sb-danger) 45%, transparent);
+    border-radius: var(--sb-radius-sm);
+    color: var(--sb-danger);
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.64rem;
+  }
+
+  .smartbolig-ai__error button:hover {
+    background: color-mix(in srgb, var(--sb-danger) 12%, transparent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .smartbolig-ai__typing i {
+      animation: smartbolig-ai-typing 1s ease-in-out infinite;
+    }
+
+    .smartbolig-ai__typing i:nth-child(2) {
+      animation-delay: 130ms;
+    }
+
+    .smartbolig-ai__typing i:nth-child(3) {
+      animation-delay: 260ms;
+    }
+
+    .smartbolig-ai__loading-signal i {
+      animation: smartbolig-ai-edge-scan 1.35s ease-in-out infinite;
+    }
+  }
+
+  @keyframes smartbolig-ai-typing {
+    0%,
+    80%,
+    100% {
+      opacity: 0.4;
+      transform: translateY(0);
+    }
+    40% {
+      opacity: 1;
+      transform: translateY(-3px);
+    }
+  }
+
+  @keyframes smartbolig-ai-edge-scan {
+    0% {
+      left: -34%;
+    }
+    100% {
+      left: 100%;
+    }
+  }
+</style>

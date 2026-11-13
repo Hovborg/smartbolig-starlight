@@ -1,0 +1,171 @@
+---
+// The floating button that opens the assistant.
+import type { AssistantCopy } from '../../lib/assistant-copy';
+import CoreChip from './CoreChip.astro';
+
+interface Props {
+  t: AssistantCopy;
+}
+
+const { t } = Astro.props;
+---
+
+<button
+  class="smartbolig-ai__launcher"
+  type="button"
+  aria-label={t.launcherLabel}
+  aria-expanded="false"
+  aria-controls="smartbolig-ai-panel"
+  data-chat-launcher
+>
+  <CoreChip variant="orb" />
+  <span class="smartbolig-ai__launcher-copy">
+    <span class="smartbolig-ai__launcher-kicker">SMARTBOLIG AI</span>
+    <span class="smartbolig-ai__launcher-title">{t.launcher}</span>
+    <span class="smartbolig-ai__launcher-status" data-chat-system-status>
+      <span class="smartbolig-ai__status-dot" aria-hidden="true"></span>
+      {t.systemStatus}
+    </span>
+  </span>
+  <svg class="smartbolig-ai__launcher-chevron" viewBox="0 0 24 24" aria-hidden="true">
+    <path d="m9 6 6 6-6 6"></path>
+  </svg>
+</button>
+
+<style>
+  .smartbolig-ai__launcher {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.78rem;
+    min-height: 68px;
+    padding: 0.48rem 0.62rem 0.48rem 0.48rem;
+    overflow: hidden;
+    border: 1px solid var(--ai-line-strong);
+    border-radius: var(--sb-radius-lg);
+    color: var(--ai-text-strong);
+    background:
+      linear-gradient(
+        110deg,
+        color-mix(in srgb, var(--ai-signal) 9%, transparent),
+        transparent 44%,
+        color-mix(in srgb, var(--ai-glow) 6%, transparent)
+      ),
+      var(--ai-surface);
+    box-shadow: var(--sb-shadow-lg);
+    backdrop-filter: blur(24px) saturate(145%);
+    -webkit-backdrop-filter: blur(24px) saturate(145%);
+    cursor: pointer;
+  }
+
+  .smartbolig-ai__launcher:hover {
+    border-color: color-mix(in srgb, var(--ai-signal) 56%, transparent);
+  }
+
+  .smartbolig-ai__launcher-copy {
+    display: grid;
+    min-width: 130px;
+    gap: 0.08rem;
+    text-align: left;
+  }
+
+  .smartbolig-ai__launcher-kicker {
+    color: var(--ai-signal);
+    font-family: var(--sb-font-mono);
+    font-size: 0.52rem;
+    font-weight: 760;
+    letter-spacing: 0.13em;
+    line-height: 1.2;
+  }
+
+  .smartbolig-ai__launcher-title {
+    font-size: 0.92rem;
+    font-weight: 780;
+    letter-spacing: -0.025em;
+  }
+
+  .smartbolig-ai__launcher-status {
+    display: flex;
+    align-items: center;
+    gap: 0.36rem;
+    color: var(--ai-muted);
+    font-family: var(--sb-font-mono);
+    font-size: 0.57rem;
+    letter-spacing: 0.025em;
+    line-height: 1;
+  }
+
+  .smartbolig-ai__launcher-chevron {
+    width: 18px;
+    fill: none;
+    stroke: var(--ai-muted);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+  }
+
+  .smartbolig-ai__launcher:hover .smartbolig-ai__launcher-chevron {
+    stroke: var(--ai-signal);
+  }
+
+  @media (max-width: 640px) {
+    .smartbolig-ai__launcher {
+      position: fixed;
+      right: max(0.85rem, env(safe-area-inset-right));
+      bottom: max(0.85rem, env(safe-area-inset-bottom));
+      min-height: 58px;
+      padding-right: 0.8rem;
+      pointer-events: auto;
+    }
+
+    .smartbolig-ai__launcher-status {
+      display: none;
+    }
+
+    :global(.smartbolig-ai.is-open) .smartbolig-ai__launcher {
+      pointer-events: none;
+      opacity: 0;
+    }
+  }
+
+  @media (max-width: 360px) {
+    .smartbolig-ai__launcher {
+      min-width: 58px;
+      padding: 0.42rem;
+    }
+
+    .smartbolig-ai__launcher-copy,
+    .smartbolig-ai__launcher-chevron {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .smartbolig-ai__launcher {
+      transition:
+        transform var(--sb-dur-fast) var(--sb-ease),
+        border-color var(--sb-dur-fast) var(--sb-ease),
+        opacity var(--sb-dur-fast) var(--sb-ease);
+    }
+
+    .smartbolig-ai__launcher:hover {
+      transform: translateY(-3px) scale(1.012);
+    }
+
+    .smartbolig-ai__launcher-chevron {
+      transition:
+        transform var(--sb-dur-fast) var(--sb-ease),
+        stroke var(--sb-dur-fast) var(--sb-ease);
+    }
+
+    .smartbolig-ai__launcher:hover .smartbolig-ai__launcher-chevron {
+      transform: translateX(2px);
+    }
+
+    @media (max-width: 640px) {
+      :global(.smartbolig-ai.is-open) .smartbolig-ai__launcher {
+        transform: translateY(12px);
+      }
+    }
+  }
+</style>
