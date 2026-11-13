@@ -82,3 +82,36 @@ Fundet ved sammenligning med koden (`astro.config.mjs`, `Head.astro`, `public/_h
 - Billedet `ld2410-mmwave/overview.svg` viser 3,3 V, mens `wiring.svg` viser 5 V (billeder må ikke ændres her; ret SVG'en separat).
 - EN-versionen af LD2410-guiden er kortere end DA (mangler ESP32-diagram, tuning via HA og gate-forklaring).
 - "$3/md" for 1Password kunne ikke verificeres; sikkerhedsindekset anbefaler Bitwarden (redaktionelt valg). Dansk UI-navn "Kontakt" for hjælpertypen Toggle er ikke kontrolleret.
+
+## Uafhængig gennemgang 2026-11-13
+
+En anden agent har gennemgået ændringerne koldt mod leverandørernes egne sider og mod sidens kode. Fem ting er rettet (DA og EN, hvor intet andet står). Intet er rullet tilbage.
+
+| Fil | Rettelse | Kilde |
+|---|---|---|
+| esp32/esphome-avanceret | `github://ssieb/esphome_components@main` rettet til `@master`. Grenen `main` findes ikke, så eksemplet kunne ikke hentes. | api.github.com/repos/ssieb/esphome_components (`default_branch: master`, ingen `main` i grenlisten); `raw.githubusercontent.com/ssieb/esphome_components/master/components/serial_csv/__init__.py` svarer 200, samme sti på `main` 404 |
+| ai/ai-cli/claude-code-kom-godt-i-gang, ai/ai-cli/sikkerhed-og-permissions | "`claude -p` starter i Manual mode" har fået forbeholdet "fra v2.1.302 … når du ikke vælger en mode". Før den version kunne kørslen starte i auto mode. | code.claude.com/docs/en/permission-modes, afsnittet "Tool calls denied in `claude -p` and Agent SDK runs" |
+| ai/ai-cli/priser-og-planer | "De nærmeste modeller" nævner nu også Gemini 3.6 Flash, som Google lister som forrige generations Flash-model. | aistudio.google.com/docs/pricing, afsnittet "Gemini 3.6 Flash" |
+| ai/ai-cli/priser-og-planer (kun DA) | Sprog: "blev udgået fra Codex" rettet til "udgik af Codex". | – |
+| ai/ai-cli/antigravity-cli-kom-godt-i-gang | "version 1.0.3" rettet til "version 1.5.3". Hver række i tabellen er kontrolleret mod den version. | lokalt `agy --version` (1.5.3), `agy --help` og `agy plugin --help` |
+
+**Bekræftet uden ændring**
+
+- Claude Code: auto mode som start fra v2.1.283, Manual = `default`, `AGENTS.md` læses uden `CLAUDE.md` fra v2.1.277, `/usage` med aliasser, Homebrew (code.claude.com/docs/en/permission-modes, /memory, /quickstart, /commands).
+- Priser og limits hos Anthropic, OpenAI og Google er set på leverandørens side, række for række (claude.com/pricing, platform.claude.com/docs/en/about-claude/pricing, learn.chatgpt.com/docs/pricing, developers.openai.com/api/docs/pricing, aistudio.google.com/docs/pricing, gemini.google/us/subscriptions, geminicli.com kvoteside). Kronebeløbene passer med 6,40 kr./USD.
+- ESPHome og Home Assistant: `ota` i listeform, `channel_colors` (2026.8), Jinja `${ }` (2025.7), packages, `triggers:`/`actions:`, `color_temp_kelvin`, port 80 for nye HAOS-installationer, de nye ankre.
+- Kodeblokke: 76 YAML- og 4 JSON-blokke i de ændrede filer kan parses (PyYAML, `json`).
+- Det gamle package-eksempel `esphome/firmware` → `voice-assistant/m5stack-atom-echo.yaml` giver 404 på `main`, så fjernelsen var berettiget.
+- Juridisk: de to rettelser passer med koden (`AffiliateLink.astro` viser "Reklamelink"/"Ad link"; `Head.astro` sætter `preferred-lang` med `max-age=31536000`). Chatafsnittet i privatlivspolitikken passer også (`MAX_MESSAGES = 10`, rate limit på IP, logs indeholder kun request-id og fejlnavn), og Giscus indlæses som beskrevet.
+
+**Afklaret fra listen "Uafklaret"**
+
+- `agy update`, `agy install`, `agy changelog` og `agy plugin list` findes i `agy --help` 1.5.3.
+- `/memory reload` findes i Gemini CLI 0.68.0 og på gemini-md-siden; `/memory add` findes ikke. Dagskvoterne 1.000/1.500/2.000 står på geminicli.com's kvoteside.
+
+**Stadig uafklaret**
+
+- LD2410: "5-12 V" er belagt hos DFRobot (SEN0557: nominelt 5 V, DC 5-12 V, UART/GPIO 3,3 V). Hi-Links eget datablad er ikke åbnet.
+- Eksisterende tekst, som ikke er del af ændringen og derfor er ladt urørt: `priser-og-planer` skriver, at Google "lukkede … Google AI Pro og Google AI Ultra" (meningen er, at Gemini CLI holdt op med at betjene de abonnementer), og at OpenAI's regionale tillæg gælder modeller "efter" 5. marts 2026 (OpenAI skriver "on or after").
+- Juridisk: `cookiepolitik` og `brugsvilkaar` er ændret i dag, men "Senest opdateret" står stadig til juli 2026 og december 2025. `preferred-lang` er sat ind under "Nødvendige cookies"; koden sætter den uden samtykke ved hver sidevisning. Om den hører under den kategori, er ejerens afgørelse.
+- Af de ni punkter ovenfor er 1, 2 og 4 uoverensstemmelser, der kan ses i koden (banner, cookie `CookieConsent` og ikon findes ikke i koden; intet Ezoic-script; ingen nyhedsbrevsformular). Punkt 3 kan ikke afgøres i koden (Cloudflare kan indsætte scriptet selv). Punkt 5-9 handler om kontoindstillinger, aftaler og ordlyd og kan ikke afgøres i koden.

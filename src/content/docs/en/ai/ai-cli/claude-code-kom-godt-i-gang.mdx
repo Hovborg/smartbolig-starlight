@@ -166,7 +166,7 @@ Practical split:
 
 ## Permissions
 
-Claude Code is controlled by permission modes. From Claude Code v2.1.283, interactive terminal sessions start in auto mode, where a separate classifier model reviews actions instead of you and blocks the ones it judges unsafe. In Manual mode (`default`), Claude Code starts with read-only permissions and asks before it edits files, runs tests, or executes commands. `claude -p` also starts in Manual mode.
+Claude Code is controlled by permission modes. From Claude Code v2.1.283, interactive terminal sessions start in auto mode, where a separate classifier model reviews actions instead of you and blocks the ones it judges unsafe. In Manual mode (`default`), Claude Code starts with read-only permissions and asks before it edits files, runs tests, or executes commands. From v2.1.302, `claude -p` also starts in Manual mode when you do not set a mode.
 
 Press `Shift+Tab` to switch mode in a session, or start in a specific mode, for example `claude --permission-mode plan`. Say no when you cannot see why an action is necessary.
 
