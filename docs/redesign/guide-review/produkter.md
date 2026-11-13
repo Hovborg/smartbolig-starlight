@@ -73,3 +73,64 @@ Affiliate-links er ikke rettet (regel). Forkerte produkter skal rettes af en per
 | smart-rengoering | dreame.dk | Redirect til et affiliate-sporingsdomæne (forventet) |
 
 Cirka 215 af 239 unikke links gav HTTP 200.
+
+## Uafhængig gennemgang 2026-11-13
+
+Gennemgået uden kendskab til den første gennemgang. Alle ændrede påstande er slået op i primærkilden igen. Ingen filnavne, frontmatter, affiliate-links, sporingsparametre, komponenter eller billeder er ændret i forhold til `origin/main` (sammenlignet mekanisk pr. fil); eneste nye komponent er en `Aside` i `smart-baby`, som allerede var importeret.
+
+### Bekræftet uden ændring
+
+| Påstand | Kilde |
+|---|---|
+| Voice PE: 69 $ ekskl. skat / 59 € inkl. moms (vejl.) | home-assistant.io/voice-pe |
+| ZBT-2: 49 $ / 45 € (vejl.), MG24, 4,16 dBi, Zigbee eller Thread (ikke begge); ZBT-1/SkyConnect er udgået og afløst af ZBT-2 | home-assistant.io/connect/zbt-2, home-assistant.io/connectzbt1 |
+| SLZB-07: EFR32MG21, Thread med multiPAN-firmware | smlight.tech/product/slzb-07 |
+| Shelly Plus 0-10V Dimmer kræver nulleder; Dimmer 2 virker uden | kb.shelly.cloud (begge produktsider) |
+| Indbyggede integrationer: Tractive (Premium, e-mail/adgangskode), Whisker/Litter-Robot, MEATER, Anova (ikke Nano), IoTaWatt, Nord Pool (kun brugerflade, fra 2024.12), Jellyfin, Ecovacs, Flume | home-assistant.io/integrations/… for hver |
+| Ring: ingen `alarm_control_panel` i den indbyggede integration; ring-mqtt har alarmpanel og fås som add-on | home-assistant/core `ring/const.py`; github.com/tsightler/ring-mqtt (wiki) |
+| Oura: OAuth2, Gen 3/Ring 4/Ring 5, HA 2026.3.0+ | github.com/louispires/Oura-Home-Assistant-Integration |
+| Owlet: uofficiel, Smart Sock 2/3 og Dream Sock, HACS custom repository, cloud-polling, må ikke bruges til alarmer | github.com/ray0711/owlet (README) |
+| Valetudo-link | valetudo.cloud/pages/general/supported-robots/ (200) |
+
+### Priser
+
+Proshop afviste alle mine opslag (403 fra curl og WebFetch, Cloudflare-kontrol i browseren), så jeg har ikke selv kunnet åbne butikssiderne. I stedet er hver af de 26 ændrede Proshop-priser sammenholdt med den første gennemgangs rå udtræk af den linkede side (varetitel, pris og lagerstatus fra sidens strukturerede data, hentet 2026-11-13 kl. ca. 23.32). Alle 26 stemmer med udtrækket for netop det linkede vare-id; ingen er skønnede. Som stikprøve er 15 af dem desuden søgt frem i et søgeindeks: 6 stod med præcis samme pris (Fire TV Stick 4K Max 649, Aqara Door P2 249, ConBee III 349, Shelly DALI Dimmer Gen3 284, Aqara Smart Plug 189, Ring Outdoor Siren 599), resten med ældre, afvigende priser. Proshops priser flytter sig altså ofte, og tallene er øjebliksbilleder.
+
+- Tre af de ændrede priser gælder varer i forudbestilling: Shelly Pro 3EM-400A, Sonoff SNZB-02P og Philio Outdoor Motion Sensor.
+- ConBee III (349 kr) i den øverste tabel i `zigbee-koordinatorer` kan ikke spores til linket i samme række (3307230 åbner et Sonoff-stik). Prisen stammer fra vare 3312609, som sidens købstabel linker til.
+- Ikke rettet: `anbefalinger` viser stadig ConBee III til ~450 kr, og `zigbee-sensorer` har fortsat ældre cirkapriser i anbefalingsboksen og købsstrategien (SNZB-02P ~75 kr, SNZB-06P ~150 kr, SNZB-03P 80 kr/stk.), som ikke stemmer med tabellerne.
+
+### Rettet i denne gennemgang
+
+| Fil | Rettelse | Kilde |
+|---|---|---|
+| smart-koekken (da/en) | Den indbyggede Anova-integration har kun sensorer. Eksemplet med `climate.anova_cooker` og `climate.set_temperature` kunne ikke virke og er erstattet af de dokumenterede sensorer og en besked-automation. FAQ-svaret sagde stadig "HACS integration" og lovede fjernstart; rettet | home-assistant.io/integrations/anova; home-assistant/core `anova/__init__.py` (`PLATFORMS = [Platform.SENSOR]`) og `tests/components/anova/test_sensor.py` |
+| energistyring (da) | Automationen brugte stadig HACS-entiteten `sensor.nordpool_kwh_dk1_dkk_3_10_025`; rettet til `sensor.nord_pool_dk1_current_price`. Tilføjet (da/en), at sensoren viser den rå elpris uden moms og øvrige omkostninger | home-assistant.io/integrations/nordpool; home-assistant/core `tests/components/nordpool/snapshots/test_sensor.ambr` |
+| smart-kaeledyr (da/en) | Integrationen hedder Whisker i "Tilføj integration". Entiteterne `button.litter_robot_cycle` og `switch.litter_robot_night_light` findes ikke for Litter-Robot 4; erstattet af `vacuum.…_litter_box` og `sensor.…_litter_level`. Oversigtstabellen sagde stadig "Via API" og "Via HACS" om Tractive og kattebakker | home-assistant.io/integrations/litterrobot, /tractive |
+| smart-alarm (da/en) | "ingen alarmpanel" → "intet alarmpanel". Kommentaren nævnte "sensorer m.m."; integrationens enhedstyper er dørklokker, kameraer, chimes og intercom | home-assistant.io/integrations/ring |
+| smart-baby (da/en) | "sin API" → "sit API". "Stol på Owlets egen app" ændret til "Lad Owlets egen app og base station stå for alarmerne", så teksten ikke lover mere, end advarslen lige over tillader | github.com/ray0711/owlet (README) |
+| medier-entertainment (da) | Fire TV Stick 4K Max stod til 649 kr i tabellen, men ~500 kr i anbefalingsboksen, produktafsnittet og købsstrategien; de tre steder og summen er rettet til ~650 kr / ~1.650 kr | Proshop 3375275 (udtræk og søgeindeks: 649 kr) |
+
+Intet er tilbageført til `origin/main`.
+
+### Fortsat uafklaret
+
+- Owlet-afsnittets ældre påstande ("FDA-godkendt", "ikke en medicinsk enhed", 0-5 år) er ikke kontrolleret og ser indbyrdes modstridende ud.
+- Jellyfin-fanen angiver API-nøgle og `sensor.jellyfin_watching`; ikke kontrolleret mod integrationen.
+- IKEA: siderne nævner ikke KAJPLATS, så intet er skrevet som fakta. Udskiftningen af TRÅDFRI kan bekræftes hos IKEA selv (ikea.com/global/en/newsroom, 6. november 2025: 21 Matter-produkter, bl.a. KAJPLATS og BILRESA) og bør skrives ind i `smart-belysning`.
+- Engelske priser i USD/EUR er ikke kontrolleret, bortset fra Voice PE og ZBT-2.
+
+### Forkerte affiliate-links (til ejeren)
+
+Bekræftet i den første gennemgangs rå redirect-udtræk; de med * er desuden bekræftet i et søgeindeks. `zigbee-sensorer` bruger ikke 2951450, som tabellen ovenfor angiver.
+
+| Side | Vare-id i linket | Åbner |
+|---|---|---|
+| anbefalinger, zigbee-koordinatorer | 2951450 (Sonoff ZBDongle-E) | Proshops forside |
+| anbefalinger, zigbee-koordinatorer | 3307230 (Conbee III) | Sonoff Smart plug WiFi S60TPF *. Rigtigt id: 3312609 * |
+| anbefalinger, tilstedevaerelse, zigbee-sensorer | 3166497 (Aqara FP2) | Belkin-monteringsbeslag. Rigtigt id: 3157568 * |
+| anbefalinger | 2950296 (Shelly Plus 1PM) | Maico E-style 100 ventilator |
+| anbefalinger | 3428768 (Shelly 2PM Gen3) | Vision Techmount VFM-C2X2 vægbeslag * |
+| energistyring | 8500805 (Eve Energy 3-pak) | Kategorien Eve |
+| smart-termostater | 8500638 (Aqara E1 5-pak) | Kategorien Aqara |
+| medier-entertainment, smart-stemmestyring | Google-Nest-Hub-2-Gen | 404 / søgeside |

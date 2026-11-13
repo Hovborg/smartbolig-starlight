@@ -318,33 +318,26 @@ automation:
 ```yaml
 # Built-in Anova integration (Wi-Fi models only, not Anova Nano)
 # Settings → Devices & services → Add Integration → Anova
+# The integration only has sensors - you start the heating in the Anova app
 
-# Entities:
-# - climate.anova_cooker
-# - sensor.anova_current_temp
-# - sensor.anova_target_temp
+# Entities (examples):
+# - sensor.anova_precision_cooker_water_temperature
+# - sensor.anova_precision_cooker_target_temperature
+# - sensor.anova_precision_cooker_cook_time_remaining
 
-# Example: Start sous vide on way home
+# Example: Get notified when the water has reached temperature
 automation:
-  - alias: "Start sous vide when leaving work"
+  - alias: "Sous vide - water is hot"
     trigger:
-      - platform: zone
-        entity_id: person.brian
-        zone: zone.work
-        event: leave
-    condition:
-      - condition: state
-        entity_id: input_boolean.sous_vide_scheduled
-        state: "on"
+      - platform: template
+        value_template: >
+          {{ states('sensor.anova_precision_cooker_water_temperature') | float(0)
+             >= states('sensor.anova_precision_cooker_target_temperature') | float(999) }}
     action:
-      - service: climate.set_temperature
-        entity_id: climate.anova_cooker
-        data:
-          temperature: 135  # Perfect steak (°F)
       - service: notify.mobile_app
         data:
-          title: "🥩 Sous vide started"
-          message: "Anova heating to 135°F"
+          title: "🥩 Sous vide ready"
+          message: "The water has reached the target temperature"
 ```
 
 ---
@@ -537,7 +530,7 @@ automation:
   },
   {
     question: "Can I create sous vide automations?",
-    answer: "Yes! Anova has HACS integration. You can start heating based on time, or when you leave work, so food is ready when you get home."
+    answer: "Partly. The built-in Anova integration in Home Assistant only has sensors, such as water temperature, target temperature and remaining cook time. You can get a notification when the water is hot or the food is done, but you start the heating itself in the Anova app."
   }
 ]} />
 

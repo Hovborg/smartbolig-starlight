@@ -373,6 +373,7 @@ Home Assistants **Energy Dashboard** giver fantastisk overblik:
 # Nordpool integration for dynamiske priser
 # Indbygget integration: Indstillinger → Enheder → Tilføj integration → Nord Pool
 # Vælg område (fx DK1 eller DK2) og valuta - opsættes i brugerfladen, ikke i configuration.yaml
+# Sensoren viser kun den rå elpris - moms og øvrige omkostninger er ikke med
 
 # Energy Dashboard:
 # - Brug en entitet med den aktuelle pris: sensor.nord_pool_<område>_current_price
@@ -389,8 +390,8 @@ automation:
   - alias: "Start vaskemaskine ved lav elpris"
     trigger:
       - platform: numeric_state
-        entity_id: sensor.nordpool_kwh_dk1_dkk_3_10_025
-        below: 1.50  # Under 1.50 kr/kWh
+        entity_id: sensor.nord_pool_dk1_current_price
+        below: 1.50  # Under 1.50 kr/kWh (rå elpris uden moms og afgifter - tilpas grænsen)
     condition:
       - condition: state
         entity_id: input_boolean.vaskemaskine_venter
@@ -404,7 +405,7 @@ automation:
       - service: notify.mobile_app
         data:
           title: "Vaskemaskine startet"
-          message: "Elpris er nu {{ states('sensor.nordpool_kwh_dk1_dkk_3_10_025') }} kr/kWh"
+          message: "Elpris er nu {{ states('sensor.nord_pool_dk1_current_price') }} kr/kWh"
 ```
 
 ### Alert ved høj strøm

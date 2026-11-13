@@ -47,8 +47,8 @@ Smart pet equipment keeps your pets **fed, hydrated and safe** - even when you'r
 | **Auto feeder** | Automatic feeding | Via HACS | 💰-💰💰 |
 | **Water fountain** | Fresh water | Via PetKit HACS | 💰 |
 | **Smart cat flap** | Chip access | Native HA | 💰💰 |
-| **GPS tracker** | Outdoor tracking | Via API | 💰 + sub |
-| **Litter box** | Auto-cleaning | Via HACS | 💰💰💰 |
+| **GPS tracker** | Outdoor tracking | Native HA (Tractive) | 💰 + sub |
+| **Litter box** | Auto-cleaning | Native HA (Litter-Robot) / HACS (PetKit) | 💰💰💰 |
 
 ---
 
@@ -375,12 +375,12 @@ Premium self-cleaning litter box:
 
 ```yaml
 # Whisker (Litter-Robot) is a built-in integration
-# Settings → Devices → Litter-Robot
+# Settings → Devices & services → Add Integration → Whisker
 
-# Entities:
+# Entities (Litter-Robot 4):
+# - vacuum.litter_robot_litter_box
 # - sensor.litter_robot_waste_drawer
-# - button.litter_robot_cycle
-# - switch.litter_robot_night_light
+# - sensor.litter_robot_litter_level
 
 automation:
   - alias: "Litter box needs emptying"
