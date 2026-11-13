@@ -43,7 +43,7 @@ Proxmox er en fantastisk platform til at køre Home Assistant OS. Du får fuld V
 
 ## 🚀 Metode 1: Community Helper Script (Anbefalet)
 
-Den nemmeste metode bruger det officielle community script fra [community-scripts.github.io/ProxmoxVE](https://community-scripts.github.io/ProxmoxVE/).
+Den nemmeste metode bruger et community-script (ikke officielt fra Proxmox eller Home Assistant) fra [community-scripts.github.io/ProxmoxVE](https://community-scripts.github.io/ProxmoxVE/).
 
 <Aside type="note" title="Open Source">
 Proxmox VE Helper Scripts er open source og vedligeholdes af community. Se [GitHub repository](https://github.com/community-scripts/ProxmoxVE) for alle tilgængelige scripts.
@@ -65,11 +65,14 @@ Proxmox VE Helper Scripts er open source og vedligeholdes af community. Se [GitH
 
 3. **Følg installationsguiden**
    
-   Scriptet vil spørge om:
+   I avanceret tilstand spørger scriptet om følgende (standardtilstand bruger standardværdier):
+   - **HAOS-version**: `stable`, `beta` eller `dev`
    - **VM ID**: Vælg et ledigt nummer (f.eks. `100`)
    - **Machine Type**: Vælg `q35` (moderne, bedre performance)
-   - **BIOS**: Vælg `OVMF (UEFI)` - påkrævet for HAOS
+   - **BIOS**: Sættes af scriptet til `OVMF (UEFI)` - påkrævet for HAOS
    - **Diskstørrelse**: Minimum `32GB`, anbefalet `64GB+`
+   - **Disk cache**: Standard `writethrough`
+   - **CPU-model**: Standard `kvm64` (`host` giver fuld CPU-understøttelse)
    - **CPU-kerner**: Minimum `2`, anbefalet `4`
    - **RAM**: Minimum `4096MB`, anbefalet `4096-8192MB`
    - **Bridge**: Dit netværksbridge (typisk `vmbr0`)
@@ -95,9 +98,9 @@ Proxmox VE Helper Scripts er open source og vedligeholdes af community. Se [GitH
 Scriptet konfigurerer automatisk:
 - UEFI boot med EFI disk
 - VirtIO SCSI controller (bedste performance)
-- CPU type `host` (fuld CPU feature support)
+- CPU-model `kvm64` som standard (kan ændres til `host`)
 - QEMU Guest Agent
-- Optimal disk cache settings
+- Disk cache `writethrough` (standard i avanceret tilstand)
 </Aside>
 
 ## 🔧 Metode 2: Manuel installation
