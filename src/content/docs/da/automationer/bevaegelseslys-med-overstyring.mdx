@@ -1,7 +1,7 @@
 ---
 title: Bevægelseslys med manuel overstyring
 description: Styr ganglys med bevægelse, en tydelig manuel overstyring og forudsigelig adfærd efter genstart eller genindlæsning.
-lastUpdated: 2026-09-30
+lastUpdated: 2026-11-13
 sidebar:
   badge:
     text: Guide
@@ -191,7 +191,7 @@ Home Assistant dokumenterer, at en trigger med `for:` **ikke** overlever en
 genstart eller genindlæsning af automationer; ventetiden nulstilles. Derfor
 lover eksemplet ikke at fortsætte præcis dér, hvor nedtællingen var nået til.
 Se begrænsningen under
-[automationstriggere](https://www.home-assistant.io/docs/automation/trigger/#state-trigger).
+[automationstriggere](https://www.home-assistant.io/triggers/state/).
 
 Ved en fuld Home Assistant-start udløser `ha_started` en ny vurdering efter 30
 sekunder. Er sensoren tydeligt `on`, kan lampen tændes, hvis det er mørkt. Er
@@ -218,7 +218,7 @@ være tændt lidt længere, men slukningen bliver ikke efterladt uden en ny kør
 Test med naturlige tilstandsændringer, fordi **Kør handlinger** ikke leverer et
 af de trigger-id'er, som grenene bruger. Det er også den begrænsning, Home
 Assistant beskriver i sin
-[vejledning til test af automationer](https://www.home-assistant.io/docs/automation/troubleshooting/#running-the-entire-automation).
+[vejledning til test af automationer](https://www.home-assistant.io/docs/automation/troubleshooting/#automation-fails-with-run-actions-but-works-when-the-trigger-happens-because-there-is-no-trigger-data).
 
 1. Slå hjælperen til, fremkald bevægelse efter solnedgang, og kontrollér tænding.
 2. Vent til sensoren har været `off` i to minutter, og kontrollér slukning.

@@ -10,3 +10,4 @@ This repository builds smartbolig.net with Astro 7, Starlight 0.41 and a Cloudfl
 - MCP servers are managed by the developer's host configuration. Do not add repository-triggered `npx -y` or mutable `@latest` server installs.
 - Keep both locales and shared RSS behavior aligned. Test English-only news edits as well as Danish edits.
 - A local build or deployment dry run does not verify production bindings, real AI inference or Scheduled Task execution. Report those boundaries explicitly.
+- Site configuration lives in `config/` (`site.mjs`, `sidebar/`, `head/`, `components.mjs`). Keep `astro.config.mjs` a thin entry that only wires those modules together; add sidebar entries or head tags in their module, not in the entry.

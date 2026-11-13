@@ -86,7 +86,7 @@ LED strips bruger MEGET strøm:
       encryption:
         key: "din-nøgle"
     ota:
-      platform: esphome
+      - platform: esphome
 
     wifi:
       ssid: "dit-wifi"
@@ -95,7 +95,7 @@ LED strips bruger MEGET strøm:
     # LED Strip
     light:
       - platform: esp32_rmt_led_strip
-        rgb_order: GRB
+        channel_colors: GRB
         chipset: WS2812
         pin: GPIO16
         num_leds: 60
@@ -116,7 +116,7 @@ LED strips bruger MEGET strøm:
       encryption:
         key: "din-nøgle"
     ota:
-      platform: esphome
+      - platform: esphome
 
     wifi:
       ssid: "dit-wifi"
@@ -125,7 +125,7 @@ LED strips bruger MEGET strøm:
     # LED Strip med effekter
     light:
       - platform: esp32_rmt_led_strip
-        rgb_order: GRB
+        channel_colors: GRB
         chipset: WS2812
         pin: GPIO16
         num_leds: 60
@@ -154,7 +154,7 @@ LED strips bruger MEGET strøm:
     ```yaml title="led-strip-rgbw.yaml"
     light:
       - platform: esp32_rmt_led_strip
-        rgb_order: GRBW
+        channel_colors: GRBW
         chipset: SK6812
         pin: GPIO16
         num_leds: 60
@@ -164,7 +164,7 @@ LED strips bruger MEGET strøm:
 </Tabs>
 
 <Aside type="tip" title="Farverækkefølge (GRB/RGB)">
-Hvis farverne er forkerte (f.eks. rød viser grøn), prøv at ændre `type:` fra `GRB` til `RGB` eller `BRG`.
+Hvis farverne er forkerte (f.eks. rød viser grøn), prøv at ændre `channel_colors:` fra `GRB` til `RGB` eller `BRG`. Fra ESPHome 2026.8 afløser `channel_colors` de tidligere `rgb_order`, `is_rgbw` og `is_wrgb`. De gamle nøgler giver en advarsel og virker kun til 2027.3.0.
 </Aside>
 
 ## 📤 Upload og Test
@@ -211,11 +211,11 @@ cards:
 ```yaml title="automations.yaml"
 automation:
   - alias: "Ambient lys ved solnedgang"
-    trigger:
-      - platform: sun
+    triggers:
+      - trigger: sun
         event: sunset
-    action:
-      - service: light.turn_on
+    actions:
+      - action: light.turn_on
         target:
           entity_id: light.led_strip
         data:
@@ -228,12 +228,12 @@ automation:
 ```yaml title="automations.yaml"
 automation:
   - alias: "Rød alarm"
-    trigger:
-      - platform: state
+    triggers:
+      - trigger: state
         entity_id: alarm_control_panel.home
         to: "triggered"
-    action:
-      - service: light.turn_on
+    actions:
+      - action: light.turn_on
         target:
           entity_id: light.led_strip
         data:
@@ -267,7 +267,7 @@ Vil du have WLED? Flash det via [install.wled.me](https://install.wled.me) direk
 </Aside>
 
 <Aside type="tip" title="Forkerte farver?">
-- Ændre `type:` mellem `GRB`, `RGB`, `BRG`
+- Ændre `channel_colors:` mellem `GRB`, `RGB`, `BRG`
 - WS2812B er typisk GRB
 - SK6812 kan være GRBW eller RGBW
 </Aside>

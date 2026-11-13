@@ -26,7 +26,7 @@ test('reconnecting a theme toggle does not register a second click handler', asy
 });
 
 test('theme initialization still works when browser storage is disabled', async () => {
-  const source = await readFile(new URL('../astro.config.mjs', import.meta.url), 'utf8');
+  const source = await readFile(new URL('../config/head/theme-bootstrap.mjs', import.meta.url), 'utf8');
   const script = source.slice(source.indexOf('// Force dark mode')).match(/content: `([\s\S]*?)`/)[1];
   const document = { documentElement: { dataset: {} } };
   vm.runInNewContext(script, { document, localStorage: { getItem() { throw new Error('Storage denied'); } } });

@@ -47,8 +47,8 @@ Smart pet equipment keeps your pets **fed, hydrated and safe** - even when you'r
 | **Auto feeder** | Automatic feeding | Via HACS | 💰-💰💰 |
 | **Water fountain** | Fresh water | Via PetKit HACS | 💰 |
 | **Smart cat flap** | Chip access | Native HA | 💰💰 |
-| **GPS tracker** | Outdoor tracking | Via API | 💰 + sub |
-| **Litter box** | Auto-cleaning | Via HACS | 💰💰💰 |
+| **GPS tracker** | Outdoor tracking | Native HA (Tractive) | 💰 + sub |
+| **Litter box** | Auto-cleaning | Native HA (Litter-Robot) / HACS (PetKit) | 💰💰💰 |
 
 ---
 
@@ -319,8 +319,9 @@ Chip-based feeding for **multi-cat homes**:
 ### Home Assistant via Tractive
 
 ```yaml
-# HACS → Integrations → Tractive
-# Requires Tractive account + active subscription
+# Built-in integration: Settings → Devices → Tractive
+# Requires a Tractive Premium subscription and an account with email and password
+# (Google/Apple sign-in is not supported)
 
 # Entities:
 # - device_tracker.tractive_dog
@@ -373,13 +374,13 @@ Premium self-cleaning litter box:
 - ✅ Native HA integration
 
 ```yaml
-# Litter-Robot integration
-# HACS → Integrations → Litter-Robot
+# Whisker (Litter-Robot) is a built-in integration
+# Settings → Devices & services → Add Integration → Whisker
 
-# Entities:
+# Entities (Litter-Robot 4):
+# - vacuum.litter_robot_litter_box
 # - sensor.litter_robot_waste_drawer
-# - button.litter_robot_cycle
-# - switch.litter_robot_night_light
+# - sensor.litter_robot_litter_level
 
 automation:
   - alias: "Litter box needs emptying"

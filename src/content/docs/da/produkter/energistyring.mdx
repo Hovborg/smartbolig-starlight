@@ -140,7 +140,7 @@ I Danmark har de fleste nye elmålere en **P1 port** der giver real-time data:
 | **Shelly EM Gen3** | 1-fase | 2 | 400 kr | Budget |
 | **Shelly Pro EM-50** | 1-fase | 2 | 500 kr | DIN-montering |
 | <AffiliateLink store="proshop" url="https://www.proshop.dk/Smart-Home/Shelly-Pro-3EM/3165208" text="Shelly Pro 3EM" /> | 3-fase | 3 | 1.000 kr | Hele huset |
-| <AffiliateLink store="proshop" url="https://www.proshop.dk/Smart-Home/Shelly-Pro-3EM-400A/3210313" text="Shelly Pro 3EM-400" /> | 3-fase | 3 (400A) | 1.200 kr | Store installationer |
+| <AffiliateLink store="proshop" url="https://www.proshop.dk/Smart-Home/Shelly-Pro-3EM-400A/3210313" text="Shelly Pro 3EM-400" /> | 3-fase | 3 (400A) | 1.488 kr | Store installationer |
 
 ---
 
@@ -296,8 +296,7 @@ IoTaWatt er **community favoritten** for avancerede brugere:
 ### Home Assistant Integration
 
 ```yaml
-# IoTaWatt integreres via REST eller MQTT
-# HACS: IoTaWatt integration
+# IoTaWatt har en indbygget integration i Home Assistant
 
 # Indstillinger → Enheder → Tilføj Integration → IoTaWatt
 # Indtast IoTaWatt IP adresse
@@ -323,7 +322,7 @@ For **enkelt-enhed måling** brug smart plugs:
 | <AffiliateLink store="proshop" url="https://www.proshop.dk/Smart-Home/Shelly-Plug-S-Gen3-White/3302036" text="Shelly Plug S Gen3" /> | WiFi | 2500W | 122 kr |
 | **Nous A1T** | WiFi (Tasmota) | 3680W | 100 kr |
 | **IKEA TRETAKT** | Zigbee | 2300W | 100 kr |
-| <AffiliateLink store="proshop" url="https://www.proshop.dk/Smart-Home/Aqara-Smart-Plug/2861478" text="Aqara Smart Plug" /> | Zigbee | 2300W | 150 kr |
+| <AffiliateLink store="proshop" url="https://www.proshop.dk/Smart-Home/Aqara-Smart-Plug/2861478" text="Aqara Smart Plug" /> | Zigbee | 2300W | 189 kr |
 
 ### Kombination: Helhed + Detaljer
 
@@ -372,13 +371,12 @@ Home Assistants **Energy Dashboard** giver fantastisk overblik:
 
 ```yaml
 # Nordpool integration for dynamiske priser
-# HACS → Integrationer → Nordpool
-
-# configuration.yaml
-nordpool:
+# Indbygget integration: Indstillinger → Enheder → Tilføj integration → Nord Pool
+# Vælg område (fx DK1 eller DK2) og valuta - opsættes i brugerfladen, ikke i configuration.yaml
+# Sensoren viser kun den rå elpris - moms og øvrige omkostninger er ikke med
 
 # Energy Dashboard:
-# - Use an entity tracking current price: sensor.nordpool_kwh_dk1_dkk_3_10_025
+# - Brug en entitet med den aktuelle pris: sensor.nord_pool_<område>_current_price
 ```
 
 ---
@@ -392,8 +390,8 @@ automation:
   - alias: "Start vaskemaskine ved lav elpris"
     trigger:
       - platform: numeric_state
-        entity_id: sensor.nordpool_kwh_dk1_dkk_3_10_025
-        below: 1.50  # Under 1.50 kr/kWh
+        entity_id: sensor.nord_pool_dk1_current_price
+        below: 1.50  # Under 1.50 kr/kWh (rå elpris uden moms og afgifter - tilpas grænsen)
     condition:
       - condition: state
         entity_id: input_boolean.vaskemaskine_venter
@@ -407,7 +405,7 @@ automation:
       - service: notify.mobile_app
         data:
           title: "Vaskemaskine startet"
-          message: "Elpris er nu {{ states('sensor.nordpool_kwh_dk1_dkk_3_10_025') }} kr/kWh"
+          message: "Elpris er nu {{ states('sensor.nord_pool_dk1_current_price') }} kr/kWh"
 ```
 
 ### Alert ved høj strøm
