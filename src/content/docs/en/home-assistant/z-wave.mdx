@@ -38,11 +38,11 @@ Z-Wave is a **reliable wireless protocol** for smart home with excellent range a
 | **Zooz ZST39** | 800 | ✅ (US only) | ~$35 | Best value, reliable |
 | **Aeotec Z-Stick 7** | 700 | ❌ | ~$45 | Well-known, stable |
 | **Aeotec Z-Stick 10 Pro** | 800 | ✅ | ~$60 | Dual: Z-Wave + Zigbee |
-| **Home Assistant Connect ZWA-2** | 800 | ✅ | ~$30 | Official HA hardware |
+| **Home Assistant Connect ZWA-2** | 800 | ✅ | $69 / €59 | Official HA hardware |
 | **HomeSeer SmartStick G8** | 800 | ✅ | ~$50 | Good support |
 
 <Aside type="caution" title="Z-Wave Long Range">
-**Long Range** is only available in **US/CA/MX** due to frequency regulations. In Europe (868 MHz) you still get the benefits of the 800 series: better range, lower power consumption, and S2 security.
+**Long Range** requires an 800 series stick, and the devices must support it too. Home Assistant has the RF regions **USA (Long Range)** and **Europe (Long Range)**; the ZWA-2 has Long Range frequencies for both the US and the EU. Devices cannot change frequency, so they must match your region. Without Long Range you still get the benefits of the 800 series: better range, lower power consumption, and S2 security.
 </Aside>
 
 ### GPIO Modules (for Raspberry Pi)
@@ -56,10 +56,10 @@ Z-Wave is a **reliable wireless protocol** for smart home with excellent range a
 
 ## 📦 Installation
 
-### Z-Wave JS Add-on (Recommended for Beginners)
+### Z-Wave JS app (formerly add-on, recommended for beginners)
 
 <Steps>
-1. Go to **Settings → Add-ons → Add-on Store**
+1. Go to **Settings → Apps → Install app** (called *Add-ons* before Home Assistant 2026.2)
 
 2. Search for **Z-Wave JS** and install
 
@@ -67,12 +67,12 @@ Z-Wave is a **reliable wireless protocol** for smart home with excellent range a
    - **Settings → System → Hardware → ⋮ → All Hardware**
    - Use the `/dev/serial/by-id/...` path (stable)
 
-4. Configure the add-on:
+4. Configure the app:
    ```yaml
    device: /dev/serial/by-id/usb-Silicon_Labs_...
    ```
 
-5. Start the add-on and check logs
+5. Start the app and check logs
 
 6. Go to **Settings → Devices & Services**
    - Z-Wave integration is discovered automatically
@@ -80,12 +80,14 @@ Z-Wave is a **reliable wireless protocol** for smart home with excellent range a
 
 ### Z-Wave JS UI (Advanced)
 
+The Z-Wave JS app now includes the feature-rich UI itself. Home Assistant is phasing out the Z-Wave JS UI app, but it remains supported for a while.
+
 <Tabs>
-  <TabItem label="HA Add-on">
+  <TabItem label="HA app">
     <Steps>
     1. Add repository: `https://github.com/hassio-addons/repository`
     
-    2. Install **Z-Wave JS UI** add-on
+    2. Install the **Z-Wave JS UI** app
     
     3. Configure USB device
     
@@ -98,8 +100,7 @@ Z-Wave is a **reliable wireless protocol** for smart home with excellent range a
        - S2 Access Control
     
     6. Add Z-Wave integration in HA:
-       - Websocket URL: `ws://localhost:3000`
-       - The exact host depends on the add-on — find the correct address on the add-on's info page under **Settings → Add-ons**.
+       - Websocket URL: `ws://a0d7b954-zwavejs2mqtt:3000` (Z-Wave JS UI app). Outside Home Assistant OS the default is `ws://localhost:3000`.
     </Steps>
   </TabItem>
   <TabItem label="Docker">
@@ -160,7 +161,7 @@ Store them securely (e.g., password manager).
 ### Standard Inclusion
 
 <Steps>
-1. Open Z-Wave JS UI or HA integration
+1. In Home Assistant go to **Settings → Connectivity → Z-Wave** (or open Z-Wave JS UI)
 
 2. Click **Add Device** / **Inclusion**
 
@@ -186,7 +187,7 @@ Store them securely (e.g., password manager).
 
 3. Scan QR code or enter DSK
 
-4. Device is added automatically when powered on
+4. The device is added automatically within 10 minutes of being powered on
 </Steps>
 
 ### Exclusion (Remove Device)
@@ -349,11 +350,11 @@ Shows:
 <FAQ questions={[
   {
     question: "Should I choose Z-Wave JS or Z-Wave JS UI?",
-    answer: "Z-Wave JS is simpler and integrated directly into HA. Z-Wave JS UI provides more control, MQTT support, and better debugging. For most users, Z-Wave JS is enough."
+    answer: "Choose the Z-Wave JS app. It now includes the feature-rich UI itself, and Home Assistant is phasing out the Z-Wave JS UI app, although it remains supported for a while. Z-Wave JS UI is only relevant if you run Docker or need its extra features such as MQTT."
   },
   {
     question: "Can I migrate from 500/700 series to 800 series?",
-    answer: "Yes! You can backup/restore the network via Z-Wave JS UI. However, it requires specific firmware version (7.19.0+). Check documentation for your new stick."
+    answer: "Yes. Use **Settings → Connectivity → Z-Wave → Migrate adapter**. Home Assistant recommends an 800 series stick with firmware 7.23.2 or newer, and a 500 series stick must first be updated to SDK 6.61+. The Aeotec Z-Stick 10 Pro should also have firmware 7.23.2+, otherwise the migration may fail."
   },
   {
     question: "Why don't I see all entities?",
@@ -361,7 +362,7 @@ Shows:
   },
   {
     question: "Is Z-Wave Long Range worth waiting for in Europe?",
-    answer: "No, Long Range is only US/CA/MX due to frequency regulations. But the 800 series still has better range, lower power consumption, and latest security in Europe."
+    answer: "You do not need to wait. Home Assistant has an RF region called Europe (Long Range), and an 800 series stick such as the ZWA-2 supports it. The devices must support Long Range too, though, and they cannot change frequency. Without Long Range the 800 series still has better range, lower power consumption, and the latest security."
   }
 ]} />
 
@@ -384,4 +385,4 @@ Shows:
 
 ---
 
-*Last updated: December 2025*
+*Last updated: November 2026*
