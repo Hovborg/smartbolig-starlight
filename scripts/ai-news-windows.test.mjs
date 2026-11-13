@@ -440,8 +440,14 @@ test('Windows task is daily, persistent, non-overlapping, and runs as the owner'
 
 test('manual workflow dispatch validates but cannot deploy or ping search engines', async () => {
   const workflow = await readFile(path.join(rootDir, '.github/workflows/deploy.yml'), 'utf8');
-  const protectedCondition = /if: github\.event_name == 'push' && github\.ref == 'refs\/heads\/main'/g;
-  assert.equal([...workflow.matchAll(protectedCondition)].length, 2);
+  const definition = "SHOULD_DEPLOY: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.publish == true) }}";
+  assert.equal(workflow.split(definition).length - 1, 1, 'exactly one definition of SHOULD_DEPLOY');
+  assert.equal([...workflow.matchAll(/^\s*SHOULD_DEPLOY:/gm)].length, 1);
+  assert.equal([...workflow.matchAll(/if: env\.SHOULD_DEPLOY == 'true'/g)].length, 2, 'exactly two guarded steps');
+  // workflow_dispatch declares no inputs, so a manual run can never set `publish`.
+  const dispatch = workflow.match(/^  workflow_dispatch:[^\r\n]*\r?\n((?:(?:    .*|\s*)\r?\n)*)/m);
+  assert.ok(dispatch, 'workflow_dispatch trigger present');
+  assert.doesNotMatch(dispatch[1], /inputs:/);
   assert.doesNotMatch(workflow, /if: github\.event_name != 'pull_request'/);
 });
 

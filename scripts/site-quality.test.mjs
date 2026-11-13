@@ -533,6 +533,11 @@ test("deploy runs every local quality gate before publishing", async () => {
   assert.ok(workflow.includes("SHOULD_DEPLOY: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.publish == true) }}"));
   assert.equal((workflow.match(/if: env\.SHOULD_DEPLOY == 'true'/g) || []).length, 2);
   assert.equal((workflow.match(/SHOULD_DEPLOY/g) || []).length, 3);
+  // A call for a commit that is no longer the tip of main publishes nothing.
+  assert.equal((workflow.match(/if: env\.SHOULD_DEPLOY == 'true' && steps\.tip\.outputs\.current != 'false'/g) || []).length, 2);
+  assert.match(workflow, /id: tip\r?\n\s+if: inputs\.ref != ''/);
+  assert.match(workflow, /git fetch --quiet origin main/);
+  assert.match(workflow, /echo "::notice::main has moved on/);
   assert.doesNotMatch(workflow, /github\.event_name != 'pull_request'/);
   assert.match(workflow, /group: \$\{\{ github\.event_name == 'pull_request' && format\('deploy-pr-\{0\}', github\.event\.number\) \|\| 'deploy-production' \}\}/);
   for (const command of [
