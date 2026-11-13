@@ -51,25 +51,25 @@ import FAQ from '../../../../components/FAQ.astro';
 
 ## 📦 Installation
 
-### As Home Assistant Add-on
+### As Home Assistant app (formerly add-on)
 
 <Steps>
-1. Go to **Settings → Add-ons**
+1. Go to **Settings → Apps** (called *Add-ons* before Home Assistant 2026.2)
 
-2. Click **Add-on Store** (bottom right)
+2. Click **Install app**
 
 3. Search for "Node-RED"
 
 4. Select **Node-RED** and click **Install**
 
-5. Configure the add-on:
+5. Configure the app:
    ```yaml
    # Important settings:
    ssl: false  # Set to true if you have SSL
    credential_secret: "your-secret-key"
    ```
 
-6. Start the add-on and enable:
+6. Start the app and enable:
    - ✅ Start on boot
    - ✅ Watchdog
    - ✅ Show in sidebar
@@ -98,6 +98,8 @@ services:
 ---
 
 ## 🔗 Home Assistant Integration
+
+The Node-RED app is pre-configured, so the server connection to Home Assistant is set up from the start. If you see the "Unauthorized WebSocket access!" warning after an update, double-click a Home Assistant node, click the pencil next to Server, and make sure **I use the Home Assistant App** is checked. You only need the steps below if Node-RED runs in Docker or on another machine.
 
 ### Create Access Token
 
@@ -206,7 +208,7 @@ let y = global.get("globalVar");
 |------|----------|-----|
 | **events: state** | Trigger on state change | Start automations |
 | **current state** | Read current state | Conditions |
-| **call service** | Call HA service | Actions |
+| **action** | Perform an HA action | Actions |
 | **wait until** | Wait for state | Delays with conditions |
 | **trigger: state** | Trigger with multiple conditions | Advanced triggers |
 | **api** | General API access | Everything else |
@@ -245,14 +247,13 @@ If State: "on"
 # If not → Output 2 (or stop)
 ```
 
-### call service Node
+### action Node
 
 Execute actions in Home Assistant:
 
 ```yaml
 # Example: Turn on light
-Domain: light
-Service: turn_on
+Action: light.turn_on
 Entity: light.living_room
 Data: {"brightness": 255, "color_temp": 350}
 ```
@@ -264,10 +265,10 @@ Data: {"brightness": 255, "color_temp": 350}
 ### Example 1: Simple Motion Lighting
 
 ```
-[events: state]──►[call service]
+[events: state]──►[action]
    motion_sensor      light.turn_on
 
-[events: state]──►[delay]──►[call service]
+[events: state]──►[delay]──►[action]
    motion_sensor    2 min     light.turn_off
    (off)
 ```
@@ -295,7 +296,7 @@ Data: {"brightness": 255, "color_temp": 350}
 ### Example 2: Conditional Automation (Night Only)
 
 ```
-[events: state]──►[current state]──►[call service]
+[events: state]──►[current state]──►[action]
    motion            sun.sun          light.turn_on
                      (below_horizon)
 ```
@@ -307,10 +308,10 @@ The sun entity is used to check if it's night before turning on the light.
 Light that turns off after 5 minutes without motion, but resets if there's new motion:
 
 ```
-[events: state]──►[stoptimer]──►[call service]
+[events: state]──►[stoptimer]──►[action]
    motion (on)      reset          (nothing)
        │
-       └──────────►[stoptimer]──►[call service]
+       └──────────►[stoptimer]──►[action]
                     start 5min     light.turn_off
 ```
 
@@ -448,7 +449,7 @@ Install via **Menu → Manage palette → Install**:
 1. Create new token in HA
 2. Update server config in Node-RED
 3. Deploy all flows
-4. Restart Node-RED add-on
+4. Restart the Node-RED app
 ```
 
 ---
@@ -482,8 +483,7 @@ Install via **Menu → Manage palette → Install**:
 
 Node-RED flows are stored in:
 ```
-# Add-on:
-/config/node-red/flows.json
+# App: flows.json is in the app's configuration folder
 
 # Docker:
 ./nodered-data/flows.json
@@ -533,4 +533,4 @@ Include this file in your Home Assistant backup!
 
 ---
 
-*Last updated: December 2025*
+*Last updated: November 2026*
