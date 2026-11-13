@@ -1,5 +1,6 @@
 ---
-// Homepage hero — markup only; styling lives in HomeStyles.astro (.home-hero*).
+// Homepage hero: markup only. Styling lives in src/styles/home/hero.css and
+// scene.css.
 import type { HomeHeroCopy } from "../../lib/home-copy";
 import HomeMotionControls from './HomeMotionControls.astro';
 import HomeNetworkScene from './HomeNetworkScene.astro';
@@ -11,7 +12,6 @@ interface Props {
 const { copy } = Astro.props;
 ---
 
-<HomeMotionControls danish={copy.primary.href.startsWith('/da/')} />
 <section class="home-hero" aria-labelledby="_top">
   <div class="home-hero__inner">
     <div class="home-hero__text">
@@ -32,9 +32,12 @@ const { copy } = Astro.props;
     </div>
     <div class="home-hero__media">
       <div class="home-scene" data-motion-stage>
-        <div class="home-scene__bar"><span>{copy.primary.href.startsWith('/da/') ? 'Et forbundet hjem' : 'A connected home'}</span></div>
-        <HomeNetworkScene danish={copy.primary.href.startsWith('/da/')} />
-        <p class="home-scene__note">{copy.primary.href.startsWith('/da/') ? 'Illustration · Fra enkelte enheder til ét samlet hjem' : 'Illustration · From individual devices to one connected home'}</p>
+        <p class="home-scene__title">{copy.scene.title}</p>
+        <HomeNetworkScene copy={copy.scene} />
+        <div class="home-scene__foot">
+          <p class="home-scene__note">{copy.scene.note}</p>
+          <HomeMotionControls copy={copy.motion} />
+        </div>
       </div>
       <figure class="home-hero__frame">
         <picture>

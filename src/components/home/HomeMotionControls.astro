@@ -1,18 +1,22 @@
 ---
-interface Props { danish: boolean }
-const { danish } = Astro.props;
+// Start/pause control for the homepage animations. The logic lives in
+// src/lib/home-motion.mjs; the look in src/styles/home/motion.css.
+import type { HomeMotionCopy } from "../../lib/home-copy";
+
+interface Props {
+  copy: HomeMotionCopy;
+}
+
+const { copy } = Astro.props;
 ---
-<div class="home-motion-space">
 <div class="home-motion-controls" data-home-controls hidden
-  data-start={danish ? 'Start animationer' : 'Start animations'}
-  data-pause={danish ? 'Pause animationer' : 'Pause animations'}
-  data-system={danish ? 'Følger din enhed' : 'Following your device'}
-  data-manual={danish ? 'Dit valg' : 'Your preference'}>
-  <span class="home-motion-controls__mark" aria-hidden="true">◉</span>
-  <button type="button" data-motion-toggle aria-pressed="false">{danish ? 'Start animationer' : 'Start animations'}</button>
+  data-start={copy.start}
+  data-pause={copy.pause}
+  data-system={copy.system}
+  data-manual={copy.manual}>
+  <button type="button" data-motion-toggle aria-pressed="false">{copy.start}</button>
   <span data-motion-status></span>
-  <button type="button" data-motion-system hidden>{danish ? 'Følg enheden' : 'Use device setting'}</button>
-</div>
+  <button type="button" data-motion-system hidden>{copy.reset}</button>
 </div>
 <script>
   import { mountHomeMotion } from '../../lib/home-motion.mjs';

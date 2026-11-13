@@ -1,0 +1,128 @@
+/* Homepage frame: full-width splash page, section rhythm and the shared
+   pieces (eyebrow, links, tags, buttons). Tokens: docs/designsystem.md. */
+
+body:has(.home-portal) .content-panel { padding: 0; border: 0; }
+body:has(.home-portal) .sl-container { max-width: none; }
+body:has(.home-portal) .main-pane { width: 100%; }
+
+.home-portal,
+.home-hero {
+  --home-width: var(--sb-page-max);
+  --home-gutter: clamp(1rem, 4vw, 2rem);
+  color: var(--sb-ink);
+  font-family: var(--sb-font-body);
+}
+.home-portal *,
+.home-hero * { box-sizing: border-box; }
+
+/* Starlight's content styles add list markers, counters and margins.
+   The portal lays out its own lists and headings. */
+.sl-markdown-content .home-portal li { padding-inline-start: 0; }
+.sl-markdown-content .home-portal li::before { content: none; }
+.sl-markdown-content .home-portal li::marker { content: none; }
+.sl-markdown-content .home-portal :is(ul, ol) { padding-inline-start: 0; }
+.sl-markdown-content .home-portal :is(ul, ol, li, article, h2, h3, p, dl, dt, dd) { margin-block-start: 0; }
+.sl-markdown-content .home-portal :is(h2, h3) { border: 0; padding: 0; }
+
+.home-section {
+  width: min(100% - 2 * var(--home-gutter), var(--home-width));
+  margin: clamp(4rem, 9vw, 7rem) auto;
+}
+.sl-markdown-content .home-portal > .home-section { margin-top: clamp(4rem, 9vw, 7rem); }
+
+.home-section__heading { max-width: 46rem; margin-bottom: var(--sb-space-7); }
+.home-section__heading h2,
+.home-closing h2 {
+  margin: 0;
+  color: var(--sb-ink-strong);
+  font-family: var(--sb-font-display);
+  font-size: clamp(1.9rem, 3.4vw, 2.9rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: var(--sb-leading-tight);
+  text-wrap: balance;
+}
+.home-section__heading > p:last-child {
+  max-width: 64ch;
+  margin-top: var(--sb-space-4);
+  color: var(--sb-ink-muted);
+  font-size: var(--sb-text-lg);
+  line-height: var(--sb-leading);
+}
+
+.home-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 var(--sb-space-4);
+  color: var(--sb-accent);
+  font-size: var(--sb-text-sm);
+  font-weight: 650;
+  letter-spacing: 0.01em;
+}
+.home-eyebrow .dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--sb-accent-vivid);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--sb-accent-vivid) 22%, transparent);
+}
+
+.home-text-link {
+  color: var(--sb-accent);
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--sb-accent) 35%, transparent);
+  text-decoration-thickness: 0.09em;
+  text-underline-offset: 0.28em;
+}
+.home-text-link:hover { color: var(--sb-accent-strong); text-decoration-color: currentColor; }
+
+.home-tag {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: var(--sb-radius-pill);
+  background: var(--sb-accent-soft);
+  color: var(--sb-accent-strong);
+  font-size: var(--sb-text-xs);
+  font-weight: 650;
+}
+
+.home-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 3rem;
+  padding: 0.75rem 1.5rem;
+  border: 1px solid transparent;
+  border-radius: var(--sb-radius-pill);
+  font-size: var(--sb-text-base);
+  font-weight: 650;
+  line-height: 1.3;
+  text-decoration: none;
+}
+/* The :is() prefix outranks Starlight's link colour inside the page content. */
+:is(.home-portal, .home-hero) .home-btn--primary {
+  background: var(--sb-accent);
+  color: var(--sb-on-accent);
+  box-shadow: var(--sb-shadow-md);
+}
+:is(.home-portal, .home-hero) .home-btn--primary:hover { background: var(--sb-accent-strong); color: var(--sb-on-accent); }
+:is(.home-portal, .home-hero) .home-btn--ghost {
+  border-color: var(--sb-line-strong);
+  background: var(--sb-surface);
+  color: var(--sb-ink-strong);
+}
+:is(.home-portal, .home-hero) .home-btn--ghost:hover { border-color: var(--sb-accent); color: var(--sb-accent-strong); }
+
+.home-portal a:focus-visible,
+.home-hero :is(a, input, label):focus-visible {
+  outline: 3px solid var(--sb-accent);
+  outline-offset: 4px;
+  border-radius: var(--sb-radius-sm);
+}
+
+@media (forced-colors: active) {
+  .home-scene, .home-card, .home-fieldguide, .home-closing, .home-btn { border: 1px solid CanvasText; }
+}
