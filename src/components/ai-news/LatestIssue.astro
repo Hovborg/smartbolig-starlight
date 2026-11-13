@@ -1,0 +1,49 @@
+---
+import type { AiNewsCopy } from "../../lib/ai-news-copy";
+import type { NewsIssue } from "../../lib/ai-news-feed";
+import type { NewsLocale } from "../../lib/home-news";
+import IssueMeta from "./IssueMeta.astro";
+
+interface Props {
+  issue: NewsIssue;
+  copy: AiNewsCopy;
+  locale: NewsLocale;
+}
+
+const { issue, copy, locale } = Astro.props;
+---
+
+<article class="latest-card">
+  <IssueMeta issue={issue} copy={copy} locale={locale} />
+  <h3>{copy.latest}: <a href={issue.href}>{issue.title}</a></h3>
+  <p>{issue.description}</p>
+  <div class="provider-strip" aria-label={locale === "da" ? "Dækkede områder" : "Covered areas"}>
+    {issue.providers.map((provider) => <span>{provider}</span>)}
+  </div>
+</article>
+
+<style>
+  .latest-card h3 {
+    margin-top: 0;
+  }
+
+  .latest-card p {
+    color: var(--sb-ink-muted);
+    margin-bottom: 0;
+  }
+
+  .provider-strip {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .provider-strip span {
+    border: 1px solid var(--sb-line-strong);
+    border-radius: var(--sb-radius-pill);
+    display: inline-flex;
+    line-height: 1;
+    padding: 0.35rem 0.55rem;
+  }
+</style>

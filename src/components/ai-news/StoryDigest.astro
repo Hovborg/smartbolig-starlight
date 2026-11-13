@@ -1,0 +1,128 @@
+---
+import type { AiNewsCopy } from "../../lib/ai-news-copy";
+import type { Headline } from "../../lib/ai-news-feed";
+
+interface Props {
+  headlines: Headline[];
+  copy: AiNewsCopy;
+}
+
+const { headlines, copy } = Astro.props;
+---
+
+<section class="story-digest" aria-labelledby="ai-news-top-stories">
+  <div class="story-heading">
+    <div>
+      <p class="feed-eyebrow">{copy.eyebrow}</p>
+      <h2 id="ai-news-top-stories">{copy.topStories}</h2>
+    </div>
+    <p>{copy.storyIntro}</p>
+  </div>
+  <div class="story-list" role="list">
+    {headlines.map((headline, index) => (
+      <article class="story-item" role="listitem">
+        <a class="story-main" href={headline.href}>
+          <span class="story-number">{String(index + 1).padStart(2, "0")}</span>
+          <span class="story-provider">{headline.provider}</span>
+          <strong>{headline.title}</strong>
+          <span>{copy.openStory}</span>
+        </a>
+        {headline.sourceUrl && (
+          <a class="source-link" href={headline.sourceUrl}>
+            {copy.openSource}: {headline.sourceName}
+          </a>
+        )}
+      </article>
+    ))}
+  </div>
+</section>
+
+<style>
+  .story-digest {
+    align-content: start;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .story-heading {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: space-between;
+  }
+
+  .story-heading h2 {
+    margin-top: 0;
+  }
+
+  .story-heading p {
+    color: var(--sb-ink-muted);
+    flex: 1 1 18rem;
+    margin: 0;
+    max-width: 48ch;
+  }
+
+  .story-list {
+    display: grid;
+    gap: 0.65rem;
+  }
+
+  .story-item {
+    border-top: 1px solid var(--sb-line);
+    display: grid;
+    gap: 0.35rem;
+    padding-top: 0.65rem;
+  }
+
+  .story-main {
+    align-items: start;
+    color: var(--sb-ink);
+    display: grid;
+    gap: 0.2rem 0.65rem;
+    grid-template-columns: 2.4rem minmax(0, 1fr);
+    text-decoration: none;
+  }
+
+  .story-main:hover strong,
+  .story-main:focus-visible strong,
+  .source-link:hover,
+  .source-link:focus-visible {
+    text-decoration: underline;
+  }
+
+  .story-number {
+    border: 1px solid var(--sb-line-strong);
+    border-radius: var(--sb-radius-sm);
+    color: var(--sb-ink-muted);
+    font-size: var(--sb-text-xs);
+    font-weight: 800;
+    grid-row: span 3;
+    line-height: 1;
+    padding: 0.45rem 0.35rem;
+    text-align: center;
+  }
+
+  .story-provider {
+    color: var(--sb-accent);
+    font-size: var(--sb-text-xs);
+    font-weight: 800;
+    letter-spacing: 0;
+    text-transform: uppercase;
+  }
+
+  .story-main strong {
+    color: var(--sb-ink);
+    overflow-wrap: anywhere;
+  }
+
+  .story-main span:last-child,
+  .source-link {
+    color: var(--sb-ink-muted);
+    font-size: var(--sb-text-sm);
+  }
+
+  .source-link {
+    justify-self: start;
+  }
+</style>

@@ -17,9 +17,18 @@ async function listFiles(dir) {
 }
 
 test('public AI News copy avoids internal automation labels', async () => {
+  // The feed is split into an entry, small components and lib modules (copy and
+  // selection); every file that can put text on the page is checked.
+  const feedComponentFiles = (await listFiles(path.join(rootDir, 'src/components/ai-news')))
+    .filter((filePath) => filePath.endsWith('.astro'))
+    .map((filePath) => path.relative(rootDir, filePath));
   const staticFiles = [
     'scripts/ai-news-publish.mjs',
     'src/components/AiNewsFeed.astro',
+    'src/lib/ai-news-copy.ts',
+    'src/lib/ai-news-feed.ts',
+    'src/lib/ai-news-sources.ts',
+    ...feedComponentFiles,
   ];
   const contentFiles = (await listFiles(path.join(rootDir, 'src/content/docs')))
     .filter((filePath) => filePath.includes('/ai/nyheder/') && filePath.endsWith('.mdx'))

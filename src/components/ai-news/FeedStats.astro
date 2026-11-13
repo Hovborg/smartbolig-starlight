@@ -1,0 +1,61 @@
+---
+import type { AiNewsCopy } from "../../lib/ai-news-copy";
+import type { NewsLocale } from "../../lib/home-news";
+
+interface Props {
+  copy: AiNewsCopy;
+  locale: NewsLocale;
+  issueCount: number;
+  latestSourceCount: number;
+  totalSourceCount: number;
+}
+
+const { copy, locale, issueCount, latestSourceCount, totalSourceCount } = Astro.props;
+const issueLabel = issueCount === 1 ? copy.issueCount : copy.issueCountPlural;
+---
+
+<div class="feed-stats" aria-label={locale === "da" ? "AI-nyheder status" : "AI News status"}>
+  <div>
+    <strong>{issueCount}</strong>
+    <span>{issueLabel}</span>
+  </div>
+  <div>
+    <strong>{latestSourceCount}</strong>
+    <span>{copy.sourceCount}</span>
+  </div>
+  <div>
+    <strong>{totalSourceCount}</strong>
+    <span>{copy.monitoredCount}</span>
+  </div>
+</div>
+
+<style>
+  .feed-stats {
+    display: grid;
+    gap: 0.75rem;
+    /* Matches the three stat items rendered above (issues / latest sources / monitored). */
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .feed-stats div {
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-sm);
+    padding: 0.85rem;
+  }
+
+  .feed-stats strong {
+    display: block;
+    font-size: var(--sb-text-h3);
+    line-height: 1;
+  }
+
+  .feed-stats span {
+    color: var(--sb-ink-muted);
+  }
+
+  @media (max-width: 46rem) {
+    .feed-stats {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
