@@ -47,8 +47,8 @@ Smart kæledyrsudstyr holder dine kæledyr **fodret, hydreret og sikre** - selv 
 | **Fodautomat** | Automatisk fodring | Via HACS | 💰-💰💰 |
 | **Vandfontæne** | Frisk vand | Via PetKit HACS | 💰 |
 | **Smart kattelem** | Chip-adgang | Native HA | 💰💰 |
-| **GPS tracker** | Sporing udendørs | Via API | 💰 + abo |
-| **Kattebakke** | Auto-rengøring | Via HACS | 💰💰💰 |
+| **GPS tracker** | Sporing udendørs | Native HA (Tractive) | 💰 + abo |
+| **Kattebakke** | Auto-rengøring | Native HA (Litter-Robot) / HACS (PetKit) | 💰💰💰 |
 
 ---
 
@@ -318,8 +318,9 @@ Chip-baseret fodring til **multi-kat hjem**:
 ### Home Assistant via Tractive
 
 ```yaml
-# HACS → Integrations → Tractive
-# Kræver Tractive konto + aktivt abonnement
+# Indbygget integration: Indstillinger → Enheder → Tractive
+# Kræver Tractive Premium-abonnement og en konto med e-mail og adgangskode
+# (Google/Apple-login understøttes ikke)
 
 # Entiteter:
 # - device_tracker.tractive_dog
@@ -372,13 +373,13 @@ Premium selvlensende kattebakke:
 - ✅ Native HA integration
 
 ```yaml
-# Litter-Robot integration
-# HACS → Integrations → Litter-Robot
+# Whisker (Litter-Robot) er en indbygget integration
+# Indstillinger → Enheder → Tilføj integration → Whisker
 
-# Entiteter:
+# Entiteter (Litter-Robot 4):
+# - vacuum.litter_robot_litter_box
 # - sensor.litter_robot_waste_drawer
-# - button.litter_robot_cycle
-# - switch.litter_robot_night_light
+# - sensor.litter_robot_litter_level
 
 automation:
   - alias: "Kattebakke skal tømmes"
