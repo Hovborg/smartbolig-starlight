@@ -19,7 +19,10 @@ async function errorCode(response) {
   }
 }
 
-export function createHttpChat({ url, key, fetchImpl = fetch, wait = sleep }) {
+// `onAttempt` runs before every HTTP attempt, retries included, so the caller
+// can count and cap real requests. Whatever it throws (a call ceiling) ends the
+// call at once; it is never retried.
+export function createHttpChat({ url, key, fetchImpl = fetch, wait = sleep, onAttempt }) {
   if (!url || !key) throw new Error("AI_NEWS_LLM_URL and AI_NEWS_LLM_KEY are required for the http provider");
 
   return async function chat({ model, system, user, maxTokens = DEFAULT_MAX_TOKENS, temperature = 0.2, timeoutMs = 180_000, reasoningEffort }) {
@@ -33,6 +36,7 @@ export function createHttpChat({ url, key, fetchImpl = fetch, wait = sleep }) {
     let lastError;
     for (let attempt = 0; attempt <= RETRY_DELAYS_MS.length; attempt += 1) {
       if (attempt > 0) await wait(RETRY_DELAYS_MS[attempt - 1]);
+      if (onAttempt) onAttempt();
       let response;
       try {
         response = await fetchImpl(url, {

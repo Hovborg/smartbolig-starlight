@@ -167,3 +167,32 @@ test("exactly reaching the neuron ceiling blocks the next call, one under does n
   await second.chat(request());
   assert.equal((await second.chat(request())).text, "ok");
 });
+
+test("every HTTP attempt, retries included, counts against MAX_CALLS_PER_RUN", async () => {
+  let requests = 0;
+  const fetchImpl = async () => {
+    requests += 1;
+    return new Response("busy", { status: 503 });
+  };
+  const waits = [];
+  const { chat, stats } = createChat({
+    env: { ...baseEnv, AI_NEWS_LLM_URL: "https://relay.invalid/v1/chat/completions", AI_NEWS_LLM_KEY: "k" },
+    http: { fetchImpl, wait: async (ms) => { waits.push(ms); } },
+    log: silent,
+  });
+  await assert.rejects(chat(request()), /Every writer model failed/);
+  // One model chain of two models, each tried with three attempts.
+  assert.equal(requests, 6);
+  assert.equal(stats.calls, 6);
+  while (requests < MAX_CALLS_PER_RUN) {
+    await chat(request()).catch((error) => {
+      if (error instanceof CallBudgetExceeded) return;
+      assert.match(error.message, /Every writer model failed|ceiling/);
+    });
+    if (stats.calls >= MAX_CALLS_PER_RUN) break;
+  }
+  assert.equal(stats.calls, MAX_CALLS_PER_RUN);
+  assert.equal(requests, MAX_CALLS_PER_RUN);
+  await assert.rejects(chat(request()), (error) => error instanceof CallBudgetExceeded && /ceiling/.test(error.message));
+  assert.equal(requests, MAX_CALLS_PER_RUN, "no request is sent once the ceiling is reached");
+});

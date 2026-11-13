@@ -131,7 +131,8 @@ async function editorialCopy(pool, history) {
   let issue;
   try {
     llm = createChat();
-    issue = await produceIssue({ date: targetDate, candidates: pool, target: targetStories, minimum: minStories, chat: llm.chat });
+    const recentSourceSets = history.map((item) => item.sourceSetFingerprint).filter(Boolean);
+    issue = await produceIssue({ date: targetDate, candidates: pool, target: targetStories, minimum: minStories, chat: llm.chat, recentSourceSets });
   } catch (error) {
     if (requireLlm) throw new Error(`Required LLM editorial copy was not produced: ${error.message}`);
     console.warn(`LLM editorial copy unavailable (${error.message}); using template copy.`);

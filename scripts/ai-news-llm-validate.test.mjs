@@ -134,6 +134,15 @@ test("Danish and English number formatting is tolerated", () => {
   assert.deepEqual(ungroundedNumbers("10.000 brugere", "10,000 users"), []);
   assert.deepEqual(ungroundedNumbers("10,000 users", "10.000 brugere"), []);
   assert.deepEqual(ungroundedNumbers("2,5 millioner", "2.7 million"), ["2.5"]);
+  // A decimal is one number: its digits found apart do not ground it.
+  assert.deepEqual(ungroundedNumbers("grew 2.5 percent", "2 of 5 teams; 5 new, 2 old"), ["2.5"]);
+  assert.deepEqual(ungroundedNumbers("steg 2,5 procent", "2 of 5 teams; 5 new, 2 old"), ["2.5"]);
+  assert.deepEqual(ungroundedNumbers("grew 12.5 percent", "grew 2.5 percent"), ["12.5"]);
+  // ...and it is grounded by the same decimal with either separator.
+  assert.deepEqual(ungroundedNumbers("grew 2.5 percent", "voksede 2,5 procent"), []);
+  assert.deepEqual(ungroundedNumbers("voksede 2,5 procent", "grew 2.5 percent"), []);
+  assert.deepEqual(ungroundedNumbers("grew 0.125 percent", "0,125 percent"), []);
+  assert.deepEqual(ungroundedNumbers("grew 0.125 percent", "0 and 125"), ["0.125"]);
 });
 
 test("version numbers and dates are compared by their digit groups", () => {

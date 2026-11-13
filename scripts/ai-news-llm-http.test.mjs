@@ -149,3 +149,22 @@ test("a daily budget 429 after a retry still stops immediately", async () => {
   assert.equal(requests.length, 2);
   assert.deepEqual(waits, [2_000]);
 });
+
+test("onAttempt runs before every attempt and a ceiling it throws is not retried", async () => {
+  const attempts = [];
+  const requests = [];
+  const queue = [status(503), status(503), answer("third")];
+  const fetchImpl = async () => { requests.push(1); return queue.shift(); };
+  const chat = createHttpChat({ url: URL_, key: KEY, fetchImpl, wait: async () => {}, onAttempt: () => attempts.push(requests.length) });
+  assert.equal((await call(chat)).text, "third");
+  assert.deepEqual(attempts, [0, 1, 2], "called before each request");
+
+  let sent = 0;
+  const capped = createHttpChat({
+    url: URL_, key: KEY, wait: async () => {},
+    fetchImpl: async () => { sent += 1; return status(503); },
+    onAttempt: () => { if (sent >= 2) throw new CallBudgetExceeded("ceiling"); },
+  });
+  await assert.rejects(call(capped), CallBudgetExceeded);
+  assert.equal(sent, 2);
+});

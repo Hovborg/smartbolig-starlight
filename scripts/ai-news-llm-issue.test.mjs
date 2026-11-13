@@ -140,3 +140,41 @@ test("a budget error with too few stories passed skips the issue", async () => {
   assert.match(issue.reason, /1 of 1 stories passed.*3 are required/);
   assert.equal(router.kinds("lede").length, 0);
 });
+
+const fromSource = (name, sourceId) => sourceItem({ title: `Story ${name}`, canonicalUrl: `https://openai.com/news/${name}`, sourceId, primary: true });
+
+test("a repeated source set keeps processing the pool until another source changes it", async () => {
+  const candidates = [fromSource("a", "s1"), fromSource("b", "s2"), fromSource("c", "s3"), fromSource("d", "s4")];
+  const recentSourceSets = [sourceSetFingerprint(candidates.slice(0, 2))];
+  const router = routedChat();
+  const issue = await build({ candidates, target: 2, minimum: 2, chat: router.chat, recentSourceSets });
+  assert.equal(issue.status, "publish");
+  assert.deepEqual(issue.items.map((item) => item.title), ["Story a", "Story b", "Story c"]);
+  assert.deepEqual(router.kinds("story").map((call) => call.title), ["Story a", "Story b", "Story c"]);
+  const final = finalizeEditorialPackage(issue.items, recentSourceSets.map((sourceSetFingerprint) => ({ sourceSetFingerprint })));
+  assert.equal(final.status, "publish");
+  assert.equal(final.sourceSetFingerprint, sourceSetFingerprint(issue.items));
+});
+
+test("without a repeat the loop still stops at the target", async () => {
+  const candidates = [fromSource("a", "s1"), fromSource("b", "s2"), fromSource("c", "s3")];
+  const router = routedChat();
+  const issue = await build({ candidates, target: 2, minimum: 2, chat: router.chat, recentSourceSets: [sourceSetFingerprint(candidates.slice(1))] });
+  assert.deepEqual(issue.items.map((item) => item.title), ["Story a", "Story b"]);
+  assert.equal(router.kinds("story").length, 2);
+});
+
+test("a repeated source set with no other candidate is still skipped, without extra calls", async () => {
+  for (const verdicts of [{}, { "Story c": false }]) {
+    const candidates = [fromSource("a", "s1"), fromSource("b", "s2"), ...(verdicts["Story c"] === false ? [fromSource("c", "s3")] : [])];
+    const history = [{ sourceSetFingerprint: sourceSetFingerprint(candidates.slice(0, 2)) }];
+    const router = routedChat({ verdicts });
+    const issue = await build({ candidates, target: 2, minimum: 2, chat: router.chat, recentSourceSets: history.map((row) => row.sourceSetFingerprint) });
+    // A rejected story is repaired a few times, so count candidates, not calls.
+    assert.deepEqual([...new Set(router.kinds("story").map((call) => call.title))], candidates.map((item) => item.title), "no calls beyond the pool");
+    assert.equal(issue.status, "publish");
+    const final = finalizeEditorialPackage(issue.items, history);
+    assert.equal(final.status, "skip");
+    assert.match(final.reason, /repeats a recent issue/);
+  }
+});

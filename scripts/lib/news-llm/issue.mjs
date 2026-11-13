@@ -1,6 +1,10 @@
 // Builds the copy for one issue from a ranked candidate pool. Candidates are
 // processed in order until `target` stories have passed; the rest of the pool
-// are reserves for stories that are dropped.
+// are reserves for stories that are dropped. When the passed stories would form
+// a source set that repeats a recent issue, processing goes on past `target`:
+// finalizeEditorialPackage rejects such a set after the model calls are spent,
+// and a story from another source is the only thing that can change it.
+import { sourceSetFingerprint } from "../ai-news-editorial.mjs";
 import { CallBudgetExceeded } from "./errors.mjs";
 import { fallbackLede, produceLede } from "./lede.mjs";
 import { produceStory } from "./story.mjs";
@@ -9,13 +13,18 @@ import { produceStory } from "./story.mjs";
 // row means the provider itself is down, and the run fails loudly.
 const MAX_CONSECUTIVE_MODEL_ERRORS = 2;
 
-export async function produceIssue({ date, candidates, target, minimum, chat, log = console.log }) {
+export async function produceIssue({ date, candidates, target, minimum, chat, recentSourceSets = [], log = console.log }) {
   const passed = [];
   const dropped = [];
+  const recent = new Set(recentSourceSets);
+  const repeatsRecentIssue = () => recent.has(sourceSetFingerprint(passed.map(({ item }) => item)));
   let modelErrors = 0;
 
   for (const item of candidates) {
-    if (passed.length >= target) break;
+    if (passed.length >= target) {
+      if (!repeatsRecentIssue()) break;
+      log("  the source set repeats a recent issue; trying further candidates");
+    }
     log(`Story: ${item.title}`);
     let result;
     try {

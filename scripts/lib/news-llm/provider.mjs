@@ -9,18 +9,27 @@ import { createHttpChat } from "./provider-http.mjs";
 
 export { CallBudgetExceeded };
 
-export function createChat({ env = process.env, call, log = console.log } = {}) {
+export function createChat({ env = process.env, call, http = {}, log = console.log } = {}) {
   const kind = env.AI_NEWS_LLM_PROVIDER || (env.AI_NEWS_LLM_URL ? "http" : "claude");
   const models = modelsFor(kind, env);
-  const send = call || (kind === "http"
-    ? createHttpChat({ url: env.AI_NEWS_LLM_URL, key: env.AI_NEWS_LLM_KEY })
-    : createClaudeChat({ bin: env.AI_NEWS_LLM_BIN || "claude" }));
   const stats = { calls: 0, neurons: 0, failures: [] };
 
   function assertWithinBudget() {
     if (stats.calls >= MAX_CALLS_PER_RUN) throw new CallBudgetExceeded(`Model call ceiling reached (${MAX_CALLS_PER_RUN})`);
     if (stats.neurons >= MAX_NEURONS_PER_RUN) throw new CallBudgetExceeded(`Neuron ceiling for one run reached (${MAX_NEURONS_PER_RUN})`);
   }
+
+  function countCall() {
+    assertWithinBudget();
+    stats.calls += 1;
+  }
+
+  // The http provider retries inside one call. Every HTTP attempt is a call
+  // against the relay's budget, so it counts them itself, before each attempt.
+  const countsAttempts = !call && kind === "http";
+  const send = call || (kind === "http"
+    ? createHttpChat({ url: env.AI_NEWS_LLM_URL, key: env.AI_NEWS_LLM_KEY, onAttempt: countCall, ...http })
+    : createClaudeChat({ bin: env.AI_NEWS_LLM_BIN || "claude" }));
 
   // role: "writer" | "reviewer". `avoid` is the model that wrote the text under
   // review; it is only used for the review when no other model is configured.
@@ -29,8 +38,7 @@ export function createChat({ env = process.env, call, log = console.log } = {}) 
     const chain = preferred.length > 0 ? preferred : models[role];
     let lastError;
     for (const model of chain) {
-      assertWithinBudget();
-      stats.calls += 1;
+      if (!countsAttempts) countCall();
       try {
         const { text, usage } = await send({ model, system, user, maxTokens });
         stats.neurons += Number(usage?.neurons || 0);
