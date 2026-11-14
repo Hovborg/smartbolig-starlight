@@ -150,8 +150,17 @@ Sidst opdateret: 2026-11-14.
   den levende side to gange i døgnet og åbner en GitHub-sag med etiketten `monitor`, hvis en
   kontrol fejler (`docs/overvaagning.md`). `llms.txt` laves af bygget, og bygget stopper, hvis
   sitemappet får et område, som hverken er med eller valgt fra. Kørt lokalt mod den levende
-  side: alle 13 kontroller bestod. Efter udgivelsen: start workflowen én gang i Actions, og
-  se, at den ender grøn.
+  side: alle 13 kontroller bestod. **Udgivet 2026-11-14** (PR #202, `main` 66cae87, Worker
+  `b3071424`). Workflowen er startet én gang i Actions bagefter: grøn, 13 af 13 bestod, ingen
+  sag åbnet. `llms.txt` på den levende side er den byggede (43,8 KB). Ikke set køre: trinene,
+  der åbner, kommenterer og lukker sagen (kræver en fejlende kontrol).
+- **Diagrammer:** alle 36 diagrammer i guiderne er tegnet om til telefonbredde og mørkt tema,
+  med engelske tvillinger og alt-tekster. Uafhængig gennemgang fandt én fejl i et 230 V-diagram
+  (Shelly Wall Display har ingen jordklemme; rettet efter Shellys egen dokumentation) og fem
+  mindre fakta, som er rettet. **Udgivet 2026-11-14** (PR #200, `main` efter 66cae87, Worker
+  `e4b21205`); set på den levende side i 390 px bredde. Åbent: teksten er ca. 10 px på en
+  telefon (mål: 11 px), og LD2410-tegningen har ikke printets benrækkefølge (guiden siger det).
+  Begge dele kræver ny opsætning af tegningerne.
 
 ## Næste skridt
 
