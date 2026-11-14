@@ -9,20 +9,6 @@ sidebar:
 
 import { Card, CardGrid, Aside, Badge, Steps } from '@astrojs/starlight/components';
 import FAQ from '../../../../components/FAQ.astro';
-import HowTo from '../../../../components/HowTo.astro';
-
-<HowTo
-  name="Choose the right Zigbee coordinator"
-  description="Guide to choosing the best Zigbee coordinator for your Home Assistant setup"
-  totalTime="PT10M"
-  steps={[
-    "Decide connection type: USB or Ethernet/PoE",
-    "Choose chip type: EFR32MG24 (newest) or CC2652P",
-    "Consider how many devices you plan to add",
-    "Check compatibility with ZHA or Zigbee2MQTT",
-    "Order and install"
-  ]}
-/>
 
 <Badge text="Home Assistant" variant="success" /> <Badge text="Zigbee2MQTT" variant="note" /> <Badge text="ZHA" variant="tip" />
 

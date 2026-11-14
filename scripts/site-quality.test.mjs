@@ -3,6 +3,7 @@ import { existsSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 import { selectIssues } from "../src/lib/ai-news-feed.ts";
+import { importGraph } from "./lib/import-graph.mjs";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 // The sidebar lives in config/sidebar/ (one file per section); concatenate them all.
@@ -364,14 +365,20 @@ test("cards and tabs are shown without a leading emoji", async () => {
 });
 
 test("the 3D library loads on demand and the controls work without it", async () => {
-  const [stage, controller, script] = await Promise.all([
+  const [stage, input, controller, script] = await Promise.all([
     read("src/lib/home-house-stage.mjs"),
+    read("src/lib/home-house-input.mjs"),
     read("src/lib/home-house.mjs"),
     read("src/components/home/HomeHouseScript.astro"),
   ]);
-  assert.match(stage, /import\("\.\/house3d\/index\.mjs"\)/, "three.js must stay out of the first page load");
-  assert.doesNotMatch(stage + controller + script, /from ["']three/);
-  assert.match(stage, /saveData/, "data-saving visitors must not get the model unasked");
+  // Both ways to draw the house (in a worker, or on the page) are fetched on demand.
+  assert.match(stage, /await import\("\.\/house3d\/remote\.mjs"\)/, "three.js must stay out of the first page load");
+  assert.match(stage, /await import\("\.\/house3d\/index\.mjs"\)/, "three.js must stay out of the first page load");
+  // probe.mjs only asks the browser where the house can be drawn; it loads nothing.
+  assert.doesNotMatch(stage, /^import .*house3d\/(?!probe\.mjs")/m, "the stage must not import the house statically");
+  assert.doesNotMatch(stage + input + controller + script, /from ["']three/);
+  assert.doesNotMatch(input, /house3d/, "the input helpers must not pull the house in");
+  assert.match(input, /saveData/, "data-saving visitors must not get the model unasked");
   assert.match(controller, /homeMotion !== "on"/, "the day only passes by itself while motion is on");
   const markup = await read("src/components/home/HomeStage.astro");
   for (const hook of ["data-house-spots hidden", "data-house-turn hidden", "data-house-modes hidden"]) {
@@ -381,18 +388,9 @@ test("the 3D library loads on demand and the controls work without it", async ()
 
 test("scenes that only exist as pictures stay out of the homepage's 3D bundle", async () => {
   const [stills, posters] = await Promise.all([read("src/lib/house3d/stills.mjs"), read("scripts/house-posters.mjs")]);
-  // Everything the live house loads, followed import by import from its entry.
+  // Everything the live house loads, on the page and in the worker.
   const dir = "src/lib/house3d/";
-  const loaded = new Set();
-  const follow = async (path) => {
-    if (loaded.has(path)) return;
-    loaded.add(path);
-    const source = await read(path);
-    for (const [, target] of source.matchAll(/(?:from|import)\s*\(?\s*["'](\.\.?\/[^"']+)["']/g)) {
-      await follow(new URL(target, `file:///${path}`).pathname.slice(1));
-    }
-  };
-  await follow(`${dir}index.mjs`);
+  const loaded = new Set((await importGraph(`${dir}index.mjs`, `${dir}worker.mjs`)).keys());
   assert.ok(loaded.has(`${dir}rig.mjs`) && loaded.has(`${dir}kit.mjs`) && loaded.has(`${dir}parts/shell.mjs`), "the walk reaches the model's parts and what they share");
   for (const path of loaded) assert.doesNotMatch(path, /stills|workbench/, `the live house must not load ${path}`);
   const known = [...stills.matchAll(/^  (\w+)\(rig, colors\) \{/gm)].map((match) => match[1]);
@@ -801,6 +799,8 @@ test("Cloudflare headers retain the security contract", async () => {
   assert.match(headers, /script-src[^;]*https:\/\/static\.cloudflareinsights\.com/);
   assert.match(headers, /connect-src[^;]*https:\/\/cloudflareinsights\.com/);
   assert.doesNotMatch(headers, /(?:^|\s)'unsafe-eval'(?:\s|;)/);
+  // The 3D house is drawn in a worker loaded from the site itself.
+  assert.match(headers, /worker-src[^;]*'self'/);
   assert.match(packageJson.scripts.build, /finalize-build\.mjs/);
   assert.match(finalizeBuild, /pagefind-worker\.js/);
   assert.match(finalizeBuild, /createHash\("sha256"\)/);

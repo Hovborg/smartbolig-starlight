@@ -6,7 +6,6 @@ sidebar:
 ---
 
 import { Steps, Aside, Card, CardGrid, LinkCard, Tabs, TabItem } from '@astrojs/starlight/components';
-import HowTo from '../../../../components/HowTo.astro';
 import FAQ from '../../../../components/FAQ.astro';
 
 
@@ -49,37 +48,6 @@ Before you start, you need:
 </Aside>
 
 ## Installing Energi Data Service
-
-<HowTo
-  name="Install Energi Data Service"
-  totalTime="PT10M"
-  steps={[
-    {
-      name: "Open the Marketplace",
-      text: "Go to Settings → Marketplace. If you run a version before 2026.11, you find HACS in the sidebar."
-    },
-    {
-      name: "Search for the integration",
-      text: "Search for 'Energi Data Service'. If it isn't in the catalog, you can add it with Add from link and 'MTrab/energidataservice'. In HACS before 2026.11: Integrations → + Explore & download repositories."
-    },
-    {
-      name: "Install the integration",
-      text: "Click Energi Data Service → Install (in HACS: Download) → select the latest version and confirm."
-    },
-    {
-      name: "Restart Home Assistant",
-      text: "Restart Home Assistant if you are asked to or the integration doesn't show up: Settings → System → Restart Home Assistant."
-    },
-    {
-      name: "Add the integration",
-      text: "Go to Settings → Devices & services → Add integration → search for 'Energi Data Service'."
-    },
-    {
-      name: "Configure the integration",
-      text: "Give it a unique name (e.g. 'Electricity prices'), select Denmark as country, choose your price area (DK1/DK2), select price per kWh, enable automatic tariffs and pick your grid company (not necessarily the company you buy electricity from)."
-    }
-  ]}
-/>
 
 ### Configuration Settings
 

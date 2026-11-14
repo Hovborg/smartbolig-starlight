@@ -2,10 +2,13 @@
 // that face the viewer and animates the small things. Draws only when
 // something changes, unless motion is on and the house is on screen.
 import { Vector3 } from "three";
+import { firstFrameGate } from "./first-frame.mjs";
 import { linkLevels, modes, views } from "./modes.mjs";
 import { animateLinks } from "./parts/links.mjs";
 import { createRig } from "./rig.mjs";
-import { applyLighting, blendLighting, createStage, drawStage, lightingOf, placeCamera, sizeStage } from "./stage.mjs";
+import {
+  applyLighting, blendLighting, compileStage, createStage, drawStage, lightingOf, placeCamera, sizeStage,
+} from "./stage.mjs";
 
 const SETTLE_MS = 2600;
 const LOW_WALL = 0.17;
@@ -32,6 +35,10 @@ export function createEngine(canvas, options) {
   let activeUntil = 0;
   let width = 1;
   let height = 1;
+  // The first frame waits for the shaders (compileStage). Stills draw at once.
+  let compiling = null;
+  let ready = still;
+  let disposed = false;
 
   const goals = { ...modes[mode].levels, ...linkLevels(focus) };
   const levels = { ...goals };
@@ -121,17 +128,25 @@ export function createEngine(canvas, options) {
   }
 
   function wake() {
+    if (disposed) return;
     activeUntil = performance.now() + SETTLE_MS;
-    if (!raf && !still) {
+    if (!raf && ready && !still) {
       last = performance.now();
       raf = requestAnimationFrame(frame);
     }
   }
 
   function resize(w, h, pixelRatio = Math.min(globalThis.devicePixelRatio || 1, 2)) {
+    if (disposed) return;
     width = Math.max(1, w);
     height = Math.max(1, h);
     sizeStage(stage, width, height, pixelRatio);
+    if (!ready && !compiling) {
+      compiling = firstFrameGate(compileStage(stage)).then(() => {
+        ready = true;
+        wake();
+      });
+    }
     wake();
   }
 
@@ -172,6 +187,7 @@ export function createEngine(canvas, options) {
       draw();
     },
     dispose() {
+      disposed = true;
       cancelAnimationFrame(raf);
       stage.post?.dispose();
       stage.renderer.dispose();

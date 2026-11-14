@@ -2,10 +2,12 @@
 // Logo: the house mark plus the name as live text, so it is sharp at any size
 // and follows the light and dark theme through the colour tokens.
 const { siteTitleHref } = Astro.locals.starlightRoute;
+// Starlight gives "/da"; the site uses trailing slashes, so "/da" would cost a redirect on every page.
+const href = siteTitleHref.endsWith("/") ? siteTitleHref : `${siteTitleHref}/`;
 const label = Astro.currentLocale === "en" ? "SmartBolig.net, front page" : "SmartBolig.net, forside";
 ---
 
-<a href={siteTitleHref} class="sb-logo" aria-label={label}>
+<a href={href} class="sb-logo" aria-label={label}>
   <svg class="sb-logo__mark" viewBox="0 0 32 32" width="34" height="34" aria-hidden="true">
     <rect class="tile" width="32" height="32" rx="9.5"></rect>
     <path class="line" d="M7.5 15.4 16 8l8.5 7.4"></path>

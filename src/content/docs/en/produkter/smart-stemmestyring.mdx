@@ -9,20 +9,6 @@ sidebar:
 
 import { Card, CardGrid, Aside, Badge, Tabs, TabItem } from '@astrojs/starlight/components';
 import FAQ from '../../../../components/FAQ.astro';
-import HowTo from '../../../../components/HowTo.astro';
-
-<HowTo
-  name="Set Up Local Voice Control"
-  description="Guide to Home Assistant Assist with Piper, Whisper and ESP32 voice satellites"
-  totalTime="PT60M"
-  steps={[
-    "Install Whisper (speech-to-text)",
-    "Install Piper (text-to-speech)",
-    "Configure Assist pipeline",
-    "Add voice satellite (optional)",
-    "Test and customize wake word"
-  ]}
-/>
 
 <Badge text="Voice" variant="tip" /> <Badge text="Local" variant="success" /> <Badge text="Privacy" variant="caution" />
 
