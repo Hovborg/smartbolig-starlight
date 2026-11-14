@@ -1,6 +1,6 @@
 ---
 title: Zigbee channel picker
-description: Mark the Wi-Fi channels you use at home and see which of the 16 Zigbee channels overlap. The tool points to the Zigbee channel furthest from your Wi-Fi.
+description: Mark the Wi-Fi channels you use and see which of the 16 Zigbee channels overlap. The tool prefers a recommended channel with no overlap.
 lastUpdated: 2026-11-14
 ---
 
@@ -14,13 +14,20 @@ Mark the 2.4 GHz channels your router and the strongest neighbours use. You then
 
 Zigbee uses 16 channels, numbered 11 to 26. Channel 11 sits at 2405 MHz, and the centres of two channels are 5 MHz apart. Each channel is 2 MHz wide. Wi-Fi channel 1 sits at 2412 MHz and channel 11 at 2462 MHz; the tool shows channels 1 to 13.
 
-The tool counts a Wi-Fi channel as 22 MHz wide, the widest common mask. That is our choice, not a figure from a source, and it is cautious: a narrower Wi-Fi channel takes up less. A Zigbee channel overlaps when the two bands touch at more than a single point. The best Zigbee channel is the one whose centre is furthest from the edge of a marked Wi-Fi band. On a tie, 15, 20, 25 and 11 are picked in that order, and then the lowest number.
+The tool counts a Wi-Fi channel as 22 MHz wide, as in AN5185 figure 1, where an 802.11b channel is drawn 22 MHz wide. A 20 MHz channel takes up a little less, so the figure is cautious. A Zigbee channel overlaps when the two bands share more than one point.
 
-Channel 26 is never picked first. We have not found an official source that says why that channel is worse, so this is a cautious rule and not a claim. ZHA only recommends 15, 20 and 25, because not all Zigbee devices support all channels.
+The tool then picks the channel in three steps:
+
+1. If one of 15, 20, 25 and 11 is free of overlap, the recommendation is the one of them whose centre is furthest from the edge of a marked Wi-Fi band. On a tie, 15, 20, 25 and 11 are picked in that order. These are the channels Zigbee2MQTT (11, 15, 20, 25) and ZHA (15, 20, 25) point to.
+2. If they are all covered but another channel from 11 to 25 is free, the recommendation is the one of those furthest from Wi-Fi. On a tie, the lowest number. The text by the result says the channel is not among the recommended ones, because those are covered.
+3. If every channel from 11 to 25 overlaps, 15, 20, 25 and 11 are picked in that order.
+
+Channel 26 is never recommended. We have not found an official source that says why that channel is worse, so this is a cautious rule and not a claim. If channel 26 is free, the result says so but does not recommend it. ZHA only recommends 15, 20 and 25, both because there is less chance of Wi-Fi interfering too much on the other channels and because not all Zigbee devices support all channels.
 
 ## What is not included
 
 - **Signal strength.** The tool only knows the frequencies. A neighbour's Wi-Fi that is weak at your home disturbs less than the bar suggests.
+- **Wider Wi-Fi channels.** A router set to 40 MHz channel width (802.11n) takes up two channels. AN5185 says that 802.11n can use a 40 MHz channel formed by two adjacent 20 MHz bands. Mark both channels, otherwise the tool counts too little.
 - **Other things on 2.4 GHz.** Zigbee2MQTT mentions that Bluetooth and wireless gaming accessories, among others, can disturb Zigbee. The tool cannot see them.
 - **What your devices can do.** Not all devices support all channels. See "Change the channel" below.
 
@@ -30,7 +37,7 @@ The two systems document this differently, and both deserve to be taken seriousl
 
 **Zigbee2MQTT** has channel 11 as its default and says to use a ZLL channel to avoid problems: 11, 15, 20 or 25. Its documentation says changing the channel of an existing network is supported. Devices that are asleep (often battery powered) switch only when they next wake up, so you should wake them after the change. Some devices cannot change channel; if one does not answer after several minutes, you may have to pair it again. Changing the channel only works with the `zstack` and `ember` adapters.
 
-**ZHA** (Home Assistant's own Zigbee) says it is best not to change the channel from the default. The "Smart" option scans the channels and picks one, preferring 15, 20 or 25. After a change it can take up to an hour before all devices have found the new channel; you can speed it up by power cycling the end devices. If you have trouble with overlap, ZHA says it is usually better to first give the Wi-Fi router a fixed channel.
+**ZHA** (Home Assistant's own Zigbee) says it is best not to change the channel from the default. The "Smart" option scans the channels and picks one, preferring 15, 20 or 25, both because there is less chance of Wi-Fi interfering too much on the other channels and because not all Zigbee devices support all channels. After a change it can take up to an hour before all devices have found the new channel; you can speed it up by power cycling the end devices. If you have trouble with overlap, ZHA says it is usually better to first give the Wi-Fi router a fixed channel.
 
 You can also move Wi-Fi instead of Zigbee. If you move the router's channel, mark the new channel above and see whether the recommendation changes.
 
@@ -48,4 +55,4 @@ All read on 14 November 2026. We wrote the text ourselves.
 - Zigbee2MQTT, [Zigbee network](https://www.zigbee2mqtt.io/guide/configuration/zigbee-network.html): the default channel, the ZLL channels, changing the channel on an existing network.
 - Zigbee2MQTT, [Improve network range and stability](https://www.zigbee2mqtt.io/advanced/zigbee/02_improve_network_range_and_stability.html): Wi-Fi and Zigbee share 2.4 GHz; other 2.4 GHz devices can interfere.
 - Home Assistant, [ZHA](https://www.home-assistant.io/integrations/zha/): the advice not to change the channel, "Smart", time to reconnect, not all devices support all channels.
-- NXP (Freescale), [AN5185 Wireless Coexistence in the 2.4 GHz Band](https://www.nxp.com/docs/en/application-note/AN5185.pdf): the 16 channels, 2405 MHz, 2 MHz width, 5 MHz spacing, Wi-Fi channel 1 at 2412 MHz and that the use of Wi-Fi channels depends on the region.
+- NXP (Freescale), [AN5185 Wireless Coexistence in the 2.4 GHz Band](https://www.nxp.com/docs/en/application-note/AN5185.pdf): the 16 channels, 2405 MHz, 2 MHz width, 5 MHz spacing, Wi-Fi channel 1 at 2412 MHz, a 22 MHz Wi-Fi channel in figure 1, that 802.11n can use a 40 MHz channel of two adjacent 20 MHz bands, and that the use of Wi-Fi channels depends on the region.

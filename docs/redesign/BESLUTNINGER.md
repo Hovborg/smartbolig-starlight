@@ -922,3 +922,19 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Valgt: et tal med tusindtegn afvises med en tekst, der siger, hvordan tallet skal skrives,
   som i de andre værktøjer.
 - Fravalgt: at gemme læserens tal i browseren (samme regel som B61).
+
+### B66, tilføjelse efter gennemgangen (2026-11-14)
+
+- Fundet: kanalvælgeren valgte kanalen med størst afstand og brugte 15, 20, 25, 11 kun ved lige
+  stilling. Ved Wi-Fi 1 + 11 anbefalede den 17, selv om 15, 20 og 25 var fri. Det stred mod
+  Zigbee2MQTT (ZLL-kanalerne 11, 15, 20, 25) og ZHA (15, 20, 25), som siden selv henviser til.
+  Teksten glemte også, at kanal 26 holdes ude, og kaldte kanal 25 "længst fra Wi-Fi".
+- Valgt: de anbefalede kanaler først. Er en af 15, 20, 25, 11 fri, vælges den med størst afstand.
+  Er de alle dækket, vælges en anden fri kanal fra 11 til 25, og teksten siger, at den ikke er
+  blandt de anbefalede. Overlapper alle, vælges 15, 20, 25, 11 og så det laveste nummer.
+- Valgt: kanal 26 anbefales aldrig. Er den fri, siger teksten det og forklarer, at den holdes ude
+  af en forsigtig regel, ikke ud fra en kilde.
+- Valgt: batteriets levetid vises i timer under et døgn og "under en time" under en time, og
+  procenterne for søvn og vågen giver tilsammen 100.
+- Fravalgt: ren størst afstand. Den ser ud som den mest præcise regel, men den modsagde de kilder,
+  siden viser, og den gav kanaler, ingen af kilderne nævner.

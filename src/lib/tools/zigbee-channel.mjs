@@ -3,7 +3,7 @@
 //
 // Zigbee (IEEE 802.15.4) channel n, 11 to 26: centre 2405 + 5 * (n - 11) MHz, 2 MHz wide.
 // Wi-Fi channel m, 1 to 13 (the channels used in Europe): centre 2412 + 5 * (m - 1) MHz.
-// A Wi-Fi channel is treated as WIFI_WIDTH_MHZ wide, the widest common mask.
+// A Wi-Fi channel is counted as WIFI_WIDTH_MHZ (22 MHz) wide, as in AN5185 figure 1.
 
 export const ZIGBEE_CHANNELS = Array.from({ length: 16 }, (_, i) => 11 + i);
 export const WIFI_CHANNELS = Array.from({ length: 13 }, (_, i) => 1 + i);
@@ -11,9 +11,9 @@ export const ZIGBEE_WIDTH_MHZ = 2;
 export const WIFI_WIDTH_MHZ = 22;
 export const COMMON_WIFI_CHANNELS = [1, 6, 11];
 
-/** Preferred on a tie, in this order, then 11, then the lowest number. */
+/** The channels Zigbee2MQTT (ZLL: 11, 15, 20, 25) and ZHA (15, 20, 25) name; tried first, in this order on a tie. */
 export const PREFERRED = [15, 20, 25, 11];
-/** Never recommended first. */
+/** Never recommended. */
 export const LAST_RESORT = 26;
 
 export const zigbeeCentre = (channel) => 2405 + 5 * (channel - 11);
@@ -66,29 +66,48 @@ function tieRank(channel) {
   return preferred === -1 ? PREFERRED.length + channel : preferred;
 }
 
-/** All Zigbee channels, best first. Channel 26 is always last. */
-export function rank(wifiChannels) {
-  const scored = ZIGBEE_CHANNELS.map((channel) => ({ channel, score: score(channel, wifiChannels) }));
-  return scored.sort((a, b) => {
-    if ((a.channel === LAST_RESORT) !== (b.channel === LAST_RESORT)) return a.channel === LAST_RESORT ? 1 : -1;
-    return b.score - a.score || tieRank(a.channel) - tieRank(b.channel);
-  });
+/** The candidate furthest from the Wi-Fi; on a tie 15, 20, 25, 11, then the lowest number. */
+function furthest(candidates, wifi) {
+  const rows = candidates.map((channel) => ({ channel, score: score(channel, wifi) }));
+  return rows.sort((a, b) => b.score - a.score || tieRank(a.channel) - tieRank(b.channel))[0];
 }
 
 /**
  * The whole answer for a set of Wi-Fi channels: the recommended channel, its
  * distance (null with no Wi-Fi marked), the overlapping Zigbee channels and
- * the ones that are free.
+ * the ones that are free. Channel 26 is never recommended.
+ *
+ * `kind` says which rule gave the channel:
+ * - "none": no Wi-Fi marked, so 15.
+ * - "preferred": one of 15, 20, 25, 11 is free of the Wi-Fi; the furthest one.
+ * - "other": those four are all covered; a free channel from 11 to 25, the furthest.
+ * - "covered": every channel from 11 to 25 overlaps; the first in 15, 20, 25, 11, then the lowest.
  */
 export function advise(wifiChannels) {
   const wifi = cleanWifi(wifiChannels);
-  const [best] = rank(wifi);
   const overlap = overlapping(wifi);
+  const free = ZIGBEE_CHANNELS.filter((channel) => !overlap.includes(channel));
+  const recommendable = free.filter((channel) => channel !== LAST_RESORT);
+  const allowed = ZIGBEE_CHANNELS.filter((channel) => channel !== LAST_RESORT);
+  let kind = "covered";
+  let pool = allowed;
+  if (wifi.length === 0) {
+    kind = "none";
+    pool = PREFERRED;
+  } else if (PREFERRED.some((channel) => recommendable.includes(channel))) {
+    kind = "preferred";
+    pool = PREFERRED.filter((channel) => recommendable.includes(channel));
+  } else if (recommendable.length > 0) {
+    kind = "other";
+    pool = recommendable;
+  }
+  const best = furthest(pool, wifi);
   return {
     wifi,
+    kind,
     best: best.channel,
     distance: Number.isFinite(best.score) ? best.score : null,
     overlap,
-    free: ZIGBEE_CHANNELS.filter((channel) => !overlap.includes(channel)),
+    free,
   };
 }

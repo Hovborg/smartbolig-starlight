@@ -34,7 +34,7 @@ Tallene i værktøjet er kun så gode som dine målinger.
 
 1. Sæt et amperemeter i serie med batteriet, så strømmen går gennem måleren.
 2. Mål i søvn med måleren på mikroampere-området. Vent, til tallet står stille.
-3. Mål den vågne strøm som gennemsnittet over hele opvågningen, fra enheden vågner, til den sover igen. Strømmen svinger meget, så brug en måler eller en strømprofil, der kan tage et gennemsnit.
+3. Mål den vågne strøm som gennemsnittet over hele opvågningen, fra enheden vågner, til den sover igen. Strømmen svinger meget, så brug et instrument, der optager strømmen over tid og regner gennemsnittet (en "power profiler"), eller en måler med gennemsnitsfunktion.
 4. Mål, hvor mange sekunder opvågningen varer.
 
 Tallene fra et datablad gælder chippen. Hvad dit kort bruger i søvn, kan du kun se ved at måle det.
@@ -44,7 +44,7 @@ Tallene fra et datablad gælder chippen. Hvad dit kort bruger i søvn, kan du ku
 Knappen i værktøjet udfylder to tal for en ESP32-chip. De er hentet i Espressifs ESP32-datablad, version 5.3:
 
 - **10 µA i dyb søvn.** Databladets egenskabsliste skriver, at forbruget i Deep-sleep er 10 µA.
-- **180 mA vågen.** Databladets tabel over strøm i aktiv tilstand viser 180 mA som typisk værdi, når chippen sender 802.11n (MCS7, +14 dBm). Målingen er taget ved radioens port, med en 3,3 V forsyning ved 25 °C og 50 % sendetid. Det er radioen alene; resten af dit kredsløb kommer oveni.
+- **180 mA vågen.** Databladets tabel over strøm i aktiv tilstand viser 180 mA som typisk værdi, når chippen sender 802.11n (MCS7, +14 dBm). Målingen er taget ved radioens port, med en 3,3 V forsyning ved 25 °C og 50 % sendetid. Tallet er chippens forbrug med radioen aktiv (databladets tabel 5-4; tabel 4-2 henviser dertil for "Active (RF working)"), ikke et helt kort; resten af dit kredsløb kommer oveni.
 
 Vågen tid og hvor tit enheden vågner får du ikke af databladet. Dem skal du selv sætte.
 

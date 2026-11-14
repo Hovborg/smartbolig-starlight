@@ -5,6 +5,12 @@ De to nyeste værktøjer (Zigbee-kanalvælger og batterilevetid) er set i headle
 320, 375 og 1440 px, med flere indtastninger, med tastaturet og uden JavaScript. Siden er serveret uden
 Cloudflares headers, så Content-Security-Policy er ikke prøvet i browseren; koden har ingen inline
 handlers, ingen `style=` og ingen `innerHTML`, og en test holder øje med det.
+En gennemgang 2026-11-14 af de to nyeste værktøjer rettede anbefalingen (se reglen under "Regler, der er valgt
+med vilje"), tekster om kanal 26 og Wi-Fi-bredde, enheder i batterifelternes labels, timer under et døgn og
+afrunding. Kontrolleret ved `npm run site:test` og med en lille falsk DOM, der kører `zigbee-ui.mjs` og
+`battery-ui.mjs` (`scripts/site-tools-ui.test.mjs`). Kilderne er læst igen samme dag: ZHA's to grunde til 15/20/25,
+Zigbee2MQTT's ZLL-kanaler, AN5185 (22 MHz i figur 1, 40 MHz som to tilstødende 20 MHz-bånd) og databladets
+tabel 5-4. Ikke set i en browser efter rettelsen.
 Kontrolleret ved: `npm run site:test`, `npm run build`, `npm run seo:validate`,
 `npm run worker:build` og `npx wrangler deploy --dry-run` kørt på grenen. Elprisen og
 strømforbruget er set i headless Chrome i mørkt og lyst tema ved 320, 375 og 1440 px, med et optaget svar fra
@@ -75,7 +81,7 @@ Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Ene
 | `src/components/tools/BatteryLife.astro` | Batteriværktøjets felter og svaret for startværdierne (så siden giver mening uden JavaScript) |
 | `src/lib/tools/battery-life.mjs`, `battery-view.mjs` | Regnestykket med grænser, og teksterne for et resultat (enhed, levetid, søvn eller vågen) |
 | `src/lib/tools/battery-copy.mjs`, `battery-ui.mjs` | Teksterne, startværdier og preset med kilde, og koblingen |
-| `scripts/site-tools.test.mjs`, `site-tools-price.test.mjs`, `site-tools-api.test.mjs`, `site-tools-calc.test.mjs` | Tests. Køres med `npm run site:test` |
+| `scripts/site-tools.test.mjs`, `site-tools-price.test.mjs`, `site-tools-api.test.mjs`, `site-tools-zigbee.test.mjs`, `site-tools-battery.test.mjs`, `site-tools-ui.test.mjs` | Tests. Køres med `npm run site:test` |
 
 ## Regler, der er valgt med vilje
 
@@ -140,11 +146,19 @@ Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Ene
   `price-data.mjs`). En mindre forskel rettes ikke: browseren må gemme svaret i ti minutter, og
   så er headeren lige så gammel.
 - **Zigbee-kanalvælgeren regner kun frekvenser.** Zigbee-kanal n ligger på 2405 + 5 × (n − 11) MHz og
-  er 2 MHz bred; Wi-Fi-kanal m på 2412 + 5 × (m − 1) MHz og regnes 22 MHz bred (vores valg som den
-  bredeste almindelige maske, ikke en kildeoplysning; det står på siden). Bedst er kanalen med midten
-  længst fra kanten af et markeret bånd; lige stillede vælges 15, 20, 25, 11, derefter laveste nummer.
-  Kanal 26 vælges aldrig først. Der er ingen officiel kilde til, hvorfor lige 26, så siden siger det
-  ikke; den nævner kun ZHA's anbefaling af 15, 20 og 25 og at ikke alle enheder understøtter alle kanaler.
+  er 2 MHz bred; Wi-Fi-kanal m på 2412 + 5 × (m − 1) MHz og regnes 22 MHz bred (AN5185 figur 1).
+  Anbefalingen følger siderne egne kilder (Zigbee2MQTT: 11, 15, 20, 25; ZHA: 15, 20, 25), i tre trin.
+  (a) Er en af 15, 20, 25, 11 fri for overlap: den af dem med størst afstand (midte til kanten af
+  nærmeste markerede bånd); lige stillede 15, 20, 25, 11. (b) Ellers en anden fri kanal fra 11 til 25
+  med størst afstand (lige: laveste nummer), og teksten siger, at den ikke er blandt de anbefalede,
+  fordi de er dækket. (c) Ellers størst afstand, lige stillede 15, 20, 25, 11, derefter laveste nummer.
+  Kanal 26 anbefales aldrig. Der er ingen officiel kilde til, hvorfor lige 26, så siden siger det
+  ikke, men skriver, når 26 er fri, at den ikke anbefales. `advise()` giver `kind`
+  (`none`, `preferred`, `other`, `covered`), som teksten vælges efter. Ren størst afstand er fravalgt:
+  den gav fx 17 ved Wi-Fi 1 + 11, selv om 15, 20 og 25 var fri, og stred mod de kilder, siden henviser til.
+- **Kendte grænser.** Kanalvælgeren kender ikke signalstyrke eller Wi-Fi på 40 MHz (læseren skal markere
+  begge kanaler; siden siger det). Batteriet regner under et døgn i hele timer og under en time
+  "under en time".
 - **Batterilevetiden har ét preset, og det har en kilde.** ESP32-chip: 10 µA i Deep-sleep og 180 mA
   (sender 802.11n MCS7, +14 dBm, tabel 5-4), begge fra Espressifs ESP32 Series Datasheet v5.3
   (læst 2026-11-14). Siden siger ikke, at et udviklingskort bruger mere i søvn, for det har vi ingen
@@ -154,7 +168,8 @@ Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Ene
   11/15/20/25, skift af kanal er understøttet, sovende enheder skifter ved næste opvågning, nogle
   enheder kan kræve ny parring, kun adapterne zstack og ember), ZHA (bedst ikke at ændre, "Smart"
   foretrækker 15/20/25, op til en time til genforbindelse, ikke alle enheder understøtter alle kanaler)
-  og NXP AN5185 (16 kanaler, 2405 MHz, 2 MHz, 5 MHz afstand, Wi-Fi-kanal 1 på 2412 MHz). Linkene står
+  og NXP AN5185 (16 kanaler, 2405 MHz, 2 MHz, 5 MHz afstand, Wi-Fi-kanal 1 på 2412 MHz, 22 MHz i figur 1,
+  802.11n kan bruge 40 MHz af to tilstødende 20 MHz-bånd). Linkene står
   under "Kilder" på siderne, læst 2026-11-14. Ret kun et faktum sammen med dets kilde.
 - **Grafen bygges med DOM-kald** (`svgEl` i `dom.mjs`), aldrig med HTML-strenge. Der er ingen
   inline event handlers og intet inline script; værktøjets kode ligger i egne filer under

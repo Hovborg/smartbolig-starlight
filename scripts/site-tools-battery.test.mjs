@@ -5,7 +5,7 @@ import test from "node:test";
 import toolsSidebar from "../config/sidebar/vaerktoejer.mjs";
 import { TOOLS } from "../src/lib/tools/catalog.mjs";
 import { BATTERY_PRESETS, BATTERY_SOURCES, batteryCopy } from "../src/lib/tools/battery-copy.mjs";
-import { BATTERY_LIMITS, batteryLife, isValid } from "../src/lib/tools/battery-life.mjs";
+import { BATTERY_LIMITS, awakeTooLong, batteryLife, isValid } from "../src/lib/tools/battery-life.mjs";
 import { formatCurrent, formatLife, formatMeaning } from "../src/lib/tools/battery-view.mjs";
 import { parseDecimal } from "../src/lib/tools/format.mjs";
 
@@ -69,6 +69,78 @@ test("battery: the words use a fitting unit and say which side uses most", () =>
   assert.match(formatMeaning(0.5, "da"), /lige meget/);
 });
 
+const NBSP = " ";
+const lifeOf = (days) => ({ days, months: days / 30.4, years: days / 365 });
+
+test("battery: the life is in hours under a day and 'less than an hour' under an hour", () => {
+  const hours = (h) => lifeOf(h / 24);
+  assert.equal(formatLife(hours(0.5), "da"), "under en time");
+  assert.equal(formatLife(hours(0.99), "en"), "less than an hour");
+  assert.equal(formatLife(hours(1), "da"), `1${NBSP}time`);
+  assert.equal(formatLife(hours(1), "en"), `1${NBSP}hour`);
+  assert.equal(formatLife(hours(19), "da"), `19${NBSP}timer`);
+  assert.equal(formatLife(hours(19.4), "en"), `19${NBSP}hours`);
+  assert.equal(formatLife(hours(23.4), "da"), `23${NBSP}timer`);
+  assert.equal(formatLife(lifeOf(1), "da"), `1,0${NBSP}dage`);
+});
+
+test("battery: the life changes unit at one day, two months, two years and 100 years", () => {
+  assert.equal(formatLife(lifeOf(30.4 * 2 - 0.01), "da"), `61${NBSP}dage`);
+  assert.equal(formatLife(lifeOf(30.4 * 2), "da"), `2,0${NBSP}måneder`);
+  assert.equal(formatLife(lifeOf(365 * 2 - 15), "en"), `23.5${NBSP}months`);
+  assert.equal(formatLife(lifeOf(365 * 2), "en"), `2.0${NBSP}years`);
+  assert.equal(formatLife(lifeOf(365 * 100), "en"), `100${NBSP}years`);
+  assert.equal(formatLife(lifeOf(365 * 100 + 1), "en"), "More than 100 years");
+  assert.equal(formatLife(lifeOf(365 * 100 + 1), "da"), "Over 100 år");
+});
+
+test("battery: a small current keeps two significant digits, and the two shares add up to 100", () => {
+  assert.equal(formatCurrent(0.00004, "da"), `0,040${NBSP}µA`);
+  assert.equal(formatCurrent(0.00123, "en"), `1.2${NBSP}µA`);
+  assert.equal(formatCurrent(0.0000123, "en"), `0.012${NBSP}µA`);
+  assert.equal(formatCurrent(0.0005, "da"), `0,50${NBSP}µA`);
+  // 49.5 % awake used to show "50 % ... 51 %".
+  assert.equal(formatMeaning(0.495, "da"), `Vågen tid og søvn bruger lige meget strøm: 50${NBSP}% hver.`);
+  assert.match(formatMeaning(0.504, "en"), /50% each/);
+  assert.match(formatMeaning(0.506, "da"), new RegExp(`^Mest strøm går til at være vågen: 51${NBSP}% af energien, mens søvnen tager 49${NBSP}%`));
+  // 48.5 % awake is 49 % and 51 % asleep, never 49 and 52.
+  assert.match(formatMeaning(0.485, "en"), /sleep: 51% of it, while being awake takes 49%/);
+  assert.match(formatMeaning(0.994, "en"), /99% of it, while sleep takes 1%/);
+  assert.match(formatMeaning(0.996, "en"), /100% of it, while sleep takes 0%/);
+  for (let share = 0; share <= 1; share += 0.0013) {
+    const numbers = [...formatMeaning(share, "en").matchAll(/(\d+)%/g)].map((match) => Number(match[1]));
+    // "50% each" names the share once.
+    assert.equal(numbers.length === 1 ? numbers[0] * 2 : numbers[0] + numbers[1], 100, `share ${share}`);
+  }
+});
+
+test("battery: awake time equal to the interval is allowed even when the numbers do not divide evenly", () => {
+  const base = { capacityMah: 1000, sleepMicroamps: 10, awakeMilliamps: 50, usablePercent: 80 };
+  assert.equal(awakeTooLong({ ...base, intervalMinutes: 4.1, awakeSeconds: 246 }), false);
+  assert.ok(batteryLife({ ...base, intervalMinutes: 4.1, awakeSeconds: 246 }));
+  assert.equal(awakeTooLong({ ...base, intervalMinutes: 4.1, awakeSeconds: 246.001 }), true);
+  assert.equal(batteryLife({ ...base, intervalMinutes: 4.1, awakeSeconds: 246.001 }), null);
+  // Awake for the whole interval is only awake current, never a negative sleep share.
+  near(batteryLife({ ...base, intervalMinutes: 0.7, awakeSeconds: 42 }).averageMilliamps, 50);
+});
+
+test("battery: every field's label names its unit for a screen reader, in both languages", () => {
+  const units = {
+    da: { capacity: /mAh/, sleep: /µA/, awake: /mA\)/, seconds: /sekunder/, interval: /minutter/, usable: /procent/ },
+    en: { capacity: /mAh/, sleep: /µA/, awake: /mA\)/, seconds: /seconds/, interval: /minutes/, usable: /percent/ },
+  };
+  for (const lang of ["da", "en"]) {
+    for (const [key, unit] of Object.entries(units[lang])) assert.match(batteryCopy[lang][key].label, unit, `${lang} ${key}`);
+  }
+});
+
+test("the battery page descriptions fit the 160 characters llms.txt allows, with room to spare", async () => {
+  for (const lang of ["da", "en"]) {
+    const page = await readFile(new URL(`src/content/docs/${lang}/vaerktoejer/batterilevetid.mdx`, root), "utf8");
+    assert.ok(page.match(/^description: (.*)$/m)[1].length <= 155, lang);
+  }
+});
+
 test("the battery texts have the same keys in Danish and English, and every preset has a text and a source", () => {
   const keys = (value, path = "") =>
     typeof value === "string" ? [path] : Object.entries(value).flatMap(([key, child]) => keys(child, `${path}.${key}`)).sort();
@@ -110,14 +182,9 @@ test("a number with a thousands sign is refused, and the field says how to type 
 });
 
 test("a hidden error text is not named as a field's description", async () => {
-  const [component, ui] = await Promise.all([
-    readFile(new URL("src/components/tools/BatteryLife.astro", root), "utf8"),
-    readFile(new URL("src/lib/tools/battery-ui.mjs", root), "utf8"),
-  ]);
+  const component = await readFile(new URL("src/components/tools/BatteryLife.astro", root), "utf8");
   // A description is read out also when it is hidden, so the page names only the hint,
-  // and the script adds the error while the field is wrong (setInvalid in dom.mjs).
+  // and the script adds the error while the field is wrong (the behaviour is in site-tools-ui.test.mjs).
   assert.ok(component.includes("aria-describedby={`${id}-${key}-hint`}"));
   assert.doesNotMatch(component, /aria-describedby=[^>]*-error/);
-  assert.equal((ui.match(/setInvalid\(/g) ?? []).length, 2);
-  assert.doesNotMatch(ui, /setAttribute\("aria-invalid"/);
 });

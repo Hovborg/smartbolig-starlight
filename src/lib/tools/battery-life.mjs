@@ -15,12 +15,14 @@ export const BATTERY_LIMITS = {
 
 const inRange = (value, { min, max }) => Number.isFinite(value) && value >= min && value <= max;
 
+/** Is the awake time longer than the interval? Compared in whole milliseconds, so "equal" survives rounding errors. */
+export function awakeTooLong(input) {
+  return Math.round(input.awakeSeconds * 1000) > Math.round(input.intervalMinutes * 60_000);
+}
+
 /** True when every field is a number inside its limits and the device is awake no longer than the interval. */
 export function isValid(input) {
-  return (
-    Object.keys(BATTERY_LIMITS).every((key) => inRange(input?.[key], BATTERY_LIMITS[key])) &&
-    input.awakeSeconds <= input.intervalMinutes * 60
-  );
+  return Object.keys(BATTERY_LIMITS).every((key) => inRange(input?.[key], BATTERY_LIMITS[key])) && !awakeTooLong(input);
 }
 
 /**
@@ -33,7 +35,8 @@ export function batteryLife(input) {
   if (!isValid(input)) return null;
   const period = input.intervalMinutes * 60;
   const awake = input.awakeMilliamps * input.awakeSeconds;
-  const asleep = (input.sleepMicroamps / 1000) * (period - input.awakeSeconds);
+  // Never below zero: awake for the whole interval can differ from it by a rounding error.
+  const asleep = (input.sleepMicroamps / 1000) * Math.max(0, period - input.awakeSeconds);
   const averageMilliamps = (awake + asleep) / period;
   if (!(averageMilliamps > 0)) return null;
   const hours = (input.capacityMah * (input.usablePercent / 100)) / averageMilliamps;

@@ -1,6 +1,6 @@
 ---
 title: Battery life
-description: Work out how long a battery lasts in a sensor that sleeps and wakes up. Type the capacity, the current asleep and awake, the awake time and the wake-up interval.
+description: Work out how long a battery lasts in a sensor that sleeps and wakes up. Type capacity, sleep and awake current, awake time and wake-up interval.
 lastUpdated: 2026-11-14
 ---
 
@@ -44,7 +44,7 @@ A datasheet figure is for the chip. What your board uses asleep, you can only se
 The button in the tool fills in two figures for an ESP32 chip. They are taken from Espressif's ESP32 datasheet, version 5.3:
 
 - **10 µA in deep sleep.** The datasheet's feature list says the consumption in Deep-sleep mode is 10 µA.
-- **180 mA awake.** The datasheet's table of current in active mode shows 180 mA as the typical value when the chip transmits 802.11n (MCS7, +14 dBm). The measurement is taken at the radio port, with a 3.3 V supply at 25 °C and a 50 % transmit duty cycle. That is the radio alone; the rest of your circuit comes on top.
+- **180 mA awake.** The datasheet's table of current in active mode shows 180 mA as the typical value when the chip transmits 802.11n (MCS7, +14 dBm). The measurement is taken at the radio port, with a 3.3 V supply at 25 °C and a 50 % transmit duty cycle. The figure is the chip's consumption with the radio active (datasheet table 5-4, which table 4-2 points to for "Active (RF working)"), not a whole board; the rest of your circuit comes on top.
 
 The awake time and how often the device wakes up do not come from the datasheet. You set those yourself.
 

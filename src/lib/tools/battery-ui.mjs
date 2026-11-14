@@ -2,7 +2,7 @@
 // Everything happens in the browser; nothing is fetched or stored.
 
 import { batteryCopy } from "./battery-copy.mjs";
-import { BATTERY_LIMITS, batteryLife } from "./battery-life.mjs";
+import { BATTERY_LIMITS, awakeTooLong, batteryLife } from "./battery-life.mjs";
 import { formatCurrent, formatLife, formatMeaning } from "./battery-view.mjs";
 import { part, setInvalid, setText } from "./dom.mjs";
 import { formatNumber, parseDecimal } from "./format.mjs";
@@ -28,7 +28,8 @@ export function startBatteryTool(root) {
   function render() {
     const input = Object.fromEntries(FIELDS.map((key) => [key, read(key)]));
     const missing = Object.values(input).includes(null);
-    const tooLong = !missing && input.awakeSeconds > input.intervalMinutes * 60;
+    // Shown whenever it is true, also while another field is wrong.
+    const tooLong = input.awakeSeconds !== null && input.intervalMinutes !== null && awakeTooLong(input);
     // The awake-time field has two messages: not a number, or longer than the interval.
     setText($("awakeSeconds-error"), tooLong ? copy.seconds.tooLong : copy.seconds.invalid);
     setInvalid($("awakeSeconds"), $("awakeSeconds-error"), tooLong || input.awakeSeconds === null);
@@ -36,7 +37,7 @@ export function startBatteryTool(root) {
     const result = missing || tooLong ? null : batteryLife(input);
     if (!result) {
       for (const name of OUTPUTS) setText($(name), "–");
-      setText($("meaning"), missing ? copy.meaning.invalid : tooLong ? copy.meaning.tooLong : copy.meaning.zero);
+      setText($("meaning"), tooLong ? copy.meaning.tooLong : missing ? copy.meaning.invalid : copy.meaning.zero);
       return;
     }
     setText($("life"), formatLife(result, lang));

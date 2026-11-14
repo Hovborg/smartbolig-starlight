@@ -3,17 +3,22 @@
 
 import { fill } from "./format.mjs";
 import { zigbeeCopy } from "./zigbee-copy.mjs";
-import { advise } from "./zigbee-channel.mjs";
+import { LAST_RESORT, advise } from "./zigbee-channel.mjs";
 
 const list = (numbers) => numbers.join(", ");
 
 export function zigbeeView(wifiChannels, lang = "da") {
   const copy = zigbeeCopy[lang].result;
   const advice = advise(wifiChannels);
-  let reason = copy.none;
-  if (advice.wifi.length > 0) {
-    reason = fill(advice.distance > 0 ? copy.apart : copy.inside, { n: advice.best, mhz: advice.distance });
-  }
+  const values = { n: advice.best, mhz: advice.distance };
+  const reasons = {
+    none: copy.none,
+    preferred: fill(copy.apart, values),
+    other: fill(copy.other, values),
+    // Channel 26 is held out, so say so when it is the one that is free.
+    covered: fill(copy.inside, values) + (advice.free.includes(LAST_RESORT) ? ` ${copy.free26}` : ""),
+  };
+  const reason = reasons[advice.kind];
   return {
     advice,
     best: String(advice.best),
