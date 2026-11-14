@@ -11,6 +11,10 @@ Formen på Workers AI's strøm er læst for begge modeller 2026-11-14 gennem Clo
 (ét kort spørgsmål til hver) og lagt ind som test. En anden uafhængig gennemgang af strømmen
 fandt to blokerende fejl og fire mindre; de er rettet (interne navne i dele, en strøm der bare
 lukker, stop før modelkaldet, blanke tegn som vist tekst, fejl efter vist tekst).
+En tredje gennemgang af rettelserne fandt ingen blokerende fejl og fire mindre; de er rettet
+(tilbageholdt tekst ved tokengrænsen, afslutningsårsag ved siden af `response`, en ukendt form
+der lukker uden `[DONE]`, store og små bogstaver ens i de to kontroller). Hver rettelse er
+prøvet ved at tage den ud igen: 13 ændringer, og testene fejler på dem alle.
 Ikke kontrolleret lokalt: et rigtigt svar gennem Workerens egen binding, hvor hurtigt strømmen
 kommer, og om `env.AI.run` stopper modellen, når kaldet afbrydes. Det skal ses på den levende
 side efter udgivelse; kommandoen står under "Kontrollér strømmen efter udgivelse".
@@ -173,8 +177,10 @@ Regler for tekst, læseren allerede har set:
 - Et udkast, der nævner interne værktøjs- eller mærkenavne, stoppes med det samme. Navnet
   vises heller ikke i dele: slutningen af teksten holdes tilbage, så længe den kan være
   begyndelsen på et sådant navn (højst 26 tegn), til næste stykke afgør det
-  (`heldBackLength` i `answer.js`). Teksten før navnet er allerede vist og kan ikke kaldes
-  tilbage; den fjernes fra skærmen, når udkastet trækkes tilbage.
+  (`heldBackLength` i `answer.js`). Slutter udkastet, fordi tokengrænsen er nået, vises det
+  tilbageholdte heller ikke; udkastet trækkes alligevel tilbage. Teksten før navnet er
+  allerede vist og kan ikke kaldes tilbage; den fjernes fra skærmen, når udkastet trækkes
+  tilbage.
 - Trykker læseren Stop, eller lukker læseren siden, afbrydes modelkaldet, og der startes
   ingen reservemodel, og intet logges som fejl. Sker det, før modellen er kaldt (under
   opslaget), kaldes modellen slet ikke. Ét forbehold: Cloudflare dokumenterer ikke, om
@@ -192,7 +198,10 @@ model uden strøm, selv om den blev bedt om en, kontrolleres svaret og sendes so
 
 Ændrer Cloudflare formen, så læseren ikke kender nogen af stykkerne, giver strømmen ingen
 tekst. Det logges som `unknown_primary_stream` eller `unknown_fallback_stream` (ikke som et
-tomt svar), og widgeten henter så JSON-svaret; se fejlfindingen nedenfor.
+tomt eller afskåret svar), også når strømmen lukker uden `[DONE]`, og widgeten henter så
+JSON-svaret; se fejlfindingen nedenfor. Et stykke tæller som kendt, når det har svartekst, en
+`finish_reason` (i `choices[0]` eller ved siden af `response`), ræsonnering, en rolle, eller
+er den tomme hale med forbrug.
 
 ### Widgeten
 
@@ -248,8 +257,10 @@ Det skal ses:
 1. `event: status` med `searching` kommer straks.
 2. `event: sources` med links til smartbolig.net, derefter `status` med `writing`.
 3. Mange `event: delta` efter hinanden, mens svaret skrives. Kommer hele teksten i ét `delta`
-   lige før `done`, sender modellen ikke en strøm, eller dens stykker har en anden form end
-   de to, `model-stream.js` læser.
+   lige før `done`, sender modellen ikke en strøm. Har dens stykker en anden form end de to,
+   `model-stream.js` læser, kommer der ingen `delta` fra den model: reservemodellen skriver,
+   eller strømmen slutter med `error`, og loggen siger `unknown_primary_stream` eller
+   `unknown_fallback_stream`.
 4. `event: done` med `answer`, `sources` og `diagnostics`, og til sidst `data: [DONE]`.
 
 Tid pr. linje (Git Bash eller Linux):

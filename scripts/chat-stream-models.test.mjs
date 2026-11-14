@@ -158,6 +158,20 @@ test("a stream in a shape the reader does not know is logged as that, not as a s
     "fallback_started:unknown_primary_stream",
     "fallback_failed:unknown_fallback_stream",
   ]);
+
+  // The same when such a stream closes without [DONE], and when the text hides inside the delta.
+  const shapes = [
+    () => sseStream([{ token: "Brug " }, { token: "en koordinator." }], { done: false }),
+    () => sseStream([{ choices: [{ delta: { text: "Brug en koordinator." } }] }, { choices: [{ delta: {}, finish_reason: "stop" }] }]),
+  ];
+  for (const shape of shapes) {
+    const closed = createStreamHarness(shape);
+    assert.equal((await ask(closed)).at(-2).event, "error");
+    assert.deepEqual(fallbackReasons(closed.logs), [
+      "fallback_started:unknown_primary_stream",
+      "fallback_failed:unknown_fallback_stream",
+    ]);
+  }
 });
 
 test("the fallback model answers when the primary fails before any text was shown", async () => {
@@ -240,6 +254,49 @@ test("a finished draft that was cut off is withdrawn and rewritten by the fallba
   assert.equal(done(events).answer, "Et helt svar.");
   assert.equal(done(events).diagnostics.route, "fallback");
   assert.deepEqual(fallbackReasons(harness.logs), ["fallback_started:truncated_primary_response"]);
+});
+
+test("a draft that was cut off is withdrawn in the older stream shape too", async () => {
+  const harness = createStreamHarness((call) =>
+    call.primary
+      ? modelStream(["En halv sætning om noget vigtigt"], { shape: "legacy", finish: "length" })
+      : modelStream(["Et helt svar."]),
+  );
+
+  const events = await ask(harness);
+
+  assert.deepEqual(stages(events), ["searching", "writing", "revising", "writing"]);
+  assert.equal(done(events).answer, "Et helt svar.");
+  assert.deepEqual(fallbackReasons(harness.logs), ["fallback_started:truncated_primary_response"]);
+});
+
+test("a draft cut off inside a prompt internal shows none of it before it is withdrawn", async () => {
+  const harness = createStreamHarness((call) =>
+    call.primary ? modelStream(["Jeg kalder ", "search_smart"], { finish: "length" }) : modelStream(["Et helt svar."]),
+  );
+
+  const events = await ask(harness);
+  const beforeRevising = events.slice(0, events.findIndex(({ data }) => data.stage === "revising"));
+
+  assert.equal(deltaText(beforeRevising), "Jeg kalder ");
+  assert.equal(done(events).answer, "Et helt svar.");
+});
+
+test("after a withdrawn draft the new one starts at its first word", async () => {
+  const harness = createStreamHarness((call) =>
+    call.primary
+      ? modelStream(["Du skal først åbne Zigbee2MQTT. "], { finish: null, done: false })
+      : modelStream(["\n\n", "Svar fra ", "reserven."]),
+  );
+
+  const events = await ask(harness);
+  const afterRevising = events.slice(events.findIndex(({ data }) => data.stage === "revising"));
+
+  assert.deepEqual(
+    afterRevising.filter(({ event }) => event === "delta").map(({ data }) => data.text),
+    ["Svar fra ", "reserven."],
+  );
+  assert.equal(done(events).answer, "Svar fra reserven.");
 });
 
 test("the answer checks still decide: a draft that names prompt internals is stopped and replaced", async () => {

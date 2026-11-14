@@ -771,3 +771,17 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   og WebSocket (kræver mere kode og giver intet, Server-Sent Events ikke giver her).
 - Nødbremse: `STREAMING_ENABLED` i `functions/lib/chat/limits.js`; sat til `false` får alle
   kald JSON-svaret som før. Det kræver en udgivelse.
+
+#### B62, tilføjelse efter den opfølgende gennemgang (2026-11-14)
+- Et udkast, der slutter, fordi tokengrænsen er nået, trækkes altid tilbage. Derfor vises
+  den tilbageholdte slutning heller ikke: den kan være første halvdel af et internt navn.
+- Afslutningsårsagen læses også, når den står ved siden af `response` (den ældre form), så
+  et afskåret udkast i den form ikke tæller som færdigt.
+- Et stykke er kun kendt, når det har svartekst, en afslutningsårsag, ræsonnering, en rolle
+  eller er den tomme hale med forbrug. Alt andet er en ukendt form og logges som
+  `unknown_primary_stream` eller `unknown_fallback_stream`, også når strømmen lukker uden
+  `[DONE]`. Før blev det logget som et afskåret svar, og fejlen ville ligne en langsom model.
+- Kontrollen af det færdige svar og tilbageholdelsen under strømmen sammenligner bogstaver
+  ens (kun ASCII foldes), så det ene ikke lader noget passere, som det andet afviser.
+- Fravalgt: at vise et afskåret udkast med en bemærkning. Et halvt svar om elinstallation
+  eller YAML er værre end ti sekunders ventetid på reservemodellen.

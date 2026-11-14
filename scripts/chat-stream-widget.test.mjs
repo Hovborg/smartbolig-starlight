@@ -92,6 +92,16 @@ test("a stream that fails before any text is asked again as JSON, once", async (
   assert.equal(twice.requests.length, 2);
 });
 
+test("white space alone is not shown text: a stream that fails after it is asked again as JSON", async (t) => {
+  const failure = streamResponse(sse("delta", { text: "\n\n" }) + sse("delta", { text: " " }) + sse("error", { code: "assistant_unavailable" }));
+
+  const { result, requests, seen } = await ask(t, [failure, jsonResponse(DONE)]);
+
+  assert.deepEqual(result, DONE);
+  assert.equal(requests.length, 2);
+  assert.equal(seen.at(-1), "restart");
+});
+
 test("a stream that fails after text was shown is an error and is not asked again", async (t) => {
   const failures = [
     sse("delta", { text: "Brug en " }) + sse("error", { code: "assistant_unavailable" }) + "data: [DONE]\n\n",

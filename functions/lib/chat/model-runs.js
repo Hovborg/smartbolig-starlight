@@ -34,6 +34,8 @@ const RESPONSE_ERRORS = ["EmptyModelResponseError", "InvalidModelResponseError",
 // A stream with chunks but no text in a shape the reader knows is its own log
 // reason: it means Workers AI changed the stream, not that the model was silent.
 const emptyReason = (result, step) => (result?.unknown_chunks ? `unknown_${step}_stream` : `empty_${step}_response`);
+// The same when such a stream closed without saying it was finished.
+const truncatedReason = (result, step) => (result?.unknown_chunks ? `unknown_${step}_stream` : `truncated_${step}_response`);
 
 function responseError(name, message) {
   const error = new Error(message);
@@ -92,7 +94,7 @@ export function createModelRunner({ aiRunImpl, binding, latestUserContent, live,
 
       const fallbackAnswer = extractModelAnswer(fallbackResult);
       if (isTruncatedModelResult(fallbackResult, fallbackAnswer)) {
-        reportFallback({ event: "fallback_failed", reason: "truncated_fallback_response", error: null });
+        reportFallback({ event: "fallback_failed", reason: truncatedReason(fallbackResult, "fallback"), error: null });
         throw responseError("TruncatedModelResponseError", "TruncatedFallbackResponse");
       }
       if (!isAcceptableModelAnswer(fallbackAnswer, latestUserContent)) {
@@ -153,7 +155,7 @@ export function createModelRunner({ aiRunImpl, binding, latestUserContent, live,
 
     const primaryAnswer = extractModelAnswer(primaryResult);
     if (isTruncatedModelResult(primaryResult, primaryAnswer)) {
-      return replaceWithFallback(fallbackMessages, "truncated_primary_response");
+      return replaceWithFallback(fallbackMessages, truncatedReason(primaryResult, "primary"));
     }
     const isToolCall = Boolean(inputTools && selectSearchToolCall(primaryResult));
     if (isAcceptableModelAnswer(primaryAnswer, latestUserContent) || isToolCall) {

@@ -27,6 +27,14 @@ export function extractModelAnswer(result) {
   return contentText(result?.choices?.[0]?.message?.content).trim();
 }
 
+const TOKEN_LIMIT_REASONS = new Set(["length", "max_tokens", "max_completion_tokens", "max_output_tokens", "token_limit"]);
+const normalizeFinishReason = (reason) => reason.trim().toLowerCase().replace(/[\s-]+/g, "_");
+
+/** Does this finish reason say that the token limit cut the answer off? */
+export function isTokenLimitReason(reason) {
+  return typeof reason === "string" && TOKEN_LIMIT_REASONS.has(normalizeFinishReason(reason));
+}
+
 export function isTruncatedModelResult(result, answer = "") {
   const finishReasons = [
     result?.finish_reason,
@@ -37,17 +45,8 @@ export function isTruncatedModelResult(result, answer = "") {
 
   const normalizedFinishReasons = finishReasons
     .filter((reason) => typeof reason === "string" && reason.trim())
-    .map((reason) => reason.trim().toLowerCase().replace(/[\s-]+/g, "_"));
-  const stoppedAtTokenLimit = normalizedFinishReasons.some((normalized) => {
-    return new Set([
-      "length",
-      "max_tokens",
-      "max_completion_tokens",
-      "max_output_tokens",
-      "token_limit",
-    ]).has(normalized);
-  });
-  if (stoppedAtTokenLimit) return true;
+    .map(normalizeFinishReason);
+  if (normalizedFinishReasons.some((normalized) => TOKEN_LIMIT_REASONS.has(normalized))) return true;
 
   const trimmedAnswer = typeof answer === "string" ? answer.trim() : "";
   const fenceCount = trimmedAnswer.match(/```/g)?.length || 0;
@@ -61,8 +60,10 @@ export function isTruncatedModelResult(result, answer = "") {
 }
 
 // The tool name and the reference-data tags belong to the prompt, never to an answer.
+// Without the `u` flag only ASCII letters are matched in either case, which is
+// exactly what heldBackLength below folds; with it "ſ" would count as "s" here only.
 export function leaksPromptInternals(answer) {
-  return /\bsearch_smartbolig\b|<\/?(?:smartbolig|official)_reference_data\b/iu.test(answer);
+  return /\bsearch_smartbolig\b|<\/?(?:smartbolig|official)_reference_data\b/i.test(answer);
 }
 
 // The same markers as plain text. A test keeps the two in step.

@@ -4,21 +4,32 @@
 // Both chat models were read on 2026-11-14: the answer is in
 // `choices[0].delta.content`, reasoning is in `delta.reasoning_content` (never
 // passed on), a chunk with `finish_reason` ends the answer, and `[DONE]` ends
-// the stream. Older models send the text in `response`; that is read too.
+// the stream. Older models send the text in `response` and the finish reason
+// beside it; that is read too.
 
-import { contentText } from "./answer.js";
+import { contentText, isTokenLimitReason } from "./answer.js";
 import { createSseDecoder } from "./sse-decoder.js";
 
 export function isModelStream(result) {
   return typeof result?.getReader === "function";
 }
 
+// What a delta may hold. A delta with none of these is a shape this reader does not know.
+const DELTA_KEYS = ["content", "reasoning_content", "reasoning", "role"];
+
 function readChunk(payload) {
   const choice = payload?.choices?.[0];
-  const text = contentText(choice?.delta?.content) || (typeof payload?.response === "string" ? payload.response : "");
-  const finishReason = typeof choice?.finish_reason === "string" ? choice.finish_reason : "";
-  const known = Array.isArray(payload?.choices) || typeof payload?.response === "string";
-  return { text, finishReason, known };
+  const delta = choice?.delta;
+  const text = contentText(delta?.content) || (typeof payload?.response === "string" ? payload.response : "");
+  const finishReason =
+    [choice?.finish_reason, payload?.finish_reason, payload?.stop_reason].find((reason) => typeof reason === "string" && reason) ?? "";
+  // Pieces without answer text that are understood all the same: the usage
+  // tail, reasoning, a role and an empty piece.
+  const quiet =
+    typeof payload?.response === "string" ||
+    (Array.isArray(payload?.choices) && payload.choices.length === 0) ||
+    (delta !== null && typeof delta === "object" && DELTA_KEYS.some((key) => key in delta));
+  return { text, finishReason, known: Boolean(text || finishReason || quiet) };
 }
 
 function streamError() {
@@ -103,9 +114,10 @@ export async function readModelStream(stream, { holdBack, maxChars = Infinity, o
   }
 
   if (!rejected && !signal?.aborted) {
-    if (finished) pass(0);
     // A stream that just closes is half an answer.
-    else finishReason = "length";
+    if (!finished) finishReason = "length";
+    // A draft the token limit cut off is withdrawn: what was held back stays unseen.
+    else if (!isTokenLimitReason(finishReason)) pass(0);
   }
 
   return {
