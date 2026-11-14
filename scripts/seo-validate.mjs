@@ -3,6 +3,8 @@ import { existsSync } from 'node:fs';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { checkHead } from './lib/seo-head-checks.mjs';
+import { checkGuidePicture } from './lib/seo-guide-pictures.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const distDir = path.join(rootDir, 'dist');
@@ -101,6 +103,8 @@ async function validateSitemapPages(issues, sitemapPath, sitemap) {
     }
 
     const html = await readFile(htmlPath, 'utf8');
+    for (const message of checkHead(html)) fail(issues, htmlPath, message);
+
     const h1Count = (html.match(/<h1\b/gi) ?? []).length;
     if (h1Count !== 1) fail(issues, htmlPath, `expected exactly one h1, found ${h1Count}`);
 
@@ -161,11 +165,11 @@ async function main() {
       { needle: '<meta name="twitter:description"', label: 'Danish home Twitter description' },
       { needle: '"@type":"WebPage"', label: 'Danish home WebPage JSON-LD' },
       { needle: '"url":"https://smartbolig.net/brand/logo/logo-dark-1200x270.png","width":1200,"height":270', label: 'Organization logo JSON-LD' },
-      { needle: '"name":"Forside"', label: 'Danish breadcrumb home label' },
       { needle: 'href="/da/ai/nyheder/"', label: 'Danish home AI News link' },
     ],
     forbidden: [
       { needle: 'noindex', label: 'noindex robots directive' },
+      { needle: '"@type":"BreadcrumbList"', label: 'BreadcrumbList on the home page (a one-item list is invalid)' },
       { needle: '"@type":"TechArticle"', label: 'TechArticle JSON-LD on home page' },
       { needle: 'https://smartbolig.net/da/#article', label: 'home page article schema' },
       { needle: '"name":"Da"', label: 'raw locale breadcrumb label' },
@@ -184,11 +188,11 @@ async function main() {
       { needle: '<meta name="twitter:description"', label: 'English home Twitter description' },
       { needle: '"@type":"WebPage"', label: 'English home WebPage JSON-LD' },
       { needle: '"url":"https://smartbolig.net/brand/logo/logo-dark-1200x270.png","width":1200,"height":270', label: 'Organization logo JSON-LD' },
-      { needle: '"name":"Home"', label: 'English breadcrumb home label' },
       { needle: 'href="/en/ai/nyheder/"', label: 'English home AI News link' },
     ],
     forbidden: [
       { needle: 'noindex', label: 'noindex robots directive' },
+      { needle: '"@type":"BreadcrumbList"', label: 'BreadcrumbList on the home page (a one-item list is invalid)' },
       { needle: '"@type":"TechArticle"', label: 'TechArticle JSON-LD on home page' },
       { needle: 'https://smartbolig.net/en/#article', label: 'home page article schema' },
       { needle: '"name":"En"', label: 'raw locale breadcrumb label' },
@@ -248,16 +252,29 @@ async function main() {
   if (existsSync(robotsPath)) {
     const robots = (await readFile(robotsPath, 'utf8')).replace(/\r\n/g, '\n');
     const requiredRobotRules = [
-      { needle: 'User-agent: Googlebot\nAllow: /', label: 'Googlebot allowed' },
-      { needle: 'User-agent: Bingbot\nAllow: /', label: 'Bingbot allowed' },
       { needle: 'User-agent: ChatGPT-User\nAllow: /', label: 'ChatGPT user-request crawler allowed' },
       { needle: 'User-agent: OAI-SearchBot\nAllow: /', label: 'OpenAI search crawler allowed' },
       { needle: 'User-agent: PerplexityBot\nAllow: /', label: 'Perplexity answer crawler allowed' },
       { needle: 'User-agent: GPTBot\nDisallow: /', label: 'OpenAI training crawler blocked' },
       { needle: 'User-agent: Google-Extended\nDisallow: /', label: 'Google AI training opt-out' },
       { needle: 'User-agent: CCBot\nDisallow: /', label: 'Common Crawl training crawler blocked' },
+      { needle: 'User-agent: ClaudeBot\nDisallow: /\n', label: 'Anthropic training crawler blocked' },
+      { needle: 'Sitemap: https://smartbolig.net/sitemap-index.xml', label: 'Sitemap line' },
     ];
     for (const check of requiredRobotRules) requireText(issues, robotsPath, robots, check.needle, check.label);
+    // A crawler with its own group ignores the * group and its Disallow lines.
+    rejectText(issues, robotsPath, robots, 'User-agent: Googlebot', 'a Googlebot group (it would skip the * Disallow lines)');
+    rejectText(issues, robotsPath, robots, 'User-agent: Bingbot', 'a Bingbot group (it would skip the * Disallow lines)');
+    rejectText(issues, robotsPath, robots, 'Crawl-delay', 'Crawl-delay (Google ignores it)');
+    // The * group, and every crawler with an Allow group of its own (it
+    // ignores the * group), must have the two Disallow lines.
+    for (const group of robots.split(/\n(?=User-agent: )/)) {
+      const name = group.match(/^User-agent: (.+)$/m)?.[1];
+      if (!name || !/^Allow: \/$/m.test(group)) continue;
+      for (const rule of ['Disallow: /api/', 'Disallow: /pagefind/']) {
+        if (!group.split('\n').includes(rule)) fail(issues, robotsPath, `the ${name} group must have "${rule}"`);
+      }
+    }
   } else {
     fail(issues, robotsPath, 'missing robots.txt');
   }
@@ -404,6 +421,11 @@ async function main() {
     ],
     forbidden: [{ needle: 'noindex', label: 'noindex robots directive' }],
   });
+
+  // A guide that opens with a picture: several widths, the column's width, fetched first.
+  const pictureGuide = path.join(distDir, 'da/home-assistant/kom-godt-i-gang/index.html');
+  if (!existsSync(pictureGuide)) fail(issues, pictureGuide, 'missing generated HTML');
+  else for (const message of checkGuidePicture(await readFile(pictureGuide, 'utf8'))) fail(issues, pictureGuide, message);
 
   await validatePage(issues, path.join(distDir, '404.html'), {
     required: [

@@ -132,6 +132,29 @@
 /en/ai/ai-cli/antigravity-getting-started/ /en/ai/ai-cli/antigravity-cli-kom-godt-i-gang/ 301
 /en/ai/ai-cli/antigravity-getting-started /en/ai/ai-cli/antigravity-cli-kom-godt-i-gang/ 301
 
+# Old top-level addresses that used to answer 404.
+/kontakt /da/kontakt/ 301
+/kontakt/ /da/kontakt/ 301
+/sitemap.xml /sitemap-index.xml 301
+/index.html /da/ 301
+/produkter /da/produkter/ 301
+/produkter/ /da/produkter/ 301
+/da/products /da/produkter/ 301
+/da/products/ /da/produkter/ 301
+
 # Dynamic rules must remain last. See the quota note above.
 /en/ai/news/:slug/ /en/ai/nyheder/:slug/ 301
 /en/ai/news/:slug /en/ai/nyheder/:slug/ 301
+# No two dynamic rules may match the same address. Cloudflare does not let the
+# rule written first win: on the live site a `*` rule beat the `:slug` rule
+# above it (2026-11-14), so `/produkter/shelly` took two redirects. Each prefix
+# has one rule for the address without the closing slash (straight to the page)
+# and one for everything deeper.
+/produkter/:slug /da/produkter/:slug/ 301
+/produkter/:slug/* /da/produkter/:slug/:splat 301
+/da/products/:slug /da/produkter/:slug/ 301
+/da/products/:slug/* /da/produkter/:slug/:splat 301
+# Any English product slug without its own rule above (for example a slug that
+# is already the canonical name) goes to the canonical English section.
+/en/products/:slug /en/produkter/:slug/ 301
+/en/products/:slug/* /en/produkter/:slug/:splat 301

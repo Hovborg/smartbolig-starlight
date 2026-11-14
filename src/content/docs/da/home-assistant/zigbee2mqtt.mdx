@@ -8,26 +8,10 @@ sidebar:
 ---
 
 import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/starlight/components';
-import HowTo from '../../../../components/HowTo.astro';
-
-<HowTo
-  title="Opsæt Zigbee2MQTT med Home Assistant"
-  description="Komplet guide til installation af Zigbee2MQTT-appen (tidligere add-on) i Home Assistant. Styr alle dine Zigbee-enheder fra IKEA, Aqara, Philips og flere med én USB-dongle."
-  totalTime="PT30M"
-  steps={[
-    { name: "Køb Zigbee USB-dongle", text: "Anskaf en understøttet Zigbee coordinator som Sonoff Zigbee 3.0 USB Dongle Plus eller SLZB-06." },
-    { name: "Tilslut dongle", text: "Sæt USB-donglen i din Home Assistant server (Raspberry Pi, Proxmox VM, etc.)." },
-    { name: "Installer Mosquitto broker", text: "Gå til Settings > Apps > Install app. Søg efter Mosquitto broker og installer den." },
-    { name: "Konfigurer MQTT bruger", text: "Opret en dedikeret MQTT bruger i Home Assistant til Zigbee2MQTT." },
-    { name: "Installer Zigbee2MQTT-appen", text: "Tilføj Zigbee2MQTT repository og installer appen fra app-butikken (tidligere Add-on Store)." },
-    { name: "Gennemfør onboarding", text: "Åbn Zigbee2MQTT Web UI og vælg din USB-dongle under Found Devices." },
-    { name: "Par første enhed", text: "Aktiver parringstilstand og tilføj din første Zigbee-enhed." }
-  ]}
-/>
 
 <Badge text="Medium" variant="caution" /> <Badge text="30 min" variant="note" /> <Badge text="~200 kr" variant="caution" />
 
-![Zigbee2MQTT](/images/guides/zigbee2mqtt-hero.png)
+![Zigbee2MQTT](../../../../assets/guides/zigbee2mqtt-hero.webp)
 
 Zigbee er fantastisk til smart home - lavt strømforbrug, mesh-netværk, og enheder der holder i årevis på ét batteri. Zigbee2MQTT giver dig én USB-dongle til **alle** Zigbee enheder - IKEA, Aqara, Sonoff, Philips Hue, alt sammen.
 
@@ -178,7 +162,7 @@ Enheden skal være tæt på koordinatoren ved parring (~2m). Bagefter kan du fly
 
 ## 🌐 Mesh-netværk tips
 
-![Zigbee mesh netværk diagram](/images/guides/zigbee2mqtt/mesh.svg)
+![Zigbee mesh netværk diagram](../../../../assets/guides/zigbee2mqtt/mesh.svg)
 
 Zigbee er et mesh-netværk. Enheder med strøm (routere) forstærker signalet.
 

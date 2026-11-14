@@ -2,6 +2,7 @@
 // Nothing is downloaded, so there are no image licences to keep track of.
 // Each texture is a colour map plus a height map for small relief.
 import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from "three";
+import { blankCanvas } from "./canvas.mjs";
 
 const SIZE = 512;
 
@@ -17,8 +18,7 @@ function seeded(seed) {
 }
 
 function canvas(size = SIZE) {
-  const element = document.createElement("canvas");
-  element.width = element.height = size;
+  const element = blankCanvas(size);
   return [element, element.getContext("2d")];
 }
 

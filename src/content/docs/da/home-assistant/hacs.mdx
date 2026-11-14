@@ -6,7 +6,6 @@ sidebar:
 ---
 
 import { Steps, Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
-import HowTo from '../../../../components/HowTo.astro';
 import FAQ from '../../../../components/FAQ.astro';
 
 
@@ -72,45 +71,6 @@ Kilder: [Home Assistant 2026.11](https://www.home-assistant.io/blog/2026/11/04/r
 ## Installation før 2026.11 (HACS)
 
 Kører du en ældre Home Assistant-version, installerer du HACS som beskrevet nedenfor. Installationsmetoden afhænger af din Home Assistant installationstype. Du kan se din type under **Indstillinger → Om**.
-
-<HowTo
-  name="Installer HACS på Home Assistant"
-  totalTime="PT15M"
-  steps={[
-    {
-      name: "Lav backup",
-      text: "Gå til Indstillinger → System → Backups → Opret backup. Download backup'en til en anden enhed for sikkerhed."
-    },
-    {
-      name: "Tilføj HACS repository (OS/Supervised)",
-      text: "Klik på dette link for at tilføje HACS-app repository'et (tidligere kaldet add-on): https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fhacs%2Faddons - eller tilføj manuelt via Indstillinger → Apps → Installér app → ⋮ → Repositorier → tilføj: https://github.com/hacs/addons"
-    },
-    {
-      name: "Installer HACS-appen",
-      text: "Find 'HACS' i app-butikken og klik Installer. Start appen når installationen er færdig."
-    },
-    {
-      name: "Følg log-instruktioner",
-      text: "Gå til appens Log-fane og følg instruktionerne der vises."
-    },
-    {
-      name: "Genstart Home Assistant",
-      text: "Gå til Indstillinger → System → Genstart Home Assistant."
-    },
-    {
-      name: "Tilføj HACS integration",
-      text: "Gå til Indstillinger → Enheder og tjenester → Tilføj integration → søg efter 'HACS'."
-    },
-    {
-      name: "Godkend alle vilkår",
-      text: "Læs og accepter alle vilkår ved at sætte flueben i alle bokse, klik derefter Submit."
-    },
-    {
-      name: "Autoriser med GitHub",
-      text: "Du får en kode og et link til GitHub. Åbn linket, log ind på GitHub, indtast koden og klik 'Authorize hacs'. Vent på bekræftelsen 'You're all set!'."
-    }
-  ]}
-/>
 
 ### Container/Core Installation
 

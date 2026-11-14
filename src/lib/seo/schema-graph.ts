@@ -30,7 +30,8 @@ export function buildSchemaJson({ pathname, entry, lastUpdated, aiNews }: GraphI
   if (entry?.data || kind.isNotFoundPage) {
     graph.push(buildWebPageSchema({ kind, title, description, languageCode, dateModified, datePublished, aiNews }));
   }
-  graph.push(buildBreadcrumbSchema(pathname, kind.lang, title, kind.isStartPage));
+  const breadcrumbs = buildBreadcrumbSchema(pathname, kind.lang, title, kind.isStartPage);
+  if (breadcrumbs) graph.push(breadcrumbs);
   if (shouldRenderArticleSchema(kind, Boolean(entry?.data))) {
     graph.push(buildArticleSchema({ kind, entry, title, description, languageCode, dateModified, datePublished, aiNews }));
   }

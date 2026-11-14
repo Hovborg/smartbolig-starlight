@@ -28,10 +28,49 @@ Sidst opdateret: 2026-11-14.
   repoet, og flettede grene slettes af repo-indstillingen. To uafhængige gennemgange;
   reglerne afprøves af `scripts/site-dependabot.test.mjs`. Næste skridt her: opgradér
   Starlight til 0.42 i hånden (mobilmenu-knappen), så pakken igen får rettelser. Ikke set endnu: den første rigtige pull request fra Dependabot gennem
-  auto-fletningen (se efter i ugen fra 2026-11-14, og ret da "Ikke kontrolleret endnu").
+  auto-fletningen (se punktet "Automatiske opdateringer set i drift" nedenfor).
 - **Assistentens eget søgeindeks (B52, rettet efter uafhængig gennemgang):** bygges med siden, læses af Workeren fra `/_index/`;
   `ai_search`-bindingen er fjernet. `functions/api/chat.js` er delt i `functions/lib/chat/`.
-  Dokumentation: `docs/assistent.md`.
+  Dokumentation: `docs/assistent.md`. Udgivet 2026-11-14 (PR #194, `main` 3bb4004). Live:
+  svar på dansk og engelsk med links til guides, `/_index/da/meta.json` har `noindex`.
+  Åbent: et svar tager ca. 45 sekunder, fordi modellen svarer i ét stykke. Næste skridt er
+  løbende visning af svaret (streaming) i assistentens nye udseende.
+- **Automatiske opdateringer set i drift 2026-11-14:** Dependabot åbnede otte pull requests
+  efter udgivelsen. Gruppen med små npm-opdateringer (PR #192) blev flettet af sig selv, efter
+  at `deploy`-kontrollen var grøn, og kontrollerne kørte derefter på `main`. Starlight 0.42.8
+  (PR #193) og de tre opdateringer af GitHub Actions blev stående åbne, som reglerne siger.
+- **3D-huset i en worker (B53):** rettet efter uafhængig gennemgang: siden spørger først,
+  hvor huset kan tegnes (`probe.mjs`), motoren bliver stående stoppet efter `dispose`, og
+  første billede venter højst 2,5 s på shaderne. Dokumentation: `docs/3d-hus.md`.
+  Udgivet 2026-11-14 (PR #195, `main` e0c6f9a, Worker-version 680d5226). Set på den levende
+  forside i headless Chrome: med grafikkort er huset levende og tegnes i en worker; uden
+  grafikkort står stillbilledet, og three.js hentes ikke. Ikke set: Safari og Firefox på en
+  rigtig enhed (TIL-EJEREN punkt 9). Vej tilbage: Worker-version db439722.
+- **Søgemaskinernes grundregler (B54):** omdirigeringer for gamle adresser, `robots.txt` uden
+  grupper til Googlebot og Bingbot og med Anthropics træningscrawler spærret, ingen HowTo-data,
+  `og:type` efter sidens slags, forside uden brødkrumme-liste. Uafhængig gennemgang; fund
+  rettet. Dokumentation: `docs/seo.md`. Efter udgivelsen kontrolleres med `curl`: `/kontakt`,
+  `/sitemap.xml`, `/index.html`, `/produkter/shelly`, `/da/products/shelly/`,
+  `/en/products/shelly/`, `robots.txt` og `og:type` på en guide og en oversigt.
+  Udgivet 2026-11-14 (PR #196, `main` 648aecf, Worker-version d6ff7144). Set med `curl` på den
+  levende side: `/kontakt`, `/sitemap.xml`, `/index.html`, `/da/products/shelly/` og
+  `/en/products/shelly/` svarer 301 til den rigtige adresse i ét hop; `robots.txt` har de to
+  `Disallow`-linjer i `*`-gruppen; `og:type` er `article` på Zigbee2MQTT-guiden og `website` på
+  forsiden, Home Assistant-oversigten og nyhedsoversigten; forsiden har ingen brødkrumme-liste,
+  guiden ingen HowTo-data, og der er ét `generator`-felt. Afvigelse: `/produkter/shelly` og
+  `/da/products/shelly` fik to hop, fordi Cloudflare lod `*`-reglen vinde over `:slug`-reglen.
+  Rettet i billedudgivelsen (reglerne overlapper ikke mere). Vej tilbage: Worker-version 680d5226.
+- **Guidernes billeder (B55):** billederne i guidernes tekst ligger i `src/assets/guides/` og
+  laves som WebP i seks bredder; browseren får spaltens målte bredde at vide; tegninger fylder
+  spalten; åbningsbilledet hentes først. Uafhængig gennemgang; fund rettet. Dokumentation:
+  `docs/billeder.md`. Efter udgivelsen kontrolleres på den levende side: `srcset`, `sizes` og
+  `fetchpriority` på Home Assistant-guidens åbningsbillede, at en billedfil svarer 200 som WebP,
+  LD2410-diagrammet på dansk og engelsk, og `/produkter/shelly` i ét hop. Resultatet skrives her.
+- **`www` til hoveddomænet (2026-11-14):** en omdirigeringsregel hos Cloudflare, kun for værten
+  `www.smartbolig.net`. Kontrolleret på den levende side: `/`, `/da/`, en guide med forespørgsel
+  og `http://` svarer alle 301 til samme sti på `https://smartbolig.net`; hoveddomænet og
+  `/api/chat` er uændrede, og zonens anden regel (et andet projekts) er urørt. Beskrevet i
+  `docs/seo.md`. Vej tilbage: slet reglen.
 
 ## I gang
 
@@ -108,8 +147,10 @@ Sidst opdateret: 2026-11-14.
   - 3D-løkken har ingen grænse for billeder pr. sekund, mens bevægelse er slået til.
   - Søgefeltet og tidsknapperne er skjult, til scriptet kører; pladsen bør holdes fri.
   - Filer uden brug fra før redesignet (`ProductCard.astro`, `scripts/content-inventory.mjs`,
-    `public/images/produkter/`, `logo-email.png`, fire filer i `public/images/guides/`):
-    tjek ekstern brug, før de slettes.
+    `public/images/produkter/`, `logo-email.png`): tjek ekstern brug, før de slettes.
+  - Diagrammerne i guiderne (27 SVG-filer) er ikke set igennem. LD2410-oversigten har
+    overlappende tekst og dansk tekst på den engelske side; de andre skal ses som billede, og
+    fakta holdes op mod guidens tekst og kode.
   - Indtryk: emoji i tabelceller, emnekortene for automationer og produkter ligner hinanden,
     det store Home Assistant-kort har få detaljer, nyhedsartikler mangler brødkrumme, og
     nyhedsoversigtens store kort gentager dato og overskrift.

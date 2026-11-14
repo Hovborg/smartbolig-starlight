@@ -4,6 +4,7 @@ import {
   AdditiveBlending, CanvasTexture, Color, DoubleSide, Mesh, MeshBasicMaterial, PointLight, RingGeometry,
   SpotLight, SRGBColorSpace, Vector3,
 } from "three";
+import { blankCanvas } from "../canvas.mjs";
 import { bloom, box, cyl, glow, group, matte, overlay, setGlow, soft } from "../kit.mjs";
 import { palette as c } from "../palette.mjs";
 import { FLOOR } from "./shell.mjs";
@@ -89,9 +90,7 @@ function lights(rig, colors) {
 
 /** What the TV shows: a small home dashboard with tiles and a graph. */
 function dashboard(colors) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 320;
-  canvas.height = 180;
+  const canvas = blankCanvas(320, 180);
   const ctx = canvas.getContext("2d");
   ctx.fillStyle = "#0b1016";
   ctx.fillRect(0, 0, 320, 180);

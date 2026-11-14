@@ -6,7 +6,6 @@ sidebar:
 ---
 
 import { Steps, Aside, Card, CardGrid, LinkCard } from '@astrojs/starlight/components';
-import HowTo from '../../../../components/HowTo.astro';
 import FAQ from '../../../../components/FAQ.astro';
 
 **Home Assistant Community Store (HACS)** gives you access to community-developed integrations, themes, and dashboard cards. HACS is almost a must-have for all Home Assistant users.
@@ -72,45 +71,6 @@ Sources: [Home Assistant 2026.11](https://www.home-assistant.io/blog/2026/11/04/
 ## Installation before 2026.11 (HACS)
 
 If you run an older Home Assistant version, install HACS as described below. The installation method depends on your Home Assistant installation type. You can see your type under **Settings → About**.
-
-<HowTo
-  name="Install HACS on Home Assistant"
-  totalTime="PT15M"
-  steps={[
-    {
-      name: "Create backup",
-      text: "Go to Settings → System → Backups → Create backup. Download the backup to another device for safety."
-    },
-    {
-      name: "Add HACS repository (OS/Supervised)",
-      text: "Click this link to add the HACS app repository (formerly called add-on): https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Fhacs%2Faddons - or add manually via Settings → Apps → Install app → ⋮ → Repositories → add: https://github.com/hacs/addons"
-    },
-    {
-      name: "Install the HACS app",
-      text: "Find 'HACS' in the app store and click Install. Start the app when installation is complete."
-    },
-    {
-      name: "Follow log instructions",
-      text: "Go to the app's Log tab and follow the instructions shown there."
-    },
-    {
-      name: "Restart Home Assistant",
-      text: "Go to Settings → System → Restart Home Assistant."
-    },
-    {
-      name: "Add HACS integration",
-      text: "Go to Settings → Devices & Services → Add integration → search for 'HACS'."
-    },
-    {
-      name: "Accept all terms",
-      text: "Read and accept all terms by checking all boxes, then click Submit."
-    },
-    {
-      name: "Authorize with GitHub",
-      text: "You'll get a code and a link to GitHub. Open the link, log in to GitHub, enter the code and click 'Authorize hacs'. Wait for the confirmation 'You're all set!'."
-    }
-  ]}
-/>
 
 ### Container/Core Installation
 

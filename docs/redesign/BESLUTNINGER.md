@@ -211,7 +211,8 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - To kvaliteter: "høj" (efterbehandling, skygger i 2048 px) på brede skærme med mus, "lav"
   (direkte tegning, 1024 px, højst 1,5 gange opløsning) på telefoner.
 - Reserve: uden WebGL eller JavaScript bliver billedet stående, og knapper til tidspunkt og
-  drejning er skjult. Kontrolleret i browser ved at slå WebGL fra.
+  drejning er skjult. Kontrolleret i browser ved at slå WebGL fra. Siden B53 spørger siden
+  browseren, før three.js hentes; uden grafikkort hentes det ikke.
 - En test i `scripts/site-quality.test.mjs` afviser, at three.js importeres direkte fra forsiden.
 
 ### B32. Skærmen bag huset er mørk i begge temaer
@@ -455,6 +456,104 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Kildekontrollen er uændret: kun `smartbolig.net`-adresser kan blive kilder, teksten
   afkortes, og en fejl eller en overskredet tidsgrænse giver et svar uden guideuddrag.
 - AI Search-instansen hos Cloudflare er ikke slettet (se TIL-EJEREN).
+
+### B53. 3D-huset tegnes i en worker, og siden spørger først, hvor det kan tegnes
+- Valg: huset bygges, oversætter sine shadere og tegner hvert billede i en worker
+  (`OffscreenCanvas`, `src/lib/house3d/worker.mjs`). Siden sender kald som beskeder og får
+  markørernes pladser tilbage.
+- Hvorfor: målt i headless Chrome med grafikkort var sidens tråd blokeret 2.502 ms, mens huset
+  startede, og i brug 0,78 s pr. sekund i hvile. I en worker er det ca. 30 ms og 0,15 s. Rul,
+  klik og søgefelt virker dermed, mens huset starter.
+- Før noget hentes, spørger `probe.mjs` browseren med et prøvelærred: worker, side eller slet
+  ikke. Fundet i den uafhængige gennemgang: Safari 16.4 til 16.6 har lærred i worker uden
+  WebGL og ville have mistet det levende hus; en browser uden grafikkort hentede ca. 680.000 bytes for
+  at få et stillbillede. Begge dele er rettet og låst med tests mod en efterlignet browser.
+- Første billede venter på shaderne, højst 2,5 sekunder. Uden grænsen kunne en browser, der
+  aldrig svarer, lade stillbilledet stå for altid.
+- Fravalgt: at dele three.js mellem de to pakker (worker og side). En browser henter kun den
+  ene, så deling sparer intet over nettet og gør pakningen sværere at følge.
+- Fravalgt: at falde tilbage til tegning på siden, når workeren fejler efter start. Lærredet
+  er da givet væk og kan ikke tages tilbage; stillbilledet er den sikre reserve.
+- Pris: three.js ligger to gange i `dist/` (ca. 680.000 bytes hver, ca. 170 KB over nettet).
+  Så længe `public/_headers` har en `worker-src`, skal den indeholde `'self'`.
+- Anden gennemgang (2026-11-14): indstillinger, der ikke kan sendes til en worker, opdages nu,
+  før lærredet gives væk (ellers stod siden med et dødt lærred); ventetiden på shaderne er
+  flyttet til `first-frame.mjs` og prøves med et efterlignet ur; et fjernet hus udleveres ikke
+  igen. Opskriften på at slå workeren fra er gjort præcis i `docs/3d-hus.md`.
+- Kontrolleret 2026-11-14 på den byggede side i headless Chrome: med grafikkort levende i
+  worker (16 ms blokeret), tvunget til siden levende (675 ms), software-tegning og slået fra
+  giver stillbillede uden three.js og uden fejl i konsollen. Ikke kontrolleret: Safari og
+  Firefox på en rigtig enhed.
+
+### B54. Søgemaskinernes grundregler: omdirigeringer, robots.txt og strukturerede data
+- Baggrund: en gennemgang af den levende side 2026-11-14 fandt gamle adresser med 404,
+  `robots.txt`-grupper, der fik Googlebot og Bingbot til at springe `Disallow` over, og
+  ugyldige HowTo-data på 50 af 52 sider.
+- Valg: gamle adresser får faste 301-regler i `public/_redirects`, lagt før reglerne med `*`
+  (Cloudflare tæller alt efter den første `*`-regel mod en grænse på 100).
+- Valg: ingen egne grupper til Googlebot og Bingbot. En crawler med egen gruppe læser ikke
+  `*`-gruppen. De AI-søgemaskiner, der er tilladt ved navn, gentager de to `Disallow`-linjer.
+  Fravalgt: at gentage linjerne også for Googlebot; uden egen gruppe følger den `*` og kan
+  ikke komme ud af trit.
+- Valg: HowTo-data fjernes helt i stedet for at blive rettet. Google viser ikke HowTo-resultater
+  mere, og data uden synlig modpart på siden er imod Googles retningslinjer. FAQ-data bliver.
+- Valg: `og:type` følger artikeldata (`shouldRenderArticleSchema`), så de to aldrig siger
+  forskelligt. Forsiden har ingen brødkrumme-liste, fordi en liste kræver mindst to led.
+- Sikring: `npm run seo:validate` afviser hver af fejlene på de byggede sider, og
+  `scripts/site-redirects.test.mjs` låser reglerne, rækkefølgen og at målet findes.
+- Dokumentation: `docs/seo.md`.
+- Efter den uafhængige gennemgang (2026-11-14): `ClaudeBot` er Anthropics træningscrawler
+  (Anthropics egen side, læst samme dag) og stod som tilladt, mod sidens egen regel om ingen
+  træning. Den er nu spærret som `GPTBot`; `Claude-User` og `Claude-SearchBot` har ingen gruppe
+  og er tilladt gennem `*`. `seo:validate` kræver nu også de to `Disallow`-linjer i `*`-gruppen
+  og `Sitemap:`-linjen. Tre regler med `:slug` giver produktadresser uden skråstreg ét hop.
+- Efter udgivelsen (2026-11-14): på den levende side fik `/produkter/shelly` stadig to hop.
+  Cloudflare lod `*`-reglen vinde over `:slug`-reglen, selv om `:slug` stod først i filen
+  (lokalt og i Cloudflares dokumentation vinder den første). Valg: ingen to dynamiske regler må
+  kunne ramme samme adresse. Hvert præfiks har nu `/:slug` (uden skråstreg) og `/:slug/*` (alt
+  dybere), og `scripts/site-redirects.test.mjs` fejler, hvis en adresse rammer to regler.
+### B55. Guidernes billeder går gennem Astros billedbehandling
+- Baggrund: 16 guides åbnede med et PNG-billede på 2,2 til 2,7 MB fra `public/images/guides/`.
+  Filer i `public/` sendes, som de er: ingen WebP, ingen bredder, ingen `width` og `height`.
+- Valg: billeder i en guides tekst ligger i `src/assets/guides/` og skrives med en relativ sti.
+  Astro laver dem som WebP i seks bredder (`image.layout: "constrained"`), og
+  `config/markdown/body-images.mjs` fortæller browseren, at de vises i tekstspalten (45rem).
+  Uden den oplysning antager browseren, at billedet fylder hele vinduet, og henter den
+  bredeste fil.
+- Tegninger (SVG) bliver én fil: flere bredder af en SVG er den samme fil flere gange.
+- Det første billede i en guide, der åbner med et billede, hentes straks med høj prioritet
+  (`config/markdown/lead-image.mjs`). Ellers har sidehovedet allerede sit eget billede med høj
+  prioritet, og en side skal kun have ét.
+- Fravalgt: `responsiveStyles`. Starlights egne regler holder allerede billederne inden for
+  spalten; Astros ekstra stilark ville ændre udseendet for alle billeder.
+- Fravalgt: at flytte sidehovedets billeder, forsidens billeder og nyhedsbillederne. De har en
+  fast offentlig adresse (sociale kort, RSS) og laves allerede i de rigtige bredder af egne scripts.
+- Målt på den byggede side 2026-11-14: Zigbee2MQTT-guidens første billede var 2.420.126 bytes
+  og er nu 32.326 bytes i 640 px (telefon og 1280 px bærbar ved almindelig pixeltæthed), 40.184
+  i 750 px (fuld spalte), 65.936 i 1080 px (telefon med tredobbelt pixeltæthed) og 132.868 i
+  1536 px (fuld spalte ved dobbelt pixeltæthed). Billedfilerne i repoet fylder 26,5 MB mod
+  55 MB før.
+- Sikring: `scripts/site-images.test.mjs` afviser `/images/...` i en guides tekst, og at
+  spaltebredden i `body-images.mjs` kommer ud af trit med `--sb-measure`.
+- Efter den uafhængige gennemgang (2026-11-14):
+  - `sizes` var for grov (45rem fra 50rem, ellers hele vinduet). Spalten er målt ved 22
+    vinduesbredder, og `COLUMN_SIZES` følger nu layoutets brudpunkter. En test holder værdien op
+    mod den målte spalte: aldrig mindre end spalten, højst 32 px mere.
+  - Anden gennemgang fandt et hul ved 752 til 799 px (spalten er 720 px, browseren fik op til
+    767 px at vide); `COLUMN_SIZES` har fået et led til det. Tallene gælder sider med
+    indholdsfortegnelse; en test afviser billeder i teksten på sider uden. LD2410-oversigtens
+    mærkater TX og RX på sensoren var byttet om og er rettet. Testen af omdirigeringer laver nu
+    prøveadresser ud fra hver dynamisk regel i stedet for ni faste adresser.
+  - Tegninger stod i deres egen bredde (ofte 600 px i en spalte på 720), fordi Astro skriver
+    `width` og `height` på dem. En regel i `prose.css` lader dem fylde spalten som før.
+  - Et billede er Astros, når stien er relativ, også uden `./` (`local-picture.mjs`). Før blev
+    `billede.webp` overset af begge plugins. `content-audit.py` kontrollerer de samme stier.
+  - `npm run seo:validate` kontrollerer det byggede åbningsbillede på Home Assistant-guiden:
+    flere bredder, spaltens `sizes`, høj prioritet, `width` og `height`.
+  - `public/images/guides/` er tom og væk. LD2410-diagrammet viste TX0 og RX0, mens guidens kode
+    bruger GPIO17 og GPIO16; mærkaterne er rettet, og den danske guide viser nu diagrammet.
+  - Fravalgt nu: at gå alle diagrammer igennem for overlappende tekst, sprog og fakta. Det er
+    en opgave for sig (åbent punkt i STATUS).
 
 ### B56. Samtykke først, og en CSP uden `'unsafe-inline'` for scripts
 - Baggrund (den levende side, headless Chrome, 2026-11-14): før læseren havde svaret, hentede
