@@ -75,9 +75,22 @@ test('print hides the site chrome and never keeps the dark colour set', async ()
     assert.ok(print.includes(selector), selector);
   }
   assert.match(await read('src/styles/index.css'), /@import "\.\/print\.css";/);
+  // The header rule must be at least as specific as the one in chrome/header.css.
+  assert.ok(print.includes('.page > header.header'));
+  assert.ok((await read('src/styles/chrome/header.css')).includes('.page > header.header'));
+  assert.match(await read('src/components/not-found/NotFoundLayout.astro'), /styles\/print\.css/);
   for (const path of ['src/styles/tokens/color.css', 'src/styles/tokens/scale.css']) {
     assert.match(await read(path), /@media not print \{\s*:root\[data-theme="dark"\]/, path);
   }
+});
+
+test('narrow phones keep a language choice when the top bar drops its link', async () => {
+  const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
+  const header = await read('src/components/chrome/Header.astro');
+  // Only pages with a menu hide the link; the homepage has no menu and keeps it.
+  assert.match(header, /@media \(max-width: 25rem\) \{\s*:global\(html\[data-has-sidebar\]\) \.sb-header__lang \{\s*display: none;/);
+  // The menu's footer is Starlight's own (theme and language select), so it must not be replaced.
+  assert.equal((await read('config/components.mjs')).includes('MobileMenuFooter'), false);
 });
 
 test("JSON written into a script block cannot close the block", async () => {

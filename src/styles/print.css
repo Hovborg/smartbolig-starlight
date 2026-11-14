@@ -1,7 +1,7 @@
 /*
  * Print: the article only, dark text on white paper.
- * Starlight's own print helpers (`print:hidden`) sit in a lower cascade layer
- * than this theme, so the site's own chrome is hidden here.
+ * Starlight's own print helper (`print:hidden`) is a single class and loses
+ * to the components' own display rules, so the site's chrome is hidden here.
  * The light colours come from the tokens (`@media not print` around the dark
  * values) and from ThemeProvider.astro, which prints in the light theme.
  */
@@ -17,7 +17,7 @@
     display: none !important;
   }
 
-  .page > header {
+  .page > header.header {
     border-bottom: 1px solid var(--sb-line);
     background: none;
     backdrop-filter: none;

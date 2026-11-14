@@ -5,11 +5,15 @@
  * Every text/background pair is contrast-checked by
  * scripts/site-design-tokens.test.mjs, so change values here and run site:test.
  */
+/* Dimmed layer behind a dialog; dark in both themes. Also set on ::backdrop,
+   which does not inherit from :root in older browsers. */
+:root,
+::backdrop {
+  --sb-scrim: rgb(12 20 18 / 0.55);
+}
+
 :root {
   color-scheme: light;
-
-  /* Dimmed layer behind a dialog; dark in both themes. */
-  --sb-scrim: rgb(12 20 18 / 0.55);
 
   /* Surfaces */
   --sb-bg: #fbfcfa;

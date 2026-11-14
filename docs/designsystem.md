@@ -74,6 +74,21 @@ JavaScript. `src/styles/print.css` skjuler topbjælkens knapper, assistenten og
 kommentarerne. Kontrolleret 2026-11-14 ved at udskrive en guide til PDF fra
 Chrome: mørk tekst, læsbare kodeblokke, ingen menuer.
 
+## Topbjælken på små skærme
+
+Reglerne står i `src/components/chrome/Header.astro` og `src/components/SiteTitle.astro`.
+
+| Skærmbredde | Hvad sker der |
+|---|---|
+| Under 72rem, sider uden sidemenu (forsiden) | Sektionslinkene står i en ekstra række, der kan rulles vandret |
+| Under 27rem (432 px) | Logoet viser `SmartBolig` uden `.net` |
+| Under 25rem (400 px), sider med menu | Sproglinket skjules; sprog og tema vælges i menuen (Starlights egen `MobileMenuFooter`) |
+| Under 22.5rem (360 px) | Logoet viser kun husmærket |
+
+Knapperne i topbjælken må aldrig overlappe logoet. Målt 2026-11-14 i browseren ved
+320, 361, 375, 400, 401, 432 og 433 px på en guide og på forsiden: mindst 34 px luft
+mellem logo og første knap, ingen vandret rulning af siden.
+
 ## Skrift
 
 | Token | Skrifttype | Bruges til |
