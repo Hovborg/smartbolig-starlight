@@ -115,3 +115,31 @@ store overskrift). Linjehøjde: `--sb-leading` (brødtekst), `--sb-leading-tight
 Temaet er samlet i `src/styles/`, `src/components/chrome/` og `config/fonts.mjs`.
 Sæt `customCss` i `config/site.mjs` til en tom liste, og fjern `Header` og
 `ThemeProvider` i `config/components.mjs`, så står Starlights standardudseende tilbage.
+
+## Logo og brandfiler
+
+Logoet er et husmærke (grøn flise, hvid husskitse og en prik) plus navnet i overskriftsskriften.
+Topbjælken tegner det som levende SVG og tekst i `src/components/SiteTitle.astro`. Alle statiske
+filer genereres ud fra samme mærke.
+
+| Sti | Indhold |
+|---|---|
+| `scripts/brand-assets.mjs` | Genererer alle brandfiler. Kør `npm run brand:build` |
+| `scripts/lib/brand/` | Mærkets geometri (`mark.mjs`), farver (`palette.mjs`), tekst som former (`text.mjs`), kompositioner (`compose.mjs`), ICO (`ico.mjs`) |
+| `public/favicon.svg`, `public/favicon.ico`, `public/apple-touch-icon.png` | Ikoner, linket fra `config/head/icons.mjs` og `NotFoundLayout.astro` |
+| `public/brand/` | App-ikoner og logofiler. Se `public/brand/README.md` |
+| `public/images/og-image.png` | Standardbillede ved deling |
+
+- De genererede filer ligger i git. Siden bygges uden at køre scriptet.
+- Ændres mærket, skal `SiteTitle.astro` og `scripts/lib/brand/mark.mjs` ændres sammen.
+  `scripts/site-brand.test.mjs` fejler, hvis de to er forskellige.
+- Navnet i billederne er tegnet som former fra den selvhostede skrifttypefil, med `fontkitten`
+  (MIT, udviklingsafhængighed). Ingen skrifttype skal være installeret på maskinen.
+- `/favicon.ico`, `/favicon.svg`, `/images/og-image.png` og
+  `/brand/logo/logo-dark-1200x270.png` er adresser, andre tjenester kan bruge. Behold dem.
+
+### Fjern det igen
+
+Slet `scripts/brand-assets.mjs`, `scripts/lib/brand/` og `scripts/site-brand.test.mjs`, fjern
+`brand:build` og `fontkitten` fra `package.json` (og kør `npm install --package-lock-only`),
+og fjern `config/head/icons.mjs` fra `config/head/index.mjs`. Filerne i `public/` kan blive stående.

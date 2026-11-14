@@ -47,8 +47,7 @@ src/
 │   ├── global.css       # Tailwind import
 │   └── custom.css       # IBRACORP theme
 └── assets/
-    ├── logo-dark.svg
-    └── logo-light.svg
+    └── homepage/        # Hero-billeder (logo: scripts/brand-assets.mjs)
 ```
 
 ## Når du hjælper med kode

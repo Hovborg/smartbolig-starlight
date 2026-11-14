@@ -18,6 +18,7 @@ Sidst opdateret: 2026-11-14.
 
 ## I gang
 
+- **Fase 2, brand:** grenen `redesign/brand-kit`. Alle brandfiler (favicon, ikoner, logoer, standard-delingsbillede) genereres af `npm run brand:build`; gamle brandmapper og ubrugte logoer er fjernet. Se `docs/designsystem.md`, afsnittet Logo og brandfiler.
 - **Fase 1, nyhedsflow:** grenen `feat/news-actions-v2`. Ny kæde pr. historie, workflow
   `ai-news.yml`, `deploy.yml` kan kaldes, tests grønne lokalt (ai-news, site).
   Uafhængigt gennemgået tre gange (sidste dom 2026-11-14: klar), PR #172.

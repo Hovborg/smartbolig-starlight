@@ -6,6 +6,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "images:home": "node scripts/optimize-home-images.mjs",
+    "brand:build": "node scripts/brand-assets.mjs",
     "images:news-thumbs": "node scripts/ai-news-thumbs.mjs",
     "build": "node scripts/ai-news-thumbs.mjs && astro build && node scripts/finalize-build.mjs",
     "preview": "astro preview",
@@ -40,6 +41,7 @@
     "sharp@0.34.5": true
   },
   "devDependencies": {
+    "fontkitten": "1.0.3",
     "wrangler": "4.159.0"
   }
 }

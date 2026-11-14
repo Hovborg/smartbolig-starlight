@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Replaced every static brand file with the new house mark: favicon (SVG, ICO), touch icon, app icons, logos and the default social image are generated from one script (`npm run brand:build`) with the wordmark outlined from the site font; removed the old brand folders, loose logos and unused source images.
 - AI News moved from a Windows Scheduled Task to GitHub Actions (`.github/workflows/ai-news.yml`) and now publishes on its own. Each story is written and fact-checked separately against its one source by a different model; a story that cannot be corrected is dropped without taking the others with it, and a day with fewer than three verified stories publishes nothing and does not block the next day. The same gates as a deploy run before anything is committed to `main`. Every run's summary shows the outcome and the reasons; one GitHub issue is opened only when nothing has been published for three days.
 - Models run on Cloudflare Workers AI through a private relay Worker (`workers/news-llm/`) with a key, a model allowlist, a per-minute limit and a hard daily neuron ceiling below the free allowance. GitHub Models, the previous plan, was retired by GitHub.
 - News sources: article text is now cut from `<article>`/`<main>` instead of the whole page (navigation used to fill most of the evidence the models saw), the Anthropic listing parser follows the current markup, and Google DeepMind, Mistral, the Home Assistant blog and Ollama releases were added as official sources.
