@@ -1,0 +1,15 @@
+HTTP/1.1 405 Method Not Allowed
+Date: Sat, 14 Nov 2026 01:23:57 GMT
+Content-Type: application/json; charset=utf-8
+Connection: keep-alive
+Allow: POST
+Cache-Control: no-store
+referrer-policy: no-referrer
+x-content-type-options: nosniff
+x-request-id: b7d773cd-2994-4446-8dab-5c1ab6941644
+Report-To: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=<redacted>"}]}
+Nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+Server: cloudflare
+CF-RAY: a5a236bd192f53db-CPH
+alt-svc: h3=":443"; ma=86400
+

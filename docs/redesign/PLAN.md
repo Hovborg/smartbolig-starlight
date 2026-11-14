@@ -6,6 +6,8 @@ AI-nyheder der udgiver sig selv, og drift uden manuelt arbejde på gratis niveau
 Status pr. fase står i [STATUS.md](STATUS.md). Valg og begrundelser står i
 [BESLUTNINGER.md](BESLUTNINGER.md). Udgangspunktet er målt i
 [../measurements/2026-11-13-baseline/README.md](../measurements/2026-11-13-baseline/README.md).
+Målingen efter redesignet:
+[../measurements/2026-11-14-efter-redesign/README.md](../measurements/2026-11-14-efter-redesign/README.md).
 
 ## Udgangspunkt (målt 2026-11-13)
 

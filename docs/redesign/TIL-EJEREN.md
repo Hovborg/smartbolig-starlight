@@ -123,9 +123,9 @@ Sidst opdateret: 2026-11-14.
    kommer stadig). Fremgangsmåde: `docs/opdateringer.md`.
 
 13. **Assistenten er langsom til det første ord.** Der går omkring 20 sekunder, før svaret
-   begynder, og omkring 30 for en opfølgning (målt 2026-11-14). Det er den gratis models tænketid, ikke siden. Imens viser
-   assistenten, hvilke sider den har fundet. En hurtigere model koster penge pr. spørgsmål
-   og er ikke valgt. Tal og grænser: `docs/assistent.md`.
+   begynder, og omkring 30 for en opfølgning (målt 2026-11-14). Det er den gratis models
+   tænketid, ikke siden. Imens viser assistenten, hvilke sider den har fundet. En hurtigere
+   model koster penge pr. spørgsmål og er ikke valgt. Tal og grænser: `docs/assistent.md`.
 
 ## Rester fra den gamle nyhedskørsel
 

@@ -1,0 +1,24 @@
+HTTP/1.1 200 OK
+Date: Sat, 14 Nov 2026 19:57:36 GMT
+Content-Type: text/plain
+Connection: keep-alive
+CF-Cache-Status: HIT
+Cache-Control: public, max-age=0, must-revalidate
+ETag: "270aabac365afa198f96f5044f406b57"
+Strict-Transport-Security: max-age=31536000; includeSubDomains; preload
+content-security-policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://static.cloudflareinsights.com https://*.googletagmanager.com https://*.googlesyndication.com https://fundingchoicesmessages.google.com https://www.googleadservices.com https://adservice.google.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google https://giscus.app; style-src 'self' 'unsafe-inline' https://giscus.app; font-src 'self' data:; img-src 'self' data: https: blob:; connect-src 'self' https://cloudflareinsights.com https://*.google-analytics.com https://*.google.com https://*.google.dk https://*.googletagmanager.com https://*.g.doubleclick.net https://*.googlesyndication.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google https://giscus.app; frame-src 'self' https://fundingchoicesmessages.google.com https://www.google.com https://www.googletagmanager.com https://googleads.g.doubleclick.net https://td.doubleclick.net https://*.googlesyndication.com https://ep2.adtrafficquality.google https://giscus.app; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src-attr 'none'; worker-src 'self' blob:;
+content-security-policy-report-only: default-src 'self'; script-src 'self' 'sha256-7eCV4jtsr4t4knb3c4FCRPeu7GGZeOUGE3XvWix0XOQ=' 'sha256-f/zAUE74ucc3JYp4r4QQvkJofoQdkOIhHYK+jeZ6eko=' 'sha256-wX2yOADeV+NMngflD5uYi3vl50SHC4sfM1EmylVjlX4=' 'sha256-zmDRHJqY+BNJeYfeo4Y7ePDb7HVKRRxpXZPKNroF7aM=' 'wasm-unsafe-eval' https://static.cloudflareinsights.com https://*.googletagmanager.com https://*.googlesyndication.com https://fundingchoicesmessages.google.com https://www.googleadservices.com https://adservice.google.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google https://giscus.app; style-src 'self' 'unsafe-inline' https://giscus.app; font-src 'self' data:; img-src 'self' data: https: blob:; connect-src 'self' https://cloudflareinsights.com https://*.google-analytics.com https://*.google.com https://*.google.dk https://*.googletagmanager.com https://*.g.doubleclick.net https://*.googlesyndication.com https://ep1.adtrafficquality.google https://ep2.adtrafficquality.google https://giscus.app; frame-src 'self' https://fundingchoicesmessages.google.com https://www.google.com https://www.googletagmanager.com https://googleads.g.doubleclick.net https://td.doubleclick.net https://*.googlesyndication.com https://ep2.adtrafficquality.google https://giscus.app; frame-ancestors 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; script-src-attr 'none'; worker-src 'self' blob:;
+cross-origin-opener-policy: same-origin
+cross-origin-resource-policy: same-site
+permissions-policy: accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()
+referrer-policy: strict-origin-when-cross-origin
+x-content-type-options: nosniff
+x-frame-options: SAMEORIGIN
+x-permitted-cross-domain-policies: none
+x-xss-protection: 0
+Report-To: {"group":"cf-nel","max_age":604800,"endpoints":[{"url":"https://a.nel.cloudflare.com/report/v4?s=<redacted>"}]}
+Nel: {"report_to":"cf-nel","success_fraction":0.0,"max_age":604800}
+Server: cloudflare
+CF-RAY: a5a896109a0ea0fc-CPH
+alt-svc: h3=":443"; ma=86400
+
