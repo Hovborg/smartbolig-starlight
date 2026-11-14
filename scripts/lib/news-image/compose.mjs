@@ -1,5 +1,7 @@
 // Composes the news header image as one SVG. Every piece of text is an outlined
 // path from the site's own fonts, so the result is identical on every machine.
+// The Danish and the English article share the picture, so it carries no words
+// of its own: the brand, "AI", the date as numbers, the headline and the sources.
 import { dark as colors } from "../brand/palette.mjs";
 import { markSvg } from "../brand/mark.mjs";
 import { textPath } from "../brand/text.mjs";
@@ -14,18 +16,11 @@ const TALL_SIZES = [120, 112, 104, 96, 88, 80, 72, 66];
 const xmlEscape = (v) => String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 const place = (d, x, y, fill) => `<path transform="translate(${x.toFixed(1)} ${y.toFixed(1)})" d="${d}" fill="${fill}"/>`;
 
-const COPY = {
-  da: { tag: "AI-nyheder", locale: "da-DK", fallback: "AI-nyheder" },
-  en: { tag: "AI News", locale: "en-GB", fallback: "AI News" },
-};
+const TAG = "AI";
 
-export function formatDate(date, lang = "da") {
-  return new Intl.DateTimeFormat(COPY[lang].locale, { day: "numeric", month: "long", year: "numeric", timeZone: "UTC" }).format(new Date(`${date}T12:00:00Z`));
-}
-
-function brand(lang) {
+function brand() {
   const word = wordmark(colors, 30);
-  const tag = textPath(`·  ${COPY[lang].tag}`, { size: 22, weight: 600, font: "text" });
+  const tag = textPath(`·  ${TAG}`, { size: 22, weight: 600, font: "text" });
   const baseline = M + 22 + word.capHeight / 2;
   return (
     markSvg({ x: M, y: M, size: 44, tile: colors.accent, onTile: colors.onAccent }) +
@@ -35,8 +30,8 @@ function brand(lang) {
 }
 
 // Date in the accent colour, then the source chips as neutral outlined pills.
-function meta(date, providers, lang, y) {
-  const d = textPath(formatDate(date, lang), { size: 28, weight: 700, font: "text" });
+function meta(date, providers, y) {
+  const d = textPath(date, { size: 28, weight: 700, font: "text" });
   let out = place(d.d, M, y + 28, colors.accent);
   let x = M + d.width + 32;
   for (const name of providers) {
@@ -50,9 +45,9 @@ function meta(date, providers, lang, y) {
   return out;
 }
 
-export function renderNewsSvg({ width = W, height, date, headline, providers, motif, lang = "da" }) {
+export function renderNewsSvg({ width = W, height, date, headline, providers, motif }) {
   const tall = height >= 850;
-  const text = String(headline || "").trim() || `${COPY[lang].fallback}, ${formatDate(date, lang)}`;
+  const text = String(headline || "").trim() || `${TAG} ${date}`;
   const columnWidth = tall ? W - 2 * M : 640;
   const fit = fitHeadline(text, { maxWidth: columnWidth, sizes: tall ? TALL_SIZES : LANDSCAPE_SIZES, maxLines: 3 });
   const brandBottom = M + 44;
@@ -80,9 +75,9 @@ export function renderNewsSvg({ width = W, height, date, headline, providers, mo
     `<rect width="${width}" height="${height}" fill="${colors.bg}"/><rect width="${width}" height="${height}" fill="url(#dots)"/>` +
     `<rect width="${width}" height="${height}" fill="url(#corner)"/>` +
     motifSvg(motif, { ...motifBox, colors, seed: seedFrom(`${text}${date}`) }) +
-    brand(lang) +
+    brand() +
     lines +
-    meta(date, providers, lang, metaY) +
+    meta(date, providers, metaY) +
     `</svg>`
   );
 }

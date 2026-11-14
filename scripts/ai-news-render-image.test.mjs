@@ -7,7 +7,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { promisify } from 'node:util';
 import sharp from 'sharp';
-import { frontmatter, renderEditorialSvg, selectMotif } from './ai-news-render-image.mjs';
+import { frontmatter, imageHeadline, renderEditorialSvg, selectMotif } from './ai-news-render-image.mjs';
 
 const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(import.meta.dirname, '..');
@@ -147,11 +147,19 @@ test('long and unbroken headlines stay within three lines and inside the canvas'
   }
 });
 
-test('English issues use the English brand line and date', () => {
-  const svg = renderEditorialSvg({ ...variants[0], date, headline: 'Gemini API pricing', providers: ['Google AI'], lang: 'en' });
+test('the picture is shared by both languages: no language option, and a wordless fallback', () => {
+  const svg = renderEditorialSvg({ ...variants[0], date, headline: 'Gemini API pricing', providers: ['Google AI'] });
   assert.equal(decodeTitle(svg), 'Gemini API pricing');
-  const empty = renderEditorialSvg({ ...variants[0], date, headline: '', providers: ['AI'], lang: 'en' });
-  assert.match(decodeTitle(empty), /^AI News, 3 October 2026$/);
+  assert.equal(renderEditorialSvg({ ...variants[0], date, headline: 'Gemini API pricing', providers: ['Google AI'], lang: 'en' }), svg);
+  const empty = renderEditorialSvg({ ...variants[0], date, headline: '', providers: ['AI'] });
+  assert.equal(decodeTitle(empty), 'AI 2026-10-03');
+});
+
+test('the headline is the one the article names, else its main story, never the bare date title', () => {
+  const head = (extra) => `---\ntitle: "AI-nyheder, 3. oktober 2026"\n${extra}---\n\n### 1. OpenAI Codex releases: 0.154.0\n\n### 2. Other\n`;
+  assert.equal(imageHeadline(head('news:\n  imageHeadline: "OpenClaw 2026.8.34"\n')), 'OpenClaw 2026.8.34');
+  assert.equal(imageHeadline(head('')), 'OpenAI Codex releases: 0.154.0');
+  assert.equal(imageHeadline('---\ntitle: "AI-nyheder, 3. oktober 2026: Gemini 3"\n---\n\n### 1. Other\n'), 'Gemini 3');
 });
 
 test('frontmatter decodes JSON-escaped quotes in generated image headlines', () => {

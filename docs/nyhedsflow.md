@@ -156,12 +156,21 @@ og `AI_NEWS_REVIEWER_MODELS` bruges kun ved lokale kørsler; workflowet sætter 
 
 Hver udgave har fire JPEG-varianter (`public/images/ai-news/<dato>.jpg`, `-16x9`, `-4x3`,
 `-1x1`) og en WebP-miniature (`-thumb.webp`). `scripts/ai-news-render-image.mjs` tegner dem
-ud fra den danske artikels `news.imageHeadline` (ellers titlen) og kilderne i frontmatter;
-workflowet kalder det og `ai-news-thumbs.mjs` for den nye udgave.
+ud fra den danske artikel og kilderne i frontmatter; workflowet kalder det og
+`ai-news-thumbs.mjs` for den nye udgave.
+
+Overskriften på billedet er `news.imageHeadline`, ellers artiklens hovedhistorie: teksten
+efter kolon i titlen, ellers den første `###`-overskrift (`scripts/lib/news-lead.mjs`, som
+nyhedsoversigten også bruger). Den bare titel "AI-nyheder, <dato>" bruges kun, hvis artiklen
+ingen historier har.
+
+Den danske og den engelske artikel deler billedet. Derfor står der ingen ord på det ud over
+overskriften og kildenavnene: mærket hedder "SmartBolig.net · AI", og datoen står som
+`2026-11-14`. Der er ingen sprogindstilling.
 
 Udseendet følger sitets mørke tema: grafitbaggrund (`--sb-bg`), et blødt grønt skær i det
-ene hjørne, et næsten usynligt prikgitter, husmærket med "SmartBolig.net · AI-nyheder"
-(`--lang en` giver "AI News" og engelsk dato), overskriften i Bricolage Grotesque bold
+ene hjørne, et næsten usynligt prikgitter, husmærket med "SmartBolig.net · AI",
+overskriften i Bricolage Grotesque bold
 (højst tre linjer; skrives mindre, og afkortes med "…" hvis den stadig er for lang),
 datoen i accentgrøn, kilderne som neutrale omridsede piller og til højre et abstrakt
 vektormotiv (netværk, signalbuer eller skjold efter emne) i accentfarven. Farverne står kun
@@ -186,6 +195,11 @@ Ny udgave, 2026-11-14: alle 64 udgaver (320 filer) er gentegnet med den nye skab
 `public/images/ai-news` gik fra 30,0 til 11,5 MB. Kontrolleret ved at åbne JPEG'erne i fuld
 størrelse og skaleret til 300 px bredde (dansk æ/ø/å, lang og ubrudt overskrift, alle fire
 formater), og med `npm run ai-news:test`, `npm run site:test` og `npm run build`.
+
+Samme dag er alle 64 udgaver gentegnet igen med hovedhistorien som overskrift og uden
+sprogtekst; mappen fylder 13,1 MB (længere overskrifter giver lidt større filer).
+Kontrolleret ved at åbne to udgaver i fuld størrelse (16:9 og 1:1) og med
+`npm run ai-news:test`, `npm run site:test` og `npm run ai-news:validate`.
 
 ## Relayet
 

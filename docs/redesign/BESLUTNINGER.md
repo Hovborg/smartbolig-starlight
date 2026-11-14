@@ -326,7 +326,7 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   Kildelisten er lukket, til man åbner den. Indholdsfortegnelsen er slået fra på siden.
 - Rækken viser hovedhistorien i stedet for "AI-nyheder, <dato>", som 63 af 64 titler hed.
 - Nyhedsoversigten og nyhedsartiklerne har deres egne billeder og får ikke 3D-husets banner.
-- Kendt mangel: billedets tekst er dansk, også på den engelske side.
+- Billedets tekst var dansk, også på den engelske side. Rettet i B49.
 
 ### B48. ESP32 får sit eget nærbillede i stedet for et billede af huset
 - Fund: ESP32-kortet på forsiden og banneret på ESP32-guiderne viste stuen; printpladen var
@@ -337,3 +337,13 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   (hulafstand 2,54 mm, 19 ben pr. side).
 - Scenen ligger bag `stills.mjs`, som kun billedtegneren pakker. Forsiden henter den ikke.
 - Telefonens skærm viser kun tal og en kurve, så billedet er ens på dansk og engelsk.
+
+### B49. Nyhedsbilledet viser hovedhistorien og har ingen sprogtekst
+- Fund: 63 af 64 billeder havde "AI-nyheder, <dato>" som stor overskrift med den samme dato
+  nedenunder, og den engelske artikel viste det danske billede.
+- Valg: overskriften er artiklens hovedhistorie (samme regel som i nyhedsoversigten, nu ét
+  sted: `scripts/lib/news-lead.mjs`). Første overskrift er ens i de to sprog i alle 64
+  artikler, så ét billede kan deles.
+- Mærket hedder "SmartBolig.net · AI", og datoen står som `2026-11-14`. `--lang` er fjernet.
+- Fravalgt: et engelsk sæt billeder. Det ville fordoble 320 filer og give nyhedsflowet et
+  ekstra trin hver dag for en tekst, der i forvejen er ens.

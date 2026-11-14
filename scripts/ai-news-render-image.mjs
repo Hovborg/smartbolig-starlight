@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import sharp from 'sharp';
 import { renderNewsSvg } from './lib/news-image/compose.mjs';
+import { firstHeadline, mainStory } from './lib/news-lead.mjs';
 
 const defaultRootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const variants = [
@@ -111,10 +112,16 @@ export function selectMotif(text) {
   return motifRules.find((rule) => rule.match.test(String(text)))?.motif || 'default';
 }
 
-export function renderEditorialSvg({ width, height, date, headline, providers, lang = 'da' }) {
+export function renderEditorialSvg({ width, height, date, headline, providers }) {
   const text = String(headline || '').trim();
   const motif = selectMotif(`${text} ${providers.join(' ')}`);
-  return renderNewsSvg({ width, height, date, headline: text, providers, motif, lang });
+  return renderNewsSvg({ width, height, date, headline: text, providers, motif });
+}
+
+/** The picture's headline: the one the article names, else its main story. */
+export function imageHeadline(article) {
+  const meta = frontmatter(article);
+  return meta.imageHeadline || mainStory(meta.title, firstHeadline(article));
 }
 
 export async function main(argv = process.argv.slice(2)) {
@@ -122,7 +129,6 @@ export async function main(argv = process.argv.slice(2)) {
   const rootDir = path.resolve(String(args.get('--root') || defaultRootDir));
   const date = String(args.get('--date') || process.env.AI_NEWS_DATE || '').trim();
   const force = args.has('--force');
-  const lang = String(args.get('--lang') || 'da') === 'en' ? 'en' : 'da';
 
   if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
     throw new Error('Use --date YYYY-MM-DD or set AI_NEWS_DATE.');
@@ -152,9 +158,8 @@ export async function main(argv = process.argv.slice(2)) {
       width: variant.width,
       height: variant.height,
       date,
-      headline: meta.imageHeadline || meta.title,
+      headline: imageHeadline(article),
       providers,
-      lang,
     });
     await sharp(Buffer.from(svg)).jpeg({ quality: 82, mozjpeg: true }).toFile(outputPath);
     console.log(`wrote ${path.relative(rootDir, outputPath)} (offline editorial illustration)`);

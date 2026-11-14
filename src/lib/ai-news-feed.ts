@@ -1,6 +1,7 @@
 import { slug } from "github-slugger";
 import { isLocaleNewsEntry, type NewsLocale } from "./home-news.ts";
 import { sourceLabel, sourceName } from "./ai-news-sources.ts";
+import { decodeHeadline, mainStory } from "../../scripts/lib/news-lead.mjs";
 
 export type Signal = "high" | "medium" | "low";
 
@@ -61,18 +62,8 @@ export const formatDate = (date: Date, locale: NewsLocale) =>
     timeZone: "UTC",
   }).format(date);
 
-// AI News headings contain fixed word breaks and escaped feed characters.
-// Astro displays this as text, while its Markdown heading IDs use github-slugger.
-const namedHeadlineEntities: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: "\"", apos: "'" };
-const decodeHeadline = (value: string) =>
-  value
-    .replace(/<wbr\s*\/?>/gi, "")
-    .replace(/&#(?:x([0-9a-f]+)|([0-9]+));/gi, (entity, hex, decimal) => {
-      const codePoint = Number.parseInt(hex || decimal, hex ? 16 : 10);
-      return codePoint <= 0x10ffff ? String.fromCodePoint(codePoint) : entity;
-    })
-    .replace(/&(amp|lt|gt|quot|apos);/gi, (entity, name) => namedHeadlineEntities[name.toLowerCase()] || entity);
-
+// AI News headings contain fixed word breaks and escaped feed characters
+// (decodeHeadline). Astro's Markdown heading IDs use github-slugger.
 const extractHeadlines = (body: unknown, issueHref: string, sources: string[]): Headline[] => {
   if (typeof body !== "string") return [];
   return [...body.matchAll(/^###\s+(.+)$/gm)]
@@ -92,13 +83,6 @@ const extractHeadlines = (body: unknown, issueHref: string, sources: string[]): 
     })
     .filter((headline) => headline.title && headline.href)
     .slice(0, 6);
-};
-
-// "AI-nyheder, 14. november 2026: OpenAI Codex 0.169.0" names its main story
-// after the colon; older titles are only a date, so the first story is used.
-const leadOf = (title: string, headlines: Headline[]) => {
-  const named = title.includes(": ") ? title.slice(title.indexOf(": ") + 2).trim() : "";
-  return named || headlines[0]?.title || title;
 };
 
 /** Articles grouped by calendar month, in the order they were given. */
@@ -139,7 +123,7 @@ export function selectIssues(docs: readonly IssueDocument[], locale: NewsLocale)
         sources,
         providers,
         headlines,
-        lead: leadOf(doc.data.title, headlines),
+        lead: mainStory(doc.data.title, headlines[0]?.title),
         image: hero?.src && hero?.alt ? { src: hero.src, alt: hero.alt } : null,
       };
     })
