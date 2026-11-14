@@ -166,3 +166,16 @@ test("the run report states the outcome and shows external text as plain text", 
   assert.doesNotMatch(skipped, /\]\(/);
   assert.match(renderReport(null, "failed"), /\*\*Failed\.\*\*/);
 });
+
+test("manual workflow dispatch validates but cannot deploy or ping search engines", async () => {
+  const deployWorkflow = await readFile(new URL("../.github/workflows/deploy.yml", import.meta.url), "utf8");
+  const definition = "SHOULD_DEPLOY: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.publish == true) }}";
+  assert.equal(deployWorkflow.split(definition).length - 1, 1, "exactly one definition of SHOULD_DEPLOY");
+  assert.equal([...deployWorkflow.matchAll(/^\s*SHOULD_DEPLOY:/gm)].length, 1);
+  assert.equal([...deployWorkflow.matchAll(/if: env\.SHOULD_DEPLOY == 'true'/g)].length, 2, "exactly two guarded steps");
+  // workflow_dispatch declares no inputs, so a manual run can never set `publish`.
+  const dispatch = deployWorkflow.match(/^  workflow_dispatch:[^\r\n]*\r?\n((?:(?:    .*|\s*)\r?\n)*)/m);
+  assert.ok(dispatch, "workflow_dispatch trigger present");
+  assert.doesNotMatch(dispatch[1], /inputs:/);
+  assert.doesNotMatch(deployWorkflow, /if: github\.event_name != 'pull_request'/);
+});
