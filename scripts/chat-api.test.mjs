@@ -1533,7 +1533,7 @@ test("compound official questions merge reviewed packages and deduplicate source
   ]);
 });
 
-test("Workers AI agent answers in one bounded model call when AI Search is unavailable", async () => {
+test("Workers AI agent answers in one bounded model call when the site search is unavailable", async () => {
   const calls = [];
   const runner = createWorkersAgent({
     aiRunImpl: async (_binding, model, input) => {

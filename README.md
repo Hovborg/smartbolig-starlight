@@ -82,7 +82,7 @@ specialdesignet Astro-widget:
   og også den fejler lukket frem for at vise et vildledende næsten-svar. Det
   reducerer kendte fejl, men er ikke en generel garanti for, at al
   modelgenereret konfiguration er korrekt.
-- **Ingen dokumentationskopi:** SmartBolig kopierer ikke Home Assistant- eller ESPHome-dokumentation ind i AI Search.
+- **Ingen dokumentationskopi:** SmartBolig kopierer ikke Home Assistant- eller ESPHome-dokumentation ind i sit søgeindeks.
   Den brede model svarer fortsat om hele fagområdet, mens kun serverens konkrete,
   gennemgåede fakta får officiel status.
 - **Ærlige kildegrader:** Svar vises som **Officielle kilder
@@ -90,14 +90,15 @@ specialdesignet Astro-widget:
   AI-viden**. Et svar får aldrig officielt badge alene på grund af modellens
   generelle træningsviden. API-feltet `officialVerifiedAt` viser den ældste
   reviewdato blandt de anvendte evidenspakker og er ellers `null`.
-- **Ingen ekstra RAG-database:** AI Search ejer allerede sin søgeindeksering, så
-  projektet opretter ikke en separat D1- eller Vectorize-database.
+- **Ingen database:** Søgeindekset er statiske filer, der bygges sammen med
+  siden. Projektet har ingen D1- eller Vectorize-database og ingen betalt
+  søgetjeneste.
 - **Abuse-kontrol:** `CHAT_RATE_LIMITER` tillader 12 chatkald pr. minut pr.
   forbindende IP i hver Cloudflare-lokation. Et normalt svar bruger ét
   logisk modelkald med højst ét sekundært forsøg. Et fagligt svar kan desuden
-  bruge ét AI Search-opslag; en valgfri modelstyret søgesti er fortsat
-  begrænset til højst to logiske modelkald. AI Search falder tilbage til bred
-  modelviden efter fem sekunder.
+  bruge ét opslag i sidens indeks; en valgfri modelstyret søgesti er fortsat
+  begrænset til højst to logiske modelkald. Tager opslaget over fem sekunder,
+  svarer assistenten ud fra bred modelviden.
 - **Dataminimering:** Endpointet accepterer højst 10 skiftevis bruger/assistent-
   beskeder, 2.000 tegn pr. besked og 8.000 tegn i alt. Widgeten gemmer kun den
   aktuelle samtale i browserens `sessionStorage`. Hvert gemt og genudsendt
@@ -138,7 +139,7 @@ specialdesignet Astro-widget:
   Qwen-fallbacken højst 1.600, så modellernes skjulte ræsonnering ikke afskærer
   et teknisk svar midt i en sætning. Gemma har 55 sekunder pr. kald og Qwen har
   25 sekunder. Browserens 180-sekunders maksimum dækker den sjældne værste sti
-  med fem sekunders AI Search, to Gemma-kald, op til to Qwen-fallbackkald og ti
+  med fem sekunders opslag i sidens indeks, to Gemma-kald, op til to Qwen-fallbackkald og ti
   sekunders netværksmargin. Et providerresultat med token-limit, en uafsluttet
   kodeblok eller et tydeligt hængende bindeord vises aldrig: primærsvaret går
   til fallback, og en afskåret fallback fejler lukket. Normale svar returneres
@@ -171,7 +172,7 @@ npx wrangler deploy --dry-run
 ```
 
 En rigtig lokal chat kræver remote Cloudflare-bindings og bruger Workers
-AI/AI Search-kvoten:
+AI-kvoten:
 
 ```bash
 npm run build
