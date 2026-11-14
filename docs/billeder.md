@@ -4,8 +4,8 @@ Sidst opdateret: 2026-11-14.
 Kontrolleret ved: `npm run site:test`, `npm run build` og `npm run seo:validate` kørt på grenen.
 Tekstspaltens bredde og den fil, browseren henter, er målt i headless Chrome på den byggede
 Zigbee2MQTT-guide ved 22 vinduesbredder. LD2410-diagrammet er set som billede på den byggede side.
-Diagrammerne (undtagen `ld2410-mmwave/wiring*.svg`) er set som billede i headless Chrome i 328 og
-720 px bredde på mørk og lys baggrund; tekststørrelse, overlap og plads er målt samme sted.
+Diagrammerne er set som billede i headless Chrome i 328 og 720 px bredde på mørk og lys
+baggrund; tekststørrelse, overlap og plads er målt samme sted.
 Ikke kontrolleret: en rigtig telefon, Safari og Firefox. Det, der er tilbage for diagrammerne,
 står i `docs/redesign/STATUS.md`.
 
@@ -94,8 +94,6 @@ diagrammer og rettelser i de gamle.
   (de ser forskellige ud fra system til system).
 - **Se det som billede.** Åbn filen i en browser i 328 og 720 px bredde på mørk og lys baggrund,
   før den lægges ind. Tegn selv; kopiér ikke andres diagrammer.
-
-`ld2410-mmwave/wiring*.svg` er ældre og følger ikke størrelsesreglen endnu.
 
 ## Når noget ser forkert ud
 
