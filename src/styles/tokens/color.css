@@ -39,7 +39,7 @@
   --sb-accent-vivid: #12b886;
   --sb-on-accent: #ffffff;
   /* The brand gradient, from a to b. Both ends are readable as large text. */
-  --sb-brand-a: #0a7556;
+  --sb-brand-a: var(--sb-accent);
   --sb-brand-b: #0a6a94;
 
   /* Supporting hues: text / soft background / vivid graphic */
@@ -90,7 +90,7 @@
     --sb-accent-soft: #0f2f27;
     --sb-accent-vivid: #2ef0aa;
     --sb-on-accent: #04231a;
-    --sb-brand-a: #2ef0aa;
+    --sb-brand-a: var(--sb-accent-vivid);
     --sb-brand-b: #38d6ff;
 
     --sb-warm: #f6bf5f;

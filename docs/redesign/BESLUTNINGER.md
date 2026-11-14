@@ -54,7 +54,7 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - #147: kladde fra 2026-08-19 med konflikt. Lukkes som forældet.
 
 ### B10. Open source vælges efter licens, vægt og vedligehold
-- Se `docs/open-source.md` for version og licens for hvert projekt.
+- Se `docs/oss.md` for version og licens for hvert projekt.
 - Fravalgt: GSAP (licens), transformers.js og Monaco i browseren (vægt), kopiering fra Home
   Assistants dokumentation (CC BY-NC-SA) og `home-assistant/brands` (ingen licens).
 
@@ -596,7 +596,8 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   sætter ingen cookies (Cloudflares egen oplysning).
 - Fjernet: cookien `preferred-lang`. Siden satte den, når læseren skiftede sprog, og Workeren
   læste den ved `/`. Nu vælger `/` sprog efter land (Danmark: dansk, ellers engelsk), og et
-  sprogskift huskes ikke dér. Sproget står i adressen, så links og bogmærker er uberørte.
+  sprogskift huskes ikke dér. (Rettet i B67: valget efter land lå i en fil, der aldrig blev
+  kørt; `/` går til `/da/` fra `public/_redirects`.) Sproget står i adressen, så links og bogmærker er uberørte.
 - CSP: de små scripts, Astro skrev ind i siden, er nu filer (`config/vite.mjs`), og de fire
   tilbageværende får en hash. Den strenge politik sendes som Report-Only, til den er set på den
   levende side med annoncer; derefter slås den til med én konstant.
@@ -1135,7 +1136,7 @@ Denne tilføjelse afløser reglerne om opfølgninger i de tre tilføjelser ovenf
   (`scripts/site-workflows.test.mjs`), der kræver, at hver handling i hver workflow er låst
   til et commit, og at intet job får rettigheder, det ikke selv har nævnt.
 - Fravalgt: en udenforstående tjeneste til at starte workflowet. Den kræver et GitHub-token,
-  som ejeren skal oprette; det står på ejerens liste (punkt 10) og tages kun i brug, hvis
+  som ejeren skal oprette; det står på ejerens liste (punkt 16) og tages kun i brug, hvis
   planlagte kørsler bliver ved med at udeblive.
 - Set samme dag, efter at dette var skrevet: den første planlagte nyhedskørsel startede af sig
   selv 2026-11-14 kl. 11:43 UTC, seks minutter efter planen (11:37), og lykkedes. Planlagte
@@ -1211,3 +1212,68 @@ Denne tilføjelse afløser reglerne om opfølgninger i de tre tilføjelser ovenf
   procenterne for søvn og vågen giver tilsammen 100.
 - Fravalgt: ren størst afstand. Den ser ud som den mest præcise regel, men den modsagde de kilder,
   siden viser, og den gav kanaler, ingen af kilderne nævner.
+
+## B67. Oprydning: to gamle planfiler og en død omdirigeringsfil er fjernet (2026-11-14)
+
+- Valgt: `FORBEDRINGER.md` og `AI_CLI_EXPANSION_RESEARCH.md` i roden er slettet. Begrundelse:
+  begge var planer fra før redesignet. Det, der var gjort, står i `CHANGELOG.md`; det, der
+  ikke er gjort, er flyttet til `docs/redesign/STATUS.md` ("Åbent") og
+  `docs/redesign/TIL-EJEREN.md`. To lister over det samme bliver uenige.
+- Valgt: `functions/_middleware.js` er slettet. Begrundelse: Workeren kører kun for `/api/*`
+  (`run_worker_first` i `wrangler.jsonc`), så filens omdirigeringer af stier blev aldrig kørt.
+  De samme adresser står i `public/_redirects`, som Cloudflare anvender før Workeren. Filen
+  sendte også `www` til hoveddomænet; det gør Cloudflares Redirect Rule i zonen, før Workeren
+  ser forespørgslen (`docs/seo.md`). Nu står en omdirigering ét sted. `scripts/site-redirects.test.mjs` fejler, hvis en fil under
+  `functions/` igen sender en omdirigering.
+- Valgt: det, der ligger uden for repoet, men som siden afhænger af (domæne, DNS, Cloudflares
+  indstillinger, Search Console, Bing, IndexNow, konti), har sit eget dokument,
+  `docs/drift.md`. Begrundelse: det stod spredt i statusfilen og i samtaler, og den næste, der
+  skal ændre en indstilling, skal kunne se, hvad der er sat, og hvordan det blev kontrolleret.
+- Valgt: listen over faste adresser, som hver udgivelse melder til IndexNow, har fået
+  sektionerne automationer, sikkerhed og værktøjer med (begge sprog). Ændrede guides meldes
+  stadig ud fra udgivelsens egne ændringer.
+- Fravalgt: at beholde planfilerne med en note om, at de er forældede. En forældet fil i roden
+  bliver læst først.
+- Kontrolleret før udgivelsen: `npm run site:test` (testen for omdirigeringer). På den levende
+  side svarer `/en/legal/`, `/produkter/shelly`, `/index.html` og `/` allerede 301 fra
+  `_redirects` (set 2026-11-14, mens filen endnu lå der), og `www.smartbolig.net` svarer 301
+  til hoveddomænet, også for `/api/*`. De samme adresser ses igen efter udgivelsen
+  (`STATUS.md`, "Næste skridt").
+
+## B68. Dokumentationen er afprøvet af læsere, der ikke kendte repoet (2026-11-14)
+
+- Valgt: tre friske underagenter fik hver én opgave og kun repoets egne dokumenter: tilføj en
+  guide på begge sprog, ret en designværdi, og find ud af, hvad der skete med dagens
+  nyhedskørsler. De skulle skrive ned, hvor dokumenterne manglede noget, var forkerte eller
+  uklare. Begrundelse: den, der har skrevet et dokument, kan ikke se, hvad der mangler i det.
+- Resultat af første runde: alle tre løste opgaven, men svarede "delvist" på, om det kunne
+  gøres ud fra dokumenterne alene. Det vigtigste, de snublede over: `CONTENT-GUIDE.md` var
+  ikke nævnt i `AGENTS.md` eller `README.md`; grænsen for `description` stod kun i koden;
+  ingen regler for fakta og kilder i en guide; accentfarven står også i
+  `scripts/lib/brand/palette.mjs`, og opskriften nævnte hverken den eller `npm run brand:build`;
+  hjørnetrinene havde ingen roller; nyhedsflowet havde ingen opskrift på fejlsøgning og sagde
+  ikke, at en fejlet dag giver en grøn kørsel.
+- Valgt: det er rettet i dokumenterne. To ting er rettet i koden i stedet for at blive
+  forklaret: en reserve, der holder sig i ro, skriver nu grunden på kørslens Summary-side, og
+  testen af nyhedsbilledet læser farverne fra paletten.
+- Fravalgt: ét token for "kort". Kort på sideniveau og kort inde i en tekst har med vilje
+  forskellige hjørner; tabellen i `docs/designsystem.md` siger, hvilket trin der flytter hvad.
+- Anden runde med tre nye læsere og nye opgaver af samme slags: opskrifterne virkede som
+  skrevet. De fandt mindre ting, som også er rettet: en tredje kopi af accentfarven
+  (`--sb-brand-a`, som nu følger accentfarven), at en prøvekørsel af nyhederne skrev
+  "Published" som en rigtig (den skriver nu "Dry run"), og at en kørsel uden tidspunkt i
+  titlen skal placeres ud fra sit starttidspunkt.
+- Tredje runde (design og nyheder, nye opgaver): designlæseren fandt, at den nye tabel over
+  hjørnetrin var forkert (Starlights kort i en guides tekst bruger `-lg`, ikke `-md`), og at
+  den mørke sidefarve står fem steder mere, hvoraf to ikke blev holdt af en test. Tabellen er
+  rettet, og testen holder nu alle kopierne. Nyhedslæseren manglede, hvordan man ser, hvem
+  der startede en kørsel, og rækker for et rødt `slot`- og `watch`-job.
+- Fjerde runde (design og nyheder, nye læsere og nye opgaver): designlæseren svarede "ja" og
+  foreslog småting, som er skrevet ind (hvilke par kontrasttesten tester, at `-soft` og
+  `-vivid` ikke følger hovedfarven af sig selv, at billeder i en guide bruger `-md`, og
+  hvornår en ændring er et valg). Nyhedslæseren svarede "delvist": der manglede en kort
+  opskrift for "dagens udgave mangler" med den præcise kommando, en tabel over, hvad hvert
+  loft gør, når det nås, og at en reserve også holder sig i ro efter en fejlet kørsel. Det er
+  skrevet ind. Der er ikke kørt en femte runde.
+- Indholdsguiden beskrev en `200`-regel for "pæne" engelske adresser. Den bruges ikke (gamle
+  engelske adresser sendes videre med 301), og afsnittet er skrevet om.

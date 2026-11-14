@@ -62,8 +62,16 @@ Hver farve har en rolle. Brug rollen, ikke en bestemt nuance.
 Regler:
 
 - Tekst skal have kontrast 4,5:1 mod sin baggrund (overskrifter og brødtekst 7:1).
-  `scripts/site-design-tokens.test.mjs` tester parrene i begge temaer.
+  `scripts/site-design-tokens.test.mjs` tester parrene i begge temaer. Parrene står i `PAIRS`
+  øverst i testen, hvert med sit krav: fx `--sb-ink` mod `--sb-bg`, `--sb-bg-subtle` og
+  `--sb-surface` (7:1), og `--sb-warm` mod `--sb-warm-soft` og `--sb-bg` (4,5:1). Et par, der
+  ikke står i listen, bliver ikke testet.
+- `--sb-ink-strong` er overskrifter, `--sb-ink` brødtekst. Hold `--sb-ink` svagere end
+  `--sb-ink-strong`, ellers forsvinder forskellen mellem dem. Ingen test ser det.
 - `-vivid`-farver er til illustrationer og ikoner. De består ikke tekstkravet.
+- `-soft` og `-vivid` er egne værdier og følger ikke hovedfarven af sig selv. Flyttes
+  `--sb-warm`, så se, om `--sb-warm-soft` og `--sb-warm-vivid` skal med; kontrasttesten
+  fejler, hvis teksten på `-soft` bliver for svag.
 - Gennemsigtige varianter laves med `color-mix(in srgb, var(--sb-accent) 12%, transparent)`.
 - Lyst og mørkt tema har de samme tokens. En komponent skal aldrig spørge, hvilket
   tema der er aktivt.
@@ -118,10 +126,27 @@ store overskrift). Linjehøjde: `--sb-leading` (brødtekst), `--sb-leading-tight
 ## Afstand, hjørner, skygger, bevægelse
 
 - Afstand: `--sb-space-1` (4 px) til `--sb-space-9`. Brug trinene; opfind ikke mellemværdier.
-- Hjørner: `--sb-radius-sm`, `-md`, `-lg`, `-xl`, `-pill`.
+- Hjørner: `--sb-radius-sm`, `-md`, `-lg`, `-xl`, `-pill`. Se tabellen nedenfor.
 - Skygger: `--sb-shadow-sm`, `-md`, `-lg`. De er svagere i mørkt tema.
 - Bevægelse: `--sb-dur-fast`, `--sb-dur`, `--sb-dur-slow` og kurven `--sb-ease`.
 - Bredder: `--sb-measure` (tekstspalte), `--sb-page-max` (hele siden).
+
+Hjørnetrinene og hvad de bruges til (talt i `src/` 2026-11-14 med
+`grep -rn "radius-<trin>" src`):
+
+| Trin | Værdi | Bruges til |
+|---|---|---|
+| `--sb-radius-sm` | 0,5 rem | Små ting: felter, mærkater, links i en række, kode, punkter i sidemenuen |
+| `--sb-radius-md` | 0,875 rem | Bokse inde i brødteksten: `FAQ`, noter og tabeller (`blocks.css`), billeder i en guides tekst (`prose.css`), felter og resultater i værktøjerne, assistentens beskeder, kortet på 404-siden |
+| `--sb-radius-lg` | 1,25 rem | Starlights kort i en guides tekst (`<Card>` og `<LinkCard>`: `.card` og `.sl-link-card` i `blocks.css`) og kort og rammer på sideniveau: forsidens kort, nyhedskortene, guidens hoved, værktøjets ramme, topbjælke og sidemenu, assistentens knap |
+| `--sb-radius-xl` | 1,75 rem | Store paneler: forsidens scene, assistentens panel |
+| `--sb-radius-pill` | 999 px | Knapper og piller |
+
+Der er ikke ét trin for "kort": Starlights kort og kort på sideniveau bruger `-lg`;
+`FAQ` og noter bruger `-md`. Et trin flytter alt, der bruger det (`-lg` også
+topbjælken, sidemenuen og værktøjets ramme). Se, hvad en bestemt ting bruger, med
+`grep -rn "radius-" src/styles src/components`. Skal kun nogle af dem ændres, så giv dem et
+nyt trin i `scale.css` (se "Tilføj en ny farve eller størrelse"), og skriv det i tabellen.
 
 ## Regler for bevægelse og illustrationer
 
@@ -141,10 +166,42 @@ store overskrift). Linjehøjde: `--sb-leading` (brødtekst), `--sb-leading-tight
 
 ### Ret en designværdi
 
-1. Find tokenet i `src/styles/tokens/color.css` eller `scale.css`.
-2. Ret værdien. For farver: ret både lyst og mørkt tema.
-3. Kør `npm run site:test`. Kontrasttesten fejler, hvis en tekstfarve bliver for svag.
-4. Kør `npm run dev`, og se siden i begge temaer.
+1. Find tokenet i `src/styles/tokens/color.css` eller `scale.css`. For hjørner: se tabellen
+   under "Afstand, hjørner, skygger, bevægelse" for, hvad hvert trin flytter.
+2. Ret værdien. For farver: ret både lyst og mørkt tema (`:root` er lyst,
+   `[data-theme="dark"]` er mørkt), medmindre kun det ene skal ændres. Retter du et hjørnetrin
+   eller en anden værdi, der står med tal i dette dokument, så ret tallet her også.
+   Eksempel: "lysere brødtekst og en mere orange varm farve i mørkt tema" er `--sb-ink` og
+   `--sb-warm` i `[data-theme="dark"]`-blokken i `color.css`; reglerne under "Farver" siger,
+   hvad der skal følge med.
+3. Står farven også i `scripts/lib/brand/palette.mjs` (baggrund, accent, tekstfarver, flader og
+   linjer), så ret den samme værdi dér, og kør `npm run brand:build`. Logo, favicon, appikoner,
+   delingsbilledet og nyhedsbillederne tegnes ud fra den fil, ikke fra CSS.
+   `scripts/site-brand.test.mjs` fejler, hvis en farve i paletten ikke er tokenets værdi.
+   `brand:build` skriver filerne om under `public/` (`favicon.svg`, `favicon.ico`,
+   `apple-touch-icon.png`, `brand/icon/`, `brand/logo/` og `images/og-image.png`); de skal med
+   i samme commit. Nyhedsbilleder, der allerede er udgivet, tegnes ikke om.
+   Farveforløbet `--sb-brand-a` følger selv accentfarven (`--sb-accent`, i mørkt tema
+   `--sb-accent-vivid`); `--sb-brand-b` er sin egen farve.
+   `logo-light-…` er lys tekst på mørk baggrund og tegnes med den mørke palette
+   (`public/brand/README.md`).
+4. Er det den mørke sidefarve (`--sb-bg` i mørkt tema): den står også i `--sb-stage` (begge
+   temaer; skærmen bag 3D-huset), `config/head/icons.mjs` (browserens temafarve),
+   `public/site.webmanifest`, `src/lib/house3d/stage.mjs` og `scripts/house-render.mjs`.
+   `scripts/site-brand.test.mjs` fejler på hver af dem, til de er rettet. Stillbillederne af
+   huset har farven bagt ind: kør `npm run house:posters` bagefter (åbner Chrome; se
+   `docs/3d-hus.md`). `--sb-bg-subtle`, `--sb-surface` og `--sb-line` er trin over baggrunden:
+   flyt dem med, ellers forsvinder kanterne mellem flade og side.
+5. Kør `npm run site:test` og `npm run ai-news:test`. Kontrasttesten
+   (`scripts/site-design-tokens.test.mjs`) fejler, hvis en tekstfarve bliver for svag;
+   nyhedsbilledets test læser paletten.
+6. Kør `npm run dev`, og se forsiden, en guide og et værktøj i begge temaer ved 375 og 1440 px.
+   Ingen test ser, om det er pænt. Før udgivelse skal `npm run build` og resten af listen i
+   `AGENTS.md` bestå som ved enhver anden ændring.
+7. Skriv ændringen i `CHANGELOG.md`. Er det et valg, så også i
+   `docs/redesign/BESLUTNINGER.md`. Et valg er en ny farve, et nyt trin eller et andet udtryk
+   for hele siden (en anden accentfarve, rundere hjørner overalt). At flytte én værdi lidt,
+   fordi den var svær at læse, er en rettelse og hører kun til i `CHANGELOG.md`.
 
 ### Tilføj en ny farve eller størrelse
 

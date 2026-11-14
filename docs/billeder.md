@@ -23,7 +23,8 @@ den seneste ændring. Det, der er tilbage for diagrammerne, står i `docs/redesi
 - Åbner guiden med et billede, hentes det straks med høj prioritet. Ellers gør sidehovedets
   billede det, og tekstens billeder hentes, når læseren når dem.
 - Billeder med fast offentlig adresse bliver i `public/images/`: `home/`, `guide/` (sidehovedets
-  billeder), `produkter/`, nyhedsbillederne (`ai-news*`), `og-image.png` og `logo-email.png`.
+  billeder), `produkter/`, nyhedsbillederne (`ai-news*`) og `og-image.png`. (`logo-email.png` ligger der også, men
+  bruges ikke af siden; se `docs/redesign/TIL-EJEREN.md`.)
 
 ## Hvor tingene ligger
 

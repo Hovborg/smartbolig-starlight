@@ -70,7 +70,7 @@ test("the generator's mark is the mark in the header (SiteTitle.astro)", () => {
 
 test("pages link the favicon, the ICO fallback, the touch icon and a theme colour", () => {
   const icons = text("config/head/icons.mjs");
-  for (const needle of ["/favicon.ico", "/apple-touch-icon.png", "#f8fafb", "#090d11"]) assert.ok(icons.includes(needle), needle);
+  for (const needle of ["/favicon.ico", "/apple-touch-icon.png", "themeColor"]) assert.ok(icons.includes(needle), needle);
   assert.match(text("config/site.mjs"), /favicon: "\/favicon\.svg"/);
   const notFound = text("src/components/not-found/NotFoundLayout.astro");
   for (const needle of ["/favicon.ico", "/favicon.svg", "/apple-touch-icon.png", 'name="theme-color"']) assert.ok(notFound.includes(needle), needle);
@@ -90,6 +90,32 @@ test("the browser theme colour, the brand palette and the manifest follow the bg
   assert.equal(palette.dark.bg, token(darkBlock, "--sb-bg"));
   assert.equal(palette.light.accent, token(lightBlock, "--sb-accent"));
   assert.equal(palette.dark.accent, token(darkBlock, "--sb-accent"));
+  // Every other colour the palette repeats is the token's value too.
+  const copies = [
+    [palette.light.onAccent, lightBlock, "--sb-on-accent"],
+    [palette.light.ink, lightBlock, "--sb-ink-strong"],
+    [palette.light.inkSubtle, lightBlock, "--sb-ink-subtle"],
+    [palette.light.accentSoft, lightBlock, "--sb-accent-soft"],
+    [palette.dark.onAccent, darkBlock, "--sb-on-accent"],
+    [palette.dark.ink, darkBlock, "--sb-ink-strong"],
+    [palette.dark.inkSubtle, darkBlock, "--sb-ink-subtle"],
+    [palette.dark.inkMuted, darkBlock, "--sb-ink-muted"],
+    [palette.dark.accentVivid, darkBlock, "--sb-accent-vivid"],
+    [palette.dark.surface, darkBlock, "--sb-surface"],
+    [palette.dark.line, darkBlock, "--sb-line"],
+    [palette.dark.lineStrong, darkBlock, "--sb-line-strong"],
+  ];
+  for (const [value, block, name] of copies) assert.equal(value, token(block, name), name);
+  assert.equal(Object.keys(palette.light).length + Object.keys(palette.dark).length, copies.length + 4, "a new palette colour needs a line here");
+  // The dark page colour is written in a few more places; each follows the token.
+  const darkBg = token(darkBlock, "--sb-bg");
+  assert.equal(token(lightBlock, "--sb-stage"), darkBg, "--sb-stage in the light theme");
+  assert.equal(token(darkBlock, "--sb-stage"), darkBg, "--sb-stage in the dark theme");
+  assert.ok(text("src/lib/house3d/stage.mjs").includes(`background = "${darkBg}"`), "the 3D stage's default background");
+  assert.ok(text("scripts/house-render.mjs").includes(`background:${darkBg}`), "the page the still pictures are rendered on");
+  // The gradient's first colour is the accent, not a copy of it.
+  assert.match(lightBlock, /--sb-brand-a:\s*var\(--sb-accent\);/);
+  assert.match(darkBlock, /--sb-brand-a:\s*var\(--sb-accent-vivid\);/);
   const manifest = JSON.parse(text("public/site.webmanifest"));
   assert.equal(manifest.theme_color, themeColor.dark);
   assert.equal(manifest.background_color, themeColor.dark);

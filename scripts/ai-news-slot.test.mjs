@@ -2,7 +2,10 @@
 // that the workflow is wired to ask.
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
+import { mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { readFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import test from "node:test";
 
@@ -64,13 +67,40 @@ test("anything that cannot be read means write: a missed day is worse than a sec
 test("the script prints one output line and survives an empty or broken list", () => {
   const script = fileURLToPath(new URL("./ai-news-slot.mjs", import.meta.url));
   const call = (input, env) =>
-    spawnSync(process.execPath, [script], { input, encoding: "utf8", env: { ...process.env, ...env } });
+    spawnSync(process.execPath, [script], {
+      input,
+      encoding: "utf8",
+      // On a runner the real Summary file is in the environment: a test must not write to it.
+      env: { ...process.env, GITHUB_STEP_SUMMARY: "", ...env },
+    });
   const scheduled = { GITHUB_EVENT_NAME: "schedule", SCHEDULE: "37 8 * * *", GITHUB_RUN_ID: "20" };
 
   assert.equal(call(JSON.stringify([run(10, "37 4 * * *")]), scheduled).stdout, "write=false\n");
   assert.equal(call("", scheduled).stdout, "write=true\n");
   assert.equal(call("not json", scheduled).stdout, "write=true\n");
   assert.equal(call("[]", { GITHUB_EVENT_NAME: "workflow_dispatch", SCHEDULE: "", GITHUB_RUN_ID: "5" }).stdout, "write=true\n");
+});
+
+test("the script writes its reason to the run's Summary page, and survives a path it cannot write", () => {
+  const script = fileURLToPath(new URL("./ai-news-slot.mjs", import.meta.url));
+  const dir = mkdtempSync(join(tmpdir(), "slot-"));
+  const summary = join(dir, "summary.md");
+  const env = { GITHUB_EVENT_NAME: "schedule", SCHEDULE: "37 8 * * *", GITHUB_RUN_ID: "20" };
+  const call = (input, extra) =>
+    spawnSync(process.execPath, [script], { input, encoding: "utf8", env: { ...process.env, ...env, ...extra } });
+  try {
+    assert.equal(call(JSON.stringify([run(10, "37 4 * * *")]), { GITHUB_STEP_SUMMARY: summary }).stdout, "write=false\n");
+    assert.equal(call("[]", { GITHUB_STEP_SUMMARY: summary }).stdout, "write=true\n");
+    assert.equal(
+      readFileSync(summary, "utf8"),
+      "**Slot:** Not writing: run 10 already covered the early slot today.\n**Slot:** Writing: first run in the early slot today.\n",
+    );
+    const broken = call("[]", { GITHUB_STEP_SUMMARY: join(dir, "missing", "summary.md") });
+    assert.equal(broken.stdout, "write=true\n");
+    assert.equal(broken.status, 0);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
 });
 
 test("the workflow names each run after its cron line and asks before it writes", () => {

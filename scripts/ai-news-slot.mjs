@@ -6,9 +6,12 @@
 // with nothing to publish, so a run stays quiet when another scheduled run in
 // the same slot has started today. A manual run always writes.
 //
+// The reason goes to the log and to the run's Summary page ($GITHUB_STEP_SUMMARY).
+//
 //   gh api …/runs?event=schedule&created=>=<today> --jq '[.workflow_runs[] | {id, conclusion, display_title}]' \
 //     | node scripts/ai-news-slot.mjs >> "$GITHUB_OUTPUT"
 
+import { appendFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 
 /** Which slot each cron line in ai-news.yml belongs to. */
@@ -61,6 +64,13 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     runId: process.env.GITHUB_RUN_ID,
     runs,
   });
-  console.error(`${write ? "Writing" : "Not writing"}: ${reason}.`);
+  const line = `${write ? "Writing" : "Not writing"}: ${reason}.`;
+  console.error(line);
+  // The run's Summary page: a stand-in that stays quiet has no other place to say why.
+  try {
+    if (process.env.GITHUB_STEP_SUMMARY) appendFileSync(process.env.GITHUB_STEP_SUMMARY, `**Slot:** ${line}\n`);
+  } catch {
+    // The decision matters more than the note.
+  }
   console.log(`write=${write}`);
 }

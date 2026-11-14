@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import test from "node:test";
 
 const root = new URL("../", import.meta.url);
@@ -128,5 +128,16 @@ test("every redirect target that is a page exists in the content", () => {
     const base = `src/content/docs${target.replace(/\/$/, "")}`;
     const found = existsSync(new URL(`${base}.mdx`, root)) || existsSync(new URL(`${base}/index.mdx`, root));
     assert.ok(found, `${source} redirects to ${target}, which has no page in src/content/docs`);
+  }
+});
+
+// Cloudflare applies `_redirects` before the Worker runs, so a redirect written in the Worker is
+// either dead code or a second place to look. The Worker used to carry a copy of the table.
+test("redirects live in public/_redirects only: the Worker sends none", () => {
+  const files = readdirSync(new URL("functions", root), { recursive: true }).filter((name) => /\.m?js$/.test(name));
+  assert.ok(files.length > 0);
+  for (const name of files) {
+    const source = readFileSync(new URL(`functions/${name.replaceAll("\\", "/")}`, root), "utf8");
+    assert.doesNotMatch(source, /Response\.redirect|\blocation\b|\bstatus:\s*30[1278]\b/i, `functions/${name} sends a redirect; write the rule in public/_redirects`);
   }
 });

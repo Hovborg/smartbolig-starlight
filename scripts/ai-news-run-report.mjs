@@ -48,12 +48,13 @@ function usageLines(result) {
   return lines;
 }
 
-export function renderReport(result, status) {
+export function renderReport(result, status, { dryRun = false } = {}) {
   const lines = [`## AI News ${plain(result?.date || "", 10)}`.trim(), ""];
   if (status === "failed") {
     lines.push("**Failed.** The writing step did not finish. Open that step's log for the error, then see `docs/nyhedsflow.md`.");
   } else if (status === "publish") {
-    lines.push(`**Published** ${Number(result.stories) || 0} fact-checked stories (lede: ${plain(result.ledeSource, 20)}).`);
+    const stories = `${Number(result.stories) || 0} fact-checked stories (lede: ${plain(result.ledeSource, 20)})`;
+    lines.push(dryRun ? `**Dry run: written, not published.** ${stories}. Nothing is committed or deployed.` : `**Published** ${stories}.`);
   } else {
     lines.push(`**Nothing published.** ${plain(result.reason, 300)}`);
   }
@@ -76,7 +77,7 @@ async function main() {
   const resultPath = process.env.AI_NEWS_RESULT_PATH || "";
   const result = resultPath && existsSync(resultPath) ? JSON.parse(await readFile(resultPath, "utf8")) : null;
   const status = outcome(result, process.env.WRITE_OUTCOME);
-  const report = renderReport(result, status);
+  const report = renderReport(result, status, { dryRun: process.env.DRY_RUN === "true" });
   // The same text goes to the step log, so it can be read with `gh run view --log`.
   process.stdout.write(report);
   if (process.env.GITHUB_STEP_SUMMARY) await appendFile(process.env.GITHUB_STEP_SUMMARY, report, "utf8");

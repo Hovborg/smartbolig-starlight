@@ -10,21 +10,25 @@ sprogsider, nyhedsoversigten, sitemap og RSS med dagens udgave. En prøvekørsel
 Relayets dagsspærre blev afprøvet 2026-11-13 mod den udrullede Worker (kald
 afvist med `daily_budget_exhausted`).
 Den første planlagte kørsel startede af sig selv 2026-11-14 kl. 11:43 UTC (seks minutter efter
-planen) og lykkedes; dagens udgave fandtes allerede, så den udgav ikke noget nyt.
+planen) og lykkedes; dagens udgave fandtes allerede (udgivet af den manuelle kørsel kl. 00:27),
+så den udgav ikke noget nyt. Reserverne kl. 08:37 og 14:37 kom først på `main` samme dag kl.
+12:36 UTC; kl. 16:40 UTC var der ingen kørsel for 14:37.
 Ikke kontrolleret endnu: en planlagt kørsel, der selv udgiver en udgave, en reservekørsel, og
 tre dages drift i træk.
 
 ## Hvad sker der hver dag
 
-Workflowet `.github/workflows/ai-news.yml` kører kl. 04:37 og 11:37 UTC.
-Den anden kørsel stopper med det samme, hvis dagens udgave findes.
+Workflowet `.github/workflows/ai-news.yml` har fire tidspunkter (UTC): 04:37 og 11:37 er de
+to daglige kørsler, 08:37 og 14:37 er deres reserver. Kørslen kl. 11:37 stopper efter
+opsætningen (ca. et halvt minut), hvis dagens udgave findes.
 
-Hver af de to har en reserve nogle timer senere (08:37 og 14:37 UTC), fordi GitHub kan
-springe en planlagt kørsel over. Jobbet `slot` (`scripts/ai-news-slot.mjs`) spørger GitHub,
+Reserverne findes, fordi GitHub kan springe en planlagt kørsel over. Jobbet `slot` (`scripts/ai-news-slot.mjs`) spørger GitHub,
 hvilke planlagte kørsler der er startet i dag. Er kørslen, reserven står for, startet, skriver
 reserven intet: en dag uden nok historier koster altså ikke et ekstra forsøg. Kan listen ikke
 læses, skriver kørslen; en mistet dag er værre end et ekstra forsøg. En manuel kørsel skriver
-altid. Kørslens titel viser, hvilken tidslinje der startede den ("AI News: 37 4 * * *").
+altid. Kørslens titel viser, hvilken tidslinje der startede den ("AI News: 37 4 * * *";
+en manuel kørsel hedder "AI News: manual"). En kørsel fra før 2026-11-14 kl. 12:36 UTC hedder
+kun "AI News" og tæller ikke som en kørsel, en reserve står for.
 
 1. **Hent kilder.** `scripts/ai-news-sources.mjs` har listen over officielle kilder.
    Al hentning går gennem `fetchPublicText` (værtskontrol pr. hop, fastlåst adresse,
@@ -70,6 +74,10 @@ hvilke historier faktatjekket kasserede med begrundelse.
 Samme tekst står i loggen for trinnet "Report the outcome", så den også kan
 læses fra en terminal: `gh run view <kørsel> --log`.
 
+En reserve, der holder sig i ro, skriver én linje på samme Summary-side:
+"**Slot:** Not writing: run … already covered the early slot today." Jobbet `publish` står
+da som sprunget over.
+
 Du får kun besked, når udgivelsen har stået stille i 3 dage (sagen med mærkatet
 `ai-news-stalled`), eller hvis selve udgivelsen til Cloudflare fejler.
 
@@ -87,8 +95,79 @@ Du får kun besked, når udgivelsen har stået stille i 3 dage (sagen med mærka
 | Et kontroltrin efter skrivningen er rødt | Udgaven bestod ikke en kvalitetskontrol. Intet er committet. | Læs trinnets log. Svæk ikke kontrollen; ret årsagen. |
 | Jobbet `deploy` er rødt | Udgaven er på `main`, men ikke udgivet. | Næste kørsel læser den indcommittede `main` (ikke arbejdsmappen), opdager at siden svarer 404 og udgiver selv. Fejlede selve push, udgives intet. |
 
-Kør manuelt: Actions → AI News → **Run workflow**. Sæt `dry_run` for at køre alt
-uden commit og udgivelse.
+Kør manuelt: GitHub → Actions → **AI News** → **Run workflow** (grenen `main`). Lad `date`
+stå tom (så bruges dags dato i København), og lad `dry_run` være slået fra for at udgive; slå
+den til for at køre alt uden commit og udgivelse. Fra en terminal:
+`gh workflow run ai-news.yml --ref main` (prøvekørsel: tilføj `-f dry_run=true`).
+
+### Fejlsøg en kørsel fra en terminal
+
+Kommandoerne køres i en klon af repoet. Andre steder: tilføj
+`--repo Hovborg/smartbolig-starlight`.
+
+1. Se dagens kørsler. `event` siger, hvem der startede kørslen: `schedule` er tidsplanen,
+   `workflow_dispatch` er en person (commit'et med udgaven er altid skrevet af
+   `github-actions[bot]`, så det viser det ikke). Hvem personen var:
+   `gh api repos/Hovborg/smartbolig-starlight/actions/runs/<kørsel> --jq .triggering_actor.login`.
+   Feltet er også udfyldt for en planlagt kørsel (set 2026-11-14: repoets ejer), så se på
+   `event` først. Titlen viser tidspunktet. Hedder en kørsel kun "AI News" (kørsler før 2026-11-14 kl. 12:36 UTC),
+   så brug `createdAt`: en planlagt kørsel starter fra få minutter til en halv time efter sit
+   tidspunkt.
+
+   ```bash
+   gh run list --workflow ai-news.yml --limit 10 --json databaseId,event,displayTitle,conclusion,createdAt
+   ```
+
+2. Se jobbene i én kørsel. **Kørslens farve siger ikke nok:** jobbet `publish` har
+   `continue-on-error`, så en fejlet dag giver en grøn kørsel med et rødt `publish`-job (der
+   sendes ingen fejlmail for en enkelt dårlig dag).
+
+   ```bash
+   gh run view <kørsel> --json jobs --jq '.jobs[] | "\(.name): \(.conclusion)"'
+   ```
+
+3. Læs, hvad kørslen selv siger:
+
+   ```bash
+   gh run view <kørsel> --log | grep -E "Writing:|Not writing:|AI_NEWS_STATUS|Published|Dry run|Nothing published|Failed\."
+   ```
+
+| Det ser du | Det betyder |
+|---|---|
+| `slot` grøn, `publish` sprunget over, "Not writing: run … already covered …" | En reserve, der holdt sig i ro, fordi den kørsel, den står for, startede. Normalt |
+| `publish` grøn, "Nothing published" og en grund: "already exists" (udgaven fandtes), "3 are required" (for få historier bestod), "No novel candidate" (ingen nye kilder) | En dag uden ny udgave. Normalt; se tabellen ovenfor |
+| `publish` grøn, "**Published** … fact-checked stories", `deploy` grøn | Dagens udgave er skrevet og udgivet |
+| `publish` grøn, "**Dry run: written, not published.**", `deploy` sprunget over | En prøvekørsel (`dry_run`). Intet er committet. En prøvekørsel fra før denne linje blev udgivet (2026-11-14) har den ikke: den kendes på `DRY_RUN: true` i loggens `env`-linjer og på, at `deploy` er sprunget over |
+| `slot` grøn, "Writing: the list of runs could not be read" | Spørgsmålet til GitHub fejlede. Kørslen skriver alligevel; se resten af jobbene |
+| Intet `slot`-job | En kørsel fra før 2026-11-14 kl. 12:36 UTC. Den skrev altid |
+| `watch` rød | Trinnet, der åbner eller lukker sagen `ai-news-stalled`, fejlede. Udgivelsen er ikke berørt; læs jobbets log |
+| `publish` rød (kørslen er stadig grøn), "**Failed.**" i rapporten | Et trin fejlede. Find trinnet i tabellen ovenfor |
+| Ingen kørsel for et tidspunkt | GitHub startede den ikke. Se nedenfor |
+
+### Hvis dagens udgave mangler
+
+1. Se dagens kørsler (trin 1 til 3 ovenfor). Står der "Nothing published" med en grund, er
+   dagen sprunget over med vilje: gør intet.
+2. Er der ingen kørsel, så vent på reserven (08:37 og 14:37 UTC, op til en halv time senere).
+3. Fejlede kørslen (`publish` rød), kommer reserven ikke: en reserve holder sig i ro, når
+   kørslen, den står for, er startet, også når den fejlede. Kun en afbrudt kørsel
+   (`cancelled`) tæller ikke. Fejlede morgenkørslen, prøver kørslen kl. 11:37 UTC igen; fejlede
+   den også, kommer der ikke flere forsøg den dag.
+4. Vil du have udgaven nu: `gh workflow run ai-news.yml --ref main`, eller Actions → AI News →
+   **Run workflow** med `date` tom og `dry_run` slået fra. En manuel kørsel skriver altid, og
+   dens modelkald tæller med i dagens loft (se "Hvad det koster").
+5. Følg den: `gh run watch <kørsel>`, og læs derefter jobbene og rapporten som i trin 2 og 3.
+
+**En planlagt kørsel mangler.** Forsinkelser på 5 til 30 minutter er almindelige. Mangler én
+kørsel helt, tager reserven over; mangler begge i et par, tager næste par over. Et nyt
+tidspunkt i workflowet kan mangle den første dag (set 2026-11-14: tidspunkterne 04:37 og 11:37 kom på
+`main` kl. 00:01 UTC; kørslen kl. 04:37 kom ikke, den kl. 11:37 kom). Se, at workflowet er slået til:
+`gh workflow view ai-news.yml` (står der `disabled`, så `gh workflow enable ai-news.yml`). Er dagens udgave ikke kommet kl. 15:30 UTC,
+og vil du have den: start workflowet i hånden (ovenfor). Kommer der ingen udgave i tre dage,
+åbner nyhedsflowet sagen `ai-news-stalled`, og sidevagten åbner sin egen
+(`docs/overvaagning.md`); hvad der så kan gøres, står i `docs/redesign/TIL-EJEREN.md` punkt 16.
+Starter GitHub slet ingen planlagte kørsler i repoet, kører sidevagten heller ikke: se "Ingen
+kørsler" i `docs/overvaagning.md`.
 
 ## Hvad det koster
 
@@ -105,8 +184,18 @@ døgn (UTC); forbrug derover koster penge. Derfor er der to lofter:
   model igen, men går til reservemodellen: hvert forsøg bogfører en ny
   reservation.
 - **Kørslen** (`scripts/lib/news-llm/limits.mjs`) stopper ved 40 kald eller
-  6.000 neurons. Den tæller kun kald, der gav svar; fejlede kald ses kun af
-  relayets dagsloft.
+  6.000 neurons. Den tæller hvert forsøg, før det sendes; neurons tælles kun
+  for kald, der gav svar, så et fejlet kalds forbrug ses kun af relayets
+  dagsloft.
+
+| Loft | Værdi | Står i | Når det nås |
+|---|---|---|---|
+| Modelkald pr. kørsel | 40 | `MAX_CALLS_PER_RUN` i `scripts/lib/news-llm/limits.mjs` | Kørslen prøver ikke flere historier (loggen: "… no further stories are attempted"). Har mindst 3 bestået, udgives de; ellers springes dagen over. Nås loftet, mens indledningen skrives, bruges den faste indledning |
+| Neurons pr. kørsel | 6.000 | `MAX_NEURONS_PER_RUN` i samme fil | Det samme |
+| Neurons pr. døgn | 8.000 | `DAILY_NEURON_BUDGET` i `workers/news-llm/wrangler.jsonc` (standardværdien står i `workers/news-llm/src/budget.js`) | Relayet svarer 429 med `daily_budget_exhausted`, og kørslen stopper på samme måde. Tælleren nulstilles kl. 00:00 UTC |
+
+Relayets tal for dagen tæller alle kald gennem det: også prøvekørsler (`dry_run`) og manuelle
+kørsler. Lofterne må ikke hæves (se `AGENTS.md`).
 
 Prisen regnes ud fra de tokens, modellen melder tilbage, gange modellens pris i
 `workers/news-llm/src/prices.js` (Cloudflares prisliste, neurons pr. million
@@ -269,7 +358,7 @@ ikke kravene.
   tilgængelige, og de falder for kravet om 240 tegn. Det omgås ikke.
 - GitHub kan forsinke eller springe planlagte kørsler over. Derfor to tidspunkter, hver
   med en reserve nogle timer senere. Reserverne hjælper ikke, hvis GitHub slet ikke starter
-  planlagte kørsler i repoet; så skal workflowet startes udefra (`docs/redesign/TIL-EJEREN.md`, punkt 10).
+  planlagte kørsler i repoet; så skal workflowet startes udefra (`docs/redesign/TIL-EJEREN.md`, punkt 16).
 - Beskeden om, at udgivelsen er gået i stå, sendes af `watch`-jobbet i samme
   workflow. Starter workflowet slet ikke, kommer der ingen besked derfra. Sidevagten
   (`docs/overvaagning.md`) læser den udgivne side uafhængigt og åbner en sag, når nyeste

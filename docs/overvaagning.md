@@ -6,8 +6,9 @@ og `npm run site:test` (kontrollerne, genforsøget og rapporten afprøves mod en
 workflowens rettigheder og fastlåste handlinger læses af en test). Workflowen er startet i hånden
 i GitHub Actions 2026-11-14, efter at værktøjerne var udgivet: alle 14 kontroller bestod, også
 `/api/elpris`, og der blev ikke åbnet en sag.
-Ikke kontrolleret: en planlagt kørsel (den første ventes kl. 18:23 UTC 2026-11-14), og opret-,
-kommentér- og luk-trinene for sagen.
+Trinnet, der åbner sagen, er set køre samme dag i en prøve mod en adresse, der fejler.
+Ikke kontrolleret: en planlagt kørsel (ingen var startet 2026-11-14 kl. 19:30 UTC; GitHub
+starter planlagte kørsler med forsinkelse), og kommentér- og luk-trinene for sagen.
 
 ## Kort
 
@@ -66,7 +67,7 @@ når siden er blevet mindre) eller siden har ændret sig med vilje. Ret kontroll
 
 **"AI news is fresh" fejler.** Kontrollen læser nyhedernes eget feed (`/da/ai/nyheder/rss.xml`).
 Dagens nyheder er dateret ved midnat UTC. Er den nyeste over 84 timer gammel, er der ikke
-udkommet nyheder i tre dage. Nyhedsflowet åbner selv sagen `ai-news-stalled` kl. 11:37 UTC på
+udkommet nyheder i tre dage. Nyhedsflowet åbner selv sagen `ai-news-stalled` kl. 11:37 UTC (eller reserven kl. 14:37) på
 tredjedagen; denne kontrol fejler først kl. 18:23 samme dag. Den er altså sikkerhedsnettet,
 hvis nyhedsflowet slet ikke kører (så åbner det heller ikke sin egen sag). Se
 `docs/nyhedsflow.md`. `/rss.xml` er guidernes feed; dets datoer følger bygget og siger

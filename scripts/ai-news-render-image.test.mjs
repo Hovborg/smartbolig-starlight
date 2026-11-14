@@ -8,6 +8,7 @@ import { test } from 'node:test';
 import { promisify } from 'node:util';
 import sharp from 'sharp';
 import { frontmatter, imageHeadline, renderEditorialSvg, selectMotif } from './ai-news-render-image.mjs';
+import { dark } from './lib/brand/palette.mjs';
 
 const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(import.meta.dirname, '..');
@@ -116,8 +117,8 @@ test('all text is outlined paths and the palette is graphite and green, never pu
     const purple = b > g + 20 && r > g + 20; // red and blue both clearly above green
     assert.ok(!purple, `${hex} is purple`);
   }
-  assert.ok(colors.includes('#090d11'), 'dark graphite background from the tokens');
-  assert.ok(colors.includes('#3ee0a6'), 'accent green');
+  assert.ok(colors.includes(dark.bg), 'dark graphite background from the palette');
+  assert.ok(colors.includes(dark.accent), 'accent green from the palette');
 });
 
 test('long and unbroken headlines stay within three lines and inside the canvas', async () => {

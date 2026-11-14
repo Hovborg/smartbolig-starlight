@@ -27,6 +27,8 @@ sensorovervågning findes som MDX-par under `sikkerhed/` og `automationer/`.
 Begge sprog bruger samme danske filsti og oversatte sidebar-labels. Guiderne
 henviser til officielle kilder og beskriver konkrete testtrin i læserens eget hjem.
 
+Sådan tilføjes eller rettes en guide: [`CONTENT-GUIDE.md`](CONTENT-GUIDE.md).
+
 ---
 
 ## 🛠️ Teknisk Stack
@@ -313,6 +315,10 @@ tjekkes tre gange i døgnet af `.github/workflows/monitor.yml`; en fejl åbner e
 etiketten `monitor` ([`docs/overvaagning.md`](docs/overvaagning.md)). Kør kontrollerne selv med
 `node scripts/monitor/run.mjs`.
 
+Det, siden afhænger af uden for repoet (domæne og DNS, Cloudflares indstillinger, Search
+Console, Bing Webmaster Tools, IndexNow og konti), står i [`docs/drift.md`](docs/drift.md)
+(kontrolleret 2026-11-14).
+
 Afhængighedskontrollen (`scripts/security-audit.mjs`) kører den fulde `npm audit`
 inklusiv udviklingsværktøjer. Den har to tilstande (kontrolleret 2026-11-13):
 
@@ -369,7 +375,7 @@ fejlfinding, omkostningsloft, modelvalg og nøgleskift står i
   og hvorfor.
 - **Besked:** kun én GitHub-sag (`ai-news-stalled`), når der ikke er udgivet i
   tre dage.
-- **Tidspunkter:** 04:37 og 11:37 UTC, hver med en reserve nogle timer senere, som
+- **Tidspunkter:** 04:37 og 11:37 UTC, hver med en reserve nogle timer senere (08:37 og 14:37 UTC), som
   kun skriver, hvis GitHub sprang den første over (`scripts/ai-news-slot.mjs`).
 - **Omkostning:** relayet `workers/news-llm/` stopper ved 8.000 neurons pr. døgn,
   under Cloudflares gratis kvote.
