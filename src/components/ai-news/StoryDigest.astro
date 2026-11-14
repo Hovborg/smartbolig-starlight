@@ -82,6 +82,8 @@ const { headlines, copy } = Astro.props;
 
   .story-title {
     display: block;
+    /* 2 px above and below: the one-line link is then over the 24 px a pointer target needs. */
+    padding-block: 0.125rem;
     color: var(--sb-ink-strong);
     font-weight: 650;
     line-height: 1.4;

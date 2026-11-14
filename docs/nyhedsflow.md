@@ -356,7 +356,8 @@ ikke kravene.
 
 - OpenAI's artikelsider svarer 403 til robotter. Kun korte feed-resuméer er
   tilgængelige, og de falder for kravet om 240 tegn. Det omgås ikke.
-- GitHub kan forsinke eller springe planlagte kørsler over. Derfor to tidspunkter, hver
+- GitHub kan forsinke eller springe planlagte kørsler over (set 2026-11-14: kørslerne til
+  11:37 og 14:37 UTC startede 17:16 og 19:24 UTC). Derfor to tidspunkter, hver
   med en reserve nogle timer senere. Reserverne hjælper ikke, hvis GitHub slet ikke starter
   planlagte kørsler i repoet; så skal workflowet startes udefra (`docs/redesign/TIL-EJEREN.md`, punkt 16).
 - Beskeden om, at udgivelsen er gået i stå, sendes af `watch`-jobbet i samme

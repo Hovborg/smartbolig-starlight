@@ -79,7 +79,10 @@ Kontrollér en post uden Windows' DNS-cache:
 
 ### Google Search Console
 
-- Ejendommen er `sc-domain:smartbolig.net`. `sitemap-index.xml` er sendt ind (sidst 2026-11-14).
+- Ejendommen er `sc-domain:smartbolig.net`. `sitemap-index.xml` er sendt ind (sidst 2026-11-14):
+  status "Succes", 320 registrerede sider (set samme dag). Den gamle post `sitemap.xml` står
+  som "Kunne ikke hentes" (sidst læst 2026-07-30). Adressen sender nu videre til
+  `sitemap-index.xml`, og posten er ladt stå.
 - Sitemap-filen skrives af bygget; der er intet at gøre ved en ny side.
 - Anmod om indeksering af en vigtig ny side: skriv adressen i feltet øverst, vent på svaret,
   og tryk "Anmod om indeksering". Google tager omkring ti adresser om dagen.

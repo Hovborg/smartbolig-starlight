@@ -294,8 +294,26 @@ Sidst opdateret: 2026-11-14.
   lokal og ekstern adresse, hvad appen sender, tilladelser, sensorer til og fra, en første
   prøvebesked, fejlsøgning) med én tegning pr. sprog. Hver påstand er holdt op mod
   Companion-appens og Home Assistants egen dokumentation af en uafhængig model; menustien
-  "Udviklerværktøjer" er rettet i seks andre guides. Ikke afprøvet: trinnene er ikke fulgt på
-  en telefon.
+  "Udviklerværktøjer" er rettet i seks andre guides. En slutgennemgang af den færdige tekst
+  fandt ingen fejl i fakta, YAML, links eller tegninger og seks småting, som er rettet (bl.a.
+  danske menunavne for Home Assistants egen menu). Udgivet 2026-11-14 (PR #214, `main`
+  4fe5691, Worker `336b9305`). Set på den levende side: guiden svarer 200 på begge sprog,
+  tegningen hentes, og siden står i sitemappet; indeksering er anmodet i Search Console for
+  begge sprog. Ikke afprøvet: trinnene er ikke fulgt på en telefon.
+- **Eftermåling 2026-11-14:** de samme otte adresser som før-målingen, målt med samme
+  fremgangsmåde mod den levende side (Worker `336b9305`). Rapport med alle tal, forbehold og
+  sikkerhedshoveder før og efter: `docs/measurements/2026-11-14-efter-redesign/README.md`
+  (de to mellemmålinger ligger ved siden af). Lighthouse, enkeltmålinger: Performance 98-99
+  på mobil og 100 på desktop på alle otte sider (før: 96-100, produktsiden 89 på desktop),
+  Best Practices 96 overalt (før 92 på fire sider), SEO 100, Accessibility 100 på syv sider.
+  Forsiden på mobil: LCP 2,3 s til 2,4 s, TBT 110 ms til 19 ms. Produktsiden på desktop: CLS
+  0,229 til 0. Overført vægt på guides og produktsiden: 507-509 KiB til 299-324 KiB.
+  Sikkerhedshoveder: den strenge CSP uden `'unsafe-inline'` for scripts sendes nu som
+  rapport, og filer med hash i navnet caches i et år; resten er uændret. Nyhedsoversigten fik
+  Accessibility 96: linket til en historie var 23,8 px højt (kravet er 24 px). Det er rettet
+  i `StoryDigest.astro`. Målt bagefter med Lighthouse (kun Accessibility) mod den byggede
+  side, serveret lokalt: 100 på `/da/ai/nyheder/` og `/en/ai/nyheder/`, mobil og desktop, og
+  `target-size` er bestået. Ikke målt igen på den levende side.
 
 ## Udgivelser og vej tilbage
 
@@ -306,6 +324,7 @@ flytter kun Workeren og de statiske filer; `main` er uændret, så den næste ud
 
 | Udgivelse | Pull request | Worker-version |
 |---|---|---|
+| Guide om Companion-appen | #214 | `336b9305-395f-408c-8d83-8230bde4d7fc` |
 | Dokumentation og oprydning | #213 | `56ec6c49-5d79-4ecf-a8d7-94e96b46a9cc` |
 | Assistenten søger først, hver besked alene | #209 | `fd3bd2e3-b4c5-4b4b-9bd6-11f719ada749` |
 | Startsæt-bygger | #212 | `202ffebc-da12-4db7-8b7d-865293a6cfd2` |
@@ -342,8 +361,17 @@ Det, der ikke er gjort. Det, kun ejeren kan gøre, står i [TIL-EJEREN.md](TIL-E
 - **Fire pull requests fra Dependabot står åbne med vilje:** #189, #190 og #191 (ny hovedversion
   af tre GitHub Actions) og #193 (Starlight 0.42, som fjerner den mobilmenu-knap, sidens
   stylesheet og assistentknap bygger på). De flettes ikke af sig selv (`docs/opdateringer.md`).
-- **Ikke set køre endnu:** en planlagt sidevagtskørsel, en reservekørsel for nyhederne, og at
-  en grøn sidevagtskørsel selv lukker en åben sag.
+- **Det, eftermålingen ikke viser:** feltdata fra rigtige besøgende (PageSpeed Insights
+  afviste kaldene med 429, og tallene følger et vindue på 28 dage); siden med annoncer og
+  Analytics (hentes først efter et ja, og målenetværket spærrer dem); 3D-husets pris for en
+  besøgende med grafikkort (med metodens software-tegning lader siden stillbilledet stå;
+  `docs/3d-hus.md` har egne tal). Forsiden på desktop har CLS 0,021 (to små skift i
+  `.home-stage__screen`); grænsen for "god" er 0,1.
+- **Ikke set køre endnu:** en planlagt sidevagtskørsel (ingen var startet 2026-11-14 kl. 20:00
+  UTC), og at en grøn sidevagtskørsel selv lukker en åben sag. Reservekørslen for nyhederne
+  er set 2026-11-14: kørslen til 14:37 UTC holdt sig i ro ("Not writing: run … already
+  covered the late slot today"), fordi kørslen til 11:37 var startet. GitHub startede begge
+  ca. fem timer for sent (17:16 og 19:24 UTC).
 
 ## Næste skridt
 
@@ -351,10 +379,9 @@ Det, der ikke er gjort. Det, kun ejeren kan gøre, står i [TIL-EJEREN.md](TIL-E
    UTC, reserver 08:37 og 14:37) skal have skrevet og udgivet dagens udgave uden hjælp. Se
    kørslerne med `gh run list --workflow ai-news.yml`; fejlsøgning står i `docs/nyhedsflow.md`.
 2. Se den første planlagte sidevagtskørsel (02:23, 10:23 eller 18:23 UTC) i Actions.
-3. Mål siden igen (Lighthouse, Core Web Vitals, sikkerhedshoveder) efter samme fremgangsmåde
-   som før-målingen i `docs/measurements/2026-11-13-baseline/README.md`, og læg tallene ved
-   siden af.
-4. Tegninger til de guides, der mangler en (se "Åbent").
+3. Tegninger til de guides, der mangler en (se "Åbent").
+4. Hent feltdata (CrUX) for siden, når redesignet har været ude i 28 dage, og læg dem ved
+   eftermålingen i `docs/measurements/`.
 5. Når ejeren har udgivet samtykkebeskeden: se forløbene ja og nej på den levende side, og
    slå den strenge CSP til.
 
@@ -369,6 +396,12 @@ Det, der ikke er gjort. Det, kun ejeren kan gøre, står i [TIL-EJEREN.md](TIL-E
   - Uden 3D følger regelteksten kapitlerne, mens billedet bliver på aftenen.
   - 3D-løkken har ingen grænse for billeder pr. sekund, mens bevægelse er slået til.
   - Søgefeltet og tidsknapperne er skjult, til scriptet kører; pladsen bør holdes fri.
+  - Fra eftermålingen: det synlige navn står ikke i det tilgængelige navn på sprogskiftet
+    (`a.sb-header__lang`: "EN" mod "Read this page in English"), søgeknappen ("Søg Ctrl K"
+    mod "Søg") og assistentknappen (`button.smartbolig-ai__launcher`). Lighthouse tæller
+    det ikke med i tallet; det rammer den, der styrer siden med stemmen (WCAG 2.5.3).
+  - Fra eftermålingen: nyhedsartiklens topbillede mangler `fetchpriority="high"`
+    (`lcp-discovery-insight`), og nyhedsoversigten henter 46 filer på en telefon (små billeder).
   - Filer uden brug fra før redesignet (`ProductCard.astro`, `scripts/content-inventory.mjs`,
     `public/images/produkter/`, `public/images/logo-email.png`): tjek ekstern brug, før de
     slettes (TIL-EJEREN punkt 7).
