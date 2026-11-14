@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 748" role="img" lang="en" font-family="system-ui, sans-serif">
   <title>How Home Assistant fits together</title>
-  <desc>Home Assistant sits in the middle and runs automations. You use it from the dashboard in a browser or in the app for iOS and Android. Integrations such as Philips Hue, Sonos and ESPHome connect brands and services. Apps (formerly add-ons) such as Zigbee2MQTT, Node-RED and File editor run beside it. Devices and sensors connect over Zigbee, WiFi, Z-Wave, Matter or the cloud.</desc>
+  <desc>Home Assistant runs automations. You use it from the dashboard in a browser or in the app for iOS and Android. Integrations such as Philips Hue, Sonos and ESPHome connect brands and services. Apps (formerly add-ons) such as Zigbee2MQTT, Node-RED and File editor run beside it. Devices and sensors connect over Zigbee, WiFi, Z-Wave, Matter or the cloud.</desc>
   <defs><linearGradient id="core" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0891b2"/><stop offset="1" stop-color="#0e7490"/></linearGradient></defs>
   <rect x="0" y="0" width="640" height="748" fill="#1a1a2e"/>
   <text x="320" y="44" font-size="28" fill="#e2e8f0" text-anchor="middle" font-weight="700">How Home Assistant fits together</text>

@@ -19,7 +19,7 @@
   <text x="504" y="238" font-size="22" fill="#ffffff" text-anchor="middle">dashboard</text>
   <text x="320" y="288" font-size="22" fill="#ffffff" text-anchor="middle">4 cores · 4 GB RAM · 32 GB disk</text>
   <rect x="56" y="348" width="560" height="52" rx="10" fill="#0f172a" stroke="#f59e0b" stroke-width="2"/>
-  <text x="74" y="381.9" font-size="22" fill="#fbbf24" font-weight="700">USB-passthrough</text>
+  <text x="74" y="381.9" font-size="22" fill="#fbbf24" font-weight="700">USB passthrough</text>
   <text x="598" y="381.9" font-size="22" fill="#e2e8f0" text-anchor="end">Zigbee dongle</text>
   <rect x="56" y="412" width="560" height="52" rx="10" fill="#0f172a" stroke="#8b5cf6" stroke-width="2"/>
   <text x="74" y="445.9" font-size="22" fill="#c4b5fd" font-weight="700">Disk</text>

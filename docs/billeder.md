@@ -6,9 +6,10 @@ Tekstspaltens bredde og den fil, browseren henter, er målt i headless Chrome p�
 Zigbee2MQTT-guide ved 22 vinduesbredder. Alle 36 diagrammer er set som billede i headless Chrome
 i 656 px bredde (2 × 328) på mørk baggrund; tekststørrelse (mindst 22 enheder), overlap og plads
 er målt i samme Chrome med både `system-ui` og `Verdana`.
-Ikke kontrolleret: en rigtig telefon, Safari og Firefox, diagrammerne på lys baggrund og i 720 px
-bredde efter den seneste ændring, og at diagrammerne ser rigtige ud på den byggede side. Det, der er tilbage for diagrammerne,
-står i `docs/redesign/STATUS.md`.
+En uafhængig gennemgang har derefter set dem på lys baggrund og på den byggede side i 390 px
+bredde og holdt LD2410-benene op mod Hi-Links manual til HLK-LD2410C (TX, RX, OUT, GND, VCC).
+Ikke kontrolleret: en rigtig telefon, Safari og Firefox, og diagrammerne i 720 px bredde efter
+den seneste ændring. Det, der er tilbage for diagrammerne, står i `docs/redesign/STATUS.md`.
 
 ## Kort
 
