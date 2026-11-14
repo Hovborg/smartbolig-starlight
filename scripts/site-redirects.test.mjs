@@ -35,6 +35,12 @@ test("old top-level addresses redirect with 301 instead of answering 404", () =>
     "/da/legal/affiliate-disclosure/": "/da/juridisk/affiliate-disclosure/",
     "/da/automations": "/da/automationer/",
     "/da/automations/": "/da/automationer/",
+    "/da/about": "/da/om-os/",
+    "/da/about/": "/da/om-os/",
+    "/da/contact": "/da/kontakt/",
+    "/da/contact/": "/da/kontakt/",
+    "/da/security": "/da/sikkerhed/",
+    "/da/security/": "/da/sikkerhed/",
     "/index.xml": "/rss.xml",
     "/da/index.xml": "/rss.xml",
     "/en/index.xml": "/en/rss.xml",
@@ -107,11 +113,12 @@ test("the English products splat comes after every specific English product rule
   assert.ok(Math.max(...specific) < splat);
 });
 
-test("the old feed address goes to a feed the build writes", () => {
-  for (const [source, target] of [["/index.xml", "/rss.xml"], ["/da/index.xml", "/rss.xml"], ["/en/index.xml", "/en/rss.xml"]]) {
-    assert.deepEqual(find(source)?.slice(1), [target, "301"], source);
-    const page = target === "/rss.xml" ? "src/pages/rss.xml" : "src/pages/en/rss.xml";
-    assert.ok(["", ".ts", ".js", ".mjs"].some((end) => existsSync(new URL(`${page}${end}`, root))), `${target} has no source in src/pages`);
+test("a redirect to a feed points at a feed the site builds", () => {
+  const feeds = rules.filter(([, target]) => target.endsWith("rss.xml") && !target.includes(":"));
+  assert.ok(feeds.some(([source]) => source === "/da/index.xml"), "the old feed address has a rule");
+  for (const [source, target] of feeds) {
+    const page = `src/pages${target}`;
+    assert.ok([".js", ".ts", ".mjs"].some((end) => existsSync(new URL(`${page}${end}`, root))), `${source} goes to ${target}, which has no source in src/pages`);
   }
 });
 
