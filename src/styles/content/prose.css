@@ -70,6 +70,13 @@
   border-radius: var(--sb-radius-md);
 }
 
+/* A drawing fills the column like a photo does. The width Astro writes on the
+   tag is only the size it was drawn in. */
+.sl-markdown-content img[src*=".svg"]:not(:where(.not-content *)) {
+  width: 100%;
+  height: auto;
+}
+
 .sl-markdown-content :is(figure, picture) > img,
 .sl-markdown-content p > img:only-child {
   box-shadow: var(--sb-shadow-md);

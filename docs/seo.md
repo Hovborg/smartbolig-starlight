@@ -51,6 +51,17 @@ ikke rettes i hånden.
   regler efter den første af dem mod en grænse på 100 (brugt: 8).
 - **En produktadresse uden afsluttende skråstreg får ét hop.** Reglerne med `:slug` sender
   `/produkter/shelly` direkte til `/da/produkter/shelly/`.
+- **Ingen to regler med `*` eller `:navn` må kunne ramme samme adresse.** Cloudflare lader ikke
+  den regel, der står først, vinde: på den levende side vandt `/produkter/*` over
+  `/produkter/:slug` (set 2026-11-14). Derfor hedder reglen for alt dybere `/produkter/:slug/*`.
+  Testen "no address made from a dynamic rule matches another dynamic rule" laver prøveadresser
+  ud fra hver regel og fejler, hvis en af dem også rammer en anden regel.
+- **`www.smartbolig.net` sendes til `smartbolig.net` hos Cloudflare, ikke i repoet.** `_redirects`
+  kan ikke skelne mellem værter. Reglen hedder "smartbolig.net: www til hoveddomænet" og står
+  under Rules → Redirect Rules i zonen; den gælder kun værten `www.smartbolig.net` (301, sti og
+  forespørgsel bevares). Før 2026-11-14 svarede `www` med 200 og samme indhold som hoveddomænet.
+  Kontrol: `curl -sI https://www.smartbolig.net/da/` skal svare 301 med
+  `location: https://smartbolig.net/da/`. Fjernes ved at slette reglen samme sted.
 
 ## Tilføj en omdirigering
 
@@ -85,6 +96,7 @@ ikke rettes i hånden.
 | `seo:validate`: en navngiven gruppe i `robots.txt` mangler `Disallow` | Tilføj de to `Disallow`-linjer i gruppen |
 | En gammel adresse svarer 404 | Tilføj en regel i `_redirects` (se ovenfor) |
 | En gammel adresse svarer 307 og derefter 200 | Linket mangler den afsluttende skråstreg. Ret linket, ikke omdirigeringen |
+| En gammel adresse får to hop (301 og så 301 eller 307) | To dynamiske regler rammer adressen, og Cloudflare valgte den anden. Gør reglerne adskilte, se ovenfor |
 
 ## Fjern en del
 

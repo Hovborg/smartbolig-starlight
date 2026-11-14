@@ -51,8 +51,26 @@ Sidst opdateret: 2026-11-14.
   `og:type` efter sidens slags, forside uden brødkrumme-liste. Uafhængig gennemgang; fund
   rettet. Dokumentation: `docs/seo.md`. Efter udgivelsen kontrolleres med `curl`: `/kontakt`,
   `/sitemap.xml`, `/index.html`, `/produkter/shelly`, `/da/products/shelly/`,
-  `/en/products/shelly/`, `robots.txt` og `og:type` på en guide og en oversigt. Resultatet
-  skrives her.
+  `/en/products/shelly/`, `robots.txt` og `og:type` på en guide og en oversigt.
+  Udgivet 2026-11-14 (PR #196, `main` 648aecf, Worker-version d6ff7144). Set med `curl` på den
+  levende side: `/kontakt`, `/sitemap.xml`, `/index.html`, `/da/products/shelly/` og
+  `/en/products/shelly/` svarer 301 til den rigtige adresse i ét hop; `robots.txt` har de to
+  `Disallow`-linjer i `*`-gruppen; `og:type` er `article` på Zigbee2MQTT-guiden og `website` på
+  forsiden, Home Assistant-oversigten og nyhedsoversigten; forsiden har ingen brødkrumme-liste,
+  guiden ingen HowTo-data, og der er ét `generator`-felt. Afvigelse: `/produkter/shelly` og
+  `/da/products/shelly` fik to hop, fordi Cloudflare lod `*`-reglen vinde over `:slug`-reglen.
+  Rettet i billedudgivelsen (reglerne overlapper ikke mere). Vej tilbage: Worker-version 680d5226.
+- **Guidernes billeder (B55):** billederne i guidernes tekst ligger i `src/assets/guides/` og
+  laves som WebP i seks bredder; browseren får spaltens målte bredde at vide; tegninger fylder
+  spalten; åbningsbilledet hentes først. Uafhængig gennemgang; fund rettet. Dokumentation:
+  `docs/billeder.md`. Efter udgivelsen kontrolleres på den levende side: `srcset`, `sizes` og
+  `fetchpriority` på Home Assistant-guidens åbningsbillede, at en billedfil svarer 200 som WebP,
+  LD2410-diagrammet på dansk og engelsk, og `/produkter/shelly` i ét hop. Resultatet skrives her.
+- **`www` til hoveddomænet (2026-11-14):** en omdirigeringsregel hos Cloudflare, kun for værten
+  `www.smartbolig.net`. Kontrolleret på den levende side: `/`, `/da/`, en guide med forespørgsel
+  og `http://` svarer alle 301 til samme sti på `https://smartbolig.net`; hoveddomænet og
+  `/api/chat` er uændrede, og zonens anden regel (et andet projekts) er urørt. Beskrevet i
+  `docs/seo.md`. Vej tilbage: slet reglen.
 
 ## I gang
 
@@ -119,8 +137,10 @@ Sidst opdateret: 2026-11-14.
   - 3D-løkken har ingen grænse for billeder pr. sekund, mens bevægelse er slået til.
   - Søgefeltet og tidsknapperne er skjult, til scriptet kører; pladsen bør holdes fri.
   - Filer uden brug fra før redesignet (`ProductCard.astro`, `scripts/content-inventory.mjs`,
-    `public/images/produkter/`, `logo-email.png`, fire filer i `public/images/guides/`):
-    tjek ekstern brug, før de slettes.
+    `public/images/produkter/`, `logo-email.png`): tjek ekstern brug, før de slettes.
+  - Diagrammerne i guiderne (27 SVG-filer) er ikke set igennem. LD2410-oversigten har
+    overlappende tekst og dansk tekst på den engelske side; de andre skal ses som billede, og
+    fakta holdes op mod guidens tekst og kode.
   - Indtryk: emoji i tabelceller, emnekortene for automationer og produkter ligner hinanden,
     det store Home Assistant-kort har få detaljer, nyhedsartikler mangler brødkrumme, og
     nyhedsoversigtens store kort gentager dato og overskrift.
