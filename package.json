@@ -25,12 +25,12 @@
     "worker:build": "wrangler pages functions build functions --outdir .worker --project-directory ."
   },
   "dependencies": {
-    "@astrojs/markdown-remark": "7.2.4",
+    "@astrojs/markdown-remark": "7.3.0",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/starlight": "^0.41.7",
     "@fontsource-variable/bricolage-grotesque": "5.3.0",
     "@fontsource-variable/figtree": "5.3.0",
-    "astro": "^7.2.8",
+    "astro": "^7.4.7",
     "github-slugger": "2.0.0",
     "remark-gfm": "^4.0.1",
     "sharp": "^0.35.4",

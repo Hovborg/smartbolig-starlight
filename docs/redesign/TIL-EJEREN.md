@@ -31,7 +31,15 @@ Sidst opdateret: 2026-11-14.
 6. **OpenAI-nyheder.** OpenAI's artikelsider svarer 403 til robotter. Kun korte resuméer kan
    hentes, og de er for tynde til faktatjekket. Det omgås ikke.
 
+7. **Store opdateringer flettes ikke af sig selv.** Små opdateringer af pakker kommer på
+   siden uden dig. Disse bliver liggende som åbne pull requests, til nogen ser på dem: en ny
+   hovedversion af en pakke, et nyt midterste tal for `@astrojs/starlight`, `three`, `sharp`
+   og `esbuild` (fx 0.41 til 0.42), og opdateringer af GitHub Actions. Siden virker uden dem.
+   Den første, du vil se, er Starlight 0.42: den kræver en ændring af mobilmenuen først.
+   Så længe den ligger åben, får Starlight heller ingen små rettelser (sikkerhedsrettelser
+   kommer stadig). Fremgangsmåde: `docs/opdateringer.md`.
+
 ## Rester fra den gamle nyhedskørsel
 
-7. **Gamle filer fra den tidligere kørsel.** Den efterlod kørselsmapper og en launcher uden
+8. **Gamle filer fra den tidligere kørsel.** Den efterlod kørselsmapper og en launcher uden
    for repoet. De bruges ikke længere, og opgaven er slået fra. Sig til, hvis de skal slettes.

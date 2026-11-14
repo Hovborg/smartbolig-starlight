@@ -85,6 +85,7 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - En fejlet dag gør ikke workflowet rødt; kun tre dage uden udgivelse giver en GitHub-sag.
 
 ### B16. Afhængigheder: kontrol mod seneste vellykkede udgivelse, og tre døgns karenstid
+- Afløst af B51 (2026-11-14): ventetiden er nu 14 dage og håndhæves af Dependabot.
 - Kontrollen sammenligner med det seneste commit, der blev udgivet uden fejl (PR #171).
 - Nye pakkeversioner tages først i brug, når de er tre døgn gamle. Astro og Starlight blev derfor
   på de afprøvede versioner.
@@ -367,6 +368,54 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   ejeren direkte.
 - Udskudt med begrundelse står i STATUS.md under "Udskudt fra designgennemgangen".
 
+### B51. Opdaterede pakker og automatiske opdateringer
+- Fund (2026-11-14): `npm audit` viste 4 fund (3 moderate, 1 lav) i Astro,
+  `postcss-selector-parser`, `smol-toml` og `fast-xml-parser`. Ingen var høje, så porten var
+  grøn, men de er lukket nu: Astro 7.2.8 til 7.4.7 med `@astrojs/markdown-remark` 7.3.0.
+- Undtagelse fra reglen om 14 dage gamle versioner: 16 pakker i lockfilen var yngre end
+  14 dage den 14/11.
+  - 5 følger af sikkerhedsrettelsen, og der findes ingen ældre rettet version: `astro`
+    7.4.7 (9 dage), `@astrojs/internal-helpers` 0.13.1, `@astrojs/markdown-satteri` 0.4.7,
+    `fast-xml-parser` 5.12.0 (11 dage) og `is-unsafe` 2.0.3.
+  - 11 kom med, da npm løste træet: `shiki` 4.6.0 med syv `@shikijs/*` (12 dage),
+    `@babel/parser` og `@babel/helper-string-parser` 7.29.13 (10 dage) og
+    `mdast-util-mdx-jsx` 3.2.1 (11 dage). Forsøgt holdt tilbage: npm lægger da fem kopier af
+    `shiki` 4.5.0 ind ved siden af hinanden, så lockfilen er beholdt. Alle 16 er over
+    14 dage gamle fra 2026-11-19.
+- Automatiske opdateringer: Dependabot med 14 dages ventetid. Små opdateringer af
+  npm-pakker (patch, og minor fra version 1) flettes af et job, der selv venter på
+  `deploy`-kontrollen. Dependabots advarsler og sikkerhedsrettelser er slået til i repoet.
+- Efter uafhængig gennemgang (2026-11-14):
+  - Minor af pakker under version 1 flettes ikke. Starlight 0.42 fjernede den
+    mobilmenu-knap, sidens stylesheet og assistentknap bygger på; `deploy` ville være grøn.
+    De fire 0.x-pakker står uden for gruppen, så de ikke holder resten tilbage.
+  - Den fremmede Action kører i et job, der kun kan læse; jobbet, der fletter, har ingen
+    fremmed kode. Workflow-filen kommer fra pull requesten, så en opdatering af Actionen
+    ville ellers køre med skriveadgang, før nogen havde set den.
+  - Efter en fletning startes kontrollerne på `main` (uden udgivelse). Ellers bliver
+    pakke-kontrollen ved med at regne lockfilen for ændret, og et nyt fund i en uændret
+    pakke ville stoppe nyhedsudgivelsen: den fejl, B16's to tilstande blev lavet mod.
+- Fravalgt: GitHubs egen auto-fletning. Den kræver grenbeskyttelse på `main`, og så kan
+  nyhedskørslen ikke længere pushe dagens udgave. Uden grenbeskyttelse fletter den straks,
+  før kontrollerne er kørt.
+- Fravalgt: at flette GitHub Actions og major-opdateringer automatisk. En ny hovedversion
+  kan ændre opførsel, testene ikke fanger, og en Action ændrer selve udgivelsesvejen.
+  Accepteret risiko: også npm-pakker kører i job med Cloudflare-nøglen; for små
+  opdateringer er værnet ventetiden, lockfilens integritetskontrol og `deploy`.
+- En flettet opdatering udgives ikke med det samme (en fletning foretaget af GitHubs
+  workflow-nøgle starter ingen udgivelse). Den kommer med næste udgivelse: næste push fra et
+  menneske til `main` eller næste nyhedskørsel, der udgiver en udgave. Alle kontroller kører
+  igen først.
+- Anden gennemgang (uafhængig model, 2026-11-14) fandt intet blokerende og fem ting, der er
+  rettet: (1) flettejobbet stolede på, hvad `fetch-metadata` svarede om økosystemet, og en
+  pull request, der opdaterer den Action, bestemmer selv svaret; nu læser jobbet grenens
+  navn og de ændrede filer fra GitHub. (2) En rettelse uden læsbart versionsnummer slap
+  forbi 0.0.x-reglen; nu tæller den som stor. (3) Fejlede sletningen af grenen, kørte
+  trinnet efter fletningen ikke; grenen slettes nu af repo-indstillingen. (4) En
+  kontrolkørsel kunne skubbe en ventende udgivelse ud af køen; den har nu sin egen kø i
+  `deploy.yml`, og Dependabot har et fast tidspunkt væk fra nyhedskørslerne. (5) En pakke
+  under version 1 får ingen rettelser, mens en nyere minor venter; det står nu i
+  `docs/opdateringer.md`. Reglerne afprøves af `scripts/site-dependabot.test.mjs`.
 ### B52. Assistenten søger i sidens eget indeks
 - Baggrund: B8. Cloudflare AI Search fakturerer fra 2026-12-01 ud over 1.000 forespørgsler
   pr. måned, og kravet er ingen udgifter.

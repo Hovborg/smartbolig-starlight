@@ -22,6 +22,13 @@ Sidst opdateret: 2026-11-14.
 - **Fase 1, oprydning:** PR #181 flettet og udgivet 2026-11-14. De gamle kørsler (Windows,
   systemd, OpenClaw) og ComfyUI-sporet er fjernet; GitHub Actions er eneste udgivelsesvej.
   PR #170, #169, #166, #165 og #147 er lukket som forældede.
+- **Afhængigheder og automatiske opdateringer (B51):** Astro 7.4.7, `npm audit` uden fund,
+  Dependabot med 14 dages ventetid og auto-fletning af små npm-opdateringer
+  (`docs/opdateringer.md`). Dependabots advarsler og sikkerhedsrettelser er slået til i
+  repoet, og flettede grene slettes af repo-indstillingen. To uafhængige gennemgange;
+  reglerne afprøves af `scripts/site-dependabot.test.mjs`. Næste skridt her: opgradér
+  Starlight til 0.42 i hånden (mobilmenu-knappen), så pakken igen får rettelser. Ikke set endnu: den første rigtige pull request fra Dependabot gennem
+  auto-fletningen (se efter i ugen fra 2026-11-14, og ret da "Ikke kontrolleret endnu").
 - **Assistentens eget søgeindeks (B52, rettet efter uafhængig gennemgang):** bygges med siden, læses af Workeren fra `/_index/`;
   `ai_search`-bindingen er fjernet. `functions/api/chat.js` er delt i `functions/lib/chat/`.
   Dokumentation: `docs/assistent.md`.
@@ -30,7 +37,7 @@ Sidst opdateret: 2026-11-14.
 
 - **Fase 2, design runde 1:** PR #180 flettet og udgivet 2026-11-14 (`main` 143eefc).
   Vej tilbage: `npx wrangler rollback <forrige version> -m "<besked>" -y`.
-- **Fase 2, design runde 2** (grenen `redesign/v2`, ikke udgivet). Ejeren har bedt om et løft:
+- **Fase 2, design runde 2:** PR #182 flettet og udgivet 2026-11-14 (`main` d3eaa30). Ejeren bad om et løft:
   wow-forside, realistisk 3D, grafik i høj kvalitet, mørkt tema først.
   - Færdigt på grenen: farveværdier v2, 3D-huset (`src/lib/house3d/`, `docs/3d-hus.md`), ny hero
     med søgefelt, husets skærm, rundturen "Et døgn i et smart hjem", stillbilleder, brandfiler,
@@ -55,7 +62,7 @@ Sidst opdateret: 2026-11-14.
     dato pr. side, bannere til have og energi, fejl i `docs/designsystem.md` og
     `docs/3d-hus.md`. `npm run site:test` er grøn (151 tests).
   - Mangler på resten af siden: assistentens udseende.
-- **Seks nye guides** (grenen `content/new-guides`, samlet af `content/new-guides-a` og `-b`):
+- **Seks nye guides:** PR #183 flettet og udgivet 2026-11-14 (`main` ce015e6):
   elmåler via HAN-port, valg af hardware, solceller og batteri, billige timer, ferietilstand,
   smart home i lejebolig. Gennemgået og rettet af en uafhængig model 2026-11-14 mod officielle
   kilder. Ikke afprøvet: automationerne er ikke kørt på et anlæg (skabelonerne i billige timer
