@@ -1,0 +1,40 @@
+/*
+ * Print: the article only, dark text on white paper.
+ * Starlight's own print helpers (`print:hidden`) sit in a lower cascade layer
+ * than this theme, so the site's own chrome is hidden here.
+ * The light colours come from the tokens (`@media not print` around the dark
+ * values) and from ThemeProvider.astro, which prints in the light theme.
+ */
+@media print {
+  body::before,
+  .sb-header__nav,
+  .sb-header__tools,
+  .smartbolig-ai,
+  .giscus-wrapper,
+  footer .legal-links,
+  ins.adsbygoogle,
+  .google-auto-placed {
+    display: none !important;
+  }
+
+  .page > header {
+    border-bottom: 1px solid var(--sb-line);
+    background: none;
+    backdrop-filter: none;
+  }
+
+  /* Without JavaScript the code blocks keep their dark colour set. Give them
+     the light token colours and a plain frame so they stay readable. */
+  :root:not([data-theme="light"]) .expressive-code .ec-line :where(span[style^="--"]:not([class])) {
+    color: var(--1, inherit);
+  }
+  :root:not([data-theme="light"]) .expressive-code pre {
+    border: 1px solid var(--sb-line);
+    background: none;
+    color: var(--sb-ink);
+  }
+  :root:not([data-theme="light"]) .expressive-code :is(.header, .title) {
+    background: none;
+    color: var(--sb-ink);
+  }
+}

@@ -1,7 +1,8 @@
 ---
 // Sets the theme before the first paint. Dark is the default; the visitor picks
 // light with the theme switch (ThemeSelect.astro stores the choice). Also keeps
-// the browser's theme colour in step. Works when browser storage is blocked.
+// the browser's theme colour in step, and prints in the light theme. Works
+// when browser storage is blocked.
 ---
 
 <script is:inline>
@@ -23,6 +24,18 @@
     };
     root.dataset.theme = read() || "dark";
     syncThemeColor();
+    // Paper is white: print in the light theme (code blocks follow it too),
+    // then return to the theme the page had. Without JavaScript the print
+    // rules in styles/print.css still give dark text.
+    let beforePrint = null;
+    addEventListener("beforeprint", () => {
+      beforePrint = root.dataset.theme;
+      root.dataset.theme = "light";
+    });
+    addEventListener("afterprint", () => {
+      root.dataset.theme = beforePrint || read() || "dark";
+      beforePrint = null;
+    });
     new MutationObserver(syncThemeColor).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
   })();
 </script>

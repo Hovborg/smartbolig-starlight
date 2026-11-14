@@ -31,11 +31,13 @@ test('theme starts dark, keeps a stored choice and still initializes when browse
   const run = ({ stored, storageThrows = false } = {}) => {
     const meta = { content: '#dark', dataset: { dark: '#dark', light: '#light' } };
     const observers = [];
+    const listeners = {};
     const document = { documentElement: { dataset: {} }, querySelector: () => meta };
     const localStorage = { getItem() { if (storageThrows) throw new Error('Storage denied'); return stored ?? null; } };
     class MutationObserver { constructor(fn) { observers.push(fn); } observe() {} }
-    vm.runInNewContext(script, { document, localStorage, MutationObserver });
-    return { document, meta, observers };
+    const addEventListener = (type, fn) => { listeners[type] = fn; };
+    vm.runInNewContext(script, { document, localStorage, MutationObserver, addEventListener });
+    return { document, meta, observers, listeners };
   };
   // Dark is the default, whatever the device prefers; the script never asks the device.
   assert.doesNotMatch(script, /prefers-color-scheme|matchMedia/);
@@ -52,6 +54,30 @@ test('theme starts dark, keeps a stored choice and still initializes when browse
   live.document.documentElement.dataset.theme = 'light';
   live.observers.forEach((fn) => fn());
   assert.equal(live.meta.content, '#light');
+  // Print uses the light theme and returns to the theme the page had.
+  const printed = run();
+  printed.listeners.beforeprint();
+  assert.equal(printed.document.documentElement.dataset.theme, 'light');
+  printed.listeners.afterprint();
+  assert.equal(printed.document.documentElement.dataset.theme, 'dark');
+  // A theme picked in this visit survives printing even when storage is blocked.
+  const picked = run({ storageThrows: true });
+  picked.document.documentElement.dataset.theme = 'light';
+  picked.listeners.beforeprint();
+  picked.listeners.afterprint();
+  assert.equal(picked.document.documentElement.dataset.theme, 'light');
+});
+
+test('print hides the site chrome and never keeps the dark colour set', async () => {
+  const read = (path) => readFile(new URL(`../${path}`, import.meta.url), 'utf8');
+  const print = await read('src/styles/print.css');
+  for (const selector of ['.sb-header__nav', '.sb-header__tools', '.smartbolig-ai', '.giscus-wrapper']) {
+    assert.ok(print.includes(selector), selector);
+  }
+  assert.match(await read('src/styles/index.css'), /@import "\.\/print\.css";/);
+  for (const path of ['src/styles/tokens/color.css', 'src/styles/tokens/scale.css']) {
+    assert.match(await read(path), /@media not print \{\s*:root\[data-theme="dark"\]/, path);
+  }
 });
 
 test("JSON written into a script block cannot close the block", async () => {
