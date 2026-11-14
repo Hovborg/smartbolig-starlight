@@ -2,8 +2,9 @@ name: Monitor
 
 # Checks the live site three times a day and tells the owner through one GitHub
 # issue labelled `monitor`: opened (or commented on) while a check fails,
-# closed when everything passes again. No outside service and no secrets;
-# only the workflow's own token writes the issue. See docs/overvaagning.md.
+# closed when everything passes again. A manual run against another address
+# is a trial and keeps its own issue (`monitor-trial`). No outside service and no
+# secrets; only the workflow's own token writes the issue. See docs/overvaagning.md.
 
 on:
   schedule:

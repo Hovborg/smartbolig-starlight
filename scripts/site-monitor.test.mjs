@@ -161,7 +161,13 @@ test("monitor.yml: issues write only, a schedule, concurrency, every action pinn
   assert.match(yml, /^concurrency:\s*\n\s+group: monitor/m);
   assert.match(yml, /timeout-minutes: 15/);
   assert.match(yml, /if: \$\{\{ github\.repository == 'Hovborg\/smartbolig-starlight' \}\}/);
-  assert.match(yml, /issues\?labels=monitor&state=open&creator=github-actions%5Bbot%5D/, "only the workflow's own issue is commented on and closed");
+  assert.match(yml, /issues\?labels=\$label&state=open&creator=github-actions%5Bbot%5D/, "only the workflow's own issue is commented on and closed");
+  // A trial against another address has its own label, so it can neither close nor rewrite the live site's alarm.
+  assert.ok(yml.includes("BASE: ${{ inputs.base }}"));
+  assert.ok(yml.includes('label=monitor; where=smartbolig.net'));
+  assert.ok(yml.includes('if [ -n "$BASE" ]; then label=monitor-trial; where="$BASE (trial run)"; fi'));
+  assert.ok(yml.includes('--label "$label"'), "a new issue gets the label of its kind");
+  assert.ok(!/labels=monitor&/.test(yml) && !/--label monitor\b/.test(yml), "no step names the live label directly");
   const uses = [...yml.matchAll(/^\s+uses:\s*(\S+)/gm)].map((match) => match[1]);
   assert.ok(uses.length >= 2);
   for (const reference of uses) assert.match(reference, /^[\w.-]+\/[\w.-]+@[0-9a-f]{40}$/, reference);
