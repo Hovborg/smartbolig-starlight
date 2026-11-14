@@ -816,6 +816,35 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Kendt og ladt være: søjler for timer, der er gået, har lav kontrast, og første svar fra
   browserens cache kan give et ur, der er op til ti minutter bagud (`docs/vaerktoejer.md`).
 
+### B61, tilføjelse efter udgivelsen (2026-11-14)
+
+- Fundet: på den levende side svarede `/api/elpris` 502. Workerens log viste
+  `UpstreamStatus429`. Målt fra Cloudflares net med en prøve-Worker: Energinets datasæt-adresse
+  svarede 429 i 14 af 14 kald (grænsen er ét kald i minuttet pr. IP-adresse, og en Worker deler
+  adresse med alle andre Workers), mens download-adressen for samme datasæt svarede 200 med
+  alle 192 rækker i 15 af 15 kald.
+- Valgt: Workeren spørger download-adressen først og datasæt-adressen som reserve.
+  Begrundelse: kilden er stadig Energinet (officiel, CC BY 4.0, kvartersopløsning, kroner), og
+  ændringen er lille: én fil, samme kontrol af rækkerne.
+- Fravalgt: elprisenligenu.dk som kilde eller reserve. Den svarede 200 fra Cloudflare, men har
+  timepriser og ikke kvarterer, regner selv om fra ENTSO-E's europriser med en valutakurs, og
+  morgendagens fil findes ikke før ca. kl. 13. To kilder med forskellig opløsning ville give
+  to sæt tal for samme time.
+- Fravalgt nu: Cron Trigger og KV. Begrundelse: det er en ny binding og en ny ting at holde
+  øje med; det bygges først, hvis download-adressen også bliver begrænset
+  (`docs/vaerktoejer.md`, "Ikke bygget").
+- Valgt: siden blev ikke rullet tilbage, mens rettelsen blev lavet. Begrundelse: siderne,
+  strømforbrugsværktøjet og forsidens kort (med sin tekst i stedet for tal) virkede, og de nye
+  sider var allerede meldt til søgemaskinerne.
+- Valgt: mangler ét prisområde i et svar, holder Workeren samme pause som efter en fejl.
+  Begrundelse: et nyt kald med det samme ville mangle området igen og koste et kald.
+- Valgt: browserens kald til `/api/elpris` afbrydes efter 12 sekunder, uden `AbortSignal.any`
+  og `AbortSignal.timeout`. Begrundelse: Workeren bruger højst 8 sekunder på Energinet, og de
+  to funktioner findes ikke i de ældste browsere, siden skal virke i.
+- Valgt: en forskel mellem enhedens og serverens ur, der er mere end et kvarter mindre end den
+  største sete, starter aflæsningen forfra. Begrundelse: et svar fra browserens cache er højst
+  ti minutter gammelt, så en større ændring betyder, at enhedens ur er blevet stillet.
+
 ## B63. Forsiden: værktøjer med elprisen lige nu (2026-11-14)
 
 - Valgt: en sektion på forsiden efter de tre etaper med et kort, der viser elprisen i dette

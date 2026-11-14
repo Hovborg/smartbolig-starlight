@@ -6,7 +6,7 @@ import test from "node:test";
 import { startHomePrice } from "../src/lib/home-price.mjs";
 import { formatNumber } from "../src/lib/tools/format.mjs";
 import { priceCopy } from "../src/lib/tools/price-copy.mjs";
-import { REFRESH_SECONDS } from "../src/lib/tools/price-data.mjs";
+import { FETCH_TIMEOUT_MS, REFRESH_SECONDS } from "../src/lib/tools/price-data.mjs";
 import { toOre } from "../src/lib/tools/price-window.mjs";
 
 const HOUR = 3600;
@@ -45,7 +45,7 @@ const settle = async () => {
   for (let turn = 0; turn < 10; turn += 1) await new Promise((resolve) => setImmediate(resolve));
 };
 
-/** The card on a page: `reply(callNumber)` is what the endpoint answers. Always call stop(). */
+/** The card on a page: `reply(callNumber, options)` is what the endpoint answers. Always call stop(). */
 async function page(reply, { at = MIDNIGHT + 9 * HOUR + 300 } = {}) {
   const parts = Object.fromEntries(PARTS.map((name) => [name, node()]));
   parts.value.textContent = "–";
@@ -62,9 +62,9 @@ async function page(reply, { at = MIDNIGHT + 9 * HOUR + 300 } = {}) {
     addEventListener: (type, listener) => listeners.set(type, listener),
     removeEventListener: (type) => listeners.delete(type),
   };
-  globalThis.fetch = async (url) => {
+  globalThis.fetch = async (url, options) => {
     asked.push(url);
-    return reply(asked.length);
+    return reply(asked.length, options);
   };
   const stop = startHomePrice(root, { clock: () => device.now });
   await settle();
@@ -178,6 +178,43 @@ test("prices that cannot be fetched again leave the last ones on the card", asyn
     assert.equal(card.asked.length, 2);
     assert.equal(card.root.dataset.state, "ready");
     assert.equal(card.parts.value.textContent, shown(509));
+  } finally {
+    card.stop();
+  }
+});
+
+test("an endpoint that never answers does not leave the card empty: when the time is up its text is back", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  // Like fetch: it ends only when its signal says stop.
+  const never = (_number, { signal }) => new Promise((_resolve, reject) => signal.addEventListener("abort", () => reject(new DOMException("stopped", "AbortError"))));
+  const card = await page(never);
+  try {
+    assert.equal(card.root.dataset.state, "loading");
+    t.mock.timers.tick(FETCH_TIMEOUT_MS - 1);
+    await settle();
+    assert.equal(card.root.dataset.state, "loading");
+    t.mock.timers.tick(1);
+    await settle();
+    assert.equal(card.root.dataset.state, "idle");
+    assert.equal(card.parts.value.textContent, "–");
+  } finally {
+    card.stop();
+  }
+});
+
+test("when the answer puts the clock right, the next quarter is counted from the right time", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const byQuarter = Array.from({ length: 96 }, (_, index) => [MIDNIGHT + index * 900, 500 + index]);
+  // The device says 09:05, the server 09:25: the next quarter is five minutes away, not ten.
+  const card = await page(() => answer(byQuarter, { date: new Date(Date.now() + 20 * 60_000) }));
+  try {
+    assert.equal(card.parts.value.textContent, shown(537));
+    // The Date header has whole seconds, so the correction is a little under twenty minutes.
+    card.device.now += 305;
+    t.mock.timers.tick(305_000);
+    await settle();
+    assert.equal(card.parts.value.textContent, shown(538), "09:30 is drawn when it comes");
+    assert.equal(card.asked.length, 1);
   } finally {
     card.stop();
   }

@@ -5,14 +5,16 @@ import test from "node:test";
 import { createElprisHandler, onRequest } from "../functions/api/elpris.js";
 import { BACKOFF_SECONDS } from "../functions/lib/elpris/cache.js";
 import { ASK_GAP_MS, createMemory } from "../functions/lib/elpris/memory.js";
-import { shapePoints, UPSTREAM_URL } from "../functions/lib/elpris/upstream.js";
+import { shapePoints, UPSTREAM_URL, UPSTREAM_URLS } from "../functions/lib/elpris/upstream.js";
 
 const T0 = Date.UTC(2026, 10, 13, 23) / 1000; // 00:00 Danish time, 14 November 2026
 const iso = (epoch) => new Date(epoch * 1000).toISOString().slice(0, 19);
 const row = (index, area, price) => ({ TimeUTC: iso(T0 + index * 900), PriceArea: area, DayAheadPriceDKK: price });
 const day = (count = 96) =>
   Array.from({ length: count }, (_, index) => [row(index, "DK1", 500 + index), row(index, "DK2", 700 + index)]).flat();
-const ok = (records) => new Response(JSON.stringify({ total: records.length, records }));
+// The address asked first answers with the rows themselves; the reserve address wraps them.
+const ok = (records) => new Response(JSON.stringify(records));
+const wrapped = (records) => new Response(JSON.stringify({ total: records.length, records }));
 
 // Like caches.default: keyed by URL, and an entry is gone when its max-age has passed.
 function fakeCache(clock) {
@@ -41,18 +43,26 @@ function newWorld() {
 }
 
 /**
- * One Worker isolate. `reply(callNumber)` is what the fake upstream answers.
- * Two isolates of one data centre are two setups with the same `world`.
+ * One Worker isolate. `reply(callNumber)` is what the fake upstream answers
+ * on the address asked first; `calls` has one entry per such call. The
+ * reserve address answers the same unless `reserve` says otherwise, and its
+ * calls are in `reserves`. Two isolates of one data centre are two setups
+ * with the same `world`.
  */
-function setup(reply = () => ok(day()), { cache: withCache = true, world = newWorld(), timeoutMs = 40 } = {}) {
+function setup(reply = () => ok(day()), { cache: withCache = true, world = newWorld(), timeoutMs = 40, reserve = reply } = {}) {
   const { clock, cache, advance } = world;
   const calls = [];
+  const reserves = [];
   const logs = [];
   const sleeps = [];
   const handler = createElprisHandler({
     fetch: async (url, init) => {
-      calls.push({ url, init });
-      return reply(calls.length, init);
+      if (url === UPSTREAM_URL) {
+        calls.push({ url, init });
+        return reply(calls.length, init);
+      }
+      reserves.push({ url, init });
+      return reserve(calls.length, init);
     },
     openCache: () => (withCache ? cache : undefined),
     now: clock,
@@ -70,7 +80,7 @@ function setup(reply = () => ok(day()), { cache: withCache = true, world = newWo
     await Promise.all(waiting.splice(0));
     return response;
   }
-  return { call, calls, logs, sleeps, waiting, cache, advance, world };
+  return { call, calls, reserves, logs, sleeps, waiting, cache, advance, world };
 }
 
 test("a named area gives that area's prices in the agreed shape", async () => {
@@ -91,7 +101,8 @@ test("a named area gives that area's prices in the agreed shape", async () => {
   assert.equal(calls.length, 1);
   const url = new URL(calls[0].url);
   assert.equal(calls[0].url, UPSTREAM_URL);
-  assert.equal(`${url.origin}${url.pathname}`, "https://api.energidataservice.dk/dataset/DayAheadPrices");
+  assert.equal(`${url.origin}${url.pathname}`, "https://api.energidataservice.dk/dataset/DayAheadPrices/download");
+  assert.equal(url.searchParams.get("format"), "json");
   assert.deepEqual(JSON.parse(url.searchParams.get("filter")), { PriceArea: ["DK1", "DK2"] });
   assert.ok(calls[0].init.signal instanceof AbortSignal);
 });
@@ -226,10 +237,23 @@ test("rows that are not right are dropped, and an area with too few rows fails",
   assert.deepEqual(shapePoints([...good, ...bad], "DK1")[0], [T0, 512.35]);
   assert.deepEqual(shapePoints({ not: "a list" }, "DK1"), []);
 
-  const { call, logs } = setup(() => ok([...good, ...bad, ...Array.from({ length: 10 }, (_, index) => row(index, "DK2", 700))]));
-  assert.equal((await (await call("/api/elpris?area=DK1")).json()).points.length, 40);
-  assert.equal((await call("/api/elpris?area=DK2")).status, 502);
-  assert.equal(logs.at(-1)[1].error, "UpstreamAreaMissing");
+  const half = () => ok([...good, ...bad, ...Array.from({ length: 10 }, (_, index) => row(index, "DK2", 700))]);
+  // With the Cache API and without it: the isolate's own memory keeps the peace too.
+  for (const cache of [true, false]) {
+    const { call, calls, logs, world } = setup(half, { cache });
+    assert.equal((await (await call("/api/elpris?area=DK1")).json()).points.length, 40);
+    assert.deepEqual(logs, [["SmartBolig elpris upstream failed", { error: "UpstreamAreaMissing" }]]);
+    // The area the answer lacked is not asked for again at once: it would only be missing again.
+    assert.equal((await call("/api/elpris?area=DK2")).status, 502);
+    assert.equal(calls.length, 1, `cache: ${cache}`);
+    assert.equal(logs.length, 1);
+    // Another isolate of the same data centre keeps the peace as well.
+    if (cache) {
+      const other = setup(half, { world });
+      assert.equal((await other.call("/api/elpris?area=DK2")).status, 502);
+      assert.equal(other.calls.length, 0);
+    }
+  }
 });
 
 test("where there is no Cache API the isolate's own memory keeps the copy and the minute of peace", async () => {
@@ -394,4 +418,56 @@ test("an answer that stops before now is not kept: the copy that still covers no
   const cold = setup(() => ok(day(30)));
   assert.equal((await cold.call("/api/elpris?area=DK1")).status, 502);
   assert.equal(cold.logs[0][1].error, "UpstreamIncomplete");
+});
+
+test("when the first address refuses, the reserve address is asked, and either shape is read", async () => {
+  // What Cloudflare's shared address got from the dataset address on 2026-11-14.
+  const refused = () => new Response('{ "statusCode": 429, "message": "Rate limit is exceeded." }', { status: 429 });
+
+  const saved = setup(refused, { reserve: () => wrapped(day()) });
+  const response = await saved.call("/api/elpris?area=DK2");
+  assert.equal(response.status, 200);
+  assert.equal((await response.json()).points.length, 96);
+  assert.deepEqual([saved.calls.length, saved.reserves.length, saved.logs.length], [1, 1, 0]);
+  const reserve = new URL(saved.reserves[0].url);
+  assert.equal(saved.reserves[0].url, UPSTREAM_URLS[1]);
+  assert.equal(`${reserve.origin}${reserve.pathname}`, "https://api.energidataservice.dk/dataset/DayAheadPrices");
+  assert.equal(reserve.searchParams.get("format"), null);
+  assert.ok(saved.reserves[0].init.signal instanceof AbortSignal);
+  for (const name of ["start", "filter", "columns", "sort", "limit"]) {
+    assert.equal(reserve.searchParams.get(name), new URL(UPSTREAM_URL).searchParams.get(name), name);
+  }
+
+  // The shapes are not tied to the addresses.
+  assert.equal((await setup(() => wrapped(day())).call("/api/elpris?area=DK1")).status, 200);
+  assert.equal((await setup(refused, { reserve: () => ok(day()) }).call("/api/elpris?area=DK1")).status, 200);
+
+  // An answer without rows is no answer: the reserve is asked then too.
+  const empty = setup(() => ok([]), { reserve: () => wrapped(day()) });
+  assert.equal((await empty.call("/api/elpris?area=DK1")).status, 200);
+  assert.equal(empty.reserves.length, 1);
+
+  // A first address that answers is the only one asked.
+  const fine = setup();
+  await fine.call("/api/elpris?area=DK1");
+  assert.deepEqual([fine.calls.length, fine.reserves.length], [1, 0]);
+});
+
+test("when both addresses fail, the fault of the first is the one in the log, and the peace is kept", async () => {
+  const both = setup(() => new Response("", { status: 429 }), { reserve: () => new Response("secret", { status: 500 }) });
+  assert.equal((await both.call("/api/elpris?area=DK1")).status, 502);
+  assert.deepEqual(both.logs, [["SmartBolig elpris upstream failed", { error: "UpstreamStatus429" }]]);
+  assert.deepEqual([both.calls.length, both.reserves.length], [1, 1]);
+  await both.call("/api/elpris?area=DK2");
+  assert.deepEqual([both.calls.length, both.reserves.length], [1, 1], "one question, then a minute of peace for both addresses");
+
+  const none = setup(() => ok([]));
+  assert.equal((await none.call("/api/elpris?area=DK1")).status, 502);
+  assert.equal(none.logs[0][1].error, "UpstreamEmpty");
+
+  // When the time is up on the first address there is none left for the reserve.
+  const slow = setup((number, { signal }) => new Promise((resolve, reject) => signal.addEventListener("abort", () => reject(signal.reason))));
+  assert.equal((await slow.call("/api/elpris?area=DK1")).status, 502);
+  assert.equal(slow.logs[0][1].error, "TimeoutError");
+  assert.equal(slow.reserves.length, 0);
 });

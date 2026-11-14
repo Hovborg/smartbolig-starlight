@@ -86,6 +86,7 @@ test("the section lists every tool, shows no number before the prices are fetche
   const literals = [...stand.matchAll(/["`]([^"`]*)["`]/g)].map((match) => match[1]);
   assert.ok(literals.length >= 4 && literals.every((text) => !/[0-9]/.test(text)), "the stand-ins hold no number");
   const script = component.slice(component.indexOf("<script>"));
+  assert.ok(script.includes('card.dataset.state = "loading"'), "the card is told that the prices are on their way");
   assert.ok(script.indexOf('card.dataset.state = "loading"') < script.indexOf("new IntersectionObserver"), "room is taken before the card is seen");
   assert.ok(script.indexOf("new IntersectionObserver") < script.indexOf("await import("), "the code is imported only when the observer fires");
   assert.match(script, /catch \{[^}]*card\.dataset\.state = "idle";/, "code that cannot be fetched gives the invitation back");
@@ -142,10 +143,32 @@ test("an answer from the browser's cache does not undo what a newer answer said 
   const right = createClockReader();
   assert.equal(right(header(-9), device), 0);
   assert.equal(right(header(0), device), 0);
+  // A slow clock that is set right while the page is open: the hour is dropped again.
+  const fixed = createClockReader();
+  assert.equal(fixed(header(60), device), 3600);
+  assert.equal(fixed(header(60), device + 3600_000), 0);
+  assert.equal(fixed(header(51), device + 3600_000), 0, "and a cached answer does not bring it back");
+  // Twenty minutes slow, then right: the same.
+  const twenty = createClockReader();
+  assert.equal(twenty(header(20), device), 1200);
+  assert.equal(twenty(header(20), device + 1200_000), 0);
+  // A clock that is moved the wrong way is corrected from then on.
+  assert.equal(right(header(0), device - 3600_000), 3600);
 });
 
 test("the tool and the homepage card both use the corrected clock", async () => {
   for (const file of ["src/lib/tools/price-ui.mjs", "src/lib/home-price.mjs"]) {
-    assert.match(await read(file), /\+ \(state\.data\?\.clockOffset \?\? 0\)/, file);
+    const code = await read(file);
+    assert.match(code, /\+ \(state\.data\?\.clockOffset \?\? 0\)/, file);
+    // The answer may have put the clock right, so the wait for the next quarter starts again.
+    assert.match(code, /state\.loadedAt = clock\(\);\n\s*\/\/[^\n]*\n\s*atNextQuarter\(\);/, file);
   }
+});
+
+test("a call for prices ends by itself when the endpoint does not answer", async () => {
+  const code = await read("src/lib/tools/price-data.mjs");
+  assert.match(code, /setTimeout\(stop, FETCH_TIMEOUT_MS\)/);
+  assert.match(code, /finally \{\s*clearTimeout\(timer\);\s*signal\?\.removeEventListener\("abort", stop\);/);
+  // AbortSignal.any and AbortSignal.timeout are too new for the browsers the site supports.
+  assert.doesNotMatch(code, /AbortSignal\.(any|timeout)/);
 });
