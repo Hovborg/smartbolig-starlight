@@ -455,3 +455,26 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Kildekontrollen er uændret: kun `smartbolig.net`-adresser kan blive kilder, teksten
   afkortes, og en fejl eller en overskredet tidsgrænse giver et svar uden guideuddrag.
 - AI Search-instansen hos Cloudflare er ikke slettet (se TIL-EJEREN).
+
+### B55. Guidernes billeder går gennem Astros billedbehandling
+- Baggrund: 16 guides åbnede med et PNG-billede på 2 til 2,4 MB fra `public/images/guides/`.
+  Filer i `public/` sendes, som de er: ingen WebP, ingen bredder, ingen `width` og `height`.
+- Valg: billeder i en guides tekst ligger i `src/assets/guides/` og skrives med en relativ sti.
+  Astro laver dem som WebP i seks bredder (`image.layout: "constrained"`), og
+  `config/markdown/body-images.mjs` fortæller browseren, at de vises i tekstspalten (45rem).
+  Uden den oplysning antager browseren, at billedet fylder hele vinduet, og henter den
+  bredeste fil.
+- Tegninger (SVG) bliver én fil: flere bredder af en SVG er den samme fil flere gange.
+- Det første billede i en guide, der åbner med et billede, hentes straks med høj prioritet
+  (`config/markdown/lead-image.mjs`). Ellers har sidehovedet allerede sit eget billede med høj
+  prioritet, og en side skal kun have ét.
+- Fravalgt: `responsiveStyles`. Starlights egne regler holder allerede billederne inden for
+  spalten; Astros ekstra stilark ville ændre udseendet for alle billeder.
+- Fravalgt: at flytte sidehovedets billeder, forsidens billeder og nyhedsbillederne. De har en
+  fast offentlig adresse (sociale kort, RSS) og laves allerede i de rigtige bredder af egne scripts.
+- Målt på den byggede side 2026-11-14: Zigbee2MQTT-guidens første billede var 2.420.126 bytes
+  og er nu 40.184 bytes i 750 px (bærbar, almindelig skærm), 46.406 i 828 px (telefon) og
+  132.868 i fuld bredde. Billedfilerne i repoet fylder 29 MB mod 55 MB før.
+- Sikring: `scripts/site-images.test.mjs` afviser `/images/...` i en guides tekst, og at
+  spaltebredden i `body-images.mjs` kommer ud af trit med `--sb-measure`.
+

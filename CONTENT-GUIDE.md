@@ -122,7 +122,8 @@ src/content/docs/
 
 Billeder, som guiden viser i teksten, lægges i `src/assets/guides/` (samme undermapper som guiden,
 fx `src/assets/guides/smart-doorbell/wiring.svg`) og skrives med en sti relativt til MDX-filen. Så
-laver bygningen selv små WebP-filer med `width` og `height`; du skal ikke konvertere noget. Alle
+laver bygningen selv WebP-filer i flere bredder med `width` og `height`, og browseren henter den
+mindste, der fylder tekstspalten; du skal ikke konvertere noget. Alle
 guidefiler ligger fire mapper under `src/`, så stien starter med `../../../../assets/`:
 
 ```md

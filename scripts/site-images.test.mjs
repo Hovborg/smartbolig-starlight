@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
+import { COLUMN_SIZES, rehypeBodyImages } from "../config/markdown/body-images.mjs";
 import { rehypeLeadImage } from "../config/markdown/lead-image.mjs";
 
 const root = new URL("../", import.meta.url);
@@ -42,6 +43,23 @@ test("pictures that Astro does not optimize are not given the priority mark", ()
   const tree = page(image("/images/home/topic-light-960.webp"));
   rehypeLeadImage()(tree, { value: opening });
   assert.equal(tree.children[0].children[0].properties.priority, undefined);
+});
+
+test("the browser is told how wide a guide's pictures are shown, and drawings stay one file", async () => {
+  const tree = page(image("../../../../assets/guides/a/photo.webp"), image("../../../../assets/guides/a/wiring.svg"), image("/images/home/topic-light-960.webp"));
+  rehypeBodyImages()(tree);
+  const [photo, drawing, fixed] = tree.children.map((paragraph) => paragraph.children[0].properties);
+  assert.equal(photo.sizes, COLUMN_SIZES);
+  assert.equal(photo.layout, undefined);
+  assert.equal(drawing.layout, "none", "an SVG in several widths would be the same file several times");
+  assert.equal(drawing.sizes, undefined);
+  assert.deepEqual(fixed, { src: "/images/home/topic-light-960.webp", alt: "" }, "pictures in public/ are served as written");
+
+  const [config, scale] = await Promise.all([readFile(new URL("astro.config.mjs", root), "utf8"), readFile(new URL("src/styles/tokens/scale.css", root), "utf8")]);
+  assert.ok(config.includes('image: { layout: "constrained" }'), "without it Astro makes one width only");
+  assert.ok(config.includes("rehypeLeadImage, rehypeBodyImages]"));
+  // The width in COLUMN_SIZES is the text column's.
+  assert.ok(scale.includes("--sb-measure: 45rem;") && COLUMN_SIZES.includes(" 45rem,"), "COLUMN_SIZES must follow --sb-measure");
 });
 
 test("guide pictures are not pointed at by address from public/images", async () => {

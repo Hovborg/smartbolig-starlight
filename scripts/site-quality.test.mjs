@@ -316,7 +316,7 @@ test("tables scroll sideways in a wrapper named after the heading above them", a
   const danish = { type: "root", children: [heading("Priser"), table()] };
   rehypeTableScroll()(danish, { path: "C:\\repo\\src\\content\\docs\\da\\produkter\\index.mdx" });
   assert.equal(danish.children[1].properties.dataLabel, "Tabel: Priser");
-  assert.match(await read("astro.config.mjs"), /rehypePlugins: \[rehypePlainHeadings, rehypeTableScroll, rehypeLeadImage\]/);
+  assert.match(await read("astro.config.mjs"), /rehypePlugins: \[rehypePlainHeadings, rehypeTableScroll, /);
   assert.match(await read("src/styles/content/blocks.css"), /\.table-scroll\s*\{[^}]*overflow-x:\s*auto/);
 });
 
