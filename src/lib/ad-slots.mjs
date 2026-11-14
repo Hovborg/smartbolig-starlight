@@ -10,3 +10,8 @@ export function showAdSlots(win, doc) {
     (win.adsbygoogle = win.adsbygoogle || []).push({});
   }
 }
+
+/** AdSense could not be fetched (a blocker, no network): an empty box helps nobody. */
+export function hideAdSlots(doc) {
+  for (const place of doc.querySelectorAll(PLACE)) place.hidden = true;
+}

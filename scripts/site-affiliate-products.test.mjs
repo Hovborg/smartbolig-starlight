@@ -33,6 +33,22 @@ test('every register entry has a kebab-case id, a name, an approved merchant and
   }
 });
 
+test('no id is written twice in one group file', () => {
+  // The second of two equal keys in an object wins without a word, so the
+  // check in index.mjs (across files) cannot see it. Read the source instead.
+  const dir = fileURLToPath(new URL('../src/data/products/', import.meta.url));
+  for (const name of readdirSync(dir).filter((file) => !['index.mjs', 'types.mjs'].includes(file))) {
+    const ids = [...readFileSync(join(dir, name), 'utf8').matchAll(/^\s*"([a-z0-9-]+)":\s*\{/gm)].map((match) => match[1]);
+    assert.ok(ids.length > 0, `${name} has no entries the test can read`);
+    const twice = ids.filter((id, index) => ids.indexOf(id) !== index);
+    assert.deepEqual(twice, [], `${name} has the same id twice`);
+  }
+});
+
+test('a shop URL has no space in or around it', () => {
+  for (const [id, { url }] of Object.entries(products)) assert.doesNotMatch(url, /\s/, `"${id}" has a space in its URL`);
+});
+
 test('no two register entries share a shop URL', () => {
   const owner = new Map();
   for (const [id, { url }] of Object.entries(products)) {

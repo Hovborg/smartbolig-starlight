@@ -82,8 +82,11 @@ kommentarerne. Den er slukket, indtil den får et nummer.
 4. Kør `npm run site:test` og `npm run build`, og udgiv.
 
 Pladsen er skjult i siden og vises først, når læseren har sagt ja til annoncer. Har AdSense
-ingen annonce til pladsen, skjules den igen. Der er sat 280 px af i højden, så kommentarerne
-ikke hopper, når annoncen kommer.
+ingen annonce til pladsen, eller kan AdSense-scriptet ikke hentes (en blokering), skjules den
+igen. Der er sat 280 px af i højden, mens annoncen hentes. Selve pladsen kommer, når svaret er
+læst, og flytter da kommentarerne og sidefoden ned én gang; den står derfor sidst i teksten.
+Etiketten over annoncen er "Annoncer" ("Advertisements" på engelsk): Googles regler for
+annonceplacering tillader kun den eller "Sponsorerede links". På print er pladsen væk.
 
 **Ny plads et andet sted**: tilføj et navn i `AD_SLOTS`, og sæt `<AdSlot place="navn" />` dér,
 hvor den skal stå. Hold den uden for forsiden og de juridiske sider.
@@ -105,7 +108,8 @@ Automatiske annoncer (dem AdSense selv placerer) styres i AdSense, ikke her.
 - En butik, der ikke er godkendt, eller en adresse uden for butikkens eget domæne eller uden https.
 - `url=` eller `store=` direkte på et `<AffiliateLink>` i en guide.
 - En annonceplads med `style=` eller et script i komponenten, eller et nummer, der ikke er tal.
-- Klikmåling eller annoncepladser, der startes andre steder end efter et ja i `boot.mjs`.
+- En anden fil end `boot.mjs`, der importerer klikmålingen eller annoncepladserne.
+- Det samme id to gange i én gruppefil, og et mellemrum i en adresse.
 
 ## Når noget ser forkert ud
 
@@ -119,12 +123,25 @@ Automatiske annoncer (dem AdSense selv placerer) styres i AdSense, ikke her.
 Butikkernes sider tjekkes ikke automatisk. Registret viser kun, at adressen er https og hører
 til butikkens domæne, ikke at siden findes.
 
+## Kendte grænser
+
+- Fem produkter står med to id'er, fordi guiderne pegede på to forskellige butikssider for
+  samme vare (`shelly-2pm-gen3`/`-2`, `shelly-plus-1pm`/`-2`, `conbee-iii`/`-2`,
+  `aqara-presence-sensor-fp2`/`-2`, `sonoff-zbdongle-e`/`sonoff-zigbee-dongle-e`). Klikkene
+  tælles derfor hver for sig. Saml dem, når de rigtige adresser er hentet i Partner-Ads.
+- `ProductCard.astro` bruges ikke i nogen guide, så registertestene læser kun
+  `<AffiliateLink>`. Bygget stopper stadig på et ukendt id i et kort.
+- En side, browseren henter fra sin tilbage-cache, efter at læseren har trukket sit ja tilbage
+  på en anden side, er ikke målt.
+
 ## Fjern det igen
 
 Klikmålingen: slet `src/lib/affiliate-clicks.mjs` og testen, og fjern `watchAffiliateClicks` i
 `src/lib/consent/boot.mjs`. Annoncepladsen: slet `src/components/AdSlot.astro`,
 `src/data/ad-slots.mjs`, `src/lib/ad-slots.mjs` og testen, og fjern `<AdSlot />` i
-`MarkdownContent.astro` og `showAdSlots` i `boot.mjs`. Ret privatlivspolitikken på begge sprog.
+`MarkdownContent.astro`, `showAdSlots` og `hideAdSlots` i `boot.mjs` og `.ad-slot` i
+`src/styles/print.css`. Fjern de to tests om reklamelinks og annoncepladser sidst i harnessen i
+`scripts/site-consent.test.mjs`. Ret privatlivs- og cookiepolitikken på begge sprog.
 
 Registret:
 Sæt `store` og `url` tilbage på hvert `<AffiliateLink>` i `src/content/docs/da/produkter/`,

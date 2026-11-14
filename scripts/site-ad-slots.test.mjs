@@ -1,7 +1,7 @@
 // The fixed ad places: off without an ad unit number, hidden until a yes to
 // ads, and only under a guide or a news article. docs/indtjening.md.
 import assert from "node:assert/strict";
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import test from "node:test";
 import { AD_SLOTS } from "../src/data/ad-slots.mjs";
 import { showAdSlots } from "../src/lib/ad-slots.mjs";
@@ -51,7 +51,23 @@ test("comments and the ad place are only under a guide or a news article", async
   assert.match(await read("src/components/Giscus.astro"), /const showComments = isArticlePage\(pathname\);/);
 });
 
-test("only the consent code shows the places", async () => {
-  const boot = await read("src/lib/consent/boot.mjs");
-  assert.match(boot, /decision\.ad_storage && tags\.loadAds\(\)\) showAdSlots\(win, doc\)/);
+test("only the consent code can show the places or count a press", async () => {
+  // Anything else that imported these modules could run them without a yes.
+  const users = { "ad-slots.mjs": [], "affiliate-clicks.mjs": [] };
+  for (const entry of await readdir(new URL("../src/", import.meta.url), { recursive: true, withFileTypes: true })) {
+    if (!entry.isFile() || !/\.(astro|mjs|js|ts)$/.test(entry.name)) continue;
+    const file = `${entry.parentPath.replaceAll("\\", "/").split("/src/")[1] ?? ""}/${entry.name}`.replace(/^\//, "");
+    const source = await read(`src/${file}`);
+    for (const name of Object.keys(users)) if (new RegExp(`from ["'][^"']*/lib/${name}["']|from ["']\\.\\.?/${name}["']`).test(source)) users[name].push(file);
+  }
+  assert.deepEqual(users, { "ad-slots.mjs": ["lib/consent/boot.mjs"], "affiliate-clicks.mjs": ["lib/consent/boot.mjs"] });
+});
+
+test("the label is one Google's ad placement policy allows", async () => {
+  const source = await read("src/components/AdSlot.astro");
+  assert.match(source, /\? "Advertisements" : "Annoncer"/);
+});
+
+test("a printed page has no ad place", async () => {
+  assert.match(await read("src/styles/print.css"), /\.ad-slot,/);
 });

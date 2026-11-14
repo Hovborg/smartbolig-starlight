@@ -10,7 +10,8 @@ interface Props {
 }
 
 const unit = AD_SLOTS[Astro.props.place];
-const label = Astro.url.pathname.startsWith("/en/") ? "Advertisement" : "Annonce";
+// Google's ad placement policy allows only "Advertisements" or "Sponsored Links" as the label.
+const label = Astro.url.pathname.startsWith("/en/") ? "Advertisements" : "Annoncer";
 ---
 
 {unit && (
@@ -29,7 +30,8 @@ const label = Astro.url.pathname.startsWith("/en/") ? "Advertisement" : "Annonce
 <style>
   .ad-slot {
     margin-block: var(--sb-space-6);
-    /* Room for the ad before it arrives, so the comments below do not jump. */
+    /* Room for the ad while it is fetched. The place itself appears when the
+       visitor's yes has been read, and moves what is below it down once. */
     min-height: 280px;
   }
 

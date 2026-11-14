@@ -14,11 +14,12 @@ export function createTags({ win, doc, analyticsId, adsPublisher }) {
     win.dataLayer.push(arguments);
   };
 
-  const add = (src, crossOrigin) => {
+  const add = (src, { crossOrigin, onError } = {}) => {
     const script = doc.createElement("script");
     script.async = true;
     script.src = src;
     if (crossOrigin) script.crossOrigin = crossOrigin;
+    if (onError) script.addEventListener("error", onError, { once: true });
     doc.head.append(script);
   };
 
@@ -40,10 +41,11 @@ export function createTags({ win, doc, analyticsId, adsPublisher }) {
       add(`${ANALYTICS_URL}${analyticsId}`);
       return true;
     },
-    loadAds() {
+    /** onError: the script could not be fetched (a blocker, no network). */
+    loadAds(onError) {
       if (loaded.ads) return false;
       loaded.ads = true;
-      add(`${ADS_URL}${adsPublisher}`, "anonymous");
+      add(`${ADS_URL}${adsPublisher}`, { crossOrigin: "anonymous", onError });
       return true;
     },
     loaded: () => ({ ...loaded }),

@@ -137,6 +137,12 @@ Sidst opdateret: 2026-11-14.
   Næste skridt: `ENFORCE_STRICT_CSP = true`, når den levende side er set uden overtrædelser
   med annoncer. Ikke valgt: nonce pr. svar i Workeren; hashes klarer det uden at Workeren skal
   stå foran hver side.
+- **Indtjening (B60):** produktregister (115 produkter), klikmåling på reklamelinks efter et ja
+  til statistik (`affiliate_click`), og én fast annonceplads under guides og nyheder, slukket
+  til den får et annoncenummer (`docs/indtjening.md`). Uafhængig gennemgang: ingen blokerende
+  fund; fundene er rettet. Afprøvet i headless Chrome med efterlignet samtykke. Ikke set:
+  hændelsen i Google Analytics og en rigtig annonce (kræver udgivet samtykkebesked og et
+  annoncenummer; TIL-EJEREN punkt 1).
 
 ## Næste skridt
 

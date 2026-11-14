@@ -48,8 +48,3 @@ test("the two link components carry what the report reads", async () => {
     assert.match(source, /data-affiliate-store=\{store\}/, file);
   }
 });
-
-test("only the consent code starts the report", async () => {
-  const boot = await read("src/lib/consent/boot.mjs");
-  assert.match(boot, /decision\.analytics_storage && tags\.loadAnalytics\(\)\) watchAffiliateClicks\(win, doc\)/);
-});

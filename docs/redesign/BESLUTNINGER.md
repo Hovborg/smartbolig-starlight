@@ -692,3 +692,12 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Kontrol: `npm run site:test`; bygget side i headless Chrome med efterlignet samtykke.
   Ikke set: hændelsen i Google Analytics og en rigtig annonce i pladsen (kræver udgivet
   samtykkebesked og et annoncenummer).
+- Uafhængig gennemgang før udgivelsen (ingen blokerende fund). Rettet:
+  - Etiketten er "Annoncer"/"Advertisements"; Googles regler tillader ikke "Annonce".
+  - Pladsen skjules igen, hvis AdSense-scriptet ikke kan hentes, og den er væk på print.
+  - Cookiepolitikken nævner klikmålingen på begge sprog.
+  - Testene ser nu en lytter, der sættes op to gange, det samme id to gange i én gruppefil og
+    en anden fil end `boot.mjs`, der importerer klikmålingen eller annoncepladserne.
+  - Ikke rettet: pladsen flytter kommentarerne ned, når den vises (teksten i dokumentationen
+    er rettet, så den ikke lover andet), og fem produkter har to id'er, til de rigtige
+    adresser er hentet i Partner-Ads.
