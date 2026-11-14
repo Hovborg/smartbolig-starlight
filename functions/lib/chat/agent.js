@@ -4,27 +4,44 @@
 import { extractModelAnswer } from "./answer.js";
 import { createModelRunner } from "./model-runs.js";
 import { buildSystemPrompt, withOfficialReference, withSmartboligReference } from "./prompt.js";
-import { followUpQuery, hasSmartHomeWord, latestQuestion } from "./search-need.js";
+import { hasSmartHomeWord, isFollowUp, isThanks, joinedQuery, latestQuestion, standsForAThing } from "./search-need.js";
 import { requestedHomeAssistantYamlShape } from "./yaml-request.js";
 
-// Searches the site for the latest question alone. Only when that finds nothing
-// and the question points back ("Hvad koster den?") is it searched once more
-// together with the user message before it. A change of topic is never mixed
-// with the old one. Returns the state the prompt tells the model and the result
-// to hand over: "supplied" (pages found), "nothing" (the search ran and found
-// nothing about this question) or "unavailable" (the search failed).
+const UNAVAILABLE = { searchState: "unavailable", supplied: null };
+const NOTHING = { searchState: "nothing", supplied: null };
+const stateOf = (found) => {
+  if (found.unavailable) return UNAVAILABLE;
+  if (found.weak || !found.results?.length) return NOTHING;
+  return { searchState: "supplied", supplied: found };
+};
+
+// Decides what the site is searched for, at most twice per question. The rules
+// about wording are in search-need.js.
+// - A question is searched alone first, so one the site answers on its own
+//   never gets the old topic's pages.
+// - When that finds nothing and the message leans on the one before it, the two
+//   are searched together; the pages are then the earlier question's.
+// - A message about a thing only the conversation has named ("Virker den med
+//   Home Assistant?") is searched together with the message before it first.
+// - Thanks and goodbyes are not searched for.
+// Returns the state the prompt tells the model and the result to hand over:
+// "supplied" (pages found), "nothing" (the search ran and found nothing) or
+// "unavailable" (a search failed).
 async function lookUpSite(searchSmartbolig, messages) {
   const latest = latestQuestion(messages);
-  const always = hasSmartHomeWord(latest);
-  let found = await searchSmartbolig(latest, { always });
-  if (!found.unavailable && found.weak) {
-    const joined = followUpQuery(messages);
-    const second = joined ? await searchSmartbolig(joined, { always: false }) : null;
-    if (second && !second.unavailable && !second.weak) found = second;
+  if (isThanks(latest)) return NOTHING;
+  const joined = joinedQuery(messages);
+  const searchAlone = () => searchSmartbolig(latest, { always: hasSmartHomeWord(latest) });
+
+  if (joined && standsForAThing(latest)) {
+    const together = await searchSmartbolig(joined);
+    return together.unavailable || !together.weak ? stateOf(together) : stateOf(await searchAlone());
   }
-  if (found.unavailable) return { searchState: "unavailable", supplied: null };
-  if (found.weak || !found.results?.length) return { searchState: "nothing", supplied: null };
-  return { searchState: "supplied", supplied: found };
+
+  const alone = await searchAlone();
+  if (alone.unavailable || !alone.weak) return stateOf(alone);
+  if (!joined || !isFollowUp(latest, alone.unknownTerms)) return NOTHING;
+  return stateOf(await searchSmartbolig(joined));
 }
 
 export function createWorkersAgent(dependencies = {}) {
