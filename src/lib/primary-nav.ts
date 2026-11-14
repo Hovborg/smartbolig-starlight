@@ -12,6 +12,7 @@ const SECTIONS: Section[] = [
   { path: "home-assistant/", da: "Home Assistant", en: "Home Assistant" },
   { path: "esp32/", da: "ESP32", en: "ESP32" },
   { path: "automationer/", da: "Automationer", en: "Automations" },
+  { path: "vaerktoejer/", da: "Værktøjer", en: "Tools" },
   { path: "produkter/", da: "Produkter", en: "Products" },
   { path: "ai/", da: "AI", en: "AI" },
   { path: "ai/nyheder/", da: "Nyheder", en: "News" },

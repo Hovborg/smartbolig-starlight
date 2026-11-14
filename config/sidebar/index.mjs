@@ -2,6 +2,7 @@
 import homeAssistant from "./home-assistant/index.mjs";
 import esp32 from "./esp32.mjs";
 import automationer from "./automationer.mjs";
+import vaerktoejer from "./vaerktoejer.mjs";
 import ai from "./ai.mjs";
 import produkter from "./produkter.mjs";
 import sikkerhed from "./sikkerhed.mjs";
@@ -11,6 +12,7 @@ export const sidebar = [
   homeAssistant,
   esp32,
   automationer,
+  vaerktoejer,
   ai,
   produkter,
   sikkerhed,

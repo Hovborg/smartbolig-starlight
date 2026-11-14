@@ -1,0 +1,36 @@
+---
+title: Elprisen lige nu og de billigste timer
+description: Se spotprisen på el time for time i dag og i morgen, vest og øst for Storebælt, og find de billigste timer i træk til opvask, vask og opladning.
+lastUpdated: 2026-11-14
+---
+
+import PowerPrice from '../../../../components/tools/PowerPrice.astro';
+
+Her ser du spotprisen på el lige nu og time for time resten af dagen. Vælg, hvor mange timer dit apparat skal køre, så finder værktøjet de billigste timer i træk.
+
+<PowerPrice lang="da" />
+
+## Sådan er tallene regnet
+
+- Priserne er spotpriser for hvert kvarter. Vi regner dem om fra kroner pr. MWh til øre/kWh.
+- Grafen viser gennemsnittet for hver time. Prisen lige nu og de billigste timer i træk er regnet på kvartererne.
+- Med moms lægger vi 25 % oven på spotprisen og dit tillæg.
+- Lav, middel og høj sammenligner prisen lige nu med timerne i grafen. Den billigste tredjedel er lav, og den dyreste tredjedel er høj.
+
+## Det er ikke med
+
+Spotprisen er kun en del af det, du betaler for strømmen. Elafgift, nettarif, abonnement og dit elselskabs tillæg kommer oveni. Nettariffen skifter desuden hen over døgnet, så den billigste time på din regning kan være en anden end den billigste time i grafen.
+
+Vi skriver ikke satserne her, fordi de ændrer sig, og fordi nettarif og tillæg afhænger af dit netselskab og dit elselskab. Elafgiften er den samme for alle. Abonnementet er et fast beløb pr. måned og kan ikke regnes om til øre/kWh. Skriv dit eget tillæg i feltet, hvis du vil se en pris, der ligner din regning mere.
+
+## Hvor priserne kommer fra
+
+Priserne er Energinets day-ahead-priser fra [Energi Data Service](https://www.energidataservice.dk/tso-electricity/DayAheadPrices), udgivet under licensen CC BY 4.0. SmartBolig.net henter priserne og gemmer en kopi, som bliver fornyet efter ti minutter. Din browser kalder derfor ikke Energinet. Priserne for i morgen kommer normalt mellem kl. 13 og 14.
+
+Danmark har to prisområder. DK1 er vest for Storebælt, og DK2 er øst for Storebælt. Når du åbner siden, gætter værktøjet på dit område ud fra den region, din internetforbindelse ser ud til at komme fra. Gættet bliver ikke gemt, og du kan altid skifte.
+
+## Brug priserne i dit smarte hjem
+
+- [Elpris-integration](/da/home-assistant/elpris-integration/): få priserne med dine tariffer ind i Home Assistant.
+- [Kør forbruget i de billigste timer](/da/automationer/billige-timer/): lad en automation starte apparatet, når strømmen er billigst.
+- [Hvad koster det at have apparatet tændt?](/da/vaerktoejer/stroemforbrug/): regn ud, hvad et apparat koster om året.

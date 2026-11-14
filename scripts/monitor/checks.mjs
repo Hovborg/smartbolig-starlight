@@ -2,7 +2,7 @@
 // { ok, seen }. `seen` says what actually came back, in a few words; it never
 // holds a whole header or a page, so a report cannot leak anything.
 
-import { canonicalOf, countH1, firstLoc, itemCount, locCount, newestPubDate } from "./parse.mjs";
+import { canonicalOf, countH1, firstLoc, itemCount, locCount, newestPubDate, priceList } from "./parse.mjs";
 
 export const SITE = "https://smartbolig.net";
 export const MIN_SITEMAP_PAGES = 300;
@@ -13,6 +13,8 @@ export const MIN_SITEMAP_PAGES = 300;
 // (/rss.xml is the guide feed; its dates follow the build, not the news.)
 export const NEWS_FEED = "/da/ai/nyheder/rss.xml";
 export const MAX_NEWS_AGE_HOURS = 84;
+// A day of quarter-hour prices is 96 points; the endpoint itself refuses fewer than 24.
+export const MIN_PRICE_POINTS = 24;
 const GUIDE = "/da/home-assistant/zigbee2mqtt/";
 
 // What public/_headers sends on every page. Only these are checked.
@@ -92,6 +94,10 @@ export function buildChecks({ get, base, now }) {
     check("/api/chat refuses GET", "405 (the Worker answers a wrong method; no question is sent)", fetched("/api/chat", undefined, (r) => ({
       ok: r.status === 405, seen: status(r),
     }))),
+    check("/api/elpris has prices for DK1", `200, area DK1 and at least ${MIN_PRICE_POINTS} price points`, fetched("/api/elpris?area=DK1", undefined, (r) => {
+      const { area, points } = priceList(r.body);
+      return { ok: r.status === 200 && area === "DK1" && points >= MIN_PRICE_POINTS, seen: `${status(r)}, area ${area}, ${points < 0 ? "no price list" : `${points} price points`}` };
+    })),
     check("/ads.txt is served", "200 and not empty", fetched("/ads.txt", undefined, (r) => ({
       ok: r.status === 200 && r.body.trim().length > 0, seen: `${status(r)}, ${r.body.trim().length} characters`,
     }))),

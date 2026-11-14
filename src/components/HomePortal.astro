@@ -5,6 +5,7 @@ import { getHomeCopy, type HomeLocale } from "../lib/home-copy";
 import HomeGoalNavigator from "./home/HomeGoalNavigator.astro";
 import HomeFieldGuide from "./home/HomeFieldGuide.astro";
 import HomeFeaturedGuides from "./home/HomeFeaturedGuides.astro";
+import HomeTools from "./home/HomeTools.astro";
 import HomeTrustEvidence from "./home/HomeTrustEvidence.astro";
 import HomeClosingCta from "./home/HomeClosingCta.astro";
 
@@ -19,6 +20,7 @@ const copy = getHomeCopy(locale);
 <div class="home-portal">
   <HomeGoalNavigator copy={copy.navigator} />
   <HomeFieldGuide copy={copy.fieldGuide} />
+  <HomeTools copy={copy.tools} locale={locale} />
   <HomeFeaturedGuides copy={copy.guides} />
   <section class="home-section home-news" aria-labelledby="home-news-title">
     <div class="home-section__heading">

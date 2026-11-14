@@ -1,0 +1,32 @@
+---
+title: Hvad koster det at have apparatet tændt?
+description: Regn ud, hvad et apparat koster i strøm pr. dag, måned og år. Skriv watt, timer pr. dag og din elpris, og se, hvad en time mindre om dagen sparer.
+lastUpdated: 2026-11-14
+---
+
+import PowerCost from '../../../../components/tools/PowerCost.astro';
+
+Skriv, hvor mange watt et apparat bruger, og hvor længe det er tændt hver dag. Så ser du, hvad det koster i strøm pr. dag, måned og år.
+
+<PowerCost lang="da" />
+
+## Sådan er tallet regnet
+
+Værktøjet ganger effekten med tiden og prisen:
+
+**watt ÷ 1000 × timer pr. dag × pris pr. kWh = kroner pr. dag**
+
+En måned er regnet som 30,4 dage og et år som 365 dage. Alt bliver regnet i din browser, og vi gemmer ikke det, du skriver.
+
+## Det er ikke med
+
+- **Forbruget svinger.** Et køleskab og en affugter tænder og slukker selv, og en pc bruger mere, når den arbejder. Brug et gennemsnit, eller mål forbruget.
+- **Prisen svinger.** Elprisen skifter time for time. Værktøjet regner med den samme pris hele året.
+- **Faste beløb.** Abonnement og andre faste beløb på elregningen er ikke med. De ændrer sig ikke, når du slukker for et apparat.
+
+## Find de rigtige tal
+
+- Effekten står på apparatets mærkeplade. Det er ofte det højeste forbrug og ikke det typiske.
+- En smart stikkontakt med måler viser det faktiske forbrug. Se [Energistyring og overvågning](/da/produkter/energistyring/).
+- Din pris pr. kWh står på elregningen. Spotprisen lige nu ser du i [elprisværktøjet](/da/vaerktoejer/elpris/).
+- Vil du følge forbruget over tid, så brug [Energy Dashboard i Home Assistant](/da/home-assistant/energy-dashboard/).

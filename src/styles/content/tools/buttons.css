@@ -1,0 +1,75 @@
+/* Buttons and chips in a tool. A chip is a small button that fills in an
+   example; a pressed chip is ringed and filled, not only coloured. */
+.sb-tool-button,
+.sb-tool-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.75rem;
+  border: 1px solid transparent;
+  border-radius: var(--sb-radius-pill);
+  font: 650 var(--sb-text-sm) / 1.2 var(--sb-font-body);
+  cursor: pointer;
+}
+
+.sb-tool-button {
+  padding: 0 var(--sb-space-5);
+  background: var(--sb-accent);
+  color: var(--sb-on-accent);
+}
+
+.sb-tool-button:hover {
+  background: var(--sb-accent-strong);
+}
+
+.sb-tool-button--secondary,
+.sb-tool-chip {
+  border-color: var(--sb-line-strong);
+  background: var(--sb-surface);
+  color: var(--sb-ink-strong);
+}
+
+.sb-tool-button--secondary:hover,
+.sb-tool-chip:hover {
+  border-color: var(--sb-accent);
+  background: var(--sb-surface);
+  color: var(--sb-accent-strong);
+}
+
+.sb-tool-chip {
+  padding: 0 var(--sb-space-4);
+  font-weight: 600;
+}
+
+/* In a narrow card two chips fit on a row with a little less padding. */
+@container sb-tool (max-width: 24rem) {
+  .sb-tool-chip {
+    padding: 0 var(--sb-space-3);
+  }
+}
+
+.sb-tool-chip[aria-pressed="true"] {
+  border-color: var(--sb-accent);
+  background: var(--sb-accent-soft);
+  box-shadow: inset 0 0 0 1px var(--sb-accent);
+  color: var(--sb-accent-strong);
+}
+
+.sb-tool-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sb-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sb-tool-button,
+  .sb-tool-chip {
+    transition:
+      background-color var(--sb-dur-fast) var(--sb-ease),
+      border-color var(--sb-dur-fast) var(--sb-ease),
+      color var(--sb-dur-fast) var(--sb-ease);
+  }
+}

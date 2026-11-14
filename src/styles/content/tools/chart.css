@@ -1,0 +1,145 @@
+/* The chart frame: a fixed value axis to the left and a plot that scrolls
+   sideways when the hours do not fit. The SVG is drawn one unit per pixel by
+   src/lib/tools/price-chart-dom.mjs, so lines stay crisp. */
+.sb-tool-chart {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  /* The height of a drawn chart, so the page does not jump when it arrives. */
+  min-height: 18.5rem;
+  padding: var(--sb-space-2) var(--sb-space-2) var(--sb-space-2) 0;
+  border: 1px solid var(--sb-line);
+  border-radius: var(--sb-radius-md);
+  background: var(--sb-bg);
+}
+
+.sb-tool-chart svg {
+  display: block;
+  overflow: visible;
+}
+
+.sb-tool-chart__scroll {
+  overflow: auto hidden;
+  overscroll-behavior-x: contain;
+  scrollbar-color: var(--sb-line-strong) transparent;
+  scrollbar-width: thin;
+}
+
+.sb-tool-chart__scroll:focus-visible {
+  outline: 3px solid var(--sb-accent);
+  outline-offset: 2px;
+  border-radius: var(--sb-radius-sm);
+}
+
+.sb-tool-chart text {
+  fill: var(--sb-ink-subtle);
+  font: 500 var(--sb-text-xs) / 1 var(--sb-font-body);
+  font-variant-numeric: tabular-nums;
+}
+
+.sb-tool-chart__grid {
+  stroke: var(--sb-line);
+  shape-rendering: crispEdges;
+}
+
+.sb-tool-chart__grid--zero {
+  stroke: var(--sb-line-strong);
+}
+
+.sb-tool-chart__day-line {
+  stroke: var(--sb-line-strong);
+  stroke-dasharray: 3 4;
+}
+
+.sb-tool-chart text.sb-tool-chart__day {
+  fill: var(--sb-ink-muted);
+  font-weight: 650;
+}
+
+/* Bars. Hours that have passed are hollow, the current hour is solid ink,
+   and the cheapest run is the brand colour with a band and a label: no state
+   is told by colour alone. */
+.sb-tool-chart__bar {
+  fill: color-mix(in srgb, var(--sb-ink-subtle) 78%, var(--sb-bg));
+}
+
+.sb-tool-chart__bar.is-past {
+  fill: color-mix(in srgb, var(--sb-ink-subtle) 14%, var(--sb-bg));
+  stroke: color-mix(in srgb, var(--sb-ink-subtle) 60%, var(--sb-bg));
+}
+
+.sb-tool-chart__bar.is-best {
+  fill: var(--sb-accent-vivid);
+}
+
+.sb-tool-chart__bar.is-now {
+  fill: var(--sb-ink-strong);
+}
+
+.sb-tool-chart__bar.is-now.is-best {
+  fill: var(--sb-accent-vivid);
+  stroke: var(--sb-ink-strong);
+  stroke-width: 2;
+}
+
+.sb-tool-chart__bar.is-active {
+  stroke: var(--sb-accent);
+  stroke-width: 2;
+}
+
+.sb-tool-chart__band {
+  fill: color-mix(in srgb, var(--sb-accent-vivid) 14%, transparent);
+}
+
+.sb-tool-chart text.sb-tool-chart__best {
+  fill: var(--sb-accent-strong);
+  font-weight: 700;
+}
+
+.sb-tool-chart__pill {
+  fill: var(--sb-ink-strong);
+}
+
+.sb-tool-chart text.sb-tool-chart__pill-text {
+  fill: var(--sb-bg);
+  font-weight: 700;
+}
+
+/* The line under the chart that names the hour being pointed at. */
+.sb-tool-chart__readout,
+.sb-tool-chart__hint {
+  margin: 0;
+  color: var(--sb-ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.sb-tool-chart__hint {
+  color: var(--sb-ink-subtle);
+  font-size: var(--sb-text-xs);
+}
+
+/* The bars rise from the baseline once, when the chart is first drawn: it
+   shows that the numbers have arrived. Not with reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .sb-tool-chart__plot.is-entering .sb-tool-chart__bar {
+    animation: sb-tool-bar-in var(--sb-dur-slow) var(--sb-ease) both;
+    animation-delay: calc(var(--i, 0) * 9ms);
+    transform-box: fill-box;
+    transform-origin: bottom;
+  }
+
+  @keyframes sb-tool-bar-in {
+    from {
+      transform: scaleY(0);
+    }
+  }
+}
+
+@media (forced-colors: active) {
+  .sb-tool-chart__bar {
+    fill: CanvasText;
+  }
+
+  .sb-tool-chart__bar.is-best {
+    fill: Highlight;
+  }
+}

@@ -750,6 +750,100 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Efter den uafhængige gennemgang: den stiplede stump fra OUT er fjernet (den lignede en løs
   ledning), "bruges ikke" er flyttet ud af ESP32-kassen, og den engelske Proxmox-tegning
   skriver "USB passthrough" i to ord som guiden.
+## B61. Værktøjer: egen sektion, elpris og strømforbrug (2026-11-14)
+
+- Valgt: en sektion `/vaerktoejer/` med sit eget punkt i topbjælken, og en fælles ramme
+  (`ToolFrame`, `src/styles/content/tools/`, `src/lib/tools/format.mjs`), så hvert nyt værktøj
+  er en komponent, et par moduler og en side pr. sprog. Begrundelse: værktøjer er det, en
+  læser kommer tilbage efter, og det, andre sider linker til.
+- Valgt, elpris: priserne hentes af Workeren (`/api/elpris`), ikke af læserens browser.
+  Begrundelse: Energinet gemmer kalderens IP-adresse i tre måneder (deres vilkår, læst
+  2026-11-14), og CSP'en skal ikke åbnes for en fremmed vært. Ét kald henter begge prisområder,
+  fordi Energinet afviste det andet kald inden for et minut.
+- Valgt: en kopi i Workerens cache i ti minutter, den gamle kopi ved fejl, mens den dækker det
+  aktuelle kvarter, og 60 sekunders pause efter en fejl. Fejlsvar er faste ord.
+- Valgt: prisområdet gættes ud fra forbindelsens region og huskes ikke; et gættet svar er
+  `private`, så det aldrig deles mellem læsere. En forkert `area` afvises (400).
+- Valgt: ingen satser for elafgift og nettarif i værktøjet. De skifter og afhænger af
+  netselskabet; læseren skriver sit eget tillæg. Momsen (25 %) regnes af summen.
+- Valgt ved integrationen: en værktøjsside har intet billede øverst (værktøjet skal stå
+  først), oversigten har ingen kommentarer eller annonceplads, privatlivspolitikken har fået
+  afsnit 2.4, og sidevagten spørger endpointet to gange i døgnet.
+- Fravalgt for nu: Cron Trigger og KV til priserne. Workerens cache er pr. datacenter, så
+  flere datacentre henter hver sin kopi. Bygges, hvis Energinet begynder at afvise kald fra
+  Cloudflare; det kan kun ses på den levende side.
+- OSS og data: ingen nye pakker. Data: Energinet, Energi Data Service, CC BY 4.0, krediteret i
+  værktøjet, på siden og i `docs/oss.md`.
+- Kontrol: `npm run site:test` (28 tests for værktøjerne), bygget side i headless Chrome i
+  begge temaer ved 320, 375 og 1440 px, og ét rigtigt kald til Energinet gennem endpointets
+  kode. Ikke set: endpointet hos Cloudflare før udgivelsen.
+
+### B61, tilføjelse efter den uafhængige gennemgang (2026-11-14)
+
+- Valgt: et tal med ét tegn fulgt af præcis tre cifre ("1.500", "1,500") afvises i stedet for
+  at blive gættet. Begrundelse: gættet kan være tusind gange forkert, og siden læses af både
+  danskere og andre. Fravalgt: at læse efter sidens sprog; en dansker på den engelske side
+  ville få det forkerte tal uden at se det.
+- Valgt: samtidige kald styres af tidspunkter i Worker-instansens hukommelse, ikke af et delt
+  løfte. Begrundelse: Cloudflare kan afbryde det kald, der ejer løftet, og de andre ville
+  hænge. Et tidspunkt udløber af sig selv.
+- Valgt: gæt på prisområde efter længde- og breddegrad, når regionskoden er ukendt.
+  Begrundelse: Hovedstaden og Sjælland lægges efter planen sammen 1. januar 2027, og den nye
+  kode kendes ikke. Uden reserven ville alle på Sjælland få Vestdanmarks priser den dag,
+  Cloudflare skifter kode.
+- Valgt: enhedens ur rettes først, når det er over et kvarter fra serverens. Begrundelse:
+  browseren må gemme svaret i ti minutter, så en mindre forskel kan skyldes svarets alder.
+- Valgt: eksemplet "Køleskab 40 W i snit" er fjernet. Begrundelse: tallet havde ingen kilde og
+  er højt for et nyt køleskab.
+- Valgt: forsidens sektion (B63) udgives sammen med værktøjerne. Begrundelse: den viser de
+  samme tal gennem den samme kode, og rettelserne ovenfor gælder begge steder.
+
+### B61, tilføjelse efter den opfølgende gennemgang (2026-11-14)
+
+- Valgt: kaldet til Energinet gives til `waitUntil` og har en hård tidsgrænse på 8 sekunder,
+  som ikke afhænger af, at `fetch` reagerer på afbrydelsen. Begrundelse: forlader læseren siden,
+  skal svaret stadig gemmes til den næste, og et kald må aldrig hænge. Tidspunktet i
+  hukommelsen (se ovenfor) er stadig den sidste sikring.
+- Valgt: et svar, der slutter før det kvarter, vi er i, gemmes ikke. Begrundelse: det ville
+  erstatte en kopi, der stadig har prisen for nu, med en, der ikke kan vises.
+- Valgt: forsidens kort sammenligner prisen med dagens timer, mens værktøjet sammenligner med
+  alle kendte timer. Begrundelse: kortet tegner kun i dag, og "lav" ved siden af dagens
+  højeste søjle ville se forkert ud. Fravalgt: samme regel begge steder; i værktøjet er
+  morgendagen med i grafen, og dér er sammenligningen med begge dage den rigtige.
+- Valgt: pladsen til kortets tal holdes fra siden åbnes (`data-state="loading"`). Begrundelse:
+  ellers flytter resten af forsiden sig, når priserne kommer. Uden JavaScript tages pladsen
+  ikke, og teksten står der.
+- Kendt og ladt være: søjler for timer, der er gået, har lav kontrast, og første svar fra
+  browserens cache kan give et ur, der er op til ti minutter bagud (`docs/vaerktoejer.md`).
+
+### B61, tilføjelse efter udgivelsen (2026-11-14)
+
+- Fundet: på den levende side svarede `/api/elpris` 502. Workerens log viste
+  `UpstreamStatus429`. Målt fra Cloudflares net med en prøve-Worker: Energinets datasæt-adresse
+  svarede 429 i 14 af 14 kald (grænsen er ét kald i minuttet pr. IP-adresse, og en Worker deler
+  adresse med alle andre Workers), mens download-adressen for samme datasæt svarede 200 med
+  alle 192 rækker i 15 af 15 kald.
+- Valgt: Workeren spørger download-adressen først og datasæt-adressen som reserve.
+  Begrundelse: kilden er stadig Energinet (officiel, CC BY 4.0, kvartersopløsning, kroner), og
+  ændringen er lille: én fil, samme kontrol af rækkerne.
+- Fravalgt: elprisenligenu.dk som kilde eller reserve. Den svarede 200 fra Cloudflare, men har
+  timepriser og ikke kvarterer, regner selv om fra ENTSO-E's europriser med en valutakurs, og
+  morgendagens fil findes ikke før ca. kl. 13. To kilder med forskellig opløsning ville give
+  to sæt tal for samme time.
+- Fravalgt nu: Cron Trigger og KV. Begrundelse: det er en ny binding og en ny ting at holde
+  øje med; det bygges først, hvis download-adressen også bliver begrænset
+  (`docs/vaerktoejer.md`, "Ikke bygget").
+- Valgt: siden blev ikke rullet tilbage, mens rettelsen blev lavet. Begrundelse: siderne,
+  strømforbrugsværktøjet og forsidens kort (med sin tekst i stedet for tal) virkede, og de nye
+  sider var allerede meldt til søgemaskinerne.
+- Valgt: mangler ét prisområde i et svar, holder Workeren samme pause som efter en fejl.
+  Begrundelse: et nyt kald med det samme ville mangle området igen og koste et kald.
+- Valgt: browserens kald til `/api/elpris` afbrydes efter 12 sekunder, uden `AbortSignal.any`
+  og `AbortSignal.timeout`. Begrundelse: Workeren bruger højst 8 sekunder på Energinet, og de
+  to funktioner findes ikke i de ældste browsere, siden skal virke i.
+- Valgt: en forskel mellem enhedens og serverens ur, der er mere end et kvarter mindre end den
+  største sete, starter aflæsningen forfra. Begrundelse: et svar fra browserens cache er højst
+  ti minutter gammelt, så en større ændring betyder, at enhedens ur er blevet stillet.
 
 ### B62. Assistenten skriver svaret, mens læseren ser på
 - Baggrund: et svar tog 10-40 sekunder, og læseren så kun tre prikker. Modellerne bruger
@@ -785,3 +879,24 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   ens (kun ASCII foldes), så det ene ikke lader noget passere, som det andet afviser.
 - Fravalgt: at vise et afskåret udkast med en bemærkning. Et halvt svar om elinstallation
   eller YAML er værre end ti sekunders ventetid på reservemodellen.
+
+## B63. Forsiden: værktøjer med elprisen lige nu (2026-11-14)
+
+- Valgt: en sektion på forsiden efter de tre etaper med et kort, der viser elprisen i dette
+  kvarter, dagens timer og de billigste tre timer i træk, og en række pr. værktøj.
+  Begrundelse: forsiden skal vise noget, der er sandt lige nu, og som læseren kan bruge med
+  det samme; værktøjerne er det, der adskiller siden fra en samling guides.
+- Valgt: samme regnestykker og samme hentning som elprisværktøjet (`price-view.mjs`,
+  `price-data.mjs`). Det samme ét sted: `isPrices` og kaldet til `/api/elpris` er flyttet ud
+  af `price-ui.mjs`.
+- Valgt: koden hentes først, når kortet er 600 px fra skærmen (IntersectionObserver og
+  dynamisk import), så forsidens første visning ikke bliver tungere.
+- Valgt: ingen tal i den byggede side og ingen opdigtede tal ved fejl. Kortet viser da en
+  tekst og et link til værktøjet.
+- Valgt: søjlerne står på nul, ikke på dagens laveste pris. En afkortet akse får små
+  forskelle til at se store ud.
+- Fravalgt: prisen i heroen. Heroen er husets; en pris dér ville konkurrere med 3D-huset og
+  flytte indhold, når tallet kommer.
+- Kontrol: `npm run site:test` (8 nye tests), bygget side i headless Chrome med et optaget
+  svar fra Energinet gennem endpointets egen kode: mørkt og lyst tema, 390, 768 og 1440 px,
+  dansk og engelsk, og med en fejl fra Energinet. Ikke set: kortet mod det levende endpoint.
