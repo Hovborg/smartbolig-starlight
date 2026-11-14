@@ -61,6 +61,12 @@
   --sb-time-day: #7cc4ff;
   --sb-time-evening: #7c6cf0;
   --sb-time-night: #3b5bd9;
+
+  /* The screen behind the 3D house: dark in both themes, so one still picture
+     fits both. Equal to the dark page colour, where the screen has no edge. */
+  --sb-stage: #090d11;
+  --sb-on-stage: #f3f6f8;
+  --sb-on-stage-muted: #aeb9c2;
 }
 
 /* Not in print: paper is white, so print always uses the light values above. */
@@ -104,5 +110,9 @@
     --sb-time-day: #4ea8ff;
     --sb-time-evening: #6a5cf0;
     --sb-time-night: #2b47c9;
+
+    --sb-stage: #090d11;
+    --sb-on-stage: #f3f6f8;
+    --sb-on-stage-muted: #aeb9c2;
   }
 }

@@ -1,5 +1,5 @@
 // Plain colours of the 3D models; textured surfaces are in textures.mjs.
-// The four system colours come from the site's design tokens at run time
+// The system colours and the colours of the day come from the site's design tokens at run time
 // (see readSystemColors), so the brand colours are still defined in one
 // place: src/styles/tokens/color.css.
 export const palette = {
@@ -21,6 +21,7 @@ export const systemFallback = {
   energy: "#2ee6a3",
   security: "#4ea3ff",
   lamp: "#ffdcb4",
+  time: { morning: "#ff9d6b", day: "#4ea8ff", evening: "#6a5cf0", night: "#2b47c9" },
 };
 
 /** Read the system colours from the page's design tokens. */
@@ -33,5 +34,6 @@ export function readSystemColors(element) {
     energy: token("--sb-accent-vivid", systemFallback.energy),
     security: token("--sb-sky-vivid", systemFallback.security),
     lamp: systemFallback.lamp,
+    time: Object.fromEntries(Object.entries(systemFallback.time).map(([name, fallback]) => [name, token(`--sb-time-${name}`, fallback)])),
   };
 }

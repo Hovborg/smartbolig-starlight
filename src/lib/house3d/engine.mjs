@@ -33,8 +33,8 @@ export function createEngine(canvas, options) {
 
   const goals = { ...modes[mode].levels, ...linkLevels(focus) };
   const levels = { ...goals };
-  let lightGoal = lightingOf(modes[mode]);
-  const light = lightingOf(modes[mode]);
+  let lightGoal = lightingOf(modes[mode], colors.time[mode]);
+  const light = lightingOf(modes[mode], colors.time[mode]);
   let viewGoal = views[options.view ?? "overview"];
   const view = { ...viewGoal, target: [...viewGoal.target] };
   const orbit = { az: 0, el: 0, goalAz: 0, goalEl: 0, sway: 0 };
@@ -110,7 +110,8 @@ export function createEngine(canvas, options) {
     if (motion) clock += dt;
     // Shadows are redrawn only while something that throws them is changing.
     stage.renderer.shadowMap.autoUpdate = now < activeUntil;
-    if (step(dt, false)) activeUntil = Math.max(activeUntil, now + 400);
+    // With motion off there are no flights or fades: the picture changes in one step.
+    if (step(dt, !motion)) activeUntil = Math.max(activeUntil, now + 400);
     draw();
     if (visible && (motion || now < activeUntil)) raf = requestAnimationFrame(frame);
   }
@@ -135,7 +136,7 @@ export function createEngine(canvas, options) {
       if (!modes[name]) return;
       mode = name;
       Object.assign(goals, modes[name].levels);
-      lightGoal = lightingOf(modes[name]);
+      lightGoal = lightingOf(modes[name], colors.time[name]);
       wake();
     },
     setFocus(system) {

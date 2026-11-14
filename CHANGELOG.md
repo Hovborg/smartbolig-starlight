@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Homepage rebuilt around a realistic 3D house (three.js, MIT, loaded on demand): a cut-away smart home with furniture, devices, garden, solar panels and an EV, lit for morning, day, evening and night. A still picture rendered from the same model shows at once; the live model replaces it after the page has loaded (on phones after the first touch or scroll, never unasked with Save-Data). The visitor can pick a time of day, turn the house and follow the tour "A day in a smart home", where the camera flies to what each chapter is about. Without WebGL or JavaScript the still picture and all text remain. New search field in the hero opens the site search.
+- Colour tokens v2: neutral graphite surfaces with one brand colour, a brand gradient, time-of-day colours and a stage colour for the 3D house. The browser theme colour, manifest and generated brand files follow the new values.
+- Removed the CSS-only house illustration, the stock hero photo and its image script (`images:home`).
 - New design for the whole site in both languages: an airy look in a dark theme (the default) and a light theme the visitor can pick with the theme switch. All colours, sizes, radii, shadows and motion come from one set of design tokens (`src/styles/tokens/`); the Galaxy theme and Tailwind are removed, and the two fonts (Figtree, Bricolage Grotesque, OFL-1.1) are served from the site itself. See `docs/designsystem.md`.
 - New homepage with "a house through a day": an illustration where the reader picks morning, day, evening or night and sees which automation runs and which systems it uses. It is CSS only, works with a keyboard and without JavaScript, and animations follow the device setting with a start/pause control.
 - Own header with a live SVG logo, redesigned 404 page, news overview, product cards, FAQ, comments and footer on the same tokens. `Head.astro`, the 404 page, the news feed and the AI assistant are split into small single-purpose files.

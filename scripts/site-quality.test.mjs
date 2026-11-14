@@ -20,7 +20,8 @@ const readHomeStyles = async () => {
 
 const HOME_COMPONENTS = [
   "src/components/home/HomeHero.astro",
-  "src/components/home/HomeNetworkScene.astro",
+  "src/components/home/HomeStage.astro",
+  "src/components/home/HomeTour.astro",
   "src/components/home/HomeGoalNavigator.astro",
   "src/components/home/HomeFieldGuide.astro",
   "src/components/home/HomeFeaturedGuides.astro",
@@ -136,31 +137,84 @@ test("homepage portal is a thin orchestrator with the editorial section order", 
   assert.doesNotMatch(portal, /<\/?main\b/);
 });
 
-test("hero takes an explicit locale, owns the homepage h1 and keeps the responsive image contract", async () => {
+test("hero takes an explicit locale and owns the homepage h1", async () => {
   const hero = await read("src/components/home/HomeHero.astro");
   assert.doesNotMatch(hero, /Astro\.url/, "hero must use an explicit locale prop, not URL sniffing");
   assert.match(hero, /<h1 id="_top">/);
   assert.match(hero, /aria-labelledby="_top"/);
-  assert.match(hero, /<picture>/);
-  for (const width of [640, 960, 1440]) {
-    assert.match(hero, new RegExp(`smart-home-editorial-${width}\\.avif ${width}w`));
-    assert.match(hero, new RegExp(`smart-home-editorial-${width}\\.webp ${width}w`));
+  for (const part of ["HomeStage", "HomeTour", "HomeHouseScript"]) {
+    assert.match(hero, new RegExp(`<${part}\\b`), `hero must compose ${part}`);
   }
-  assert.match(hero, /width="1440"/);
-  assert.match(hero, /height="810"/);
-  assert.match(hero, /loading="eager"/);
-  assert.doesNotMatch(hero, /fetchpriority/, "the thumbnail is not the LCP element");
-  assert.match(hero, /decoding="async"/);
   const skipLink = await read("src/components/SkipLink.astro");
   assert.match(skipLink, /href=["']#_top["']/);
 });
 
-test("homepage hero has a complete responsive AVIF and WebP image family", () => {
+test("the 3D house starts as a still picture: the largest picture on the page, in every size", async () => {
+  const stage = await read("src/components/home/HomeStage.astro");
+  assert.match(stage, /<picture>/);
+  assert.match(stage, /\[640, 960, 1440\]/);
+  assert.match(stage, /house-evening-\$\{width\}\.\$\{format\} \$\{width\}w/);
+  for (const format of ["avif", "webp"]) assert.match(stage, new RegExp(`srcset\\("${format}"\\)`));
+  assert.match(stage, /width="1440"/);
+  assert.match(stage, /height="1080"/);
+  assert.match(stage, /loading="eager"/);
+  assert.match(stage, /fetchpriority="high"/, "the still picture is the LCP element");
+  assert.match(stage, /decoding="async"/);
+  assert.match(stage, /alt=\{copy\.imageAlt\}/);
   for (const width of [640, 960, 1440]) {
     for (const format of ["avif", "webp"]) {
-      const asset = `public/images/hero/smart-home-editorial-${width}.${format}`;
-      assert.ok(existsSync(new URL(`../${asset}`, import.meta.url)), `missing hero asset: ${asset}`);
+      const asset = `public/images/home/house-evening-${width}.${format}`;
+      assert.ok(existsSync(new URL(`../${asset}`, import.meta.url)), `missing still picture: ${asset}`);
     }
+  }
+});
+
+test("the 3D library loads on demand and the controls work without it", async () => {
+  const [stage, controller, script] = await Promise.all([
+    read("src/lib/home-house-stage.mjs"),
+    read("src/lib/home-house.mjs"),
+    read("src/components/home/HomeHouseScript.astro"),
+  ]);
+  assert.match(stage, /import\("\.\/house3d\/index\.mjs"\)/, "three.js must stay out of the first page load");
+  assert.doesNotMatch(stage + controller + script, /from ["']three/);
+  assert.match(stage, /saveData/, "data-saving visitors must not get the model unasked");
+  assert.match(controller, /homeMotion !== "on"/, "the day only passes by itself while motion is on");
+  const markup = await read("src/components/home/HomeStage.astro");
+  for (const hook of ["data-house-spots hidden", "data-house-turn hidden", "data-house-modes hidden"]) {
+    assert.ok(markup.includes(hook), `control must stay hidden until the script runs: ${hook}`);
+  }
+});
+
+test("the tour, the hotspots and the 3D house agree on chapters and times of day", async () => {
+  const { homeCopy } = await import("../src/lib/home-copy.ts");
+  const { modes, views } = await import("../src/lib/house3d/modes.mjs");
+  for (const locale of ["da", "en"]) {
+    const { tour, stage, scene } = homeCopy[locale].hero;
+    assert.deepEqual(scene.modes.map((mode) => mode.id).sort(), Object.keys(modes).sort());
+    for (const chapter of tour.chapters) {
+      assert.ok(views[chapter.id], `${locale}: no camera view for chapter ${chapter.id}`);
+      assert.ok(modes[chapter.mode], `${locale}: no time of day ${chapter.mode}`);
+      assert.match(chapter.time, /^\d\d:\d\d$/);
+    }
+    const chapterIds = tour.chapters.map((chapter) => chapter.id);
+    for (const spot of stage.spots.filter((item) => item.href.startsWith("#"))) {
+      assert.ok(chapterIds.includes(spot.href.replace("#tour-", "")), `${locale}: hotspot ${spot.id} points at a missing chapter`);
+    }
+  }
+});
+
+test("every internal link in the homepage copy leads to a page that exists", async () => {
+  const { homeCopy } = await import("../src/lib/home-copy.ts");
+  const collect = (value, out = []) => {
+    if (Array.isArray(value)) value.forEach((item) => collect(item, out));
+    else if (value && typeof value === "object") Object.values(value).forEach((item) => collect(item, out));
+    else if (typeof value === "string" && value.startsWith("/")) out.push(value);
+    return out;
+  };
+  for (const href of new Set([...collect(homeCopy.da), ...collect(homeCopy.en)])) {
+    const base = `src/content/docs${href.replace(/\/$/, "")}`;
+    const found = [`${base}.mdx`, `${base}.md`, `${base}/index.mdx`, `${base}/index.md`].some((path) => existsSync(new URL(`../${path}`, import.meta.url)));
+    assert.ok(found, `homepage links to a page that does not exist: ${href}`);
   }
 });
 

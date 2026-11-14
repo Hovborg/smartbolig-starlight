@@ -4,6 +4,7 @@ import {
   PMREMGenerator, Scene, Vector3, WebGLRenderer,
 } from "three";
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
+import { createBackdrop, setBackdrop } from "./backdrop.mjs";
 import { createPost } from "./post.mjs";
 
 const CENTER = new Vector3(0.6, 0, 0.7);
@@ -51,14 +52,19 @@ export function createStage(canvas, { still = false, shadowSize = 2048, quality 
   sun.shadow.radius = 2.5;
   sun.target.position.copy(CENTER);
   const sky = new HemisphereLight(0xffffff, 0x444444, 1);
-  scene.add(sun, sun.target, sky);
+  const backdrop = createBackdrop(page);
+  scene.add(sun, sun.target, sky, backdrop);
   const post = high ? createPost(renderer, scene, camera) : null;
-  return { renderer, scene, camera, sun, sky, post };
+  return { renderer, scene, camera, sun, sky, backdrop, post };
 }
 
-/** The lighting of a mode as plain numbers and colours, ready to blend. */
-export function lightingOf(mode) {
+/**
+ * The lighting of a mode as plain numbers and colours, ready to blend.
+ * `haze` is the colour of that time of day (palette.mjs).
+ */
+export function lightingOf(mode, haze) {
   return {
+    haze: new Color(haze), hazePower: mode.haze,
     az: mode.sun.az, el: mode.sun.el, power: mode.sun.power, color: new Color(mode.sun.color),
     skyPower: mode.sky.power, top: new Color(mode.sky.top), ground: new Color(mode.sky.ground), env: mode.env,
   };
@@ -66,10 +72,11 @@ export function lightingOf(mode) {
 
 /** Move `now` a step of size k (0..1) towards `goal`. */
 export function blendLighting(now, goal, k) {
-  for (const key of ["az", "el", "power", "skyPower", "env"]) now[key] += (goal[key] - now[key]) * k;
+  for (const key of ["az", "el", "power", "skyPower", "env", "hazePower"]) now[key] += (goal[key] - now[key]) * k;
   now.color.lerp(goal.color, k);
   now.top.lerp(goal.top, k);
   now.ground.lerp(goal.ground, k);
+  now.haze.lerp(goal.haze, k);
 }
 
 export function applyLighting(stage, lighting) {
@@ -83,6 +90,7 @@ export function applyLighting(stage, lighting) {
   sky.color.copy(lighting.top);
   sky.groundColor.copy(lighting.ground);
   scene.environmentIntensity = lighting.env;
+  setBackdrop(stage.backdrop, lighting.haze, lighting.hazePower);
 }
 
 /** Put the camera on a sphere around the target. Returns the direction it looks from. */

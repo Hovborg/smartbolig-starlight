@@ -8,10 +8,8 @@ export const en: HomeCopy = {
       "Thorough guides to Home Assistant, ESPHome and automations — with local control and privacy in focus.",
     primary: { label: "Start here", href: "/en/start/" },
     secondary: { label: "Go straight to the guide library", href: "/en/home-assistant/" },
-    newsLink: { label: "Read AI news", href: "/en/ai/nyheder/" },
     imageAlt:
       "3D model of a smart home in evening light, seen from above: living room, kitchen, bedroom and bathroom, solar panels on the garage and an electric car charging.",
-    topics: ["Home Assistant", "ESPHome", "Local control"],
     search: {
       label: "Search the guides",
       placeholder: "What should your home do? Try «lights on motion»",

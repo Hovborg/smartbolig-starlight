@@ -25,25 +25,33 @@ Sidst opdateret: 2026-11-14.
 
 ## I gang
 
-- **Fase 2, design:** PR #180 (grenen `redesign/theme`). Designværdier, mørkt tema som standard,
-  egen topbjælke, forside med "et hus gennem et døgn", 404, nyhedsoversigt, produktkort, FAQ,
-  kommentarer, sidefod, AI-assistent, ny brandpakke, printregler. To uafhængige gennemgange
-  (kode og tilgængelighed) gav ingen blokerende fund; alle kodefund og tilgængelighedspunkt 1-13
-  er rettet. `main` er flettet ind 2026-11-14.
+- **Fase 2, design runde 1:** PR #180 flettet og udgivet 2026-11-14 (`main` 143eefc).
+  Vej tilbage: `npx wrangler rollback <forrige version> -m "<besked>" -y`.
+- **Fase 2, design runde 2** (grenen `redesign/v2`, ikke udgivet). Ejeren har bedt om et løft:
+  wow-forside, realistisk 3D, grafik i høj kvalitet, mørkt tema først.
+  - Færdigt på grenen: farveværdier v2, 3D-huset (`src/lib/house3d/`, `docs/3d-hus.md`), ny hero
+    med søgefelt, husets skærm, rundturen "Et døgn i et smart hjem", stillbilleder, brandfiler.
+    `npm run site:test` er grøn (142 tests).
+  - Mangler på forsiden: sektionerne under rundturen (emnevælger med 3D-billeder i stedet for
+    stregtegninger, rækkefølge, udvalgte guides, nyheder, sidefod).
+  - Mangler på resten af siden: indholdskomponenter, nyhedsoversigt og nyhedsbillede,
+    assistent, 404, topbjælke på telefon. Begge temaer, begge sprog, 375 og 1440 px.
 
 ## Næste skridt
 
-1. Udgiv designet (PR #180). Kontrollér den levende side i mørkt og lyst ved 375 og 1440 px.
-   Mål Lighthouse igen og sammenlign med før-målingen.
-2. Fase 3: nye guides og illustrationer. Fase 4: smarte funktioner. Fase 5: SEO, CSP, indtjening.
-   Fase 6: Search Console, Bing, Cloudflare, uafhængig sidevagt. Fase 7: dokumentation og docs-test.
-3. Følg tre dages nyhedsdrift (planlagte kørsler kl. 04:37 og 11:37 UTC; kan ikke bekræftes samme dag).
+1. Gør forsidens nederste sektioner færdige, og gå resten af siden igennem (runde 2).
+2. Uafhængig gennemgang, alle kontroller fra AGENTS.md, udgiv i bidder, kontrollér den levende
+   side, og mål Lighthouse igen mod før-målingen.
+3. Fase 3: illustrationer på alle guides (billeder fra 3D-byggesættet) og nye guides.
+   Fase 4: smarte funktioner. Fase 5: SEO, CSP, indtjening. Fase 6: Search Console, Bing,
+   Cloudflare, uafhængig sidevagt. Fase 7: dokumentation og docs-test.
+4. Følg tre dages nyhedsdrift (planlagte kørsler kl. 04:37 og 11:37 UTC).
 
 ## Udskudt fra designgennemgangen
 
 - Nyhedsoversigtens små billeder hentes i 1200 px; en 640 px-udgave med `srcset` hører til fase 5.
 - 404-siden forhåndsindlæser ikke skrifterne.
 - `--sb-ink-subtle` på sidens baggrundsvask giver 4,48:1 i lyst tema (lige under 4,5:1).
-- Ikke set i en browser: reduceret bevægelse, tvungne farver, forsiden ved ca. 800 px.
+- Ikke set i en browser: tvungne farver, forsiden ved ca. 800 px, 3D-huset på en rigtig telefon.
 
 Ting, der kræver ejeren, står i TIL-EJEREN.md.

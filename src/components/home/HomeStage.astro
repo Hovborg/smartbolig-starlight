@@ -1,0 +1,67 @@
+---
+// The 3D house. A still picture first; the live model fades in on top once it
+// has loaded (src/lib/home-house-stage.mjs). Without JavaScript or WebGL the
+// picture stays. The picture comes from `npm run house:posters`.
+import type { HomeHeroCopy } from "../../lib/home-copy";
+import HomeMotionControls from "./HomeMotionControls.astro";
+
+interface Props {
+  copy: HomeHeroCopy;
+}
+
+const { copy } = Astro.props;
+const { scene, stage } = copy;
+const start = scene.modes.find((mode) => mode.id === "evening") ?? scene.modes[0];
+const sizes = "(min-width: 64rem) 56vw, 100vw";
+const srcset = (format: string) =>
+  [640, 960, 1440].map((width) => `/images/home/house-evening-${width}.${format} ${width}w`).join(", ");
+---
+
+<div class="home-stage">
+  <div class="home-stage__screen" role="group" aria-label={stage.label} data-house-screen data-motion-stage>
+    <picture>
+      <source type="image/avif" srcset={srcset("avif")} sizes={sizes} />
+      <source type="image/webp" srcset={srcset("webp")} sizes={sizes} />
+      <img
+        class="home-stage__poster"
+        src="/images/home/house-evening-960.webp"
+        alt={copy.imageAlt}
+        width="1440"
+        height="1080"
+        loading="eager"
+        fetchpriority="high"
+        decoding="async"
+      />
+    </picture>
+    <canvas class="home-stage__canvas" data-house-canvas aria-hidden="true"></canvas>
+    <div class="home-stage__spots" data-house-spots hidden>
+      {stage.spots.map((spot) => (
+        <a class="home-spot" href={spot.href} data-house-spot={spot.id}>
+          <span class="home-spot__dot" aria-hidden="true"></span>
+          <span class="home-spot__label">{spot.label}</span>
+        </a>
+      ))}
+    </div>
+    <HomeMotionControls copy={copy.motion} />
+    <div class="home-stage__turn" data-house-turn hidden>
+      <button type="button" data-house-rotate="-1" aria-label={stage.rotateLeft}>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m14 6-6 6 6 6" /></svg>
+      </button>
+      <span class="home-stage__hint">{stage.hint}</span>
+      <button type="button" data-house-rotate="1" aria-label={stage.rotateRight}>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m10 6 6 6-6 6" /></svg>
+      </button>
+    </div>
+  </div>
+  <div class="home-stage__bar">
+    <div class="home-modes" role="group" aria-label={scene.choose} data-house-modes hidden>
+      {scene.modes.map((mode) => (
+        <button type="button" data-house-mode={mode.id} data-rule={mode.rule} aria-pressed={mode.id === start.id ? "true" : "false"}>
+          <span class="home-modes__dot" aria-hidden="true"></span>{mode.label}
+        </button>
+      ))}
+    </div>
+    <p class="home-stage__rule" data-house-rule>{start.rule}</p>
+    <p class="home-stage__note">{scene.note}</p>
+  </div>
+</div>

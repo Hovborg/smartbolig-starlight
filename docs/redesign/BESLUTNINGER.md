@@ -188,3 +188,62 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   `scripts/site-design-tokens.test.mjs` dækker fortsat begge.
 - Kontrolleret: `scripts/site-ui.test.mjs` (standard, gemt valg, blokeret lager, temafarve) og
   i browser på forside, guide og 404.
+
+### B30. Forsidens hus er en rigtig 3D-model. Erstatter B23
+- Ejerens krav 2026-11-14: forsiden skal have wow-effekt, grafikken skal være i høj kvalitet,
+  og huset skal se virkeligt ud, ikke som en tegnefilm.
+- Valg: et gennemskåret hus bygget i three.js 0.187.0 (MIT) af egne dele i `src/lib/house3d/`:
+  vægge, møbler, enheder, have, solceller og elbil. Materialerne er fysisk baserede med egne
+  tegnede teksturer, lyset er sol, himmel og lamper, og billedet efterbehandles (kontaktskygger,
+  glød, tonekurve). Ingen købte eller hentede 3D-modeller, teksturer eller billeder.
+- Fravalgt: færdige modeller fra modelbiblioteker (licens og stil kan ikke styres, og filerne
+  er store) og en forudindspillet video (kan ikke drejes eller følge teksten).
+- Kontrolleret i browser: fire tidspunkter, 375 og 1440 px, mørkt og lyst tema.
+
+### B31. Huset vises først som billede; modellen hentes bagefter
+- Valg: `HomeStage.astro` viser et stillbillede af aftenen (AVIF/WebP, tre bredder). Det er
+  sidens største billede og hentes med høj prioritet. three.js ligger i sit eget stykke kode
+  og hentes først, når siden er færdig: på computer i en ledig stund efter indlæsning, på
+  telefon efter første berøring eller rul, og med Datasparer kun når læseren rører huset.
+- Billedet tegnes af den samme model (`npm run house:posters`), så skiftet til den levende
+  model ikke kan ses.
+- To kvaliteter: "høj" (efterbehandling, skygger i 2048 px) på brede skærme med mus, "lav"
+  (direkte tegning, 1024 px, højst 1,5 gange opløsning) på telefoner.
+- Reserve: uden WebGL eller JavaScript bliver billedet stående, og knapper til tidspunkt og
+  drejning er skjult. Kontrolleret i browser ved at slå WebGL fra.
+- En test i `scripts/site-quality.test.mjs` afviser, at three.js importeres direkte fra forsiden.
+
+### B32. Skærmen bag huset er mørk i begge temaer
+- Valg: `--sb-stage` har samme værdi i lyst og mørkt tema. I mørkt tema er skærmen uden kant;
+  i lyst tema er den et mørkt kort.
+- Begrundelse: lyset fra lamper, skærme og solnedgang kan kun ses på mørk baggrund, og ét
+  stillbillede passer til begge temaer.
+- Tidspunktets farve (`--sb-time-*`) tegnes inde i 3D-scenen som en dis bag huset, der toner
+  ud til skærmens farve i alle kanter. Som CSS-lag oven på lærredet kunne kanten ses.
+
+### B33. Forsiden fortæller "Et døgn i et smart hjem"
+- Valg: under overskriften følger fire kapitler (07:00 varme, 12:00 energi, 19:30 lys,
+  23:00 sikkerhed). Når et kapitel når midten af vinduet, skifter huset tidspunkt, og kameraet
+  flyver hen til det, kapitlet handler om. På telefon bliver huset stående øverst, mens
+  teksten ruller under det. Hvert kapitel linker til de guides, der viser, hvordan det bygges.
+- På introen går døgnet af sig selv hvert 9. sekund, indtil læseren selv vælger et tidspunkt.
+  Det sker kun, når bevægelse er slået til.
+- Begrundelse: det viser, hvad et smart hjem gør, før læseren skal vælge en guide.
+- En test kontrollerer, at kapitler, markører og kameraer passer sammen i begge sprog, og at
+  alle forsidens interne links fører til en side, der findes.
+
+### B34. Start/pause-knappen står øverst på husets skærm. Erstatter B24
+- Valg: en ikonknap i skærmens øverste hjørne; teksten er bevaret til skærmlæsere. På telefon
+  vises kun start/pause, ikke "følg enheden".
+- Med bevægelse slået fra flyver kameraet ikke: billedet skifter i ét trin.
+
+### B35. Heroens emnemarkører og nyhedslink er fjernet; søgefelt er tilføjet
+- Valg: heroen har én primær knap, ét tekstlink, et søgefelt med tre forslag og huset.
+  Markørerne på huset og kapitlerne viser emnerne; nyhederne har deres egen sektion.
+- Søgefeltet åbner sidens søgning (Pagefind) og er skjult uden JavaScript.
+
+### B36. Brandfiler og temafarve følger farveværdierne
+- Fund: `scripts/lib/brand/palette.mjs`, `config/head/icons.mjs` og `public/site.webmanifest`
+  havde de gamle farver efter farveskiftet. `scripts/site-brand.test.mjs` fangede det.
+- Valg: værdierne er rettet, og `npm run brand:build` er kørt igen (favicon, ikoner, logoer,
+  delebillede).

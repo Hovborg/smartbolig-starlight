@@ -11,10 +11,8 @@ export interface HomeHeroCopy {
   tagline: string;
   primary: HomeLink;
   secondary: HomeLink;
-  newsLink: HomeLink;
   /** Describes the still picture of the 3D house. */
   imageAlt: string;
-  topics: string[];
   search: HomeSearchCopy;
   scene: HomeSceneCopy;
   stage: HomeStageCopy;

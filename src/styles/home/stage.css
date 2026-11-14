@@ -1,0 +1,242 @@
+/* The 3D house on the homepage (HomeStage.astro). The screen holds a still
+   picture and, on top, the live model. On phones the screen sticks under the
+   top bar while the page scrolls; on wide screens the whole stage sticks
+   beside the text. The screen is dark in both themes (--sb-stage). */
+
+.home-stage { display: contents; }
+
+.home-stage__screen {
+  position: sticky;
+  top: var(--sl-nav-height);
+  z-index: 2;
+  order: -1;
+  aspect-ratio: 16 / 10;
+  margin-inline: calc(-1 * var(--home-gutter));
+  overflow: hidden;
+  border-bottom: 1px solid var(--sb-line);
+  background: var(--sb-stage);
+  color: var(--sb-on-stage);
+  touch-action: pan-y;
+  user-select: none;
+}
+.home-stage__screen[data-state="live"] { cursor: grab; }
+.home-stage__screen[data-dragging] { cursor: grabbing; }
+
+.home-stage picture { display: contents; }
+.home-stage__poster,
+.home-stage__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+/* Soft edges: the garden may reach the edge of the screen without a hard cut. */
+.home-stage__poster,
+.home-stage__canvas {
+  mask-image:
+    linear-gradient(to right, transparent, black 7%, black 93%, transparent),
+    linear-gradient(to bottom, transparent, black 7%, black 93%, transparent);
+  mask-composite: intersect;
+}
+.home-stage__poster { object-fit: contain; }
+.home-stage__canvas { opacity: 0; transition: opacity 700ms var(--sb-ease); }
+.home-stage__screen[data-state="live"] .home-stage__canvas { opacity: 1; }
+
+/* Hotspots: home-house-stage.mjs moves each one to its place on the model. */
+.home-stage__spots { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+.home-stage__spots[hidden] { display: none; }
+.home-hero .home-spot {
+  --spot: var(--sb-accent-vivid);
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  translate: -50% -50%;
+  color: var(--sb-on-stage);
+  font-size: var(--sb-text-xs);
+  font-weight: 650;
+  text-decoration: none;
+  pointer-events: auto;
+}
+.home-spot[data-house-spot="light"] { --spot: var(--sb-warm-vivid); }
+.home-spot[data-house-spot="heat"] { --spot: var(--sb-danger-vivid); }
+.home-spot[data-house-spot="security"] { --spot: var(--sb-sky-vivid); }
+.home-spot[data-house-spot="hub"],
+.home-spot[data-house-spot="diy"] { --spot: var(--sb-violet-vivid); display: none; }
+.home-spot__dot {
+  width: 0.8rem;
+  height: 0.8rem;
+  border: 2px solid var(--sb-on-stage);
+  border-radius: 50%;
+  background: var(--spot);
+  box-shadow: 0 0 0 0 color-mix(in srgb, var(--spot) 55%, transparent);
+}
+:root[data-home-motion="on"] [data-motion-in-view="true"] .home-spot__dot { animation: home-spot 2.6s ease-out infinite; }
+.home-spot__label {
+  position: absolute;
+  top: 50%;
+  left: calc(50% + 0.75rem);
+  translate: 0 -50%;
+  padding: 0.15rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--sb-on-stage) 18%, transparent);
+  border-radius: var(--sb-radius-pill);
+  background: color-mix(in srgb, var(--sb-stage) 70%, transparent);
+  white-space: nowrap;
+  opacity: 0;
+  backdrop-filter: blur(8px);
+  transition: opacity var(--sb-dur) var(--sb-ease);
+}
+.home-spot:is(:hover, :focus-visible) .home-spot__label { opacity: 1; }
+.home-hero .home-spot:focus-visible { outline: 3px solid var(--sb-on-stage); outline-offset: -4px; border-radius: 50%; }
+/* In a chapter of the tour, only that chapter's hotspot keeps its name. */
+.home-day:not([data-house-chapter="intro"]) .home-spot:not([data-active], :hover, :focus-visible) { opacity: 0.6; }
+.home-day:not([data-house-chapter="intro"]) .home-spot:not([data-active], :hover, :focus-visible) .home-spot__label { opacity: 0; }
+.home-spot[data-active] .home-spot__label { opacity: 1; }
+@keyframes home-spot { to { box-shadow: 0 0 0 0.8rem transparent; } }
+
+/* Start/pause for the animations, in the top corner of the screen. */
+.home-stage__screen .home-motion-controls { position: absolute; top: var(--sb-space-3); right: var(--sb-space-3); z-index: 1; }
+.home-stage__screen .home-motion-controls button {
+  min-height: 2.5rem;
+  border-color: color-mix(in srgb, var(--sb-on-stage) 20%, transparent);
+  background: color-mix(in srgb, var(--sb-stage) 66%, transparent);
+  color: var(--sb-on-stage);
+  backdrop-filter: blur(8px);
+}
+/* The start/pause button is an icon here; its text stays for screen readers. */
+.home-stage__screen [data-motion-toggle] {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  padding: 0;
+  font-size: 0;
+}
+.home-stage__screen [data-motion-toggle]::before {
+  content: "";
+  width: 0.8rem;
+  height: 0.9rem;
+  background: currentColor;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+:root[data-home-motion="on"] .home-stage__screen [data-motion-toggle]::before {
+  clip-path: polygon(0 0, 35% 0, 35% 100%, 0 100%, 0 0, 65% 0, 100% 0, 100% 100%, 65% 100%, 65% 0);
+}
+/* The picture is small on phones: start/pause only, not "follow the device". */
+@media (max-width: 63.99rem) {
+  .home-stage__screen [data-motion-system] { display: none; }
+}
+.home-stage__screen .home-motion-controls button:hover { border-color: var(--sb-on-stage); }
+.home-stage__screen .home-motion-controls button:focus-visible { outline-color: var(--sb-on-stage); }
+
+/* Turn buttons and the drag hint, at the bottom of the screen. */
+.home-stage__turn {
+  position: absolute;
+  inset: auto var(--sb-space-3) var(--sb-space-3);
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sb-space-3);
+  pointer-events: none;
+}
+.home-stage__turn[hidden] { display: none; }
+.home-stage__turn button {
+  display: grid;
+  place-items: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid color-mix(in srgb, var(--sb-on-stage) 20%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--sb-stage) 66%, transparent);
+  color: var(--sb-on-stage);
+  cursor: pointer;
+  pointer-events: auto;
+  backdrop-filter: blur(8px);
+}
+.home-stage__turn button:hover { border-color: var(--sb-on-stage); }
+.home-stage__turn button:focus-visible { outline: 3px solid var(--sb-on-stage); outline-offset: 2px; }
+.home-stage__hint { display: none; color: var(--sb-on-stage-muted); font-size: var(--sb-text-xs); }
+
+/* Under the screen: time of day, what the house does then, and the note. */
+.home-stage__bar { display: grid; gap: var(--sb-space-3); padding-block: var(--sb-space-2) var(--sb-space-5); }
+.home-modes {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sb-space-1);
+  padding: var(--sb-space-1);
+  border: 1px solid var(--sb-line);
+  border-radius: var(--sb-radius-pill);
+  background: var(--sb-bg-subtle);
+}
+.home-modes[hidden] { display: none; }
+.home-modes button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45rem;
+  min-height: 2.5rem;
+  padding: 0.3rem 0.5rem;
+  border: 0;
+  border-radius: var(--sb-radius-pill);
+  background: none;
+  color: var(--sb-ink-muted);
+  font: inherit;
+  font-size: var(--sb-text-sm);
+  font-weight: 650;
+  cursor: pointer;
+  transition: background-color var(--sb-dur) var(--sb-ease), color var(--sb-dur) var(--sb-ease);
+}
+.home-modes button:hover { color: var(--sb-ink-strong); }
+.home-modes button[aria-pressed="true"] { background: var(--sb-surface); color: var(--sb-ink-strong); box-shadow: var(--sb-shadow-sm); }
+.home-modes button:focus-visible { outline: 3px solid var(--sb-accent); outline-offset: 2px; }
+.home-modes__dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--sb-line-strong); }
+.home-modes [data-house-mode="morning"][aria-pressed="true"] .home-modes__dot { background: var(--sb-time-morning); }
+.home-modes [data-house-mode="day"][aria-pressed="true"] .home-modes__dot { background: var(--sb-time-day); }
+.home-modes [data-house-mode="evening"][aria-pressed="true"] .home-modes__dot { background: var(--sb-time-evening); }
+.home-modes [data-house-mode="night"][aria-pressed="true"] .home-modes__dot { background: var(--sb-time-night); }
+.home-stage__rule {
+  min-height: 3.2em;
+  margin: 0;
+  color: var(--sb-ink);
+  font-size: var(--sb-text-sm);
+  line-height: 1.6;
+}
+.home-stage__note { margin: 0; color: var(--sb-ink-subtle); font-size: var(--sb-text-xs); }
+
+@media (min-width: 64rem) {
+  .home-stage {
+    position: sticky;
+    top: var(--sl-nav-height);
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: start;
+    display: grid;
+    align-content: center;
+    gap: var(--sb-space-4);
+    height: calc(100svh - var(--sl-nav-height));
+    margin-right: calc(-1 * var(--home-bleed));
+    /* The assistant button sits in the bottom corner of the window. */
+    padding-bottom: var(--sb-space-8);
+  }
+  .home-stage__screen {
+    position: relative;
+    top: auto;
+    order: 0;
+    aspect-ratio: 4 / 3;
+    width: min(100%, (100svh - var(--sl-nav-height) - 14.5rem) * 4 / 3);
+    margin-inline: auto;
+    border: 0;
+    border-radius: var(--sb-radius-xl);
+  }
+  .home-stage__bar { width: min(100%, 36rem); margin-inline: auto; padding-block: 0; text-align: center; }
+  .home-stage__rule { min-height: 1.6em; }
+  .home-stage__hint { display: block; }
+  .home-stage__turn { inset-inline: var(--sb-space-5); bottom: var(--sb-space-4); }
+  .home-spot[data-house-spot="hub"],
+  .home-spot[data-house-spot="diy"] { display: grid; }
+  .home-spot:not([data-house-spot="hub"], [data-house-spot="diy"]) .home-spot__label { opacity: 1; }
+}

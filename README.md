@@ -295,7 +295,7 @@ Forsiden er bygget af små komponenter under `src/components/home/`, samlet af
 `HomePortal.astro`. Teksterne står i `src/lib/home-copy/da.ts` og `en.ts`
 (typer i `types.ts`), og stilreglerne i `src/styles/home/`:
 
-1. Hero med "Et hus gennem et døgn": en SVG, hvor læseren vælger morgen, dag, aften eller nat og ser, hvilken regel der kører, og hvilke systemer den bruger. Én primær knap, emnemarkører og et responsivt AVIF/WebP-boligfoto
+1. Hero med søgefelt og et 3D-hus. Et stillbillede (AVIF/WebP) vises straks; den levende model hentes bagefter. Læseren vælger morgen, dag, aften eller nat, drejer huset og følger rundturen "Et døgn i et smart hjem" med fire kapitler (varme, energi, lys, sikkerhed), hvor kameraet flyver hen til det, teksten handler om
 2. De tre seneste AI-nyheder med billeder, datoer, arkiv og RSS
 3. Målnavigator med begynderspor til `/start/` og fem emnefelter med hver sin SVG-scene
 4. Feltguide med en vandret etaperute på computer og lodret forløb på mobil
@@ -308,10 +308,12 @@ Sådan hænger det sammen:
 - **Udseende:** forsiden bruger de samme designværdier som resten af siden
   (`docs/designsystem.md`) og følger lyst og mørkt tema. Der står ingen farvekoder i
   `src/styles/home/`; en test i `scripts/site-quality.test.mjs` afviser dem.
-- **Huset:** ren CSS (radioknapper, `:has()` og CSS-variabler i `scene.css`). Ingen
-  JavaScript. Uden `:has()` vises aftenen, og vælgeren skjules.
+- **Huset:** en three.js-model i `src/lib/house3d/` (se `docs/3d-hus.md`).
+  `src/lib/home-house.mjs` ejer tilstanden (tidspunkt og kapitel), og
+  `src/lib/home-house-stage.mjs` henter modellen, når der er brug for den. Uden
+  JavaScript eller WebGL vises stillbilledet, og knapperne er skjult.
 - **Bevægelse:** `src/lib/home-motion.mjs` sætter `data-home-motion` på `<html>`.
-  Siden følger enhedens indstilling; knappen i husets fod starter eller standser
+  Siden følger enhedens indstilling; knappen øverst på husets skærm starter eller standser
   bevægelse, og valget gemmes lokalt under `smartbolig-motion-v1`. Scener uden for
   skærmen og skjulte faner står stille. Reglerne ligger i `motion.css`, og
   controlleren kontrolleres i `scripts/site-motion.test.mjs`.
@@ -319,11 +321,11 @@ Sådan hænger det sammen:
 - De få tilpasninger af Starlights ramme kræver `body:has(.home-portal)`, så guides
   beholder deres layout.
 
-Hero-masteren ligger under `src/assets/homepage/`. Generér de seks responsive
-AVIF/WebP-filer efter en ændring af masteren med:
+Stillbilledet tegnes af den samme model i headless Chrome. Generér det igen, når
+huset ændrer udseende:
 
 ```bash
-npm run images:home
+npm run house:posters
 ```
 
 Forsidens nyhedsliste bruger små WebP-thumbnails (`-thumb.webp`) ved siden af

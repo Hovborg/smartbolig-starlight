@@ -8,10 +8,8 @@ export const da: HomeCopy = {
       "Gennemarbejdede guides til Home Assistant, ESPHome og automationer — med lokal kontrol og privatliv i fokus.",
     primary: { label: "Start her", href: "/da/start/" },
     secondary: { label: "Gå direkte til guidebiblioteket", href: "/da/home-assistant/" },
-    newsLink: { label: "Læs AI-nyheder", href: "/da/ai/nyheder/" },
     imageAlt:
       "3D-model af et smart hjem i aftenlys, set oppefra: stue, køkken, soveværelse og bad, solceller på garagen og en elbil, der lader.",
-    topics: ["Home Assistant", "ESPHome", "Lokal kontrol"],
     search: {
       label: "Søg i guiderne",
       placeholder: "Hvad skal dit hjem kunne? Prøv »lys ved bevægelse«",

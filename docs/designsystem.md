@@ -18,7 +18,7 @@ ingen farvekoder, skrifttyper eller skygger direkte i komponenterne.
 | `src/styles/chrome/` | Topbjælke, sidemenu, indholdsfortegnelse, sidefod-navigation |
 | `src/styles/content/` | Brødtekst, tabeller, kodeblokke, bokse, kort, faner |
 | `src/styles/print.css` | Print: skjuler menuer, assistent og kommentarer |
-| `src/styles/home/` | Forsiden: `layout.css` (ramme, knapper), `hero.css`, `scene.css` (huset), `sections.css`, `motion.css` |
+| `src/styles/home/` | Forsiden: `layout.css` (ramme, knapper), `hero.css`, `stage.css` (3D-husets skærm), `tour.css` (rundturen), `sections.css`, `motion.css` |
 | `src/styles/index.css` | Importerer det hele i rækkefølge. Den eneste fil, Starlight får |
 | `config/fonts.mjs` | Skrifttyper (selvhostede) |
 | `src/components/chrome/` | Egen topbjælke og temastart |
@@ -48,6 +48,9 @@ Hver farve har en rolle. Brug rollen, ikke en bestemt nuance.
 | `--sb-accent-vivid` | Kun grafik og pynt, aldrig tekst |
 | `--sb-on-accent` | Tekst på en accentfarvet flade |
 | `--sb-warm`, `--sb-sky`, `--sb-violet`, `--sb-danger` (+ `-soft`, `-vivid`) | Advarsel, information, tip, fejl |
+| `--sb-brand-a`, `--sb-brand-b` | Brandforløbet (to ender), kun til store overskrifter og grafik |
+| `--sb-time-morning`, `-day`, `-evening`, `-night` | Tidspunktets lys bag 3D-huset |
+| `--sb-stage`, `--sb-on-stage`, `--sb-on-stage-muted` | 3D-husets skærm og teksten på den. Mørk i begge temaer |
 
 Regler:
 
