@@ -13,6 +13,7 @@ export const en: HomeCopy = {
     search: {
       label: "Search the guides",
       placeholder: "What should your home do? Try «lights on motion»",
+      askAi: "Ask AI",
       suggestionsLabel: "Popular right now",
       suggestions: [
         { label: "Lights on motion", href: "/en/automationer/bevaegelseslys-med-overstyring/" },

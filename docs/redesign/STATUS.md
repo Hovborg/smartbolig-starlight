@@ -33,8 +33,17 @@ Sidst opdateret: 2026-11-14.
   `ai_search`-bindingen er fjernet. `functions/api/chat.js` er delt i `functions/lib/chat/`.
   Dokumentation: `docs/assistent.md`. Udgivet 2026-11-14 (PR #194, `main` 3bb4004). Live:
   svar på dansk og engelsk med links til guides, `/_index/da/meta.json` har `noindex`.
-  Åbent: et svar tager ca. 45 sekunder, fordi modellen svarer i ét stykke. Næste skridt er
-  løbende visning af svaret (streaming) i assistentens nye udseende.
+  Et svar tog ca. 45 sekunder, fordi modellen svarede i ét stykke.
+- **Assistenten skriver svaret, mens læseren ser på (B62):** `/api/chat` kan sende svaret som
+  Server-Sent Events, og vinduet viser en statuslinje ("Søger i guiderne ...") og derefter
+  teksten, mens den kommer. Uden strøm (ældre browser, fejl undervejs) falder vinduet tilbage
+  til det gamle JSON-svar. Slås fra ét sted: `STREAMING_ENABLED` i `functions/lib/chat/limits.js`.
+  To uafhængige gennemgange; fundene er rettet, og 13 prøver med en rettelse taget ud fanges
+  alle af testene. Dokumentation: `docs/assistent.md`. Kendt i vinduet og ikke rettet: på en
+  telefon på 375×760 px er samtalefeltet ca. 209 px højt; ved 320 px står overskriftens tekst
+  under nulstil-knappen; statusteksten kan stå to gange et øjeblik; "Kopiér kode" vises også
+  på en kodeblok, der endnu skrives. Kan først ses på den levende side: et rigtigt svar gennem
+  Workerens egen binding, og om Cloudflare sender strømmen videre uden at samle den.
 - **Automatiske opdateringer set i drift 2026-11-14:** Dependabot åbnede otte pull requests
   efter udgivelsen. Gruppen med små npm-opdateringer (PR #192) blev flettet af sig selv, efter
   at `deploy`-kontrollen var grøn, og kontrollerne kørte derefter på `main`. Starlight 0.42.8
@@ -173,9 +182,23 @@ Sidst opdateret: 2026-11-14.
   svar, afbrudt besøgende, kortets højde, manglende tests); de er rettet, og ti prøver med
   rettelsen taget ud viser, at testene fanger hver af dem. Afprøvet 2026-11-14: alle tests,
   bygget side og en rigtig browser (tal med tusindtegn afvises, eksempler, enhedens ur en
-  time forkert, forsidens kort). Kan først ses på den levende side: Cloudflares cache pr.
-  datacenter, gæt på prisområde ud fra den besøgendes sted, og om Energinet begrænser kald
-  fra Cloudflares adresser.
+  time forkert, forsidens kort). **Udgivet 2026-11-14** (PR #204, `main` efter a6dcfde, Worker
+  `bec7ef7c`; vejen tilbage til før værktøjerne er Worker `26dcf207`).
+  Fundet på den levende side: `/api/elpris` svarede 502, fordi Energinets datasæt-adresse
+  afviser Cloudflares delte adresse med 429 (14 af 14 kald). Siderne, strømforbrugsværktøjet og
+  forsidens kort (med tekst i stedet for tal) virkede imens. Rettet i en opfølgende ændring
+  (grenen `fix/elpris-source`): download-adressen spørges først (200 i 15 af 15 kald fra
+  Cloudflare), og fire mindre fund fra gennemgangen efter udgivelsen er rettet med hver sin
+  test (B61, tilføjelsen efter udgivelsen). Vejen tilbage fra rettelsen er Worker `bec7ef7c`.
+  **Rettelsen er udgivet 2026-11-14** (PR #205, `main` efter c6045d5, Worker `e7f0c884`). Set
+  på den levende side: `/api/elpris` svarer 200 med 96 priser for DK1, DK2 og gættet område,
+  400 på et ukendt område og 405 på POST; forsidens kort og elprisværktøjet viser tal på dansk
+  og engelsk i headless Chrome (390 px) uden fejl i konsollen; sidevagtens kontrol af
+  `/api/elpris` bestod i en kørsel startet i hånden.
+- **Værktøjer, to mere (B66):** Zigbee-kanalvælger (`/vaerktoejer/zigbee-kanal/`) og
+  batterilevetid (`/vaerktoejer/batterilevetid/`) på begge sprog, i den fælles ramme, med
+  kilder på siderne. Forsidens værktøjssektion viser nu fire værktøjer. Set i headless Chrome i
+  mørkt og lyst tema ved 320, 375 og 1440 px, med tastatur og uden JavaScript.
 
 ## Næste skridt
 

@@ -13,6 +13,7 @@ export interface AssistantContext {
   form: HTMLFormElement;
   input: HTMLTextAreaElement;
   sendButton: HTMLButtonElement;
+  stopButton: HTMLButtonElement;
   messagesElement: HTMLElement;
   welcome: HTMLElement;
   prompts: HTMLElement;
@@ -31,6 +32,7 @@ export function createContext(root: HTMLElement): AssistantContext | null {
   const form = root.querySelector("[data-chat-form]");
   const input = root.querySelector("[data-chat-input]");
   const sendButton = root.querySelector("[data-chat-send]");
+  const stopButton = root.querySelector("[data-chat-stop]");
   const messagesElement = root.querySelector("[data-chat-messages]");
   const welcome = root.querySelector("[data-chat-welcome]");
   const prompts = root.querySelector("[data-chat-prompts]");
@@ -44,6 +46,7 @@ export function createContext(root: HTMLElement): AssistantContext | null {
     !(form instanceof HTMLFormElement) ||
     !(input instanceof HTMLTextAreaElement) ||
     !(sendButton instanceof HTMLButtonElement) ||
+    !(stopButton instanceof HTMLButtonElement) ||
     !(messagesElement instanceof HTMLElement) ||
     !(welcome instanceof HTMLElement) ||
     !(prompts instanceof HTMLElement) ||
@@ -65,6 +68,7 @@ export function createContext(root: HTMLElement): AssistantContext | null {
     form,
     input,
     sendButton,
+    stopButton,
     messagesElement,
     welcome,
     prompts,

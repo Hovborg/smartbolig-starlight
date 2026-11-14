@@ -816,6 +816,70 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Kendt og ladt være: søjler for timer, der er gået, har lav kontrast, og første svar fra
   browserens cache kan give et ur, der er op til ti minutter bagud (`docs/vaerktoejer.md`).
 
+### B61, tilføjelse efter udgivelsen (2026-11-14)
+
+- Fundet: på den levende side svarede `/api/elpris` 502. Workerens log viste
+  `UpstreamStatus429`. Målt fra Cloudflares net med en prøve-Worker: Energinets datasæt-adresse
+  svarede 429 i 14 af 14 kald (grænsen er ét kald i minuttet pr. IP-adresse, og en Worker deler
+  adresse med alle andre Workers), mens download-adressen for samme datasæt svarede 200 med
+  alle 192 rækker i 15 af 15 kald.
+- Valgt: Workeren spørger download-adressen først og datasæt-adressen som reserve.
+  Begrundelse: kilden er stadig Energinet (officiel, CC BY 4.0, kvartersopløsning, kroner), og
+  ændringen er lille: én fil, samme kontrol af rækkerne.
+- Fravalgt: elprisenligenu.dk som kilde eller reserve. Den svarede 200 fra Cloudflare, men har
+  timepriser og ikke kvarterer, regner selv om fra ENTSO-E's europriser med en valutakurs, og
+  morgendagens fil findes ikke før ca. kl. 13. To kilder med forskellig opløsning ville give
+  to sæt tal for samme time.
+- Fravalgt nu: Cron Trigger og KV. Begrundelse: det er en ny binding og en ny ting at holde
+  øje med; det bygges først, hvis download-adressen også bliver begrænset
+  (`docs/vaerktoejer.md`, "Ikke bygget").
+- Valgt: siden blev ikke rullet tilbage, mens rettelsen blev lavet. Begrundelse: siderne,
+  strømforbrugsværktøjet og forsidens kort (med sin tekst i stedet for tal) virkede, og de nye
+  sider var allerede meldt til søgemaskinerne.
+- Valgt: mangler ét prisområde i et svar, holder Workeren samme pause som efter en fejl.
+  Begrundelse: et nyt kald med det samme ville mangle området igen og koste et kald.
+- Valgt: browserens kald til `/api/elpris` afbrydes efter 12 sekunder, uden `AbortSignal.any`
+  og `AbortSignal.timeout`. Begrundelse: Workeren bruger højst 8 sekunder på Energinet, og de
+  to funktioner findes ikke i de ældste browsere, siden skal virke i.
+- Valgt: en forskel mellem enhedens og serverens ur, der er mere end et kvarter mindre end den
+  største sete, starter aflæsningen forfra. Begrundelse: et svar fra browserens cache er højst
+  ti minutter gammelt, så en større ændring betyder, at enhedens ur er blevet stillet.
+
+### B62. Assistenten skriver svaret, mens læseren ser på
+- Baggrund: et svar tog 10-40 sekunder, og læseren så kun tre prikker. Modellerne bruger
+  det meste af tiden på at ræsonnere, før første ord.
+- Valg: `/api/chat` kan sende svaret som Server-Sent Events (`Accept: text/event-stream`):
+  hvad der sker nu, kilderne, teksten i stykker og til sidst det kontrollerede svar. Kun
+  selve svartrinnet strømmes. Alle kontroller er de samme som for JSON-svaret, og kun det
+  kontrollerede svar gemmes.
+- Vist tekst: en anden model skriver aldrig videre på den. Fejler hovedmodellen, eller består
+  udkastet ikke en kontrol, trækkes det tilbage (»Skriver svaret om …«), og reservemodellen
+  skriver et nyt. Først var en fejl efter vist tekst en fejl for læseren; efter den
+  uafhængige gennemgang får læseren i stedet reservemodellens svar, som uden strøm.
+- Interne navne fra prompten: slutningen af teksten holdes tilbage, så længe den kan være
+  begyndelsen på et sådant navn, så navnet heller ikke vises i dele.
+- En strøm, der lukker uden at modellen har sagt, den er færdig, er et halvt svar.
+- Formen på Workers AI's strøm er ikke dokumenteret. Den er læst for begge modeller
+  2026-11-14 gennem REST-API'et og lagt ind som test. En ukendt form har sin egen loglinje.
+- Fravalgt: at strømme det trin, der kan ende i et værktøjskald (det er ikke altid et svar),
+  og WebSocket (kræver mere kode og giver intet, Server-Sent Events ikke giver her).
+- Nødbremse: `STREAMING_ENABLED` i `functions/lib/chat/limits.js`; sat til `false` får alle
+  kald JSON-svaret som før. Det kræver en udgivelse.
+
+#### B62, tilføjelse efter den opfølgende gennemgang (2026-11-14)
+- Et udkast, der slutter, fordi tokengrænsen er nået, trækkes altid tilbage. Derfor vises
+  den tilbageholdte slutning heller ikke: den kan være første halvdel af et internt navn.
+- Afslutningsårsagen læses også, når den står ved siden af `response` (den ældre form), så
+  et afskåret udkast i den form ikke tæller som færdigt.
+- Et stykke er kun kendt, når det har svartekst, en afslutningsårsag, ræsonnering, en rolle
+  eller er den tomme hale med forbrug. Alt andet er en ukendt form og logges som
+  `unknown_primary_stream` eller `unknown_fallback_stream`, også når strømmen lukker uden
+  `[DONE]`. Før blev det logget som et afskåret svar, og fejlen ville ligne en langsom model.
+- Kontrollen af det færdige svar og tilbageholdelsen under strømmen sammenligner bogstaver
+  ens (kun ASCII foldes), så det ene ikke lader noget passere, som det andet afviser.
+- Fravalgt: at vise et afskåret udkast med en bemærkning. Et halvt svar om elinstallation
+  eller YAML er værre end ti sekunders ventetid på reservemodellen.
+
 ## B63. Forsiden: værktøjer med elprisen lige nu (2026-11-14)
 
 - Valgt: en sektion på forsiden efter de tre etaper med et kort, der viser elprisen i dette
@@ -836,3 +900,24 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Kontrol: `npm run site:test` (8 nye tests), bygget side i headless Chrome med et optaget
   svar fra Energinet gennem endpointets egen kode: mørkt og lyst tema, 390, 768 og 1440 px,
   dansk og engelsk, og med en fejl fra Energinet. Ikke set: kortet mod det levende endpoint.
+
+## B66. Værktøjer: Zigbee-kanalvælger og batterilevetid (2026-11-14)
+
+- Valgt: to værktøjer mere i den fælles ramme (B61): en Zigbee-kanalvælger og en beregner af
+  batterilevetid. Begrundelse: begge svarer på spørgsmål, guiderne ellers kun kan svare på med
+  "det kommer an på": hvilken Zigbee-kanal passer til mit Wi-Fi, og hvor længe holder en
+  batterisensor.
+- Valgt: kanalvælgeren regner kun på frekvenser. Zigbee-kanal n ligger på 2405 + 5 × (n − 11)
+  MHz, Wi-Fi-kanal m på 2412 + 5 × (m − 1) MHz. En Wi-Fi-kanal regnes 22 MHz bred. Det er vores
+  valg af den bredeste almindelige maske, ikke en kildeoplysning, og det står på siden.
+- Valgt: kanal 26 anbefales aldrig først. Begrundelse: Zigbee2MQTT's og ZHA's dokumentation
+  fraråder den, fordi nogle enheder ikke kan bruge den. Siden siger, at der ikke er en
+  officiel forklaring på hvorfor.
+- Valgt: frekvensstriben tegnes på serveren som inline SVG. Begrundelse: siden giver mening
+  uden JavaScript, og der er intet at hente.
+- Valgt: batteriberegneren har ét forvalg (ESP32-chip, 10 µA i Deep-sleep), og det har et
+  kildelink til Espressifs datablad. Fravalgt: forvalg for færdige sensorer; vi har ikke et
+  datablad for dem, og et tal uden kilde er et gæt. Siden beder læseren måle.
+- Valgt: et tal med tusindtegn afvises med en tekst, der siger, hvordan tallet skal skrives,
+  som i de andre værktøjer.
+- Fravalgt: at gemme læserens tal i browseren (samme regel som B61).

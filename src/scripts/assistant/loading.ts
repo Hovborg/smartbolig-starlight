@@ -1,4 +1,4 @@
-// The "edge request active" console and its elapsed-time timer.
+// The pending answer: a plain status line, the "edge request active" console and its elapsed-time timer.
 import { REQUEST_TIMEOUT_MS } from "./constants";
 import type { AssistantContext } from "./context";
 
@@ -10,6 +10,10 @@ export function createLoadingIndicator({ root, messagesElement, copy }: Assistan
     const article = document.createElement("article");
     article.className = "smartbolig-ai__message smartbolig-ai__message--assistant smartbolig-ai__message--loading";
     article.setAttribute("aria-label", copy.thinkingLabel);
+    // The log around it announces additions. A draft changes many times a
+    // second, so it stays silent: the status line and the finished answer speak.
+    article.setAttribute("aria-live", "off");
+    article.setAttribute("aria-busy", "true");
 
     const meta = document.createElement("div");
     meta.className = "smartbolig-ai__message-meta";
@@ -19,6 +23,10 @@ export function createLoadingIndicator({ root, messagesElement, copy }: Assistan
     bubble.className = "smartbolig-ai__bubble";
     const consoleElement = document.createElement("div");
     consoleElement.className = "smartbolig-ai__loading-console";
+    const stage = document.createElement("p");
+    stage.className = "smartbolig-ai__loading-stage";
+    stage.dataset.chatStage = "";
+    stage.textContent = copy.working;
     const consoleHead = document.createElement("div");
     consoleHead.className = "smartbolig-ai__loading-head";
     const activeLabel = document.createElement("span");
@@ -39,7 +47,7 @@ export function createLoadingIndicator({ root, messagesElement, copy }: Assistan
     const dots = document.createElement("span");
     dots.className = "smartbolig-ai__typing";
     dots.append(document.createElement("i"), document.createElement("i"), document.createElement("i"));
-    consoleElement.append(consoleHead, signal, pipeline, dots);
+    consoleElement.append(stage, consoleHead, signal, pipeline, dots);
     bubble.append(consoleElement);
     article.append(meta, bubble);
     messagesElement.append(article);

@@ -3,7 +3,7 @@
 // does not see the visitor's IP address.
 
 import { safeErrorName } from "../chat/runtime.js";
-import { resolveArea } from "./area.js";
+import { AREAS, resolveArea } from "./area.js";
 import { createPriceCache } from "./cache.js";
 import { createMemory } from "./memory.js";
 import { errorResponse, FRESH_SECONDS, pricesResponse } from "./responses.js";
@@ -44,9 +44,15 @@ export function createElprisHandler(dependencies = {}) {
       memory.answered(all);
       // The cache is written after the answer is sent; a failed write only costs a call.
       later(Promise.all(all.map((prices) => cache.write(prices))));
-      const prices = all.find((entry) => entry.area === area);
-      if (!prices) throw Object.assign(new Error("area missing"), { name: "UpstreamAreaMissing" });
-      return prices;
+      // An area the answer lacks would be missing in a second answer too, so
+      // the source gets its peace here as well: a request for that area does
+      // not call again at once.
+      if (all.length < AREAS.length) {
+        memory.failed();
+        logger.error?.("SmartBolig elpris upstream failed", { error: "UpstreamAreaMissing" });
+        later(cache.startBackoff());
+      }
+      return all.find((entry) => entry.area === area) ?? null;
     } catch (error) {
       memory.failed();
       // Only the name of the fault: not Energinet's text, and not the visitor's area.

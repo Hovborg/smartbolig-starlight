@@ -1,14 +1,17 @@
-// Sends a question to the same-origin chat endpoint and owns the request lifecycle.
+// Owns one question from send to answer: history, the draft on screen, stop, timeout and failure.
 import { MAX_HISTORY_MESSAGES, MAX_MESSAGE_CHARS, REQUEST_TIMEOUT_MS } from "./constants";
 import type { AssistantContext } from "./context";
 import { normalizeDiagnostics } from "./diagnostics";
+import type { Draft } from "./draft-view";
 import { createErrorRenderer } from "./error-view";
-import type { HistoryStore } from "./history";
+import type { HistoryStore, StoredMessage } from "./history";
 import type { createLoadingIndicator } from "./loading";
+import { requestAnswer } from "./request";
 
 interface ConversationDeps {
   store: HistoryStore;
   renderHistory: () => void;
+  startDraft: () => Draft;
   loading: ReturnType<typeof createLoadingIndicator>;
   setBusy: (value: boolean) => void;
   clearActiveMode: () => void;
@@ -16,12 +19,13 @@ interface ConversationDeps {
 
 export function createConversation(ctx: AssistantContext, deps: ConversationDeps) {
   const { root, locale, copy, input, messagesElement, state, setStatus } = ctx;
-  const { store, renderHistory, setBusy, clearActiveMode } = deps;
-  const { renderLoading, startLoadingTimer, stopLoadingTimer, markLoadingStarted, clearLoadingStart } = deps.loading;
+  const { store, renderHistory, startDraft, setBusy, clearActiveMode } = deps;
+  const { stopLoadingTimer, markLoadingStarted, clearLoadingStart } = deps.loading;
   const { saveHistory, createRequestMessages } = store;
   const renderError = createErrorRenderer(ctx, retryLastQuestion);
 
   let abortController: AbortController | null = null;
+  let stoppedByReader = false;
   let lastFailed = false;
   let requestSequence = 0;
 
@@ -48,6 +52,13 @@ export function createConversation(ctx: AssistantContext, deps: ConversationDeps
     input.focus();
   }
 
+  // The reader pressed Stop: the request ends and nothing half-written is kept.
+  function stopAnswer() {
+    if (!abortController) return;
+    stoppedByReader = true;
+    abortController.abort();
+  }
+
   function messageForFailure(code: string | undefined, statusCode: number | undefined, wasAborted: boolean) {
     if (wasAborted) return root.dataset.errorTimeout || "The response timed out.";
     if (statusCode === 429 || code === "rate_limited") {
@@ -70,12 +81,12 @@ export function createConversation(ctx: AssistantContext, deps: ConversationDeps
       store.items.push({ role: "user", content: question });
     }
     lastFailed = false;
+    stoppedByReader = false;
     saveHistory();
     renderHistory();
     messagesElement.hidden = false;
     markLoadingStarted();
-    const loadingArticle = renderLoading();
-    startLoadingTimer(loadingArticle);
+    const draft = startDraft();
     setBusy(true);
     setStatus(copy.working);
     input.value = "";
@@ -84,44 +95,54 @@ export function createConversation(ctx: AssistantContext, deps: ConversationDeps
     const requestController = new AbortController();
     abortController = requestController;
     const timeout = setTimeout(() => requestController.abort(), REQUEST_TIMEOUT_MS);
-    let response;
+    const showStage = (label: string) => {
+      draft.setStage(label);
+      setStatus(label);
+    };
 
     try {
-      response = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          locale,
-          messages: createRequestMessages(),
-        }),
-        signal: requestController.signal,
-      });
-      const result = await response.json().catch(() => ({}));
+      const result = await requestAnswer(
+        { locale, messages: createRequestMessages() },
+        requestController.signal,
+        {
+          onStage(stage) {
+            if (stage === "revising") draft.clearText();
+            showStage(copy.stages[stage as keyof typeof copy.stages] || copy.working);
+          },
+          onSources: draft.setSources,
+          onText: draft.addText,
+          onRestart() {
+            draft.restart();
+            setStatus(copy.working);
+          },
+        },
+      );
       if (requestId !== requestSequence) return;
-      if (!response.ok || typeof result.answer !== "string" || !result.answer.trim()) {
-        const requestError: Error & { code?: string; statusCode?: number } = new Error("AssistantRequestFailed");
-        requestError.code = result.code;
-        requestError.statusCode = response.status;
-        throw requestError;
-      }
 
       const sources = Array.isArray(result.sources) ? result.sources.slice(0, 5) : [];
-      store.items.push({
+      const message: StoredMessage = {
         role: "assistant",
         content: result.answer.trim().slice(0, 12_000),
         sourceMode:
           result.sourceMode === "official" ? "official" : result.sourceMode === "mixed" ? "mixed" : "general",
         sources,
         diagnostics: normalizeDiagnostics(result.diagnostics),
-      });
+      };
+      // Only a finished answer is kept; a draft never reaches the history or sessionStorage.
+      store.items.push(message);
       store.set(store.items.slice(-MAX_HISTORY_MESSAGES));
       saveHistory();
-      renderHistory();
+      draft.finish(message);
       setStatus(root.dataset.labelReady || "Ready.");
     } catch (error: any) {
       if (requestId !== requestSequence) return;
-      lastFailed = true;
       renderHistory();
+      if (stoppedByReader) {
+        renderError(copy.stopped, { quiet: true });
+        setStatus(copy.stopped);
+        return;
+      }
+      lastFailed = true;
       const failureMessage = messageForFailure(
         error?.code,
         error?.statusCode,
@@ -141,5 +162,5 @@ export function createConversation(ctx: AssistantContext, deps: ConversationDeps
     }
   }
 
-  return { sendQuestion, resetConversation };
+  return { sendQuestion, resetConversation, stopAnswer };
 }
