@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkHead } from './lib/seo-head-checks.mjs';
 import { checkGuidePicture } from './lib/seo-guide-pictures.mjs';
+import { foreignHosts } from './lib/seo-foreign-hosts.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const distDir = path.join(rootDir, 'dist');
@@ -104,6 +105,7 @@ async function validateSitemapPages(issues, sitemapPath, sitemap) {
 
     const html = await readFile(htmlPath, 'utf8');
     for (const message of checkHead(html)) fail(issues, htmlPath, message);
+    for (const message of foreignHosts(html)) fail(issues, htmlPath, message);
 
     const h1Count = (html.match(/<h1\b/gi) ?? []).length;
     if (h1Count !== 1) fail(issues, htmlPath, `expected exactly one h1, found ${h1Count}`);

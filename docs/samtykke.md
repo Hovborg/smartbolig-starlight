@@ -69,6 +69,7 @@ hvad Google svarer uden for EU/EØS, og indstillingerne i AdSense under "Privatl
 | `src/components/Footer.astro`, `src/lib/site-footer.mjs` | Knappen "Cookieindstillinger" |
 | `src/content/docs/da/juridisk/cookiepolitik.mdx` og `en/` | Det, læseren får at vide. Skal passe med koden |
 | `scripts/site-consent.test.mjs` | Tests af reglerne og af, at ingen side selv henter noget fra Google |
+| `scripts/lib/seo-foreign-hosts.mjs` | Kontrol af de byggede sider: ingen side henter selv noget fra en anden vært. Kører i `npm run seo:validate` |
 
 ## Ændr noget
 
@@ -76,7 +77,12 @@ hvad Google svarer uden for EU/EØS, og indstillingerne i AdSense under "Privatl
   `boot.mjs` efter et ja, aldrig fra `config/head/` eller direkte i en side. Skriv det i
   cookiepolitikken på begge sprog, og tilføj værten i `public/_headers` (se
   `docs/sikkerhed.md`). Testen "no page asks Google for anything in its own markup" fejler, hvis
-  et Google-script står i sidens egen kode.
+  et Google-script står i sidens egen kode, og `npm run seo:validate` fejler, hvis en bygget
+  side selv henter et script, en ramme, et billede, et stylesheet eller et `preconnect` fra en
+  anden vært end `smartbolig.net`.
+- **Billede eller video fra en anden side i en guide:** gem filen i `src/assets/guides/` (se
+  `docs/billeder.md`), eller link til den. En indlejret YouTube-video skal hentes ved tryk
+  ligesom kommentarerne.
 - **Nyt Analytics- eller AdSense-id:** ret `ids.mjs`.
 - **Beskedens tekst, sprog og knapper:** rettes i AdSense under "Privatliv og beskeder", ikke
   her.
@@ -92,6 +98,7 @@ hvad Google svarer uden for EU/EØS, og indstillingerne i AdSense under "Privatl
 | Analytics hentes efter et ja, men AdSense ikke (eller omvendt) | Læseren har valgt formål enkeltvis. Det er svaret, ikke en fejl |
 | Siden indlæses igen efter et ændret svar | Et ja er trukket tilbage. Det er meningen |
 | Konsollen viser en blokeret adresse fra Google | Værten mangler i `public/_headers`. Se `docs/sikkerhed.md` |
+| `seo:validate`: "`<img>` fetches from ...; the page itself may only fetch from smartbolig.net" | En side peger på en fil hos en anden vært. Gem filen i repoet, eller hent den først efter læserens tryk eller svar |
 
 ## Fjern det igen
 
