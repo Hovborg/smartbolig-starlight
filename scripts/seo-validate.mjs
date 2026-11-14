@@ -421,6 +421,17 @@ async function main() {
     forbidden: [{ needle: 'noindex', label: 'noindex robots directive' }],
   });
 
+  // A section page: a short heading, the fuller seoTitle for search results and social cards.
+  await validatePage(issues, path.join(distDir, 'da/automationer/index.html'), {
+    required: [
+      { needle: '<title>Automationer til Home Assistant: opskrifter | SmartBolig.net</title>', label: 'section page search title' },
+      { needle: '<meta property="og:title" content="Automationer til Home Assistant: opskrifter"', label: 'section page Open Graph title' },
+      { needle: '<meta name="twitter:title" content="Automationer til Home Assistant: opskrifter"', label: 'section page Twitter title' },
+      { needle: '>Automationer</h1>', label: 'section page short heading' },
+      { needle: '"position":2,"name":"Automationer"', label: 'section page short breadcrumb name' },
+    ],
+  });
+
   await validatePage(issues, path.join(distDir, '404.html'), {
     required: [
       { needle: '<meta name="description" content="Siden blev ikke fundet. Find SmartBolig.net guides fra forsiden."', label: '404 meta description' },

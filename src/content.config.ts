@@ -8,6 +8,9 @@ export const collections = {
 		schema: docsSchema({
 			extend: z.object({
 				date: z.coerce.date().optional(),
+				// The title in search results and on social cards, when the page's own
+				// title is a short heading ("Automationer"). See CONTENT-GUIDE.md.
+				seoTitle: z.string().min(10).max(60).optional(),
 				updated: z.coerce.date().optional(),
 				news: z
 					.object({

@@ -507,3 +507,21 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   træning. Den er nu spærret som `GPTBot`; `Claude-User` og `Claude-SearchBot` har ingen gruppe
   og er tilladt gennem `*`. `seo:validate` kræver nu også de to `Disallow`-linjer i `*`-gruppen
   og `Sitemap:`-linjen. Tre regler med `:slug` giver produktadresser uden skråstreg ét hop.
+
+### B57. Kort overskrift og egen søgetitel på oversigtssider
+- Baggrund: oversigtssiderne hed "Automationer", "Produkter" og "Sikkerhed". Det er gode
+  overskrifter og menunavne, men i et søgeresultat siger "Automationer | SmartBolig.net" ikke,
+  hvad siden indeholder. En længere `title` løste det, men blev også overskrift, sidste led i
+  brødkrummen og navn i strukturerede data ("Automationer til Home Assistant: opskrifter" som
+  H1).
+- Valg: et valgfrit felt `seoTitle` (10 til 60 tegn) i sidens frontmatter. Det bruges i
+  `<title>`, `og:title` og `twitter:title`. `title` er fortsat overskrift, menunavn, brødkrumme
+  og navn i strukturerede data. Sider uden feltet er uændrede.
+- Fravalgt: Starlights `head`-felt med et `title`-tag pr. side. Det virker, men forfatteren skal
+  selv skrive " | SmartBolig.net", og sociale kort følger ikke med.
+- Brugt på otte oversigtssider og kontaktsiden på begge sprog. Guides bruger `title` alene.
+- Samme gren: 39 titler rettet (højst 60 tegn, dansk stavemåde på danske sider), interne links
+  til 18 guides, som få sider pegede på, årstal ud af overskrifter, og rå diagramkode på otte
+  produktsider erstattet af lister.
+- Sikring: `npm run seo:validate` kræver søgetitel, kort overskrift og kort brødkrumme på
+  `/da/automationer/`.

@@ -79,6 +79,25 @@ Dette gør at `/en/products/smart-doorbell/` viser indhold fra `/en/produkter/sm
 
 ---
 
+## Titel og `seoTitle`
+
+- `title` er sidens overskrift og det navn, menuer og brødkrummer viser. Den står også i
+  søgeresultater som `<title>`, så den skal sige, hvad siden handler om, på højst 60 tegn.
+  Skriv dansk på danske sider ("LED-strip med ESP32", ikke "LED Strip med ESP32"), og sæt ikke
+  årstal i titler og overskrifter: de forældes.
+- En oversigtsside har en kort overskrift ("Automationer"). Den siger for lidt i et
+  søgeresultat, så siden får også `seoTitle` (10 til 60 tegn), som bruges i `<title>` og på
+  sociale kort. Brug kun `seoTitle`, når overskriften skal være kortere end søgetitlen:
+
+```yaml
+title: Automationer
+seoTitle: "Automationer til Home Assistant: opskrifter"
+```
+
+- To sider må ikke have samme titel; `npm run seo:validate` fejler på dubletter.
+
+---
+
 ## Mappestruktur
 
 ```

@@ -14,6 +14,8 @@ type SocialMetaInput = {
   kind: PageKind;
   entry: PageEntry;
   title: string;
+  /** The title for search results and social cards; the same as `title` on most pages. */
+  searchTitle: string;
   description: string;
   aiNews: AiNewsAssets;
   dateModified: string | null;
@@ -58,13 +60,24 @@ function keepFirstGenerator(head: HeadEntry[]) {
 }
 
 /**
+ * Puts the search title in <title> and og:title. Starlight wrote both from the
+ * page's own title; the site name after the title is kept.
+ */
+function useSearchTitle(head: HeadEntry[], title: string, searchTitle: string) {
+  if (searchTitle === title) return;
+  const tag = head.find((item) => item.tag === "title");
+  if (tag?.content?.startsWith(title)) tag.content = `${searchTitle}${tag.content.slice(title.length)}`;
+  upsertMeta(head, "property", "og:title", searchTitle);
+}
+
+/**
  * Mutates Starlight's head list with Open Graph, Twitter and article meta.
  * Starlight already emits the full hreflang set (da / en / x-default), so no
  * x-default is added here: a duplicate x-default is malformed and can make
  * Google ignore the whole alternate set.
  */
 export function applySocialMeta(input: SocialMetaInput) {
-  const { head, kind, entry, title, description, aiNews, dateModified, datePublished } = input;
+  const { head, kind, entry, title, searchTitle, description, aiNews, dateModified, datePublished } = input;
   const { openGraphLocale, alternateOpenGraphLocale } = getLocaleCodes(kind.lang);
   const socialImageAlt = getSocialImageAlt(kind.lang);
 
@@ -77,7 +90,8 @@ export function applySocialMeta(input: SocialMetaInput) {
     upsertMeta(head, "property", "og:locale", openGraphLocale);
     upsertMeta(head, "property", "og:locale:alternate", alternateOpenGraphLocale);
     upsertMeta(head, "property", "og:image:alt", socialImageAlt);
-    upsertMeta(head, "name", "twitter:title", title);
+    useSearchTitle(head, title, searchTitle);
+    upsertMeta(head, "name", "twitter:title", searchTitle);
     upsertMeta(head, "name", "twitter:description", description);
     upsertMeta(head, "name", "twitter:image:alt", socialImageAlt);
   }
