@@ -750,3 +750,23 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Efter den uafhængige gennemgang: den stiplede stump fra OUT er fjernet (den lignede en løs
   ledning), "bruges ikke" er flyttet ud af ESP32-kassen, og den engelske Proxmox-tegning
   skriver "USB passthrough" i to ord som guiden.
+
+### B64. Tidsplanerne tåler, at GitHub springer en kørsel over
+- Baggrund: 2026-11-14 var der endnu ikke startet én planlagt kørsel i repoet, hverken af
+  nyhederne eller sidevagten. GitHub lover ikke, at en planlagt kørsel starter.
+- Valg, nyheder: hver af de to daglige kørsler får en reserve nogle timer senere (08:37 og 14:37 UTC; 08:37 holder 90 minutters afstand til Dependabot mandag kl. 07:00). Et lille job
+  (`slot`) spørger GitHub, hvilke planlagte kørsler der er startet i dag; reserven skriver
+  kun, hvis den kørsel, den står for, ikke er startet. Reglen ligger i
+  `scripts/ai-news-slot.mjs` og er testet uden netværk.
+- Hvorfor ikke bare fire forsøg: en dag uden nok kontrollerede historier ville bruge
+  modelkald fire gange i stedet for to. Kvalitetskravene er uændrede.
+- Kan listen over kørsler ikke læses, skriver kørslen. En mistet dag er værre end et ekstra
+  forsøg, og dagsspærren i relayet (8.000 neurons) holder stadig prisen på nul.
+- Valg, sidevagt: tre kørsler i døgnet i stedet for to, og en manuel kørsel kan pege på en
+  anden adresse (`base`), så alarmen kan ses virke uden at ødelægge noget.
+- Valg, repo: `SECURITY.md` med privat indberetning, den tomme wiki slået fra, og en test
+  (`scripts/site-workflows.test.mjs`), der kræver, at hver handling i hver workflow er låst
+  til et commit, og at intet job får rettigheder, det ikke selv har nævnt.
+- Fravalgt: en udenforstående tjeneste til at starte workflowet. Den kræver et GitHub-token,
+  som ejeren skal oprette; det står på ejerens liste og tages kun i brug, hvis planlagte
+  kørsler bliver ved med at udeblive.

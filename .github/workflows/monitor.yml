@@ -1,6 +1,6 @@
 name: Monitor
 
-# Checks the live site twice a day and tells the owner through one GitHub
+# Checks the live site three times a day and tells the owner through one GitHub
 # issue labelled `monitor`: opened (or commented on) while a check fails,
 # closed when everything passes again. No outside service and no secrets;
 # only the workflow's own token writes the issue. See docs/overvaagning.md.
@@ -8,9 +8,17 @@ name: Monitor
 on:
   schedule:
     # Odd minutes, because the top of the hour is when GitHub's schedule is busiest.
-    - cron: '23 6 * * *'
+    # Three runs, because GitHub can drop a scheduled run: one lost run still
+    # leaves at most sixteen hours between two looks.
+    - cron: '23 2 * * *'
+    - cron: '23 10 * * *'
     - cron: '23 18 * * *'
   workflow_dispatch:
+    inputs:
+      base:
+        description: 'Address to check instead of the live site (to try the alarm). Empty = https://smartbolig.net.'
+        required: false
+        type: string
 
 concurrency:
   group: monitor
@@ -44,6 +52,9 @@ jobs:
       # kept as an output and the step itself ends green.
       - name: Check the live site
         id: run
+        env:
+          # Empty on a scheduled run; the script then checks the live site.
+          MONITOR_BASE_URL: ${{ inputs.base }}
         run: |
           set +e
           node scripts/monitor/run.mjs --report monitor-report.md

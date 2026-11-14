@@ -10,7 +10,7 @@ Opret-, kommentér- og luk-trinene for sagen er heller ikke set køre.
 
 ## Kort
 
-To gange i døgnet (06:23 og 18:23 UTC) henter `.github/workflows/monitor.yml` tretten adresser
+Tre gange i døgnet (02:23, 10:23 og 18:23 UTC) henter `.github/workflows/monitor.yml` tretten adresser
 på den levende side og tjekker svarene. Hvis en kontrol fejler, åbner den en GitHub-sag med
 etiketten `monitor` (eller skriver en kommentar i den, der allerede er åben). Når alt igen
 består, skriver den en kommentar og lukker sagen. Sagen er alarmen; en planlagt kørsel
@@ -37,11 +37,15 @@ Kontrollerne sender kun GET og stiller ikke chatten et spørgsmål, så der brug
 kom tilbage, aldrig en hel header eller side. Læg en linje til den sunde side og en til den
 ødelagte i `scripts/site-monitor.test.mjs` (tallet 13 i testen tæller kontrollerne).
 
-**Ændr tidspunkterne.** Ret de to `cron`-linjer i `monitor.yml` (UTC). Brug minutter som 23, ikke 00,
+**Ændr tidspunkterne.** Ret de tre `cron`-linjer i `monitor.yml` (UTC). Der er tre, fordi GitHub
+kan springe en planlagt kørsel over; med tre går der højst 16 timer, hvis én falder ud. Brug minutter som 23, ikke 00,
 for GitHubs planlægger er travlest ved hel time. Grænsen for nyhedernes alder (84 timer) er
 `MAX_NEWS_AGE_HOURS` i `checks.mjs`.
 
 **Prøv mod en anden adresse.** `node scripts/monitor/run.mjs --base https://eksempel.dk --report rapport.md`.
+I GitHub: Actions → Monitor → Run workflow, og skriv adressen i feltet `base`. Det er også
+måden at se alarmen virke på: en adresse, der ikke er siden, får kontrollerne til at fejle,
+kørslen ender rød, og sagen `monitor` åbnes. Næste kørsel mod den rigtige side lukker den igen.
 Kontrollerne for `www`, kanonisk adresse og `robots.txt` peger altid på `https://smartbolig.net`.
 
 ## Når noget ser forkert ud

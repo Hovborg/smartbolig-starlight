@@ -266,7 +266,7 @@ npx wrangler deploy --dry-run
 strukturerede data og sociale felter. Reglerne, og hvordan du tilføjer en
 omdirigering, står i [`docs/seo.md`](docs/seo.md) (kontrolleret 2026-11-14). `npm run build`
 skriver også `dist/llms.txt` ud fra de byggede sider (`scripts/write-llms-txt.mjs`). Den levende side
-tjekkes to gange i døgnet af `.github/workflows/monitor.yml`; en fejl åbner en GitHub-sag med
+tjekkes tre gange i døgnet af `.github/workflows/monitor.yml`; en fejl åbner en GitHub-sag med
 etiketten `monitor` ([`docs/overvaagning.md`](docs/overvaagning.md)). Kør kontrollerne selv med
 `node scripts/monitor/run.mjs`.
 
@@ -326,6 +326,8 @@ fejlfinding, omkostningsloft, modelvalg og nøgleskift står i
   og hvorfor.
 - **Besked:** kun én GitHub-sag (`ai-news-stalled`), når der ikke er udgivet i
   tre dage.
+- **Tidspunkter:** 04:37 og 11:37 UTC, hver med en reserve nogle timer senere, som
+  kun skriver, hvis GitHub sprang den første over (`scripts/ai-news-slot.mjs`).
 - **Omkostning:** relayet `workers/news-llm/` stopper ved 8.000 neurons pr. døgn,
   under Cloudflares gratis kvote.
 

@@ -1,4 +1,6 @@
 name: AI News
+# The cron line is in the title, so a later run can see which runs have started today.
+run-name: "AI News: ${{ github.event.schedule || 'manual' }}"
 
 # Writes, fact-checks and publishes the daily AI-news issue without a human.
 # A day without enough verified stories is a successful run that publishes
@@ -8,8 +10,14 @@ on:
   schedule:
     # 04:37 and 11:37 UTC. The second run exits at once when the first one
     # published; otherwise it tries again with the sources of the day.
+    # GitHub can drop a scheduled run, so each of the two has a stand-in a few
+    # hours later. A stand-in writes only when the run it stands in for has not
+    # started today (job "slot", scripts/ai-news-slot.mjs). 08:37 keeps 90
+    # minutes from Dependabot's Monday 07:00 (scripts/site-dependabot.test.mjs).
     - cron: '37 4 * * *'
+    - cron: '37 8 * * *'
     - cron: '37 11 * * *'
+    - cron: '37 14 * * *'
   workflow_dispatch:
     inputs:
       date:
@@ -29,13 +37,42 @@ concurrency:
 permissions: {}
 
 jobs:
+  # Is this run the first scheduled one in its slot today? If the answer cannot
+  # be found, the run writes: a missed day is worse than a second try.
+  slot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+    outputs:
+      write: ${{ steps.decide.outputs.write }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+
+      - name: Decide whether this run writes
+        id: decide
+        env:
+          GH_TOKEN: ${{ github.token }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          # Today's scheduled runs of this workflow (UTC day: all four runs lie in one).
+          { gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ai-news.yml/runs?event=schedule&created=%3E%3D$(date -u +%F)&per_page=50" \
+              --jq '[.workflow_runs[] | {id, conclusion, display_title}]' || true; } | node scripts/ai-news-slot.mjs >> "$GITHUB_OUTPUT"
+
   publish:
+    needs: slot
     runs-on: ubuntu-latest
     timeout-minutes: 30
     # A failed run shows red on this job without failing the workflow, so no
     # failure mail goes out for a single bad day. The watch job reports when
     # publishing has been stalled for several days.
     continue-on-error: true
+    # Runs also when the slot job failed; only a clear "no" keeps it quiet.
+    if: ${{ !cancelled() && needs.slot.outputs.write != 'false' }}
     permissions:
       contents: write
     outputs:
@@ -256,10 +293,10 @@ jobs:
           DAYS: ${{ steps.age.outputs.days }}
           LATEST: ${{ steps.age.outputs.latest }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/workflows/ai-news.yml
-          # Opening is left to the later daily run or a manual run, so the
-          # early run cannot open the issue and the later one close it again
-          # on the same day. Closing is allowed in every run.
-          MAY_OPEN: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '37 11 * * *' }}
+          # Opening is left to the later daily run (or its stand-in) or a
+          # manual run, so the early run cannot open the issue and the later
+          # one close it again on the same day. Closing is allowed in every run.
+          MAY_OPEN: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '37 11 * * *' || github.event.schedule == '37 14 * * *' }}
         run: |
           gh label create ai-news-stalled --repo "$GITHUB_REPOSITORY" --color B60205 \
             --description 'AI News has not published for several days' --force
