@@ -78,7 +78,7 @@ små stilark direkte i siden, og de skifter med indholdet.
 | `scripts/finalize-build.mjs` | Skriver den strenge politik i `dist/_headers`. Her står `ENFORCE_STRICT_CSP` |
 | `config/vite.mjs` | Små scripts som filer i stedet for i siden |
 | `scripts/site-csp.test.mjs` | Tests af hashes, politikken og længdegrænsen |
-| `functions/_middleware.js` | Workeren foran `/api/*`, `/` og gamle adresser |
+| `functions/api/` | Workerens kode. Den svarer kun på `/api/*` (`run_worker_first` i `wrangler.jsonc`); alt andet er statiske filer, og omdirigeringer står kun i `public/_redirects` |
 
 ## Tilføj en vært
 
