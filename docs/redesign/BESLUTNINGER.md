@@ -278,3 +278,42 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Valg: én regel i `src/styles/home/layout.css` nulstiller topmargenen for `picture > img`
   på forsiden.
 
+### B41. Hver guide åbner med et billede af 3D-huset, valgt ud fra stien
+- Valg: `GuideHead.astro` tegner brødkrumme, titel, dato og et banner (1600 × 640). Tolv
+  motiver dækker alle guides; `src/lib/guide-art.mjs` vælger motivet med en regelliste.
+- Begrundelse: ejeren bad om illustrationer på alle sider i høj kvalitet. Ét byggesæt giver
+  samme udtryk på forside og guides, og en ny guide får et billede uden arbejde.
+- En guide med eget billede i toppen beholder det (ellers stod to billeder over hinanden).
+  Nyhedsartikler og nyhedsoversigten har deres egne billeder.
+
+### B42. Overskrifter, korttitler og fanenavne vises uden emoji
+- Valg: tre små plugins i `config/markdown/` fjerner emoji først i teksten ved bygningen.
+  Kildeteksten er uændret.
+- Begrundelse: emoji tegnes forskelligt på hver enhed og brød med resten af grafikken.
+  Ankre og indholdsfortegnelse bliver rene. Ingen interne links brugte de gamle ankre med
+  bindestreg foran (søgt i hele indholdet 2026-11-14).
+- Emoji i brødtekst og tabelceller er ikke rørt; de ses igennem med guiderne (fase 3).
+
+### B43. Tabeller fylder spalten og ruller i deres egen ramme
+- Fund: `display: block` på tabellen gav en ramme i fuld bredde med en smal tabel i.
+- Valg: et rehype-plugin pakker hver tabel i `div.table-scroll` (`role="region"`, kan få
+  tastaturfokus). Tabellen er igen en rigtig tabel i fuld bredde.
+
+### B44. Sidemenuen åbner på det emne, læseren står i
+- Fund: menuen viste altid Home Assistant øverst og åbent, også på produkt- og nyhedssider.
+- Valg: Starlights route-middleware flytter det aktuelle emne øverst og åbner det; de andre
+  emner følger lukket. Forrige/næste-links er uændrede.
+- Fravalgt: kun at vise det aktuelle emne. Sikkerhed og Juridisk står ikke i topbjælken og
+  ville blive svære at finde.
+
+### B45. Sidefod med linkkolonner og YouTube
+- Valg: mærke og tagline, tre kolonner (guides, om siden, følg med: nyheder, RSS, YouTube,
+  GitHub) og de juridiske links. Links står i `src/lib/site-footer.mjs`.
+- De juridiske links står til venstre med luft under på telefon, fordi assistentknappen
+  ligger fast i nederste højre hjørne.
+- På forsiden får sidefoden selv sidens bredde og margen; forsiden fjerner panelets polstring.
+
+### B46. Tips er grønne, og kort har én ikonfarve
+- Valg: Starlights lilla (tip-bokse) peger nu på mærkefarven, og alle kortikoner bruger den.
+- Begrundelse: ejeren pegede på, at farverne ikke spillede sammen. Farve bruges nu kun til
+  betydning: grøn (mærke/tip), blå (note), gul (advarsel), rød (fare).

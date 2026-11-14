@@ -9,6 +9,7 @@
 @import "./base.css";
 @import "./chrome/header.css";
 @import "./chrome/sidebar.css";
+@import "./content/guide-head.css";
 @import "./content/prose.css";
 @import "./content/blocks.css";
 @import "./print.css";

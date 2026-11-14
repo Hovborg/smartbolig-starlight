@@ -8,6 +8,9 @@ import { components } from "./config/components.mjs";
 import { sidebar } from "./config/sidebar/index.mjs";
 import { head } from "./config/head/index.mjs";
 import { fonts } from "./config/fonts.mjs";
+import { rehypePlainHeadings } from "./config/markdown/plain-headings.mjs";
+import { remarkPlainLabels } from "./config/markdown/plain-labels.mjs";
+import { rehypeTableScroll } from "./config/markdown/table-scroll.mjs";
 
 // https://astro.build/config
 export default defineConfig({
@@ -16,8 +19,11 @@ export default defineConfig({
   fonts,
 
   // Starlight's MDX pipeline does not enable GFM tables by default.
+  // Headings, cards and tabs are shown without a leading emoji, and tables
+  // scroll sideways in a wrapper of their own (config/markdown/).
   markdown: {
-    remarkPlugins: [remarkGfm],
+    remarkPlugins: [remarkGfm, remarkPlainLabels],
+    rehypePlugins: [rehypePlainHeadings, rehypeTableScroll],
   },
 
   integrations: [

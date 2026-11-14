@@ -22,6 +22,11 @@ ingen farvekoder, skrifttyper eller skygger direkte i komponenterne.
 | `src/styles/index.css` | Importerer det hele i rækkefølge. Den eneste fil, Starlight får |
 | `config/fonts.mjs` | Skrifttyper (selvhostede) |
 | `src/components/chrome/` | Egen topbjælke og temastart |
+| `src/components/guide/GuideHead.astro` | Toppen af hver guide: brødkrumme, titel, dato, billede |
+| `src/lib/guide-art.mjs` | Hvilket billede af 3D-huset en guide åbner med |
+| `src/lib/sidebar-scope.mjs`, `src/route-data.ts` | Sidemenuen åbner på det emne, læseren står i |
+| `src/lib/site-footer.mjs`, `src/components/Footer.astro` | Sidefodens links og tekster |
+| `config/markdown/` | Små Markdown-plugins: overskrifter, kort og faner uden emoji; tabeller i rulleramme |
 
 En komponents egne stilregler ligger i komponentens `<style>` og bruger kun tokens.
 
@@ -153,6 +158,52 @@ store overskrift). Linjehøjde: `--sb-leading` (brødtekst), `--sb-leading-tight
 Temaet er samlet i `src/styles/`, `src/components/chrome/` og `config/fonts.mjs`.
 Sæt `customCss` i `config/site.mjs` til en tom liste, og fjern `Header` og
 `ThemeProvider` i `config/components.mjs`, så står Starlights standardudseende tilbage.
+
+## Guidesider
+
+Set i browser 2026-11-14 ved 1440 og 390 px, mørkt tema på dansk og lyst tema på engelsk.
+
+- **Toppen** tegnes af `GuideHead.astro` (valgt i `PageTitle.astro`): brødkrumme til forsiden
+  og emnet, titel, "Opdateret" og et billede af 3D-huset. Nyhedsartikler bruger Starlights
+  egen titel og deres eget billede.
+- **Billedet** vælges af `guideArt()` i `src/lib/guide-art.mjs` ud fra guidens sti: første
+  regel i `RULES`, der passer, vinder. En guide, der selv begynder med et billede (inden for de
+  første 1500 tegn), beholder sit eget og får intet banner.
+- **Overskrifter, korttitler og fanenavne** vises uden emoji foran. Det sker ved bygningen
+  (`config/markdown/plain-headings.mjs` og `plain-labels.mjs`), så teksten i guiderne er
+  uændret, og ankre og indholdsfortegnelse er rene.
+- **Tabeller** pakkes i en ramme, der ruller sidelæns (`config/markdown/table-scroll.mjs`),
+  fylder hele spalten og kan rulles med tastaturet.
+- **Kort** har én ikonfarve (`src/styles/content/blocks.css`), ikke Starlights fire på skift.
+- **Sidemenuen** viser emnet, læseren står i, øverst og åbent; de andre emner følger lukket
+  (`scopeSidebar()` i `src/lib/sidebar-scope.mjs`, kaldt fra `src/route-data.ts`). En
+  nyhedsartikel hører til siden over sig.
+- **Sidefoden** har tre kolonner med links (guides, om siden, følg med), mærke og juridiske
+  links. Links og tekster står i `src/lib/site-footer.mjs`, ét sæt pr. sprog.
+
+### Giv en guide et andet billede
+
+1. Åbn `src/lib/guide-art.mjs`. Tilføj en regel i `RULES` over den, der rammer i dag:
+   `[/mit-emne/, "energy"]`. Navnene står i `GUIDE_ARTS`.
+2. Nyt motiv: tilføj det i `GUIDE_ARTS` (alt-tekst på begge sprog) og et billede med navnet
+   `guide-<motiv>` i `PICTURES` i `scripts/house-posters.mjs`; se `docs/3d-hus.md`.
+3. Kør `npm run site:test`. Testen "every guide opens with a picture that exists" fejler, hvis
+   en fil mangler.
+
+### Tilføj et link i sidefoden
+
+1. Åbn `src/lib/site-footer.mjs`. Tilføj linket i samme kolonne på begge sprog: `path` til en
+   side på siden (uden sprog), `href` til et link ud af siden.
+2. Kør `npm run site:test`. Testen "the footer links to pages that exist" fejler, hvis siden
+   ikke findes på begge sprog.
+
+### Fjern det igen
+
+- Banner og brødkrumme: lad `PageTitle.astro` vise `<DefaultPageTitle />` på alle sider.
+- Emoji tilbage: fjern `rehypePlainHeadings` og `remarkPlainLabels` i `astro.config.mjs`.
+- Tabelrammen: fjern `rehypeTableScroll` samme sted, og sæt tabelreglen i `blocks.css` tilbage
+  til `display: block; overflow-x: auto`.
+- Hele sidemenuen på alle sider: fjern `routeMiddleware` i `config/site.mjs`.
 
 ## Logo og brandfiler
 

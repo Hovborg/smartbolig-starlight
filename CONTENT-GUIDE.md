@@ -105,7 +105,11 @@ src/content/docs/
 
 - [ ] Opret dansk fil: `da/[kategori]/[dansk-filnavn].mdx`
 - [ ] Opret engelsk fil: `en/[kategori]/[dansk-filnavn].mdx` (samme sti!)
-- [ ] Tilføj til sidebar i `astro.config.mjs` med `translations: { en: "..." }`
+- [ ] Tilføj til sidemenuen i emnets fil i `config/sidebar/` med `translations: { en: "..." }`
+- [ ] Ingen emoji først i overskrifter, korttitler (`<Card title>`, `<LinkCard title>`) og fanenavne
+      (`<TabItem label>`). De fjernes alligevel ved bygningen, så skriv dem ikke.
+- [ ] Billedet øverst kommer af sig selv ud fra stien (`src/lib/guide-art.mjs`). Har guiden sit
+      eget billede, så sæt det i de første linjer; så bruges det i stedet.
 - [ ] (Valgfrit) Tilføj URL rewrite i `public/_redirects` for pæn engelsk URL
 - [ ] Test build: `npm run build`
 

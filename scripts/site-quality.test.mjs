@@ -170,12 +170,12 @@ test("the 3D house starts as a still picture: the largest picture on the page, i
 });
 
 test("every picture rendered from the 3D house exists in every size and is used", async () => {
-  const { PICTURES } = await import("./house-posters.mjs");
+  const { PICTURES, pictureFolder } = await import("./house-posters.mjs");
   const { homeCopy } = await import("../src/lib/home-copy.ts");
   for (const picture of PICTURES) {
     for (const width of picture.widths) {
       for (const format of ["avif", "webp"]) {
-        const asset = `public/images/home/${picture.name}-${width}.${format}`;
+        const asset = `public/${pictureFolder(picture)}/${picture.name}-${width}.${format}`;
         assert.ok(existsSync(new URL(`../${asset}`, import.meta.url)), `missing picture: ${asset} (run npm run house:posters)`);
       }
     }
@@ -189,6 +189,148 @@ test("every picture rendered from the 3D house exists in every size and is used"
   const navigatorSource = await read("src/components/home/HomeGoalNavigator.astro");
   assert.match(navigatorSource, /loading="lazy"/, "topic pictures are below the fold");
   assert.match(navigatorSource, /alt=""/, "topic pictures are decoration; the card has its own text");
+});
+
+test("every guide opens with a picture that exists, and news issues keep their own", async () => {
+  const { PICTURES } = await import("./house-posters.mjs");
+  const { GUIDE_ARTS, GUIDE_ART_NAMES, guideArt, guideSection } = await import("../src/lib/guide-art.mjs");
+  const rendered = PICTURES.filter((picture) => picture.folder === "guide").map((picture) => picture.name).sort();
+  assert.deepEqual(rendered, GUIDE_ART_NAMES.map((name) => `guide-${name}`).sort(), "guide-art.mjs and house-posters.mjs must list the same pictures");
+  for (const name of GUIDE_ART_NAMES) {
+    assert.ok(GUIDE_ARTS[name]?.da && GUIDE_ARTS[name]?.en, `guide picture ${name} needs alternative text in both languages`);
+  }
+  assert.equal(guideArt("ai/nyheder/2026-11-14"), null);
+  assert.equal(guideArt("ai/nyheder").name, "guide-ai");
+  assert.equal(guideArt("esp32/led-strip").name, "guide-diy");
+  assert.equal(guideArt("home-assistant/zigbee2mqtt").name, "guide-network");
+  assert.equal(guideArt("kontakt").name, "guide-overview");
+  assert.equal(guideArt("home-assistant/energy-dashboard", "en").alt, GUIDE_ARTS.energy.en);
+  assert.deepEqual(guideSection("esp32/led-strip", "en"), { label: "ESP32 & ESPHome", href: "/en/esp32/" });
+  assert.equal(guideSection("esp32"), null);
+  const { hasLeadPicture } = await import("../src/lib/guide-art.mjs");
+  assert.equal(hasLeadPicture("import x from 'y';\n\n![LED strip](/images/guides/led.png)\n\nText"), true);
+  assert.equal(hasLeadPicture("Text without a picture.\n\n## Heading"), false);
+
+  const [head, pageTitle] = await Promise.all([read("src/components/guide/GuideHead.astro"), read("src/components/PageTitle.astro")]);
+  assert.match(head, /<h1 id="_top">/);
+  assert.match(head, /width="1600"\s+height="640"/, "a fixed size keeps the page from jumping when the picture arrives");
+  assert.match(head, /fetchpriority="high"/);
+  assert.match(pageTitle, /<GuideHead \/>/);
+});
+
+test("the footer links to pages that exist, in both languages", async () => {
+  const { siteFooter, YOUTUBE_URL } = await import("../src/lib/site-footer.mjs");
+  for (const locale of ["da", "en"]) {
+    const footer = siteFooter(locale);
+    const links = [...footer.columns.flatMap((column) => column.links), ...footer.legal];
+    assert.ok(links.length >= 14, `${locale}: expected the full footer`);
+    for (const link of links.filter((item) => !item.external && !item.href.endsWith(".xml"))) {
+      assert.ok(link.href.startsWith(`/${locale}/`), `${locale} footer has a cross-language link: ${link.href}`);
+      const base = `src/content/docs${link.href.replace(/\/$/, "")}`;
+      const found = [`${base}.mdx`, `${base}.md`, `${base}/index.mdx`, `${base}/index.md`].some((path) => existsSync(new URL(`../${path}`, import.meta.url)));
+      assert.ok(found, `footer links to a page that does not exist: ${link.href}`);
+    }
+    assert.ok(links.some((link) => link.href === YOUTUBE_URL && link.external));
+    assert.ok(links.some((link) => link.href === (locale === "da" ? "/rss.xml" : "/en/rss.xml")));
+  }
+  const source = await read("src/components/Footer.astro");
+  assert.match(source, /siteFooter\(locale\)/);
+  assert.match(source, /class="legal-links"/, "print.css hides the legal links by this class");
+});
+
+test("headings are shown without a leading emoji", async () => {
+  const { stripLeadingEmoji, rehypePlainHeadings } = await import("../config/markdown/plain-headings.mjs");
+  assert.equal(stripLeadingEmoji("\u{1F4CB} Forudsætninger"), "Forudsætninger");
+  assert.equal(stripLeadingEmoji("\u{1F6E0}\uFE0F Værktøj"), "Værktøj");
+  assert.equal(stripLeadingEmoji("\u{1F468}\u200D\u{1F4BB} Kode"), "Kode");
+  assert.equal(stripLeadingEmoji("Trin 1: Installation"), "Trin 1: Installation");
+  assert.equal(stripLeadingEmoji("5 GHz og 2,4 GHz"), "5 GHz og 2,4 GHz");
+  const tree = { type: "root", children: [
+    { type: "element", tagName: "h2", children: [{ type: "text", value: "\u{1F680} Næste skridt" }] },
+    { type: "element", tagName: "p", children: [{ type: "text", value: "\u{2705} Færdig" }] },
+  ] };
+  rehypePlainHeadings()(tree);
+  assert.equal(tree.children[0].children[0].value, "Næste skridt");
+  assert.equal(tree.children[1].children[0].value, "\u{2705} Færdig", "only headings change");
+  assert.match(await read("astro.config.mjs"), /rehypePlugins: \[rehypePlainHeadings\b/);
+});
+
+test("the sidebar opens on the section the reader is in", async () => {
+  const { scopeSidebar } = await import("../src/lib/sidebar-scope.mjs");
+  const link = (href, isCurrent = false) => ({ type: "link", label: href, href, isCurrent });
+  const group = (label, entries) => ({ type: "group", label, entries, collapsed: false });
+  const sidebar = (current) => [
+    group("Home Assistant", [link("/da/home-assistant/", current === "ha"), group("Installation", [link("/da/home-assistant/docker/", current === "docker")])]),
+    group("AI", [link("/da/ai/"), link("/da/ai/nyheder/")]),
+    group("Produkter", [link("/da/produkter/", current === "produkter")]),
+  ];
+
+  const products = scopeSidebar(sidebar("produkter"), "/da/produkter/");
+  assert.deepEqual(products.map((entry) => entry.label), ["Produkter", "Home Assistant", "AI"]);
+  assert.deepEqual(products.map((entry) => entry.collapsed), [false, true, true]);
+
+  const nested = scopeSidebar(sidebar("docker"), "/da/home-assistant/docker/");
+  assert.equal(nested[0].label, "Home Assistant");
+  assert.equal(nested[0].entries[1].collapsed, false, "groups inside the section keep their own state");
+
+  const issue = scopeSidebar(sidebar(), "/da/ai/nyheder/2026-11-14/");
+  assert.equal(issue[0].label, "AI", "a news issue belongs to the news page above it");
+  assert.equal(issue[0].collapsed, false);
+
+  const outside = scopeSidebar(sidebar(), "/da/start/");
+  assert.deepEqual(outside.map((entry) => entry.label), ["Home Assistant", "AI", "Produkter"]);
+  assert.ok(outside.every((entry) => entry.collapsed), "no section is open on a page outside them");
+
+  const original = sidebar("produkter");
+  scopeSidebar(original, "/da/produkter/");
+  assert.equal(original[0].collapsed, false, "the sidebar it was given is left unchanged");
+
+  assert.match(await read("config/site.mjs"), /routeMiddleware: "\.\/src\/route-data\.ts"/);
+  assert.match(await read("src/route-data.ts"), /scopeSidebar\(route\.sidebar, context\.url\.pathname\)/);
+});
+
+test("tables scroll sideways in a wrapper that can take keyboard focus", async () => {
+  const { rehypeTableScroll } = await import("../config/markdown/table-scroll.mjs");
+  const table = () => ({ type: "element", tagName: "table", properties: {}, children: [] });
+  const tree = { type: "root", children: [
+    table(),
+    { type: "element", tagName: "blockquote", properties: {}, children: [table()] },
+    { type: "element", tagName: "p", properties: {}, children: [{ type: "text", value: "tekst" }] },
+  ] };
+  rehypeTableScroll()(tree, { path: "/repo/src/content/docs/en/produkter/index.mdx" });
+  const wrapper = tree.children[0];
+  assert.equal(wrapper.tagName, "div");
+  assert.deepEqual(wrapper.properties.className, ["table-scroll"]);
+  assert.equal(wrapper.properties.tabIndex, 0);
+  assert.equal(wrapper.properties.ariaLabel, "Table");
+  assert.equal(wrapper.children[0].tagName, "table");
+  assert.equal(tree.children[1].children[0].properties.className[0], "table-scroll", "nested tables are wrapped too");
+  assert.equal(tree.children[2].tagName, "p");
+  const danish = { type: "root", children: [table()] };
+  rehypeTableScroll()(danish, { path: "C:\\repo\\src\\content\\docs\\da\\produkter\\index.mdx" });
+  assert.equal(danish.children[0].properties.ariaLabel, "Tabel");
+  assert.match(await read("astro.config.mjs"), /rehypePlugins: \[rehypePlainHeadings, rehypeTableScroll\]/);
+  assert.match(await read("src/styles/content/blocks.css"), /\.table-scroll\s*\{[^}]*overflow-x:\s*auto/);
+});
+
+test("cards and tabs are shown without a leading emoji", async () => {
+  const { remarkPlainLabels } = await import("../config/markdown/plain-labels.mjs");
+  const attribute = (name, value) => ({ type: "mdxJsxAttribute", name, value });
+  const tree = { type: "root", children: [
+    { type: "mdxJsxFlowElement", name: "Tabs", attributes: [], children: [
+      { type: "mdxJsxFlowElement", name: "TabItem", attributes: [attribute("label", "\u{1F4F1} Via UI")], children: [] },
+    ] },
+    { type: "mdxJsxFlowElement", name: "Card", attributes: [attribute("title", "\u{1F6E0}️ Værktøj"), attribute("icon", "setting")], children: [] },
+    { type: "mdxJsxFlowElement", name: "LinkCard", attributes: [attribute("title", "\u{1F680} Start"), attribute("description", "\u{2705} Klar")], children: [] },
+    { type: "mdxJsxFlowElement", name: "Aside", attributes: [attribute("title", "\u{26A0}️ Pas på")], children: [] },
+  ] };
+  remarkPlainLabels()(tree);
+  assert.equal(tree.children[0].children[0].attributes[0].value, "Via UI");
+  assert.equal(tree.children[1].attributes[0].value, "Værktøj");
+  assert.equal(tree.children[2].attributes[0].value, "Start");
+  assert.equal(tree.children[2].attributes[1].value, "\u{2705} Klar", "only the title changes");
+  assert.equal(tree.children[3].attributes[0].value, "\u{26A0}️ Pas på", "other components are left alone");
+  assert.match(await read("astro.config.mjs"), /remarkPlugins: \[remarkGfm, remarkPlainLabels\]/);
 });
 
 test("the 3D library loads on demand and the controls work without it", async () => {
@@ -560,7 +702,7 @@ test("Astro renders the guides' GitHub-flavoured Markdown tables", async () => {
   ]);
 
   assert.match(config, /import remarkGfm from ["']remark-gfm["']/);
-  assert.match(config, /markdown:\s*\{[\s\S]*remarkPlugins:\s*\[remarkGfm\]/);
+  assert.match(config, /markdown:\s*\{[\s\S]*remarkPlugins:\s*\[remarkGfm\b/);
   assert.equal(JSON.parse(packageJson).dependencies["remark-gfm"], "^4.0.1");
 });
 

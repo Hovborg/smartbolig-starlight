@@ -14,12 +14,23 @@
   letter-spacing: -0.01em;
 }
 
-/* --- Tables: scroll sideways on phones instead of breaking the page ---- */
-.sl-markdown-content table:not(:where(.not-content *)) {
-  display: block;
+/* --- Tables: fill the column, and scroll sideways in their wrapper
+   (config/markdown/table-scroll.mjs) instead of breaking the page -------- */
+.table-scroll {
   overflow-x: auto;
   border: 1px solid var(--sb-line);
   border-radius: var(--sb-radius-md);
+}
+
+.table-scroll:focus-visible {
+  outline: 2px solid var(--sb-accent);
+  outline-offset: 2px;
+}
+
+.sl-markdown-content table:not(:where(.not-content *)) {
+  display: table;
+  width: 100%;
+  overflow: visible;
   border-spacing: 0;
   font-size: var(--sb-text-sm);
 }
@@ -81,6 +92,19 @@
 
 .sl-link-card .description {
   color: var(--sb-ink-muted);
+}
+
+/* One icon colour for every card, instead of Starlight's four in rotation. */
+.card,
+.card:nth-child(n) {
+  --sl-card-border: color-mix(in srgb, var(--sb-accent) 40%, transparent);
+  --sl-card-bg: var(--sb-accent-soft);
+}
+
+.card .icon {
+  padding: 0.35em;
+  border-radius: var(--sb-radius-sm);
+  color: var(--sb-accent);
 }
 
 /* --- Tabs and badges --------------------------------------------------- */

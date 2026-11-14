@@ -32,9 +32,10 @@
   --sl-color-blue-low: var(--sb-sky-soft);
   --sl-color-blue: var(--sb-sky-vivid);
   --sl-color-blue-high: var(--sb-sky);
-  --sl-color-purple-low: var(--sb-violet-soft);
-  --sl-color-purple: var(--sb-violet-vivid);
-  --sl-color-purple-high: var(--sb-violet);
+  /* Starlight draws tips in purple; here a tip is the brand colour. */
+  --sl-color-purple-low: var(--sb-accent-soft);
+  --sl-color-purple: var(--sb-accent-vivid);
+  --sl-color-purple-high: var(--sb-accent-strong);
   --sl-color-red-low: var(--sb-danger-soft);
   --sl-color-red: var(--sb-danger-vivid);
   --sl-color-red-high: var(--sb-danger);

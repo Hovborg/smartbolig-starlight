@@ -37,6 +37,8 @@ export const starlightOptions = {
       lang: "en",
     },
   },
+  // The sidebar opens on the section the reader is in (src/lib/sidebar-scope.mjs).
+  routeMiddleware: "./src/route-data.ts",
   // Table of contents
   tableOfContents: { minHeadingLevel: 2, maxHeadingLevel: 3 },
   // Show last updated date on pages (requires git)

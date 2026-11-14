@@ -1,39 +1,15 @@
 ---
-/**
- * Custom Footer Component for SmartBolig.net
- * Adds copyright notice and legal links
- */
+// The end of every page: Starlight's page meta and next/previous links, then
+// the site footer (links in src/lib/site-footer.mjs) and the AI assistant.
 import EditLink from 'virtual:starlight/components/EditLink';
 import LastUpdated from 'virtual:starlight/components/LastUpdated';
 import Pagination from 'virtual:starlight/components/Pagination';
-import config from 'virtual:starlight/user-config';
+import { siteFooter } from '../lib/site-footer.mjs';
 import SmartBoligAssistant from './SmartBoligAssistant.astro';
 
-const currentYear = new Date().getFullYear();
-const locale = Astro.currentLocale || 'da';
-
-// Translations
-const translations = {
-  da: {
-    copyright: `© ${currentYear} SmartBolig.net - Alle rettigheder forbeholdes`,
-    terms: 'Brugsvilkår',
-    privacy: 'Privatlivspolitik',
-    affiliate: 'Affiliate Disclosure',
-    noReproduction: 'Indhold må ikke kopieres uden skriftlig tilladelse.',
-    legalNav: 'Juridiske links',
-  },
-  en: {
-    copyright: `© ${currentYear} SmartBolig.net - All rights reserved`,
-    terms: 'Terms of Use',
-    privacy: 'Privacy Policy',
-    affiliate: 'Affiliate Disclosure',
-    noReproduction: 'Content may not be copied without written permission.',
-    legalNav: 'Legal links',
-  },
-};
-
-const t = translations[locale as keyof typeof translations] || translations.da;
-const basePath = locale === 'en' ? '/en' : '/da';
+const locale = Astro.currentLocale === 'en' ? 'en' : 'da';
+const footer = siteFooter(locale);
+const year = new Date().getFullYear();
 ---
 
 <footer class="sl-flex">
@@ -43,19 +19,43 @@ const basePath = locale === 'en' ? '/en' : '/da';
   </div>
   <Pagination />
 
-  <!-- Copyright and Legal Section -->
-  <div class="copyright-section">
-    <div class="copyright-notice">
-      <p class="copyright-text">{t.copyright}</p>
-      <p class="no-reproduction">{t.noReproduction}</p>
+  <div class="site-footer">
+    <div class="site-footer__brand">
+      <a class="site-footer__logo" href={`/${locale}/`} translate="no">
+        <svg viewBox="0 0 32 32" width="30" height="30" aria-hidden="true">
+          <rect class="tile" width="32" height="32" rx="9.5"></rect>
+          <path class="line" d="M7.5 15.4 16 8l8.5 7.4"></path>
+          <path class="line" d="M10 14.2V22a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-7.8"></path>
+          <circle class="dot" cx="16" cy="18.7" r="2.1"></circle>
+        </svg>
+        <span>Smart<span class="bolig">Bolig</span><span class="tld">.net</span></span>
+      </a>
+      <p>{footer.tagline}</p>
     </div>
-    <nav class="legal-links" aria-label={t.legalNav}>
-      <a href={`${basePath}/juridisk/brugsvilkaar/`}>{t.terms}</a>
-      <span class="separator">|</span>
-      <a href={`${basePath}/juridisk/privatlivspolitik/`}>{t.privacy}</a>
-      <span class="separator">|</span>
-      <a href={`${basePath}/juridisk/affiliate-disclosure/`}>{t.affiliate}</a>
+
+    <nav class="site-footer__columns" aria-label={footer.nav}>
+      {
+        footer.columns.map((column) => (
+          <div>
+            <h2>{column.title}</h2>
+            <ul>
+              {column.links.map((link) => (
+                <li>
+                  <a href={link.href} rel={link.external ? 'noopener' : undefined}>{link.label}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
     </nav>
+
+    <div class="site-footer__base">
+      <p>© {year} SmartBolig.net. {footer.rights}</p>
+      <nav class="legal-links" aria-label={footer.legalNav}>
+        {footer.legal.map((link) => <a href={link.href}>{link.label}</a>)}
+      </nav>
+    </div>
   </div>
 </footer>
 
@@ -78,64 +78,120 @@ const basePath = locale === 'en' ? '/en' : '/da';
     .meta > :global(p:only-child) {
       margin-inline-start: auto;
     }
+    .meta:not(:has(*)) {
+      display: none;
+    }
   }
 
-  .copyright-section {
-    margin-top: var(--sb-space-6);
-    padding-top: var(--sb-space-5);
+  .site-footer {
+    display: grid;
+    gap: var(--sb-space-6);
+    margin-top: var(--sb-space-7);
+    padding-top: var(--sb-space-7);
     border-top: 1px solid var(--sb-line);
-    text-align: center;
   }
 
-  .copyright-notice {
-    margin-bottom: var(--sb-space-4);
+  .site-footer__logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--sb-ink-strong);
+    font-family: var(--sb-font-display);
+    font-size: var(--sb-text-lg);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    text-decoration: none;
   }
+  .tile { fill: var(--sb-accent); }
+  .line { fill: none; stroke: var(--sb-on-accent); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+  .dot { fill: var(--sb-on-accent); }
+  .bolig { color: var(--sb-accent); }
+  .tld { color: var(--sb-ink-subtle); font-size: 0.7em; font-weight: 600; }
 
-  .copyright-text {
-    font-size: var(--sb-text-sm);
-    font-weight: 600;
+  .site-footer__brand p {
+    max-width: 34ch;
+    margin: var(--sb-space-3) 0 0;
     color: var(--sb-ink-muted);
+    font-size: var(--sb-text-sm);
+    line-height: 1.6;
+  }
+
+  .site-footer__columns {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sb-space-6) var(--sb-space-5);
+  }
+
+  .site-footer h2 {
+    margin: 0 0 var(--sb-space-3);
+    color: var(--sb-ink-strong);
+    font-family: var(--sb-font-body);
+    font-size: var(--sb-text-sm);
+    font-weight: 650;
+    letter-spacing: 0;
+  }
+
+  .site-footer ul {
+    display: grid;
+    gap: var(--sb-space-1);
     margin: 0;
+    padding: 0;
+    list-style: none;
   }
 
-  .no-reproduction {
-    font-size: var(--sb-text-xs);
-    color: var(--sb-ink-subtle);
-    margin: var(--sb-space-2) 0 0 0;
-  }
-
-  .legal-links {
-    display: flex;
-    justify-content: center;
-    gap: var(--sb-space-2);
-    flex-wrap: wrap;
-    font-size: var(--sb-text-xs);
-  }
-
+  .site-footer li a,
   .legal-links a {
     display: inline-block;
-    padding-block: var(--sb-space-3);
-    padding-inline: var(--sb-space-2);
-    color: var(--sb-ink-subtle);
+    padding-block: var(--sb-space-2);
+    color: var(--sb-ink-muted);
+    font-size: var(--sb-text-sm);
     text-decoration: none;
   }
 
+  .site-footer li a:hover,
   .legal-links a:hover {
     color: var(--sb-accent);
     text-decoration: underline;
   }
 
-  .legal-links a:focus-visible {
-    outline: 2px solid var(--sb-accent);
-    outline-offset: 2px;
-    border-radius: var(--sb-radius-sm);
+  /* Left-aligned, and with room below on phones: the assistant button is
+     fixed in the bottom right corner. */
+  .site-footer__base {
+    display: grid;
+    gap: var(--sb-space-1);
+    padding-top: var(--sb-space-5);
+    padding-bottom: var(--sb-space-8);
+    border-top: 1px solid var(--sb-line);
   }
 
-  .separator {
-    color: var(--sb-line-strong);
+  .site-footer__base p {
+    margin: 0;
+    color: var(--sb-ink-subtle);
+    font-size: var(--sb-text-xs);
+  }
+
+  .legal-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--sb-space-5);
+  }
+
+  .legal-links a {
+    color: var(--sb-ink-subtle);
+    font-size: var(--sb-text-xs);
+  }
+
+  @media (min-width: 40rem) {
+    .site-footer__columns { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+
+  @media (min-width: 64rem) {
+    .site-footer { grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr); }
+    .site-footer__base { grid-column: 1 / -1; padding-bottom: var(--sb-space-5); }
   }
 
   @media (prefers-reduced-motion: no-preference) {
+    .site-footer li a,
     .legal-links a {
       transition: color var(--sb-dur) var(--sb-ease);
     }

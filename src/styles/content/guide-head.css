@@ -1,0 +1,61 @@
+/* The top of a guide (components/guide/GuideHead.astro): breadcrumb, title,
+   date and a picture of the 3D house. The picture is dark in both themes,
+   like the house on the homepage. */
+.guide-head {
+  display: grid;
+  gap: var(--sb-space-3);
+}
+
+.guide-head__crumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sb-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--sb-ink-subtle);
+  font-size: var(--sb-text-sm);
+}
+
+.guide-head__crumbs li + li::before {
+  content: "/";
+  margin-inline-end: var(--sb-space-2);
+  color: var(--sb-line-strong);
+}
+
+.guide-head__crumbs a {
+  color: var(--sb-ink-muted);
+  text-decoration: none;
+}
+
+.guide-head__crumbs a:hover {
+  color: var(--sb-accent);
+  text-decoration: underline;
+}
+
+.guide-head h1 {
+  margin: 0;
+}
+
+.guide-head__meta {
+  margin: 0;
+  color: var(--sb-ink-subtle);
+  font-size: var(--sb-text-sm);
+}
+
+.guide-head__art {
+  display: block;
+  overflow: hidden;
+  margin-top: var(--sb-space-3);
+  border: 1px solid var(--sb-line);
+  border-radius: var(--sb-radius-lg);
+  background: var(--sb-stage);
+  aspect-ratio: 5 / 2;
+}
+
+.guide-head__art img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

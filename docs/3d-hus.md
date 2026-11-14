@@ -50,13 +50,14 @@ melder sig til en kanal; se lamperne i `parts/devices.mjs`.
 
 ## Stillbillederne
 
-Alle billeder af huset på forsiden står i listen `PICTURES` i `scripts/house-posters.mjs`:
+Alle billeder af huset står i listen `PICTURES` i `scripts/house-posters.mjs`:
 
 | Navn | Bruges i |
 |---|---|
 | `house-evening` | Heroen, før modellen er hentet, og hvor WebGL mangler |
 | `house-morning` | Udvalgte guides (`HomeFeaturedGuides.astro`) |
 | `topic-<emne>` | Emnekortene (`HomeGoalNavigator.astro`), ét pr. emne-id i `src/lib/home-copy/types.ts` |
+| `guide-<motiv>` | Toppen af hver guide (`GuideHead.astro`), ét pr. motiv i `src/lib/guide-art.mjs`. 1600 × 640, i `public/images/guide/` |
 
 Tegn dem igen:
 
@@ -66,7 +67,7 @@ npm run house:posters
 
 Kræver Chrome på maskinen (stien kan sættes med `CHROME_PATH`). Scriptet pakker modellen med
 esbuild, tegner hvert billede i dobbelt størrelse og skriver AVIF og WebP i hver bredde i
-`public/images/home/`. Kør det, hver gang huset, lyset eller et kamera er ændret. Ét billede
+`public/images/home/` (guidebillederne i `public/images/guide/`; mappen er billedets `folder`). Kør det, hver gang huset, lyset eller et kamera er ændret. Ét billede
 alene: `npm run house:posters -- topic-esp32` (navnets begyndelse).
 
 ### Tilføj et billede

@@ -32,12 +32,29 @@ Sidst opdateret: 2026-11-14.
   - Færdigt på grenen: farveværdier v2, 3D-huset (`src/lib/house3d/`, `docs/3d-hus.md`), ny hero
     med søgefelt, husets skærm, rundturen "Et døgn i et smart hjem", stillbilleder, brandfiler,
     emnekort med billeder fra 3D-huset, ny rækkefølge under rundturen, morgenbillede ved de
-    udvalgte guides. `npm run site:test` er grøn (143 tests). Set i browser ved 1440, 820 og
-    390 px, mørkt tema på dansk og lyst tema på engelsk.
-  - Mangler på forsiden: nyhedskortenes billeder (gammel lilla skabelon), sidefod,
-    et nærbillede til ESP32-kortet.
-  - Mangler på resten af siden: indholdskomponenter, nyhedsoversigt og nyhedsbillede,
-    assistent, 404, topbjælke på telefon. Begge temaer, begge sprog, 375 og 1440 px.
+    udvalgte guides. Set i browser ved 1440, 820 og 390 px, mørkt tema på dansk og lyst tema
+    på engelsk.
+  - Færdigt på grenen 2026-11-14 (B41–B46): guidehoved med billede af 3D-huset på alle guides,
+    overskrifter/kort/faner uden emoji, tabeller i rulleramme, én ikonfarve på kort, grønne
+    tips, sidemenu der åbner på det aktuelle emne, ny sidefod med YouTube.
+    `npm run site:test` er grøn (149 tests).
+  - Mangler på forsiden: nyhedskortenes billeder (gammel lilla skabelon), et nærbillede til
+    ESP32-kortet.
+  - Mangler på resten af siden: nyhedsoversigten, assistenten, topbjælke på telefon.
+- **Grene, der venter på at blive flettet ind i `redesign/v2`:**
+  - `redesign/news-image` (`4f65b80`): nye nyhedsbilleder i grafit og grøn, 64 udgaver tegnet om.
+  - `content/new-guides-a` (`697fe46`): elmåler via HAN-port, valg af hardware, solceller og
+    batteri. Skal gennemgås af en uafhængig model før fletning.
+  - `content/new-guides-b` (`79c77e2`): billige timer, ferietilstand, smart home i lejebolig.
+    Skal gennemgås af en uafhængig model før fletning.
+- **CSP, kortlagt 2026-11-14 (til fase 5):** `script-src` har `'unsafe-inline'`, fordi siden har
+  8–12 inline-scripts pr. side (samtykke/gtag, sprogcookie, tema før første tegning, Starlights
+  søge- og sidemenuscripts og små Astro-moduler under 4 KB). `script-src-attr 'none'` er sat,
+  og der er ingen inline-handlere. Google dokumenterer kun nonce-baseret CSP for AdSense.
+  Plan: Workeren sætter en nonce pr. svar med HTMLRewriter (`run_worker_first` udvides), først
+  afprøvet som `Content-Security-Policy-Report-Only` på en preview. Mindre første skridt:
+  `vite.build.assetsInlineLimit: 0` og hashes for de få faste inline-scripts. Virker annoncerne
+  ikke med nonce, beholdes `'unsafe-inline'` på sider med annoncer, og det skrives i TIL-EJEREN.
 
 ## Næste skridt
 

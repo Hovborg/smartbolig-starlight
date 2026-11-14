@@ -201,6 +201,9 @@ Sitets konfiguration ligger i `config/`, og `astro.config.mjs` er kun en tynd in
 - `config/sidebar/`: sidebaren, én fil pr. hovedsektion (Home Assistant er delt i undermapper).
 - `config/head/`: `<head>`-tags, én fil pr. område (ikoner og temafarve, social meta, samtykke, analytics, RSS, annoncer).
 - `config/components.mjs`: Starlight-komponentoverrides.
+- `config/markdown/`: små Markdown-plugins (overskrifter, kort og faner uden emoji; tabeller i en rulleramme).
+
+Guidesidernes top, sidemenu og sidefod er beskrevet i `docs/designsystem.md` under "Guidesider".
 
 ---
 
