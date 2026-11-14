@@ -42,8 +42,52 @@ Sidst opdateret: 2026-11-14.
   alle af testene. Dokumentation: `docs/assistent.md`. Kendt i vinduet og ikke rettet: på en
   telefon på 375×760 px er samtalefeltet ca. 209 px højt; ved 320 px står overskriftens tekst
   under nulstil-knappen; statusteksten kan stå to gange et øjeblik; "Kopiér kode" vises også
-  på en kodeblok, der endnu skrives. Kan først ses på den levende side: et rigtigt svar gennem
-  Workerens egen binding, og om Cloudflare sender strømmen videre uden at samle den.
+  på en kodeblok, der endnu skrives. Udgivet 2026-11-14 (PR #206, `main` 9caab95, Worker
+  `234155f6`). Set på den levende side: status efter 0,10 s, kilder efter 0,14 s, første ord
+  efter ca. 19 s og hele svaret efter ca. 31 s for et spørgsmål om Zigbee; teksten strømmer.
+  Vej tilbage: `npx wrangler rollback e7f0c884-ed6a-4ec8-880c-e76a412809bd -m "<besked>" -y`.
+- **Assistenten søger først (B62, tilføjelser):** fundet på den levende side, at et
+  spørgsmål uden et smart home-ord ("Hvordan får jeg lyset til at tænde ved bevægelse?") gav
+  33 s uden tekst, hele svaret på én gang og ingen kilder. Nu søges sidens indeks for hver
+  besked, der ikke er en ren afslutning (»Tak for det«, »Okay«), med beskeden alene og højst
+  én gang. Resultatet bruges, når beskeden har et smart home-ord og opslaget fandt noget,
+  eller bedste svar har mindst 12 point (`USEFUL_SCORE`), og modellen får aldrig et værktøj:
+  ét modelkald, der altid strømmer. Et fejlet opslag meldes til modellen som »ikke
+  tilgængeligt«, et tomt som »intet fundet«, og en senere besked uden sider som »ingen side
+  til den seneste besked« (`continued`): modellen svarer da ud fra samtalen. Bygget advarer
+  (stopper ikke), når et spørgsmål i prøvelisterne flytter over grænsen. Fire uafhængige
+  gennemgange før udgivelsen: den første fandt, at et emneskift gav sider om det gamle emne;
+  den anden, at en opfølgning uden »den« eller »det« ingen sider fik; den tredje, at
+  ordreglerne fra den rettelse tog rigtige spørgsmål med sig; den fjerde, at reglen, der stod
+  tilbage (søg sammen med beskeden før, når beskeden intet finder alene og kun har ord, siden
+  kender), gav et nyt emne lige under grænsen og afslutninger som »Tak for din hjælp« det
+  tidligere spørgsmåls sider. Målt bagefter: indekset kan ikke skelne en opfølgning fra et
+  nyt emne eller en afslutning (hverken point, antal søgeord eller ordenes sjældenhed).
+  Derfor søges en besked nu aldrig sammen med en tidligere. Målt med den tredje og den
+  fjerde gennemgangs 2.261 samtaler mod det byggede indeks: i alle viser den senere besked
+  præcis de kilder, den viser som første besked. En femte gennemgang fandt ingen besked, der
+  får et tidligere spørgsmåls sider (520 egne samtaler, også som strøm og i kæder); dens
+  mindre fund er rettet (»HA« med store bogstaver søges, undtagen i en besked helt med store bogstaver, ordlisterne sammenlignes med koden,
+  prompten til en opfølgning). 195 prøver med en fejl sat ind i koden fanges alle af
+  testene. Pris, kendt: en opfølgning uden eget emne (»Kan du uddybe?«) får
+  ingen nye sider og ingen kildelinks (356 af 524 danske og 340 af 485 engelske
+  opfølgningssamtaler); svaret bygger på samtalen. Kendt i øvrigt: en tak i ord, listerne
+  ikke har (»Tak, jeg vender tilbage«), søges alene og viste en irrelevant kilde i 11 af den
+  femte gennemgangs 100 nye takkebeskeder; en opfølgning, der selv når
+  grænsen (»Hvad koster det cirka?«), får sine egne sider; et nyt smart home-emne under
+  grænsen (»Hvordan styrer jeg min garageport?«) får ingen kilder; nogle hverdagsspørgsmål når
+  stadig grænsen (2 af 20 danske, 6 af 24 engelske) og kan få en kilde; tiden til første ord
+  (ca. 19 s, modellens tænketid) er ikke ændret og står på listen til ejeren. Muligt næste
+  skridt, ikke bygget: lade modellen skrive søgeteksten til en opfølgning (ét modelkald mere).
+  Tal og grænser: `docs/assistent.md`, "Målt med samtaler". Udgivet 2026-11-14 (PR #209,
+  `main` 22fface, Worker `fd3bd2e3`). Set på den levende side med én samtale på tre beskeder:
+  "Hvordan får jeg lyset til at tænde ved bevægelse?" viser fire kilder fra siden, første ord
+  efter 20 s og hele svaret efter 36 s (før: 33 s uden tekst og ingen kilder); "Kan du
+  uddybe?" viser ingen kilder og svarer ud fra samtalen, første ord efter 32 s; "Tak for det"
+  viser ingen kilder og er færdig efter 12 s. Opfølgningen blev sendt med en forkortet udgave
+  af det første svar som historik. Vinduet på forsiden (telefonbredde, skjult Chrome): fire
+  kildelinks vises straks, teksten kommer løbende fra ca. 27 s, og vinduet er klar igen efter
+  42 s. Ikke set: en opfølgning skrevet i vinduet.
 - **Automatiske opdateringer set i drift 2026-11-14:** Dependabot åbnede otte pull requests
   efter udgivelsen. Gruppen med små npm-opdateringer (PR #192) blev flettet af sig selv, efter
   at `deploy`-kontrollen var grøn, og kontrollerne kørte derefter på `main`. Starlight 0.42.8
@@ -120,7 +164,7 @@ Sidst opdateret: 2026-11-14.
     dato pr. side, bannere til have og energi, fejl i `docs/designsystem.md` og
     `docs/3d-hus.md`. `npm run site:test` er grøn (151 tests).
   - Assistentens udseende følger designsystemet (farveværdier, lyst og mørkt tema) og er set i
-    headless Chrome ved 320, 375 og 1440 px (B62).
+    headless Chrome ved 320, 375 og 1440 px (`docs/assistent.md`).
 - **Seks nye guides:** PR #183 flettet og udgivet 2026-11-14 (`main` ce015e6):
   elmåler via HAN-port, valg af hardware, solceller og batteri, billige timer, ferietilstand,
   smart home i lejebolig. Gennemgået og rettet af en uafhængig model 2026-11-14 mod officielle
@@ -232,6 +276,11 @@ Sidst opdateret: 2026-11-14.
   Anden runde med tre nye læsere og nye opgaver af samme slags: guiden "ja"; design og
   nyheder "delvist", begge med ordene "opskriften virker som skrevet" og hver med ét hul
   (en tredje kopi af accentfarven; en kørsel uden tidspunkt i titlen), som også er rettet.
+  Tredje runde (design og nyheder): designlæseren fandt en fejl i den nye tabel over
+  hjørnetrin og fem kopier mere af den mørke sidefarve; rettet, og testen holder dem nu.
+  Fjerde runde (design og nyheder): design "ja"; nyheder "delvist", fordi der manglede en
+  opskrift for en manglende udgave og en tabel over lofterne. Begge dele er skrevet ind.
+  Ikke kontrolleret: en femte runde efter de sidste rettelser.
 
 ## Udgivelser og vej tilbage
 
@@ -242,6 +291,7 @@ flytter kun Workeren og de statiske filer; `main` er uændret, så den næste ud
 
 | Udgivelse | Pull request | Worker-version |
 |---|---|---|
+| Assistenten søger først, hver besked alene | #209 | `fd3bd2e3-b4c5-4b4b-9bd6-11f719ada749` |
 | Startsæt-bygger | #212 | `202ffebc-da12-4db7-8b7d-865293a6cfd2` |
 | Gamle adresser sendes videre | #211 | `4eaa513f-7377-4e9c-97c4-6ac39cac9278` |
 | Zigbee-kanalvælger og batterilevetid | #207 | `bd23498c-04ac-40d5-82b0-72b8a8d03689` |
@@ -272,10 +322,14 @@ Det, der ikke er gjort. Det, kun ejeren kan gøre, står i [TIL-EJEREN.md](TIL-E
 - **Den strenge CSP:** sendes kun som rapport. Den slås til, når samtykkebeskeden er udgivet
   (TIL-EJEREN punkt 1) og den levende side er set uden overtrædelser med annoncer
   (`docs/sikkerhed.md`, "Den strenge politik").
-- **Assistentens tid til første ord:** ca. 19 s (modellens tænketid). Står på listen til
-  ejeren, fordi en hurtigere model koster.
+- **Assistentens tid til første ord:** ca. 20 s for et spørgsmål og 32 s for en opfølgning
+  (modellens tænketid; opfølgningen er målt én gang). Står på listen til ejeren, fordi en
+  hurtigere model koster.
 - **`allowScripts` i `package.json`** nævner `sharp@0.34.5`, mens låsefilen har en nyere
   version. npm 11 viser ingen brug af linjen ved installation; den er ladt stå.
+- **Fire pull requests fra Dependabot står åbne med vilje:** #189, #190 og #191 (ny hovedversion
+  af tre GitHub Actions) og #193 (Starlight 0.42, som fjerner den mobilmenu-knap, sidens
+  stylesheet og assistentknap bygger på). De flettes ikke af sig selv (`docs/opdateringer.md`).
 - **Ikke set køre endnu:** en planlagt sidevagtskørsel, en reservekørsel for nyhederne, og at
   en grøn sidevagtskørsel selv lukker en åben sag.
 
@@ -289,7 +343,9 @@ Det, der ikke er gjort. Det, kun ejeren kan gøre, står i [TIL-EJEREN.md](TIL-E
    som før-målingen i `docs/measurements/2026-11-13-baseline/README.md`, og læg tallene ved
    siden af.
 4. Tegninger til de guides, der mangler en (se "Åbent"), og guiden om Companion App.
-5. Når ejeren har udgivet samtykkebeskeden: se forløbene ja og nej på den levende side, og
+5. Efter udgivelsen af oprydningen (B67): se de gamle adresser på den levende side igen
+   (`/en/legal/`, `/produkter/shelly`, `/index.html`, `/` og `www.smartbolig.net/api/elpris`).
+6. Når ejeren har udgivet samtykkebeskeden: se forløbene ja og nej på den levende side, og
    slå den strenge CSP til.
 
 ## Udskudt fra designgennemgangen

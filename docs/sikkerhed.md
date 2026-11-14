@@ -78,7 +78,7 @@ små stilark direkte i siden, og de skifter med indholdet.
 | `scripts/finalize-build.mjs` | Skriver den strenge politik i `dist/_headers`. Her står `ENFORCE_STRICT_CSP` |
 | `config/vite.mjs` | Små scripts som filer i stedet for i siden |
 | `scripts/site-csp.test.mjs` | Tests af hashes, politikken og længdegrænsen |
-| `functions/api/` | Workerens kode. Den svarer kun på `/api/*` (`run_worker_first` i `wrangler.jsonc`); alt andet er statiske filer, og omdirigeringer står kun i `public/_redirects` |
+| `functions/api/`, `functions/lib/` | Workerens kode. Den svarer kun på `/api/*` (`run_worker_first` i `wrangler.jsonc`); alt andet er statiske filer. Omdirigeringer af stier står kun i `public/_redirects`; `www` sendes til hoveddomænet af en Redirect Rule i Cloudflare-zonen (`docs/seo.md`) |
 
 ## Tilføj en vært
 

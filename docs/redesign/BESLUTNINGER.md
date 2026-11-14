@@ -596,7 +596,8 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   sætter ingen cookies (Cloudflares egen oplysning).
 - Fjernet: cookien `preferred-lang`. Siden satte den, når læseren skiftede sprog, og Workeren
   læste den ved `/`. Nu vælger `/` sprog efter land (Danmark: dansk, ellers engelsk), og et
-  sprogskift huskes ikke dér. Sproget står i adressen, så links og bogmærker er uberørte.
+  sprogskift huskes ikke dér. (Rettet i B67: valget efter land lå i en fil, der aldrig blev
+  kørt; `/` går til `/da/` fra `public/_redirects`.) Sproget står i adressen, så links og bogmærker er uberørte.
 - CSP: de små scripts, Astro skrev ind i siden, er nu filer (`config/vite.mjs`), og de fire
   tilbageværende får en hash. Den strenge politik sendes som Report-Only, til den er set på den
   levende side med annoncer; derefter slås den til med én konstant.
@@ -880,6 +881,223 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Fravalgt: at vise et afskåret udkast med en bemærkning. Et halvt svar om elinstallation
   eller YAML er værre end ti sekunders ventetid på reservemodellen.
 
+### B62, tilføjelse efter udgivelsen (2026-11-14)
+- Fundet: målt på den levende side med »Hvordan får jeg lyset til at tænde ved bevægelse?«
+  (intet smart home-ord) valgte modellen selv, om der skulle søges. Læseren så »Læser dit
+  spørgsmål …« i 33 sekunder, fik hele svaret på én gang og ingen kildelinks, selv om siden
+  har flere guides om netop det. Et spørgsmål med et ord som »Zigbee« viste kilder efter
+  0,14 sekunder og strømmede teksten.
+- Valgt: søg i sidens eget indeks ved hvert spørgsmål, og lad modellen aldrig få et værktøj.
+  Opslaget er lokalt (få små filer, millisekunder, ingen pris). Resultatet bruges, når
+  spørgsmålet har et smart home-ord, eller når det bedste svar har mindst 12 point
+  (`USEFUL_SCORE`). Ellers svarer modellen uden sidens tekst og uden kilder.
+- Grænsen er målt mod det byggede indeks: spørgsmål om siden fik 13,33 eller mere, spørgsmål
+  om andet 9,42 eller mindre. Bygget vogter den med to lister og giver en advarsel på
+  kørslen, når et spørgsmål flytter over grænsen.
+- Fravalgt: at lade bygget stoppe på de to lister. Point flytter sig med hver ny side, og
+  nyhederne udgives af sig selv hver dag. Et stop ville lade hele siden stå stille for en
+  fejl, der kun giver et svar med eller uden en kilde. Grænsen selv er holdt af en test mod
+  et fast indeks.
+- Søgningen får det seneste spørgsmål alene (opslag A). Kun når A er svagt, og spørgsmålet
+  peger tilbage (»den«, »det«, »it«, »og …«, »hvad med …«, »what about …«), søges det igen sammen
+  med den ene brugerbesked før det (opslag B, det seneste først, da kun de første 10 ord
+  tæller). B bruges kun, når det selv er stærkt. Højst to opslag, og `searching` meldes én gang.
+  Første udgave søgte altid de to beskeder som ét og kunne ikke skifte emne.
+- Fundet af den uafhængige gennemgang: (1) blokerende: »Hvilken robotstøvsuger er bedst?« og så
+  »Hvad er MQTT?« gav kun sider om robotstøvsugere. (2) Et smart home-ord med et fejlet eller
+  tomt opslag gav modellen »referencedata er givet« og `{"results":[]}`; nu giver fejl
+  »søgningen er ikke tilgængelig« og et tomt resultat »intet fundet«, uden referenceblok.
+  (3) Hverdagssnak nåede pointgrænsen, mest på engelsk (»Tell me a joke« 16,14, »ja tak« 14,43):
+  fyldord er tilføjet (4 af 20 danske og 10 af 24 engelske hverdagsspørgsmål lå på 12 eller
+  mere; efter 2 og 6). (4) Enkeltordsspørgsmål som »Hvad er en hub?« (6,45) nåede ikke grænsen:
+  utvetydige smart home-ord er føjet til ordlisten. (5) Rester af værktøjsruten (`reading`).
+  Fem ændringer af koden overlevede de tests, gennemgangen prøvede; fire har nu en test (alle tidligere
+  beskeder i søgeteksten, smart home-ordet fra en ældre besked, en besked på ét tegn og
+  `<`-undgåelsen i referenceblokken). Den femte, at bygget stopper i stedet for at advare, kræver et byggeri og er ikke prøvet.
+- Fravalgt: altid at sammenføje de to beskeder. Det forurenede søgningen ved emneskift, og et
+  »Tak« efter et emne fik det emnes kilder vist igen.
+- Fravalgt: at bruge flere beskeder end den ene før den seneste. Et emne to svar tilbage er
+  oftere støj end hjælp, og højst to opslag holder underforespørgslerne under Workerens grænse.
+- Værktøjsruten er fjernet helt (`SEARCH_TOOLS`, `MAX_MODEL_RUNS`, trinnet `reading`):
+  ét modelkald, der altid kan strømmes.
+- Fravalgt: at lade modellen vælge med et værktøj. Det gav 33 sekunder uden tekst, ingen
+  kilder og to modelkald, og valget var ikke til at forudsige.
+- Fravalgt: kun en ordliste, som i dag tvinger opslaget. Den misser almindelige spørgsmål som
+  »lys ved bevægelse« og skulle følge hver ny side.
+- Kendt grænse: nogle engelske spørgsmål om andet ligger tæt på grænsen (»Who won the 2022
+  World Cup?« 13,23), så de får en irrelevant kilde. De står ikke i prøvelisterne.
+
+### B62, tilføjelse efter den anden gennemgang af søg først (2026-11-14)
+
+Valgene her om »den« først, kendeord, ord der peger tilbage og tak er taget tilbage efter den
+tredje gennemgang; se næste tilføjelse. Tallene i denne tilføjelse er målt med 522 samtaler,
+som den, der skrev reglen, selv valgte. Det, der står om, hvad reglen fangede, gjaldt den
+udgave og ikke den udgivne.
+
+- Fundet af gennemgangen, blokerende: en opfølgning uden et ord, der peger tilbage (»Kan du
+  uddybe?«, »Hvorfor?«, »Forklar nærmere«, »Vis mig et eksempel«), blev kun søgt alene og fik
+  ingen sider. Målt med 20 opfølgninger efter fem danske og fire engelske åbningsspørgsmål
+  fik 35 af 100 danske og 29 af 80 engelske samtaler en side fra åbningens emne.
+- Valgt: en besked er også en opfølgning, når den spørger om noget (et spørgsmålstegn eller en
+  åbning som »hvad«, »kan«, »forklar«, »vis«), og opslaget alene ikke mødte et søgeord, som
+  ingen side bruger. Begrundelse: »Kan du uddybe?« består kun af ord, siden kender, og siger
+  intet om et nyt emne. »Hvad er hovedstaden i Frankrig?« har to ord, ingen side bruger, og er
+  et emneskift. Søgningen tæller de ukendte ord og giver tallet videre (`report.unknownTerms`).
+- Valgt: et spørgsmål med et ord, der kun kan stå for en ting, samtalen har nævnt (»den«,
+  »dem«, »dens«, »them«, »which one«, »Does it …?«), søges sammen med spørgsmålet før først.
+  Begrundelse: »Virker den med Zigbee?« alene finder sider om Zigbee, ikke om tingen. Når
+  opslaget sammen med spørgsmålet før ikke grænsen, søges spørgsmålet alene.
+- Valgt: »den«, »det« og »de« foran et tillægsord er kendeord og peger ikke tilbage (»den
+  bedste lås«). Reglen kender det på, at næste ord ender på -e eller er »mest« eller »mindst«.
+  Begrundelse: uden undtagelsen gav »Hvad er den bedste smart lås?« det gamle emnes sider i 5
+  af 5 samtaler. Prisen: »Kan den styre varmen?« læses også som kendeord; beskeden spørger
+  stadig og fanges af reglen ovenfor.
+- Valgt: »Does it …?« tæller kun i begyndelsen af beskeden, og »they«, »these«, »those«,
+  »denne« og »disse« står ikke for en ting. Begrundelse: »How does it work with solar panels?«
+  gav det gamle emne i 4 af 4, og »Do they make a smart lock?« handler ikke om noget nævnt.
+- Valgt: en tak eller et farvel uden spørgsmålstegn søges der ikke efter. Begrundelse:
+  »Perfekt, tak skal du have« fik kilder, fordi »have« også er havens ord, og »Tak for det«
+  peger tilbage med »det«.
+- Valgt: flere former af smart home-ordene (»hubberne«, »gatewayen«, »kameraer«, »elpriserne«),
+  »Ok Nabu«, »Nabu Casa« og »wake word«, og fire undtagelser for hverdagsbrug (»ha'«, »not
+  matter«, »this thread«, »social security«). Begrundelse: »ok« er fyldord, så »Ok Nabu« gav
+  ingen søgeord; »It doesn't matter« tvang et opslag.
+- Målt efter ændringen: 83 af 100 danske og 73 af 80 engelske opfølgninger får en side fra
+  åbningens emne. Takker og bekræftelser: 10 af 80 og 12 af 64 (alle uden et takkeord).
+  Spørgsmål om andet: 15 af 50 og 21 af 40. Nye smart home-emner: 5 af 25 og 2 af 20.
+- Kendte grænser, ikke rettet: en bekræftelse uden tak (»Det lyder godt«, »That helps«) og et
+  spørgsmål om andet med »det«, »it« eller »this« i (»Hvad er det for et vejr i dag?«) får det
+  gamle emnes kilder. Et engelsk spørgsmål om andet, hvor siden bruger alle ordene (»Who won
+  the 2022 World Cup?«), tæller som opfølgning. En opfølgning, der når grænsen alene (»Hvor
+  lang tid tager det?«), får sine egne sider. Smart home-ord med en hverdagsbetydning (»hue«,
+  »pære«, »IKEA«) tvinger stadig opslaget.
+- Fravalgt: at lade enhver besked efter et emne arve emnet. Det giver kilder til »Super« og
+  til ethvert emneskift. Fravalgt: at lade modellen afgøre det; det var fejlen i første udgave.
+- Kontrolleret: `npm run site:test`; 45 fejl sat ind i koden én ad gangen, og testene fejler
+  på dem alle (den ene først efter et nyt eksempel i testen); målingen ovenfor.
+
+### B62, tilføjelse efter den tredje gennemgang af søg først (2026-11-14)
+
+- Fundet af gennemgangen, blokerende. Alle tre fejl var indført af ordreglerne i forrige
+  tilføjelse: (1) takkereglen slugte en anmodning med et takkeord og uden spørgsmålstegn
+  (»Vis mig hvordan jeg sætter Zigbee2MQTT op, tak« blev ikke søgt); (2) reglen om »den«
+  først tog over, også når beskeden selv nævnte sin ting (»Jeg har købt en Shelly Plug S.
+  Hvordan sætter jeg den op?« efter et spørgsmål om elbilen); (3) kendeordsreglen gjorde, at
+  »Det virkede ikke« intet fik.
+- Valgt: de tre ordregler er taget ud igen i stedet for at blive lappet en gang til. Tilbage
+  står én regel: en besked søges alene først, og et brugbart resultat bruges; finder den
+  intet, og bruger siden alle dens søgeord, søges den sammen med brugerbeskeden før.
+  Begrundelse: hver ordregel fangede sine egne eksempler og tog andre spørgsmål med sig, og
+  tre runder viste, at flere ord ikke retter det. Reglen ser nu kun på to ting, søgningen selv
+  måler: point og ukendte søgeord.
+- Valgt: ord, der peger tilbage (»den«, »det«, »og …«), afgør ikke længere noget. Målt (på
+  indekset før de seks nyeste sider) fik opfølgninger de samme sider med og uden dem, mens de
+  lod spørgsmål om andet med »det« i få det gamle emnes sider: 48 af 96 danske spørgsmål om
+  andet var uden kilder med ordene, 60 uden dem.
+- Valgt: en ren afslutning søges der ikke efter. Den kendes på, at beskeden ikke har et
+  spørgsmålstegn og kun består af afslutningsord (tak, farvel, hilsen, »fint«) og fyld omkring
+  dem. Begrundelse: et takkeord et sted i beskeden var for bredt; nu gør ét andet ord beskeden
+  til noget, der søges efter. »Ja« og »nej« er ikke afslutninger: de svarer på noget,
+  assistenten spurgte om, og skal have emnets sider.
+- Pris, kendt: et spørgsmål om andet, hvor siden bruger alle ordene (»Hvad er klokken?«,
+  »Hvad er 12 gange 12?«), tæller som opfølgning og får det gamle emnes kilder. Rækken er
+  dårligere end før (60 mod 66 af 96 danske uden kilder, 40 mod 55 af 80 engelske). Valgt
+  alligevel, fordi opfølgningerne er meget bedre (57 mod 9 af 84 danske, 66 mod 6 af 80
+  engelske; bare fortsættelser 54 mod 0 af 60 og 47 mod 2 af 50), og fordi en forkert kilde
+  ved et spørgsmål om andet koster mindre end et svar uden sider på »Hvorfor?«.
+- Pris, kendt: en opfølgning med ét ord, siden ikke bruger (»Den blinkede bare rødt«), søges
+  ikke sammen med beskeden før. Modellen har stadig hele samtalen.
+- Fravalgt: at beholde »den« først med flere undtagelser. Fravalgt: at lade ord, der peger
+  tilbage, tilsidesætte de ukendte søgeord; det gav kilder til spørgsmål om andet.
+- Kontrolleret: gennemgangens egne 1.281 samtaler (696 danske, 585 engelske) kørt mod det
+  byggede indeks med ny og gammel kode; dens 15 fejleksempler (14 falder nu som ønsket, »Den
+  blinkede bare rødt« får intet); 46 fejl sat ind i koden én ad gangen, og testene fejler på
+  dem alle; `npm run site:test`. Tal og grænser: `docs/assistent.md`, "Målt med samtaler".
+
+### B62, tilføjelse efter den fjerde gennemgang af søg først (2026-11-14)
+
+Denne tilføjelse afløser reglerne om opfølgninger i de tre tilføjelser ovenfor.
+
+- Fundet af gennemgangen, blokerende. Begge fejl kom af reglen »finder beskeden intet alene,
+  og bruger siden alle dens søgeord, søges den sammen med brugerbeskeden før«: (1) et nyt emne
+  lige under pointgrænsen (»Hvordan styrer jeg min garageport?«, 11,81 point) fik det
+  tidligere spørgsmåls sider, i 55 af gennemgangens 240 samtaler med et nyt emne; (2)
+  afslutninger og spørgsmål om assistenten i andre ord end listens (»Tak for din hjælp«,
+  »Hvem er du?«, »👍«) fik det tidligere emnes kilder.
+- Målt, før der blev valgt: på gennemgangens egne beskeder skiller hverken bedste point,
+  antallet af søgeord eller hvor mange stykker af siden der bruger hvert ord, en opfølgning
+  fra et nyt emne eller en afslutning. »Kan du uddybe?« og »Hvem er du?« ser ens ud for
+  indekset. Fire runder har vist det samme på hver sin måde.
+- Valgt: en besked søges altid alene og højst én gang, og siderne fra et tidligere spørgsmål
+  gives aldrig til en senere besked. Begrundelse: det er den eneste regel, hvis fejl altid er
+  den samme og den mildeste, nemlig et svar uden kilder. Et link til en side om noget andet
+  under et »Tak« eller et nyt spørgsmål koster læserens tillid; en manglende kilde gør ikke.
+- Valgt: en senere besked uden sider får sin egen tilstand i prompten (`continued`). Modellen
+  får at vide, at der ikke er givet en side til den seneste besked: fortsætter den samtalen,
+  svares der ud fra samtalen, uden at noget nyt fremstilles som kommende fra SmartBolig;
+  spørger den om noget nyt, svares der ud fra bred viden. Begrundelse: teksten til en første
+  besked (»der blev ikke fundet en relevant side«) passer ikke på »Kan du uddybe?«, hvor
+  modellen lige har svaret ud fra sidens uddrag.
+- Valgt: afslutningsordene og fyldet omkring dem står ord for ord i testen. Flere fyldord er
+  kommet til efter gennemgangens egne afslutninger (din, dit, svar, og, jeg, vil, prøve,
+  your, and, try m.fl.).
+- Pris, kendt: en opfølgning uden eget emne får ingen nye uddrag og ingen kildelinks: 356 af
+  524 danske og 340 af 485 engelske opfølgningssamtaler i målingen. Den forrige regel gav
+  åbningens sider til en opfølgning uden »den« eller »det« i 57 af 84 danske og 66 af 80
+  engelske samtaler. Modellen har stadig hele samtalen, også sit eget svar, og kilderne under
+  det tidligere svar står der stadig.
+- Pris, kendt: en opfølgning, der selv når grænsen (»Hvad koster det cirka?«), får sider om
+  sine egne ord, ikke nødvendigvis om åbningens emne.
+- Fravalgt: endnu en ordregel eller en grænse på point, antal søgeord eller ordenes
+  sjældenhed. Målingen ovenfor viser, at ingen af dem skiller de tre slags beskeder ad.
+- Fravalgt nu, muligt senere: at lade modellen skrive søgeteksten til en opfølgning. Det
+  koster ét modelkald mere pr. opfølgning (neuroner og ventetid) og skal måles først. Også
+  muligt: at give modellen det tidligere spørgsmåls uddrag mærket som tidligere, uden at vise
+  dem som kilder.
+- Kontrolleret: den tredje og den fjerde gennemgangs 2.261 samtaler på to beskeder (1.186
+  danske, 1.075 engelske) mod det byggede indeks: i alle viser den senere besked præcis de
+  kilder, den viser som første besked, og den søges højst én gang; 30 samtaler på tre
+  beskeder ligeså. 181 fejl sat ind i koden én ad gangen, og testene fejler på dem alle;
+  `npm run site:test`. Ikke kontrolleret før udgivelsen: hvordan den rigtige model svarer på
+  en opfølgning med den nye prompt. Tal og grænser: `docs/assistent.md`, "Målt med samtaler".
+
+### B62, tilføjelse efter den femte gennemgang af søg først (2026-11-14)
+
+- Gennemgangen fandt ingen besked, der får et tidligere spørgsmåls sider: 520 samtaler i
+  dens egne ord, også som strøm og med tre og fem beskeder, og de 2.261 kørt igen.
+- Fundet: en tak i ord, ingen liste havde set, viser en irrelevant kilde i 11 af 100 (5 af 50
+  danske, 6 af 50 engelske): »Tak, jeg vender tilbage«, »Thanks, I'll read the guide«. Det er
+  beskedens egne sider. Fyldordene var udvidet ud fra de sæt, tabellen måler på, så tabellens
+  to rækker om tak forudsagde det ikke.
+- Valgt: ikke flere fyldord og ingen ny regel. Målt: et ord fra en sidetitel i beskeden
+  skiller ikke en tak fra en anmodning med en tak i, og en regel om »tak først og intet
+  spørgsmålstegn« tager anmodninger som »Mange tak, kan du også vise hvordan jeg opdager en
+  vandlækage« med sig. Tallet står i dokumentationen som en kendt grænse. Den rigtige
+  rettelse er den samme som for opfølgninger: at modellen selv siger, hvad der skal søges
+  efter.
+- Valgt: »HA« med store bogstaver er Home Assistant og gør en besked uden spørgsmålstegn til
+  noget, der søges efter. Før blev »Hej, jeg skal have hjælp med HA« læst som en hilsen, fordi
+  »ha« er fyld i »Ha en god dag«. Pris: »Tak, HA virker nu« og et grin (»HA HA, tak«) søges
+  og får kilder. Undtagelse: i en besked, der står helt med store bogstaver, siger »HA«
+  intet, så »TAK HA DET GODT« stadig er en afslutning; det er »HEJ, HJÆLP MED HA« så også.
+- En kort uafhængig kontrol af netop disse rettelser fandt én fejl, i dokumentationen:
+  undtagelsen for store bogstaver stod ingen steder. Den står nu de tre steder, reglen er
+  beskrevet. Kontrollen sammenlignede den gamle og den nye `isClosing` på 4.696 beskeder fra
+  de tidligere gennemgange og 400.000 tilfældige: hver forskel er »HA« som helt ord i en
+  besked med blandede bogstaver eller et sammensat bogstav. Tre små huller i testene er
+  lukket (»HA« inde i et ord, ordlyden uden sider, et eksempel uden sammensat bogstav).
+- Valgt: prompten til en senere besked uden sider siger nu, at modellen skal lægge bred viden
+  til, hvor samtalen ikke har svaret, og nævner et svar på noget, assistenten spurgte om.
+  Begrundelse: læst ordret gav den gamle tekst intet nyt til »Den blinker stadig rødt«.
+  Prompten til en første besked siger ikke længere, at der blev søgt; efter en hilsen blev der
+  ikke søgt.
+- Valgt: de to ordlister er eksporteret, og testen sammenligner dem med sine egne. Før fejlede
+  testen ikke på et ord, der blev sat ind, selv om dokumentationen sagde det.
+- Kontrolleret: fem ændringer, gennemgangen viste, at ingen test fangede (modellen får kun den
+  seneste besked; officielle kilder fra hele samtalen; en afslutning med et smart home-ord
+  søges; kun et spørgsmålstegn til sidst tæller; et nyt emne afvises), har nu hver sin test.
+  195 fejl sat ind i koden én ad gangen, og testene fejler på dem alle.
+
 ## B63. Forsiden: værktøjer med elprisen lige nu (2026-11-14)
 
 - Valgt: en sektion på forsiden efter de tre etaper med et kort, der viser elprisen i dette
@@ -918,7 +1136,7 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   (`scripts/site-workflows.test.mjs`), der kræver, at hver handling i hver workflow er låst
   til et commit, og at intet job får rettigheder, det ikke selv har nævnt.
 - Fravalgt: en udenforstående tjeneste til at starte workflowet. Den kræver et GitHub-token,
-  som ejeren skal oprette; det står på ejerens liste (punkt 10) og tages kun i brug, hvis
+  som ejeren skal oprette; det står på ejerens liste (punkt 16) og tages kun i brug, hvis
   planlagte kørsler bliver ved med at udeblive.
 - Set samme dag, efter at dette var skrevet: den første planlagte nyhedskørsel startede af sig
   selv 2026-11-14 kl. 11:43 UTC, seks minutter efter planen (11:37), og lykkedes. Planlagte
@@ -1002,9 +1220,10 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   ikke er gjort, er flyttet til `docs/redesign/STATUS.md` ("Åbent") og
   `docs/redesign/TIL-EJEREN.md`. To lister over det samme bliver uenige.
 - Valgt: `functions/_middleware.js` er slettet. Begrundelse: Workeren kører kun for `/api/*`
-  (`run_worker_first` i `wrangler.jsonc`), så filens omdirigeringer blev aldrig kørt. De
-  samme adresser står i `public/_redirects`, som Cloudflare anvender før Workeren. Nu står en
-  omdirigering ét sted. `scripts/site-redirects.test.mjs` fejler, hvis en fil under
+  (`run_worker_first` i `wrangler.jsonc`), så filens omdirigeringer af stier blev aldrig kørt.
+  De samme adresser står i `public/_redirects`, som Cloudflare anvender før Workeren. Filen
+  sendte også `www` til hoveddomænet; det gør Cloudflares Redirect Rule i zonen, før Workeren
+  ser forespørgslen (`docs/seo.md`). Nu står en omdirigering ét sted. `scripts/site-redirects.test.mjs` fejler, hvis en fil under
   `functions/` igen sender en omdirigering.
 - Valgt: det, der ligger uden for repoet, men som siden afhænger af (domæne, DNS, Cloudflares
   indstillinger, Search Console, Bing, IndexNow, konti), har sit eget dokument,
@@ -1015,8 +1234,11 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   stadig ud fra udgivelsens egne ændringer.
 - Fravalgt: at beholde planfilerne med en note om, at de er forældede. En forældet fil i roden
   bliver læst først.
-- Kontrolleret: `npm run site:test` (testen for omdirigeringer), og efter udgivelsen et udvalg
-  af gamle adresser på den levende side (`/en/legal/`, `/produkter/shelly`, `/index.html`, `/`).
+- Kontrolleret før udgivelsen: `npm run site:test` (testen for omdirigeringer). På den levende
+  side svarer `/en/legal/`, `/produkter/shelly`, `/index.html` og `/` allerede 301 fra
+  `_redirects` (set 2026-11-14, mens filen endnu lå der), og `www.smartbolig.net` svarer 301
+  til hoveddomænet, også for `/api/*`. De samme adresser ses igen efter udgivelsen
+  (`STATUS.md`, "Næste skridt").
 
 ## B68. Dokumentationen er afprøvet af læsere, der ikke kendte repoet (2026-11-14)
 
@@ -1041,5 +1263,17 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   (`--sb-brand-a`, som nu følger accentfarven), at en prøvekørsel af nyhederne skrev
   "Published" som en rigtig (den skriver nu "Dry run"), og at en kørsel uden tidspunkt i
   titlen skal placeres ud fra sit starttidspunkt.
+- Tredje runde (design og nyheder, nye opgaver): designlæseren fandt, at den nye tabel over
+  hjørnetrin var forkert (Starlights kort i en guides tekst bruger `-lg`, ikke `-md`), og at
+  den mørke sidefarve står fem steder mere, hvoraf to ikke blev holdt af en test. Tabellen er
+  rettet, og testen holder nu alle kopierne. Nyhedslæseren manglede, hvordan man ser, hvem
+  der startede en kørsel, og rækker for et rødt `slot`- og `watch`-job.
+- Fjerde runde (design og nyheder, nye læsere og nye opgaver): designlæseren svarede "ja" og
+  foreslog småting, som er skrevet ind (hvilke par kontrasttesten tester, at `-soft` og
+  `-vivid` ikke følger hovedfarven af sig selv, at billeder i en guide bruger `-md`, og
+  hvornår en ændring er et valg). Nyhedslæseren svarede "delvist": der manglede en kort
+  opskrift for "dagens udgave mangler" med den præcise kommando, en tabel over, hvad hvert
+  loft gør, når det nås, og at en reserve også holder sig i ro efter en fejlet kørsel. Det er
+  skrevet ind. Der er ikke kørt en femte runde.
 - Indholdsguiden beskrev en `200`-regel for "pæne" engelske adresser. Den bruges ikke (gamle
   engelske adresser sendes videre med 301), og afsnittet er skrevet om.

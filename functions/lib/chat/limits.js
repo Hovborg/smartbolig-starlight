@@ -12,7 +12,6 @@ export const MAX_SEARCH_RESULTS = 5;
 export const MAX_SEARCH_CHUNK_CHARS = 2_400;
 export const MAX_MODEL_TOKENS = 2_400;
 export const FALLBACK_MAX_MODEL_TOKENS = 1_600;
-export const MAX_MODEL_RUNS = 2;
 export const PRIMARY_MODEL_TIMEOUT_MS = 55_000;
 export const FALLBACK_MODEL_TIMEOUT_MS = 25_000;
 export const SEARCH_TIMEOUT_MS = 5_000;

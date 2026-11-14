@@ -4,7 +4,7 @@
 
 import { createSseDecoder } from "../../functions/lib/chat/sse-decoder.js";
 
-const STAGES = new Set(["reading", "searching", "writing", "revising"]);
+const STAGES = new Set(["searching", "writing", "revising"]);
 
 function readEvent({ event, data }) {
   if (event === "message") return data.trim() === "[DONE]" ? { type: "end" } : null;

@@ -95,16 +95,22 @@ Du får kun besked, når udgivelsen har stået stille i 3 dage (sagen med mærka
 | Et kontroltrin efter skrivningen er rødt | Udgaven bestod ikke en kvalitetskontrol. Intet er committet. | Læs trinnets log. Svæk ikke kontrollen; ret årsagen. |
 | Jobbet `deploy` er rødt | Udgaven er på `main`, men ikke udgivet. | Næste kørsel læser den indcommittede `main` (ikke arbejdsmappen), opdager at siden svarer 404 og udgiver selv. Fejlede selve push, udgives intet. |
 
-Kør manuelt: Actions → AI News → **Run workflow**. Sæt `dry_run` for at køre alt
-uden commit og udgivelse.
+Kør manuelt: GitHub → Actions → **AI News** → **Run workflow** (grenen `main`). Lad `date`
+stå tom (så bruges dags dato i København), og lad `dry_run` være slået fra for at udgive; slå
+den til for at køre alt uden commit og udgivelse. Fra en terminal:
+`gh workflow run ai-news.yml --ref main` (prøvekørsel: tilføj `-f dry_run=true`).
 
 ### Fejlsøg en kørsel fra en terminal
 
 Kommandoerne køres i en klon af repoet. Andre steder: tilføj
 `--repo Hovborg/smartbolig-starlight`.
 
-1. Se dagens kørsler. `event` er `schedule` eller `workflow_dispatch` (manuel), og titlen
-   viser tidspunktet. Hedder en kørsel kun "AI News" (kørsler før 2026-11-14 kl. 12:36 UTC),
+1. Se dagens kørsler. `event` siger, hvem der startede kørslen: `schedule` er tidsplanen,
+   `workflow_dispatch` er en person (commit'et med udgaven er altid skrevet af
+   `github-actions[bot]`, så det viser det ikke). Hvem personen var:
+   `gh api repos/Hovborg/smartbolig-starlight/actions/runs/<kørsel> --jq .triggering_actor.login`.
+   Feltet er også udfyldt for en planlagt kørsel (set 2026-11-14: repoets ejer), så se på
+   `event` først. Titlen viser tidspunktet. Hedder en kørsel kun "AI News" (kørsler før 2026-11-14 kl. 12:36 UTC),
    så brug `createdAt`: en planlagt kørsel starter fra få minutter til en halv time efter sit
    tidspunkt.
 
@@ -129,11 +135,28 @@ Kommandoerne køres i en klon af repoet. Andre steder: tilføj
 | Det ser du | Det betyder |
 |---|---|
 | `slot` grøn, `publish` sprunget over, "Not writing: run … already covered …" | En reserve, der holdt sig i ro, fordi den kørsel, den står for, startede. Normalt |
-| `publish` grøn, "Nothing published" og en af grundene i tabellen ovenfor | En dag uden udgave, eller udgaven fandtes. Normalt |
+| `publish` grøn, "Nothing published" og en grund: "already exists" (udgaven fandtes), "3 are required" (for få historier bestod), "No novel candidate" (ingen nye kilder) | En dag uden ny udgave. Normalt; se tabellen ovenfor |
 | `publish` grøn, "**Published** … fact-checked stories", `deploy` grøn | Dagens udgave er skrevet og udgivet |
-| `publish` grøn, "**Dry run: written, not published.**", `deploy` sprunget over | En prøvekørsel (`dry_run`). Intet er committet. En prøvekørsel fra før 2026-11-14 skriver "Published" som en rigtig; se på `deploy` |
+| `publish` grøn, "**Dry run: written, not published.**", `deploy` sprunget over | En prøvekørsel (`dry_run`). Intet er committet. En prøvekørsel fra før denne linje blev udgivet (2026-11-14) har den ikke: den kendes på `DRY_RUN: true` i loggens `env`-linjer og på, at `deploy` er sprunget over |
+| `slot` grøn, "Writing: the list of runs could not be read" | Spørgsmålet til GitHub fejlede. Kørslen skriver alligevel; se resten af jobbene |
+| Intet `slot`-job | En kørsel fra før 2026-11-14 kl. 12:36 UTC. Den skrev altid |
+| `watch` rød | Trinnet, der åbner eller lukker sagen `ai-news-stalled`, fejlede. Udgivelsen er ikke berørt; læs jobbets log |
 | `publish` rød (kørslen er stadig grøn), "**Failed.**" i rapporten | Et trin fejlede. Find trinnet i tabellen ovenfor |
 | Ingen kørsel for et tidspunkt | GitHub startede den ikke. Se nedenfor |
+
+### Hvis dagens udgave mangler
+
+1. Se dagens kørsler (trin 1 til 3 ovenfor). Står der "Nothing published" med en grund, er
+   dagen sprunget over med vilje: gør intet.
+2. Er der ingen kørsel, så vent på reserven (08:37 og 14:37 UTC, op til en halv time senere).
+3. Fejlede kørslen (`publish` rød), kommer reserven ikke: en reserve holder sig i ro, når
+   kørslen, den står for, er startet, også når den fejlede. Kun en afbrudt kørsel
+   (`cancelled`) tæller ikke. Fejlede morgenkørslen, prøver kørslen kl. 11:37 UTC igen; fejlede
+   den også, kommer der ikke flere forsøg den dag.
+4. Vil du have udgaven nu: `gh workflow run ai-news.yml --ref main`, eller Actions → AI News →
+   **Run workflow** med `date` tom og `dry_run` slået fra. En manuel kørsel skriver altid, og
+   dens modelkald tæller med i dagens loft (se "Hvad det koster").
+5. Følg den: `gh run watch <kørsel>`, og læs derefter jobbene og rapporten som i trin 2 og 3.
 
 **En planlagt kørsel mangler.** Forsinkelser på 5 til 30 minutter er almindelige. Mangler én
 kørsel helt, tager reserven over; mangler begge i et par, tager næste par over. Et nyt
@@ -161,8 +184,18 @@ døgn (UTC); forbrug derover koster penge. Derfor er der to lofter:
   model igen, men går til reservemodellen: hvert forsøg bogfører en ny
   reservation.
 - **Kørslen** (`scripts/lib/news-llm/limits.mjs`) stopper ved 40 kald eller
-  6.000 neurons. Den tæller kun kald, der gav svar; fejlede kald ses kun af
-  relayets dagsloft.
+  6.000 neurons. Den tæller hvert forsøg, før det sendes; neurons tælles kun
+  for kald, der gav svar, så et fejlet kalds forbrug ses kun af relayets
+  dagsloft.
+
+| Loft | Værdi | Står i | Når det nås |
+|---|---|---|---|
+| Modelkald pr. kørsel | 40 | `MAX_CALLS_PER_RUN` i `scripts/lib/news-llm/limits.mjs` | Kørslen prøver ikke flere historier (loggen: "… no further stories are attempted"). Har mindst 3 bestået, udgives de; ellers springes dagen over. Nås loftet, mens indledningen skrives, bruges den faste indledning |
+| Neurons pr. kørsel | 6.000 | `MAX_NEURONS_PER_RUN` i samme fil | Det samme |
+| Neurons pr. døgn | 8.000 | `DAILY_NEURON_BUDGET` i `workers/news-llm/wrangler.jsonc` (standardværdien står i `workers/news-llm/src/budget.js`) | Relayet svarer 429 med `daily_budget_exhausted`, og kørslen stopper på samme måde. Tælleren nulstilles kl. 00:00 UTC |
+
+Relayets tal for dagen tæller alle kald gennem det: også prøvekørsler (`dry_run`) og manuelle
+kørsler. Lofterne må ikke hæves (se `AGENTS.md`).
 
 Prisen regnes ud fra de tokens, modellen melder tilbage, gange modellens pris i
 `workers/news-llm/src/prices.js` (Cloudflares prisliste, neurons pr. million

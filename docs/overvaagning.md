@@ -6,8 +6,9 @@ og `npm run site:test` (kontrollerne, genforsøget og rapporten afprøves mod en
 workflowens rettigheder og fastlåste handlinger læses af en test). Workflowen er startet i hånden
 i GitHub Actions 2026-11-14, efter at værktøjerne var udgivet: alle 14 kontroller bestod, også
 `/api/elpris`, og der blev ikke åbnet en sag.
-Ikke kontrolleret: en planlagt kørsel (den første ventes kl. 18:23 UTC 2026-11-14), og opret-,
-kommentér- og luk-trinene for sagen.
+Trinnet, der åbner sagen, er set køre samme dag i en prøve mod en adresse, der fejler.
+Ikke kontrolleret: en planlagt kørsel (ingen var startet 2026-11-14 kl. 19:30 UTC; GitHub
+starter planlagte kørsler med forsinkelse), og kommentér- og luk-trinene for sagen.
 
 ## Kort
 

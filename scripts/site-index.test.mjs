@@ -3,14 +3,15 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createSiteSearch, INDEX_ROOT } from "../functions/lib/site-search/search.js";
+import { hasSmartHomeWord } from "../functions/lib/chat/search-need.js";
+import { createSiteSearch, INDEX_ROOT, USEFUL_SCORE } from "../functions/lib/site-search/search.js";
 import { queryTerms, shardOf, stem, terms } from "../functions/lib/site-search/tokens.js";
 import { buildIndex } from "./lib/site-index/build.mjs";
 import { chunksOf, chunksOfSite, pieces } from "./lib/site-index/chunks.mjs";
 import { splitCompound } from "./lib/site-index/compounds.mjs";
 import { decodeEntities, extractPage, sectionsOf } from "./lib/site-index/extract.mjs";
-import { PROBES } from "./lib/site-index/probes.mjs";
-import { runProbes } from "./site-index.mjs";
+import { OFF_TOPIC, ON_TOPIC, PROBES } from "./lib/site-index/probes.mjs";
+import { runProbes, runScoreProbes } from "./site-index.mjs";
 
 const page = (url, title, sections, description = "") => ({ url, title, description, sections });
 const section = (id, heading, text) => ({ id, heading, text });
@@ -90,6 +91,29 @@ test("a question becomes distinct terms without filler words", () => {
   assert.deepEqual(queryTerms("zigbeesensor"), ["zigbeesensor"]);
   assert.deepEqual(queryTerms("", "da"), []);
   assert.equal(queryTerms(Array.from({ length: 40 }, (_, i) => `ord${i}`).join(" ")).length, 10);
+});
+
+test("everyday filler gives no terms, and words the site has pages about stay", () => {
+  assert.deepEqual(queryTerms("ja tak", "da"), []);
+  assert.deepEqual(queryTerms("Hej, tak. Ok super, gerne!", "da"), []);
+  assert.deepEqual(queryTerms("Tell me a joke", "en"), ["jok"]);
+  assert.deepEqual(queryTerms("Hello, thanks, yes please", "en"), []);
+  assert.deepEqual(queryTerms("Who would it be, he or she?", "en"), []);
+  // Titles of the site's pages hold these, so a question about them keeps them.
+  for (const word of ["no", "about", "us", "her", "may", "have"]) {
+    assert.equal(queryTerms(word, word === "have" ? "da" : "en").length, 1, word);
+  }
+  assert.deepEqual(queryTerms("lys og nej", "da"), ["lys"]);
+});
+
+test("each filler word of a chat gives no term on its own", () => {
+  const FILLER = {
+    da: "hvilket hvornår hej altså gerne ja lidt nej ok okay super tak venligst",
+    en: "am could did he hello hey hi him his its just me ok okay our please she tell thank thanks them these those too very who would yes",
+  };
+  for (const [locale, words] of Object.entries(FILLER)) {
+    for (const word of words.split(" ")) assert.deepEqual(queryTerms(word, locale), [], `${locale}: ${word}`);
+  }
 });
 
 test("a term always lands in the same file, inside the range", () => {
@@ -363,6 +387,42 @@ test("the fixed questions cover both languages and point at pages of that langua
     for (const probe of PROBES[locale]) {
       assert.match(probe.page, new RegExp(`^/${locale}/.+/$`));
       assert.ok(queryTerms(probe.query, locale).length > 0);
+    }
+  }
+});
+
+/** A one-chunk index in which the word "zigbee" scores exactly `score`; none when it is null. */
+function indexScoring(score) {
+  return new Map([
+    ["meta.json", JSON.stringify({ v: 1, shards: 1, chunks: 1, chunksPerFile: 8 })],
+    ["t/0.json", JSON.stringify(score === null ? {} : { [stem("zigbee")]: [0, Math.round(score * 100)] })],
+    ["c/0.json", JSON.stringify([{ u: "/da/a/zigbee/", t: "Zigbee", h: "", x: "Zigbee er en protokol." }])],
+  ]);
+}
+
+test("the build holds the score line: off-topic questions stay below it, on-topic ones reach it", async () => {
+  const questions = { offTopic: ["zigbee"], onTopic: [] };
+  const onTopic = { offTopic: [], onTopic: ["zigbee"] };
+
+  assert.equal(USEFUL_SCORE, 12);
+  assert.deepEqual(await runScoreProbes(indexScoring(11.99), "da", questions), []);
+  assert.deepEqual(await runScoreProbes(indexScoring(null), "da", questions), []);
+  assert.deepEqual(await runScoreProbes(indexScoring(12), "da", questions), [{ query: "zigbee", score: 12, rule: "below" }]);
+
+  assert.deepEqual(await runScoreProbes(indexScoring(12), "da", onTopic), []);
+  assert.deepEqual(await runScoreProbes(indexScoring(11.99), "da", onTopic), [{ query: "zigbee", score: 11.99, rule: "at least" }]);
+  assert.deepEqual(await runScoreProbes(indexScoring(null), "da", onTopic), [{ query: "zigbee", score: 0, rule: "at least" }]);
+});
+
+test("the score questions cover both languages and are questions the site search is not forced for", () => {
+  for (const locale of ["da", "en"]) {
+    assert.ok(OFF_TOPIC[locale].length >= 4);
+    assert.ok(ON_TOPIC[locale].length >= 3);
+    // An off-topic question may be all filler ("ja tak"): it then has no terms and scores 0.
+    for (const query of ON_TOPIC[locale]) assert.ok(queryTerms(query, locale).length > 0, query);
+    for (const query of [...OFF_TOPIC[locale], ...ON_TOPIC[locale]]) {
+      // A smart home word forces the search whatever it scores, so it would measure nothing.
+      assert.equal(hasSmartHomeWord(query), false, query);
     }
   }
 });

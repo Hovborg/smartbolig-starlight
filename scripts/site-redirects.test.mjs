@@ -138,6 +138,6 @@ test("redirects live in public/_redirects only: the Worker sends none", () => {
   assert.ok(files.length > 0);
   for (const name of files) {
     const source = readFileSync(new URL(`functions/${name.replaceAll("\\", "/")}`, root), "utf8");
-    assert.doesNotMatch(source, /Response\.redirect|["']location["']/i, `functions/${name} sends a redirect; write the rule in public/_redirects`);
+    assert.doesNotMatch(source, /Response\.redirect|\blocation\b|\bstatus:\s*30[1278]\b/i, `functions/${name} sends a redirect; write the rule in public/_redirects`);
   }
 });
