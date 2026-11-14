@@ -14,7 +14,7 @@ export default {
       link: "/sikkerhed/fjernadgang/",
     },
     {
-      label: "Backup & Sikkerhed",
+      label: "Backup og sikkerhed",
       translations: { en: "Backup & Security" },
       link: "/home-assistant/backup-sikkerhed/",
     },
