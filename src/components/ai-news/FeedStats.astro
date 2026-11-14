@@ -14,7 +14,7 @@ const { copy, locale, issueCount, latestSourceCount, totalSourceCount } = Astro.
 const issueLabel = issueCount === 1 ? copy.issueCount : copy.issueCountPlural;
 ---
 
-<div class="feed-stats" aria-label={locale === "da" ? "AI-nyheder status" : "AI News status"}>
+<div class="feed-stats" role="group" aria-label={locale === "da" ? "AI-nyheder status" : "AI News status"}>
   <div>
     <strong>{issueCount}</strong>
     <span>{issueLabel}</span>

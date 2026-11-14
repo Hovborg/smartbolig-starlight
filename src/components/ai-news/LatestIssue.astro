@@ -17,7 +17,7 @@ const { issue, copy, locale } = Astro.props;
   <IssueMeta issue={issue} copy={copy} locale={locale} />
   <h3>{copy.latest}: <a href={issue.href}>{issue.title}</a></h3>
   <p>{issue.description}</p>
-  <div class="provider-strip" aria-label={locale === "da" ? "Dækkede områder" : "Covered areas"}>
+  <div class="provider-strip" role="group" aria-label={locale === "da" ? "Dækkede områder" : "Covered areas"}>
     {issue.providers.map((provider) => <span>{provider}</span>)}
   </div>
 </article>

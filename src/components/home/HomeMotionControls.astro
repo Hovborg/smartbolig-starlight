@@ -14,7 +14,7 @@ const { copy } = Astro.props;
   data-pause={copy.pause}
   data-system={copy.system}
   data-manual={copy.manual}>
-  <button type="button" data-motion-toggle aria-pressed="false">{copy.start}</button>
+  <button type="button" data-motion-toggle>{copy.start}</button>
   <span data-motion-status></span>
   <button type="button" data-motion-system hidden>{copy.reset}</button>
 </div>

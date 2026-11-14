@@ -29,6 +29,10 @@ export const assistantCopy = {
     intro:
       'Få hjælp til fejlsøgning, arkitektur og konkrete konfigurationer. Jeg bruger bred AI-viden og finder SmartBolig-guides, når de gør svaret bedre.',
     capabilities: 'Fagområder',
+    capabilityAutomations: 'Automationer',
+    capabilityFirmware: 'Firmware',
+    capabilityDevices: 'Enheder',
+    capabilityInfrastructure: 'Infrastruktur',
     newChat: 'Ny samtale',
     close: 'Luk assistenten',
     suggestions: 'Prøv et godt udgangspunkt',
@@ -95,6 +99,10 @@ export const assistantCopy = {
     intro:
       'Get help with troubleshooting, architecture and concrete configuration. I use broad AI knowledge and find SmartBolig guides when they improve the answer.',
     capabilities: 'Areas of expertise',
+    capabilityAutomations: 'Automations',
+    capabilityFirmware: 'Firmware',
+    capabilityDevices: 'Devices',
+    capabilityInfrastructure: 'Infrastructure',
     newChat: 'New chat',
     close: 'Close the assistant',
     suggestions: 'Start with a useful question',
