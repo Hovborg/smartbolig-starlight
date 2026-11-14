@@ -26,6 +26,12 @@ function harness(queue) {
 }
 const call = (chat, extra = {}) => chat({ model: "m", system: "S", user: "U", ...extra });
 
+test("the relay's daily total is passed on with the answer", async () => {
+  const body = { choices: [{ message: { content: "hi" }, finish_reason: "stop" }], usage: { neurons: 2 }, budget: { spent: 40, limit: 8000 } };
+  const { chat } = harness([new Response(JSON.stringify(body), { status: 200 })]);
+  assert.deepEqual(await call(chat), { text: "hi", usage: { neurons: 2 }, budget: { spent: 40, limit: 8000 } });
+});
+
 test("the http provider needs a url and a key", () => {
   assert.throws(() => createHttpChat({ url: "", key: KEY }), /required/);
   assert.throws(() => createHttpChat({ url: URL_, key: "" }), /required/);
@@ -34,7 +40,7 @@ test("the http provider needs a url and a key", () => {
 test("a request carries the bearer header and a bounded OpenAI style body", async () => {
   const { chat, requests } = harness([answer("hello")]);
   const result = await call(chat);
-  assert.deepEqual(result, { text: "hello", usage: { neurons: 7 } });
+  assert.deepEqual(result, { text: "hello", usage: { neurons: 7 }, budget: null });
   const { url, init } = requests[0];
   assert.equal(url, URL_);
   assert.equal(init.method, "POST");
@@ -111,7 +117,7 @@ test("finish_reason length is an error", async () => {
 
 test("usage is null when the endpoint sends none", async () => {
   const { chat } = harness([new Response(JSON.stringify({ choices: [{ message: { content: "ok" } }] }))]);
-  assert.deepEqual(await call(chat), { text: "ok", usage: null });
+  assert.deepEqual(await call(chat), { text: "ok", usage: null, budget: null });
 });
 
 test("the key never appears in any thrown error message", async () => {

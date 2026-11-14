@@ -31,6 +31,23 @@ export function outcome(result, writeOutcome) {
   return result.status === "publish" ? "publish" : "skip";
 }
 
+// What each model answered and cost, and the relay's total for the day.
+function usageLines(result) {
+  const lines = [];
+  const models = Object.entries(result?.byModel || {});
+  if (models.length > 0) {
+    lines.push("", "| Model | Answers | Input tokens | Output tokens | Neurons |", "|---|---|---|---|---|");
+    for (const [model, row] of models) {
+      const cells = [row?.answers, row?.inputTokens, row?.outputTokens, row?.neurons].map((value) => Math.round(Number(value) || 0));
+      lines.push(`| ${plain(model, 80)} | ${cells.join(" | ")} |`);
+    }
+  }
+  if (result?.budget) {
+    lines.push("", `Relay budget today: ${Math.round(Number(result.budget.spent) || 0)} of ${Math.round(Number(result.budget.limit) || 0)} neurons used.`);
+  }
+  return lines;
+}
+
 export function renderReport(result, status) {
   const lines = [`## AI News ${plain(result?.date || "", 10)}`.trim(), ""];
   if (status === "failed") {
@@ -43,6 +60,7 @@ export function renderReport(result, status) {
   if (result?.calls !== undefined) {
     lines.push("", `Model calls: ${Number(result.calls) || 0}. Neurons: ${Number(result.neurons) || 0}.`);
   }
+  lines.push(...usageLines(result));
   const dropped = Array.isArray(result?.dropped) ? result.dropped : [];
   if (dropped.length > 0) {
     lines.push("", "### Dropped by the fact check", "");
@@ -59,8 +77,9 @@ async function main() {
   const result = resultPath && existsSync(resultPath) ? JSON.parse(await readFile(resultPath, "utf8")) : null;
   const status = outcome(result, process.env.WRITE_OUTCOME);
   const report = renderReport(result, status);
+  // The same text goes to the step log, so it can be read with `gh run view --log`.
+  process.stdout.write(report);
   if (process.env.GITHUB_STEP_SUMMARY) await appendFile(process.env.GITHUB_STEP_SUMMARY, report, "utf8");
-  else process.stdout.write(report);
   if (process.env.GITHUB_OUTPUT) await appendFile(process.env.GITHUB_OUTPUT, `status=${status}\n`, "utf8");
 }
 

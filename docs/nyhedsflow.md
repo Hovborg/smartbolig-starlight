@@ -48,8 +48,12 @@ Den blokerer ikke næste dag: der gemmes ingen tilstand mellem kørsler.
 ## Hvor ser jeg, hvad der skete
 
 Ét sted: GitHub → Actions → **AI News** → den enkelte kørsel → **Summary**.
-Den viser udgivet/sprunget over/fejlet, antal modelkald og neurons, og hvilke
-historier faktatjekket kasserede med begrundelse.
+Den viser udgivet/sprunget over/fejlet, antal modelkald og neurons, forbruget pr.
+model (svar, tokens ind og ud, neurons), relayets samlede forbrug for dagen, og
+hvilke historier faktatjekket kasserede med begrundelse.
+
+Samme tekst står i loggen for trinnet "Report the outcome", så den også kan
+læses fra en terminal: `gh run view <kørsel> --log`.
 
 Du får kun besked, når udgivelsen har stået stille i 3 dage (sagen med mærkatet
 `ai-news-stalled`), eller hvis selve udgivelsen til Cloudflare fejler.
