@@ -1,0 +1,219 @@
+---
+title: Read your electricity meter in Home Assistant via the HAN port
+description: Read your power use live from the meter's HAN port, get the port opened and the keys from your grid company, and show it in the Home Assistant Energy dashboard.
+lastUpdated: 2026-11-14
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+The meter's own port can give you readings several times a minute, so you can
+see what a hob or a heat pump draws while it happens. The industry standard
+requires the port to send at least every 10 seconds. This guide takes you from
+the meter's port to the Home Assistant Energy dashboard.
+
+You get a live power value and a cumulative energy counter that Energy can use.
+You need a meter with an open port, a reader, an ESP32 or another reader that
+Home Assistant can talk to, and some patience with the grid company; Flow Elnet
+states 1 to 2 weeks. Home Assistant must already be running; see
+[Getting Started](/en/home-assistant/kom-godt-i-gang/) if not.
+
+## What the HAN port is
+
+The port has different names depending on country and source. The Green Power
+Denmark [industry standard](https://greenpowerdenmark.dk/files/media/document/Branchestandard-for-fjernaflaeste-elmaaleres-eksterne-port.pdf)
+lists H1 port, P1 port (Dutch) and HAN port (Norwegian) as names for the same
+customer interface, and uses H1 itself. Here we call it the HAN port.
+
+Under [section 7 of the Danish meter order](https://ens.dk/media/447/download)
+you have the right to connect external devices to the remotely read meter using
+open standards and to take out consumption data continuously. The Danish Energy
+Agency writes that the grid company must hand out the keys that fit the software
+in the meter that gives you access to your data. The physical design and the
+specific standard are chosen by the grid company, so your meter may differ from
+the examples here.
+
+The standard recommends that the port only sends data to you, at least every
+10 seconds, and that it can be encrypted. It also recommends that the port is
+off by default and that first activation costs you nothing. That is an
+industry norm, not a promise from your grid company; read their own terms. The
+figures are also statistical, not billing values.
+
+<Aside type="caution" title="Port and module are not the same on every meter">
+At some grid companies the port sits under the meter's cover and you must buy a
+module that fits the meter type. Ask the module supplier which key type and
+connector it uses before you order anything.
+</Aside>
+
+## Choose a reader
+
+| Solution | Suits | You maintain |
+|---|---|---|
+| Ready-made reader with a Home Assistant integration | You want it simple | The maker's firmware and support |
+| ESP32 with ESPHome and an adapter | You want to build and control everything | Config file, key and ESPHome updates |
+| Home Assistant's DSMR integration | Dutch, Belgian, Luxembourg or Swedish DSMR meters | Not documented for Denmark |
+
+Home Assistant's [DSMR integration](https://www.home-assistant.io/integrations/dsmr/)
+does not mention Denmark, and Swedish meters with a HAN port are not supported.
+Check a ready-made reader's own documentation for your meter type and grid
+company before you buy it; this guide cannot know which ones work for you.
+
+The DIY route uses the ESPHome
+[DLMS Meter](https://esphome.io/components/sensor/dlms_meter/) component. It only
+listens and decodes the packets the meter's port sends. It documents a setup
+for Kamstrup Omnipower and mentions Landis+Gyr and others. ESPHome recommends an
+ESP32 because an ESP8266 is not suited to large packets, and it requires an
+adapter (for example M-Bus to UART) between the meter and the ESP.
+
+## Step by step
+
+<Steps>
+1. **Find your meter type and your grid company**
+
+   The grid company owns the meter and delivers power to the house; it is not
+   necessarily the company you buy electricity from. Find the grid company's
+   page about meters. Flow Elnet, for example, has a
+   [page on getting data](https://flow-elnet.dk/hent-data-fra-din-maaler) per
+   meter type.
+
+2. **Ask for the port to be opened and for keys**
+
+   Use the grid company's form. Radius Elnet describes that you
+   [order an encryption key](https://radiuselnet.dk/din-tilslutning/bestil-krypteringsnoegle/)
+   once you have bought a module, and that you receive one or two codes by
+   email. Flow Elnet writes that the port on newer meters is closed from the
+   factory and that they open it or email a code, which according to the page
+   takes 1 to 2 weeks. Radius' form asks for things such as the customer
+   (aftagenummer) and meter numbers. Prices and deadlines differ; check with
+   your own company.
+
+3. **Connect the reader**
+
+   Fit the module following the supplier's instructions. For ESPHome you wire
+   the adapter to a UART on your ESP32.
+
+4. **Configure the reader**
+
+   You need the baud rate and connector from the supplier; ESPHome says the UART
+   settings depend on your meter. Keep the key in a private configuration file,
+   never in a public repository.
+
+5. **Add the device in Home Assistant**
+
+   Go to **Settings → Devices & services**. A discovered ESPHome device appears
+   as a card. Otherwise choose **Add Integration → ESPHome** and enter the host
+   name or IP address. See the
+   [ESPHome integration](https://www.home-assistant.io/integrations/esphome/).
+
+6. **Add the meter to Energy**
+
+   Under **Settings → Dashboards → Energy** choose **Add grid connection** and
+   select the energy sensor for consumption from the grid and, if you have it,
+   for export. Do not select a power sensor as energy without following
+   [Energy Dashboard](/en/home-assistant/energy-dashboard/).
+</Steps>
+
+### ESPHome example
+
+This follows ESPHome's own examples. Everything in capitals must be replaced;
+the key, pins and baud rate come from the grid company and the module supplier.
+
+```yaml
+uart:
+  id: uart_dlms_bus
+  rx_pin: GPIOXX
+  baud_rate: BAUD_RATE_FROM_SUPPLIER
+
+dlms_meter:
+  id: dlms_meter_hub
+  uart_id: uart_dlms_bus
+  decryption_key: "YOUR_32_CHAR_HEX_KEY"
+  # auth_key: "YOUR_AUTH_KEY"   # only if your grid company requires it
+
+sensor:
+  - platform: dlms_meter
+    dlms_meter_id: dlms_meter_hub
+    obis_code: "1.0.1.8.0.255"
+    name: "Energy from grid"
+    unit_of_measurement: "kWh"
+    accuracy_decimals: 3
+    device_class: energy
+    state_class: total_increasing
+
+  - platform: dlms_meter
+    dlms_meter_id: dlms_meter_hub
+    obis_code: "1.0.1.7.0.255"
+    name: "Power from grid"
+    unit_of_measurement: "kW"   # the standard specifies kW; check against the log
+    device_class: power
+    state_class: measurement
+```
+
+ESPHome shows `1.0.1.8.0.255` as energy consumed and `1.0.1.7.0.255` as active
+power taken from the grid. The industry standard's table also lists export (2.8.0
+and 2.7.0). Write the export code in the same format and check it in the log
+before you trust it. The standard specifies power in kW; set the unit to match
+what the log shows. Keep `logger` at `VERBOSE` only during setup.
+
+ESPHome states that the old predefined keys such as `voltage_l1` and the
+`provider` option are deprecated and removed in 2026.11.0. Use `obis_code`.
+
+## Test it
+
+1. Open the new device in Home Assistant. Power and energy should update every
+   few seconds, and neither may show `unavailable`.
+2. Switch on a known load, for example a 2 kW kettle. Power should rise by about
+   that amount and fall when you switch it off.
+3. Compare with the meter display: note the kWh counter in Home Assistant and on
+   the display at the same moment, wait an hour or a day, and compare the
+   change. Small differences are normal: the port sends statistical values, and
+   the grid company's billing is not the same measurement.
+4. Under **Settings → Tools → Statistics**, check that the energy sensor has
+   long-term statistics and that the Energy page draws the consumption the next
+   hour.
+
+## When no data arrives
+
+| Symptom | Possible cause | Next step |
+|---|---|---|
+| Nothing in the log | The port is still closed or the module is not activated | Ask the grid company whether the opening is done |
+| Packets arrive but values are missing | Wrong key or missing `auth_key` | Check that you use the key type the module requires |
+| Garbled or empty values | Wrong baud rate, parity or pin | Fix the UART per the supplier; set `logger` to `VERBOSE` temporarily |
+| Large packets are lost | ESP8266 or too small a buffer | Use an ESP32; the UART page mentions `rx_buffer_size` for large payloads |
+| The sensor cannot be chosen in Energy | `device_class` or `state_class` missing | Set them as in the example and wait for statistics |
+| Data suddenly stopped | The port may have been deactivated, for example at a change of customer | Ask the grid company to restore the port |
+
+If consumption is doubled or negative in Energy, see
+[troubleshooting in Energy Dashboard](/en/home-assistant/energy-dashboard/).
+
+## Undo
+
+Remove the grid connection under **Settings → Dashboards → Energy**, delete the
+ESPHome device under **Devices & services**, and take the reader out of the
+port. History in Home Assistant is unchanged. If the port should be closed,
+ask the grid company to deactivate it; if a key has sat in a file that has been
+shared, ask for it to be replaced.
+
+<CardGrid>
+  <Card title="Next steps" icon="rocket">
+    Validate the numbers in [Energy Dashboard](/en/home-assistant/energy-dashboard/) and add [electricity prices](/en/home-assistant/elpris-integration/).
+  </Card>
+  <Card title="Metering overview" icon="setting">
+    Compare other ways to measure in [energy management](/en/produkter/energistyring/).
+  </Card>
+</CardGrid>
+
+## Official sources
+
+Sources reviewed on 14 November 2026. Grid company terms, prices and deadlines
+change; check them with your own company.
+
+- [Danish Energy Agency: interpretation of section 7 of the meter order](https://ens.dk/media/447/download)
+- [Green Power Denmark: industry standard for the meter's external port](https://greenpowerdenmark.dk/files/media/document/Branchestandard-for-fjernaflaeste-elmaaleres-eksterne-port.pdf)
+- [Radius Elnet: order an encryption key](https://radiuselnet.dk/din-tilslutning/bestil-krypteringsnoegle/)
+- [Flow Elnet: get data from your meter](https://flow-elnet.dk/hent-data-fra-din-maaler)
+- [ESPHome: DLMS Meter](https://esphome.io/components/sensor/dlms_meter/) and [UART](https://esphome.io/components/uart/)
+- [Home Assistant: ESPHome](https://www.home-assistant.io/integrations/esphome/), [DSMR](https://www.home-assistant.io/integrations/dsmr/) and [Energy: electricity grid](https://www.home-assistant.io/docs/energy/electricity-grid/)
