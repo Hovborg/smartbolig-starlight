@@ -89,7 +89,8 @@ diagrammer og rettelser i de gamle.
 - **Tilgængelighed.** SVG-filen har `role="img"`, `lang`, en `<title>` og en `<desc>` på sit eget
   sprog. Alt-teksten i MDX-filen siger, hvad diagrammet viser (hvilket ben går hvor), ikke kun
   "diagram".
-- **Teknik.** Kun `viewBox` (ingen `width` og `height`), `font-family="system-ui, sans-serif"`,
+- **Teknik.** Kun `viewBox` (ingen `width` og `height`), `font-family="system-ui, sans-serif"`
+  (ben og kode må stå i `ui-monospace, Menlo, Consolas, monospace`),
   ingen eksterne skrifter, scripts, rasterbilleder eller links til andre værter, og ingen emoji
   (de ser forskellige ud fra system til system).
 - **Se det som billede.** Åbn filen i en browser i 328 og 720 px bredde på mørk og lys baggrund,

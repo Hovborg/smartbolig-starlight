@@ -10,7 +10,7 @@ import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/sta
 
 Shelly Wall Display (model SAWD1) is a 4" touchscreen with built-in sensors and relay. Shelly also has newer models (Wall Display X2, X1i, X2i and XL); this guide covers the first model. It can show Home Assistant dashboards directly on the screen - perfect as a control panel in kitchen, hallway or bedroom.
 
-![Shelly Wall Display: a 4 inch touchscreen with built-in sensors, a 5 A relay, a dashboard and a thermostat. It needs live, neutral and ground](../../../../assets/guides/shelly-wall-display/overview-en.svg)
+![Shelly Wall Display: a 4 inch touchscreen with built-in sensors, a 5 A relay, a dashboard and a thermostat. It needs live and neutral](../../../../assets/guides/shelly-wall-display/overview-en.svg)
 
 ## 🤔 What is Shelly Wall Display?
 
@@ -40,7 +40,7 @@ Shelly Wall Display is an all-in-one solution that combines:
 - Home Assistant installation
 
 <Aside type="caution" title="Requires neutral!">
-Shelly Wall Display requires live (L), neutral (N) and ground. Older installations without neutral at the switch will NOT work.
+Shelly Wall Display requires live (L) and neutral (N). Older installations without neutral at the switch will NOT work.
 </Aside>
 
 ## ⚡ Installation
@@ -53,8 +53,10 @@ Shelly Wall Display requires live (L), neutral (N) and ground. Older installatio
 3. **Connect wires:**
    - L (live) → L terminal
    - N (neutral) → N terminal
-   - Ground → ⏚ terminal
-   - Optional switch wire → SW terminal (for built-in relay)
+   - The lamp, or whatever the built-in relay should switch → O terminal (optional)
+   - An existing switch or push button → SW terminal (optional)
+
+   The display has no ground terminal. If there is a ground wire (green/yellow) in the box, it must stay connected onwards to the lamp as before.
 4. **Mount the display** in wall box
 5. **Turn on power**
 </Steps>
