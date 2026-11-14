@@ -6,6 +6,7 @@ import { MAX_CALLS_PER_RUN, MAX_NEURONS_PER_RUN } from "./lib/news-llm/limits.mj
 import { DEFAULT_MODELS, modelsFor } from "./lib/news-llm/models.mjs";
 import { CallBudgetExceeded, createChat } from "./lib/news-llm/provider.mjs";
 import { claudeArgs, createClaudeChat } from "./lib/news-llm/provider-claude.mjs";
+import { emptyUsage, recordUsage } from "./lib/news-llm/usage-stats.mjs";
 import { silent } from "./ai-news-llm-fixtures.mjs";
 
 const baseEnv = { AI_NEWS_LLM_PROVIDER: "http", AI_NEWS_WRITER_MODELS: "w1,w2", AI_NEWS_REVIEWER_MODELS: "r1,r2" };
@@ -136,9 +137,32 @@ test("stats keep the reported tokens per model and the relay's latest daily tota
   const first = await chat(request());
   await chat(request());
   await chat(request());
-  assert.deepEqual(stats.byModel, { [first.model]: { answers: 3, inputTokens: 150, outputTokens: 30, neurons: 7 } });
+  assert.deepEqual({ ...stats.byModel }, { [first.model]: { answers: 3, inputTokens: 150, outputTokens: 30, neurons: 7 } });
   // A total that is not a number is ignored; the last good one stays.
   assert.deepEqual(stats.budget, { spent: 7, limit: 8000 });
+});
+
+test("malformed usage never becomes NaN, moves the daily total or touches Object.prototype", async () => {
+  const answers = [
+    { text: "ok", usage: { prompt_tokens: "many", completion_tokens: {}, neurons: "abc" }, budget: { spent: 9, limit: 8000 } },
+    { text: "ok", usage: { neurons: Number.NaN }, budget: { spent: null, limit: 8000 } },
+    { text: "ok", usage: { neurons: 3 }, budget: { spent: true } },
+    { text: "ok", usage: { neurons: 1 }, budget: { spent: "" } },
+  ];
+  const { chat, stats } = createChat({ env: baseEnv, call: async () => answers.shift(), log: silent });
+  for (let i = 0; i < 4; i += 1) await chat(request());
+  // The run total stays a number, so the neuron ceiling keeps working.
+  assert.equal(stats.neurons, 4);
+  assert.deepEqual(stats.budget, { spent: 9, limit: 8000 });
+
+  const usage = emptyUsage();
+  recordUsage(usage, "__proto__", { neurons: 5 }, null);
+  recordUsage(usage, "constructor", { neurons: 5 }, null);
+  assert.equal({}.answers, undefined);
+  assert.equal(Object.prototype.neurons, undefined);
+  assert.deepEqual(Object.keys(usage.byModel).sort(), ["__proto__", "constructor"]);
+  // The result file is JSON; both rows survive the round trip.
+  assert.equal(JSON.parse(JSON.stringify(usage)).byModel.constructor.neurons, 5);
 });
 
 test("maxTokens is passed through to the provider call", async () => {

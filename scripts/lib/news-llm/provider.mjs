@@ -6,7 +6,7 @@ import { MAX_CALLS_PER_RUN, MAX_NEURONS_PER_RUN } from "./limits.mjs";
 import { modelsFor } from "./models.mjs";
 import { createClaudeChat } from "./provider-claude.mjs";
 import { createHttpChat } from "./provider-http.mjs";
-import { emptyUsage, recordUsage } from "./usage-stats.mjs";
+import { emptyUsage, finite, recordUsage } from "./usage-stats.mjs";
 
 export { CallBudgetExceeded };
 
@@ -42,7 +42,8 @@ export function createChat({ env = process.env, call, http = {}, log = console.l
       if (!countsAttempts) countCall();
       try {
         const { text, usage, budget } = await send({ model, system, user, maxTokens });
-        stats.neurons += Number(usage?.neurons || 0);
+        // A malformed count must not turn the run total into NaN and switch the ceiling off.
+        stats.neurons += finite(usage?.neurons);
         recordUsage(stats, model, usage, budget);
         return { text, model };
       } catch (error) {

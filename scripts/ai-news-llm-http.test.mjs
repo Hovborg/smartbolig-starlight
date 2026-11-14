@@ -26,6 +26,12 @@ function harness(queue) {
 }
 const call = (chat, extra = {}) => chat({ model: "m", system: "S", user: "U", ...extra });
 
+test("the relay's daily total is passed on with the answer", async () => {
+  const body = { choices: [{ message: { content: "hi" }, finish_reason: "stop" }], usage: { neurons: 2 }, budget: { spent: 40, limit: 8000 } };
+  const { chat } = harness([new Response(JSON.stringify(body), { status: 200 })]);
+  assert.deepEqual(await call(chat), { text: "hi", usage: { neurons: 2 }, budget: { spent: 40, limit: 8000 } });
+});
+
 test("the http provider needs a url and a key", () => {
   assert.throws(() => createHttpChat({ url: "", key: KEY }), /required/);
   assert.throws(() => createHttpChat({ url: URL_, key: "" }), /required/);

@@ -140,6 +140,22 @@ test("the run report states the outcome and shows external text as plain text", 
   assert.match(measured, /\| evil x y \| 5 \| 0 \| 0 \| 0 \|/);
   assert.match(measured, /Relay budget today: 1502 of 8000 neurons used\./);
 
+  // The report is also printed to the step log, where a line starting with
+  // `::` or containing `##[` would be read as a workflow command.
+  const hostile = "x\n::set-output name=a::b\r::error::boom\u2028::warning::w ##[error]e";
+  const printed = renderReport({
+    date: hostile, status: "skip", reason: hostile, calls: 1, neurons: 1,
+    byModel: { [hostile]: null },
+    budget: { spent: 1, limit: 2 },
+    dropped: [{ title: hostile, reasons: [hostile] }],
+  }, "skip");
+  for (const line of printed.split(/\r|\n/)) {
+    assert.doesNotMatch(line, /^\s*::/, line);
+    assert.ok(!line.includes("##["), line);
+  }
+  // A row without numbers is shown as zeros instead of failing the report step.
+  assert.match(printed, /\| 0 \| 0 \| 0 \| 0 \|/);
+
   const skipped = renderReport({
     date: "2026-11-13",
     status: "skip",

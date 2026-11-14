@@ -38,7 +38,7 @@ function usageLines(result) {
   if (models.length > 0) {
     lines.push("", "| Model | Answers | Input tokens | Output tokens | Neurons |", "|---|---|---|---|---|");
     for (const [model, row] of models) {
-      const cells = [row.answers, row.inputTokens, row.outputTokens, row.neurons].map((value) => Math.round(Number(value) || 0));
+      const cells = [row?.answers, row?.inputTokens, row?.outputTokens, row?.neurons].map((value) => Math.round(Number(value) || 0));
       lines.push(`| ${plain(model, 80)} | ${cells.join(" | ")} |`);
     }
   }
