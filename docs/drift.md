@@ -67,7 +67,7 @@ Aflæst 2026-11-14 (kun de poster, siden bruger):
 | TXT, `_dmarc` | `p=none` med rapporter til ejeren | Overvåger kun. Bør blive `quarantine`, når DKIM er sat op |
 | DKIM | findes ikke (`google._domainkey` har ingen post) | Kræver ejerens login i Google Admin, se `TIL-EJEREN.md` |
 | TXT, `google-site-verification` | to poster | Ejerskab for Google Search Console. Slet dem ikke |
-| CNAME, `0bdcfcae392931c5e40b0021384901be` | `verify.bing.com`, uden proxy | Ejerskab for Bing Webmaster Tools. Slet den ikke |
+| CNAME med den kode, Bing Webmaster Tools viser | `verify.bing.com`, uden proxy | Ejerskab for Bing Webmaster Tools. Slet den ikke |
 | TXT, `ezoic-domain-verification` | en gammel post | Ezoic bruges ikke længere. Kan slettes af ejeren |
 
 Kontrollér en post uden Windows' DNS-cache:
@@ -115,7 +115,8 @@ andre, der bruger IndexNow, får listen; Google bruger den ikke.
 | Partner-Ads | Reklamelinks til butikker | `docs/indtjening.md` |
 | Energinet (Energi Data Service) | Elpriser til værktøjerne. Ingen konto: åbne data, CC BY 4.0 | `docs/vaerktoejer.md` |
 
-Ingen adgangskode, nøgle eller token står i repoet. Hemmelighederne til udgivelse og nyheder
+Ingen adgangskode, nøgle eller token står i repoet, undtagen IndexNow-nøglen, som skal være
+offentlig (dens fil ligger i `public/`). Hemmelighederne til udgivelse og nyheder
 ligger som GitHub Actions-hemmeligheder (`docs/sikkerhed.md`, "Hemmeligheder").
 
 ## Repoet på GitHub

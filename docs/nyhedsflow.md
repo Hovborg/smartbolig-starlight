@@ -137,8 +137,8 @@ Kommandoerne køres i en klon af repoet. Andre steder: tilføj
 | `slot` grøn, `publish` sprunget over, "Not writing: run … already covered …" | En reserve, der holdt sig i ro, fordi den kørsel, den står for, startede. Normalt |
 | `publish` grøn, "Nothing published" og en grund: "already exists" (udgaven fandtes), "3 are required" (for få historier bestod), "No novel candidate" (ingen nye kilder) | En dag uden ny udgave. Normalt; se tabellen ovenfor |
 | `publish` grøn, "**Published** … fact-checked stories", `deploy` grøn | Dagens udgave er skrevet og udgivet |
-| `publish` grøn, "**Dry run: written, not published.**", `deploy` sprunget over | En prøvekørsel (`dry_run`). Intet er committet. En prøvekørsel fra før 2026-11-15 har ikke den linje: den kendes på `DRY_RUN: true` i loggens `env`-linjer og på, at `deploy` er sprunget over |
-| `slot` rød | Spørgsmålet til GitHub fejlede. Kørslen skriver alligevel; se resten af jobbene |
+| `publish` grøn, "**Dry run: written, not published.**", `deploy` sprunget over | En prøvekørsel (`dry_run`). Intet er committet. En prøvekørsel fra før denne linje blev udgivet (2026-11-14) har den ikke: den kendes på `DRY_RUN: true` i loggens `env`-linjer og på, at `deploy` er sprunget over |
+| `slot` grøn, "Writing: the list of runs could not be read" | Spørgsmålet til GitHub fejlede. Kørslen skriver alligevel; se resten af jobbene |
 | Intet `slot`-job | En kørsel fra før 2026-11-14 kl. 12:36 UTC. Den skrev altid |
 | `watch` rød | Trinnet, der åbner eller lukker sagen `ai-news-stalled`, fejlede. Udgivelsen er ikke berørt; læs jobbets log |
 | `publish` rød (kørslen er stadig grøn), "**Failed.**" i rapporten | Et trin fejlede. Find trinnet i tabellen ovenfor |
@@ -184,8 +184,9 @@ døgn (UTC); forbrug derover koster penge. Derfor er der to lofter:
   model igen, men går til reservemodellen: hvert forsøg bogfører en ny
   reservation.
 - **Kørslen** (`scripts/lib/news-llm/limits.mjs`) stopper ved 40 kald eller
-  6.000 neurons. Den tæller kun kald, der gav svar; fejlede kald ses kun af
-  relayets dagsloft.
+  6.000 neurons. Den tæller hvert forsøg, før det sendes; neurons tælles kun
+  for kald, der gav svar, så et fejlet kalds forbrug ses kun af relayets
+  dagsloft.
 
 | Loft | Værdi | Står i | Når det nås |
 |---|---|---|---|

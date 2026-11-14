@@ -67,7 +67,12 @@ test("anything that cannot be read means write: a missed day is worse than a sec
 test("the script prints one output line and survives an empty or broken list", () => {
   const script = fileURLToPath(new URL("./ai-news-slot.mjs", import.meta.url));
   const call = (input, env) =>
-    spawnSync(process.execPath, [script], { input, encoding: "utf8", env: { ...process.env, ...env } });
+    spawnSync(process.execPath, [script], {
+      input,
+      encoding: "utf8",
+      // On a runner the real Summary file is in the environment: a test must not write to it.
+      env: { ...process.env, GITHUB_STEP_SUMMARY: "", ...env },
+    });
   const scheduled = { GITHUB_EVENT_NAME: "schedule", SCHEDULE: "37 8 * * *", GITHUB_RUN_ID: "20" };
 
   assert.equal(call(JSON.stringify([run(10, "37 4 * * *")]), scheduled).stdout, "write=false\n");

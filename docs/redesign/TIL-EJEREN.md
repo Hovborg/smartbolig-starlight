@@ -82,11 +82,16 @@ Sidst opdateret: 2026-11-14.
 6. **Henvisning til elaftaler ved elprisværktøjet.** Værktøjet viser elprisen lige nu, og
    en læser dér er tæt på at vælge elselskab. En henvisning kræver et godkendt program hos
    Partner-Ads eller et elselskab. Intet er bygget (`docs/indtjening.md`).
-7. **Gamle filer på siden og en gammel DNS-post.** `public/logo-animated.gif` (75 KB) og
-   de 22 billeder i `public/images/produkter/` (2,9 MB) og `public/images/logo-email.png`
-   (1,5 MB) bruges ikke af siden, men kan være
-   brugt udefra (mailsignatur, gamle indlæg). TXT-posten `ezoic-domain-verification` er fra
-   Ezoic, som ikke bruges mere. Sig "slet dem", så bliver det gjort.
+7. **Gamle filer på siden og en gammel DNS-post.** De 22 billeder i
+   `public/images/produkter/` (2,9 MB) og `public/images/logo-email.png` (1,5 MB) bruges ikke
+   af siden, men kan være brugt udefra (gamle indlæg). `public/logo-animated.gif` (75 KB)
+   bruges af din mailsignatur og skal blive, til signaturen er ændret. TXT-posten
+   `ezoic-domain-verification` er fra Ezoic, som ikke bruges mere. Sig "slet dem", så bliver
+   det gjort.
+   Mailsignaturen selv (`gmail-signature.html`) er taget ud af repoet 2026-11-14, fordi den
+   havde dit navn og din mailadresse i et offentligt repo. Den findes stadig i repoets
+   historik (`git show 22fface:gmail-signature.html`). Skal adressen helt væk fra GitHub, skal
+   historikken skrives om; det kan ikke fortrydes og er ikke gjort.
 
 ## Oprettet for dig
 
@@ -117,8 +122,8 @@ Sidst opdateret: 2026-11-14.
    Så længe den ligger åben, får Starlight heller ingen små rettelser (sikkerhedsrettelser
    kommer stadig). Fremgangsmåde: `docs/opdateringer.md`.
 
-13. **Assistenten er langsom til det første ord.** Der går omkring 19 sekunder, før svaret
-   begynder (målt 2026-11-14). Det er den gratis models tænketid, ikke siden. Imens viser
+13. **Assistenten er langsom til det første ord.** Der går omkring 20 sekunder, før svaret
+   begynder, og omkring 30 for en opfølgning (målt 2026-11-14). Det er den gratis models tænketid, ikke siden. Imens viser
    assistenten, hvilke sider den har fundet. En hurtigere model koster penge pr. spørgsmål
    og er ikke valgt. Tal og grænser: `docs/assistent.md`.
 

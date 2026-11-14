@@ -164,7 +164,7 @@ Sidst opdateret: 2026-11-14.
     dato pr. side, bannere til have og energi, fejl i `docs/designsystem.md` og
     `docs/3d-hus.md`. `npm run site:test` er grøn (151 tests).
   - Assistentens udseende følger designsystemet (farveværdier, lyst og mørkt tema) og er set i
-    headless Chrome ved 320, 375 og 1440 px (B62).
+    headless Chrome ved 320, 375 og 1440 px (`docs/assistent.md`).
 - **Seks nye guides:** PR #183 flettet og udgivet 2026-11-14 (`main` ce015e6):
   elmåler via HAN-port, valg af hardware, solceller og batteri, billige timer, ferietilstand,
   smart home i lejebolig. Gennemgået og rettet af en uafhængig model 2026-11-14 mod officielle
@@ -343,7 +343,9 @@ Det, der ikke er gjort. Det, kun ejeren kan gøre, står i [TIL-EJEREN.md](TIL-E
    som før-målingen i `docs/measurements/2026-11-13-baseline/README.md`, og læg tallene ved
    siden af.
 4. Tegninger til de guides, der mangler en (se "Åbent"), og guiden om Companion App.
-5. Når ejeren har udgivet samtykkebeskeden: se forløbene ja og nej på den levende side, og
+5. Efter udgivelsen af oprydningen (B67): se de gamle adresser på den levende side igen
+   (`/en/legal/`, `/produkter/shelly`, `/index.html`, `/` og `www.smartbolig.net/api/elpris`).
+6. Når ejeren har udgivet samtykkebeskeden: se forløbene ja og nej på den levende side, og
    slå den strenge CSP til.
 
 ## Udskudt fra designgennemgangen

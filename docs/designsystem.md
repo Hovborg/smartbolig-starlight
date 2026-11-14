@@ -137,13 +137,13 @@ Hjørnetrinene og hvad de bruges til (talt i `src/` 2026-11-14 med
 | Trin | Værdi | Bruges til |
 |---|---|---|
 | `--sb-radius-sm` | 0,5 rem | Små ting: felter, mærkater, links i en række, kode, punkter i sidemenuen |
-| `--sb-radius-md` | 0,875 rem | Bokse inde i brødteksten: `ProductCard`, `FAQ`, noter og tabeller (`blocks.css`), billeder i en guides tekst (`prose.css`), felter og resultater i værktøjerne, assistentens beskeder, kortet på 404-siden |
+| `--sb-radius-md` | 0,875 rem | Bokse inde i brødteksten: `FAQ`, noter og tabeller (`blocks.css`), billeder i en guides tekst (`prose.css`), felter og resultater i værktøjerne, assistentens beskeder, kortet på 404-siden |
 | `--sb-radius-lg` | 1,25 rem | Starlights kort i en guides tekst (`<Card>` og `<LinkCard>`: `.card` og `.sl-link-card` i `blocks.css`) og kort og rammer på sideniveau: forsidens kort, nyhedskortene, guidens hoved, værktøjets ramme, topbjælke og sidemenu, assistentens knap |
 | `--sb-radius-xl` | 1,75 rem | Store paneler: forsidens scene, assistentens panel |
 | `--sb-radius-pill` | 999 px | Knapper og piller |
 
 Der er ikke ét trin for "kort": Starlights kort og kort på sideniveau bruger `-lg`;
-`ProductCard`, `FAQ` og noter bruger `-md`. Et trin flytter alt, der bruger det (`-lg` også
+`FAQ` og noter bruger `-md`. Et trin flytter alt, der bruger det (`-lg` også
 topbjælken, sidemenuen og værktøjets ramme). Se, hvad en bestemt ting bruger, med
 `grep -rn "radius-" src/styles src/components`. Skal kun nogle af dem ændres, så giv dem et
 nyt trin i `scale.css` (se "Tilføj en ny farve eller størrelse"), og skriv det i tabellen.
@@ -181,7 +181,8 @@ nyt trin i `scale.css` (se "Tilføj en ny farve eller størrelse"), og skriv det
    `brand:build` skriver filerne om under `public/` (`favicon.svg`, `favicon.ico`,
    `apple-touch-icon.png`, `brand/icon/`, `brand/logo/` og `images/og-image.png`); de skal med
    i samme commit. Nyhedsbilleder, der allerede er udgivet, tegnes ikke om.
-   Farveforløbet `--sb-brand-a` følger selv accentfarven; `--sb-brand-b` er sin egen farve.
+   Farveforløbet `--sb-brand-a` følger selv accentfarven (`--sb-accent`, i mørkt tema
+   `--sb-accent-vivid`); `--sb-brand-b` er sin egen farve.
    `logo-light-…` er lys tekst på mørk baggrund og tegnes med den mørke palette
    (`public/brand/README.md`).
 4. Er det den mørke sidefarve (`--sb-bg` i mørkt tema): den står også i `--sb-stage` (begge

@@ -32,7 +32,7 @@ src/content/docs/en/products/smart-doorbell.mdx  ❌ FORKERT
 ```yaml
 ---
 title: Smart Doorbell
-description: Guide til smarte dørklokker med video og Home Assistant integration.
+description: "Guide til smarte dørklokker med video: valg af model, opsætning og integration med Home Assistant."
 sidebar:
   badge:
     text: Guide
@@ -53,7 +53,7 @@ stopper. `scripts/site-frontmatter.test.mjs` fanger det i `npm run site:test`.
 ```yaml
 ---
 title: Smart Doorbell
-description: Guide to smart doorbells with video and Home Assistant integration.
+description: "Guide to smart doorbells with video: choosing a model, setup and integration with Home Assistant."
 sidebar:
   badge:
     text: Guide
@@ -66,7 +66,7 @@ English content here...
 ### Sidebar (`config/sidebar/`)
 
 Sidemenuen har én fil pr. emne i `config/sidebar/` (fx `produkter.mjs`). Home Assistant har en
-mappe med to filer: `setup-groups.mjs` (grupperne Installation, Integrationer og Protokoller)
+mappe med tre filer: `index.mjs` (samler grupperne), `setup-groups.mjs` (grupperne Installation, Integrationer og Protokoller)
 og `operate-groups.mjs` (Automationer, Dashboard og brugerflade, System og Reference). Åbn filen, find den gruppe, hvor
 de nærmeste guides står, og tilføj siden dér med **dansk sti** og **translation**:
 
@@ -192,6 +192,7 @@ npm run site:test                 # frontmatter, billedstier, produktlinks
 python scripts/content-audit.py   # kodeblokke (YAML, JSON, bash, JavaScript), interne links, billedstier
 npm run build                     # bygger siden; stopper på et ukendt produkt-id eller ødelagt MDX
 npm run seo:validate              # efter build: beskrivelsens længde, ens titler, billeder
+# content-audit.py bruger PyYAML: pip install PyYAML
 ```
 
 `python` er Python 3; hedder den `python3` eller `py` på din maskine, så brug det navn.

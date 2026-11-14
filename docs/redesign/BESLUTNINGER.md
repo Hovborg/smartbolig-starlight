@@ -596,7 +596,8 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   sætter ingen cookies (Cloudflares egen oplysning).
 - Fjernet: cookien `preferred-lang`. Siden satte den, når læseren skiftede sprog, og Workeren
   læste den ved `/`. Nu vælger `/` sprog efter land (Danmark: dansk, ellers engelsk), og et
-  sprogskift huskes ikke dér. Sproget står i adressen, så links og bogmærker er uberørte.
+  sprogskift huskes ikke dér. (Rettet i B67: valget efter land lå i en fil, der aldrig blev
+  kørt; `/` går til `/da/` fra `public/_redirects`.) Sproget står i adressen, så links og bogmærker er uberørte.
 - CSP: de små scripts, Astro skrev ind i siden, er nu filer (`config/vite.mjs`), og de fire
   tilbageværende får en hash. Den strenge politik sendes som Report-Only, til den er set på den
   levende side med annoncer; derefter slås den til med én konstant.
@@ -1135,7 +1136,7 @@ Denne tilføjelse afløser reglerne om opfølgninger i de tre tilføjelser ovenf
   (`scripts/site-workflows.test.mjs`), der kræver, at hver handling i hver workflow er låst
   til et commit, og at intet job får rettigheder, det ikke selv har nævnt.
 - Fravalgt: en udenforstående tjeneste til at starte workflowet. Den kræver et GitHub-token,
-  som ejeren skal oprette; det står på ejerens liste (punkt 10) og tages kun i brug, hvis
+  som ejeren skal oprette; det står på ejerens liste (punkt 16) og tages kun i brug, hvis
   planlagte kørsler bliver ved med at udeblive.
 - Set samme dag, efter at dette var skrevet: den første planlagte nyhedskørsel startede af sig
   selv 2026-11-14 kl. 11:43 UTC, seks minutter efter planen (11:37), og lykkedes. Planlagte
@@ -1219,9 +1220,10 @@ Denne tilføjelse afløser reglerne om opfølgninger i de tre tilføjelser ovenf
   ikke er gjort, er flyttet til `docs/redesign/STATUS.md` ("Åbent") og
   `docs/redesign/TIL-EJEREN.md`. To lister over det samme bliver uenige.
 - Valgt: `functions/_middleware.js` er slettet. Begrundelse: Workeren kører kun for `/api/*`
-  (`run_worker_first` i `wrangler.jsonc`), så filens omdirigeringer blev aldrig kørt. De
-  samme adresser står i `public/_redirects`, som Cloudflare anvender før Workeren. Nu står en
-  omdirigering ét sted. `scripts/site-redirects.test.mjs` fejler, hvis en fil under
+  (`run_worker_first` i `wrangler.jsonc`), så filens omdirigeringer af stier blev aldrig kørt.
+  De samme adresser står i `public/_redirects`, som Cloudflare anvender før Workeren. Filen
+  sendte også `www` til hoveddomænet; det gør Cloudflares Redirect Rule i zonen, før Workeren
+  ser forespørgslen (`docs/seo.md`). Nu står en omdirigering ét sted. `scripts/site-redirects.test.mjs` fejler, hvis en fil under
   `functions/` igen sender en omdirigering.
 - Valgt: det, der ligger uden for repoet, men som siden afhænger af (domæne, DNS, Cloudflares
   indstillinger, Search Console, Bing, IndexNow, konti), har sit eget dokument,
@@ -1232,8 +1234,11 @@ Denne tilføjelse afløser reglerne om opfølgninger i de tre tilføjelser ovenf
   stadig ud fra udgivelsens egne ændringer.
 - Fravalgt: at beholde planfilerne med en note om, at de er forældede. En forældet fil i roden
   bliver læst først.
-- Kontrolleret: `npm run site:test` (testen for omdirigeringer), og efter udgivelsen et udvalg
-  af gamle adresser på den levende side (`/en/legal/`, `/produkter/shelly`, `/index.html`, `/`).
+- Kontrolleret før udgivelsen: `npm run site:test` (testen for omdirigeringer). På den levende
+  side svarer `/en/legal/`, `/produkter/shelly`, `/index.html` og `/` allerede 301 fra
+  `_redirects` (set 2026-11-14, mens filen endnu lå der), og `www.smartbolig.net` svarer 301
+  til hoveddomænet, også for `/api/*`. De samme adresser ses igen efter udgivelsen
+  (`STATUS.md`, "Næste skridt").
 
 ## B68. Dokumentationen er afprøvet af læsere, der ikke kendte repoet (2026-11-14)
 
