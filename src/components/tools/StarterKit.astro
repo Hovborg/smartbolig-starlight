@@ -1,0 +1,49 @@
+---
+// Tool: the starter kit builder. Four questions give a kit in three layers
+// and the first steps. Every part and step is built here on the server,
+// shop links included, and hidden unless the start answers show it; the
+// script below only switches `hidden` (starter-kit-ui.mjs).
+// Rules: src/lib/tools/starter-kit.mjs. Parts: starter-kit-items.mjs.
+// Texts: starter-kit-copy.mjs. Styles: src/styles/content/tools/kit*.css.
+import StarterKitParts from "./StarterKitParts.astro";
+import StarterKitQuestions from "./StarterKitQuestions.astro";
+import StarterKitSteps from "./StarterKitSteps.astro";
+import ToolFrame from "./ToolFrame.astro";
+import { starterKitCopy } from "../../lib/tools/starter-kit-copy.mjs";
+import { START_COUNTS } from "../../lib/tools/starter-kit-view.mjs";
+
+interface Props {
+  lang?: "da" | "en";
+  id?: string;
+}
+
+const lang = Astro.props.lang ?? (Astro.currentLocale === "en" ? "en" : "da");
+const id = Astro.props.id ?? "startsaet";
+const t = starterKitCopy[lang];
+---
+
+<ToolFrame id={id} title={t.title} lang={lang} noscript={t.noscript} data-tool="startsaet">
+  <StarterKitQuestions slot="form" id={id} lang={lang} />
+
+  <Fragment slot="result">
+    <p class="sb-tool-figure__label">{t.summary.title}</p>
+    <dl class="sb-tool-stats sb-kit-stats" aria-atomic="true">
+      <div><dt>{t.summary.parts}</dt><dd data-part="parts">{START_COUNTS.parts}</dd></div>
+      <div><dt>{t.summary.links}</dt><dd data-part="links">{START_COUNTS.links}</dd></div>
+      <div><dt>{t.summary.steps}</dt><dd data-part="steps">{START_COUNTS.steps}</dd></div>
+    </dl>
+  </Fragment>
+
+  <div class="sb-kit">
+    <StarterKitParts id={id} lang={lang} />
+    <StarterKitSteps id={id} lang={lang} />
+  </div>
+
+  <p slot="note">{t.note}</p>
+</ToolFrame>
+
+<script>
+  import { startStarterKit } from "../../lib/tools/starter-kit-ui.mjs";
+
+  for (const root of document.querySelectorAll('[data-tool="startsaet"]')) startStarterKit(root);
+</script>

@@ -54,6 +54,18 @@ export const TOOLS = [
       text: "Type the battery capacity, the current asleep and awake and how often the device wakes up. You see how long the battery lasts.",
     },
   },
+  {
+    slug: "startsaet",
+    icon: "kit",
+    da: {
+      title: "Byg dit startsæt",
+      text: "Svar på fire korte spørgsmål. Så ser du, hvad du skal anskaffe, hvorfor, og hvad du gør først.",
+    },
+    en: {
+      title: "Build your starter kit",
+      text: "Answer four short questions. You see what to get, why, and what to do first.",
+    },
+  },
 ];
 
 /** The words on every card that are not about one tool. */

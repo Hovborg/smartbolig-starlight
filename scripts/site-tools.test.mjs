@@ -13,6 +13,7 @@ import * as format from "../src/lib/tools/format.mjs";
 import { POWER_DEFAULTS, POWER_PRESETS, powerCopy } from "../src/lib/tools/power-copy.mjs";
 import { costPerHour, powerCost, savingPerHourLess } from "../src/lib/tools/power-cost.mjs";
 import { priceCopy } from "../src/lib/tools/price-copy.mjs";
+import { starterKitCopy } from "../src/lib/tools/starter-kit-copy.mjs";
 
 const root = new URL("../", import.meta.url);
 const NBSP = "\u00a0";
@@ -104,7 +105,7 @@ function shape(value, path = "") {
 }
 
 test("the texts have the same keys and placeholders in Danish and English", () => {
-  for (const copy of [priceCopy, powerCopy, CARD_COPY, ...TOOLS.map(({ da, en }) => ({ da, en }))]) {
+  for (const copy of [priceCopy, powerCopy, starterKitCopy, CARD_COPY, ...TOOLS.map(({ da, en }) => ({ da, en }))]) {
     assert.deepEqual(shape(copy.en), shape(copy.da));
   }
   for (const preset of POWER_PRESETS) {
@@ -169,11 +170,11 @@ test("the fields do not name a hidden error text, and the frame has one class at
     assert.doesNotMatch(markup, /aria-describedby=\{`[^`]*-error/, file);
   }
   const frame = await readFile(new URL("src/components/tools/ToolFrame.astro", root), "utf8");
-  assert.match(frame, /class: scope, \.\.\.attributes \} = Astro\.props/);
+  assert.match(frame, /class: scope, noscript: ownNoscript, \.\.\.attributes \} = Astro\.props/);
   assert.equal((frame.match(/<section[^>]*\sclass(:list)?=/g) ?? []).length, 1);
 });
 
-test("the tool pages keep claims to what their sources say, and the overview names all four tools", async () => {
+test("the tool pages keep claims to what their sources say, and the overview names all five tools", async () => {
   const read = (lang, name) => readFile(new URL(`src/content/docs/${lang}/vaerktoejer/${name}.mdx`, root), "utf8");
   for (const lang of ["da", "en"]) {
     const [zigbee, battery, index] = await Promise.all([read(lang, "zigbee-kanal"), read(lang, "batterilevetid"), read(lang, "index")]);
@@ -185,11 +186,15 @@ test("the tool pages keep claims to what their sources say, and the overview nam
     assert.match(zigbee, lang === "da" ? /ZHA anbefaler kun 15, 20 og 25, både fordi[^.]*og fordi ikke alle/ : /ZHA only recommends 15, 20 and 25, both because[^.]*and because not all/);
     assert.match(battery, /Active \(RF working\)/);
     const description = index.match(/^description: (.*)$/m)[1];
-    for (const word of lang === "da" ? ["elpris", "tændt", "Zigbee", "batteri"] : ["electricity price", "keep on", "Zigbee", "battery"]) {
+    for (const word of lang === "da" ? ["elpris", "tændt", "Zigbee", "batteri", "startsæt"] : ["electricity price", "keep on", "Zigbee", "battery", "starter kit"]) {
       assert.ok(description.toLowerCase().includes(word.toLowerCase()), `${lang} overview description misses ${word}`);
     }
   }
   const [da, en] = await Promise.all(["da", "en"].map((lang) => readFile(new URL(`src/lib/home-copy/${lang}.ts`, root), "utf8")));
-  assert.match(da.match(/intro: "Små beregnere[^"]*"/)[0], /Zigbee/);
-  assert.match(en.match(/intro: "Small calculators[^"]*"/)[0], /Zigbee/);
+  const intro = { da: da.match(/intro: "Små værktøjer, der regner[^"]*"/)[0], en: en.match(/intro: "Small tools that do the sums[^"]*"/)[0] };
+  for (const text of Object.values(intro)) assert.match(text, /Zigbee/);
+  assert.match(intro.da, /batteri/);
+  assert.match(intro.da, /købe først/);
+  assert.match(intro.en, /battery/);
+  assert.match(intro.en, /buy first/);
 });

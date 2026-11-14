@@ -1,0 +1,65 @@
+---
+// The questions of the starter kit builder: goals (several may be chosen),
+// owner or tenant, what the reader has, and DIY or not. The start answers
+// are DEFAULT_ANSWERS; the script reads the answers back from this markup.
+import { DEFAULT_ANSWERS, GOALS, HAVES, HOMES } from "../../lib/tools/starter-kit-items.mjs";
+import { starterKitCopy } from "../../lib/tools/starter-kit-copy.mjs";
+
+interface Props {
+  id: string;
+  lang: "da" | "en";
+}
+
+const { id, lang } = Astro.props;
+const t = starterKitCopy[lang];
+const start = DEFAULT_ANSWERS;
+---
+
+<div class="sb-tool-field" role="group" aria-labelledby={`${id}-goals`}>
+  <p class="sb-tool-field__label" id={`${id}-goals`}>{t.goals.label}</p>
+  <ul class="sb-tool-chips" role="list">
+    {GOALS.map((goal) => (
+      <li>
+        <button type="button" class="sb-tool-chip sb-kit-goal" aria-pressed={String(start.goals.includes(goal))} data-goal={goal}>
+          <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+            <rect x="1.25" y="1.25" width="13.5" height="13.5" rx="4" />
+            <path d="m4.5 8.3 2.3 2.3 4.7-5.1" />
+          </svg>
+          {t.goals[goal]}
+        </button>
+      </li>
+    ))}
+  </ul>
+  <p class="sb-tool-field__hint">{t.goals.hint}</p>
+</div>
+
+<fieldset class="sb-tool-field">
+  <legend class="sb-tool-field__label">{t.home.label}</legend>
+  <div class="sb-tool-segment">
+    {HOMES.map((home) => (
+      <label><input type="radio" name={`${id}-home`} value={home} checked={home === start.home} /><span>{t.home[home]}</span></label>
+    ))}
+  </div>
+  <p class="sb-tool-field__hint">{t.home.hint}</p>
+</fieldset>
+
+<fieldset class="sb-tool-field">
+  <legend class="sb-tool-field__label">{t.have.label}</legend>
+  <div class="sb-tool-segment sb-kit-choice">
+    {HAVES.map((have) => (
+      <label>
+        <input type="radio" name={`${id}-have`} value={have} checked={have === start.have} />
+        <span>{t.have[have]}{have === "bridge" && <small>{t.have.bridgeSub}</small>}</span>
+      </label>
+    ))}
+  </div>
+</fieldset>
+
+<fieldset class="sb-tool-field">
+  <legend class="sb-tool-field__label">{t.diy.label}</legend>
+  <div class="sb-tool-segment">
+    <label><input type="radio" name={`${id}-diy`} value="no" checked={!start.diy} /><span>{t.diy.no}</span></label>
+    <label><input type="radio" name={`${id}-diy`} value="yes" checked={start.diy} /><span>{t.diy.yes}</span></label>
+  </div>
+  <p class="sb-tool-field__hint">{t.diy.hint}</p>
+</fieldset>
