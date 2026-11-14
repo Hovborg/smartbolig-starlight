@@ -82,6 +82,11 @@ export default [
         link: "/home-assistant/solceller-og-batteri/",
       },
       {
+        label: "Companion-appen",
+        translations: { en: "Companion App" },
+        link: "/home-assistant/companion-app/",
+      },
+      {
         label: "Mobilnotifikationer",
         translations: { en: "Mobile Notifications" },
         link: "/home-assistant/mobilnotifikationer/",
