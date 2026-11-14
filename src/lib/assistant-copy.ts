@@ -2,16 +2,27 @@
 // `assistantRuntimeCopy` is the small part the client script also needs.
 export const assistantRuntimeCopy = {
   da: {
-    send: 'Send',
-    sending: 'Tænker',
     working: 'Arbejder på dit svar …',
-    thinkingLabel: 'SmartBolig AI tænker',
+    // One line per stage the server reports while a streamed answer is on its way.
+    stages: {
+      reading: 'Læser dit spørgsmål …',
+      searching: 'Søger i guiderne …',
+      writing: 'Skriver svar …',
+      revising: 'Skriver svaret om …',
+    },
+    stopped: 'Svaret blev stoppet.',
+    thinkingLabel: 'SmartBolig AI arbejder på et svar',
   },
   en: {
-    send: 'Send',
-    sending: 'Thinking',
     working: 'Working on your answer …',
-    thinkingLabel: 'SmartBolig AI is thinking',
+    stages: {
+      reading: 'Reading your question …',
+      searching: 'Searching the guides …',
+      writing: 'Writing the answer …',
+      revising: 'Rewriting the answer …',
+    },
+    stopped: 'The answer was stopped.',
+    thinkingLabel: 'SmartBolig AI is working on an answer',
   },
 };
 
@@ -45,8 +56,9 @@ export const assistantCopy = {
     prompt4: 'Design et stabilt homelab',
     prompt4Meta: 'INFRASTRUKTUR',
     placeholder: 'Beskriv dit setup, målet og hvad der går galt …',
-    send: assistantRuntimeCopy.da.send,
-    sending: assistantRuntimeCopy.da.sending,
+    send: 'Send',
+    stop: 'Stop',
+    stopLabel: 'Stop svaret',
     privacy: 'Del ikke adgangskoder, tokens eller personoplysninger.',
     general: 'Generel AI-viden',
     mixed: 'SmartBolig-kilder + bred AI-viden',
@@ -115,8 +127,9 @@ export const assistantCopy = {
     prompt4: 'Design a reliable homelab',
     prompt4Meta: 'INFRASTRUCTURE',
     placeholder: 'Describe your setup, goal and what is going wrong …',
-    send: assistantRuntimeCopy.en.send,
-    sending: assistantRuntimeCopy.en.sending,
+    send: 'Send',
+    stop: 'Stop',
+    stopLabel: 'Stop the answer',
     privacy: 'Do not share passwords, tokens or personal data.',
     general: 'General AI knowledge',
     mixed: 'SmartBolig sources + broad AI knowledge',

@@ -4,7 +4,9 @@ Sidst kontrolleret: 2026-11-14.
 Kontrolleret ved: `npm run site:test` (indeksets og chattens tests; strømmen er prøvet med en
 efterlignet model), `npm run build` (indekset bygges, og de faste prøvespørgsmål består),
 ca. 40 spørgsmål mod det byggede indeks med `--ask` og en uafhængig gennemgang, hvis fund er
-rettet (tomme uddrag, ental/flertal, faneblade, svage kilder).
+rettet (tomme uddrag, ental/flertal, faneblade, svage kilder). Widgeten er prøvet i headless
+Chrome mod et efterlignet `/api/chat`: strøm, fejl før og efter første tekst, stop, omskrivning
+og svar uden strøm, i lyst og mørkt tema ved 320, 375 og 1440 px.
 Ikke kontrolleret lokalt: et rigtigt svar fra modellen, og hvordan Workers AI's strøm ser ud,
 og hvor hurtigt den kommer. Det kræver Cloudflares binding og skal ses på den levende side
 efter udgivelse; kommandoen står under "Kontrollér strømmen efter udgivelse".
@@ -14,6 +16,9 @@ efter udgivelse; kommandoen står under "Kontrollér strømmen efter udgivelse".
 Når en læser spørger assistenten om smart home, slår Workeren først op i et indeks over
 sidens egne sider og giver de bedste afsnit til modellen sammen med spørgsmålet. Svaret får
 links til de sider, afsnittene kom fra.
+
+Læseren ser med det samme, hvad der sker ("Søger i guiderne …"), får kilderne, så snart
+opslaget er færdigt, og læser svaret, mens modellen skriver det. Se "Svaret som strøm".
 
 Indekset er sidens egen tekst som små JSON-filer. Det bygges sammen med siden og ligger som
 statiske filer under `/_index/`. Der bruges ingen betalt søgetjeneste og ingen database.
@@ -166,6 +171,34 @@ læses begge kendte former: `choices[0].delta.content` og `response`. Modellens 
 ræsonnering sendes aldrig videre. Svarer en model uden strøm, selv om den blev bedt om en,
 kontrolleres svaret og sendes som ét stykke.
 
+### Widgeten
+
+| Fil | Ansvar |
+|---|---|
+| `src/scripts/assistant/request.ts` | Spørger med `fetch` og læser strømmen; henter JSON-svaret, når strømmen ikke kan bruges. |
+| `src/lib/assistant-stream.mjs` | Bytes → hændelser, og hvilken del af et halvt skrevet svar der kan vises. Ingen DOM, så Node tester den. |
+| `functions/lib/chat/sse-decoder.js` | Læser Server-Sent Events. Bruges både af Workeren (modellens strøm) og af browseren. |
+| `src/scripts/assistant/draft-view.ts` | Svaret, mens det er på vej: statuslinje, kilder og tekst. |
+| `src/scripts/assistant/follow-scroll.ts` | Holder skrivestedet i syne, så længe læseren bliver der. |
+| `src/scripts/assistant/composer.ts` | Stop-knappen, der står på Send-knappens plads, mens et svar er på vej. |
+
+- Teksten går gennem samme sikre visning som et færdigt svar (tekstnoder, ingen HTML fra
+  modellen) og tegnes højst én gang pr. billede på skærmen.
+- Visningen følger skrivestedet og ruller kun nedad. Ruller læseren op for at læse, bliver
+  visningen stående, også når svaret er færdigt.
+- Skærmlæsere får besked, når status skifter, og får det færdige svar. Udkastet læses ikke op
+  ord for ord (`aria-live="off"`, mens det skrives).
+- Med reduceret bevægelse vises teksten en hel linje ad gangen.
+- Stop afbryder kaldet. Udkastet fjernes, og læseren kan prøve igen. Fokus flytter til Stop,
+  når spørgsmålet sendes fra feltet eller med »Prøv igen«, og tilbage til feltet, når svaret
+  er færdigt eller stoppet. Fejler svaret, mens fokus står på Stop, flytter fokus til
+  »Prøv igen« (`error-view.ts`).
+- Widgeten henter JSON-svaret i stedet, når browseren ikke kan læse en strømmet krop, når
+  serveren svarer med JSON, og når strømmen fejler, før der er vist tekst. I det sidste
+  tilfælde spørges der én gang til; det tæller som et nyt kald i hastighedsgrænsen og giver
+  et nyt modelkald.
+- Kun et færdigt svar gemmes i `sessionStorage`.
+
 ### Slå strømmen fra
 
 Sæt `STREAMING_ENABLED` til `false` i `functions/lib/chat/limits.js`, og udgiv. Alle kald får
@@ -229,13 +262,15 @@ Tiden fra første linje til første `delta` er ventetiden på første ord.
 4. Sammenlign med JSON-svaret: samme kommando uden `accept`-linjen. Er JSON-svaret lige så
    længe undervejs, ligger tiden i modellen og ikke i strømmen.
 5. I browseren: udviklerværktøjer → Netværk → kaldet `chat`. Svartypen er
-   `text/event-stream`, når strømmen bruges.
+   `text/event-stream`, når strømmen bruges. To kald lige efter hinanden betyder, at strømmen
+   fejlede før første tekst, og at widgeten hentede JSON-svaret.
 
 ## Ændr noget
 
 | Ønske | Sted |
 |---|---|
 | Slå strømmen fra | `STREAMING_ENABLED` i `functions/lib/chat/limits.js` |
+| Teksterne i statuslinjen ("Søger i guiderne …") | `stages` i `src/lib/assistant-copy.ts`, dansk og engelsk |
 | Flere eller færre fyldord, andre endelser | `functions/lib/site-search/tokens.js` |
 | Stykkernes størrelse | toppen af `scripts/lib/site-index/chunks.mjs` |
 | Vægten af overskrift og titel, ordfilernes størrelse | toppen af `scripts/lib/site-index/build.mjs` |

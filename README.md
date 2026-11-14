@@ -61,6 +61,23 @@ specialdesignet Astro-widget:
   primær- og fallbackmodel en særskilt slutprompt uden et tilgængeligt
   søgeværktøj, så interne værktøjsnavne og retrieval-trin ikke bliver vist som
   kommandoer. Sidens guides er ikke assistentens eneste viden.
+- **Svar, mens det skrives:** Widgeten beder om svaret som en strøm
+  (`Accept: text/event-stream`). Læseren ser først en statuslinje (»Søger i
+  guiderne …«, »Skriver svar …«), så kilderne, når opslaget er færdigt, og
+  derefter teksten, mens modellen skriver den. Kun selve svartrinnet strømmes,
+  og teksten vises med samme sikre renderer som et færdigt svar. Det færdige
+  svar gennemgår de samme kontroller som JSON-svaret og er det eneste, der
+  gemmes. Fejler modellen, før der er vist tekst, overtager reservemodellen.
+  Fejler den midt i teksten, fjernes kladden, og læseren får en fejl med »Prøv
+  igen«; et halvt svar vises aldrig som færdigt. Består et færdigt udkast ikke
+  kontrollen, trækkes det tilbage (»Skriver svaret om …«), og reservemodellen
+  skriver et nyt. »Stop« afbryder kaldet. Kan browseren ikke læse en strøm,
+  eller fejler strømmen før den første tekst, spørger widgeten én gang igen og
+  får det almindelige JSON-svar. Uden `Accept: text/event-stream` svarer
+  endpointet som hidtil. Strømmen er testet mod fakes; den rigtige models strøm
+  kontrolleres efter udgivelse med kommandoen i
+  [`docs/assistent.md`](docs/assistent.md), som også beskriver events,
+  rækkefølge og fejlsøgning.
 - **Kontrolleret officiel evidens:** Syv gennemgåede evidenspakker vælges
   deterministisk i Workeren: automationstrace, automationsmåder,
   template-tilstande og Home Assistant-sikkerhed samt ESPHome-sikkerhed,
@@ -100,7 +117,8 @@ specialdesignet Astro-widget:
   begrænset til højst to logiske modelkald. Tager opslaget over fem sekunder,
   svarer assistenten ud fra bred modelviden. Et svar som strøm tæller som ét
   chatkald og gennemgår de samme kontroller af oprindelse, størrelse og
-  indhold; afvisninger kommer som almindelige JSON-fejl.
+  indhold; afvisninger kommer som almindelige JSON-fejl. Spørger widgeten igen
+  som JSON efter en fejlet strøm, tæller det som endnu et chatkald.
 - **Dataminimering:** Endpointet accepterer højst 10 skiftevis bruger/assistent-
   beskeder, 2.000 tegn pr. besked og 8.000 tegn i alt. Widgeten gemmer kun den
   aktuelle samtale i browserens `sessionStorage`. Hvert gemt og genudsendt
@@ -118,10 +136,14 @@ specialdesignet Astro-widget:
   **Fejlsøg/Debug**, **Byg/Build**, **Forklar/Explain** og
   **Sammenlign/Compare** — indsætter synlig, redigerbar tekst i promptfeltet;
   de ændrer ikke skjult systemprompt eller permissions. Under et kald viser
-  konsollen den reelle forløbne ventetid i browseren som en aktiv
-  `WORKER · CONTEXT · MODEL`-pipeline. Det er en timer, ikke et påfundet indblik
-  i interne modeltrin. Widgeten understøtter både lys/mørk tilstand og reduceret
-  bevægelse uden eksterne UI-biblioteker.
+  konsollen det trin, serveren har meldt (»Læser dit spørgsmål …«, »Søger i
+  guiderne …«, »Skriver svar …«), og den reelle forløbne ventetid i browseren.
+  `WORKER · CONTEXT · MODEL`-linjen er en fast tekst, ikke et indblik i interne
+  modeltrin. »Stop« står på »Send«-knappens plads, mens et svar er på vej, og
+  overtager tastaturfokus fra feltet. Skærmlæsere får statusskift og det
+  færdige svar, ikke hvert ord. Widgeten understøtter både lys/mørk tilstand og
+  reduceret bevægelse (teksten kommer da i hele linjer) uden eksterne
+  UI-biblioteker.
 - **Afgrænset svartelemetri:** Hvert AI-svar viser en kompakt rail med en fast
   allowlistet modelbetegnelse, `PRIMARY`/`FALLBACK`-rute, servermålt edge-tid,
   et højst 64 tegn langt request-spor og antallet af allerede validerede kilder.
@@ -237,6 +259,8 @@ Guidesidernes top, sidemenu og sidefod er beskrevet i `docs/designsystem.md` und
 | `sse.js` | et svar som Server-Sent Events og genkendelse af `Accept: text/event-stream` |
 | `stream-response.js` | leverer et svar som events: `status`, `sources`, `delta`, `done`, `error` |
 | `handler.js` | selve anmodningsforløbet: metode, oprindelse, rate limit og validering, derefter svar som JSON eller strøm |
+
+Widgetens side ligger i `src/scripts/assistant/` (`request.ts` spørger og falder tilbage til JSON, `draft-view.ts` viser svaret undervejs, `follow-scroll.ts` styrer rulningen) og `src/lib/assistant-stream.mjs` (læser strømmen).
 
 Søgningen i sidens egne guides ligger i `functions/lib/site-search/` (søgning i Workeren) og `scripts/lib/site-index/` (bygning af indekset). Opbygning, fejlsøgning og fjernelse: [`docs/assistent.md`](docs/assistent.md).
 

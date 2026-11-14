@@ -43,6 +43,12 @@ const { t } = Astro.props;
         <path d="m11.5 13.5 3-3"></path>
       </svg>
     </button>
+    <button class="smartbolig-ai__send smartbolig-ai__stop" type="button" aria-label={t.stopLabel} data-chat-stop hidden>
+      <span>{t.stop}</span>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <rect x="7" y="7" width="10" height="10" rx="2"></rect>
+      </svg>
+    </button>
   </form>
   <div class="smartbolig-ai__composer-meta">
     <p>{t.privacy}</p>
@@ -182,6 +188,11 @@ const { t } = Astro.props;
     opacity: 0.65;
   }
 
+  /* Send and Stop share one place: exactly one of them is shown. */
+  .smartbolig-ai__send[hidden] {
+    display: none;
+  }
+
   .smartbolig-ai__send svg {
     width: 15px;
     fill: none;
@@ -189,6 +200,23 @@ const { t } = Astro.props;
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-width: 1.8;
+  }
+
+  /* Stop is a way out, not the main action, so it is quieter than Send. */
+  .smartbolig-ai__stop {
+    border-color: var(--ai-line-strong);
+    color: var(--ai-text-strong);
+    background: var(--ai-surface-soft);
+    box-shadow: none;
+  }
+
+  .smartbolig-ai__stop:hover {
+    border-color: var(--ai-signal);
+  }
+
+  .smartbolig-ai__stop svg {
+    fill: currentColor;
+    stroke: none;
   }
 
   .smartbolig-ai__composer-meta {
