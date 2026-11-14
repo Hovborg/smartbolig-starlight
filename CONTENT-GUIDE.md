@@ -1,5 +1,8 @@
 # SmartBolig.net Content Guide
 
+Sådan tilføjes og rettes en guide. Den korte vej står i "Tjekliste for ny guide"; resten
+forklarer hvert punkt.
+
 ## URL & File Structure (i18n)
 
 ### Vigtig regel: Brug DANSKE filnavne for ALLE sprog
@@ -39,6 +42,9 @@ sidebar:
 Dansk indhold her...
 ```
 
+`description` bliver sidens metabeskrivelse og skal være 80 til 165 tegn. `npm run seo:validate`
+(efter `npm run build`) fejler på en kortere eller længere, så tæl, før du bygger.
+
 Har en `title` eller `description` et kolon efter et ord ("Små værktøjer: elprisen lige nu") eller
 et ` #`, så sæt hele værdien i anførselstegn. Ellers kan YAML ikke læse den, og hele bygget
 stopper. `scripts/site-frontmatter.test.mjs` fanger det i `npm run site:test`.
@@ -59,8 +65,10 @@ English content here...
 
 ### Sidebar (`config/sidebar/`)
 
-Sidemenuen har én fil pr. emne i `config/sidebar/` (fx `produkter.mjs`; Home Assistant har en
-mappe). Tilføj siden i emnets fil med **dansk sti** og **translation**:
+Sidemenuen har én fil pr. emne i `config/sidebar/` (fx `produkter.mjs`). Home Assistant har en
+mappe med to filer: `setup-groups.mjs` (grupperne Installation, Integrationer og Protokoller)
+og `operate-groups.mjs` (Automationer, Dashboard og brugerflade, System og Reference). Åbn filen, find den gruppe, hvor
+de nærmeste guides står, og tilføj siden dér med **dansk sti** og **translation**:
 
 ```javascript
 {
@@ -70,16 +78,32 @@ mappe). Tilføj siden i emnets fil med **dansk sti** og **translation**:
 }
 ```
 
-### URL Rewrites (valgfrit)
+Har emnet en oversigtsside med en tabel eller kort over sine guides (fx
+`home-assistant/index.mdx`), så tilføj guiden dér på begge sprog. Ingen test fanger, at den
+mangler.
 
-Hvis du vil have en "pæn" engelsk URL, tilføj til `public/_redirects`:
+### Engelske adresser
 
-```
-/en/products/smart-doorbell /en/produkter/smart-doorbell 200
-/en/products/smart-doorbell/ /en/produkter/smart-doorbell/ 200
-```
+Den engelske side har samme sti som den danske (`/en/produkter/smart-doorbell/`). Lav ikke en
+ekstra "pæn" engelsk adresse med en `200`-regel i `public/_redirects`: så har samme indhold to
+adresser. Gamle engelske adresser (`/en/products/…`) sendes videre med `301`; se `docs/seo.md`.
 
-Dette gør at `/en/products/smart-doorbell/` viser indhold fra `/en/produkter/smart-doorbell/`.
+---
+
+## Fakta og kilder
+
+- Skriv kun det, der kan ses i en officiel kilde: producentens dokumentation eller datablad,
+  dokumentationen for Home Assistant, ESPHome, Zigbee2MQTT og lignende. Fora og andres blogs
+  er ikke kilder.
+- Kan en oplysning ikke kontrolleres, så udelad den. Gæt ikke på priser, versionsnumre,
+  bennumre, spændinger eller menupunkter.
+- Slut guiden med afsnittet `## Officielle kilder` (engelsk: `## Official sources`) med links
+  til de sider, guidens fakta kommer fra. Se `home-assistant/mobilnotifikationer.mdx`.
+- Priser skrives ikke i guider; de forældes. Købslinks går gennem registret (nedenfor).
+- Findes emnet allerede? Søg først: `grep -ril "companion" src/content/docs/da`. Link til den
+  guide, der findes, i stedet for at skrive det samme to gange.
+- Kode (YAML til Home Assistant og ESPHome) skal være afprøvet eller taget fra den officielle
+  dokumentation og tilpasset. Skriv, hvilken version den gælder for, når det betyder noget.
 
 ---
 
@@ -134,17 +158,36 @@ src/content/docs/
 
 ## Tjekliste for ny guide
 
+- [ ] Søg efter emnet, så guiden ikke findes i forvejen (se "Fakta og kilder").
 - [ ] Opret dansk fil: `da/[kategori]/[dansk-filnavn].mdx`
 - [ ] Opret engelsk fil: `en/[kategori]/[dansk-filnavn].mdx` (samme sti!)
-- [ ] Tilføj til sidemenuen i emnets fil i `config/sidebar/` med `translations: { en: "..." }`
+- [ ] `title` højst ca. 45 tegn og ikke brugt af en anden side; `description` 80 til 165 tegn.
+- [ ] Tilføj til sidemenuen i emnets fil i `config/sidebar/` med `translations: { en: "..." }`,
+      og til emnets oversigtsside, hvis den har en liste over guides.
 - [ ] Ingen emoji først i overskrifter, korttitler (`<Card title>`, `<LinkCard title>`) og fanenavne
       (`<TabItem label>`). De fjernes alligevel ved bygningen, så skriv dem ikke.
-- [ ] Billedet øverst kommer af sig selv ud fra stien (`src/lib/guide-art.mjs`). Har guiden sit
-      eget billede, så sæt det i de første linjer; så bruges det i stedet.
+- [ ] Billedet øverst kommer af sig selv. Det vælges ud fra sidens sti af reglerne i
+      `src/lib/guide-art.mjs` (første regel, der rammer, vinder: en sti med `notifi` får fx
+      automationsbilledet). Passer billedet ikke, så tilføj en regel; se `docs/designsystem.md`,
+      "Giv en guide et andet billede". Har guiden sit eget billede, så sæt det i de første
+      linjer; så bruges det i stedet.
 - [ ] Billeder i teksten ligger i `src/assets/guides/` og skrives relativt til MDX-filen (se
       "Billeder i en guide" nedenfor), aldrig som `/images/...`.
-- [ ] (Valgfrit) Tilføj URL rewrite i `public/_redirects` for pæn engelsk URL
-- [ ] Test build: `npm run build`
+- [ ] Afsnittet "Officielle kilder" sidst i guiden, på begge sprog.
+- [ ] En linje i `CHANGELOG.md` under "Unreleased".
+- [ ] Kør kontrollerne nedenfor.
+
+### Kontroller for en ny eller ændret guide
+
+```bash
+npm run site:test                 # frontmatter, billedstier, produktlinks
+python scripts/content-audit.py   # kodeblokke (YAML, JSON, bash, JavaScript), interne links, billedstier
+npm run build                     # bygger siden; stopper på et ukendt produkt-id eller ødelagt MDX
+npm run seo:validate              # efter build: beskrivelsens længde, ens titler, billeder
+```
+
+De fire er nok til en ændring, der kun rører guides. Hele listen før en udgivelse står i
+`AGENTS.md`; den kører også i `deploy.yml` på hver pull request.
 
 ---
 
@@ -169,8 +212,8 @@ fejler, hvis stien ikke rammer en fil.
   som WebP eller JPEG, skærmbilleder og tegninger som PNG eller SVG.
 - En tegning (SVG) fylder hele tekstspalten. Tegn den, så teksten kan læses ved 360 px bredde.
 - Kun billeder med en fast offentlig adresse bliver i `public/images/`: `home/`, `guide/`
-  (sidehovedets billeder), `produkter/`, nyhedsbillederne (`ai-news*`), `og-image.png` og
-  `logo-email.png`. `npm run site:test` fejler, hvis en guide peger på andre `/images/...`-stier.
+  (sidehovedets billeder), `produkter/`, nyhedsbillederne (`ai-news*`) og `og-image.png`.
+  `npm run site:test` fejler, hvis en guide peger på andre `/images/...`-stier.
 - Hvordan det virker, og hvad der gøres ved fejl, står i `docs/billeder.md`.
 
 ---
@@ -233,16 +276,20 @@ Filer SKAL ligge på disse stier for at blive fundet. `slug` feltet i frontmatte
 
 ## Eksisterende kategorier
 
-| Kategori | Dansk sti | Engelsk rewrite |
+| Kategori | Sti (begge sprog) | Gammel engelsk adresse, sendes videre med 301 |
 |----------|-----------|-----------------|
-| Produkter | `/produkter/` | `/products/` → `/produkter/` |
-| Home Assistant | `/home-assistant/` | (ingen rewrite) |
-| ESP32 | `/esp32/` | (ingen rewrite) |
-| Værktøjer | `/vaerktoejer/` | (ingen rewrite) |
-| Juridisk | `/juridisk/` | `/legal/` → `/juridisk/` |
-| Om os | `/om-os/` | `/about/` → `/om-os/` |
-| Kontakt | `/kontakt/` | `/contact/` → `/kontakt/` |
+| Produkter | `/produkter/` | `/en/products/` |
+| Home Assistant | `/home-assistant/` | (ingen) |
+| ESP32 | `/esp32/` | (ingen) |
+| Automationer | `/automationer/` | `/en/automations/` |
+| Sikkerhed | `/sikkerhed/` | `/en/security/` |
+| AI | `/ai/` | (ingen) |
+| Værktøjer | `/vaerktoejer/` | (ingen) |
+| Juridisk | `/juridisk/` | `/en/legal/` |
+| Om os | `/om-os/` | `/en/about/` |
+| Kontakt | `/kontakt/` | `/en/contact/` |
 
 ---
 
-*Sidst opdateret: 2026-11-14 (afsnittet om sidemenuen). Resten gennemgås i fase 7.*
+*Sidst opdateret: 2026-11-14. Kontrolleret ved: en læser uden kendskab til repoet tilføjede en
+guide på begge sprog ud fra dette dokument; det, den snublede over, er rettet her.*

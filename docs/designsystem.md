@@ -118,10 +118,25 @@ store overskrift). Linjehøjde: `--sb-leading` (brødtekst), `--sb-leading-tight
 ## Afstand, hjørner, skygger, bevægelse
 
 - Afstand: `--sb-space-1` (4 px) til `--sb-space-9`. Brug trinene; opfind ikke mellemværdier.
-- Hjørner: `--sb-radius-sm`, `-md`, `-lg`, `-xl`, `-pill`.
+- Hjørner: `--sb-radius-sm`, `-md`, `-lg`, `-xl`, `-pill`. Se tabellen nedenfor.
 - Skygger: `--sb-shadow-sm`, `-md`, `-lg`. De er svagere i mørkt tema.
 - Bevægelse: `--sb-dur-fast`, `--sb-dur`, `--sb-dur-slow` og kurven `--sb-ease`.
 - Bredder: `--sb-measure` (tekstspalte), `--sb-page-max` (hele siden).
+
+Hjørnetrinene og hvad de bruges til (talt i `src/` 2026-11-14 med
+`grep -rn "radius-<trin>" src`):
+
+| Trin | Værdi | Bruges til |
+|---|---|---|
+| `--sb-radius-sm` | 0,5 rem | Små ting: felter, mærkater, links i en række, kode, punkter i sidemenuen |
+| `--sb-radius-md` | 0,875 rem | Kort og bokse inde i brødteksten: `ProductCard`, `FAQ`, noter (`blocks.css`), felter og resultater i værktøjerne, assistentens beskeder, kortet på 404-siden |
+| `--sb-radius-lg` | 1,25 rem | Kort og rammer på sideniveau: forsidens kort, nyhedskortene, guidens hoved, værktøjets ramme, topbjælke og sidemenu, assistentens knap |
+| `--sb-radius-xl` | 1,75 rem | Store paneler: forsidens scene, assistentens panel |
+| `--sb-radius-pill` | 999 px | Knapper og piller |
+
+Der er ikke ét trin for "kort": kort på sideniveau bruger `-lg`, kort inde i en tekst bruger
+`-md`. Skal alle kort have rundere hjørner, rettes begge trin; `-lg` flytter også topbjælken,
+sidemenuen og værktøjets ramme.
 
 ## Regler for bevægelse og illustrationer
 
@@ -141,10 +156,22 @@ store overskrift). Linjehøjde: `--sb-leading` (brødtekst), `--sb-leading-tight
 
 ### Ret en designværdi
 
-1. Find tokenet i `src/styles/tokens/color.css` eller `scale.css`.
-2. Ret værdien. For farver: ret både lyst og mørkt tema.
-3. Kør `npm run site:test`. Kontrasttesten fejler, hvis en tekstfarve bliver for svag.
-4. Kør `npm run dev`, og se siden i begge temaer.
+1. Find tokenet i `src/styles/tokens/color.css` eller `scale.css`. For hjørner: se tabellen
+   under "Afstand, hjørner, skygger, bevægelse" for, hvad hvert trin flytter.
+2. Ret værdien. For farver: ret både lyst og mørkt tema (`:root` er lyst,
+   `[data-theme="dark"]` er mørkt), medmindre kun det ene skal ændres.
+3. Er det baggrunden (`--sb-bg`) eller accentfarven (`--sb-accent`): ret den samme værdi i
+   `scripts/lib/brand/palette.mjs`, og kør `npm run brand:build`. Logo, favicon, delingsbilledet
+   og nyhedsbillederne tegnes ud fra den fil, ikke fra CSS. `scripts/site-brand.test.mjs` fejler,
+   hvis de to er forskellige. De genererede filer i `public/` skal med i samme commit.
+   Nyhedsbilleder, der allerede er udgivet, tegnes ikke om.
+4. Kør `npm run site:test` og `npm run ai-news:test`. Kontrasttesten
+   (`scripts/site-design-tokens.test.mjs`) fejler, hvis en tekstfarve bliver for svag;
+   nyhedsbilledets test læser paletten.
+5. Kør `npm run dev`, og se forsiden, en guide og et værktøj i begge temaer ved 375 og 1440 px.
+   Ingen test ser, om det er pænt.
+6. Skriv ændringen i `CHANGELOG.md`. Er det et valg (en ny farve, et andet udtryk), så også i
+   `docs/redesign/BESLUTNINGER.md`.
 
 ### Tilføj en ny farve eller størrelse
 

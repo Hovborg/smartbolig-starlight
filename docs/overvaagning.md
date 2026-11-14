@@ -66,7 +66,7 @@ når siden er blevet mindre) eller siden har ændret sig med vilje. Ret kontroll
 
 **"AI news is fresh" fejler.** Kontrollen læser nyhedernes eget feed (`/da/ai/nyheder/rss.xml`).
 Dagens nyheder er dateret ved midnat UTC. Er den nyeste over 84 timer gammel, er der ikke
-udkommet nyheder i tre dage. Nyhedsflowet åbner selv sagen `ai-news-stalled` kl. 11:37 UTC på
+udkommet nyheder i tre dage. Nyhedsflowet åbner selv sagen `ai-news-stalled` kl. 11:37 UTC (eller reserven kl. 14:37) på
 tredjedagen; denne kontrol fejler først kl. 18:23 samme dag. Den er altså sikkerhedsnettet,
 hvis nyhedsflowet slet ikke kører (så åbner det heller ikke sin egen sag). Se
 `docs/nyhedsflow.md`. `/rss.xml` er guidernes feed; dets datoer følger bygget og siger

@@ -1017,3 +1017,24 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   bliver læst først.
 - Kontrolleret: `npm run site:test` (testen for omdirigeringer), og efter udgivelsen et udvalg
   af gamle adresser på den levende side (`/en/legal/`, `/produkter/shelly`, `/index.html`, `/`).
+
+## B68. Dokumentationen er afprøvet af læsere, der ikke kendte repoet (2026-11-14)
+
+- Valgt: tre friske underagenter fik hver én opgave og kun repoets egne dokumenter: tilføj en
+  guide på begge sprog, ret en designværdi, og find ud af, hvad der skete med dagens
+  nyhedskørsler. De skulle skrive ned, hvor dokumenterne manglede noget, var forkerte eller
+  uklare. Begrundelse: den, der har skrevet et dokument, kan ikke se, hvad der mangler i det.
+- Resultat af første runde: alle tre løste opgaven, men svarede "delvist" på, om det kunne
+  gøres ud fra dokumenterne alene. Det vigtigste, de snublede over: `CONTENT-GUIDE.md` var
+  ikke nævnt i `AGENTS.md` eller `README.md`; grænsen for `description` stod kun i koden;
+  ingen regler for fakta og kilder i en guide; accentfarven står også i
+  `scripts/lib/brand/palette.mjs`, og opskriften nævnte hverken den eller `npm run brand:build`;
+  hjørnetrinene havde ingen roller; nyhedsflowet havde ingen opskrift på fejlsøgning og sagde
+  ikke, at en fejlet dag giver en grøn kørsel.
+- Valgt: det er rettet i dokumenterne. To ting er rettet i koden i stedet for at blive
+  forklaret: en reserve, der holder sig i ro, skriver nu grunden på kørslens Summary-side, og
+  testen af nyhedsbilledet læser farverne fra paletten.
+- Fravalgt: ét token for "kort". Kort på sideniveau og kort inde i en tekst har med vilje
+  forskellige hjørner; tabellen i `docs/designsystem.md` siger, hvilket trin der flytter hvad.
+- Indholdsguiden beskrev en `200`-regel for "pæne" engelske adresser. Den bruges ikke (gamle
+  engelske adresser sendes videre med 301), og afsnittet er skrevet om.

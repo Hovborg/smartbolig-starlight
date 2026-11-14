@@ -83,7 +83,8 @@ Sidst opdateret: 2026-11-14.
    en læser dér er tæt på at vælge elselskab. En henvisning kræver et godkendt program hos
    Partner-Ads eller et elselskab. Intet er bygget (`docs/indtjening.md`).
 7. **Gamle filer på siden og en gammel DNS-post.** `public/logo-animated.gif` (75 KB) og
-   de 22 billeder i `public/images/produkter/` (2,9 MB) bruges ikke af siden, men kan være
+   de 22 billeder i `public/images/produkter/` (2,9 MB) og `public/images/logo-email.png`
+   (1,5 MB) bruges ikke af siden, men kan være
    brugt udefra (mailsignatur, gamle indlæg). TXT-posten `ezoic-domain-verification` er fra
    Ezoic, som ikke bruges mere. Sig "slet dem", så bliver det gjort.
 

@@ -224,6 +224,12 @@ Sidst opdateret: 2026-11-14.
   til computeren til Home Assistant, en aflæser til HAN-porten og ESP32-delene, så de tre
   steder siger sættet "Ingen købsanbefaling endnu".
 
+- **Dokumentationen er afprøvet af læsere uden kendskab til repoet (B68).** Tre friske
+  underagenter fik hver én opgave (ny guide på begge sprog, ret en designværdi, fejlsøg dagens
+  nyhedskørsler) og kun repoets egne dokumenter. Første runde: alle tre løste opgaven, men
+  svarede "delvist" på, om dokumenterne var nok. Det, de snublede over, er rettet i
+  `CONTENT-GUIDE.md`, `docs/designsystem.md`, `docs/nyhedsflow.md`, `AGENTS.md` og `README.md`.
+
 ## Udgivelser og vej tilbage
 
 De seneste udgivelser, nyeste først. Vejen tilbage fra en udgivelse er Worker-versionen i
@@ -293,7 +299,8 @@ Det, der ikke er gjort. Det, kun ejeren kan gøre, står i [TIL-EJEREN.md](TIL-E
   - 3D-løkken har ingen grænse for billeder pr. sekund, mens bevægelse er slået til.
   - Søgefeltet og tidsknapperne er skjult, til scriptet kører; pladsen bør holdes fri.
   - Filer uden brug fra før redesignet (`ProductCard.astro`, `scripts/content-inventory.mjs`,
-    `public/images/produkter/`): tjek ekstern brug, før de slettes (TIL-EJEREN punkt 7).
+    `public/images/produkter/`, `public/images/logo-email.png`): tjek ekstern brug, før de
+    slettes (TIL-EJEREN punkt 7).
   - Diagrammerne i guiderne: alle 27 SVG-filer er tegnet om og holdt op mod guidens tekst og
     kode. Efter den seneste ændring (større tekst) er alle 36 filer set som billede i 656 px
     (2 × 328) på mørk baggrund, og en uafhængig gennemgang har set dem på lys baggrund og på den
