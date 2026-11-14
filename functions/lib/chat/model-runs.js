@@ -2,9 +2,10 @@
 // fails, is cut off or fails the answer checks.
 //
 // With `live` (a streamed request) the answer text is passed on while it is
-// written. Shown text is never continued by another model: a failure after the
-// first shown text ends the request, and a finished draft that fails a check is
+// written. Shown text is never continued by another model: when the primary
+// breaks, is cut off or fails a check after text was shown, the draft is
 // announced as replaced ("revising") before the fallback writes a new one.
+// A fallback that fails ends the request.
 
 import {
   CHAT_FALLBACK_MODEL,
@@ -19,6 +20,7 @@ import {
 } from "./limits.js";
 import {
   extractModelAnswer,
+  heldBackLength,
   isAcceptableModelAnswer,
   isTruncatedModelResult,
   leaksPromptInternals,
@@ -29,6 +31,10 @@ import { selectSearchToolCall } from "./search-tool.js";
 
 const RESPONSE_ERRORS = ["EmptyModelResponseError", "InvalidModelResponseError", "TruncatedModelResponseError"];
 
+// A stream with chunks but no text in a shape the reader knows is its own log
+// reason: it means Workers AI changed the stream, not that the model was silent.
+const emptyReason = (result, step) => (result?.unknown_chunks ? `unknown_${step}_stream` : `empty_${step}_response`);
+
 function responseError(name, message) {
   const error = new Error(message);
   error.name = name;
@@ -38,7 +44,9 @@ function responseError(name, message) {
 export function createModelRunner({ aiRunImpl, binding, latestUserContent, live, onModelFallback }) {
   // True while the visitor is reading text from the model that is running now.
   let shown = false;
-  const show = (text) => {
+  const show = (piece) => {
+    // White space before the first word is not an answer the visitor has read.
+    const text = shown ? piece : piece.trimStart();
     if (!text) return;
     shown = true;
     live.text(text);
@@ -50,6 +58,8 @@ export function createModelRunner({ aiRunImpl, binding, latestUserContent, live,
         const result = await aiRunImpl(binding, model, { ...input, stream: streamed }, { signal });
         if (!streamed || !isModelStream(result)) return result;
         return readModelStream(result, {
+          // A half-written prompt internal waits for the next piece.
+          holdBack: heldBackLength,
           maxChars: MAX_ANSWER_CHARS,
           onText: show,
           signal,
@@ -88,7 +98,7 @@ export function createModelRunner({ aiRunImpl, binding, latestUserContent, live,
       if (!isAcceptableModelAnswer(fallbackAnswer, latestUserContent)) {
         reportFallback({
           event: "fallback_failed",
-          reason: fallbackAnswer ? "invalid_fallback_response" : "empty_fallback_response",
+          reason: fallbackAnswer ? "invalid_fallback_response" : emptyReason(fallbackResult, "fallback"),
           error: null,
         });
         throw fallbackAnswer
@@ -109,13 +119,13 @@ export function createModelRunner({ aiRunImpl, binding, latestUserContent, live,
     }
   };
 
-  const replaceWithFallback = (inputMessages, reason) => {
+  const replaceWithFallback = (inputMessages, reason, primaryErrorName = null) => {
     if (shown) {
       // The visitor has read a draft that is now rejected: say so before a new one is written.
       shown = false;
       live.stage("revising");
     }
-    return runFallback(inputMessages, reason, null);
+    return runFallback(inputMessages, reason, primaryErrorName);
   };
 
   return async function runModel(inputMessages, inputTools, fallbackMessages = inputMessages) {
@@ -136,9 +146,9 @@ export function createModelRunner({ aiRunImpl, binding, latestUserContent, live,
         streamed,
       );
     } catch (error) {
-      // No second model after a stopped request or a half-shown answer.
-      if (live?.signal?.aborted || shown) throw error;
-      return runFallback(fallbackMessages, "primary_error", safeErrorName(error));
+      // No second model after a stopped request.
+      if (live?.signal?.aborted) throw error;
+      return replaceWithFallback(fallbackMessages, "primary_error", safeErrorName(error));
     }
 
     const primaryAnswer = extractModelAnswer(primaryResult);
@@ -155,7 +165,7 @@ export function createModelRunner({ aiRunImpl, binding, latestUserContent, live,
     }
     return replaceWithFallback(
       fallbackMessages,
-      primaryAnswer ? "invalid_primary_response" : "empty_primary_response",
+      primaryAnswer ? "invalid_primary_response" : emptyReason(primaryResult, "primary"),
     );
   };
 }

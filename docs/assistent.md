@@ -7,9 +7,13 @@ ca. 40 spørgsmål mod det byggede indeks med `--ask` og en uafhængig gennemgan
 rettet (tomme uddrag, ental/flertal, faneblade, svage kilder). Widgeten er prøvet i headless
 Chrome mod et efterlignet `/api/chat`: strøm, fejl før og efter første tekst, stop, omskrivning
 og svar uden strøm, i lyst og mørkt tema ved 320, 375 og 1440 px.
-Ikke kontrolleret lokalt: et rigtigt svar fra modellen, og hvordan Workers AI's strøm ser ud,
-og hvor hurtigt den kommer. Det kræver Cloudflares binding og skal ses på den levende side
-efter udgivelse; kommandoen står under "Kontrollér strømmen efter udgivelse".
+Formen på Workers AI's strøm er læst for begge modeller 2026-11-14 gennem Cloudflares REST-API
+(ét kort spørgsmål til hver) og lagt ind som test. En anden uafhængig gennemgang af strømmen
+fandt to blokerende fejl og fire mindre; de er rettet (interne navne i dele, en strøm der bare
+lukker, stop før modelkaldet, blanke tegn som vist tekst, fejl efter vist tekst).
+Ikke kontrolleret lokalt: et rigtigt svar gennem Workerens egen binding, hvor hurtigt strømmen
+kommer, og om `env.AI.run` stopper modellen, når kaldet afbrydes. Det skal ses på den levende
+side efter udgivelse; kommandoen står under "Kontrollér strømmen efter udgivelse".
 
 ## Kort
 
@@ -156,20 +160,39 @@ Strømmen slutter med linjen `data: [DONE]`. Svarhovederne er
 Regler for tekst, læseren allerede har set:
 
 - En anden model skriver aldrig videre på den. Fejler Gemma, før der er vist tekst, overtager
-  Qwen som hidtil. Fejler en model, efter at der er vist tekst, slutter strømmen med `error`.
+  Qwen som hidtil. Fejler Gemma, efter at der er vist tekst (fejl, tidsfrist på 55 sekunder,
+  en fejl sendt inde i strømmen), trækkes udkastet tilbage med `status` `revising`, og Qwen
+  skriver et nyt. Fejler Qwen, slutter strømmen med `error`. Der er højst to modelkald pr.
+  svartrin, som uden strøm.
 - Et færdigt udkast, der ikke består en kontrol (afskåret, forkert YAML-form, interne navne,
-  for langt), trækkes tilbage med `status` `revising`, og Qwen skriver et nyt. Består det
-  heller ikke, slutter strømmen med `error`. Kontrollerne er de samme som for JSON-svaret.
-- Et udkast, der nævner interne værktøjs- eller mærkenavne, stoppes med det samme. Det
-  stykke, der gør navnet færdigt, sendes ikke.
-- Trykker læseren Stop, eller lukker læseren siden, afbrydes modelkaldet. Der startes ingen
-  reservemodel, og intet logges som fejl.
+  for langt), trækkes tilbage på samme måde. Består Qwens udkast heller ikke, slutter strømmen
+  med `error`. Kontrollerne er de samme som for JSON-svaret.
+- En strøm, der bare lukker, er et halvt svar. Modellen skal have sagt, at den er færdig (en
+  `finish_reason` eller `[DONE]`); ellers behandles udkastet som afskåret.
+- Blanke tegn før første ord tæller ikke som vist tekst og sendes ikke.
+- Et udkast, der nævner interne værktøjs- eller mærkenavne, stoppes med det samme. Navnet
+  vises heller ikke i dele: slutningen af teksten holdes tilbage, så længe den kan være
+  begyndelsen på et sådant navn (højst 26 tegn), til næste stykke afgør det
+  (`heldBackLength` i `answer.js`). Teksten før navnet er allerede vist og kan ikke kaldes
+  tilbage; den fjernes fra skærmen, når udkastet trækkes tilbage.
+- Trykker læseren Stop, eller lukker læseren siden, afbrydes modelkaldet, og der startes
+  ingen reservemodel, og intet logges som fejl. Sker det, før modellen er kaldt (under
+  opslaget), kaldes modellen slet ikke. Ét forbehold: Cloudflare dokumenterer ikke, om
+  `env.AI.run` stopper en model, der ikke strømmer, når kaldet afbrydes.
 
 Workers AI's strøm læses i `functions/lib/chat/model-stream.js`. Cloudflare dokumenterer, at
-strømmen er `text/event-stream`, men ikke formen på hvert stykke for de to modeller. Derfor
-læses begge kendte former: `choices[0].delta.content` og `response`. Modellens skjulte
-ræsonnering sendes aldrig videre. Svarer en model uden strøm, selv om den blev bedt om en,
-kontrolleres svaret og sendes som ét stykke.
+strømmen er `text/event-stream`, men ikke formen på hvert stykke. Begge modellers strøm er
+derfor læst 2026-11-14 gennem Cloudflares REST-API med et kort spørgsmål: svaret står i
+`choices[0].delta.content`, ræsonneringen i `delta.reasoning_content` (Qwen også i
+`delta.reasoning`), et stykke med `finish_reason` afslutter svaret, og strømmen slutter med
+`[DONE]`. Qwen gentager hvert stykke i `response` og begynder svaret med en blank linje.
+`scripts/chat-stream-models.test.mjs` har begge former som test. Den ældre form, hvor teksten
+kun står i `response`, læses også. Modellens ræsonnering sendes aldrig videre. Svarer en
+model uden strøm, selv om den blev bedt om en, kontrolleres svaret og sendes som ét stykke.
+
+Ændrer Cloudflare formen, så læseren ikke kender nogen af stykkerne, giver strømmen ingen
+tekst. Det logges som `unknown_primary_stream` eller `unknown_fallback_stream` (ikke som et
+tomt svar), og widgeten henter så JSON-svaret; se fejlfindingen nedenfor.
 
 ### Widgeten
 
@@ -249,8 +272,8 @@ Tiden fra første linje til første `delta` er ventetiden på første ord.
 
    | Loglinje | Betydning |
    |---|---|
-   | `SmartBolig chat model fallback` med `event: fallback_started` | Qwen overtog. `reason` siger hvorfor: `primary_error` (`error` er fejlens navn, fx `TimeoutError` efter 55 sekunder), `truncated_primary_response`, `invalid_primary_response` eller `empty_primary_response`. |
-   | `SmartBolig chat model fallback` med `event: fallback_failed` | Qwen kunne heller ikke: `truncated_fallback_response`, `invalid_fallback_response`, `empty_fallback_response` eller `fallback_error`. |
+   | `SmartBolig chat model fallback` med `event: fallback_started` | Qwen overtog. `reason` siger hvorfor: `primary_error` (`error` er fejlens navn, fx `TimeoutError` efter 55 sekunder), `truncated_primary_response`, `invalid_primary_response`, `empty_primary_response` eller `unknown_primary_stream` (strømmen havde stykker, men i en form `model-stream.js` ikke kender: læs strømmen igen, og ret `readChunk`). |
+   | `SmartBolig chat model fallback` med `event: fallback_failed` | Qwen kunne heller ikke: `truncated_fallback_response`, `invalid_fallback_response`, `empty_fallback_response`, `unknown_fallback_stream` eller `fallback_error`. |
    | `SmartBolig chat generation failed` | Læseren fik en fejl (JSON 502 eller `error` i strømmen). `error` er årsagens navn. |
    | `SmartBolig site search unavailable` | Opslaget fejlede eller tog over 5 sekunder; svaret blev skrevet uden guideuddrag. |
    | `SmartBolig chat rate limiter unavailable` | Hastighedsgrænsen svarede ikke; læseren fik 503. |

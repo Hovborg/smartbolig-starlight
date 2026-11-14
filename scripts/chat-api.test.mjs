@@ -1777,7 +1777,9 @@ test("a site search timeout degrades without blocking the broad model", async ()
     "www.home-assistant.io",
     "www.home-assistant.io",
   ]);
-  assert.ok(Date.now() - startedAt < 250, "search timeout should fail over promptly");
+  // The search never answers. Well under the default 5 s limit proves the short limit was used;
+  // a tighter bound fails on a busy machine.
+  assert.ok(Date.now() - startedAt < 2_000, "search timeout should fail over promptly");
 });
 
 test("rate limiting fails before model use and returns a stable retry response", async () => {

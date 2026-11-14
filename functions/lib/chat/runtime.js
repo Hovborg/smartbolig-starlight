@@ -9,6 +9,8 @@ function namedError(name, message) {
 // Runs operation(signal) with a deadline. `outerSignal` ends it early when the
 // caller no longer wants the result (the visitor stopped a streamed answer).
 export function withTimeout(operation, timeoutMs, outerSignal) {
+  // Already stopped: the operation is never started.
+  if (outerSignal?.aborted) return Promise.reject(namedError("AbortError", "RequestAborted"));
   const controller = new AbortController();
   let timeoutId;
   let onOuterAbort;
@@ -22,8 +24,7 @@ export function withTimeout(operation, timeoutMs, outerSignal) {
       controller.abort();
       reject(namedError("AbortError", "RequestAborted"));
     };
-    if (outerSignal.aborted) onOuterAbort();
-    else outerSignal.addEventListener("abort", onOuterAbort, { once: true });
+    outerSignal.addEventListener("abort", onOuterAbort, { once: true });
   });
 
   const operationPromise = Promise.resolve().then(() => operation(controller.signal));

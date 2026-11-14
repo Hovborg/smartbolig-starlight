@@ -60,10 +60,104 @@ test("reasoning, unknown fields and broken lines in a model stream never reach t
   assert.equal(done(events).answer, "Vælg SLZB-06M.");
 });
 
-test("a stream that ends without [DONE] or a finish reason is still a whole answer", async () => {
-  const harness = createStreamHarness(() => modelStream(["Et helt svar."], { finish: null, done: false }));
+test("the two real stream shapes, read 2026-11-14, give the answer once and without leading white space", async () => {
+  const usage = { prompt_tokens: 0, completion_tokens: 1, total_tokens: 1, neurons: 0.02 };
+  const gemma = (delta, finish = null) => ({
+    id: "c1",
+    object: "chat.completion.chunk",
+    choices: [{ index: 0, delta, logprobs: null, finish_reason: finish, matched_stop: null }],
+    usage,
+    p: "x",
+  });
+  // Qwen repeats each piece of the answer in `response`, and starts with a blank line.
+  const qwen = (delta, extra = {}) => ({
+    id: "c2",
+    object: "chat.completion.chunk",
+    choices: [{ index: 0, delta, logprobs: null, finish_reason: null, token_ids: null }],
+    tool_calls: [],
+    usage,
+    ...extra,
+  });
+  const tail = [{ id: "c", choices: [], usage }, { response: "", usage }];
+  const shapes = {
+    gemma: [
+      gemma({ reasoning_content: null, role: "assistant", content: "" }),
+      gemma({ reasoning_content: "Brugeren spørger om Zigbee." }),
+      gemma({ content: "Brug en ", reasoning_content: null }),
+      gemma({ content: "netværkskoordinator.", reasoning_content: null }),
+      gemma({ reasoning_content: null }, "stop"),
+      ...tail,
+    ],
+    qwen: [
+      qwen({ role: "assistant", content: "" }, { response: "" }),
+      qwen({ reasoning: "Jeg svarer kort.", reasoning_content: "Jeg svarer kort." }),
+      qwen({ content: "\n\n" }, { response: "\n\n" }),
+      qwen({ content: "Brug en " }, { response: "Brug en " }),
+      qwen({ content: "netværkskoordinator." }, { response: "netværkskoordinator." }),
+      { ...qwen({}), choices: [{ index: 0, delta: {}, finish_reason: "stop", stop_reason: null }] },
+      ...tail,
+    ],
+  };
 
-  assert.equal(done(await ask(harness)).answer, "Et helt svar.");
+  for (const [name, payloads] of Object.entries(shapes)) {
+    const events = await ask(createStreamHarness(() => sseStream(payloads)));
+
+    assert.equal(deltaText(events), "Brug en netværkskoordinator.", name);
+    assert.equal(done(events).answer, "Brug en netværkskoordinator.", name);
+    assert.equal(done(events).diagnostics.route, "primary", name);
+  }
+});
+
+test("a stream is whole when the model said so: a finish reason or [DONE] is enough", async () => {
+  for (const options of [{ done: false }, { finish: null }]) {
+    const harness = createStreamHarness(() => modelStream(["Et helt svar."], options));
+
+    assert.equal(done(await ask(harness)).diagnostics.route, "primary", JSON.stringify(options));
+  }
+});
+
+test("a stream that just closes is half an answer: it is withdrawn and rewritten by the fallback", async () => {
+  const harness = createStreamHarness((call) =>
+    call.primary
+      ? modelStream(["Du skal først åbne Zigbee2MQTT. ", "Vælg derefter kanal 25."], { finish: null, done: false })
+      : modelStream(["Et helt svar."]),
+  );
+
+  const events = await ask(harness);
+
+  assert.deepEqual(stages(events), ["searching", "writing", "revising", "writing"]);
+  assert.equal(done(events).answer, "Et helt svar.");
+  assert.deepEqual(fallbackReasons(harness.logs), ["fallback_started:truncated_primary_response"]);
+});
+
+test("an error sent inside the stream is a failed model, not the end of an answer", async () => {
+  const harness = createStreamHarness((call) =>
+    call.primary
+      ? sseStream([{ choices: [{ delta: { content: "Brug en " } }] }, { error: { message: "upstream" } }])
+      : modelStream(["Et helt svar."]),
+  );
+
+  const events = await ask(harness);
+
+  assert.deepEqual(stages(events), ["searching", "writing", "revising", "writing"]);
+  assert.equal(done(events).answer, "Et helt svar.");
+  assert.deepEqual(fallbackReasons(harness.logs), ["fallback_started:primary_error"]);
+  assert.equal(harness.logs.find(({ event }) => event === "fallback_started").error, "ModelStreamError");
+});
+
+test("a stream in a shape the reader does not know is logged as that, not as a silent model", async () => {
+  const strange = () => sseStream([{ token: "Brug " }, { token: "en koordinator." }]);
+  const harness = createStreamHarness((call) => (call.primary ? strange() : modelStream(["Svar fra reserven."])));
+  const both = createStreamHarness(strange);
+
+  assert.equal(done(await ask(harness)).answer, "Svar fra reserven.");
+  assert.deepEqual(fallbackReasons(harness.logs), ["fallback_started:unknown_primary_stream"]);
+
+  assert.equal((await ask(both)).at(-2).event, "error");
+  assert.deepEqual(fallbackReasons(both.logs), [
+    "fallback_started:unknown_primary_stream",
+    "fallback_failed:unknown_fallback_stream",
+  ]);
 });
 
 test("the fallback model answers when the primary fails before any text was shown", async () => {
@@ -93,16 +187,44 @@ test("the fallback model answers when the primary fails before any text was show
   }
 });
 
-test("a primary that breaks after text was shown ends in an error, never in a second model", async () => {
-  const harness = createStreamHarness(() => modelStream(["Brug en ", "netværks"], { failAfter: 1 }));
+test("a primary that breaks after text was shown is withdrawn and rewritten by the fallback", async () => {
+  const harness = createStreamHarness((call) =>
+    call.primary ? modelStream(["Brug en ", "netværks"], { failAfter: 1 }) : modelStream(["Et helt svar."]),
+  );
 
   const events = await ask(harness);
 
-  assert.equal(eventNames(events), "status sources status delta error message");
+  assert.equal(eventNames(events), "status sources status delta status status delta done message");
+  assert.deepEqual(stages(events), ["searching", "writing", "revising", "writing"]);
+  assert.equal(done(events).answer, "Et helt svar.");
+  assert.equal(harness.calls.length, 2);
+  assert.deepEqual(fallbackReasons(harness.logs), ["fallback_started:primary_error"]);
+});
+
+test("a fallback that breaks after text was shown ends in an error, never in a third model", async () => {
+  const harness = createStreamHarness((call) =>
+    call.primary ? modelStream(["Første "], { failAfter: 1 }) : modelStream(["Andet ", "udkast"], { failAfter: 1 }),
+  );
+
+  const events = await ask(harness);
+
+  assert.equal(events.at(-2).event, "error");
   assert.equal(events.at(-2).data.code, "assistant_unavailable");
   assert.equal(done(events), undefined);
-  assert.equal(harness.calls.length, 1);
+  assert.equal(harness.calls.length, 2);
   assert.ok(harness.logs.some(({ message }) => message === "SmartBolig chat generation failed"));
+});
+
+test("white space before the first word is not shown text: a failure after it needs no withdrawal", async () => {
+  const harness = createStreamHarness((call) =>
+    call.primary ? modelStream(["\n\n", " "], { failAfter: 2 }) : modelStream(["\n\nSvar fra ", "reserven."]),
+  );
+
+  const events = await ask(harness);
+
+  assert.deepEqual(stages(events), ["searching", "writing"]);
+  assert.equal(deltaText(events), "Svar fra reserven.");
+  assert.equal(done(events).answer, "Svar fra reserven.");
 });
 
 test("a finished draft that was cut off is withdrawn and rewritten by the fallback", async () => {
@@ -134,6 +256,38 @@ test("the answer checks still decide: a draft that names prompt internals is sto
   assert.equal(deltaText(beforeRevising), "Jeg bruger ");
   assert.equal(done(events).answer, "Brug guiden om koordinatorer.");
   assert.doesNotMatch(JSON.stringify(done(events)), /search_smartbolig/);
+});
+
+test("a prompt internal that arrives in several pieces is never shown in part", async () => {
+  const drafts = [
+    ["Jeg kalder ", "search", "_smart", "bolig", " for at finde guiden."],
+    ["Se ", "<", "smartbolig_refer", "ence_data>", "hemmeligt", "</smartbolig_reference_data>"],
+    ["Se ", "</OFFICIAL_", "REFERENCE_DATA", ">"],
+  ];
+
+  for (const draft of drafts) {
+    const harness = createStreamHarness((call) => (call.primary ? modelStream(draft) : modelStream(["Et helt svar."])));
+    const events = await ask(harness);
+    const beforeRevising = events.slice(0, events.findIndex(({ data }) => data.stage === "revising"));
+
+    assert.equal(deltaText(beforeRevising), draft[0], draft.join(""));
+    assert.equal(done(events).answer, "Et helt svar.");
+  }
+});
+
+test("text that only looks like the start of a prompt internal is shown once the next piece decides", async () => {
+  const drafts = [
+    ["Tryk på ", "<", "Enter", "> og skriv search", "_smart", ". Det er alt."],
+    ["Brug filen search_smart"],
+  ];
+
+  for (const draft of drafts) {
+    const events = await ask(createStreamHarness(() => modelStream(draft)));
+
+    assert.equal(deltaText(events), draft.join(""));
+    assert.equal(done(events).answer, draft.join(""));
+    assert.deepEqual(stages(events), ["searching", "writing"]);
+  }
 });
 
 test("the YAML checks still decide what a streamed answer may be", async () => {
@@ -212,15 +366,18 @@ test("the model timeout still covers a streamed answer", async (t) => {
   assert.equal(silent.calls[0].signal.aborted, true);
   assert.deepEqual(fallbackReasons(silent.logs), ["fallback_started:primary_error"]);
 
-  // Stalled after text was shown: an error, and no second model.
-  const halfway = createStreamHarness(() => modelStream(["Brug en "], { hangAfter: 1 }));
+  // Stalled after text was shown: the draft is withdrawn and the fallback answers.
+  const halfway = createStreamHarness((call) =>
+    call.primary ? modelStream(["Brug en "], { hangAfter: 1 }) : modelStream(["Svar fra reserven."]),
+  );
   const halfwayReader = (await halfway.handler({ request: chatRequest(DOMAIN_QUESTION), env: chatEnv() })).body.getReader();
   await readUntil(halfwayReader, "event: delta");
   t.mock.timers.tick(PRIMARY_MODEL_TIMEOUT_MS);
   const rest = await readUntil(halfwayReader, "[DONE]");
-  assert.match(rest, /event: error/);
-  assert.doesNotMatch(rest, /event: done/);
-  assert.equal(halfway.calls.length, 1);
+  assert.match(rest, /"revising"[\s\S]*event: done/);
+  assert.match(rest, /Svar fra reserven\./);
+  assert.equal(halfway.calls[0].signal.aborted, true);
+  assert.equal(halfway.calls.length, 2);
 });
 
 test("an oversized streamed answer is cut at the size limit and replaced", async () => {

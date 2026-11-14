@@ -7,6 +7,7 @@ import { CHAT_MODEL, createChatHandler } from "../functions/api/chat.js";
 import {
   DOMAIN_QUESTION,
   PLAIN_QUESTION,
+  SEARCH_HIT,
   SEARCH_SOURCE,
   chatEnv,
   chatRequest,
@@ -239,5 +240,37 @@ test("a reader who leaves stops the model, and that is not logged as a failure",
 
   assert.equal(calls.length, 1, "no fallback model after a stop");
   assert.equal(calls[0].signal.aborted, true);
+  assert.deepEqual(logs, []);
+});
+
+test("a reader who leaves during the search starts no model", async () => {
+  let release;
+  const searching = new Promise((resolve) => {
+    release = resolve;
+  });
+  const { handler, calls, logs } = createStreamHarness(() => modelStream(ANSWER_PARTS), {
+    siteSearch: () => async () => {
+      await searching;
+      return [SEARCH_HIT];
+    },
+  });
+  let finished;
+
+  const response = await handler({
+    request: chatRequest(DOMAIN_QUESTION),
+    env: chatEnv(),
+    waitUntil: (promise) => {
+      finished = promise;
+    },
+  });
+  const reader = response.body.getReader();
+  const decoder = new TextDecoder();
+  let seen = "";
+  while (!seen.includes('"searching"')) seen += decoder.decode((await reader.read()).value);
+  await reader.cancel();
+  release();
+  await finished;
+
+  assert.equal(calls.length, 0, "no model after a stop");
   assert.deepEqual(logs, []);
 });

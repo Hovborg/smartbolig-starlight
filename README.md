@@ -67,11 +67,11 @@ specialdesignet Astro-widget:
   derefter teksten, mens modellen skriver den. Kun selve svartrinnet strømmes,
   og teksten vises med samme sikre renderer som et færdigt svar. Det færdige
   svar gennemgår de samme kontroller som JSON-svaret og er det eneste, der
-  gemmes. Fejler modellen, før der er vist tekst, overtager reservemodellen.
-  Fejler den midt i teksten, fjernes kladden, og læseren får en fejl med »Prøv
-  igen«; et halvt svar vises aldrig som færdigt. Består et færdigt udkast ikke
-  kontrollen, trækkes det tilbage (»Skriver svaret om …«), og reservemodellen
-  skriver et nyt. »Stop« afbryder kaldet. Kan browseren ikke læse en strøm,
+  gemmes. Fejler modellen, overtager reservemodellen. Er der allerede vist
+  tekst, eller består et færdigt udkast ikke kontrollen, trækkes udkastet først
+  tilbage (»Skriver svaret om …«), og reservemodellen skriver et nyt. Fejler
+  den også, fjernes kladden, og læseren får en fejl med »Prøv igen«; et halvt
+  svar vises aldrig som færdigt. »Stop« afbryder kaldet. Kan browseren ikke læse en strøm,
   eller fejler strømmen før den første tekst, spørger widgeten én gang igen og
   får det almindelige JSON-svar. Uden `Accept: text/event-stream` svarer
   endpointet som hidtil. Strømmen er testet mod fakes; den rigtige models strøm

@@ -576,3 +576,24 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   produktsider erstattet af lister.
 - Sikring: `npm run seo:validate` kræver på alle sider, at `<title>` er `og:title` og `twitter:title`
   med sidenavnet efter, og på `/da/automationer/` søgetitel, kort overskrift og kort brødkrumme.
+
+### B62. Assistenten skriver svaret, mens læseren ser på
+- Baggrund: et svar tog 10-40 sekunder, og læseren så kun tre prikker. Modellerne bruger
+  det meste af tiden på at ræsonnere, før første ord.
+- Valg: `/api/chat` kan sende svaret som Server-Sent Events (`Accept: text/event-stream`):
+  hvad der sker nu, kilderne, teksten i stykker og til sidst det kontrollerede svar. Kun
+  selve svartrinnet strømmes. Alle kontroller er de samme som for JSON-svaret, og kun det
+  kontrollerede svar gemmes.
+- Vist tekst: en anden model skriver aldrig videre på den. Fejler hovedmodellen, eller består
+  udkastet ikke en kontrol, trækkes det tilbage (»Skriver svaret om …«), og reservemodellen
+  skriver et nyt. Først var en fejl efter vist tekst en fejl for læseren; efter den
+  uafhængige gennemgang får læseren i stedet reservemodellens svar, som uden strøm.
+- Interne navne fra prompten: slutningen af teksten holdes tilbage, så længe den kan være
+  begyndelsen på et sådant navn, så navnet heller ikke vises i dele.
+- En strøm, der lukker uden at modellen har sagt, den er færdig, er et halvt svar.
+- Formen på Workers AI's strøm er ikke dokumenteret. Den er læst for begge modeller
+  2026-11-14 gennem REST-API'et og lagt ind som test. En ukendt form har sin egen loglinje.
+- Fravalgt: at strømme det trin, der kan ende i et værktøjskald (det er ikke altid et svar),
+  og WebSocket (kræver mere kode og giver intet, Server-Sent Events ikke giver her).
+- Nødbremse: `STREAMING_ENABLED` i `functions/lib/chat/limits.js`; sat til `false` får alle
+  kald JSON-svaret som før. Det kræver en udgivelse.

@@ -12,18 +12,19 @@ import {
   requestsFencedYamlOutput,
 } from "./yaml-request.js";
 
+/** The text of a message's `content`: a string, or a list of parts of which the text parts count. */
+export function contentText(content) {
+  if (typeof content === "string") return content;
+  if (!Array.isArray(content)) return "";
+  return content
+    .map((part) => (part?.type === "text" && typeof part.text === "string" ? part.text : ""))
+    .join("");
+}
+
 export function extractModelAnswer(result) {
   if (typeof result === "string") return result.trim();
   if (typeof result?.response === "string") return result.response.trim();
-
-  const content = result?.choices?.[0]?.message?.content;
-  if (typeof content === "string") return content.trim();
-  if (!Array.isArray(content)) return "";
-
-  return content
-    .map((part) => (part?.type === "text" && typeof part.text === "string" ? part.text : ""))
-    .join("")
-    .trim();
+  return contentText(result?.choices?.[0]?.message?.content).trim();
 }
 
 export function isTruncatedModelResult(result, answer = "") {
@@ -62,6 +63,30 @@ export function isTruncatedModelResult(result, answer = "") {
 // The tool name and the reference-data tags belong to the prompt, never to an answer.
 export function leaksPromptInternals(answer) {
   return /\bsearch_smartbolig\b|<\/?(?:smartbolig|official)_reference_data\b/iu.test(answer);
+}
+
+// The same markers as plain text. A test keeps the two in step.
+export const PROMPT_INTERNAL_MARKERS = [
+  "search_smartbolig",
+  "<smartbolig_reference_data",
+  "</smartbolig_reference_data",
+  "<official_reference_data",
+  "</official_reference_data",
+];
+const LONGEST_MARKER = Math.max(...PROMPT_INTERNAL_MARKERS.map((marker) => marker.length));
+
+/**
+ * How many characters at the end of `text` may be the start of a prompt
+ * internal. A streamed answer holds them back until the next piece decides,
+ * so a marker that arrives in several pieces is never shown in part.
+ */
+export function heldBackLength(text) {
+  const tail = text.slice(-LONGEST_MARKER).toLowerCase();
+  for (let start = 0; start < tail.length; start += 1) {
+    const end = tail.slice(start);
+    if (PROMPT_INTERNAL_MARKERS.some((marker) => marker.startsWith(end))) return end.length;
+  }
+  return 0;
 }
 
 export function isAcceptableModelAnswer(answer, latestUserContent) {

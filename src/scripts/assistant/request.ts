@@ -54,7 +54,7 @@ export async function requestAnswer(payload: unknown, signal: AbortSignal, handl
       if (event.type === "status") handlers.onStage(event.stage);
       else if (event.type === "sources") handlers.onSources(event.sources);
       else if (event.type === "delta") {
-        wroteText = true;
+        if (event.text.trim()) wroteText = true;
         handlers.onText(event.text);
       }
     });
