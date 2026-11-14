@@ -824,7 +824,10 @@ test("deploy runs every local quality gate before publishing", async () => {
   assert.match(workflow, /git fetch --quiet origin main/);
   assert.match(workflow, /echo "::notice::main has moved on/);
   assert.doesNotMatch(workflow, /github\.event_name != 'pull_request'/);
-  assert.match(workflow, /group: \$\{\{ github\.event_name == 'pull_request' && format\('deploy-pr-\{0\}', github\.event\.number\) \|\| 'deploy-production' \}\}/);
+  // Three queues: one per pull request, one for runs that only validate
+  // (started by hand or after an automatic dependency merge), one for deploys.
+  // The news workflow may be started by hand and still deploys: publish decides.
+  assert.ok(workflow.includes("group: ${{ github.event_name == 'pull_request' && format('deploy-pr-{0}', github.event.number) || (github.event_name == 'workflow_dispatch' && inputs.publish != true) && 'deploy-validate' || 'deploy-production' }}"));
   for (const command of [
     "npm run site:test",
     "npm run ai-news:test",
