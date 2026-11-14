@@ -60,10 +60,8 @@ test("the merge takes only the checked commit and then starts the gates on main"
   assert.match(workflow, /if: steps\.merge\.outputs\.merged == 'true'\n\s+run: gh workflow run deploy\.yml --repo "\$GITHUB_REPOSITORY" --ref main/);
   assert.match(workflow, /case "\$HEAD_REF" in dependabot\/npm_and_yarn\/\*\) npm_branch=true ;; esac/);
   // Each step runs only when the one before it said yes.
-  assert.match(workflow, /id: gate
-\s+if: steps\.policy\.outputs\.small == 'true'/);
-  assert.match(workflow, /id: merge
-\s+if: steps\.gate\.outputs\.passed == 'true'/);
+  assert.match(workflow, /id: gate\n\s+if: steps\.policy\.outputs\.small == 'true'/);
+  assert.match(workflow, /id: merge\n\s+if: steps\.gate\.outputs\.passed == 'true'/);
   assert.match(workflow, /\[ "\$npm_branch" != "true" \] \|\| \[ "\$only_packages" != "true" \] \|\| \[ "\$small" != "true" \]/);
 });
 
