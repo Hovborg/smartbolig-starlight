@@ -1,6 +1,6 @@
 ---
 title: Hvilken hardware skal Home Assistant køre på
-description: Vælg mellem Home Assistant Green, Yellow, Raspberry Pi 5, mini-pc og VM ud fra dit behov, med vedligehold, lager, backup og tegn på, at du bør skifte.
+description: Vælg mellem Home Assistant Green, Raspberry Pi, mini-pc og virtuel maskine ud fra dit behov. Med lager, backup og tegn på, at det er tid til at skifte.
 lastUpdated: 2026-11-14
 sidebar:
   badge:
@@ -10,95 +10,106 @@ sidebar:
 
 import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components';
 
-Home Assistant kan køre på mange slags udstyr, og det rigtige valg afhænger
-mere af, hvad du vil vedligeholde, end af hvor hurtig maskinen er. Denne guide
+Home Assistant kan køre på mange slags udstyr. Det rigtige valg afhænger mere
+af, hvad du vil vedligeholde, end af hvor hurtig maskinen er. Denne guide
 hjælper dig med at vælge udstyr, planlægge lager og backup og vide, hvornår du
-skal flytte videre. Den viser ikke selve installationen; den har sine egne
-guides, som du finder nedenfor.
+skal skifte. Selve installationen har sine egne guides, som du finder nedenfor.
 
-Du får et valg, du kan forsvare om to år, og en backup, der kan genskabe
-hjemmet på nyt udstyr. Du skal bruge dit netværk, en klar idé om, hvilke
-enheder du vil styre, og en plan for, hvem der tager backup. Priser ændrer sig;
-slå dem op hos forhandleren frem for i en guide.
+Du får et valg, du kan begrunde, og en backup, der kan genskabe hjemmet på nyt
+udstyr. Du skal vide, hvilke enheder du vil styre, og hvem der passer
+backuppen. Priser ændrer sig, så dem slår du op hos forhandleren.
 
 ## Vælg efter behov
 
 | Dit behov | Et passende udgangspunkt | Det skal du vedligeholde |
 |---|---|---|
-| Plug and play uden at samle noget | Home Assistant Green | Opdateringer og backup |
-| Du vil samle selv og har Zigbee indbygget | Home Assistant Yellow (kun hvis du allerede har den) | Compute Module, lager, opdateringer, backup |
-| Billig, kendt og fleksibel | Raspberry Pi 4 eller 5 | Strømforsyning, microSD eller andet lager, backup |
-| Du vil bruge en almindelig pc med internt SATA- eller M.2-drev | Mini-pc (x86-64) | Hardware, BIOS-indstillinger, backup |
-| Du har allerede en server | HAOS i en VM, eller Home Assistant Container | Værtsserveren, VM-backup, USB-gennemføring |
+| Færdig boks uden at samle noget | Home Assistant Green | Opdateringer og backup |
+| Du har allerede en Yellow | Home Assistant Yellow (produceres ikke længere) | Compute Module, lager, opdateringer, backup |
+| Du har en Raspberry Pi 4 eller 5 | Raspberry Pi med HAOS | Strømforsyning, microSD-kort, backup |
+| Du vil bruge en almindelig pc med internt drev | Mini-pc (x86-64) | Hardware, UEFI-indstillinger, backup |
+| Du har allerede en server | HAOS i en virtuel maskine eller Home Assistant Container | Værtsserveren, backup af VM'en, USB-enheder til VM'en |
 
 Home Assistants [installationsoversigt](https://www.home-assistant.io/installation/)
-anbefaler Home Assistant Operating System (HAOS) som installationstype for de
-fleste. Container passer til dem, der er trygge ved kommandolinje, Docker og
-virtualisering, og giver ikke adgang til apps (tidligere add-ons).
+anbefaler Home Assistant Operating System (HAOS) som installationstype.
+Container passer ifølge siden til dig, der er tryg ved kommandolinje,
+containere eller virtualisering. Container indeholder ikke apps. Apps hed
+add-ons indtil [version 2026.2](https://www.home-assistant.io/blog/2026/02/04/release-20262/).
 
 ## De fem valg
 
-**Home Assistant Green.** Leveres med HAOS forhåndsinstalleret. Ifølge
-[produktsiden](https://www.home-assistant.io/green/) har den en quad-core
-Cortex-A55 på 1,8 GHz, 4 GB RAM og 32 GB eMMC, to USB 2.0-porte og gigabit
-Ethernet. Zigbee og Thread er ikke indbygget; man tilføjer dem med USB-tilbehøret
-Home Assistant Connect ZBT-2. Produktsiden oplyser et idleforbrug på cirka
-1,7 W. Det er det enkleste valg, hvis du ikke vil tænke på hardware.
+**Home Assistant Green.** Leveres ifølge installationsoversigten med HAOS
+installeret. [Produktsiden](https://www.home-assistant.io/green/) oplyser en
+firekernet Arm Cortex-A55-processor, 4 GB RAM, 32 GB eMMC-lager, to USB
+2.0-porte og gigabit Ethernet. Forbruget i tomgang er oplyst til cirka 1,7 W.
+Zigbee og Thread er ikke indbygget. Produktsiden henviser til tilbehøret Home
+Assistant Connect ZBT-2, som sættes i en USB-port, og skriver i en fodnote, at
+Thread-understøttelsen er under udvikling. Green er det enkleste valg, hvis du
+ikke vil tænke på hardware.
 
 **Home Assistant Yellow.** Et bundkort til Raspberry Pi Compute Module 4 med
-indbygget Zigbee-modul og en M.2-plads til NVMe-lager. Ifølge
-[produktsiden](https://www.home-assistant.io/yellow/) er Yellow ikke længere i
-produktion, men får fortsat softwareopdateringer, og kits indeholder ikke
-selve Compute Module. Vælg den kun, hvis du allerede ejer en.
+indbygget Zigbee-radio og en M.2-plads til en NVMe-SSD. Home Assistant
+[meddelte i oktober 2025](https://www.home-assistant.io/blog/2025/10/15/yellow-end-of-life/),
+at Yellow ikke længere produceres. [Produktsiden](https://www.home-assistant.io/yellow/)
+skriver, at den fortsat får softwareopdateringer, og at kittet ikke indeholder
+selve Compute Module. Behold den, hvis du har en. Vælg noget andet, hvis du
+skal købe nyt.
 
-**Raspberry Pi.** HAOS findes til Raspberry Pi 4 og 5. Den
+**Raspberry Pi.** Den
 [officielle guide](https://www.home-assistant.io/installation/raspberrypi/)
-anbefaler en model med mindst 2 GB RAM og et microSD-kort på mindst 32 GB, helst
-A2-mærket. Brug en passende strømforsyning; en computers USB-port må ikke
-bruges. Wi-Fi virker, men Ethernet er mere pålideligt. Følg
+anbefaler Raspberry Pi 4 eller 5 med mindst 2 GB RAM og et microSD-kort på
+mindst 32 GB, helst A2-mærket. Brug en strømforsyning, der passer til modellen;
+guiden skriver, at en computers USB-port ikke giver strøm nok. Ethernet er
+påkrævet under installationen. Bagefter kan du bruge Wi-Fi, men guiden anbefaler
+kablet net som mere pålideligt. Følg
 [Raspberry Pi-installationen](/da/home-assistant/raspberry-pi-installation/).
 
-**Mini-pc.** Home Assistant OS kan installeres på en generisk
+**Mini-pc.** HAOS kan installeres på en generisk
 [x86-64-maskine](https://www.home-assistant.io/installation/generic-x86-64/).
 Maskinen skal være 64-bit og starte i UEFI-tilstand med Secure Boot slået fra.
-Opstartsdrevet skal bruge 512-byte sektorer; nogle NVMe-drev og harddiske med
-kun 4Kn kan HAOS ikke starte fra. Et internt SATA-, M.2- eller eMMC-drev er
-normalt. Et eksternt USB-SSD virker, men anbefales ikke. Installationen sletter
-måldrevet.
+Opstartsdrevet skal have logiske sektorer på 512 byte (512n eller 512e). Et
+drev, der kun er 4Kn, kan HAOS ikke starte fra. Et internt SATA-, M.2- eller
+eMMC-drev er det normale. Eksternt USB-lager anbefales ikke. Installationen
+sletter hele drevet.
 
-**VM på en eksisterende server.** HAOS er designet til at køre på en
-enkeltkortscomputer eller i en virtuel maskine. Home Assistants
-[Linux-side](https://www.home-assistant.io/installation/linux/) nævner
-VirtualBox, KVM, VMware Workstation og Unraid. Se
+**Virtuel maskine på en eksisterende server.** Home Assistants
+[Linux-side](https://www.home-assistant.io/installation/linux/) har færdige
+HAOS-images til VirtualBox, KVM og VMware Workstation og en vejledning til
+Unraid. Den
+virtuelle maskine skal have mindst 2 GB RAM og 2 vCPU'er. Se
 [Proxmox-installation](/da/home-assistant/proxmox-installation/) til Proxmox
-eller [Docker-installation](/da/home-assistant/docker-installation/) til Container.
+eller [Docker-installation](/da/home-assistant/docker-installation/) til
+Container.
 
 <Aside type="caution" title="Container er ikke HAOS">
-Container giver ikke adgang til apps, og du opdaterer selv. Thread og Z-Wave
-mangler derfor out-of-the-box-understøttelse, fordi de afhænger af apps. Vælg
-Container bevidst, ikke fordi du allerede har Docker.
+Container indeholder ikke apps, og du opdaterer selv containeren. Home Assistant
+skriver, at nogle integrationer, for eksempel Thread og Z-Wave, styres af apps
+og derfor ikke virker uden videre på Container. Vælg Container bevidst, ikke
+kun fordi du allerede har Docker.
 </Aside>
 
 ## Lager og backup
 
 Valget af lager er lige så vigtigt som valget af maskine:
 
-- På en Raspberry Pi nævner den officielle guide et microSD-kort på mindst 32 GB,
-  helst A2. Guiden siger ikke noget om slid, så regn med, at kortet en dag
-  skal skiftes, og at backup derfor skal findes udenfor det.
-- På en mini-pc er internt lager normalt; et eksternt USB-SSD anbefales ikke.
-- På en VM ligger lageret hos værten; tag backup af både VM og Home Assistant.
+- På en Raspberry Pi nævner den officielle guide et microSD-kort på mindst
+  32 GB, helst A2. Et kort kan fejle, så backuppen skal ligge et andet sted end
+  på kortet.
+- På en mini-pc er internt lager det normale. Eksternt USB-lager anbefales ikke.
+- I en virtuel maskine ligger lageret hos værten. Tag backup af både VM'en og
+  Home Assistant.
 
-Under **Indstillinger → System → Backups** vælger du **Set up backups** (teksten kan afvige i dansk grænseflade). Den
-anbefalede indstilling tager daglig backup, springer medier, share-mappen og
-lokale apps over og beholder de seneste 3. Du kan i stedet vælge tidsplan og
-opbevaring selv. Se de officielle
-[backupvejledninger](https://www.home-assistant.io/common-tasks/general/backups/).
+Gå til **Indstillinger → System → Sikkerhedskopiering** (engelsk: Settings →
+System → Backups), og sæt automatisk backup op (Set up backups). Vælger du
+**Anbefalet** (Recommended), tager Home Assistant en daglig backup af alt
+undtagen medier, share-mappen og mappen med lokale apps og gemmer de tre
+seneste. Du kan også selv vælge tidsplan og opbevaring. Se den officielle
+[backupvejledning](https://www.home-assistant.io/common-tasks/general/backups/).
 
-Backups er krypteret som standard. Hent nødkittet i trinnet med
-krypteringsnøglen og gem det et sted, der ikke er selve enheden; uden nøglen kan
-du ikke gendanne. Home Assistant anbefaler en kopi på et andet system, helst
-udenfor huset. Cloud gemmer én krypteret backup op til 5 GB. Læs også vores
+Backups er krypteret som standard. Vælg **Download nødoplysninger** (Download
+emergency kit), og gem filen et andet sted end på selve enheden. Filen
+indeholder krypteringsnøglen, og uden den kan du ikke gendanne. Home Assistant
+anbefaler en kopi på et andet system, helst uden for huset. Home Assistant
+Cloud gemmer én backup på højst 5 GB. Læs også vores guide om
 [backup og sikkerhed](/da/home-assistant/backup-sikkerhed/).
 
 ## Trin for trin
@@ -106,13 +117,13 @@ udenfor huset. Cloud gemmer én krypteret backup op til 5 GB. Læs også vores
 <Steps>
 1. **Skriv dit behov ned**
 
-   Hvor mange enheder, hvilke radioer (Zigbee, Thread, Z-Wave), og skal der være
-   apps? Kun HAOS giver apps.
+   Hvor mange enheder skal med? Hvilke radioer skal du bruge (Zigbee, Thread,
+   Z-Wave)? Skal du bruge apps? Så skal du vælge HAOS og ikke Container.
 
 2. **Vælg udstyr i tabellen**
 
-   Har du en Raspberry Pi liggende, så start dér. Vil du ikke tænke på det, så
-   vælg Green. Har du en server, så vælg en VM.
+   Har du en Raspberry Pi 4 eller 5 liggende, så start dér. Vil du ikke tænke
+   på hardware, så vælg Green. Har du en server, så vælg en virtuel maskine.
 
 3. **Installér efter den rigtige guide**
 
@@ -120,7 +131,8 @@ udenfor huset. Cloud gemmer én krypteret backup op til 5 GB. Læs også vores
 
 4. **Slå backup til, før du tilføjer enheder**
 
-   Opsæt automatisk backup, gem nødkittet og kopiér en backup til et andet system.
+   Sæt automatisk backup op, gem nødoplysningerne, og kopiér en backup til et
+   andet system.
 
 5. **Skriv ned, hvor tingene står**
 
@@ -130,44 +142,52 @@ udenfor huset. Cloud gemmer én krypteret backup op til 5 GB. Læs også vores
 
 ## Test det
 
-1. Genstart enheden. Home Assistant skal være oppe igen uden, at du skal gøre noget.
-2. Åbn **Indstillinger → System → Backups**. Du skal se en automatisk backup og
-   kunne downloade den.
-3. Åbn **Indstillinger → System → Storage** og bekræft, at der er rigelig plads.
-4. Kontrollér, at nødkittet findes udenfor enheden.
+1. Genstart enheden. Home Assistant skal komme op igen, uden at du gør noget.
+2. Åbn **Indstillinger → System → Sikkerhedskopiering**. Du skal kunne se en
+   automatisk backup og downloade den.
+3. Åbn **Indstillinger → System → Lagring** (Storage), og se, hvor meget plads
+   der er tilbage.
+4. Kontrollér, at filen med nødoplysninger ligger et andet sted end på enheden.
 
-Det eneste, der beviser en backup, er en gendannelse. Gør den på en prøvedag,
-inden du har brug for den.
+Kun en gendannelse beviser, at en backup virker. Prøv den på en rolig dag, før
+du får brug for den.
 
-## Hvornår skal du videre
+## Hvornår skal du skifte
 
-- Du løber tør for plads, eller lageret er dit praktiske loft.
+- Du løber tør for lagerplads.
 - Du har brug for apps, og du kører Container.
-- Du vil have Zigbee og Thread, og har Green, som kræver USB-tilbehør.
-- Maskinen er ustabil, eller strømforsyningen er en gentagen fejlkilde.
+- Maskinen er ustabil, eller strømforsyningen giver fejl igen og igen.
 
-Når du skifter, følger du Home Assistants
-[gendannelse ved opstart](https://www.home-assistant.io/common-tasks/general/backups/).
-Det nye system skal have internet, mindst 2 GB fri plads efter upload, og et
-lager, der er større end **Disk used** på det gamle. På velkomstskærmen vælger du
-**Upload backup** eller **Home Assistant Cloud**, vælger delene, indtaster
-nøglen og vælger **Restore backup**. Skifter du Zigbee-radio, skal Zigbee flyttes særskilt.
+Når du skifter, følger du Home Assistants vejledning i at
+[gendanne en backup](https://www.home-assistant.io/common-tasks/general/backups/)
+under opsætningen af det nye system. Det nye system skal have internetadgang.
+Lageret skal være større end det gamle systems brugte diskplads plus mindst
+2 GB, og der skal være mindst 2 GB ledig plads, når backuppen er uploadet. Den
+brugte diskplads finder du på det gamle system under **Indstillinger → System →
+Reparationer**, menuen med de tre prikker, **Systemoplysninger**. Feltet hedder
+Disk used på engelsk og står under Home Assistant Supervisor.
+
+På velkomstskærmen vælger du at uploade en backup (Upload backup) eller at
+hente den fra Home Assistant Cloud. Vælg, hvad der skal gendannes, indtast
+krypteringsnøglen, og start gendannelsen (Restore backup). Skifter du samtidig
+Zigbee-radio, skal Zigbee-netværket flyttes særskilt.
 
 ## Når noget går galt
 
 | Symptom | Mulig årsag | Næste skridt |
 |---|---|---|
-| Mini-pc'en starter ikke fra drevet | Ikke UEFI, Secure Boot er til, eller 4Kn-sektorer | Ret BIOS; brug et drev med 512-byte sektorer |
-| Pi'en er ustabil | Strømforsyningen kan være for svag (hypotese) | Brug en passende strømforsyning; siden advarer mod computerens USB |
+| Mini-pc'en starter ikke fra drevet | Ikke UEFI, Secure Boot er slået til, eller drevet er 4Kn | Ret UEFI-indstillingerne, eller brug et drev med logiske sektorer på 512 byte |
+| Pi'en er ustabil | Strømforsyningen kan være for svag | Brug en strømforsyning, der passer til modellen, og aldrig en computers USB-port |
 | Ingen apps i menuen | Du kører Container | Vælg HAOS, hvis du skal bruge apps |
-| Gendannelse afviser backup | Kort lager eller forkert nøgle | Brug større lager og nødkittets nøgle |
-| Zigbee mangler efter flytning | Anden radio | Migrér Zigbee særskilt |
+| Gendannelsen afviser backuppen | For lidt lagerplads eller forkert krypteringsnøgle | Brug et større lager, og indtast nøglen fra nødoplysningerne |
+| Zigbee mangler efter flytningen | Det nye system har en anden Zigbee-radio | Flyt Zigbee-netværket særskilt |
 
 ## Fortryd
 
-Behold det gamle system tændt, til det nye har kørt stabilt i nogle dage og en
-gendannelse er afprøvet. Slut dernæst det gamle fra. Vil du tilbage, så gendan
-den seneste backup på det gamle.
+Sluk det gamle system, men slet det ikke, før det nye har kørt stabilt i nogle
+dage. Lad dem ikke køre samtidig: To systemer med samme opsætning kører de
+samme automationer to gange. Vil du tilbage, så sluk det nye system, og start
+det gamle igen.
 
 <CardGrid>
   <Card title="Kom i gang" icon="rocket">
@@ -185,7 +205,9 @@ hos producenten.
 
 - [Home Assistant: installation](https://www.home-assistant.io/installation/)
 - [Home Assistant Green](https://www.home-assistant.io/green/) og [Yellow](https://www.home-assistant.io/yellow/)
+- [Home Assistant: Yellow produceres ikke længere (blogindlæg, 15. oktober 2025)](https://www.home-assistant.io/blog/2025/10/15/yellow-end-of-life/)
 - [Home Assistant: Raspberry Pi](https://www.home-assistant.io/installation/raspberrypi/)
 - [Home Assistant: generisk x86-64](https://www.home-assistant.io/installation/generic-x86-64/)
 - [Home Assistant: Linux og virtuelle maskiner](https://www.home-assistant.io/installation/linux/)
 - [Home Assistant: backups](https://www.home-assistant.io/common-tasks/general/backups/)
+- [Home Assistant 2026.2: add-ons hedder nu apps](https://www.home-assistant.io/blog/2026/02/04/release-20262/)

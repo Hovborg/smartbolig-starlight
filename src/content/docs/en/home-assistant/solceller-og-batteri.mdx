@@ -1,6 +1,6 @@
 ---
 title: Solar panels and a home battery in Home Assistant
-description: Get solar production, grid and battery data into the Energy dashboard, show the solar forecast, and shift use to surplus hours with a simple automation.
+description: Get solar panels, the grid and a battery into the Home Assistant Energy dashboard, show the solar forecast, and shift use to surplus hours with an automation.
 lastUpdated: 2026-11-14
 sidebar:
   badge:
@@ -12,35 +12,40 @@ import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components';
 
 If you have solar panels or a home battery, you rarely know how much you use
 yourself, how much goes to the grid, and when the battery is working. This guide
-gets the three flows into Home Assistant and uses them for a simple automation
-that shifts consumption to hours with surplus.
+gets production, grid and battery into Home Assistant. You then use the numbers
+in a simple automation that shifts consumption to hours with surplus.
 
 You get an Energy dashboard with production, grid and battery, a solar forecast,
 and an automation for one load that may switch on and off without you. You need
-counters or an integration from your inverter, and Energy must already work with
-the grid; see [Energy Dashboard](/en/home-assistant/energy-dashboard/) and, if
-you read live from the meter, [your meter via the HAN port](/en/home-assistant/elmaaler-han-port/).
+energy sensors from your inverter or from a meter. Energy must already work
+with the grid; see [Energy Dashboard](/en/home-assistant/energy-dashboard/) and,
+if you read live from the meter, [your meter via the HAN port](/en/home-assistant/elmaaler-han-port/).
+
+The safety rules in this guide are the Danish ones.
 
 ## Choose how the data gets in
 
 Home Assistant's [solar panels page](https://www.home-assistant.io/docs/energy/solar-panels/)
-names two main routes to production data: CT clamps, which measure current in a
-wire, and inverter APIs that an integration can read. Shelly EM is the
-off-the-shelf option the page recommends, and ESPHome can be used for a DIY
-build. The battery page similarly names a vendor integration (for example Tesla
-Powerwall) or CT clamps.
+names two routes to production data: an integration that reads the inverter's
+API, and CT clamps that measure the current in a wire. The page points to the
+Shelly EM as an off-the-shelf solution and to ESPHome for a DIY build. The
+[battery page](https://www.home-assistant.io/docs/energy/battery/) similarly
+names an integration (the example is Tesla Powerwall) or CT clamps.
 
 | Source | Suits | You maintain |
 |---|---|---|
 | Integration for your inverter or battery | The manufacturer has an integration | The integration's status and login |
-| Shelly EM or another CT meter | The inverter has no usable integration | The meter, its placement and firmware |
+| Shelly EM or another meter with CT clamps | The inverter has no usable integration | The meter, its placement and firmware |
 | ESPHome with a CT sensor | You want to build it yourself | Configuration and calibration |
 
-<Aside type="caution" title="CT clamps need an open cabinet">
-Home Assistant writes that fitting CT clamps requires opening the electrical
-cabinet and that a qualified installer should do it. In some places the rules
-require a licensed electrician. Use an integration if you can, and have an
-electrician fit the clamps.
+<Aside type="caution" title="Work in the electrical board requires authorisation">
+CT clamps and the meters for them are fitted in the electrical board. Home
+Assistant writes that this requires opening the board and may require a
+licensed professional in some regions. In Denmark, according to the Danish
+Safety Technology Authority, you may not do electrical work in the meter board
+or the consumer unit yourself. Have an authorised electrical contractor fit the
+meter and the clamps. Connecting the solar installation itself in the board
+also requires authorisation. You may do the setup in Home Assistant yourself.
 </Aside>
 
 ## Step by step
@@ -49,60 +54,84 @@ electrician fit the clamps.
 1. **Find the sensors**
 
    Use **Settings → Tools → States** to find the sensors from your integration.
-   You need energy (kWh) that rises continuously for each of these: grid
-   consumption, grid export, solar production, energy into the battery and
-   energy out of the battery. See the
-   [Energy overview](https://www.home-assistant.io/docs/energy/) for the
-   requirements on units and power sensors.
+   You need an energy sensor in kWh or Wh for each of these: consumption from
+   the grid, export to the grid, solar production, energy into the battery and
+   energy out of the battery. The requirements for the sensors are in Home
+   Assistant's [Energy FAQ](https://www.home-assistant.io/docs/energy/faq/).
 
 2. **Add the grid first**
 
-   Under **Settings → Dashboards → Energy** choose **Add grid connection** and
-   select the sensors for consumption and, if you have it, export. See
-   [Energy Dashboard](/en/home-assistant/energy-dashboard/).
+   Go to **Settings → Dashboards → Energy**. Under **Electricity grid** choose
+   **Add grid connection** and select the sensors for consumption and export.
+   See [Energy Dashboard](/en/home-assistant/energy-dashboard/).
 
 3. **Add solar panels**
 
-   Select the inverter's cumulative production. Do not use grid export as
-   production; own consumption would be missing.
+   Under **Solar panels** choose **Add solar production**. Select the
+   inverter's total production counter. Do not use grid export as production;
+   the power you used yourself would be missing.
 
 4. **Add the battery**
 
-   Select the sensors for energy in and energy out. A percentage (state of
-   charge) is useful for operation but does not replace the two energy sensors.
-   Check sign and direction; some inverters report discharge as negative power.
+   Under **Home battery storage** choose **Add battery system**. Select one
+   sensor for energy into the battery and one for energy out. State of charge
+   in percent is useful for operation but does not replace the two energy
+   sensors. Check the direction: when the battery charges, the counter for
+   energy in should rise.
 
 5. **Turn on the solar forecast**
 
    Add the [Forecast.Solar](https://www.home-assistant.io/integrations/forecast_solar/)
-   integration under **Settings → Devices & services**. You enter the tilt (0 is
-   flat, 90 is upright), the azimuth (0 is north, 180 is south) and the total
-   peak power in Wp. Then go to Energy, the Solar panels section, turn on the
-   forecast and select Forecast.Solar.
+   integration under **Settings → Devices & services → Add integration**. You
+   enter the tilt (0 is horizontal, 90 is vertical), the azimuth (0 is north,
+   90 is east, 180 is south, 270 is west) and the installation's total power in
+   watt-peak. Then go to Energy. Under **Solar panels**, open your solar
+   production, turn on **Solar production forecast**, select Forecast.Solar and
+   save.
 
 6. **Create a surplus sensor**
 
-   Create a Threshold helper under **Settings → Devices & services → Helpers →
-   Create helper → Threshold**. Choose a sensor that shows the power you send to
-   the grid (positive when exporting), and set an upper limit, for example
-   1500 W, and a hysteresis, for example 200 W. With only an upper limit the
-   sensor turns on when the value exceeds the limit plus hysteresis and turns off
-   when it falls below the limit minus hysteresis. See the
-   [Threshold integration](https://www.home-assistant.io/integrations/threshold/).
+   Go to **Settings → Devices & services → Helpers → Create helper** and pick
+   the Threshold type. Choose a sensor that shows the power you send to the
+   grid as a positive number. Fill in only **Upper limit** and **Hysteresis**.
+   The helper then turns on when the value is above the limit plus the
+   hysteresis, and turns off when it is below the limit minus the hysteresis.
+   See the [Threshold integration](https://www.home-assistant.io/integrations/threshold/).
+
+   Choose the numbers from the load. When the load switches on, export drops by
+   the load's power. The switch-on point must therefore be above the load's
+   power, and the switch-off point must be just above zero. Otherwise the load
+   switches on and off in a loop.
+
+   Example for a load of about 2000 W: upper limit 1300 and hysteresis 1100.
+   The helper turns on above 2400 W of export and turns off below 200 W. The
+   limits are in the sensor's own unit. If the sensor shows kW, the limits must
+   be in kW too. If you have a battery, the inverter's settings decide whether
+   surplus goes to the battery or to the grid first. See when export actually
+   appears before you choose limits.
+
    We call the helper `binary_sensor.solcelle_overskud` here.
 
 7. **Create the automation**
 
-   Create an empty automation, open the three-dot menu and choose **Edit in
-   YAML**. Paste the example below and replace the entity IDs.
+   Go to **Settings → Automations & scenes**, choose **Create automation** and
+   then **Create new automation**. Open the three-dot menu and choose **Edit in
+   YAML**. Paste the example below and replace the entity IDs with your own.
 </Steps>
 
 ### Automation: run a load on surplus
 
-The example uses a state trigger with `for:`, so a short passing cloud does not
-switch the load on and off all the time. Home Assistant states that the timer
-resets when it restarts or automations reload. Choose a load that tolerates
-being switched off, for example a hot water tank with its own thermostat.
+<Aside type="caution" title="The load must be connected lawfully">
+You may start using a smart plug that you put into a socket yourself. Check in
+the manufacturer's data that it is rated for the appliance's power. If the load
+is permanently wired without a plug, the Danish Safety Technology Authority
+says you may not connect or disconnect it yourself. Have an authorised
+electrical contractor fit the control.
+</Aside>
+
+The example uses state triggers with `for:`, so a passing cloud does not switch
+the load on and off all the time. Choose a load that tolerates being
+interrupted, for example a hot water tank with its own thermostat.
 
 ```yaml title="Automation: Load follows solar surplus"
 alias: "Load follows solar surplus"
@@ -122,7 +151,9 @@ triggers:
 
   - trigger: state
     entity_id: binary_sensor.solcelle_overskud
-    to: "unavailable"
+    to:
+      - "unavailable"
+      - "unknown"
     for: "00:10:00"
     id: sensor_lost
 
@@ -151,11 +182,24 @@ actions:
 mode: restart
 ```
 
-If you switch it off by hand, the automation does not switch it on again until
-the sensor goes `on` anew. To switch on only when the battery is reasonably full,
-add a condition to the first branch. The official
+How it works:
+
+- The first two triggers switch on and off when the helper has been `on` or
+  `off` for five minutes.
+- The third trigger switches the load off if the helper has been `unavailable`
+  or `unknown` for ten minutes. The Threshold helper becomes `unknown` when the
+  source sensor is `unavailable`, `unknown` or does not give a number.
+- The trigger does not catch a sensor that is stuck on an old value. That is
+  one more reason to choose a load that tolerates staying on.
+- Home Assistant states that the `for:` timer resets when Home Assistant
+  restarts or automations reload.
+- If you switch the load off by hand, the automation only switches it on again
+  the next time the helper changes to `on`.
+
+To switch on only when the battery is reasonably full, add a condition to the
+first branch. According to Home Assistant, a
 [numeric_state condition](https://www.home-assistant.io/conditions/numeric_state/)
-fails if the sensor is `unavailable` or `unknown`:
+does not pass if the sensor is `unavailable` or `unknown`:
 
 ```yaml
           - condition: numeric_state
@@ -170,36 +214,38 @@ ways to measure, see [energy management](/en/produkter/energistyring/).
 
 ## Test it
 
-1. In Energy the grid, solar panels and battery should show numbers after the
-   next statistics period. Compare today's production with the inverter's own
-   display; large deviations point to the wrong sensor or unit.
-2. On a sunny midday, watch the surplus sensor under **Settings → Tools →
-   States**. Switch on a known load, for example a kettle; the sensor should
-   change when export drops.
-3. Open the automation's trace under **Activity** and check that it ran the
-   right branch; see [Activity and Traces](/en/home-assistant/aktivitet-og-spor/).
-   **Run actions** does not supply a trigger ID, so test with a real change.
-4. Check that the load actually switched on and off, not only that the
-   dashboard changed.
-5. Compare tomorrow's forecast with actual production for a few days.
-   Forecast.Solar itself says the forecast is an estimate.
+1. In Energy the grid, solar panels and battery should show numbers. Home
+   Assistant itself says it can take up to 2 hours before new data shows.
+   Compare today's production with the inverter's own display; large deviations
+   point to the wrong sensor or unit.
+2. Watch the export sensor under **Settings → Tools → States** on a sunny day.
+   Switch on a known load, for example a kettle. Export should drop by about
+   the load's power.
+3. Open the automation and choose **Traces**. Check that it ran the right
+   branch; see [Activity and Traces](/en/home-assistant/aktivitet-og-spor/).
+   **Run actions** starts the automation without a trigger, so neither branch
+   runs. Test with a real change.
+4. Check that the load actually switched on and off, not only that the state
+   changed in Home Assistant.
+5. Compare the forecast with actual production for a few days. Forecast.Solar
+   itself says the forecast is an estimate.
 
 ## When it does not work
 
 | Symptom | Possible cause | Next step |
 |---|---|---|
-| The sensor cannot be chosen in Energy | Wrong unit, device class or state class | See [Energy Dashboard](/en/home-assistant/energy-dashboard/) |
-| Production and grid are counted twice | The same energy exists as both total and sub-total | Remove one |
-| The battery shows negative values | Discharge is reported with a sign | Use separate energy sensors for in and out |
-| The forecast is empty | The integration is not selected in Energy | Turn on the forecast under Solar panels |
-| The load switches on and off constantly | The limit is too close to typical export | Increase the hysteresis or `for:` |
-| The load stays on after a restart | The `for:` timer resets at restart | Add a start trigger if you want one |
+| The sensor cannot be chosen in Energy | Wrong unit, `device_class` or `state_class` | See [Energy Dashboard](/en/home-assistant/energy-dashboard/) |
+| Production or consumption is counted twice | The same energy is selected both as a total and as a sub-total | Remove one |
+| The battery gives wrong numbers | One sensor covers both charging and discharging | Use two energy sensors, one for in and one for out |
+| The forecast is empty | Forecast.Solar is not selected under Solar panels | Turn on the forecast in step 5 |
+| The load switches on and off constantly | The switch-on point is below the load's power, or the hysteresis is too small | Set the limits as in step 6, or lengthen `for:` |
+| The load stays on after a restart | The `for:` timer was reset, and the helper has not changed since | Switch it off by hand, or add a [Home Assistant start trigger](https://www.home-assistant.io/triggers/homeassistant/) |
 
 ## Undo
 
 Disable the automation and switch the load on or off by hand. Delete the
 Threshold helper under **Helpers**, and remove solar panels or battery under
-**Settings → Dashboards → Energy**. History in Home Assistant is kept.
+**Settings → Dashboards → Energy**. This does not change the sensors' history.
 
 <CardGrid>
   <Card title="Measure first" icon="approve-check">
@@ -212,12 +258,15 @@ Threshold helper under **Helpers**, and remove solar panels or battery under
 
 ## Official sources
 
-Sources reviewed on 14 November 2026. Your inverter and battery have their own
-sensor names and signs; check them in your own installation.
+Sources reviewed on 14 November 2026. The automation has been checked against
+Home Assistant's documentation but has not been run on an installation. Your
+inverter and battery have their own sensor names and signs; check them in your
+own installation. The Danish sources are in Danish.
 
-- [Home Assistant: Energy](https://www.home-assistant.io/docs/energy/)
-- [Home Assistant: solar panels](https://www.home-assistant.io/docs/energy/solar-panels/) and [battery](https://www.home-assistant.io/docs/energy/battery/)
+- [Home Assistant: Energy](https://www.home-assistant.io/docs/energy/), [solar panels](https://www.home-assistant.io/docs/energy/solar-panels/), [battery](https://www.home-assistant.io/docs/energy/battery/) and [FAQ](https://www.home-assistant.io/docs/energy/faq/)
 - [Home Assistant: Forecast.Solar](https://www.home-assistant.io/integrations/forecast_solar/)
-- [Home Assistant: Threshold](https://www.home-assistant.io/integrations/threshold/)
-- [Home Assistant: state trigger](https://www.home-assistant.io/triggers/state/)
-- [Home Assistant: numeric_state condition](https://www.home-assistant.io/conditions/numeric_state/)
+- [Home Assistant: Threshold](https://www.home-assistant.io/integrations/threshold/) and [the integration's source code](https://github.com/home-assistant/core/blob/dev/homeassistant/components/threshold/binary_sensor.py)
+- [Home Assistant: state trigger](https://www.home-assistant.io/triggers/state/) and [Home Assistant start trigger](https://www.home-assistant.io/triggers/homeassistant/)
+- [Home Assistant: numeric_state condition](https://www.home-assistant.io/conditions/numeric_state/), [trigger condition](https://www.home-assistant.io/conditions/trigger/) and [choose](https://www.home-assistant.io/building-blocks/choose/)
+- [Danish Safety Technology Authority: electrical work you may do without authorisation](https://www.sik.dk/privat/goer-det-sikkert/el/goer-det-selv/hvilket-elarbejde-maa-du-lave-uden-autorisation) and the leaflet [Gør det elsikkert](https://www.sik.dk/sites/default/files/2018-10/gordetelsikkert_2.pdf)
+- [Danish Safety Technology Authority: connecting a solar installation requires authorisation](https://www.sik.dk/erhverv/elinstallationer-og-elanlaeg/vejledninger/elinstallationer/solcelleinstallationer/det-kraever-autorisation-tilslutte-solcelleanlaeg)
