@@ -6,13 +6,14 @@ import { MAX_CALLS_PER_RUN, MAX_NEURONS_PER_RUN } from "./limits.mjs";
 import { modelsFor } from "./models.mjs";
 import { createClaudeChat } from "./provider-claude.mjs";
 import { createHttpChat } from "./provider-http.mjs";
+import { emptyUsage, recordUsage } from "./usage-stats.mjs";
 
 export { CallBudgetExceeded };
 
 export function createChat({ env = process.env, call, http = {}, log = console.log } = {}) {
   const kind = env.AI_NEWS_LLM_PROVIDER || (env.AI_NEWS_LLM_URL ? "http" : "claude");
   const models = modelsFor(kind, env);
-  const stats = { calls: 0, neurons: 0, failures: [] };
+  const stats = { calls: 0, neurons: 0, failures: [], ...emptyUsage() };
 
   function assertWithinBudget() {
     if (stats.calls >= MAX_CALLS_PER_RUN) throw new CallBudgetExceeded(`Model call ceiling reached (${MAX_CALLS_PER_RUN})`);
@@ -40,8 +41,9 @@ export function createChat({ env = process.env, call, http = {}, log = console.l
     for (const model of chain) {
       if (!countsAttempts) countCall();
       try {
-        const { text, usage } = await send({ model, system, user, maxTokens });
+        const { text, usage, budget } = await send({ model, system, user, maxTokens });
         stats.neurons += Number(usage?.neurons || 0);
+        recordUsage(stats, model, usage, budget);
         return { text, model };
       } catch (error) {
         // A used-up budget applies to every model; trying the next one is pointless.

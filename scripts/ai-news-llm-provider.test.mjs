@@ -122,7 +122,23 @@ test("stats count calls and sum neurons, treating missing usage as zero", async 
   for (let index = 0; index < 4; index += 1) await chat(request());
   assert.equal(stats.calls, 4);
   assert.equal(stats.neurons, 14.5);
+  assert.equal(stats.budget, null);
   assert.deepEqual(stats.failures, []);
+});
+
+test("stats keep the reported tokens per model and the relay's latest daily total", async () => {
+  const answers = [
+    { text: "ok", usage: { prompt_tokens: 100, completion_tokens: 20, neurons: 5 }, budget: { spent: 5, limit: 8000 } },
+    { text: "ok", usage: { input_tokens: 50, output_tokens: 10, neurons: 2 }, budget: { spent: 7, limit: 8000 } },
+    { text: "ok", usage: null, budget: { spent: "many", limit: 8000 } },
+  ];
+  const { chat, stats } = createChat({ env: baseEnv, call: async () => answers.shift(), log: silent });
+  const first = await chat(request());
+  await chat(request());
+  await chat(request());
+  assert.deepEqual(stats.byModel, { [first.model]: { answers: 3, inputTokens: 150, outputTokens: 30, neurons: 7 } });
+  // A total that is not a number is ignored; the last good one stays.
+  assert.deepEqual(stats.budget, { spent: 7, limit: 8000 });
 });
 
 test("maxTokens is passed through to the provider call", async () => {

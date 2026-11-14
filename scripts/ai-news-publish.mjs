@@ -138,7 +138,13 @@ async function editorialCopy(pool, history) {
     console.warn(`LLM editorial copy unavailable (${error.message}); using template copy.`);
     return { status: 'publish', editorial: finalizeEditorialPackage(pool.slice(0, targetStories), history), copy: null };
   }
-  const stats = { calls: llm.stats.calls, neurons: Math.round(llm.stats.neurons), dropped: issue.dropped };
+  const stats = {
+    calls: llm.stats.calls,
+    neurons: Math.round(llm.stats.neurons),
+    byModel: llm.stats.byModel,
+    budget: llm.stats.budget,
+    dropped: issue.dropped,
+  };
   if (issue.status !== 'publish') return { status: 'skip', reason: issue.reason, stats };
   console.log(`Fact check passed for ${issue.items.length} stories (${issue.dropped.length} dropped, ${stats.calls} model calls).`);
   return { status: 'publish', editorial: finalizeEditorialPackage(issue.items, history), copy: issue.copy, ledeSource: issue.ledeSource, stats };
