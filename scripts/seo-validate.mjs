@@ -3,6 +3,7 @@ import { existsSync } from 'node:fs';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { checkHead } from './lib/seo-head-checks.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const distDir = path.join(rootDir, 'dist');
@@ -101,6 +102,8 @@ async function validateSitemapPages(issues, sitemapPath, sitemap) {
     }
 
     const html = await readFile(htmlPath, 'utf8');
+    for (const message of checkHead(html)) fail(issues, htmlPath, message);
+
     const h1Count = (html.match(/<h1\b/gi) ?? []).length;
     if (h1Count !== 1) fail(issues, htmlPath, `expected exactly one h1, found ${h1Count}`);
 
@@ -161,11 +164,11 @@ async function main() {
       { needle: '<meta name="twitter:description"', label: 'Danish home Twitter description' },
       { needle: '"@type":"WebPage"', label: 'Danish home WebPage JSON-LD' },
       { needle: '"url":"https://smartbolig.net/brand/logo/logo-dark-1200x270.png","width":1200,"height":270', label: 'Organization logo JSON-LD' },
-      { needle: '"name":"Forside"', label: 'Danish breadcrumb home label' },
       { needle: 'href="/da/ai/nyheder/"', label: 'Danish home AI News link' },
     ],
     forbidden: [
       { needle: 'noindex', label: 'noindex robots directive' },
+      { needle: '"@type":"BreadcrumbList"', label: 'BreadcrumbList on the home page (a one-item list is invalid)' },
       { needle: '"@type":"TechArticle"', label: 'TechArticle JSON-LD on home page' },
       { needle: 'https://smartbolig.net/da/#article', label: 'home page article schema' },
       { needle: '"name":"Da"', label: 'raw locale breadcrumb label' },
@@ -184,11 +187,11 @@ async function main() {
       { needle: '<meta name="twitter:description"', label: 'English home Twitter description' },
       { needle: '"@type":"WebPage"', label: 'English home WebPage JSON-LD' },
       { needle: '"url":"https://smartbolig.net/brand/logo/logo-dark-1200x270.png","width":1200,"height":270', label: 'Organization logo JSON-LD' },
-      { needle: '"name":"Home"', label: 'English breadcrumb home label' },
       { needle: 'href="/en/ai/nyheder/"', label: 'English home AI News link' },
     ],
     forbidden: [
       { needle: 'noindex', label: 'noindex robots directive' },
+      { needle: '"@type":"BreadcrumbList"', label: 'BreadcrumbList on the home page (a one-item list is invalid)' },
       { needle: '"@type":"TechArticle"', label: 'TechArticle JSON-LD on home page' },
       { needle: 'https://smartbolig.net/en/#article', label: 'home page article schema' },
       { needle: '"name":"En"', label: 'raw locale breadcrumb label' },

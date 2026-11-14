@@ -18,7 +18,7 @@ export function buildOrganizationSchema(lang: Lang) {
       lang === "da"
         ? "Dansk guide til smart home med Home Assistant, ESP32 og Zigbee"
         : "Danish smart home guide with Home Assistant, ESP32 and Zigbee",
-    sameAs: ["https://github.com/Hovborg/smartbolig-starlight"],
+    sameAs: ["https://github.com/Hovborg/smartbolig-starlight", "https://www.youtube.com/@SmartBoligNet"],
   };
 }
 
@@ -32,6 +32,7 @@ export function buildWebsiteSchema() {
     "@type": "WebSite",
     "@id": `${siteUrl}/#website`,
     name: "SmartBolig.net",
+    alternateName: "SmartBolig",
     url: siteUrl,
     publisher: { "@id": `${siteUrl}/#organization` },
     // The site entity itself is bilingual regardless of which page is rendered.
