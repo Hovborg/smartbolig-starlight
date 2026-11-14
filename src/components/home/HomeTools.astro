@@ -6,6 +6,8 @@
 // showing numbers. Styles: src/styles/home/tools.css.
 import type { HomeLocale, HomeToolsCopy } from "../../lib/home-copy";
 import { TOOLS } from "../../lib/tools/catalog.mjs";
+import { fill } from "../../lib/tools/format.mjs";
+import { priceCopy } from "../../lib/tools/price-copy.mjs";
 import { SPARK } from "../../lib/tools/price-spark.mjs";
 import ToolIcon from "../tools/ToolIcon.astro";
 
@@ -16,6 +18,18 @@ interface Props {
 
 const { copy, locale } = Astro.props;
 const { price } = copy;
+
+// Texts as long as the real ones, with dashes where the numbers will be. They
+// are never shown: while the prices are on their way they hold the room of the
+// real texts (data-room in tools.css), so the card keeps its height.
+const words = priceCopy[locale];
+const room = {
+  area: words.area.DK1,
+  level: words.level.mid,
+  period: fill(words.now.period, { from: "––:––", to: "––:––" }),
+  // The sentence of middle length: the other two are a line shorter or longer on a narrow phone.
+  run: fill(words.window.startNow, { price: `–––,– ${price.unit}`, time: "––:––" }),
+};
 ---
 
 <section class="home-section home-tools" aria-labelledby="home-tools-title">
@@ -28,7 +42,7 @@ const { price } = copy;
     <article class="home-price" data-home-price data-lang={locale} data-state="idle" data-spark-label={price.sparkLabel}>
       <header class="home-price__head">
         <h3 class="home-price__label"><span class="home-price__dot" aria-hidden="true"></span>{price.label}</h3>
-        <p class="home-price__area" data-part="area"></p>
+        <p class="home-price__area" data-part="area" data-room={room.area}></p>
       </header>
 
       <div class="home-price__live">
@@ -37,8 +51,8 @@ const { price } = copy;
           <span class="home-price__unit">{price.unit}</span>
         </p>
         <p class="home-price__meta">
-          <span class="home-price__level" data-part="level" data-level="mid"></span>
-          <span data-part="period"></span>
+          <span class="home-price__level" data-part="level" data-level="mid" data-room={room.level}></span>
+          <span data-part="period" data-room={room.period}></span>
         </p>
         <div class="home-price__chart">
           <svg class="home-price__spark" data-part="spark" viewBox={`0 0 ${SPARK.width} ${SPARK.height}`} preserveAspectRatio="none" role="img" aria-label="" focusable="false"></svg>
@@ -48,7 +62,7 @@ const { price } = copy;
             <span class="home-price__key home-price__key--best" data-part="legend-best">{price.legendBest}</span>
           </p>
         </div>
-        <p class="home-price__run"><strong>{price.runLabel}</strong> <span data-part="run"></span></p>
+        <p class="home-price__run"><strong>{price.runLabel}</strong> <span data-part="run" data-room={room.run}></span></p>
       </div>
 
       <div class="home-price__idle">

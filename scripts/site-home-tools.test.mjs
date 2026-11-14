@@ -77,6 +77,14 @@ test("the section lists every tool, shows no number before the prices are fetche
   assert.match(css, new RegExp(`${shown} \\.home-price__idle \\{ display: none; \\}`));
   assert.match(css, /\.home-price\[data-state="loading"\] \.home-price__live \{ visibility: hidden; \}/);
   assert.match(css, /\.home-price__live \{ display: none;/, "without JavaScript the numbers' room is not taken");
+  // Each text the code writes has a stand-in of the same length, shown to no one, that holds its room.
+  assert.ok(css.includes('.home-price[data-state="loading"] [data-room]:empty::before { content: attr(data-room); visibility: hidden; }'));
+  for (const name of ["area", "level", "period", "run"]) {
+    assert.match(component, new RegExp(`data-part="${name}"[^>]* data-room=\\{room\\.${name}\\}`), name);
+  }
+  const stand = component.slice(component.indexOf("const room"), component.indexOf("---", 4));
+  const literals = [...stand.matchAll(/["`]([^"`]*)["`]/g)].map((match) => match[1]);
+  assert.ok(literals.length >= 4 && literals.every((text) => !/[0-9]/.test(text)), "the stand-ins hold no number");
   const script = component.slice(component.indexOf("<script>"));
   assert.ok(script.indexOf('card.dataset.state = "loading"') < script.indexOf("new IntersectionObserver"), "room is taken before the card is seen");
   assert.ok(script.indexOf("new IntersectionObserver") < script.indexOf("await import("), "the code is imported only when the observer fires");

@@ -46,6 +46,8 @@
 .home-price:is([data-state="ready"], [data-state="loading"]) .home-price__live { display: grid; }
 .home-price:is([data-state="ready"], [data-state="loading"]) .home-price__idle { display: none; }
 .home-price[data-state="loading"] .home-price__live { visibility: hidden; }
+/* An empty text takes the room of a usual one (data-room) until the real one is written. */
+.home-price[data-state="loading"] [data-room]:empty::before { content: attr(data-room); visibility: hidden; }
 
 .home-price__now { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--sb-space-3); margin: 0; }
 .home-price__value {
@@ -85,8 +87,7 @@
 .home-price__key--now::before { background: var(--sb-ink-strong); }
 .home-price__key--best::before { background: var(--sb-accent); }
 
-/* Room for two lines, so a long sentence does not push the page down. */
-.home-price__run { min-height: 3.1em; margin: 0; color: var(--sb-ink); font-size: var(--sb-text-base); line-height: 1.55; }
+.home-price__run { margin: 0; color: var(--sb-ink); font-size: var(--sb-text-base); line-height: 1.55; }
 .home-price__run strong { color: var(--sb-ink-strong); font-weight: 650; }
 
 /* Before the prices are there, and when they cannot be fetched */

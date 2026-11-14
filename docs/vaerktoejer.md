@@ -9,8 +9,8 @@ Endpointets kode er kørt én gang mod det rigtige Energinet: ét kald gav begge
 En uafhængig gennemgang samme dag fandt, at et tal med tusindtegn blev læst tusind gange for
 lavt, og seks mindre fejl; de er rettet og har hver sin test (se "Rettet efter gennemgangen").
 En opfølgende gennemgang fandt fem ting mere i endpointet og forsidens kort; de er også rettet
-(samme afsnit). Forsidens kort er målt i en rigtig browser: siden under kortet flytter sig ikke,
-når priserne kommer.
+(samme afsnit). Forsidens kort er målt i headless Chrome ved 320, 390 og 1440 px: kortet er lige
+højt, før og efter priserne kommer (666, 582 og 611 px), så siden under det flytter sig ikke.
 Ikke kontrolleret: endpointet på Cloudflare. Workerens cache, gættet på prisområde ud fra
 `request.cf` og Energinets grænse set fra Cloudflares adresser kan kun ses på den levende side.
 
@@ -248,7 +248,7 @@ En opfølgende gennemgang samme dag fandt disse; de er rettet på samme måde:
 | Et kald, der ventede på cachen, mens et andet kalds svar kom, spurgte Energinet én gang til | `handler.js`: hukommelsen læses igen efter hver ventetid | `site-tools-api.test.mjs` |
 | Et halvt svar fra Energinet erstattede en kopi, der stadig dækkede nu | `handler.js` (`UpstreamIncomplete`) | `site-tools-api.test.mjs` |
 | Forlod læseren siden midt i kaldet, kunne svaret gå tabt | `handler.js`: kaldet gives til `waitUntil`; `upstream.js`: hård tidsgrænse | `site-tools-api.test.mjs` |
-| Siden under forsidens kort flyttede sig, når priserne kom | `HomeTools.astro`, `tools.css`: pladsen holdes fra start (`data-state="loading"`) | `site-home-tools.test.mjs`, målt i browser |
+| Siden under forsidens kort flyttede sig, når priserne kom (kortet voksede 30 til 112 px) | `HomeTools.astro`, `tools.css`: pladsen holdes fra start (`data-state="loading"` og `data-room`) | `site-home-tools.test.mjs`, målt i browser |
 | Forsidens kort kaldte en pris "lav" ud fra to dage, men tegnede kun i dag; nøglen "billigst" stod der, selv om ingen søjle var mærket | `price-view.mjs` (`levelOver`), `home-price.mjs` | `site-home-price.test.mjs` |
 | Et svar fra browserens cache kunne ophæve rettelsen af et ur, der går forkert | `price-data.mjs` (`createClockReader`: den største forskel gælder) | `site-home-tools.test.mjs` |
 
@@ -271,7 +271,11 @@ Forsiden har en sektion "Værktøjer" (`src/components/home/HomeTools.astro`, st
   eget `/api/elpris`). Søjlernes mål regnes i `src/lib/tools/price-spark.mjs`.
 - Koden hentes først, når kortet er tæt på skærmen, så forsiden ikke bliver tungere at åbne.
   Pladsen til tallene tages med det samme (`data-state="loading"`), så siden under kortet ikke
-  flytter sig, når de kommer. Kan koden eller priserne ikke hentes, går kortet tilbage til teksten.
+  flytter sig, når de kommer. Hver tekst, koden skriver, har en usynlig pladsholder af samme
+  længde i `data-room` (streger i stedet for tal), som fylder, indtil den rigtige tekst står der.
+  Sætningen om de billigste timer findes i tre længder; pladsholderen er den mellemste, så
+  kortet kan blive én linje højere eller lavere på en smal telefon. Kan koden eller priserne
+  ikke hentes, går kortet tilbage til teksten.
 - Kortet kalder prisen lav, middel eller høj i forhold til dagens timer, fordi det kun tegner i
   dag. Elprisværktøjet sammenligner med alle kendte timer.
 - Uden JavaScript, eller hvis priserne ikke kan hentes, viser kortet en tekst og et link til
