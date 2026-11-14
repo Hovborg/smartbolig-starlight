@@ -1,0 +1,62 @@
+---
+title: Batterilevetid
+description: Regn ud, hvor længe et batteri holder i en sensor, der sover og vågner. Skriv kapacitet, strøm i søvn og vågen, vågen tid og hvor tit enheden vågner.
+lastUpdated: 2026-11-14
+---
+
+import BatteryLife from '../../../../components/tools/BatteryLife.astro';
+
+Skriv batteriets kapacitet og hvor meget strøm enheden bruger, når den sover og når den er vågen. Så ser du, hvor længe batteriet holder, og om det er søvnen eller opvågningerne, der æder strømmen.
+
+<BatteryLife lang="da" />
+
+## Sådan er tallet regnet
+
+Værktøjet finder først gennemsnitsstrømmen over hele tiden mellem to opvågninger:
+
+**(vågen strøm × vågen tid + søvnstrøm × søvntid) ÷ tid mellem opvågninger**
+
+Søvntiden er tiden mellem opvågninger minus den vågne tid. Levetiden er så batteriets kapacitet gange den brugbare del, delt med gennemsnitsstrømmen. En måned er regnet som 30,4 dage og et år som 365 dage. Alt bliver regnet i din browser, og vi gemmer ikke det, du skriver.
+
+Den brugbare del er dit eget skøn. 80 % er en startværdi, ikke en målt værdi.
+
+## Det er ikke med
+
+- **Selvafladning.** Et batteri taber strøm, også når intet bruger den.
+- **Temperatur.** Kulde og varme ændrer, hvor meget batteriet kan give.
+- **Spændingsgrænse.** Enheden stopper, når spændingen bliver for lav, ofte før batteriet er tomt. Den brugbare del er til det.
+- **Tab i spændingsregulatoren.** Regulatoren bruger selv strøm og taber noget af energien.
+- **Tid til at forbinde.** Er enheden længe om at finde Wi-Fi eller et netværk, hører den tid med til den vågne tid.
+
+## Sådan måler du
+
+Tallene i værktøjet er kun så gode som dine målinger.
+
+1. Sæt et amperemeter i serie med batteriet, så strømmen går gennem måleren.
+2. Mål i søvn med måleren på mikroampere-området. Vent, til tallet står stille.
+3. Mål den vågne strøm som gennemsnittet over hele opvågningen, fra enheden vågner, til den sover igen. Strømmen svinger meget, så brug et instrument, der optager strømmen over tid og regner gennemsnittet (en "power profiler"), eller en måler med gennemsnitsfunktion.
+4. Mål, hvor mange sekunder opvågningen varer.
+
+Tallene fra et datablad gælder chippen. Hvad dit kort bruger i søvn, kan du kun se ved at måle det.
+
+## Tal fra et datablad
+
+Knappen i værktøjet udfylder to tal for en ESP32-chip. De er hentet i Espressifs ESP32-datablad, version 5.3:
+
+- **10 µA i dyb søvn.** Databladets egenskabsliste skriver, at forbruget i Deep-sleep er 10 µA.
+- **180 mA vågen.** Databladets tabel over strøm i aktiv tilstand viser 180 mA som typisk værdi, når chippen sender 802.11n (MCS7, +14 dBm). Målingen er taget ved radioens port, med en 3,3 V forsyning ved 25 °C og 50 % sendetid. Tallet er chippens forbrug med radioen aktiv (databladets tabel 5-4; tabel 4-2 henviser dertil for "Active (RF working)"), ikke et helt kort; resten af dit kredsløb kommer oveni.
+
+Vågen tid og hvor tit enheden vågner får du ikke af databladet. Dem skal du selv sætte.
+
+## Læs videre
+
+- [Kom godt i gang med ESP32](/da/esp32/kom-godt-i-gang/)
+- [Avanceret ESPHome](/da/esp32/esphome-avanceret/) har et eksempel med `deep_sleep`.
+- [Overvåg sensorernes helbred](/da/automationer/sensorovervaagning/): få besked, når et batteri er ved at være tomt.
+- [Zigbee-sensorer](/da/produkter/zigbee-sensorer/) og [Zigbee-kanalvælger](/da/vaerktoejer/zigbee-kanal/)
+
+## Kilder
+
+Læst 14. november 2026. Vi har skrevet teksten selv.
+
+- Espressif, [ESP32 Series Datasheet v5.3](https://documentation.espressif.com/esp32_datasheet_en.pdf): 10 µA i Deep-sleep og tabellen over strøm i aktiv tilstand.

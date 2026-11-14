@@ -146,6 +146,7 @@ test("the tools store nothing, write no HTML from data and never call Energinet 
     assert.doesNotMatch(source, /localStorage|sessionStorage|indexedDB|document\.cookie/, `${file} stores something`);
     assert.doesNotMatch(source, /innerHTML|outerHTML|insertAdjacentHTML|set:html|document\.write/, `${file} writes HTML`);
     assert.doesNotMatch(source, /\son[a-z]+=["{]/, `${file} has an inline event handler`);
+    assert.doesNotMatch(source, /\sstyle=["{]/, `${file} has an inline style attribute`);
     assert.doesNotMatch(source, /api\.energidataservice\.dk/, `${file} calls Energinet`);
   }
 });
@@ -170,4 +171,25 @@ test("the fields do not name a hidden error text, and the frame has one class at
   const frame = await readFile(new URL("src/components/tools/ToolFrame.astro", root), "utf8");
   assert.match(frame, /class: scope, \.\.\.attributes \} = Astro\.props/);
   assert.equal((frame.match(/<section[^>]*\sclass(:list)?=/g) ?? []).length, 1);
+});
+
+test("the tool pages keep claims to what their sources say, and the overview names all four tools", async () => {
+  const read = (lang, name) => readFile(new URL(`src/content/docs/${lang}/vaerktoejer/${name}.mdx`, root), "utf8");
+  for (const lang of ["da", "en"]) {
+    const [zigbee, battery, index] = await Promise.all([read(lang, "zigbee-kanal"), read(lang, "batterilevetid"), read(lang, "index")]);
+    for (const page of [zigbee, battery]) assert.doesNotMatch(page, /widest common mask|bredeste almindelige maske|radio alone|radioen alene|Et naboens/);
+    assert.match(zigbee, /AN5185/);
+    assert.match(zigbee, /40 MHz/);
+    // ZHA gives two reasons for 15, 20 and 25, in the "Smart" sentence and where 26 is explained.
+    assert.match(zigbee, lang === "da" ? /"Smart"[^.]*både fordi[^.]*og fordi ikke alle Zigbee-enheder/ : /"Smart"[^.]*both because[^.]*and because not all Zigbee devices/);
+    assert.match(zigbee, lang === "da" ? /ZHA anbefaler kun 15, 20 og 25, både fordi[^.]*og fordi ikke alle/ : /ZHA only recommends 15, 20 and 25, both because[^.]*and because not all/);
+    assert.match(battery, /Active \(RF working\)/);
+    const description = index.match(/^description: (.*)$/m)[1];
+    for (const word of lang === "da" ? ["elpris", "tændt", "Zigbee", "batteri"] : ["electricity price", "keep on", "Zigbee", "battery"]) {
+      assert.ok(description.toLowerCase().includes(word.toLowerCase()), `${lang} overview description misses ${word}`);
+    }
+  }
+  const [da, en] = await Promise.all(["da", "en"].map((lang) => readFile(new URL(`src/lib/home-copy/${lang}.ts`, root), "utf8")));
+  assert.match(da.match(/intro: "Små beregnere[^"]*"/)[0], /Zigbee/);
+  assert.match(en.match(/intro: "Small calculators[^"]*"/)[0], /Zigbee/);
 });

@@ -1,9 +1,19 @@
 # Værktøjer: små beregnere på siden
 
 Sidst opdateret: 2026-11-14.
+De to nyeste værktøjer (Zigbee-kanalvælger og batterilevetid) er set i headless Chrome i mørkt og lyst tema ved
+320, 375 og 1440 px, med flere indtastninger, med tastaturet og uden JavaScript. Siden er serveret uden
+Cloudflares headers, så Content-Security-Policy er ikke prøvet i browseren; koden har ingen inline
+handlers, ingen `style=` og ingen `innerHTML`, og en test holder øje med det.
+En gennemgang 2026-11-14 af de to nyeste værktøjer rettede anbefalingen (se reglen under "Regler, der er valgt
+med vilje"), tekster om kanal 26 og Wi-Fi-bredde, enheder i batterifelternes labels, timer under et døgn og
+afrunding. Kontrolleret ved `npm run site:test` og med en lille falsk DOM, der kører `zigbee-ui.mjs` og
+`battery-ui.mjs` (`scripts/site-tools-ui.test.mjs`). Kilderne er læst igen samme dag: ZHA's to grunde til 15/20/25,
+Zigbee2MQTT's ZLL-kanaler, AN5185 (22 MHz i figur 1, 40 MHz som to tilstødende 20 MHz-bånd) og databladets
+tabel 5-4. Ikke set i en browser efter rettelsen.
 Kontrolleret ved: `npm run site:test`, `npm run build`, `npm run seo:validate`,
-`npm run worker:build` og `npx wrangler deploy --dry-run` kørt på grenen. Begge værktøjer er set
-i headless Chrome i mørkt og lyst tema ved 320, 375 og 1440 px, med et optaget svar fra
+`npm run worker:build` og `npx wrangler deploy --dry-run` kørt på grenen. Elprisen og
+strømforbruget er set i headless Chrome i mørkt og lyst tema ved 320, 375 og 1440 px, med et optaget svar fra
 Energinet og med en fejl fra Energinet; kontrast og trykflader er målt, og tastaturet er prøvet.
 Endpointets kode er kørt én gang mod det rigtige Energinet: ét kald gav begge prisområder.
 En uafhængig gennemgang samme dag fandt, at et tal med tusindtegn blev læst tusind gange for
@@ -23,12 +33,17 @@ skærmlæsere på forsidens kort; Safari og Firefox.
 
 ## Kort
 
-Sektionen `/vaerktoejer/` har små værktøjer, der regner for læseren. Der er to:
+Sektionen `/vaerktoejer/` har små værktøjer, der regner for læseren. Der er fire:
 
 - **Elprisen lige nu** (`/vaerktoejer/elpris/`): spotprisen i dag og i morgen, en graf time for
   time og de billigste timer i træk.
 - **Hvad koster det at have apparatet tændt?** (`/vaerktoejer/stroemforbrug/`): watt, timer pr. dag og
   elpris giver kroner pr. dag, måned og år.
+
+- **Zigbee-kanalvælger** (`/vaerktoejer/zigbee-kanal/`): læseren markerer Wi-Fi-kanal 1 til 13, og
+  værktøjet tegner de 16 Zigbee-kanaler under dem, viser hvilke der overlapper og anbefaler én.
+- **Batterilevetid** (`/vaerktoejer/batterilevetid/`): kapacitet, strøm i søvn og vågen, vågen tid og
+  opvågningsinterval giver gennemsnitsstrøm og levetid.
 
 Hvert værktøj er tre dele: en Astro-komponent (felterne), et rent modul (regnestykket, med
 tests) og et UI-modul (kobler felterne til regnestykket). Alle værktøjer sidder i den samme
@@ -59,7 +74,14 @@ Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Ene
 | `functions/lib/elpris/` | `area.js` (prisområde), `upstream.js` (kaldet til Energinet og kontrol af rækkerne), `cache.js` (kopien i Workerens cache), `memory.js` (hvad én Worker-instans husker mellem kald), `responses.js` (svar og fejl), `handler.js` (forløbet) |
 | `src/components/tools/PowerCost.astro` | Strømforbrugsværktøjets felter |
 | `src/lib/tools/power-cost.mjs`, `power-copy.mjs`, `power-ui.mjs` | Regnestykket, teksterne med eksempler og startværdier, og koblingen |
-| `scripts/site-tools.test.mjs`, `site-tools-price.test.mjs`, `site-tools-api.test.mjs` | Tests. Køres med `npm run site:test` |
+| `src/components/tools/ZigbeeChannel.astro`, `ZigbeeStrip.astro` | Zigbee-værktøjets felter og frekvensstrimlen (inline SVG, bygget på serveren) |
+| `src/lib/tools/zigbee-channel.mjs`, `zigbee-strip.mjs`, `zigbee-view.mjs` | Regnestykket (kanalernes frekvenser, overlap, anbefaling), strimlens mål og teksterne for et resultat. Uden DOM |
+| `src/lib/tools/zigbee-copy.mjs`, `zigbee-ui.mjs` | Teksterne på dansk og engelsk, og koblingen (kun klasser og tekst; strimlen skiftes med `is-picked`, `is-overlap`, `is-best`) |
+| `src/styles/content/tools/strip.css` | Strimlens udseende (`sb-strip`) og talknapperne til Wi-Fi-kanaler |
+| `src/components/tools/BatteryLife.astro` | Batteriværktøjets felter og svaret for startværdierne (så siden giver mening uden JavaScript) |
+| `src/lib/tools/battery-life.mjs`, `battery-view.mjs` | Regnestykket med grænser, og teksterne for et resultat (enhed, levetid, søvn eller vågen) |
+| `src/lib/tools/battery-copy.mjs`, `battery-ui.mjs` | Teksterne, startværdier og preset med kilde, og koblingen |
+| `scripts/site-tools.test.mjs`, `site-tools-price.test.mjs`, `site-tools-api.test.mjs`, `site-tools-zigbee.test.mjs`, `site-tools-battery.test.mjs`, `site-tools-ui.test.mjs` | Tests. Køres med `npm run site:test` |
 
 ## Regler, der er valgt med vilje
 
@@ -123,6 +145,32 @@ Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Ene
   kvarter fra tiden i svarets `Date`-header, lægges forskellen til (`clockOffset` i
   `price-data.mjs`). En mindre forskel rettes ikke: browseren må gemme svaret i ti minutter, og
   så er headeren lige så gammel.
+- **Zigbee-kanalvælgeren regner kun frekvenser.** Zigbee-kanal n ligger på 2405 + 5 × (n − 11) MHz og
+  er 2 MHz bred; Wi-Fi-kanal m på 2412 + 5 × (m − 1) MHz og regnes 22 MHz bred (AN5185 figur 1).
+  Anbefalingen følger siderne egne kilder (Zigbee2MQTT: 11, 15, 20, 25; ZHA: 15, 20, 25), i tre trin.
+  (a) Er en af 15, 20, 25, 11 fri for overlap: den af dem med størst afstand (midte til kanten af
+  nærmeste markerede bånd); lige stillede 15, 20, 25, 11. (b) Ellers en anden fri kanal fra 11 til 25
+  med størst afstand (lige: laveste nummer), og teksten siger, at den ikke er blandt de anbefalede,
+  fordi de er dækket. (c) Ellers størst afstand, lige stillede 15, 20, 25, 11, derefter laveste nummer.
+  Kanal 26 anbefales aldrig. Der er ingen officiel kilde til, hvorfor lige 26, så siden siger det
+  ikke, men skriver, når 26 er fri, at den ikke anbefales. `advise()` giver `kind`
+  (`none`, `preferred`, `other`, `covered`), som teksten vælges efter. Ren størst afstand er fravalgt:
+  den gav fx 17 ved Wi-Fi 1 + 11, selv om 15, 20 og 25 var fri, og stred mod de kilder, siden henviser til.
+- **Kendte grænser.** Kanalvælgeren kender ikke signalstyrke eller Wi-Fi på 40 MHz (læseren skal markere
+  begge kanaler; siden siger det). Batteriet regner under et døgn i hele timer og under en time
+  "under en time".
+- **Batterilevetiden har ét preset, og det har en kilde.** ESP32-chip: 10 µA i Deep-sleep og 180 mA
+  (sender 802.11n MCS7, +14 dBm, tabel 5-4), begge fra Espressifs ESP32 Series Datasheet v5.3
+  (læst 2026-11-14). Siden siger ikke, at et udviklingskort bruger mere i søvn, for det har vi ingen
+  kilde på; den beder læseren måle. Et nyt preset kræver et datablad, der er åbnet og læst, og et
+  kildelink i `BATTERY_SOURCES`.
+- **Fakta på siderne har kilder, og teksten er vores egen.** Zigbee2MQTT (standardkanal 11, ZLL-kanalerne
+  11/15/20/25, skift af kanal er understøttet, sovende enheder skifter ved næste opvågning, nogle
+  enheder kan kræve ny parring, kun adapterne zstack og ember), ZHA (bedst ikke at ændre, "Smart"
+  foretrækker 15/20/25, op til en time til genforbindelse, ikke alle enheder understøtter alle kanaler)
+  og NXP AN5185 (16 kanaler, 2405 MHz, 2 MHz, 5 MHz afstand, Wi-Fi-kanal 1 på 2412 MHz, 22 MHz i figur 1,
+  802.11n kan bruge 40 MHz af to tilstødende 20 MHz-bånd). Linkene står
+  under "Kilder" på siderne, læst 2026-11-14. Ret kun et faktum sammen med dets kilde.
 - **Grafen bygges med DOM-kald** (`svgEl` i `dom.mjs`), aldrig med HTML-strenge. Der er ingen
   inline event handlers og intet inline script; værktøjets kode ligger i egne filer under
   `/_astro/`.
@@ -199,11 +247,13 @@ skriv kilden og licensen i `docs/oss.md`.
 
 ### Ret en tekst eller en standardværdi
 
-- **Tekst i et værktøj:** `price-copy.mjs` eller `power-copy.mjs`. Ret både `da` og `en`.
+- **Tekst i et værktøj:** `price-copy.mjs`, `power-copy.mjs`, `zigbee-copy.mjs` eller `battery-copy.mjs`. Ret både `da` og `en`.
 - **Tekst under et værktøj:** MDX-siden i `src/content/docs/da/vaerktoejer/` og i `en/`.
 - **Kortene på oversigten:** `src/lib/tools/catalog.mjs`.
 - **Startværdier for strømforbrug** (100 W, 5 timer, 2,50 kr./kWh) og eksemplerne:
   `POWER_DEFAULTS` og `POWER_PRESETS` i `power-copy.mjs`.
+- **Batteriets startværdier og grænser:** `BATTERY_DEFAULTS` i `battery-copy.mjs` og `BATTERY_LIMITS` i `battery-life.mjs`.
+- **Wi-Fi-bredde og rækkefølge ved lige stilling:** `WIFI_WIDTH_MHZ` og `PREFERRED` i `zigbee-channel.mjs`.
 - **Timer i træk** (1 til 8, starter på 3): skyderen i `PowerPrice.astro`.
 - **Moms:** `VAT` i `price-window.mjs`.
 - **Hvor længe en kopi er frisk:** `FRESH_SECONDS` i `functions/lib/elpris/responses.js`.

@@ -39,6 +39,10 @@ sidebar:
 Dansk indhold her...
 ```
 
+Har en `title` eller `description` et kolon efter et ord ("Små værktøjer: elprisen lige nu") eller
+et ` #`, så sæt hele værdien i anførselstegn. Ellers kan YAML ikke læse den, og hele bygget
+stopper. `scripts/site-frontmatter.test.mjs` fanger det i `npm run site:test`.
+
 **Engelsk (`en/produkter/smart-doorbell.mdx`):**
 ```yaml
 ---

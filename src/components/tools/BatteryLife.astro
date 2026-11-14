@@ -1,0 +1,86 @@
+---
+// Tool: how long a battery lasts for a device that sleeps and wakes up now and then.
+// Texts, examples and start values: src/lib/tools/battery-copy.mjs.
+// Calculation: battery-life.mjs. The script below wires the page to it (battery-ui.mjs).
+import ToolFrame from "./ToolFrame.astro";
+import { BATTERY_DEFAULTS, BATTERY_PRESETS, BATTERY_SOURCES, batteryCopy } from "../../lib/tools/battery-copy.mjs";
+import { formatNumber } from "../../lib/tools/format.mjs";
+import { batteryLife } from "../../lib/tools/battery-life.mjs";
+import { formatCurrent, formatLife, formatMeaning } from "../../lib/tools/battery-view.mjs";
+
+interface Props {
+  lang?: "da" | "en";
+  id?: string;
+}
+
+const lang = Astro.props.lang ?? (Astro.currentLocale === "en" ? "en" : "da");
+const id = Astro.props.id ?? "batterilevetid";
+const t = batteryCopy[lang];
+// The answer for the start values, so the page is useful before the script runs.
+const start = batteryLife(BATTERY_DEFAULTS);
+// [field key, copy key]: the order the fields come in.
+const fields = [
+  ["capacityMah", "capacity"],
+  ["sleepMicroamps", "sleep"],
+  ["awakeMilliamps", "awake"],
+  ["awakeSeconds", "seconds"],
+  ["intervalMinutes", "interval"],
+  ["usablePercent", "usable"],
+] as const;
+---
+
+<ToolFrame id={id} title={t.title} lang={lang} data-tool="batterilevetid">
+  <Fragment slot="form">
+    <div class="sb-tool-fields">
+      {fields.map(([key, name]) => (
+        <div class="sb-tool-field">
+          <label class="sb-tool-field__label" for={`${id}-${key}`}>{t[name].label}</label>
+          <div class="sb-tool-input">
+            <input type="text" inputmode="decimal" autocomplete="off" id={`${id}-${key}`} data-part={key} value={String(BATTERY_DEFAULTS[key])} aria-describedby={`${id}-${key}-hint`} />
+            <span class="sb-tool-input__unit" aria-hidden="true">{t[name].unit}</span>
+          </div>
+          <p class="sb-tool-field__error" id={`${id}-${key}-error`} data-part={`${key}-error`} hidden>{t[name].invalid}</p>
+          <p class="sb-tool-field__hint" id={`${id}-${key}-hint`}>{t[name].hint}</p>
+        </div>
+      ))}
+    </div>
+
+    <div class="sb-tool-field" role="group" aria-labelledby={`${id}-presets`}>
+      <p class="sb-tool-field__label" id={`${id}-presets`}>{t.presets.label}</p>
+      <ul class="sb-tool-chips" role="list">
+        {BATTERY_PRESETS.map((preset) => (
+          <li>
+            <button type="button" class="sb-tool-chip" aria-pressed="false" data-sleep={preset.sleepMicroamps} data-awake={preset.awakeMilliamps}>
+              {t.presets[preset.id]}
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p class="sb-tool-field__hint">
+        {t.presets.hint} <a href={BATTERY_SOURCES.esp32} rel="noopener">{t.presets.source}</a>.
+      </p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="result">
+    <div class="sb-tool-figure">
+      <p class="sb-tool-figure__label">{t.result.life}</p>
+      <p class="sb-tool-figure__value" data-part="life">{formatLife(start, lang)}</p>
+    </div>
+    <dl class="sb-tool-stats">
+      <div><dt>{t.result.average}</dt><dd data-part="average">{formatCurrent(start.averageMilliamps, lang)}</dd></div>
+      <div><dt>{t.result.days}</dt><dd data-part="days">{formatNumber(start.days, lang, start.days < 100 ? 1 : 0)}</dd></div>
+      <div><dt>{t.result.months}</dt><dd data-part="months">{formatNumber(start.months, lang, 1)}</dd></div>
+      <div><dt>{t.result.years}</dt><dd data-part="years">{formatNumber(start.years, lang, 1)}</dd></div>
+    </dl>
+    <p class="sb-tool-answer" data-part="meaning">{formatMeaning(start.awakeShare, lang)}</p>
+  </Fragment>
+
+  <p slot="note">{t.note}</p>
+</ToolFrame>
+
+<script>
+  import { startBatteryTool } from "../../lib/tools/battery-ui.mjs";
+
+  for (const root of document.querySelectorAll('[data-tool="batterilevetid"]')) startBatteryTool(root);
+</script>

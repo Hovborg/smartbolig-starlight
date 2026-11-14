@@ -1,0 +1,38 @@
+---
+// The frequency strip of the Zigbee channel picker, drawn on the server as
+// inline SVG: Wi-Fi channels on top, the 16 Zigbee channels below. The
+// script (zigbee-ui.mjs) only switches classes on the groups. Decorative:
+// its <title> holds a one-sentence summary that the script keeps up to date,
+// and the text result next to it is complete on its own.
+// Geometry: src/lib/tools/zigbee-strip.mjs. Styles: tools/strip.css.
+import { STRIP, wifiShapes, zigbeeShapes } from "../../lib/tools/zigbee-strip.mjs";
+
+interface Props {
+  titleId: string;
+  summary: string;
+  /** The recommended channel, so it is marked before the script runs. */
+  best: number;
+}
+
+const { titleId, summary, best } = Astro.props;
+const wifi = wifiShapes();
+const zigbee = zigbeeShapes();
+---
+
+<svg class="sb-strip" viewBox={`0 0 ${STRIP.width} ${STRIP.height}`} role="img" aria-labelledby={titleId} preserveAspectRatio="xMidYMid meet">
+  <title id={titleId} data-part="summary">{summary}</title>
+  {wifi.map((shape) => (
+    <g class="sb-strip__wifi" data-wifi={shape.channel}>
+      <rect x={shape.x} y={shape.y} width={shape.width} height={shape.height} rx="8" />
+      <text x={shape.x + shape.width / 2} y={shape.y + 24} text-anchor="middle">{shape.channel}</text>
+    </g>
+  ))}
+  {zigbee.map((shape) => (
+    <g class={shape.channel === best ? "sb-strip__zigbee is-best" : "sb-strip__zigbee"} data-zigbee={shape.channel} data-major={shape.major ? "" : undefined}>
+      <rect class="sb-strip__cell" x={shape.cellX} y={STRIP.zigbeeTop - 8} width="46" height={STRIP.barHeight + 16} rx="6" />
+      <rect class="sb-strip__bar" x={shape.barX} y={STRIP.zigbeeTop} width="20" height={STRIP.barHeight} rx="4" />
+      <path class="sb-strip__best" d={`M${shape.centre - 9} ${STRIP.zigbeeTop + STRIP.barHeight + 28}h18l-9 -14z`} />
+      <text x={shape.centre} y={STRIP.labelY} text-anchor="middle">{shape.channel}</text>
+    </g>
+  ))}
+</svg>

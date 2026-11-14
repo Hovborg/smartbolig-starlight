@@ -203,6 +203,10 @@ Sidst opdateret: 2026-11-14.
   Set 2026-11-14: den første planlagte nyhedskørsel startede selv kl. 11:43 UTC og lykkedes;
   sidevagten bestod alle 14 kontroller i en kørsel startet i hånden. Ikke set endnu: en
   planlagt sidevagtskørsel, en reservekørsel, og alarmens opret- og luk-trin.
+- **Værktøjer, to mere (B66):** Zigbee-kanalvælger (`/vaerktoejer/zigbee-kanal/`) og
+  batterilevetid (`/vaerktoejer/batterilevetid/`) på begge sprog, i den fælles ramme, med
+  kilder på siderne. Forsidens værktøjssektion viser nu fire værktøjer. Set i headless Chrome i
+  mørkt og lyst tema ved 320, 375 og 1440 px, med tastatur og uden JavaScript.
 
 ## Næste skridt
 
