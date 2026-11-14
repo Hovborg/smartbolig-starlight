@@ -168,7 +168,10 @@ Sidst opdateret: 2026-11-14.
   Forsiden har fået en værktøjssektion med elprisen lige nu (B63); den udgives sammen med
   værktøjerne. Den uafhængige gennemgang fandt én blokerende fejl (flere samtidige kald til
   Energinet ved kold start) og en række mindre; alle er rettet og står i
-  `docs/vaerktoejer.md` under "Rettet efter gennemgangen". Afprøvet 2026-11-14: 382 tests,
+  `docs/vaerktoejer.md` under "Rettet efter gennemgangen". En opfølgende gennemgang fandt ingen
+  blokerende fejl, men fem ting i endpointet og forsidens kort (ekstra kald til Energinet, halve
+  svar, afbrudt besøgende, kortets højde, manglende tests); de er rettet, og ti prøver med
+  rettelsen taget ud viser, at testene fanger hver af dem. Afprøvet 2026-11-14: alle tests,
   bygget side og en rigtig browser (tal med tusindtegn afvises, eksempler, enhedens ur en
   time forkert, forsidens kort). Kan først ses på den levende side: Cloudflares cache pr.
   datacenter, gæt på prisområde ud fra den besøgendes sted, og om Energinet begrænser kald

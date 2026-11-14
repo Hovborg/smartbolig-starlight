@@ -45,15 +45,11 @@ export function shapePoints(records, area) {
   return points;
 }
 
-/**
- * { DK1: points, DK2: points } from one upstream call. An area with too few
- * good rows is left out. Throws when the call fails or times out; the caller
- * must never pass the error text on to a visitor.
- */
-export async function fetchPrices({ fetch: fetcher = fetch, timeoutMs = UPSTREAM_TIMEOUT_MS } = {}) {
+/** One upstream answer as { DK1: points, DK2: points }. */
+async function readAreas(fetcher, signal) {
   const response = await fetcher(UPSTREAM_URL, {
     headers: { accept: "application/json", "user-agent": "smartbolig.net elpris (+https://smartbolig.net)" },
-    signal: AbortSignal.timeout(timeoutMs),
+    signal,
   });
   if (!response.ok) {
     await response.body?.cancel();
@@ -70,4 +66,30 @@ export async function fetchPrices({ fetch: fetcher = fetch, timeoutMs = UPSTREAM
     if (points.length >= MIN_POINTS) areas[area] = points;
   }
   return areas;
+}
+
+/**
+ * { DK1: points, DK2: points } from one upstream call. An area with too few
+ * good rows is left out. Throws when the call fails or times out; the caller
+ * must never pass the error text on to a visitor.
+ */
+export async function fetchPrices({ fetch: fetcher = fetch, timeoutMs = UPSTREAM_TIMEOUT_MS } = {}) {
+  const abort = new AbortController();
+  let timer;
+  // The call ends when the time is up, also when a fetch does not answer its signal.
+  const timeUp = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      const error = new DOMException("upstream timeout", "TimeoutError");
+      abort.abort(error);
+      reject(error);
+    }, timeoutMs);
+  });
+  const reading = readAreas(fetcher, abort.signal);
+  // When the time runs out first, no one waits for a later fault of the call itself.
+  reading.catch(() => {});
+  try {
+    return await Promise.race([reading, timeUp]);
+  } finally {
+    clearTimeout(timer);
+  }
 }

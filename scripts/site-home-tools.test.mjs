@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { TOOLS } from "../src/lib/tools/catalog.mjs";
-import { clockOffset, isPrices } from "../src/lib/tools/price-data.mjs";
+import { clockOffset, createClockReader, isPrices } from "../src/lib/tools/price-data.mjs";
 import { SPARK, sparkBars, sparkTicks } from "../src/lib/tools/price-spark.mjs";
 
 const read = (file) => readFile(new URL(`../${file}`, import.meta.url), "utf8");
@@ -71,8 +71,16 @@ test("the section lists every tool, shows no number before the prices are fetche
   assert.match(component, /await import\("\.\.\/\.\.\/lib\/home-price\.mjs"\)/, "the price code is fetched when the card is near the screen");
   assert.doesNotMatch(component, /\sstyle=|\son[a-z]+=/, "no inline style or handler: the strict CSP would block it");
   const css = await read("src/styles/home/tools.css");
-  assert.match(css, /\.home-price\[data-state="ready"\] \.home-price__live \{ display: grid; \}/);
-  assert.match(css, /\.home-price\[data-state="ready"\] \.home-price__idle \{ display: none; \}/);
+  // The numbers' room is held from the start ("loading"), so the page below does not move.
+  const shown = String.raw`\.home-price:is\(\[data-state="ready"\], \[data-state="loading"\]\)`;
+  assert.match(css, new RegExp(`${shown} \\.home-price__live \\{ display: grid; \\}`));
+  assert.match(css, new RegExp(`${shown} \\.home-price__idle \\{ display: none; \\}`));
+  assert.match(css, /\.home-price\[data-state="loading"\] \.home-price__live \{ visibility: hidden; \}/);
+  assert.match(css, /\.home-price__live \{ display: none;/, "without JavaScript the numbers' room is not taken");
+  const script = component.slice(component.indexOf("<script>"));
+  assert.ok(script.indexOf('card.dataset.state = "loading"') < script.indexOf("new IntersectionObserver"), "room is taken before the card is seen");
+  assert.ok(script.indexOf("new IntersectionObserver") < script.indexOf("await import("), "the code is imported only when the observer fires");
+  assert.match(script, /catch \{[^}]*card\.dataset\.state = "idle";/, "code that cannot be fetched gives the invitation back");
   assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b|rgb\(|hsl\(/i, "colours come from the design tokens");
 });
 
@@ -108,6 +116,24 @@ test("a device clock far from the server's is put right, and a small difference 
   assert.equal(clockOffset(header(-10), device), 0);
   assert.equal(clockOffset(header(14), device), 0);
   for (const missing of [null, undefined, "", "not a date"]) assert.equal(clockOffset(missing, device), 0);
+});
+
+test("an answer from the browser's cache does not undo what a newer answer said about the clock", () => {
+  const device = Date.UTC(2026, 10, 14, 8, 30);
+  const header = (minutes) => new Date(device + minutes * 60_000).toUTCString();
+  // A device an hour slow: the fresh answer says +60, a cached one from nine minutes ago +51.
+  const slow = createClockReader();
+  assert.equal(slow(header(60), device), 3600);
+  assert.equal(slow(header(51), device), 3600);
+  assert.equal(slow(null, device), 3600, "an answer without a Date changes nothing");
+  // A device an hour fast: the cached answer looks even further behind, and the fresh one wins.
+  const fast = createClockReader();
+  assert.equal(fast(header(-69), device), -69 * 60);
+  assert.equal(fast(header(-60), device), -3600);
+  // A clock that is right stays uncorrected whatever the cache hands back.
+  const right = createClockReader();
+  assert.equal(right(header(-9), device), 0);
+  assert.equal(right(header(0), device), 0);
 });
 
 test("the tool and the homepage card both use the corrected clock", async () => {

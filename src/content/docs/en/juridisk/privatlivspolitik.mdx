@@ -55,9 +55,11 @@ personal data in the chat.
 
 The electricity price tool gets the prices from our own server at Cloudflare, which gets them
 from Energinet. Your browser does not call Energinet, so Energinet does not see your IP
-address. When you open the tool, it guesses your price area (West or East Denmark) from the
-region Cloudflare reports for your connection. The guess is not stored, and you can change
-the area in the tool.
+address. When you open the tool, or when the electricity price card on the homepage comes
+into view, the server guesses your price area (West or East Denmark) from the region
+Cloudflare reports for your connection. If we do not know the region's code, the approximate
+place (longitude and latitude) that Cloudflare reports is used. The guess is not stored, and
+you can change the area in the tool.
 
 What you type into the tools (for example watts, hours and price) is calculated in your
 browser. It is not sent to us and is not stored. The only thing the electricity price tool

@@ -8,6 +8,9 @@ Energinet og med en fejl fra Energinet; kontrast og trykflader er målt, og tast
 Endpointets kode er kørt én gang mod det rigtige Energinet: ét kald gav begge prisområder.
 En uafhængig gennemgang samme dag fandt, at et tal med tusindtegn blev læst tusind gange for
 lavt, og seks mindre fejl; de er rettet og har hver sin test (se "Rettet efter gennemgangen").
+En opfølgende gennemgang fandt fem ting mere i endpointet og forsidens kort; de er også rettet
+(samme afsnit). Forsidens kort er målt i en rigtig browser: siden under kortet flytter sig ikke,
+når priserne kommer.
 Ikke kontrolleret: endpointet på Cloudflare. Workerens cache, gættet på prisområde ud fra
 `request.cf` og Energinets grænse set fra Cloudflares adresser kan kun ses på den levende side.
 
@@ -63,11 +66,19 @@ Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Ene
   minuttet (målt 2026-11-14: det andet kald fik 429). Kopien af hvert område gemmes hver for sig.
 - **En kopi er frisk i ti minutter.** Fejler Energinet, vises den gamle kopi, så længe den
   indeholder prisen for det kvarter, vi er i, og Workeren venter 60 sekunder med at prøve igen.
-  Et svar med en gammel kopi har `"stale": true`, og værktøjet skriver da, hvilken dag
-  priserne er hentet.
-- **Kald, der kommer samtidig, koster ét kald til Energinet.** Hver Worker-instans husker,
-  hvornår den sidst spurgte, og det sidste gode svar (`memory.js`). Mens ét kald er på vej,
-  får de andre den gamle kopi; er der ingen, venter de op til tre sekunder på svaret. Der deles
+  Et svar med en gammel kopi har `"stale": true`; værktøjet læser ikke feltet i dag. Værktøjet
+  skriver altid, hvornår priserne er hentet, og tilføjer dagen, når det er en anden dag end i dag.
+- **Et halvt svar gemmes ikke.** Et svar fra Energinet, der slutter før det kvarter, vi er i,
+  bliver ikke gemt og erstatter aldrig en kopi, der stadig har prisen for nu
+  (`UpstreamIncomplete` i loggen).
+- **Kaldet til Energinet slutter altid.** Efter 8 sekunder afbrydes det, også hvis `fetch` ikke
+  reagerer på afbrydelsen. Kaldet gives til `waitUntil`, så det gøres færdigt og gemmes, selv om
+  læseren, der udløste det, forlader siden.
+- **Kald, der kommer samtidig til samme Worker-instans, koster ét kald til Energinet.** Hver
+  instans husker, hvornår den sidst spurgte, og det sidste gode svar (`memory.js`); efter hver
+  ventetid på cachen ser den i sin hukommelse igen, før den selv spørger. Mens ét kald er på vej,
+  får de andre den gamle kopi; er der ingen, venter de op til tre sekunder på svaret. Flere
+  instanser i samme datacenter deler cachen, og hvert datacenter har sin egen. Der deles
   aldrig et løfte (promise) mellem to kald: Cloudflare kan afbryde det kald, der ejer det, og
   så ville de andre vente for evigt. Derfor er "et kald er på vej" et tidspunkt, der udløber
   af sig selv, ikke et flag.
@@ -118,7 +129,7 @@ Omregningen til øre/kWh sker i browseren (`toOre` i `price-window.mjs`).
 |---|---|
 | 200, `cache-control: public, max-age=600` | Priser for et navngivet område |
 | 200, `cache-control: private, max-age=600` | Priser for et gættet område |
-| 200, `max-age=60` | En gammel kopi, fordi Energinet ikke svarede |
+| 200, `max-age=60` | En kopi, der er ældre end ti minutter: et nyt kald er på vej, eller Energinet svarede ikke |
 | 400 `invalid_area` | `area` er ikke præcis `DK1` eller `DK2` |
 | 405 `method_not_allowed` | Andet end GET og HEAD |
 | 502 `upstream` | Energinet svarede ikke, og der er ingen kopi, der dækker nu |
@@ -230,10 +241,24 @@ og "-0,0" som "0,0"; fejlteksten læses kun op, når feltet er forkert; eksemple
 arver ikke routerens 24 timer; eksemplet med køleskab er fjernet, fordi tallet ikke havde en
 kilde.
 
+En opfølgende gennemgang samme dag fandt disse; de er rettet på samme måde:
+
+| Fejl | Rettet i | Test |
+|---|---|---|
+| Et kald, der ventede på cachen, mens et andet kalds svar kom, spurgte Energinet én gang til | `handler.js`: hukommelsen læses igen efter hver ventetid | `site-tools-api.test.mjs` |
+| Et halvt svar fra Energinet erstattede en kopi, der stadig dækkede nu | `handler.js` (`UpstreamIncomplete`) | `site-tools-api.test.mjs` |
+| Forlod læseren siden midt i kaldet, kunne svaret gå tabt | `handler.js`: kaldet gives til `waitUntil`; `upstream.js`: hård tidsgrænse | `site-tools-api.test.mjs` |
+| Siden under forsidens kort flyttede sig, når priserne kom | `HomeTools.astro`, `tools.css`: pladsen holdes fra start (`data-state="loading"`) | `site-home-tools.test.mjs`, målt i browser |
+| Forsidens kort kaldte en pris "lav" ud fra to dage, men tegnede kun i dag; nøglen "billigst" stod der, selv om ingen søjle var mærket | `price-view.mjs` (`levelOver`), `home-price.mjs` | `site-home-price.test.mjs` |
+| Et svar fra browserens cache kunne ophæve rettelsen af et ur, der går forkert | `price-data.mjs` (`createClockReader`: den største forskel gælder) | `site-home-tools.test.mjs` |
+
 Kendt og ikke rettet: på de to dage om året, hvor uret stilles, står timen 02 to gange (eller
 mangler) uden forklaring; en time, hvor Energinet mangler nogle kvarterer, vises som
 gennemsnittet af de kvarterer, der er; grafens tekst til skærmlæsere siger ikke, hvilken dag
-den laveste time ligger på, når to dage vises.
+den laveste time ligger på, når to dage vises. På forsidens kort har søjlerne for timer, der
+er gået, lav kontrast mod kortet (1,4–1,65:1), og "billigst" adskilles fra "kommende" kun med
+farve; tallene står som tekst ved siden af, og grafen har en tekst til skærmlæsere. Kommer det
+første svar fra browserens cache, kan uret være op til ti minutter bagud, til næste svar.
 
 ## Forsiden
 
@@ -245,19 +270,26 @@ Forsiden har en sektion "Værktøjer" (`src/components/home/HomeTools.astro`, st
   elprisværktøjet (`price-view.mjs`) og henter priserne samme vej (`price-data.mjs`, sidens
   eget `/api/elpris`). Søjlernes mål regnes i `src/lib/tools/price-spark.mjs`.
 - Koden hentes først, når kortet er tæt på skærmen, så forsiden ikke bliver tungere at åbne.
+  Pladsen til tallene tages med det samme (`data-state="loading"`), så siden under kortet ikke
+  flytter sig, når de kommer. Kan koden eller priserne ikke hentes, går kortet tilbage til teksten.
+- Kortet kalder prisen lav, middel eller høj i forhold til dagens timer, fordi det kun tegner i
+  dag. Elprisværktøjet sammenligner med alle kendte timer.
 - Uden JavaScript, eller hvis priserne ikke kan hentes, viser kortet en tekst og et link til
   værktøjet. Der står aldrig et tal i den byggede side.
 - Til højre en række pr. værktøj fra `catalog.mjs`. Et nyt værktøj kommer med af sig selv.
 
 Kortet gemmer intet og sender kun det, elprisværktøjet sender. Testene står i
-`scripts/site-home-tools.test.mjs`.
+`scripts/site-home-tools.test.mjs` (søjler, opsætning) og `scripts/site-home-price.test.mjs`
+(kortets opførsel med en efterlignet side: priser, fejl, ur og nyt kald).
 
 ## Overvågning og privatliv
 
 - Sidevagten (`docs/overvaagning.md`) spørger `/api/elpris?area=DK1` ved hver kørsel og
   åbner en sag, hvis svaret ikke er 200 med mindst 24 priser.
 - Privatlivspolitikken (afsnit 2.4, begge sprog) siger, hvad værktøjerne sender: kun
-  prisområdet. Et nyt værktøj, der sender eller gemmer mere, skal skrives ind dér.
+  prisområdet, og at det første område er et gæt ud fra regionen (eller det omtrentlige sted),
+  Cloudflare oplyser for forbindelsen, både i værktøjet og på forsidens kort. Et nyt værktøj,
+  der sender eller gemmer mere, skal skrives ind dér.
 - Kommentarer og annoncepladsen vises under et værktøj, men ikke på oversigten
   (`src/lib/article-page.mjs`).
 - `llms.txt` har værktøjerne som eget afsnit (`SECTIONS` i `scripts/lib/llms-txt.mjs`).
@@ -295,7 +327,8 @@ Hele sektionen:
 8. Fjern `["vaerktoejer", "Værktøjer"]` fra `SECTIONS` i `scripts/lib/llms-txt.mjs` og den
    linje i `scripts/site-llms-txt.test.mjs`, der siger, at værktøjer er et kendt område.
 9. Fjern forsidens sektion: `src/components/home/HomeTools.astro`, `src/lib/home-price.mjs`,
-   `src/styles/home/tools.css`, `scripts/site-home-tools.test.mjs`, blokken `tools` i
+   `src/styles/home/tools.css`, `scripts/site-home-tools.test.mjs`,
+   `scripts/site-home-price.test.mjs`, blokken `tools` i
    `src/lib/home-copy/` (typen og begge sprog) og de to linjer i `HomePortal.astro` og
    `HomeStyles.astro`.
 10. Kør `npm run site:test` og `npm run build`.

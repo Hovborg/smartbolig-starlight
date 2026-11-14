@@ -35,7 +35,12 @@ export function createElprisHandler(dependencies = {}) {
     try {
       const areas = await fetchPrices({ fetch: fetcher, timeoutMs });
       const fetched = new Date(now()).toISOString();
-      const all = Object.entries(areas).map(([name, points]) => ({ area: name, fetched, points }));
+      // An answer that stops before this moment is half an answer: it is not
+      // kept, so it never replaces a copy that still holds the price of now.
+      const all = Object.entries(areas)
+        .map(([name, points]) => ({ area: name, fetched, points }))
+        .filter((prices) => coversNow(prices, now()));
+      if (all.length === 0) throw Object.assign(new Error("no prices for now"), { name: "UpstreamIncomplete" });
       memory.answered(all);
       // The cache is written after the answer is sent; a failed write only costs a call.
       later(Promise.all(all.map((prices) => cache.write(prices))));
@@ -71,16 +76,23 @@ export function createElprisHandler(dependencies = {}) {
     if (known && isFresh(known, now())) return respond(known);
 
     const backingOff = await cache.isBackingOff();
+    // Another request's answer may have landed while this one waited for the cache.
+    known = newest(known, memory.read(area));
+    if (known && isFresh(known, now())) return respond(known);
+
     // No await between the question and ask(): two requests cannot both get a yes.
     if (!backingOff && memory.mayAsk()) {
-      const prices = await ask(area, cache, later);
+      // The call is finished even if this visitor leaves, so the next one finds the prices.
+      const pending = ask(area, cache, later);
+      later(pending);
+      const prices = await pending;
       if (prices) return respond(prices);
     } else if (memory.isAsking() && !(known && coversNow(known, now()))) {
       // Another request is asking right now, and there is nothing to show meanwhile.
       for (let waited = 0; waited < WAIT_MS && memory.isAsking(); waited += WAIT_STEP_MS) await sleep(WAIT_STEP_MS);
-      known = newest(known, memory.read(area));
     }
 
+    known = newest(known, memory.read(area));
     if (known && coversNow(known, now())) return respond(known);
     return errorResponse("upstream", 502, {}, method);
   };

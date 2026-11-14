@@ -1,6 +1,7 @@
 /* Homepage: the tools section. A card with the electricity price right now
    (components/home/HomeTools.astro, filled in by lib/home-price.mjs) beside a
-   row per tool. The card shows its numbers only in data-state="ready". */
+   row per tool. The card shows its numbers only in data-state="ready"; in
+   "loading" their room is held empty, so the page below does not move. */
 
 .home-tools__layout { display: grid; gap: var(--sb-space-5); align-items: stretch; }
 
@@ -42,8 +43,9 @@
 .home-price__area { margin: 0; color: var(--sb-ink-muted); font-size: var(--sb-text-sm); }
 
 .home-price__live { display: none; gap: var(--sb-space-4); min-width: 0; }
-.home-price[data-state="ready"] .home-price__live { display: grid; }
-.home-price[data-state="ready"] .home-price__idle { display: none; }
+.home-price:is([data-state="ready"], [data-state="loading"]) .home-price__live { display: grid; }
+.home-price:is([data-state="ready"], [data-state="loading"]) .home-price__idle { display: none; }
+.home-price[data-state="loading"] .home-price__live { visibility: hidden; }
 
 .home-price__now { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--sb-space-3); margin: 0; }
 .home-price__value {
@@ -78,11 +80,13 @@
 .home-price__ticks span { position: absolute; top: 0; }
 .home-price__legend { display: flex; flex-wrap: wrap; gap: var(--sb-space-2) var(--sb-space-4); margin: 0; color: var(--sb-ink-muted); font-size: var(--sb-text-xs); }
 .home-price__key { display: inline-flex; align-items: center; gap: 0.4rem; }
+.home-price__key[hidden] { display: none; }
 .home-price__key::before { content: ""; width: 0.65rem; height: 0.65rem; }
 .home-price__key--now::before { background: var(--sb-ink-strong); }
 .home-price__key--best::before { background: var(--sb-accent); }
 
-.home-price__run { margin: 0; color: var(--sb-ink); font-size: var(--sb-text-base); line-height: 1.55; }
+/* Room for two lines, so a long sentence does not push the page down. */
+.home-price__run { min-height: 3.1em; margin: 0; color: var(--sb-ink); font-size: var(--sb-text-base); line-height: 1.55; }
 .home-price__run strong { color: var(--sb-ink-strong); font-weight: 650; }
 
 /* Before the prices are there, and when they cannot be fetched */

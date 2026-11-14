@@ -24,7 +24,8 @@ export function startHomePrice(root, { clock: deviceClock = () => Date.now() / 1
 
   function render() {
     const now = clock();
-    const view = priceView({ points: state.data.points, area: state.data.area, now, runHours: RUN_HOURS, lang, copy });
+    // The card draws today's hours, so the level is compared with today.
+    const view = priceView({ points: state.data.points, area: state.data.area, now, runHours: RUN_HOURS, lang, copy, levelOver: "today" });
     const today = view.hours.filter((hour) => dayKey(hour.start) === dayKey(now));
     // Without a price for this quarter there is nothing true to show.
     if (!view.now || today.length === 0) return false;
@@ -36,11 +37,12 @@ export function startHomePrice(root, { clock: deviceClock = () => Date.now() / 1
     setText($("level"), copy.level[view.now.level]);
     setText($("run"), view.windowText);
 
+    const bars = sparkBars(today, { now, window: view.window });
     $("spark").replaceChildren(
-      ...sparkBars(today, { now, window: view.window }).map(({ state: kind, ...box }) =>
-        svgEl("rect", { ...box, rx: 1.5, class: `home-price__bar home-price__bar--${kind}` }),
-      ),
+      ...bars.map(({ state: kind, ...box }) => svgEl("rect", { ...box, rx: 1.5, class: `home-price__bar home-price__bar--${kind}` })),
     );
+    // The cheapest run may lie tomorrow: then no bar is marked, and the key is not shown.
+    $("legend-best").hidden = !bars.some((bar) => bar.state === "best");
     const [min, max] = view.stats;
     $("spark").setAttribute("aria-label", fill(root.dataset.sparkLabel, { min: min.value, minAt: min.at, max: max.value, maxAt: max.at }));
     $("ticks").replaceChildren(
@@ -60,6 +62,8 @@ export function startHomePrice(root, { clock: deviceClock = () => Date.now() / 1
     try {
       state.data = await fetchPrices(state.data?.area, request.signal);
       state.loadedAt = clock();
+      // The clock may have been put right: the next quarter is counted again.
+      atNextQuarter();
     } catch {
       if (request.signal.aborted) return;
     }
@@ -73,6 +77,7 @@ export function startHomePrice(root, { clock: deviceClock = () => Date.now() / 1
     else root.dataset.state = render() ? "ready" : "idle";
   }
   function atNextQuarter() {
+    clearTimeout(state.timer);
     state.timer = setTimeout(() => {
       refresh();
       atNextQuarter();

@@ -45,7 +45,7 @@ const { price } = copy;
           <p class="home-price__ticks" data-part="ticks" aria-hidden="true"></p>
           <p class="home-price__legend" aria-hidden="true">
             <span class="home-price__key home-price__key--now">{price.legendNow}</span>
-            <span class="home-price__key home-price__key--best">{price.legendBest}</span>
+            <span class="home-price__key home-price__key--best" data-part="legend-best">{price.legendBest}</span>
           </p>
         </div>
         <p class="home-price__run"><strong>{price.runLabel}</strong> <span data-part="run"></span></p>
@@ -78,15 +78,23 @@ const { price } = copy;
 </section>
 
 <script>
-  // The price code is fetched only when the card is about to be seen.
-  const card = document.querySelector("[data-home-price]");
+  // The price code is fetched only when the card is about to be seen. The
+  // room for the numbers is taken now, while the card is far below the screen,
+  // so nothing moves when they arrive.
+  const card = document.querySelector<HTMLElement>("[data-home-price]");
   if (card && "IntersectionObserver" in window) {
+    card.dataset.state = "loading";
     const observer = new IntersectionObserver(
       async (entries) => {
         if (!entries.some((entry) => entry.isIntersecting)) return;
         observer.disconnect();
-        const { startHomePrice } = await import("../../lib/home-price.mjs");
-        startHomePrice(card);
+        try {
+          const { startHomePrice } = await import("../../lib/home-price.mjs");
+          startHomePrice(card);
+        } catch {
+          // The price code could not be fetched: back to the invitation.
+          card.dataset.state = "idle";
+        }
       },
       { rootMargin: "600px 0px" },
     );

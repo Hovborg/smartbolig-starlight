@@ -68,14 +68,15 @@ function daysOf(hours, now, lang, copy) {
 /**
  * `points` are the quarters from /api/elpris, `now` is epoch seconds.
  * `vat` and `addOn` are the visitor's settings, `runHours` the length of the
- * run to find.
+ * run to find. The price level is compared with every known hour, or with
+ * today's hours only when `levelOver` is "today".
  */
-export function priceView({ points, area, now, vat = true, addOn = 0, runHours = 3, lang = "da", copy }) {
+export function priceView({ points, area, now, vat = true, addOn = 0, runHours = 3, lang = "da", copy, levelOver = "all" }) {
   const price = (raw) => toOre(raw, { vat, addOn });
   const hours = hourly(points).map((hour) => ({ start: hour.start, value: price(hour.value), ...hourSpan(hour.start) }));
   const days = daysOf(hours, now, lang, copy);
   const today = hours.filter((hour) => dayKey(hour.start) === dayKey(now));
-  const values = hours.map((hour) => hour.value);
+  const values = (levelOver === "today" ? today : hours).map((hour) => hour.value);
 
   const current = currentPoint(points, now);
   const nowValue = current ? price(current[1]) : null;

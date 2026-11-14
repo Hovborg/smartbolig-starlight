@@ -18,7 +18,7 @@ export function startPriceTool(root) {
   const lang = root.dataset.lang === "en" ? "en" : "da";
   const copy = priceCopy[lang];
   const $ = (name) => part(root, name);
-  const state = { data: null, loadedAt: 0, vat: true, addOn: 0, runHours: Number($("run").value), request: null };
+  const state = { data: null, loadedAt: 0, vat: true, addOn: 0, runHours: Number($("run").value), request: null, timer: null };
   // The device clock, put right when it is far from the server's (price-data.mjs).
   const clock = () => Date.now() / 1000 + (state.data?.clockOffset ?? 0);
   const chart = createPriceChart(root, { lang, copy, clock });
@@ -62,6 +62,8 @@ export function startPriceTool(root) {
     try {
       const data = (state.data = await fetchPrices(area, request.signal));
       state.loadedAt = clock();
+      // The clock may have been put right: the next quarter is counted again.
+      atNextQuarter();
       for (const radio of areaRadios) radio.checked = radio.value === data.area;
       setText($("area-hint"), data.areaGuessed ? copy.area.guessed : copy.area.hint);
     } catch {
@@ -81,7 +83,8 @@ export function startPriceTool(root) {
     else render();
   }
   function atNextQuarter() {
-    setTimeout(() => {
+    clearTimeout(state.timer);
+    state.timer = setTimeout(() => {
       refresh();
       atNextQuarter();
     }, (STEP_SECONDS - (clock() % STEP_SECONDS) + 1) * 1000);
