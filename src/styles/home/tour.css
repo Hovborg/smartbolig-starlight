@@ -93,7 +93,7 @@
 .home-hero .home-chapter__links a:hover { color: var(--sb-accent-strong); text-decoration-color: currentColor; }
 
 @media (min-width: 64rem) {
-  .home-tour { grid-column: 1; grid-row: 2; padding-block: 0 var(--sb-space-8); }
+  .home-tour { grid-column: 1; grid-row: 2; padding-block: 0; }
   .home-tour__chapters { gap: 0; }
   /* An open timeline: a line down the left with one dot per chapter. */
   .home-chapter {

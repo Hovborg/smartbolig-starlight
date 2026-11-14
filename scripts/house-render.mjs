@@ -3,6 +3,9 @@
 //
 //   node scripts/house-render.mjs <outDir> <name>|<width>x<height>|<mode>|<view>|<focus?>|<az?> ...
 //
+// From code, a job may carry its own camera instead of a named view:
+//   { name, width, height, scale, mode, focus, camera: { az, el, dist, target: [x, y, z] } }
+//
 // The pictures are PNG on the dark page colour, drawn at twice the size and
 // left to the caller to scale down (scripts/house-posters.mjs).
 import { spawn } from "node:child_process";
@@ -25,7 +28,7 @@ window.renderHouse = (job) => {
   fresh.id = "c";
   fresh.style.width = job.width + "px";
   fresh.style.height = job.height + "px";
-  const house = mountHouse(fresh, { still: true, mode: job.mode, view: job.view, focus: job.focus || null, time: 2.1, shadowSize: 4096, quality: job.quality || "high", background: job.background || "#090d11" });
+  const house = mountHouse(fresh, { still: true, mode: job.mode, view: job.camera || job.view, focus: job.focus || null, time: 2.1, shadowSize: 4096, quality: job.quality || "high", background: job.background || "#090d11" });
   if (!house) return false;
   window.house = house;
   house.resize(job.width, job.height, job.scale);

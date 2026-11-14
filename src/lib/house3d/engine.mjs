@@ -35,7 +35,9 @@ export function createEngine(canvas, options) {
   const levels = { ...goals };
   let lightGoal = lightingOf(modes[mode], colors.time[mode]);
   const light = lightingOf(modes[mode], colors.time[mode]);
-  let viewGoal = views[options.view ?? "overview"];
+  // A view is a name from modes.mjs, or a camera of its own (still pictures).
+  const viewOf = (view) => (view && typeof view === "object" ? view : views[view ?? "overview"]);
+  let viewGoal = viewOf(options.view) ?? views.overview;
   const view = { ...viewGoal, target: [...viewGoal.target] };
   const orbit = { az: 0, el: 0, goalAz: 0, goalEl: 0, sway: 0 };
   const point = new Vector3();
@@ -145,8 +147,8 @@ export function createEngine(canvas, options) {
       wake();
     },
     setView(name) {
-      if (!views[name]) return;
-      viewGoal = views[name];
+      if (!viewOf(name)) return;
+      viewGoal = viewOf(name);
       orbit.goalAz = 0;
       orbit.goalEl = 0;
       wake();

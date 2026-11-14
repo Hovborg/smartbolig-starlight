@@ -73,7 +73,11 @@ export interface HomeMotionCopy {
   reset: string;
 }
 
+export type HomeTopicId = "home-assistant" | "automations" | "esp32" | "products" | "ai";
+
 export interface HomeNavigatorRow {
+  /** Picks the picture: public/images/home/topic-<id>-*. */
+  id: HomeTopicId;
   title: string;
   description: string;
   href: string;

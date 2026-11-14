@@ -138,26 +138,31 @@ export const en: HomeCopy = {
     },
     rows: [
       {
+        id: "home-assistant",
         title: "Home Assistant",
         description: "Installation, integrations and upkeep of the brain of your smart home.",
         href: "/en/home-assistant/",
       },
       {
+        id: "automations",
         title: "Automations",
         description: "Reliable everyday logic with concrete, tested examples.",
         href: "/en/automationer/",
       },
       {
+        id: "esp32",
         title: "ESP32 & ESPHome",
         description: "Build your own local sensors and devices with YAML you can understand.",
         href: "/en/esp32/",
       },
       {
+        id: "products",
         title: "Products & gear",
         description: "Compatible hardware chosen for function and local control.",
         href: "/en/produkter/",
       },
       {
+        id: "ai",
         title: "Practical AI",
         description: "Tools and workflows for when AI genuinely helps your smart home.",
         href: "/en/ai/",
@@ -191,7 +196,7 @@ export const en: HomeCopy = {
   guides: {
     eyebrow: "Featured guides",
     title: "Start with what lasts",
-    photoAlt: "Close-up of a circuit board with chips and connections.",
+    photoAlt: "3D model of a smart home in morning light: the lights are on in the bedroom and the kitchen, and the sun is low over the garden.",
     lead: {
       title: "Getting started with Home Assistant",
       description:

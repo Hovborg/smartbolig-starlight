@@ -1,0 +1,128 @@
+/* "Choose your direction" (HomeGoalNavigator.astro): five topics as picture
+   cards. The pictures come from the 3D house, so they are dark in both
+   themes, and the text on them uses the stage colours. */
+
+.home-navigator { display: grid; gap: var(--sb-space-6); }
+.home-navigator__head { display: grid; gap: var(--sb-space-5); align-items: end; }
+.home-navigator .home-section__heading { margin: 0; }
+.home-navigator__beginner {
+  max-width: 30rem;
+  padding: var(--sb-space-4) var(--sb-space-5);
+  border: 1px solid color-mix(in srgb, var(--sb-accent) 28%, transparent);
+  border-radius: var(--sb-radius-lg);
+  background: var(--sb-accent-soft);
+}
+.home-navigator__beginner p { margin: 0; color: var(--sb-ink); font-size: var(--sb-text-sm); line-height: 1.6; }
+.home-navigator__beginner strong { display: block; margin-bottom: var(--sb-space-1); color: var(--sb-ink-strong); font-size: var(--sb-text-base); }
+.home-navigator__beginner .home-text-link { display: inline-block; margin-top: var(--sb-space-3); font-size: var(--sb-text-sm); }
+
+/* Phones: the first topic across, the other four two by two. */
+.home-navigator__rows {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sb-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.home-navigator__rows li { min-width: 0; margin: 0; }
+.home-navigator__rows li:first-child { grid-column: 1 / -1; }
+
+.home-portal .home-topic {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  align-content: end;
+  height: 100%;
+  min-height: 11.5rem;
+  overflow: hidden;
+  padding: var(--sb-space-4);
+  border: 1px solid var(--sb-line);
+  border-radius: var(--sb-radius-lg);
+  background: var(--sb-stage);
+  color: var(--sb-on-stage);
+  text-decoration: none;
+}
+.home-navigator__rows li:first-child .home-topic { min-height: 17rem; }
+.home-topic picture { display: contents; }
+.home-topic__picture {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+/* A shade behind the text, so it reads on any picture. */
+.home-topic::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--sb-stage) 95%, transparent),
+    color-mix(in srgb, var(--sb-stage) 80%, transparent) 38%,
+    transparent 82%
+  );
+}
+.home-navigator__rows li:first-child .home-topic::after {
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--sb-stage) 94%, transparent),
+    color-mix(in srgb, var(--sb-stage) 60%, transparent) 30%,
+    transparent 62%
+  );
+}
+.home-topic h3 {
+  margin: 0;
+  color: var(--sb-on-stage);
+  font-family: var(--sb-font-display);
+  font-size: var(--sb-text-lg);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+.home-topic p { display: none; margin: var(--sb-space-2) 0 0; color: var(--sb-on-stage-muted); font-size: var(--sb-text-sm); line-height: 1.55; }
+.home-navigator__rows li:first-child .home-topic p { display: block; max-width: 34ch; }
+.home-navigator__rows li:first-child .home-topic h3 { font-size: var(--sb-text-h3); }
+.home-navigator__arrow {
+  position: absolute;
+  top: var(--sb-space-3);
+  right: var(--sb-space-3);
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid color-mix(in srgb, var(--sb-on-stage) 22%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--sb-stage) 62%, transparent);
+  color: var(--sb-on-stage);
+  font-size: 1.05rem;
+  line-height: 1;
+  backdrop-filter: blur(8px);
+}
+.home-portal .home-topic:hover { border-color: var(--sb-accent-vivid); text-decoration: none; }
+.home-portal .home-topic:hover .home-navigator__arrow { border-color: var(--sb-accent-vivid); color: var(--sb-accent-vivid); }
+.home-portal .home-topic:focus-visible { outline-offset: 3px; border-radius: var(--sb-radius-lg); }
+
+@media (min-width: 40rem) {
+  .home-navigator__rows { gap: var(--sb-space-4); }
+  .home-portal .home-topic { min-height: 15rem; padding: var(--sb-space-5); }
+  .home-navigator__rows li:first-child .home-topic { min-height: 22rem; }
+  .home-topic p { display: block; }
+}
+
+/* Wide screens: the first topic is a large card, the other four sit two by
+   two beside it. */
+@media (min-width: 64rem) {
+  .home-navigator__head { grid-template-columns: minmax(0, 1fr) auto; }
+  .home-navigator__rows { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-auto-rows: 16rem; }
+  .home-navigator__rows li:first-child { grid-column: span 2; grid-row: span 2; }
+  .home-portal .home-topic,
+  .home-navigator__rows li:first-child .home-topic { min-height: 0; }
+  .home-navigator__rows li:first-child .home-topic { padding: var(--sb-space-6); }
+  .home-navigator__rows li:first-child .home-topic h3 { font-size: var(--sb-text-h2); }
+  .home-navigator__rows li:first-child .home-topic p { font-size: var(--sb-text-base); }
+}

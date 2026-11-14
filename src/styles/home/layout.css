@@ -29,6 +29,11 @@ body:has(.home-portal) .main-pane { width: 100%; }
   margin: clamp(4rem, 9vw, 7rem) auto;
 }
 .sl-markdown-content .home-portal > .home-section { margin-top: clamp(4rem, 9vw, 7rem); }
+/* The tour above ends in open space of its own. */
+/* Starlight spaces every element that follows another one in the content;
+   an <img> after its <source> elements must not be pushed down by it. */
+.sl-markdown-content .home-portal picture > img { margin-top: 0; }
+.sl-markdown-content .home-portal > .home-section:first-child { margin-top: clamp(1.5rem, 4vw, 3rem); }
 
 .home-section__heading { max-width: 46rem; margin-bottom: var(--sb-space-7); }
 .home-section__heading h2,

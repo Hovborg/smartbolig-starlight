@@ -1,7 +1,7 @@
 # 3D-huset
 
 Sidst opdateret: 2026-11-14.
-Kontrolleret ved: forsiden åbnet i browser (1440 og 375 px, mørkt og lyst tema, dansk og
+Kontrolleret ved: forsiden åbnet i browser (1440, 820 og 390 px, mørkt og lyst tema, dansk og
 engelsk), WebGL slået fra, `npm run house:posters` kørt, `npm run site:test` grøn.
 
 Huset på forsiden er en three.js-model, bygget af egne dele. Der er ingen hentede modeller
@@ -48,15 +48,36 @@ Læg den i den fil under `parts/`, den hører til, eller i en ny fil, som `engin
 Brug byggeklodserne i `kit.mjs` og farverne i `palette.mjs`. En ting, der skal kunne tændes,
 melder sig til en kanal; se lamperne i `parts/devices.mjs`.
 
-## Tegn stillbilledet igen
+## Stillbillederne
+
+Alle billeder af huset på forsiden står i listen `PICTURES` i `scripts/house-posters.mjs`:
+
+| Navn | Bruges i |
+|---|---|
+| `house-evening` | Heroen, før modellen er hentet, og hvor WebGL mangler |
+| `house-morning` | Udvalgte guides (`HomeFeaturedGuides.astro`) |
+| `topic-<emne>` | Emnekortene (`HomeGoalNavigator.astro`), ét pr. emne-id i `src/lib/home-copy/types.ts` |
+
+Tegn dem igen:
 
 ```bash
 npm run house:posters
 ```
 
 Kræver Chrome på maskinen (stien kan sættes med `CHROME_PATH`). Scriptet pakker modellen med
-esbuild, tegner aftenen i dobbelt størrelse og skriver seks filer i `public/images/home/`.
-Kør det, hver gang huset, aftenlyset eller oversigtskameraet er ændret.
+esbuild, tegner hvert billede i dobbelt størrelse og skriver AVIF og WebP i hver bredde i
+`public/images/home/`. Kør det, hver gang huset, lyset eller et kamera er ændret. Ét billede
+alene: `npm run house:posters -- topic-esp32` (navnets begyndelse).
+
+### Tilføj et billede
+
+1. Tilføj en linje i `PICTURES`: `name`, `mode` (tidspunkt), enten `view` (et navngivet kamera
+   fra `modes.mjs`) eller `camera` (`az`, `el`, `dist`, `target`), størrelsen og bredderne i
+   `widths`. `focus` fremhæver et system, som markørerne på forsiden gør.
+2. Kør `npm run house:posters -- <navn>`, og se billedet i `public/images/home/`.
+3. Brug det i komponenten med `<picture>` (AVIF først, så WebP) og faste `width` og `height`.
+4. Kør `npm run site:test`. Testen "every picture rendered from the 3D house exists in every
+   size and is used" fejler, hvis en fil mangler, eller billedet ikke bruges.
 
 ## Kvalitet og hastighed
 
@@ -72,12 +93,14 @@ Kør det, hver gang huset, aftenlyset eller oversigtskameraet er ændret.
 |---|---|
 | Billedet bliver stående, ingen markører | WebGL mangler eller fejlede. Se konsollen: "3D house unavailable". Siden virker stadig |
 | Et ryk, når modellen tager over | Stillbilledet er forældet. Kør `npm run house:posters` |
+| Et emnekort uden billede | Filen mangler i `public/images/home/`. Kør `npm run house:posters -- topic-<emne>` |
 | Kapitlet skifter ikke ved rul | Kapitlets `id` mangler i `views`, eller siden kører uden `IntersectionObserver` |
 | `house:posters` hænger | Chrome blev ikke fundet. Sæt `CHROME_PATH` |
 
 ## Fjern huset
 
-Fjern `<HomeStage>`, `<HomeTour>` og `<HomeHouseScript>` fra `HomeHero.astro`, slet
+Fjern `<HomeStage>`, `<HomeTour>` og `<HomeHouseScript>` fra `HomeHero.astro` og billederne
+fra `HomeGoalNavigator.astro` og `HomeFeaturedGuides.astro`, slet
 `src/lib/house3d/`, `home-house*.mjs`, `stage.css`, `tour.css`, de to scripts og
 `public/images/home/`, og kør `npm uninstall three esbuild`. Ret testene i
 `scripts/site-quality.test.mjs`, der nævner huset.

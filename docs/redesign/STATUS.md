@@ -30,16 +30,18 @@ Sidst opdateret: 2026-11-14.
 - **Fase 2, design runde 2** (grenen `redesign/v2`, ikke udgivet). Ejeren har bedt om et løft:
   wow-forside, realistisk 3D, grafik i høj kvalitet, mørkt tema først.
   - Færdigt på grenen: farveværdier v2, 3D-huset (`src/lib/house3d/`, `docs/3d-hus.md`), ny hero
-    med søgefelt, husets skærm, rundturen "Et døgn i et smart hjem", stillbilleder, brandfiler.
-    `npm run site:test` er grøn (142 tests).
-  - Mangler på forsiden: sektionerne under rundturen (emnevælger med 3D-billeder i stedet for
-    stregtegninger, rækkefølge, udvalgte guides, nyheder, sidefod).
+    med søgefelt, husets skærm, rundturen "Et døgn i et smart hjem", stillbilleder, brandfiler,
+    emnekort med billeder fra 3D-huset, ny rækkefølge under rundturen, morgenbillede ved de
+    udvalgte guides. `npm run site:test` er grøn (143 tests). Set i browser ved 1440, 820 og
+    390 px, mørkt tema på dansk og lyst tema på engelsk.
+  - Mangler på forsiden: nyhedskortenes billeder (gammel lilla skabelon), sidefod,
+    et nærbillede til ESP32-kortet.
   - Mangler på resten af siden: indholdskomponenter, nyhedsoversigt og nyhedsbillede,
     assistent, 404, topbjælke på telefon. Begge temaer, begge sprog, 375 og 1440 px.
 
 ## Næste skridt
 
-1. Gør forsidens nederste sektioner færdige, og gå resten af siden igennem (runde 2).
+1. Gå resten af siden igennem (runde 2): indholdskomponenter, nyheder, assistent, 404, sidefod.
 2. Uafhængig gennemgang, alle kontroller fra AGENTS.md, udgiv i bidder, kontrollér den levende
    side, og mål Lighthouse igen mod før-målingen.
 3. Fase 3: illustrationer på alle guides (billeder fra 3D-byggesættet) og nye guides.

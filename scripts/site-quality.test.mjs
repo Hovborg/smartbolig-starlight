@@ -128,7 +128,7 @@ test("homepage portal is a thin orchestrator with the editorial section order", 
     assert.match(portal, new RegExp(`import ${component} from`), `portal must compose ${component}`);
   }
   assert.match(portal, /getHomeCopy|homeCopy\[/);
-  const order = ['slot name="editorial-news"', "<HomeGoalNavigator", "<HomeFieldGuide", "<HomeFeaturedGuides", "<HomeTrustEvidence", "<HomeClosingCta"];
+  const order = ["<HomeGoalNavigator", "<HomeFieldGuide", "<HomeFeaturedGuides", 'slot name="editorial-news"', "<HomeTrustEvidence", "<HomeClosingCta"];
   const positions = order.map((needle) => portal.indexOf(needle));
   for (const [index, position] of positions.entries()) {
     assert.ok(position >= 0, `portal missing section: ${order[index]}`);
@@ -167,6 +167,28 @@ test("the 3D house starts as a still picture: the largest picture on the page, i
       assert.ok(existsSync(new URL(`../${asset}`, import.meta.url)), `missing still picture: ${asset}`);
     }
   }
+});
+
+test("every picture rendered from the 3D house exists in every size and is used", async () => {
+  const { PICTURES } = await import("./house-posters.mjs");
+  const { homeCopy } = await import("../src/lib/home-copy.ts");
+  for (const picture of PICTURES) {
+    for (const width of picture.widths) {
+      for (const format of ["avif", "webp"]) {
+        const asset = `public/images/home/${picture.name}-${width}.${format}`;
+        assert.ok(existsSync(new URL(`../${asset}`, import.meta.url)), `missing picture: ${asset} (run npm run house:posters)`);
+      }
+    }
+  }
+  const names = PICTURES.map((picture) => picture.name);
+  for (const locale of ["da", "en"]) {
+    for (const row of homeCopy[locale].navigator.rows) {
+      assert.ok(names.includes(`topic-${row.id}`), `${locale}: no picture for topic ${row.id}`);
+    }
+  }
+  const navigatorSource = await read("src/components/home/HomeGoalNavigator.astro");
+  assert.match(navigatorSource, /loading="lazy"/, "topic pictures are below the fold");
+  assert.match(navigatorSource, /alt=""/, "topic pictures are decoration; the card has its own text");
 });
 
 test("the 3D library loads on demand and the controls work without it", async () => {

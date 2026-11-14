@@ -138,26 +138,31 @@ export const da: HomeCopy = {
     },
     rows: [
       {
+        id: "home-assistant",
         title: "Home Assistant",
         description: "Installation, integrationer og vedligehold af hjernen i dit smarte hjem.",
         href: "/da/home-assistant/",
       },
       {
+        id: "automations",
         title: "Automationer",
         description: "Pålidelig hverdagslogik med konkrete, testede eksempler.",
         href: "/da/automationer/",
       },
       {
+        id: "esp32",
         title: "ESP32 & ESPHome",
         description: "Byg dine egne lokale sensorer og enheder med YAML, du kan forstå.",
         href: "/da/esp32/",
       },
       {
+        id: "products",
         title: "Produkter & udstyr",
         description: "Kompatibelt udstyr valgt efter funktion og lokal kontrol.",
         href: "/da/produkter/",
       },
       {
+        id: "ai",
         title: "AI i praksis",
         description: "Værktøjer og workflows, når AI reelt hjælper dit smarte hjem.",
         href: "/da/ai/",
@@ -191,7 +196,7 @@ export const da: HomeCopy = {
   guides: {
     eyebrow: "Udvalgte guides",
     title: "Begynd med det, der holder",
-    photoAlt: "Detalje af et printkort med chips og forbindelser.",
+    photoAlt: "3D-model af et smart hjem i morgenlys: lyset er tændt i soveværelset og køkkenet, og solen står lavt over haven.",
     lead: {
       title: "Kom godt i gang med Home Assistant",
       description:

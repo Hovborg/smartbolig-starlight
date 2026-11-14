@@ -247,3 +247,34 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   havde de gamle farver efter farveskiftet. `scripts/site-brand.test.mjs` fangede det.
 - Valg: værdierne er rettet, og `npm run brand:build` er kørt igen (favicon, ikoner, logoer,
   delebillede).
+
+### B37. Emnekortene viser billeder fra 3D-huset. Stregtegningerne er fjernet
+- Valg: de fem emner under rundturen er billedkort. Hvert billede er tegnet af 3D-huset med
+  sit eget kamera (stuen med dashboardet til Home Assistant, huset set ovenfra om natten til
+  AI). Det første kort er stort; de fire andre står to og to. Teksten ligger på en mørk toning
+  nederst i kortet.
+- Begrundelse: ejeren bad om grafik i høj kvalitet og realistisk 3D. De animerede SVG-scener
+  lignede en anden side end huset og er fjernet sammen med deres bevægelsesregler.
+- Kortene er mørke i begge temaer af samme grund som husets skærm (B32).
+- Kendt mangel: ESP32-kortet viser huset, ikke en ESP32. Et nærbillede af et kredsløbskort
+  kommer med illustrationerne til guiderne (fase 3).
+
+### B38. Rækkefølgen under rundturen: emner, tre etaper, udvalgte guides, nyheder
+- Valg: emnevælger, feltguide, udvalgte guides, AI-nyheder, troværdighed, afslutning.
+  Nyhederne stod før øverst.
+- Begrundelse: den, der lige har set, hvad et smart hjem kan, skal først vælge retning.
+  Nyhederne er til den, der kommer igen, og har deres egen side og RSS.
+- Testen "the portal keeps its sections in a fixed order" følger den nye rækkefølge.
+
+### B39. Stillbilleder beskrives ét sted, og et billede kan have sit eget kamera
+- Valg: `PICTURES` i `scripts/house-posters.mjs` er den eneste liste over billeder af huset.
+  `engine.mjs` tager nu imod et kamera som objekt, så et billede ikke kræver et navngivet
+  kamera i `modes.mjs`, som kun er til rundturen.
+- En test læser listen og kræver, at hver fil findes i hver bredde og bruges af en komponent.
+
+### B40. Billeder i indholdet må ikke få Starlights afstand
+- Fund: Starlight giver ethvert element, der følger et andet i indholdet, 1 rem topmargen.
+  Et `<img>` efter sine `<source>`-elementer blev derfor skubbet 16 px ned i kortet.
+- Valg: én regel i `src/styles/home/layout.css` nulstiller topmargenen for `picture > img`
+  på forsiden.
+
