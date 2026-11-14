@@ -161,6 +161,10 @@ Sidst opdateret: 2026-11-14.
   `e4b21205`); set på den levende side i 390 px bredde. Åbent: teksten er ca. 10 px på en
   telefon (mål: 11 px), og LD2410-tegningen har ikke printets benrækkefølge (guiden siger det).
   Begge dele kræver ny opsætning af tegningerne.
+- **Værktøjer (B61):** ny sektion `/vaerktoejer/` på begge sprog med to værktøjer: elprisen
+  lige nu med de billigste timer (Energinet, CC BY 4.0, gennem sidens eget `/api/elpris`) og
+  "Hvad koster det at have tændt?". Fælles ramme, så et nyt værktøj er få filer
+  (`docs/vaerktoejer.md`). Sidevagten har fået kontrol nr. 14 (`/api/elpris`).
 
 ## Næste skridt
 

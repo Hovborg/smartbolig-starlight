@@ -100,7 +100,8 @@ test("the check after a build accepts the file and names a link outside the site
 test("an area the file does not know is named, so the build can stop", () => {
   const urls = ["/da/", "/da/start/", "/da/juridisk/cookiepolitik/", "/da/ai/nyheder/2026-11-14/", "/en/home-assistant/zigbee2mqtt/"].map((path) => `${O}${path}`);
   assert.deepEqual(unknownAreas(urls), []);
-  assert.deepEqual(unknownAreas([...urls, `${O}/da/vaerktoejer/`]), [], "a single page under the language is a start page");
-  assert.deepEqual(unknownAreas([...urls, `${O}/da/vaerktoejer/elpris/`, `${O}/en/vaerktoejer/elpris/`, `${O}/da/blog/a/`]), ["blog", "vaerktoejer"]);
+  assert.deepEqual(unknownAreas([...urls, `${O}/da/forum/`]), [], "a single page under the language is a start page");
+  assert.deepEqual(unknownAreas([...urls, `${O}/da/forum/traad/`, `${O}/en/forum/traad/`, `${O}/da/blog/a/`]), ["blog", "forum"]);
+  assert.deepEqual(unknownAreas([`${O}/da/vaerktoejer/elpris/`]), [], "the tools are an area the file lists");
   assert.deepEqual(unknownAreas([`${O}/da/start/kom-i-gang/`]), ["start"], "pages below /start/ would be left out without a word");
 });

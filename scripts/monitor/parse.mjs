@@ -14,6 +14,17 @@ export const locCount = (xml) => (xml.match(/<loc>/g) ?? []).length;
 export const itemCount = (xml) => (xml.match(/<item>/g) ?? []).length;
 export const firstLoc = (xml) => xml.match(/<loc>\s*([^<\s]+)\s*<\/loc>/)?.[1];
 
+/** { area, points } of an /api/elpris answer; points is -1 when the body is not a price list. */
+export function priceList(body) {
+  try {
+    const answer = JSON.parse(body);
+    const area = typeof answer?.area === "string" ? answer.area.slice(0, 8) : "none";
+    return { area, points: Array.isArray(answer?.points) ? answer.points.length : -1 };
+  } catch {
+    return { area: "none", points: -1 };
+  }
+}
+
 /** The newest <pubDate> of an RSS feed as a Date, or undefined when it has none. */
 export function newestPubDate(xml) {
   const times = [...xml.matchAll(/<pubDate>([^<]+)<\/pubDate>/g)]

@@ -40,10 +40,10 @@ test("the place is rendered hidden, without inline style, and only with an ad un
 });
 
 test("comments and the ad place are only under a guide or a news article", async () => {
-  for (const path of ["/da/home-assistant/zigbee2mqtt/", "/en/esp32/kom-godt-i-gang/", "/da/ai/nyheder/2026-11-14/", "/en/produkter/shelly/"]) {
+  for (const path of ["/da/home-assistant/zigbee2mqtt/", "/en/esp32/kom-godt-i-gang/", "/da/ai/nyheder/2026-11-14/", "/en/produkter/shelly/", "/da/vaerktoejer/elpris/"]) {
     assert.equal(isArticlePage(path), true, path);
   }
-  for (const path of ["/da/", "/en", "/da/home-assistant/", "/en/ai/nyheder/", "/da/juridisk/cookiepolitik/", "/da/kontakt/", "/en/om-os/", "/404", "/da/produkter"]) {
+  for (const path of ["/da/", "/en", "/da/home-assistant/", "/en/ai/nyheder/", "/da/juridisk/cookiepolitik/", "/da/kontakt/", "/en/om-os/", "/404", "/da/produkter", "/da/vaerktoejer/", "/en/vaerktoejer"]) {
     assert.equal(isArticlePage(path), false, path);
   }
   const content = await read("src/components/MarkdownContent.astro");

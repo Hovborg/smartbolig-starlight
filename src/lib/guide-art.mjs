@@ -54,13 +54,15 @@ export const GUIDE_ARTS = {
   },
 };
 
-/** First match wins. `null` means the page keeps its own picture. */
+/** First match wins. `null` means no picture of the house: the page has its own, or needs none. */
 const RULES = [
   // The news overview and each news issue have pictures of their own.
   [/^ai\/nyheder(\/|$)/, null],
+  // A tool page opens with the tool itself, so it has no picture above it.
+  [/^vaerktoejer\/./, null],
   [/^esp32(\/|$)/, "diy"],
   [/zigbee|z-wave|thread|matter|wifi|bluetooth|mqtt|proxy|fjernadgang|mcp/, "network"],
-  [/energi|energy|elpris|elbil|solcelle|elmaaler|vaskemaskine|billige-timer|stroemforbrug/, "energy"],
+  [/energi|energy|elpris|elbil|solcelle|elmaaler|vaskemaskine|billige-timer/, "energy"],
   [/termostat|thermostat|varme|fugt|luft|affugter/, "heat"],
   [/alarm|sikkerhed|kamera|backup|opdatering/, "security"],
   [/lys|belysning|led|gardin/, "light"],

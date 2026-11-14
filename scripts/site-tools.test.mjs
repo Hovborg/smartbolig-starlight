@@ -117,9 +117,9 @@ test("every tool page exists in both languages, in the sidebar and in the catalo
   assert.match(await readFile(new URL("src/lib/primary-nav.ts", root), "utf8"), /path: "vaerktoejer\/", da: "Værktøjer", en: "Tools"/);
 });
 
-test("the tool pages open with the energy picture and the overview with the house", () => {
+test("a tool page opens with the tool and the overview with the house", () => {
   assert.equal(guideArt("vaerktoejer").name, "guide-overview");
-  for (const tool of TOOLS) assert.equal(guideArt(`vaerktoejer/${tool.slug}`).name, "guide-energy");
+  for (const tool of TOOLS) assert.equal(guideArt(`vaerktoejer/${tool.slug}`), null);
   assert.deepEqual(guideSection("vaerktoejer/elpris", "en"), { label: "Tools", href: "/en/vaerktoejer/" });
 });
 

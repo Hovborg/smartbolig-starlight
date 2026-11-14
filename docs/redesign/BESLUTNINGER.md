@@ -734,3 +734,31 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   - Ikke rettet: pladsen flytter kommentarerne ned, når den vises (teksten i dokumentationen
     er rettet, så den ikke lover andet), og fem produkter har to id'er, til de rigtige
     adresser er hentet i Partner-Ads.
+
+## B61. Værktøjer: egen sektion, elpris og strømforbrug (2026-11-14)
+
+- Valgt: en sektion `/vaerktoejer/` med sit eget punkt i topbjælken, og en fælles ramme
+  (`ToolFrame`, `src/styles/content/tools/`, `src/lib/tools/format.mjs`), så hvert nyt værktøj
+  er en komponent, et par moduler og en side pr. sprog. Begrundelse: værktøjer er det, en
+  læser kommer tilbage efter, og det, andre sider linker til.
+- Valgt, elpris: priserne hentes af Workeren (`/api/elpris`), ikke af læserens browser.
+  Begrundelse: Energinet gemmer kalderens IP-adresse i tre måneder (deres vilkår, læst
+  2026-11-14), og CSP'en skal ikke åbnes for en fremmed vært. Ét kald henter begge prisområder,
+  fordi Energinet afviste det andet kald inden for et minut.
+- Valgt: en kopi i Workerens cache i ti minutter, den gamle kopi ved fejl, mens den dækker det
+  aktuelle kvarter, og 60 sekunders pause efter en fejl. Fejlsvar er faste ord.
+- Valgt: prisområdet gættes ud fra forbindelsens region og huskes ikke; et gættet svar er
+  `private`, så det aldrig deles mellem læsere. En forkert `area` afvises (400).
+- Valgt: ingen satser for elafgift og nettarif i værktøjet. De skifter og afhænger af
+  netselskabet; læseren skriver sit eget tillæg. Momsen (25 %) regnes af summen.
+- Valgt ved integrationen: en værktøjsside har intet billede øverst (værktøjet skal stå
+  først), oversigten har ingen kommentarer eller annonceplads, privatlivspolitikken har fået
+  afsnit 2.4, og sidevagten spørger endpointet to gange i døgnet.
+- Fravalgt for nu: Cron Trigger og KV til priserne. Workerens cache er pr. datacenter, så
+  flere datacentre henter hver sin kopi. Bygges, hvis Energinet begynder at afvise kald fra
+  Cloudflare; det kan kun ses på den levende side.
+- OSS og data: ingen nye pakker. Data: Energinet, Energi Data Service, CC BY 4.0, krediteret i
+  værktøjet, på siden og i `docs/oss.md`.
+- Kontrol: `npm run site:test` (28 tests for værktøjerne), bygget side i headless Chrome i
+  begge temaer ved 320, 375 og 1440 px, og ét rigtigt kald til Energinet gennem endpointets
+  kode. Ikke set: endpointet hos Cloudflare før udgivelsen.

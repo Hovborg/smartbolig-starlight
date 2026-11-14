@@ -2,7 +2,8 @@
 
 Sidst opdateret: 2026-11-14.
 Kontrolleret ved: `node scripts/monitor/run.mjs` kørt mod `https://smartbolig.net`
-(alle 13 kontroller bestod) og `npm run site:test` (kontrollerne, genforsøget og rapporten
+(13 kontroller bestod 2026-11-14; den fjortende, `/api/elpris`, kom til sammen med værktøjerne
+og er kun afprøvet i testen, til værktøjerne er udgivet) og `npm run site:test` (kontrollerne, genforsøget og rapporten
 afprøves mod en falsk `fetch`; workflowens rettigheder og fastlåste handlinger læses af en test).
 Ikke kontrolleret: selve workflowen i GitHub Actions. Den har ikke kørt endnu. Start den én
 gang med "Run workflow" under fanen Actions, når den er på `main`, og se, at den ender grøn.
@@ -10,7 +11,7 @@ Opret-, kommentér- og luk-trinene for sagen er heller ikke set køre.
 
 ## Kort
 
-To gange i døgnet (06:23 og 18:23 UTC) henter `.github/workflows/monitor.yml` tretten adresser
+To gange i døgnet (06:23 og 18:23 UTC) henter `.github/workflows/monitor.yml` fjorten adresser
 på den levende side og tjekker svarene. Hvis en kontrol fejler, åbner den en GitHub-sag med
 etiketten `monitor` (eller skriver en kommentar i den, der allerede er åben). Når alt igen
 består, skriver den en kommentar og lukker sagen. Sagen er alarmen; en planlagt kørsel
@@ -35,7 +36,7 @@ Kontrollerne sender kun GET og stiller ikke chatten et spørgsmål, så der brug
 **Tilføj en kontrol.** Tilføj et `check(navn, forventet, funktion)` i `buildChecks` i
 `scripts/monitor/checks.mjs`. Funktionen returnerer `{ ok, seen }`; `seen` er få ord om, hvad der
 kom tilbage, aldrig en hel header eller side. Læg en linje til den sunde side og en til den
-ødelagte i `scripts/site-monitor.test.mjs` (tallet 13 i testen tæller kontrollerne).
+ødelagte i `scripts/site-monitor.test.mjs` (tallet 14 i testen tæller kontrollerne).
 
 **Ændr tidspunkterne.** Ret de to `cron`-linjer i `monitor.yml` (UTC). Brug minutter som 23, ikke 00,
 for GitHubs planlægger er travlest ved hel time. Grænsen for nyhedernes alder (84 timer) er

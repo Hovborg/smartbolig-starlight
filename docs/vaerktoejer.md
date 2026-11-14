@@ -133,7 +133,8 @@ Omregningen til øre/kWh sker i browseren (`toOre` i `price-window.mjs`).
    hvad der ikke er med, og hvor data kommer fra.
 6. Tilføj siden i `config/sidebar/vaerktoejer.mjs` (med `translations: { en: "..." }`) og
    værktøjet i `src/lib/tools/catalog.mjs`. Et nyt ikon er en gren mere i `ToolIcon.astro`.
-   Billedet øverst vælges ud fra stien i `src/lib/guide-art.mjs`.
+   En værktøjsside har intet billede øverst, så værktøjet står først (reglen `vaerktoejer/` i
+   `src/lib/guide-art.mjs`); oversigten har husets billede.
 7. Kør `npm run site:test` og `npm run build`. Se siden i mørkt og lyst tema ved 375 og
    1440 px, og gå den igennem med tastaturet.
 
@@ -180,6 +181,16 @@ Kør `npm run site:test` bagefter. Testene holder fast i flere af værdierne og 
 - **Feltet viser en fejl ved et tal.** Felterne tager tal med komma eller punktum. Tusindtals-
   tegn og bogstaver afvises.
 
+## Overvågning og privatliv
+
+- Sidevagten (`docs/overvaagning.md`) spørger `/api/elpris?area=DK1` to gange i døgnet og
+  åbner en sag, hvis svaret ikke er 200 med mindst 24 priser.
+- Privatlivspolitikken (afsnit 2.4, begge sprog) siger, hvad værktøjerne sender: kun
+  prisområdet. Et nyt værktøj, der sender eller gemmer mere, skal skrives ind dér.
+- Kommentarer og annoncepladsen vises under et værktøj, men ikke på oversigten
+  (`src/lib/article-page.mjs`).
+- `llms.txt` har værktøjerne som eget afsnit (`SECTIONS` i `scripts/lib/llms-txt.mjs`).
+
 ## Ikke bygget
 
 Workerens cache gælder pr. datacenter hos Cloudflare, så hvert datacenter henter sin egen
@@ -199,8 +210,10 @@ Hele sektionen:
    `src/styles/index.css`.
 2. Slet `functions/api/elpris.js` og `functions/lib/elpris/`.
 3. Fjern `vaerktoejer` i `config/sidebar/index.mjs` (og slet `config/sidebar/vaerktoejer.mjs`),
-   i `src/lib/primary-nav.ts`, i `src/lib/guide-art.mjs`, i `src/lib/seo/page-kind.ts` og i
-   `src/lib/seo/breadcrumbs.ts`.
+   i `src/lib/primary-nav.ts`, i `src/lib/guide-art.mjs`, i `src/lib/seo/page-kind.ts`, i
+   `src/lib/seo/breadcrumbs.ts`, i `src/lib/article-page.mjs` og i `SECTIONS` i
+   `scripts/lib/llms-txt.mjs`. Fjern kontrollen `/api/elpris` i `scripts/monitor/checks.mjs`
+   (og dens linjer i testen), og afsnit 2.4 i privatlivspolitikken på begge sprog.
 4. Slet de tre testfiler `scripts/site-tools*.test.mjs`.
 5. Har siderne været udgivet, så send adresserne videre i `public/_redirects` (`docs/seo.md`).
 6. Fjern rækken om Energinet i `docs/oss.md` og afsnittene om værktøjer i `CONTENT-GUIDE.md`,
