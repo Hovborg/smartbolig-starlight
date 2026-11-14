@@ -25,7 +25,8 @@ export default {
       link: "/juridisk/cookiepolitik/",
     },
     {
-      label: "Affiliate Disclosure",
+      label: "Affiliate-oplysning",
+      translations: { en: "Affiliate Disclosure" },
       link: "/juridisk/affiliate-disclosure/",
     },
     {

@@ -81,13 +81,20 @@ Dette gør at `/en/products/smart-doorbell/` viser indhold fra `/en/produkter/sm
 
 ## Titel og `seoTitle`
 
-- `title` er sidens overskrift og det navn, menuer og brødkrummer viser. Den står også i
-  søgeresultater som `<title>`, så den skal sige, hvad siden handler om, på højst 60 tegn.
-  Skriv dansk på danske sider ("LED-strip med ESP32", ikke "LED Strip med ESP32"), og sæt ikke
-  årstal i titler og overskrifter: de forældes.
+- `title` er sidens overskrift, sidste led i brødkrummen og navnet i strukturerede data.
+  Menunavne er ikke `title`: de står som faste tekster i `config/sidebar/`, og de skal rettes
+  dér, når en titel ændres. `title` står også i søgeresultater som `<title>`, så den skal sige,
+  hvad siden handler om.
+- Længde: sidenavnet " | SmartBolig.net" (17 tegn) lægges til efter titlen. Sigt på højst 45
+  tegn, så hele `<title>` holder sig omkring 60. Op til 60 tegn er tilladt, men så er det
+  sidenavnet, der bliver skåret af i søgeresultatet. Meningen går forud for længden.
+- Skriv dansk på danske sider ("LED-strip med ESP32", ikke "LED Strip med ESP32"), og sæt ikke
+  årstal i titler og overskrifter: de forældes. Versionsnumre og datoer, som siden handler om
+  ("Nye automationer i Home Assistant 2026.7"), er undtagelsen.
 - En oversigtsside har en kort overskrift ("Automationer"). Den siger for lidt i et
-  søgeresultat, så siden får også `seoTitle` (10 til 60 tegn), som bruges i `<title>` og på
-  sociale kort. Brug kun `seoTitle`, når overskriften skal være kortere end søgetitlen:
+  søgeresultat, så siden får også `seoTitle` (10 til 60 tegn, samme længderegel), som bruges i
+  `<title>` og på sociale kort. Brug kun `seoTitle`, når overskriften skal være kortere end
+  søgetitlen:
 
 ```yaml
 title: Automationer

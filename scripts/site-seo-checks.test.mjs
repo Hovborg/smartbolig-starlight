@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { checkHead } from "./lib/seo-head-checks.mjs";
+import { checkTitleAgreement } from "./lib/seo-title-checks.mjs";
 
 const ld = (graph) => `<script type="application/ld+json">${JSON.stringify({ "@context": "https://schema.org", "@graph": graph })}</script>`;
 const crumbs = (count) => ({
@@ -39,4 +40,36 @@ test("og:type article needs article structured data", () => {
 test("a JSON-LD block that is not valid JSON fails", () => {
   const html = '<script type="application/ld+json">{oops</script>';
   assert.match(checkHead(html).join("\n"), /not valid JSON/);
+});
+
+const titles = ({ title, og, twitter }) =>
+  `<head><title>${title}</title>` +
+  (og === undefined ? "" : `<meta property="og:title" content="${og}"/>`) +
+  (twitter === undefined ? "" : `<meta name="twitter:title" content="${twitter}"/>`) +
+  "</head>";
+
+test("a page whose <title> is the social title plus the site name passes", () => {
+  const same = "Automationer til Home Assistant: opskrifter";
+  assert.deepEqual(checkTitleAgreement(titles({ title: `${same} | SmartBolig.net`, og: same, twitter: same })), []);
+});
+
+test("escaped characters are compared as the text they stand for", () => {
+  assert.deepEqual(
+    checkTitleAgreement(titles({ title: "Matter &amp; Thread | SmartBolig.net", og: "Matter &amp; Thread", twitter: "Matter &#38; Thread" })),
+    [],
+  );
+});
+
+test("a <title> that differs from og:title or twitter:title fails", () => {
+  const stale = checkTitleAgreement(titles({ title: "Automationer | SmartBolig.net", og: "Automationer til Home Assistant: opskrifter", twitter: "Automationer" }));
+  assert.equal(stale.length, 1);
+  assert.match(stale[0], /og:title/);
+  const noSite = checkTitleAgreement(titles({ title: "Automationer", og: "Automationer", twitter: "Automationer" }));
+  assert.equal(noSite.length, 2);
+});
+
+test("a missing <title>, og:title or twitter:title fails", () => {
+  assert.deepEqual(checkTitleAgreement("<head></head>"), ["missing <title>"]);
+  assert.deepEqual(checkTitleAgreement(titles({ title: "A | SmartBolig.net", og: "A" })), ["missing twitter:title"]);
+  assert.deepEqual(checkTitleAgreement(titles({ title: "A | SmartBolig.net", twitter: "A" })), ["missing og:title"]);
 });

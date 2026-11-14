@@ -22,17 +22,17 @@ export default [
         link: "/home-assistant/robotstoevsuger-efter-omraade/",
       },
       {
-        label: "Vaskemaskine notifikation",
+        label: "Besked fra vaskemaskinen",
         translations: { en: "Washing Machine Notification" },
         link: "/home-assistant/vaskemaskine-notification/",
       },
       {
-        label: "Fugtighed & Affugter",
+        label: "Fugtighed og affugter",
         translations: { en: "Humidity & Dehumidifier" },
         link: "/home-assistant/fugtighed-alarm-affugter/",
       },
       {
-        label: "Elbil Opvarmning",
+        label: "Opvarmning af elbil",
         translations: { en: "EV Preheating" },
         link: "/home-assistant/elbil-opvarmning/",
       },
@@ -44,12 +44,13 @@ export default [
   },
   // Dashboard & UI
   {
-    label: "Dashboard & UI",
+    label: "Dashboard og brugerflade",
     translations: { en: "Dashboard & UI" },
     collapsed: true,
     items: [
       {
-        label: "Dashboard Design",
+        label: "Dashboard-design",
+        translations: { en: "Dashboard Design" },
         link: "/home-assistant/dashboard-design/",
       },
       {
@@ -71,7 +72,7 @@ export default [
     collapsed: true,
     items: [
       {
-        label: "Backup & Sikkerhed",
+        label: "Backup og sikkerhed",
         translations: { en: "Backup & Security" },
         link: "/home-assistant/backup-sikkerhed/",
       },
@@ -81,12 +82,13 @@ export default [
         link: "/home-assistant/sikre-opdateringer-2026/",
       },
       {
-        label: "Aktivitet & Spor",
+        label: "Aktivitet og spor",
         translations: { en: "Activity & Traces" },
         link: "/home-assistant/aktivitet-og-spor/",
       },
       {
-        label: "Performance",
+        label: "Ydeevne",
+        translations: { en: "Performance" },
         link: "/home-assistant/performance/",
       },
       {
@@ -103,7 +105,7 @@ export default [
     collapsed: true,
     items: [
       {
-        label: "Glossar",
+        label: "Ordliste",
         translations: { en: "Glossary" },
         link: "/home-assistant/glossar/",
       },

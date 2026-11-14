@@ -115,7 +115,7 @@ Sidst opdateret: 2026-11-14.
   `vite.build.assetsInlineLimit: 0` og hashes for de få faste inline-scripts. Virker annoncerne
   ikke med nonce, beholdes `'unsafe-inline'` på sider med annoncer, og det skrives i TIL-EJEREN.
 
-- **Titler og interne links (B57):** 39 titler rettet, `seoTitle` på oversigtssider og kontakt,
+- **Titler og interne links (B57):** ca. 70 titler rettet, menunavne i `config/sidebar/` rettet med, `seoTitle` på oversigtssider og kontakt,
   interne links til 18 guides, årstal ud af overskrifter, lister i stedet for rå diagramkode.
   Dokumentation: `CONTENT-GUIDE.md` ("Titel og `seoTitle`") og `docs/seo.md`. Efter udgivelsen
   kontrolleres på den levende side: `<title>`, `og:title` og `<h1>` på `/da/automationer/` og

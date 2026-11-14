@@ -5,6 +5,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkHead } from './lib/seo-head-checks.mjs';
 import { checkGuidePicture } from './lib/seo-guide-pictures.mjs';
+import { checkTitleAgreement, decodeEntities } from './lib/seo-title-checks.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const distDir = path.join(rootDir, 'dist');
@@ -49,23 +50,6 @@ async function validatePage(issues, filePath, checks) {
   for (const check of checks.forbidden ?? []) rejectText(issues, filePath, html, check.needle, check.label);
 }
 
-function decodeEntities(value) {
-  const named = {
-    amp: '&',
-    apos: "'",
-    gt: '>',
-    lt: '<',
-    quot: '"',
-  };
-
-  return value.replace(/&(#x[\da-f]+|#\d+|amp|apos|gt|lt|quot);/gi, (entity, code) => {
-    if (code[0] !== '#') return named[code.toLowerCase()] ?? entity;
-    const radix = code[1].toLowerCase() === 'x' ? 16 : 10;
-    const number = Number.parseInt(code.slice(radix === 16 ? 2 : 1), radix);
-    return Number.isFinite(number) ? String.fromCodePoint(number) : entity;
-  });
-}
-
 function sitemapUrlToHtmlPath(loc) {
   const url = new URL(loc);
   if (url.origin !== 'https://smartbolig.net') return null;
@@ -104,6 +88,7 @@ async function validateSitemapPages(issues, sitemapPath, sitemap) {
 
     const html = await readFile(htmlPath, 'utf8');
     for (const message of checkHead(html)) fail(issues, htmlPath, message);
+    for (const message of checkTitleAgreement(html)) fail(issues, htmlPath, message);
 
     const h1Count = (html.match(/<h1\b/gi) ?? []).length;
     if (h1Count !== 1) fail(issues, htmlPath, `expected exactly one h1, found ${h1Count}`);

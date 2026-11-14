@@ -48,8 +48,8 @@ ikke rettes i hånden.
   artikeldata. Forside, oversigter, juridiske sider, kontakt, om os og 404 er `website`.
 - **Brødkrumme-data kræver mindst to led.** Forsiden har derfor ingen.
 - **En oversigtsside har kort overskrift og en længere søgetitel.** `title` ("Automationer") er
-  overskrift, menunavn og sidste led i brødkrummen. `seoTitle` ("Automationer til Home
-  Assistant: opskrifter") står i `<title>`, `og:title` og `twitter:title`. Sider uden `seoTitle`
+  overskrift, sidste led i brødkrummen og navn i strukturerede data; menunavne står i
+  `config/sidebar/`. `seoTitle` ("Automationer til Home Assistant: opskrifter") står i `<title>`, `og:title` og `twitter:title`. Sider uden `seoTitle`
   bruger `title` alle steder. Reglerne for forfattere står i `CONTENT-GUIDE.md`.
 - **Faste regler står før regler med `*` eller `:navn` i `_redirects`.** Cloudflare tæller alle
   regler efter den første af dem mod en grænse på 100 (brugt: 8).

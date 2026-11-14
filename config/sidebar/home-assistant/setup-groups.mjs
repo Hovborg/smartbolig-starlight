@@ -45,7 +45,7 @@ export default [
         link: "/home-assistant/zigbee2mqtt/",
       },
       {
-        label: "Zigbee2MQTT Avanceret",
+        label: "Zigbee2MQTT avanceret",
         translations: { en: "Zigbee2MQTT Advanced" },
         link: "/home-assistant/zigbee2mqtt-avanceret/",
       },
@@ -108,11 +108,12 @@ export default [
         link: "/home-assistant/z-wave/",
       },
       {
-        label: "Thread & Matter",
+        label: "Matter og Thread",
+        translations: { en: "Thread & Matter" },
         link: "/home-assistant/thread-matter/",
       },
       {
-        label: "WiFi Enheder",
+        label: "Wi-Fi-enheder",
         translations: { en: "WiFi Devices" },
         link: "/home-assistant/wifi-enheder/",
       },

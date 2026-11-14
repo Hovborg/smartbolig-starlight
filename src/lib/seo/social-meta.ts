@@ -66,7 +66,12 @@ function keepFirstGenerator(head: HeadEntry[]) {
 function useSearchTitle(head: HeadEntry[], title: string, searchTitle: string) {
   if (searchTitle === title) return;
   const tag = head.find((item) => item.tag === "title");
-  if (tag?.content?.startsWith(title)) tag.content = `${searchTitle}${tag.content.slice(title.length)}`;
+  if (!tag?.content?.startsWith(title)) {
+    // A <title> that does not start with the page's title (for example one set in
+    // the page's own `head`) would stay short while og:title got the search title.
+    throw new Error(`The <title> of "${title}" does not start with the page title, so seoTitle cannot be applied: ${tag?.content ?? "no <title> found"}`);
+  }
+  tag.content = `${searchTitle}${tag.content.slice(title.length)}`;
   upsertMeta(head, "property", "og:title", searchTitle);
 }
 
