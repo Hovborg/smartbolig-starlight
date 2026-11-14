@@ -1,0 +1,144 @@
+/* What a tool answers with: the big figure, small stats, a level mark, a
+   sentence and a calm message. */
+
+/* --- The big figure ---------------------------------------------------- */
+.sb-tool-figure {
+  display: grid;
+  gap: var(--sb-space-1);
+  margin: 0;
+}
+
+.sb-tool-figure__label {
+  margin: 0;
+  color: var(--sb-ink-muted);
+  font-weight: 650;
+}
+
+.sb-tool-figure__value {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 var(--sb-space-2);
+  margin: 0;
+  color: var(--sb-ink-strong);
+  font-family: var(--sb-font-display);
+  font-size: var(--sb-text-display);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.sb-tool-figure__unit {
+  color: var(--sb-ink-muted);
+  font-family: var(--sb-font-body);
+  font-size: var(--sb-text-lg);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* --- Small stats: a term above its number ------------------------------ */
+.sb-tool-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8.5rem, 1fr));
+  gap: var(--sb-space-3) var(--sb-space-5);
+  margin: 0;
+}
+
+.sb-tool-stats > div {
+  display: grid;
+  gap: 0.125rem;
+}
+
+.sb-tool-stats dt {
+  color: var(--sb-ink-subtle);
+  font-size: var(--sb-text-xs);
+}
+
+.sb-tool-stats dd {
+  margin: 0;
+  color: var(--sb-ink-strong);
+  font-variant-numeric: tabular-nums;
+  font-weight: 650;
+}
+
+/* The time a number belongs to, "kl. 12–13": kept in one piece. */
+.sb-tool-stats small {
+  white-space: nowrap;
+  color: var(--sb-ink-subtle);
+  font-size: var(--sb-text-xs);
+  font-weight: 500;
+}
+
+/* --- Level mark: low, mid or high. Each level has its own shape and word,
+   so it is not told by colour alone ------------------------------------- */
+.sb-tool-level {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sb-space-2);
+  padding: var(--sb-space-1) var(--sb-space-3) var(--sb-space-1) var(--sb-space-2);
+  border-radius: var(--sb-radius-pill);
+  background: var(--sb-bg-subtle);
+  color: var(--sb-ink-muted);
+  font-weight: 650;
+}
+
+.sb-tool-level svg {
+  flex: none;
+  width: 1.125rem;
+  height: 1.125rem;
+  fill: currentColor;
+}
+
+/* Only the shape of the current level is shown. */
+.sb-tool-level svg > * {
+  display: none;
+}
+
+.sb-tool-level[data-level="low"] .sb-tool-level__low,
+.sb-tool-level[data-level="mid"] .sb-tool-level__mid,
+.sb-tool-level[data-level="high"] .sb-tool-level__high {
+  display: inline;
+}
+
+.sb-tool-level[data-level="low"] {
+  background: var(--sb-accent-soft);
+  color: var(--sb-accent-strong);
+}
+
+.sb-tool-level[data-level="high"] {
+  background: var(--sb-warm-soft);
+  color: var(--sb-warm);
+}
+
+/* --- A sentence that sums up a result ---------------------------------- */
+.sb-tool-answer {
+  margin: 0;
+  color: var(--sb-ink-strong);
+  font-size: var(--sb-text-base);
+  line-height: 1.55;
+}
+
+.sb-tool-aside {
+  margin: 0;
+  color: var(--sb-ink-muted);
+}
+
+/* --- A calm message, for example when data could not be fetched -------- */
+.sb-tool-message {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sb-space-3);
+  padding: var(--sb-space-4);
+  border: 1px solid var(--sb-line);
+  border-radius: var(--sb-radius-md);
+  background: var(--sb-bg-subtle);
+}
+
+.sb-tool-message p {
+  margin: 0;
+  color: var(--sb-ink);
+  font-size: var(--sb-text-base);
+}

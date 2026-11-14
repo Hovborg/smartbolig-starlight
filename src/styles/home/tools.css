@@ -1,0 +1,158 @@
+/* Homepage: the tools section. A card with the electricity price right now
+   (components/home/HomeTools.astro, filled in by lib/home-price.mjs) beside a
+   row per tool. The card shows its numbers only in data-state="ready"; in
+   "loading" their room is held empty, so the page below does not move. */
+
+.home-tools__layout { display: grid; gap: var(--sb-space-5); align-items: stretch; }
+
+/* --- The price card ------------------------------------------------------ */
+.home-price {
+  display: grid;
+  align-content: start;
+  gap: var(--sb-space-5);
+  min-width: 0;
+  padding: clamp(1.25rem, 3.5vw, 2rem);
+  border: 1px solid var(--sb-line);
+  border-radius: var(--sb-radius-xl);
+  background: linear-gradient(160deg, var(--sb-accent-soft), var(--sb-surface) 58%);
+  box-shadow: var(--sb-shadow-md);
+}
+.home-price__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--sb-space-2) var(--sb-space-4); }
+.sl-markdown-content .home-portal .home-price__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0;
+  color: var(--sb-accent);
+  font-family: var(--sb-font-body);
+  font-size: var(--sb-text-sm);
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+.home-price__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--sb-ink-subtle);
+}
+.home-price[data-state="ready"] .home-price__dot {
+  background: var(--sb-accent-vivid);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--sb-accent-vivid) 22%, transparent);
+}
+.home-price__area { margin: 0; color: var(--sb-ink-muted); font-size: var(--sb-text-sm); }
+
+.home-price__live { display: none; gap: var(--sb-space-4); min-width: 0; }
+.home-price:is([data-state="ready"], [data-state="loading"]) .home-price__live { display: grid; }
+.home-price:is([data-state="ready"], [data-state="loading"]) .home-price__idle { display: none; }
+.home-price[data-state="loading"] .home-price__live { visibility: hidden; }
+/* An empty text takes the room of a usual one (data-room) until the real one is written. */
+.home-price[data-state="loading"] [data-room]:empty::before { content: attr(data-room); visibility: hidden; }
+
+.home-price__now { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 var(--sb-space-3); margin: 0; }
+.home-price__value {
+  color: var(--sb-ink-strong);
+  font-family: var(--sb-font-display);
+  font-size: clamp(3.25rem, 9vw, 5rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.045em;
+  line-height: 1;
+}
+.home-price__unit { color: var(--sb-ink-muted); font-size: var(--sb-text-lg); font-weight: 600; }
+.home-price__meta { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sb-space-2) var(--sb-space-3); margin: 0; color: var(--sb-ink-muted); font-size: var(--sb-text-sm); }
+.home-price__level {
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--sb-radius-pill);
+  background: var(--sb-bg-subtle);
+  color: var(--sb-ink-strong);
+  font-weight: 650;
+}
+.home-price__level[data-level="low"] { background: var(--sb-accent-soft); color: var(--sb-accent-strong); }
+.home-price__level[data-level="high"] { background: var(--sb-warm-soft); color: var(--sb-warm); }
+
+/* Today's hours */
+.home-price__chart { display: grid; gap: var(--sb-space-2); min-width: 0; }
+.home-price__spark { display: block; width: 100%; height: clamp(4.5rem, 12vw, 6rem); overflow: visible; }
+.home-price__bar--past { fill: var(--sb-line-strong); }
+.home-price__bar--ahead { fill: var(--sb-ink-subtle); }
+.home-price__bar--best { fill: var(--sb-accent); }
+.home-price__bar--now { fill: var(--sb-ink-strong); }
+.home-price__ticks { position: relative; height: 1.1rem; margin: 0; color: var(--sb-ink-muted); font-size: var(--sb-text-xs); font-variant-numeric: tabular-nums; line-height: 1.1rem; }
+.home-price__ticks span { position: absolute; top: 0; }
+.home-price__legend { display: flex; flex-wrap: wrap; gap: var(--sb-space-2) var(--sb-space-4); margin: 0; color: var(--sb-ink-muted); font-size: var(--sb-text-xs); }
+.home-price__key { display: inline-flex; align-items: center; gap: 0.4rem; }
+.home-price__key[hidden] { display: none; }
+.home-price__key::before { content: ""; width: 0.65rem; height: 0.65rem; }
+.home-price__key--now::before { background: var(--sb-ink-strong); }
+.home-price__key--best::before { background: var(--sb-accent); }
+
+.home-price__run { margin: 0; color: var(--sb-ink); font-size: var(--sb-text-base); line-height: 1.55; }
+.home-price__run strong { color: var(--sb-ink-strong); font-weight: 650; }
+
+/* Before the prices are there, and when they cannot be fetched */
+.home-price__idle { display: grid; gap: var(--sb-space-3); }
+.home-price__idle p { margin: 0; color: var(--sb-ink-muted); font-size: var(--sb-text-base); line-height: var(--sb-leading); }
+.home-price__idle .home-price__idle-title {
+  color: var(--sb-ink-strong);
+  font-family: var(--sb-font-display);
+  font-size: var(--sb-text-h3);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.home-price__foot { display: grid; gap: var(--sb-space-2); margin: 0; padding-top: var(--sb-space-4); border-top: 1px solid var(--sb-line); }
+.home-price__foot span { color: var(--sb-ink-muted); font-size: var(--sb-text-xs); line-height: 1.5; }
+
+/* --- The tools ----------------------------------------------------------- */
+.home-tools__list { display: grid; gap: var(--sb-space-4); align-content: start; margin: 0; padding: 0; list-style: none; }
+.sl-markdown-content .home-portal .home-tools__row {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--sb-space-4);
+  margin: 0;
+  padding: var(--sb-space-4) var(--sb-space-5);
+  border: 1px solid var(--sb-line);
+  border-radius: var(--sb-radius-lg);
+  background: var(--sb-surface);
+  box-shadow: var(--sb-shadow-sm);
+  transition: border-color var(--sb-dur) var(--sb-ease), transform var(--sb-dur) var(--sb-ease);
+}
+.sl-markdown-content .home-portal .home-tools__row:hover { border-color: var(--sb-accent); transform: translateY(-2px); }
+.sl-markdown-content .home-portal .home-tools__row:focus-within { outline: 3px solid var(--sb-accent); outline-offset: 3px; }
+.home-tools__icon {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border-radius: var(--sb-radius-md);
+  background: var(--sb-accent-soft);
+}
+/* Starlight spaces blocks in the page content; the row sets its own. */
+.sl-markdown-content .home-portal .home-tools__row > div { min-width: 0; margin: 0; }
+.home-tools__row h3 { margin: 0 0 var(--sb-space-1); font-size: var(--sb-text-h4); line-height: 1.3; }
+.home-tools__row h3 a { color: var(--sb-ink-strong); text-decoration: none; outline: none; }
+/* The whole row is the link; the title holds the real one. */
+.home-tools__row h3 a::after { content: ""; position: absolute; inset: 0; border-radius: inherit; }
+.home-tools__row p { margin: 0; color: var(--sb-ink-muted); font-size: var(--sb-text-sm); line-height: 1.6; }
+.sl-markdown-content .home-portal .home-tools__all { margin: var(--sb-space-2) 0 0; font-size: var(--sb-text-sm); }
+
+@media (min-width: 60rem) {
+  .home-tools__layout { grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); }
+}
+@media (max-width: 26rem) {
+  .home-tools__icon { width: 3.25rem; height: 3.25rem; }
+  .sl-markdown-content .home-portal .home-tools__row { align-items: start; padding: var(--sb-space-4); gap: var(--sb-space-3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sl-markdown-content .home-portal .home-tools__row { transition: none; }
+  .sl-markdown-content .home-portal .home-tools__row:hover { transform: none; }
+}
+@media (forced-colors: active) {
+  .home-price, .home-tools__row { border: 1px solid CanvasText; }
+  .home-price__bar--now { fill: Highlight; }
+  .home-price__bar--best { fill: CanvasText; }
+}

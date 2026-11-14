@@ -1,0 +1,49 @@
+---
+// The chart of the electricity price tool: the value axis, a plot that can
+// scroll sideways on a phone, the line that names the hour pointed at, and the
+// same prices as a table. Drawn by src/lib/tools/price-chart-ui.mjs and
+// price-table-dom.mjs; this file is only the empty frame they fill.
+import { priceCopy } from "../../lib/tools/price-copy.mjs";
+
+interface Props {
+  /** The tool's id; the heading's id is built from it. */
+  id: string;
+  lang: "da" | "en";
+}
+
+const { id, lang } = Astro.props;
+const t = priceCopy[lang].chart;
+---
+
+<section class="sb-price-chart" aria-labelledby={`${id}-chart-title`}>
+  <h3 class="sb-price-chart__title" id={`${id}-chart-title`}>{t.heading}</h3>
+  <div class="sb-tool-chart">
+    <svg class="sb-tool-chart__axis" data-part="axis" aria-hidden="true" focusable="false"></svg>
+    <div class="sb-tool-chart__scroll" data-part="scroll">
+      <svg class="sb-tool-chart__plot" data-part="plot" role="img" focusable="false"></svg>
+    </div>
+  </div>
+  <p class="sb-tool-chart__readout" data-part="readout" aria-hidden="true">&nbsp;</p>
+  <p class="sb-tool-chart__hint" data-part="scroll-hint" hidden>{t.scroll}</p>
+  <details class="sb-tool-details">
+    <summary>{t.table}</summary>
+    <div class="sb-tool-table-wrap" tabindex="0" role="region" aria-label={t.heading}><table class="sb-tool-table" data-part="table"></table></div>
+  </details>
+</section>
+
+<style>
+  .sb-price-chart {
+    display: grid;
+    gap: var(--sb-space-3);
+    min-width: 0;
+  }
+
+  .sb-price-chart__title {
+    margin: 0;
+    color: var(--sb-ink-strong);
+    font-family: var(--sb-font-body);
+    font-size: var(--sb-text-sm);
+    font-weight: 650;
+    letter-spacing: 0;
+  }
+</style>

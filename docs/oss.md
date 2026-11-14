@@ -58,6 +58,20 @@ kører på siden, og fordi CSP'en i `public/_headers` skal tillade dem.
 | Google AdSense | Annoncer | Scriptet hentes på alle sider. Cookies og personlige annoncer først efter samtykke (Consent Mode starter som "denied") |
 | Google Analytics 4 | Besøgsmåling | Scriptet hentes på alle sider. Cookies og måling med id først efter samtykke |
 
+## Data, siden henter udefra
+
+Dette er ikke kode, men åbne data. De hentes af sidens Worker, aldrig af læserens browser.
+
+| Kilde | Hvad | Licens | Bruges til |
+|---|---|---|---|
+| Energinet, Energi Data Service (datasættet `DayAheadPrices`) | Spotpriser pr. kvarter for DK1 og DK2 | CC BY 4.0 | Elprisværktøjet (`/vaerktoejer/elpris/`). Hentes af `functions/lib/elpris/upstream.js` |
+
+Licensen kræver kreditering og en oplysning om, at data er ændret. Værktøjet og siden skriver
+derfor "Kilde: Energinet (www.energidataservice.dk), CC BY 4.0" og at priserne er omregnet til
+øre/kWh og vist som gennemsnit pr. time. Vilkårene er læst på
+energidataservice.dk/terms-and-conditions 2026-11-14. Opbygning og fejlsøgning:
+`docs/vaerktoejer.md`.
+
 ## Skrifterne
 
 Figtree og Bricolage Grotesque er udgivet under SIL Open Font License 1.1.

@@ -2,15 +2,16 @@
 
 Sidst opdateret: 2026-11-14.
 Kontrolleret ved: `node scripts/monitor/run.mjs` kørt mod `https://smartbolig.net`
-(alle 13 kontroller bestod) og `npm run site:test` (kontrollerne, genforsøget og rapporten
-afprøves mod en falsk `fetch`; workflowens rettigheder og fastlåste handlinger læses af en test).
-Ikke kontrolleret: selve workflowen i GitHub Actions. Den har ikke kørt endnu. Start den én
-gang med "Run workflow" under fanen Actions, når den er på `main`, og se, at den ender grøn.
-Opret-, kommentér- og luk-trinene for sagen er heller ikke set køre.
+og `npm run site:test` (kontrollerne, genforsøget og rapporten afprøves mod en falsk `fetch`;
+workflowens rettigheder og fastlåste handlinger læses af en test). Workflowen er startet i hånden
+i GitHub Actions 2026-11-14, efter at værktøjerne var udgivet: alle 14 kontroller bestod, også
+`/api/elpris`, og der blev ikke åbnet en sag.
+Ikke kontrolleret: en planlagt kørsel (den første ventes kl. 18:23 UTC 2026-11-14), og opret-,
+kommentér- og luk-trinene for sagen.
 
 ## Kort
 
-Tre gange i døgnet (02:23, 10:23 og 18:23 UTC) henter `.github/workflows/monitor.yml` tretten adresser
+Tre gange i døgnet (02:23, 10:23 og 18:23 UTC) henter `.github/workflows/monitor.yml` fjorten adresser
 på den levende side og tjekker svarene. Hvis en kontrol fejler, åbner den en GitHub-sag med
 etiketten `monitor` (eller skriver en kommentar i den, der allerede er åben). Når alt igen
 består, skriver den en kommentar og lukker sagen. Sagen er alarmen; en planlagt kørsel
@@ -35,7 +36,7 @@ Kontrollerne sender kun GET og stiller ikke chatten et spørgsmål, så der brug
 **Tilføj en kontrol.** Tilføj et `check(navn, forventet, funktion)` i `buildChecks` i
 `scripts/monitor/checks.mjs`. Funktionen returnerer `{ ok, seen }`; `seen` er få ord om, hvad der
 kom tilbage, aldrig en hel header eller side. Læg en linje til den sunde side og en til den
-ødelagte i `scripts/site-monitor.test.mjs` (tallet 13 i testen tæller kontrollerne).
+ødelagte i `scripts/site-monitor.test.mjs` (tallet 14 i testen tæller kontrollerne).
 
 **Ændr tidspunkterne.** Ret de tre `cron`-linjer i `monitor.yml` (UTC). Der er tre, fordi GitHub
 kan springe en planlagt kørsel over; med tre går der højst 16 timer, hvis én falder ud. Brug minutter som 23, ikke 00,

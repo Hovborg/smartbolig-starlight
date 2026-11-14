@@ -23,6 +23,8 @@ export interface HomeHeroCopy {
 export interface HomeSearchCopy {
   label: string;
   placeholder: string;
+  /** The button beside the search field that opens the assistant. */
+  askAi: string;
   suggestionsLabel: string;
   suggestions: HomeLink[];
 }
@@ -122,6 +124,26 @@ export interface HomeFeaturedGuidesCopy {
   more: HomeGuideItem[];
 }
 
+export interface HomeToolsCopy {
+  eyebrow: string;
+  title: string;
+  intro: string;
+  all: HomeLink;
+  price: {
+    label: string;
+    unit: string;
+    runLabel: string;
+    legendNow: string;
+    legendBest: string;
+    idleTitle: string;
+    idleText: string;
+    link: HomeLink;
+    note: string;
+    /** Read by a screen reader instead of the bars. Words in {braces} are filled in. */
+    sparkLabel: string;
+  };
+}
+
 export interface HomeTrustItem {
   title: string;
   description: string;
@@ -151,6 +173,7 @@ export interface HomeCopy {
   navigator: HomeNavigatorCopy;
   fieldGuide: HomeFieldGuideCopy;
   guides: HomeFeaturedGuidesCopy;
+  tools: HomeToolsCopy;
   trust: HomeTrustCopy;
   news: HomeNewsCopy;
   closing: HomeClosingCopy;

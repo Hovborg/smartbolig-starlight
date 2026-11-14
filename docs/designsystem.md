@@ -18,9 +18,9 @@ WebGL ikke læser CSS (se `docs/3d-hus.md`).
 | `src/styles/starlight/bridge.css` | Oversætter tokens til Starlights egne variabler (`--sl-*`) |
 | `src/styles/base.css` | Side, baggrund, fokus, overskrifter |
 | `src/styles/chrome/` | Topbjælke, sidemenu, indholdsfortegnelse, sidefod-navigation |
-| `src/styles/content/` | `prose.css` (brødtekst), `blocks.css` (tabeller, kodeblokke, bokse, kort, faner), `guide-head.css` (guidens hoved med billede) |
+| `src/styles/content/` | `prose.css` (brødtekst), `blocks.css` (tabeller, kodeblokke, bokse, kort, faner), `guide-head.css` (guidens hoved med billede), `tools.css` og `tools/` (værktøjernes ramme, felter, knapper og graf med klasser, der starter med `sb-tool-`; se `docs/vaerktoejer.md`) |
 | `src/styles/print.css` | Print: skjuler menuer, assistent og kommentarer |
-| `src/styles/home/` | Forsiden: `layout.css` (ramme, knapper), `hero.css`, `stage.css` (3D-husets skærm), `tour.css` (rundturen), `topics.css` (emnekort med billeder), `sections.css`, `motion.css` |
+| `src/styles/home/` | Forsiden: `layout.css` (ramme, knapper), `hero.css`, `ask.css` (søgefelt og »Spørg AI«), `stage.css` (3D-husets skærm), `tour.css` (rundturen), `topics.css` (emnekort med billeder), `sections.css`, `motion.css` |
 | `src/styles/index.css` | Importerer det hele i rækkefølge. Den eneste fil, Starlight får |
 | `config/fonts.mjs` | Skrifttyper (selvhostede) |
 | `src/components/chrome/` | Egen topbjælke og temastart |

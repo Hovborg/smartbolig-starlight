@@ -1,0 +1,42 @@
+---
+// The shell every tool sits in: a card with a title, a form area, a result
+// area that screen readers follow, room for more (a chart, extra settings)
+// and a footnote that says how the number is made.
+//
+// Usage (docs/vaerktoejer.md has the full recipe):
+//   <ToolFrame id="mit-vaerktoej" title="Titel" lang={lang} data-tool="mit-vaerktoej">
+//     <Fragment slot="form">fields</Fragment>
+//     <Fragment slot="result">the answer</Fragment>
+//     <Fragment slot="note">how it is calculated</Fragment>
+//   </ToolFrame>
+// The default slot (anything without a slot name) is shown after the result.
+// Parts marked data-when="ready" need data and data-when="error" is the
+// message shown instead; the tool's script sets data-state on the card.
+// Styles: src/styles/content/tools.css.
+interface Props {
+  /** Unique on the page; the fields inside build their ids from it. */
+  id: string;
+  title: string;
+  lang: "da" | "en";
+  /** Astro passes the scope class of the tool that uses the frame. */
+  class?: string;
+  [attribute: `data-${string}`]: string | undefined;
+}
+
+const { id, title, lang, class: scope, ...attributes } = Astro.props;
+const noscript = {
+  da: "Værktøjet bruger JavaScript, som er slået fra i din browser. Forklaringen under værktøjet kan læses uden.",
+  en: "The tool uses JavaScript, which is switched off in your browser. The explanation below the tool can be read without it.",
+}[lang];
+---
+
+<section class:list={["sb-tool", "not-content", scope]} id={id} aria-labelledby={`${id}-title`} data-lang={lang} {...attributes}>
+  <h2 class="sb-tool__title" id={`${id}-title`}>{title}</h2>
+  <noscript><p class="sb-tool__noscript">{noscript}</p></noscript>
+  <div class="sb-tool__body">
+    {Astro.slots.has("form") && <div class="sb-tool__form"><slot name="form" /></div>}
+    <div class="sb-tool__result" aria-live="polite"><slot name="result" /></div>
+    {Astro.slots.has("default") && <div class="sb-tool__more"><slot /></div>}
+  </div>
+  {Astro.slots.has("note") && <div class="sb-tool__note"><slot name="note" /></div>}
+</section>

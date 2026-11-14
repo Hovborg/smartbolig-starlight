@@ -13,6 +13,7 @@ export const en: HomeCopy = {
     search: {
       label: "Search the guides",
       placeholder: "What should your home do? Try «lights on motion»",
+      askAi: "Ask AI",
       suggestionsLabel: "Popular right now",
       suggestions: [
         { label: "Lights on motion", href: "/en/automationer/bevaegelseslys-med-overstyring/" },
@@ -192,6 +193,24 @@ export const en: HomeCopy = {
       },
     ],
     outro: { label: "See the full start route with all six steps", href: "/en/start/" },
+  },
+  tools: {
+    eyebrow: "Tools",
+    title: "Run the numbers on your own home",
+    intro: "Small calculators with real numbers: the electricity price right now, the cheapest hours, and what your appliances cost to keep on.",
+    all: { label: "All tools", href: "/en/vaerktoejer/" },
+    price: {
+      label: "Electricity price right now",
+      unit: "øre/kWh",
+      runLabel: "Cheapest 3 hours in a row:",
+      legendNow: "now",
+      legendBest: "cheapest 3 hours",
+      idleTitle: "See the electricity price hour by hour",
+      idleText: "The Danish spot price today and tomorrow, and the cheapest hours in a row for the dishes, the laundry and charging.",
+      link: { label: "See every hour and change area", href: "/en/vaerktoejer/elpris/" },
+      note: "Spot price with VAT, without tax and grid tariff. Source: Energinet, CC BY 4.0.",
+      sparkLabel: "The electricity price hour by hour today. Lowest hour: {min} {minAt}. Highest hour: {max} {maxAt}.",
+    },
   },
   guides: {
     eyebrow: "Featured guides",

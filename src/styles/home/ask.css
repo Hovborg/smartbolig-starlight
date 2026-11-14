@@ -1,0 +1,93 @@
+/* The row under the hero's calls to action: a search field that opens the site
+   search, a smaller button that opens the assistant, and popular guides. The
+   two buttons stay hidden until home-house.mjs has something to open. */
+.home-ask { margin-top: var(--sb-space-6); }
+.home-ask__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sb-space-3);
+  max-width: 34rem;
+}
+
+/* The search field looks like a field, but is a button. */
+.home-ask__bar {
+  display: flex;
+  flex: 1 1 15rem;
+  align-items: center;
+  gap: var(--sb-space-3);
+  min-width: 0;
+  min-height: 3.25rem;
+  padding: 0.6rem 1.1rem;
+  border: 1px solid var(--sb-line-strong);
+  border-radius: var(--sb-radius-pill);
+  background: var(--sb-surface);
+  color: var(--sb-ink-muted);
+  font: inherit;
+  font-size: var(--sb-text-sm);
+  text-align: start;
+  cursor: text;
+  transition: border-color var(--sb-dur) var(--sb-ease), box-shadow var(--sb-dur) var(--sb-ease);
+}
+.home-ask__bar svg { flex: none; color: var(--sb-accent); }
+.home-ask__label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.home-ask__text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* "Ask AI": beside the field, and under it where the two do not fit on a line. */
+.home-ask__ai {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: var(--sb-space-2);
+  min-height: 2.75rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--sb-line-strong);
+  border-radius: var(--sb-radius-pill);
+  background: var(--sb-accent-soft);
+  color: var(--sb-accent-strong);
+  font: inherit;
+  font-size: var(--sb-text-sm);
+  font-weight: 650;
+  cursor: pointer;
+  transition: border-color var(--sb-dur) var(--sb-ease), box-shadow var(--sb-dur) var(--sb-ease);
+}
+.home-ask__ai svg { flex: none; }
+
+:is(.home-ask__bar, .home-ask__ai)[hidden] { display: none; }
+:is(.home-ask__bar, .home-ask__ai):is(:hover, :focus-visible) {
+  border-color: var(--sb-accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--sb-accent-vivid) 18%, transparent);
+}
+:is(.home-ask__bar, .home-ask__ai):focus-visible { outline: 3px solid var(--sb-accent); outline-offset: 3px; }
+
+.home-ask__suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sb-space-2);
+  margin: var(--sb-space-3) 0 0;
+  color: var(--sb-ink-subtle);
+  font-size: var(--sb-text-xs);
+}
+.home-ask__suggestions span { margin-inline-end: var(--sb-space-1); }
+.home-hero .home-ask__suggestions a {
+  padding: 0.3rem 0.75rem;
+  border: 1px solid var(--sb-line);
+  border-radius: var(--sb-radius-pill);
+  background: var(--sb-bg-subtle);
+  color: var(--sb-ink);
+  font-weight: 600;
+  text-decoration: none;
+}
+.home-hero .home-ask__suggestions a:hover { border-color: var(--sb-accent); color: var(--sb-accent-strong); }
+
+@media (min-width: 64rem) {
+  .home-ask { width: 100%; }
+}

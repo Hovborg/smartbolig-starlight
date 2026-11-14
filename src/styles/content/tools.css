@@ -1,0 +1,13 @@
+/*
+ * Tools (src/components/tools/): the card every tool sits in and the parts
+ * tools share, one file per part. Class names start with sb-tool.
+ * How to build a tool from them: docs/vaerktoejer.md.
+ */
+@import "./tools/frame.css";
+@import "./tools/result.css";
+@import "./tools/fields.css";
+@import "./tools/segment.css";
+@import "./tools/range.css";
+@import "./tools/buttons.css";
+@import "./tools/chart.css";
+@import "./tools/table.css";

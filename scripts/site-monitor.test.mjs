@@ -32,6 +32,7 @@ const healthy = () => ({
   "/da/ai/nyheder/rss.xml": { body: rss("Sat, 14 Nov 2026 00:00:00 GMT") },
   "/llms.txt": { body: "# SmartBolig.net\n" },
   "/api/chat": { status: 405 },
+  "/api/elpris": { body: JSON.stringify({ area: "DK1", points: Array.from({ length: 96 }, (_, i) => [1794528000 + i * 900, 512.3]) }) },
   "/ads.txt": { body: "google.com, pub-1, DIRECT\n" },
   "https://www.smartbolig.net/da/": { status: 301, headers: { location: `${SITE}/da/` } },
   "/da/home-assistant/zigbee2mqtt/": { body: html(`<link rel="canonical" href="${SITE}/da/home-assistant/zigbee2mqtt/">`) },
@@ -59,7 +60,7 @@ const failed = (results) => results.filter((result) => !result.ok);
 test("a healthy site passes every check", async () => {
   const { results, calls } = await run();
   assert.deepEqual(failed(results), []);
-  assert.equal(results.length, 13);
+  assert.equal(results.length, 14);
   assert.ok(calls.every((call) => call.options.headers["user-agent"] === USER_AGENT));
 });
 
@@ -74,6 +75,8 @@ const BREAKS = [
   ["AI news is fresh", { "/da/ai/nyheder/rss.xml": { body: rss("Tue, 10 Nov 2026 00:00:00 GMT") } }, /newest issue 2026-11-10, 108 h old/],
   ["/llms.txt is served", { "/llms.txt": { body: "<html>" } }, /starts differently/],
   ["/api/chat refuses GET", { "/api/chat": { status: 200, body: "{}" } }, /status 200/],
+  ["/api/elpris has prices for DK1", { "/api/elpris": { status: 502, body: '{"error":"upstream"}' } }, /status 502, area none, no price list/],
+  ["/api/elpris has prices for DK1", { "/api/elpris": { body: '{"area":"DK2","points":[[1,2]]}' } }, /area DK2, 1 price points/],
   ["/ads.txt is served", { "/ads.txt": { body: "  \n" } }, /0 characters/],
   ["www redirects to the bare domain", { "https://www.smartbolig.net/da/": { status: 302, headers: { location: `${SITE}/da/` } } }, /status 302/],
   ["/da/home-assistant/zigbee2mqtt/ has its own canonical", { "/da/home-assistant/zigbee2mqtt/": { body: html(`<link rel="canonical" href="${SITE}/da/">`) } }, /canonical https:\/\/smartbolig.net\/da\/$/],
@@ -126,12 +129,12 @@ test("a network error becomes a failing line, not a crash", async () => {
 test("the report has a table, names the failures and dumps no headers or bodies", async () => {
   const { results } = await run({ "/da/": { body: html(), headers: withoutHsts } });
   const report = renderReport(results, { base: BASE, at: NOW, runUrl: "https://github.com/o/r/actions/runs/1" });
-  assert.match(report, /^1 of 13 checks fail on https:\/\/smartbolig\.net\./);
+  assert.match(report, /^1 of 14 checks fail on https:\/\/smartbolig\.net\./);
   assert.match(report, /\| Result \| Check \| Expected \| Seen \|\n\|---\|/);
   assert.match(report, /\| \*\*FAIL\*\* \| Security headers on \/da\/ \|/);
   assert.match(report, /2026-11-14 12:00 UTC\. Run: https:\/\/github\.com\/o\/r\/actions\/runs\/1/);
   assert.doesNotMatch(report, /default-src|max-age|nosniff|user-agent|pub-1/i);
-  assert.equal(renderReport(results.map((r) => ({ ...r, ok: true })), { base: BASE, at: NOW }).split("\n")[0], "All 13 checks pass on https://smartbolig.net.");
+  assert.equal(renderReport(results.map((r) => ({ ...r, ok: true })), { base: BASE, at: NOW }).split("\n")[0], "All 14 checks pass on https://smartbolig.net.");
 });
 
 test("what the site sent stays text in the report, as one short line", async () => {

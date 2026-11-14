@@ -13,6 +13,7 @@ export const da: HomeCopy = {
     search: {
       label: "Søg i guiderne",
       placeholder: "Hvad skal dit hjem kunne? Prøv »lys ved bevægelse«",
+      askAi: "Spørg AI",
       suggestionsLabel: "Populært lige nu",
       suggestions: [
         { label: "Lys ved bevægelse", href: "/da/automationer/bevaegelseslys-med-overstyring/" },
@@ -192,6 +193,24 @@ export const da: HomeCopy = {
       },
     ],
     outro: { label: "Se hele startruten med alle seks trin", href: "/da/start/" },
+  },
+  tools: {
+    eyebrow: "Værktøjer",
+    title: "Regn på dit eget hjem",
+    intro: "Små beregnere med rigtige tal: elprisen lige nu, de billigste timer, og hvad dine apparater koster at have tændt.",
+    all: { label: "Alle værktøjer", href: "/da/vaerktoejer/" },
+    price: {
+      label: "Elprisen lige nu",
+      unit: "øre/kWh",
+      runLabel: "Billigste 3 timer i træk:",
+      legendNow: "nu",
+      legendBest: "billigste 3 timer",
+      idleTitle: "Se elprisen time for time",
+      idleText: "Spotprisen i dag og i morgen, og de billigste timer i træk til opvask, vask og opladning.",
+      link: { label: "Se alle timer og skift område", href: "/da/vaerktoejer/elpris/" },
+      note: "Spotpris med moms, uden afgift og nettarif. Kilde: Energinet, CC BY 4.0.",
+      sparkLabel: "Elprisen time for time i dag. Laveste time: {min} {minAt}. Højeste time: {max} {maxAt}.",
+    },
   },
   guides: {
     eyebrow: "Udvalgte guides",

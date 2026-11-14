@@ -4,6 +4,8 @@ import { createComposer } from "./composer";
 import { createContext } from "./context";
 import { createConversation } from "./conversation";
 import { createDiagnosticsRenderer } from "./diagnostics-view";
+import { createDraftView } from "./draft-view";
+import { createFollowScroll } from "./follow-scroll";
 import { createHistoryStore } from "./history";
 import { createLoadingIndicator } from "./loading";
 import { createMessageView } from "./message-view";
@@ -28,13 +30,24 @@ function setupAssistant(root: Element) {
   const { createCopyButton, createSafeCodeBlock } = createCodeBlockRenderer(ctx);
   const createSafeRichText = createRichTextRenderer(createSafeCodeBlock);
   const createDiagnostics = createDiagnosticsRenderer(root);
-  const { renderHistory } = createMessageView(ctx, store, { createCopyButton, createSafeRichText, createDiagnostics });
+  const { renderMessage, renderHistory } = createMessageView(ctx, store, {
+    createCopyButton,
+    createSafeRichText,
+    createDiagnostics,
+  });
   const loading = createLoadingIndicator(ctx);
+  const startDraft = createDraftView(ctx, {
+    loading,
+    follow: createFollowScroll(ctx),
+    createSafeRichText,
+    renderMessage,
+  });
   const modes = createModeController(ctx);
   const { setBusy, bindComposer } = createComposer(ctx, modes.syncWithInput);
-  const { sendQuestion, resetConversation } = createConversation(ctx, {
+  const { sendQuestion, resetConversation, stopAnswer } = createConversation(ctx, {
     store,
     renderHistory,
+    startDraft,
     loading,
     setBusy,
     clearActiveMode: modes.clearActiveMode,
@@ -44,7 +57,7 @@ function setupAssistant(root: Element) {
   ctx.resetButton.addEventListener("click", resetConversation);
   bindStarterPrompts(ctx, modes.clearActiveMode);
   modes.bindModeButtons();
-  bindComposer(sendQuestion);
+  bindComposer(sendQuestion, stopAnswer);
 
   renderHistory();
 }

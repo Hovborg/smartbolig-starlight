@@ -1,0 +1,144 @@
+---
+// The cards on the tools overview page, one per tool in
+// src/lib/tools/catalog.mjs. The whole card is the link: the title holds the
+// real link, and its ::after covers the card, so a screen reader hears the
+// title once instead of the whole card as link text.
+import ToolIcon from "./ToolIcon.astro";
+import { CARD_COPY, TOOLS } from "../../lib/tools/catalog.mjs";
+
+interface Props {
+  lang?: "da" | "en";
+}
+
+const lang = Astro.props.lang ?? (Astro.currentLocale === "en" ? "en" : "da");
+const copy = CARD_COPY[lang];
+---
+
+<ul class="sb-tool-cards not-content" role="list">
+  {TOOLS.map((tool) => (
+    <li class="sb-tool-card">
+      <span class="sb-tool-card__icon"><ToolIcon name={tool.icon} /></span>
+      <h2 class="sb-tool-card__title">
+        <a href={`/${lang}/vaerktoejer/${tool.slug}/`}>{tool[lang].title}</a>
+      </h2>
+      <p class="sb-tool-card__text">{tool[lang].text}</p>
+      <p class="sb-tool-card__open" aria-hidden="true">
+        {copy.open}
+        <svg viewBox="0 0 16 16" width="16" height="16" focusable="false"><path d="M3 8h9M8.5 4.5 12 8l-3.5 3.5" /></svg>
+      </p>
+    </li>
+  ))}
+</ul>
+
+<style>
+  .sb-tool-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+    gap: var(--sb-space-4);
+    margin-block: var(--sb-space-6);
+    padding: 0;
+    list-style: none;
+  }
+
+  .sb-tool-card {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto;
+    gap: var(--sb-space-3);
+    padding: var(--sb-space-5);
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-lg);
+    background: var(--sb-surface);
+    box-shadow: var(--sb-shadow-sm);
+    transition:
+      border-color var(--sb-dur) var(--sb-ease),
+      transform var(--sb-dur) var(--sb-ease),
+      box-shadow var(--sb-dur) var(--sb-ease);
+  }
+
+  .sb-tool-card:hover {
+    border-color: var(--sb-accent);
+    box-shadow: var(--sb-shadow-md);
+    transform: translateY(-2px);
+  }
+
+  /* The focus ring sits on the card, where the click lands, not on the title text. */
+  .sb-tool-card:focus-within {
+    outline: 2px solid var(--sb-accent);
+    outline-offset: 2px;
+  }
+
+  .sb-tool-card__icon {
+    display: grid;
+    place-items: center;
+    inline-size: 4.5rem;
+    block-size: 4.5rem;
+    border-radius: var(--sb-radius-md);
+    background: var(--sb-accent-soft);
+  }
+
+  .sb-tool-card__title {
+    margin: 0;
+    font-family: var(--sb-font-display);
+    font-size: var(--sb-text-h4);
+    line-height: var(--sb-leading-tight);
+    letter-spacing: -0.01em;
+  }
+
+  .sb-tool-card__title a {
+    color: var(--sb-ink-strong);
+    text-decoration: none;
+    outline: none;
+  }
+
+  .sb-tool-card__title a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+
+  .sb-tool-card__text,
+  .sb-tool-card__open {
+    margin: 0;
+    font-size: var(--sb-text-sm);
+    line-height: 1.5;
+  }
+
+  .sb-tool-card__text {
+    color: var(--sb-ink-muted);
+  }
+
+  .sb-tool-card__open {
+    display: flex;
+    align-items: center;
+    gap: var(--sb-space-2);
+    color: var(--sb-accent);
+    font-weight: 600;
+  }
+
+  .sb-tool-card__open svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform var(--sb-dur) var(--sb-ease);
+  }
+
+  .sb-tool-card:hover .sb-tool-card__open svg {
+    transform: translateX(3px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sb-tool-card,
+    .sb-tool-card__open svg {
+      transition: none;
+    }
+
+    .sb-tool-card:hover,
+    .sb-tool-card:hover .sb-tool-card__open svg {
+      transform: none;
+    }
+  }
+</style>

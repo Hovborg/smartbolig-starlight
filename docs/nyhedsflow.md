@@ -9,8 +9,10 @@ sprogsider, nyhedsoversigten, sitemap og RSS med dagens udgave. En prøvekørsel
 (`dry_run`) samme dag bestod også (4 historier, 10 kald, ca. 2.800 neurons).
 Relayets dagsspærre blev afprøvet 2026-11-13 mod den udrullede Worker (kald
 afvist med `daily_budget_exhausted`).
-Ikke kontrolleret endnu: en planlagt kørsel (de to første var startet manuelt)
-og tre dages drift i træk.
+Den første planlagte kørsel startede af sig selv 2026-11-14 kl. 11:43 UTC (seks minutter efter
+planen) og lykkedes; dagens udgave fandtes allerede, så den udgav ikke noget nyt.
+Ikke kontrolleret endnu: en planlagt kørsel, der selv udgiver en udgave, en reservekørsel, og
+tre dages drift i træk.
 
 ## Hvad sker der hver dag
 
