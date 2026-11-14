@@ -145,6 +145,11 @@
 # Dynamic rules must remain last. See the quota note above.
 /en/ai/news/:slug/ /en/ai/nyheder/:slug/ 301
 /en/ai/news/:slug /en/ai/nyheder/:slug/ 301
+# One level without the closing slash: straight to the page, not by way of a
+# second redirect that adds the slash.
+/produkter/:slug /da/produkter/:slug/ 301
+/da/products/:slug /da/produkter/:slug/ 301
+/en/products/:slug /en/produkter/:slug/ 301
 /produkter/* /da/produkter/:splat 301
 /da/products/* /da/produkter/:splat 301
 # Any English product slug without its own rule above (for example a slug that

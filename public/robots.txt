@@ -3,8 +3,14 @@
 
 # ===== STANDARD CRAWLERS =====
 
+# Googlebot and Bingbot have no group of their own on purpose: a crawler with a
+# specific group ignores the * group, so they would skip these Disallow lines.
+# The crawlers that do have a group below repeat the two lines for that reason.
+# Note: /_astro/ (JS/CSS bundles) must stay crawlable so Googlebot can render pages.
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /pagefind/
 
 # Sitemap locations
 Sitemap: https://smartbolig.net/sitemap-index.xml
@@ -14,14 +20,6 @@ Sitemap: https://smartbolig.net/sitemap-index.xml
 # English: https://smartbolig.net/en/rss.xml
 # AI News Danish: https://smartbolig.net/da/ai/nyheder/rss.xml
 # AI News English: https://smartbolig.net/en/ai/news/rss.xml
-
-# Disallow internal/admin paths
-# Googlebot and Bingbot have no group of their own on purpose: a crawler with a
-# specific group ignores the * group, so they would skip these Disallow lines.
-# The crawlers that do have a group below repeat the two lines for that reason.
-# Note: /_astro/ (JS/CSS bundles) must stay crawlable so Googlebot can render pages.
-Disallow: /api/
-Disallow: /pagefind/
 
 # ===== AI CRAWLER POLICY =====
 # We allow search/retrieval crawlers that can send users to SmartBolig.net.
@@ -43,21 +41,14 @@ Allow: /
 Disallow: /api/
 Disallow: /pagefind/
 
-# Anthropic assistant/retrieval crawlers allowed
-User-agent: anthropic-ai
-Allow: /
-Disallow: /api/
-Disallow: /pagefind/
-
-User-agent: Claude-Web
-Allow: /
-Disallow: /api/
-Disallow: /pagefind/
-
+# Anthropic training crawler blocked (ClaudeBot; anthropic-ai is its old name).
+# Claude-User (a person's question) and Claude-SearchBot (search) have no group
+# and follow the * group above: allowed.
 User-agent: ClaudeBot
-Allow: /
-Disallow: /api/
-Disallow: /pagefind/
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
 
 # Common Crawl (used for AI training)
 User-agent: CCBot

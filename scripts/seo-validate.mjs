@@ -257,18 +257,21 @@ async function main() {
       { needle: 'User-agent: GPTBot\nDisallow: /', label: 'OpenAI training crawler blocked' },
       { needle: 'User-agent: Google-Extended\nDisallow: /', label: 'Google AI training opt-out' },
       { needle: 'User-agent: CCBot\nDisallow: /', label: 'Common Crawl training crawler blocked' },
+      { needle: 'User-agent: ClaudeBot\nDisallow: /\n', label: 'Anthropic training crawler blocked' },
+      { needle: 'Sitemap: https://smartbolig.net/sitemap-index.xml', label: 'Sitemap line' },
     ];
     for (const check of requiredRobotRules) requireText(issues, robotsPath, robots, check.needle, check.label);
     // A crawler with its own group ignores the * group and its Disallow lines.
     rejectText(issues, robotsPath, robots, 'User-agent: Googlebot', 'a Googlebot group (it would skip the * Disallow lines)');
     rejectText(issues, robotsPath, robots, 'User-agent: Bingbot', 'a Bingbot group (it would skip the * Disallow lines)');
     rejectText(issues, robotsPath, robots, 'Crawl-delay', 'Crawl-delay (Google ignores it)');
-    // A crawler with an Allow group of its own must repeat the Disallow lines.
+    // The * group, and every crawler with an Allow group of its own (it
+    // ignores the * group), must have the two Disallow lines.
     for (const group of robots.split(/\n(?=User-agent: )/)) {
       const name = group.match(/^User-agent: (.+)$/m)?.[1];
-      if (name === '*' || !/^Allow: \/$/m.test(group)) continue;
+      if (!name || !/^Allow: \/$/m.test(group)) continue;
       for (const rule of ['Disallow: /api/', 'Disallow: /pagefind/']) {
-        if (!group.includes(rule)) fail(issues, robotsPath, `the ${name} group must repeat "${rule}" (it ignores the * group)`);
+        if (!group.split('\n').includes(rule)) fail(issues, robotsPath, `the ${name} group must have "${rule}"`);
       }
     }
   } else {

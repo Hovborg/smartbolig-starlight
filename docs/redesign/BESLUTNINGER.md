@@ -473,4 +473,8 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Sikring: `npm run seo:validate` afviser hver af fejlene på de byggede sider, og
   `scripts/site-redirects.test.mjs` låser reglerne, rækkefølgen og at målet findes.
 - Dokumentation: `docs/seo.md`.
-
+- Efter den uafhængige gennemgang (2026-11-14): `ClaudeBot` er Anthropics træningscrawler
+  (Anthropics egen side, læst samme dag) og stod som tilladt, mod sidens egen regel om ingen
+  træning. Den er nu spærret som `GPTBot`; `Claude-User` og `Claude-SearchBot` har ingen gruppe
+  og er tilladt gennem `*`. `seo:validate` kræver nu også de to `Disallow`-linjer i `*`-gruppen
+  og `Sitemap:`-linjen. Tre regler med `:slug` giver produktadresser uden skråstreg ét hop.

@@ -2,10 +2,10 @@
 
 Sidst opdateret: 2026-11-14.
 Kontrolleret ved: `npm run site:test`, `npm run build` og `npm run seo:validate` kørt på
-grenen. Omdirigeringerne, `robots.txt` og `og:type` er set på den levende side med `curl`
-efter udgivelsen (resultatet står i `docs/redesign/STATUS.md`).
+grenen, og en uafhængig gennemgang, der prøvede kontrollerne mod alle byggede sider.
 Ikke kontrolleret: hvordan Google og Bing viser siderne. Det ses i Search Console og Bing
-Webmaster Tools nogle dage efter en ændring.
+Webmaster Tools nogle dage efter en ændring. Om omdirigeringerne, `robots.txt` og `og:type`
+er set på den levende side efter udgivelsen, står i `docs/redesign/STATUS.md`.
 
 ## Hvor tingene ligger
 
@@ -33,7 +33,12 @@ ikke rettes i hånden.
 - **`robots.txt` har ingen gruppe til Googlebot eller Bingbot.** En crawler med sin egen
   gruppe læser ikke `*`-gruppen. Med en egen gruppe sprang de derfor `Disallow: /api/` og
   `Disallow: /pagefind/` over. De crawlere, der har en gruppe (AI-søgemaskiner, der er
-  tilladt ved navn), gentager de to linjer. `seo:validate` stopper, hvis en af dem mangler.
+  tilladt ved navn), gentager de to linjer. `seo:validate` stopper, hvis en af dem mangler,
+  også i `*`-gruppen, og hvis `Sitemap:`-linjen mangler.
+- **Crawlere, der samler tekst til træning af AI, er spærret; dem, der henter en side for en
+  bruger eller en søgning, er tilladt.** Hos Anthropic er `ClaudeBot` træningscrawleren
+  (spærret), mens `Claude-User` og `Claude-SearchBot` følger `*`-gruppen. Hos OpenAI er
+  `GPTBot` spærret, og `ChatGPT-User` og `OAI-SearchBot` er tilladt.
 - **Ingen `Crawl-delay`.** Google læser den ikke.
 - **`/_index/` er ikke spærret i `robots.txt`.** Filerne har hovedet `X-Robots-Tag: noindex`,
   og det kan en søgemaskine kun se, hvis den må hente dem (`docs/assistent.md`).
@@ -42,13 +47,15 @@ ikke rettes i hånden.
 - **`og:type` er `article` kun på guides og nyhedsudgaver**, altså de sider, der også har
   artikeldata. Forside, oversigter, juridiske sider, kontakt, om os og 404 er `website`.
 - **Brødkrumme-data kræver mindst to led.** Forsiden har derfor ingen.
-- **Faste regler står før regler med `*` i `_redirects`.** Cloudflare tæller alle regler efter
-  den første med `*` mod en grænse på 100.
+- **Faste regler står før regler med `*` eller `:navn` i `_redirects`.** Cloudflare tæller alle
+  regler efter den første af dem mod en grænse på 100 (brugt: 8).
+- **En produktadresse uden afsluttende skråstreg får ét hop.** Reglerne med `:slug` sender
+  `/produkter/shelly` direkte til `/da/produkter/shelly/`.
 
 ## Tilføj en omdirigering
 
 1. Åbn `public/_redirects`. Skriv reglen som `/gammel-adresse /ny-adresse/ 301`.
-2. Har reglen ingen `*`, skal den stå over den første regel med `*`.
+2. Har reglen hverken `*` eller `:navn`, skal den stå over den første regel, der har.
 3. Kør `node --test scripts/site-redirects.test.mjs`. Testen fejler, hvis rækkefølgen er
    forkert, eller hvis målet ikke findes som side.
 4. Efter udgivelse: `curl -sI https://smartbolig.net/gammel-adresse` skal vise `301` og den
@@ -74,7 +81,7 @@ ikke rettes i hånden.
 | `seo:validate`: "must not include HowTo JSON-LD" | En side bruger igen HowTo-data. Fjern det; se reglen ovenfor |
 | `seo:validate`: "BreadcrumbList has 1 item(s); it needs at least 2" | En side uden forælder har fået brødkrummer. Se `src/lib/seo/breadcrumbs.ts` |
 | `seo:validate`: "og:type is "article" on a page without article structured data" | `social-meta.ts` og `shouldRenderArticleSchema` i `page-kind.ts` er ikke enige om sidens slags |
-| `seo:validate`: "expected at most one generator meta" | Både Astro og Starlight skriver feltet. `Head.astro` skal kun lade ét stå |
+| `seo:validate`: "expected at most one generator meta" | Både Astro og Starlight skriver feltet. `keepFirstGenerator` i `src/lib/seo/social-meta.ts` skal kun lade ét stå |
 | `seo:validate`: en navngiven gruppe i `robots.txt` mangler `Disallow` | Tilføj de to `Disallow`-linjer i gruppen |
 | En gammel adresse svarer 404 | Tilføj en regel i `_redirects` (se ovenfor) |
 | En gammel adresse svarer 307 og derefter 200 | Linket mangler den afsluttende skråstreg. Ret linket, ikke omdirigeringen |

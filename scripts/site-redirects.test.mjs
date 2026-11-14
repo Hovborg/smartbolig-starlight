@@ -11,7 +11,6 @@ const rules = readFileSync(new URL("public/_redirects", root), "utf8")
   .filter((line) => line && !line.startsWith("#"))
   .map((line) => line.split(/\s+/));
 
-const isDynamic = ([source]) => source.includes("*") || /:[A-Za-z]/.test(source);
 const find = (source) => rules.find(([s]) => s === source);
 
 test("old top-level addresses redirect with 301 instead of answering 404", () => {
@@ -20,6 +19,13 @@ test("old top-level addresses redirect with 301 instead of answering 404", () =>
     "/kontakt/": "/da/kontakt/",
     "/sitemap.xml": "/sitemap-index.xml",
     "/index.html": "/da/",
+    "/produkter": "/da/produkter/",
+    "/produkter/": "/da/produkter/",
+    "/da/products": "/da/produkter/",
+    "/da/products/": "/da/produkter/",
+    "/produkter/:slug": "/da/produkter/:slug/",
+    "/da/products/:slug": "/da/produkter/:slug/",
+    "/en/products/:slug": "/en/produkter/:slug/",
     "/produkter/*": "/da/produkter/:splat",
     "/da/products/*": "/da/produkter/:splat",
     "/en/products/*": "/en/produkter/:splat",
@@ -29,15 +35,19 @@ test("old top-level addresses redirect with 301 instead of answering 404", () =>
   }
 });
 
-test("every exact redirect rule comes before the first splat or placeholder rule", () => {
-  const firstDynamic = rules.findIndex(isDynamic);
-  assert.ok(firstDynamic > 0);
-  assert.equal(rules.slice(firstDynamic).filter((rule) => !isDynamic(rule)).length, 0);
+// That exact rules come before dynamic ones is tested in site-quality.test.mjs.
+
+test("a product address without the closing slash is one redirect, not two", () => {
+  const order = (source) => rules.findIndex(([s]) => s === source);
+  for (const prefix of ["/produkter", "/da/products", "/en/products"]) {
+    assert.ok(order(`${prefix}/:slug`) > -1 && order(`${prefix}/:slug`) < order(`${prefix}/*`), prefix);
+  }
 });
 
 test("the English products splat comes after every specific English product rule", () => {
   const splat = rules.findIndex(([source]) => source === "/en/products/*");
   const specific = rules.map(([source], index) => (source.startsWith("/en/products/") && index !== splat ? index : -1));
+  assert.ok(splat > -1);
   assert.ok(Math.max(...specific) < splat);
 });
 

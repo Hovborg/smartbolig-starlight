@@ -1,3 +1,4 @@
+import { YOUTUBE_URL } from "../site-footer.mjs";
 import { type Lang, organizationLogoUrl, siteUrl } from "./site";
 
 /** Organization schema (appears on all pages). */
@@ -18,7 +19,7 @@ export function buildOrganizationSchema(lang: Lang) {
       lang === "da"
         ? "Dansk guide til smart home med Home Assistant, ESP32 og Zigbee"
         : "Danish smart home guide with Home Assistant, ESP32 and Zigbee",
-    sameAs: ["https://github.com/Hovborg/smartbolig-starlight", "https://www.youtube.com/@SmartBoligNet"],
+    sameAs: ["https://github.com/Hovborg/smartbolig-starlight", YOUTUBE_URL],
   };
 }
 
