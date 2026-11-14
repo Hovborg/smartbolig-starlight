@@ -4,36 +4,43 @@
  * are the light theme, which the visitor picks with the theme switch.
  * Every text/background pair is contrast-checked by
  * scripts/site-design-tokens.test.mjs, so change values here and run site:test.
+ *
+ * The palette is neutral graphite with one brand colour (mint). The other
+ * hues each have one job: warm = light and caution, sky = security and
+ * information, danger = heat and errors, violet = AI.
  */
 /* Dimmed layer behind a dialog; dark in both themes. Also set on ::backdrop,
    which does not inherit from :root in older browsers. */
 :root,
 ::backdrop {
-  --sb-scrim: rgb(12 20 18 / 0.55);
+  --sb-scrim: rgb(8 12 16 / 0.6);
 }
 
 :root {
   color-scheme: light;
 
   /* Surfaces */
-  --sb-bg: #fbfcfa;
-  --sb-bg-subtle: #f2f6f1;
+  --sb-bg: #f8fafb;
+  --sb-bg-subtle: #eff3f5;
   --sb-surface: #ffffff;
-  --sb-line: #e1e8e0;
-  --sb-line-strong: #c5d1c7;
+  --sb-line: #dfe5e9;
+  --sb-line-strong: #c2ccd4;
 
   /* Text */
-  --sb-ink-strong: #0f1c17;
-  --sb-ink: #1c2b25;
-  --sb-ink-muted: #43554c;
-  --sb-ink-subtle: #5d6f66;
+  --sb-ink-strong: #0c1419;
+  --sb-ink: #1a252c;
+  --sb-ink-muted: #42515b;
+  --sb-ink-subtle: #5b6a74;
 
   /* Brand accent (links, primary buttons, active states) */
   --sb-accent: #0a7556;
   --sb-accent-strong: #075a42;
-  --sb-accent-soft: #e0f4ea;
+  --sb-accent-soft: #def4ea;
   --sb-accent-vivid: #12b886;
   --sb-on-accent: #ffffff;
+  /* The brand gradient, from a to b. Both ends are readable as large text. */
+  --sb-brand-a: #0a7556;
+  --sb-brand-b: #0a6a94;
 
   /* Supporting hues: text / soft background / vivid graphic */
   --sb-warm: #9a4f00;
@@ -48,6 +55,12 @@
   --sb-danger: #b42d1a;
   --sb-danger-soft: #fdebe7;
   --sb-danger-vivid: #e8563f;
+
+  /* Time of day on the homepage: the glow behind the house. */
+  --sb-time-morning: #ffb48a;
+  --sb-time-day: #7cc4ff;
+  --sb-time-evening: #7c6cf0;
+  --sb-time-night: #3b5bd9;
 }
 
 /* Not in print: paper is white, so print always uses the light values above. */
@@ -55,34 +68,41 @@
   :root[data-theme="dark"] {
     color-scheme: dark;
 
-    --sb-bg: #0c1412;
-    --sb-bg-subtle: #111b18;
-    --sb-surface: #16221e;
-    --sb-line: #22322c;
-    --sb-line-strong: #364b42;
+    --sb-bg: #090d11;
+    --sb-bg-subtle: #0e1319;
+    --sb-surface: #141a21;
+    --sb-line: #202932;
+    --sb-line-strong: #33404c;
 
-    --sb-ink-strong: #f4f9f6;
-    --sb-ink: #e3ece7;
-    --sb-ink-muted: #b3c2ba;
-    --sb-ink-subtle: #91a39a;
+    --sb-ink-strong: #f3f6f8;
+    --sb-ink: #dfe6ea;
+    --sb-ink-muted: #aeb9c2;
+    --sb-ink-subtle: #8b98a3;
 
-    --sb-accent: #49d9a2;
-    --sb-accent-strong: #84ebc2;
-    --sb-accent-soft: #11342a;
-    --sb-accent-vivid: #2ee6a3;
-    --sb-on-accent: #05241a;
+    --sb-accent: #3ee0a6;
+    --sb-accent-strong: #86f0cb;
+    --sb-accent-soft: #0f2f27;
+    --sb-accent-vivid: #2ef0aa;
+    --sb-on-accent: #04231a;
+    --sb-brand-a: #2ef0aa;
+    --sb-brand-b: #38d6ff;
 
-    --sb-warm: #f7bd58;
-    --sb-warm-soft: #37280e;
-    --sb-warm-vivid: #f5a524;
-    --sb-sky: #86beff;
-    --sb-sky-soft: #10273e;
-    --sb-sky-vivid: #4ea3ff;
-    --sb-violet: #bca6f7;
-    --sb-violet-soft: #251c40;
-    --sb-violet-vivid: #9d7ff0;
-    --sb-danger: #ff9480;
-    --sb-danger-soft: #3c1b15;
+    --sb-warm: #f6bf5f;
+    --sb-warm-soft: #33260f;
+    --sb-warm-vivid: #f7a928;
+    --sb-sky: #8cc4ff;
+    --sb-sky-soft: #0f2740;
+    --sb-sky-vivid: #4ea8ff;
+    --sb-violet: #b9a8f5;
+    --sb-violet-soft: #231d3d;
+    --sb-violet-vivid: #9a83f0;
+    --sb-danger: #ff9a86;
+    --sb-danger-soft: #3a1b16;
     --sb-danger-vivid: #ff6f57;
+
+    --sb-time-morning: #ff9d6b;
+    --sb-time-day: #4ea8ff;
+    --sb-time-evening: #6a5cf0;
+    --sb-time-night: #2b47c9;
   }
 }

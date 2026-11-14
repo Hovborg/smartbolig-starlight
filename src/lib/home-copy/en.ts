@@ -10,9 +10,18 @@ export const en: HomeCopy = {
     secondary: { label: "Go straight to the guide library", href: "/en/home-assistant/" },
     newsLink: { label: "Read AI news", href: "/en/ai/nyheder/" },
     imageAlt:
-      "Calm evening light in a modern living room and kitchen where discreet smart home technology blends into the home.",
-    imageCaption: "Technology that feels at home.",
+      "3D model of a smart home in evening light, seen from above: living room, kitchen, bedroom and bathroom, solar panels on the garage and an electric car charging.",
     topics: ["Home Assistant", "ESPHome", "Local control"],
+    search: {
+      label: "Search the guides",
+      placeholder: "What should your home do? Try «lights on motion»",
+      suggestionsLabel: "Popular right now",
+      suggestions: [
+        { label: "Lights on motion", href: "/en/automationer/bevaegelseslys-med-overstyring/" },
+        { label: "Follow the power price", href: "/en/home-assistant/elpris-integration/" },
+        { label: "Zigbee without the cloud", href: "/en/home-assistant/zigbee2mqtt/" },
+      ],
+    },
     scene: {
       title: "A day in a smart home",
       choose: "Choose a time of day",
@@ -24,6 +33,93 @@ export const en: HomeCopy = {
         { id: "night", label: "Night", rule: "Everyone is asleep: the lights go out, the door locks, and the heating turns down." },
       ],
       systems: { light: "Lighting", heat: "Heating", energy: "Energy", security: "Security" },
+    },
+    stage: {
+      label: "3D model of a smart home that you can turn",
+      hint: "Drag to turn the house",
+      rotateLeft: "Turn the house to the left",
+      rotateRight: "Turn the house to the right",
+      spots: [
+        { id: "light", label: "Lighting", href: "#tour-light" },
+        { id: "heat", label: "Heating", href: "#tour-heat" },
+        { id: "energy", label: "Energy", href: "#tour-energy" },
+        { id: "security", label: "Security", href: "#tour-security" },
+        { id: "hub", label: "The brain", href: "/en/home-assistant/" },
+        { id: "diy", label: "Build your own", href: "/en/esp32/" },
+      ],
+    },
+    tour: {
+      eyebrow: "A day in a smart home",
+      title: "Scroll down and see what the house does by itself",
+      chapters: [
+        {
+          id: "heat",
+          mode: "morning",
+          time: "06:30",
+          label: "Heating",
+          title: "The heat is ready before you get up",
+          text: "The bathroom floor is warm, and the radiator in the living room turned up while you slept. For the rest of the day the house lowers the temperature by itself when nobody is home.",
+          points: [
+            "Floor heating and radiators follow schedule and absence",
+            "The heat pump works when power is cheapest",
+          ],
+          links: [
+            { label: "Better Thermostat", href: "/en/home-assistant/better-thermostat/" },
+            { label: "Smart thermostats", href: "/en/produkter/smart-termostater/" },
+          ],
+        },
+        {
+          id: "energy",
+          mode: "day",
+          time: "12:00",
+          label: "Energy",
+          title: "The sun charges the car while you are out",
+          text: "The solar panels produce the most around noon. The house sends the power to the car and the washing machine first and waits with the rest until the price is low.",
+          points: [
+            "Consumption and production on one dashboard",
+            "Charging and laundry start by the power price",
+          ],
+          links: [
+            { label: "The Energy dashboard", href: "/en/home-assistant/energy-dashboard/" },
+            { label: "Power prices in Home Assistant", href: "/en/home-assistant/elpris-integration/" },
+            { label: "Energy management gear", href: "/en/produkter/energistyring/" },
+          ],
+        },
+        {
+          id: "light",
+          mode: "evening",
+          time: "19:30",
+          label: "Lighting",
+          title: "The light follows you through the evening",
+          text: "When the sun sets, the lamps come on dimmed and the blinds roll down. If someone walks into the kitchen, the light turns on there and off again by itself.",
+          points: [
+            "Motion lighting that the wall switch can still override",
+            "Scenes for film, dinner and goodnight",
+          ],
+          links: [
+            { label: "Motion lighting with override", href: "/en/automationer/bevaegelseslys-med-overstyring/" },
+            { label: "Smart lighting", href: "/en/produkter/smart-belysning/" },
+            { label: "Build an LED strip", href: "/en/esp32/led-strip/" },
+          ],
+        },
+        {
+          id: "security",
+          mode: "night",
+          time: "23:00",
+          label: "Security",
+          title: "The house locks up and keeps watch at night",
+          text: "When everyone is asleep, the door locks, the lights go out and the sensors wake up. If something happens, you get a message on your phone. The automations run locally, even when the internet is down.",
+          points: [
+            "Door lock, sensors and camera in one place",
+            "A message on your phone when something is wrong",
+          ],
+          links: [
+            { label: "Smart security", href: "/en/produkter/smart-sikkerhed/" },
+            { label: "Safe remote access", href: "/en/sikkerhed/fjernadgang/" },
+            { label: "Mobile notifications", href: "/en/home-assistant/mobilnotifikationer/" },
+          ],
+        },
+      ],
     },
     motion: {
       start: "Start animations",

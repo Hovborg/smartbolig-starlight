@@ -12,11 +12,48 @@ export interface HomeHeroCopy {
   primary: HomeLink;
   secondary: HomeLink;
   newsLink: HomeLink;
+  /** Describes the still picture of the 3D house. */
   imageAlt: string;
-  imageCaption: string;
   topics: string[];
+  search: HomeSearchCopy;
   scene: HomeSceneCopy;
+  stage: HomeStageCopy;
+  tour: HomeTourCopy;
   motion: HomeMotionCopy;
+}
+
+export interface HomeSearchCopy {
+  label: string;
+  placeholder: string;
+  suggestionsLabel: string;
+  suggestions: HomeLink[];
+}
+
+/** The 3D house: labels for the controls and the hotspots on the model. */
+export interface HomeStageCopy {
+  label: string;
+  hint: string;
+  rotateLeft: string;
+  rotateRight: string;
+  spots: { id: HomeSceneSystem | "hub" | "diy"; label: string; href: string }[];
+}
+
+/** The tour through a day: one chapter per system, in the order of the day. */
+export interface HomeTourChapter {
+  id: HomeSceneSystem;
+  mode: HomeSceneMode;
+  time: string;
+  label: string;
+  title: string;
+  text: string;
+  points: string[];
+  links: HomeLink[];
+}
+
+export interface HomeTourCopy {
+  eyebrow: string;
+  title: string;
+  chapters: HomeTourChapter[];
 }
 
 export type HomeSceneMode = "morning" | "day" | "evening" | "night";
