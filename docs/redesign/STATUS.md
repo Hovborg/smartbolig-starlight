@@ -41,7 +41,8 @@ Sidst opdateret: 2026-11-14.
   - Flettet ind 2026-11-14: nye nyhedsbilleder i grafit og grøn (64 udgaver tegnet om, tekst
     som omrids fra sidens skrifter; `docs/nyhedsflow.md`, "Overskriftsbilleder"). Ny
     nyhedsoversigt (B47). `npm run ai-news:test` er grøn (308 tests).
-  - Mangler på forsiden: et nærbillede til ESP32-kortet.
+  - Tilføjet 2026-11-14: nærbillede til ESP32 (B48), brugt på forsidens ESP32-kort og som
+    banner på ESP32- og gør-det-selv-guiderne. Set i de tegnede billeder; ikke set på siden endnu.
   - Mangler på resten af siden: assistenten, topbjælke på telefon, engelske nyhedsbilleder.
 - **Grene, der venter på at blive flettet ind i `redesign/v2`:**
   - `content/new-guides-a` (`697fe46`): elmåler via HAN-port, valg af hardware, solceller og

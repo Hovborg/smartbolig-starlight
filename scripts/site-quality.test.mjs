@@ -350,6 +350,20 @@ test("the 3D library loads on demand and the controls work without it", async ()
   }
 });
 
+test("scenes that only exist as pictures stay out of the homepage's 3D bundle", async () => {
+  const [stills, index, engine, posters] = await Promise.all([
+    read("src/lib/house3d/stills.mjs"),
+    read("src/lib/house3d/index.mjs"),
+    read("src/lib/house3d/engine.mjs"),
+    read("scripts/house-posters.mjs"),
+  ]);
+  assert.doesNotMatch(index + engine, /from ["'][^"']*(workbench|stills)/, "the live house must not import the still-only scenes");
+  const known = [...stills.matchAll(/^  (\w+)\(rig, colors\) \{/gm)].map((match) => match[1]);
+  const used = [...posters.matchAll(/scene: "(\w+)"/g)].map((match) => match[1]);
+  assert.ok(used.length > 0, "at least one picture uses a scene");
+  for (const name of used) assert.ok(known.includes(name), `PICTURES uses the unknown scene ${name}`);
+});
+
 test("the tour, the hotspots and the 3D house agree on chapters and times of day", async () => {
   const { homeCopy } = await import("../src/lib/home-copy.ts");
   const { modes, views } = await import("../src/lib/house3d/modes.mjs");

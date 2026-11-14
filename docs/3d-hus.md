@@ -2,7 +2,8 @@
 
 Sidst opdateret: 2026-11-14.
 Kontrolleret ved: forsiden åbnet i browser (1440, 820 og 390 px, mørkt og lyst tema, dansk og
-engelsk), WebGL slået fra, `npm run house:posters` kørt, `npm run site:test` grøn.
+engelsk), WebGL slået fra, `npm run house:posters` kørt, `npm run site:test` grøn. Scenen
+`bench` er kontrolleret ved at se de to tegnede billeder.
 
 Huset på forsiden er en three.js-model, bygget af egne dele. Der er ingen hentede modeller
 eller billeder i det. three.js (MIT, version låst i `package.json`) hentes først, når huset
@@ -21,6 +22,8 @@ skal vises levende.
 | `src/lib/house3d/backdrop.mjs` | Disen bag huset i tidspunktets farve |
 | `src/lib/house3d/kit.mjs`, `textures.mjs`, `palette.mjs` | Byggeklodser, tegnede teksturer og farver |
 | `src/lib/house3d/parts/` | Én fil pr. del: `shell` (hus), `interior` (møbler), `devices`, `outdoor`, `foliage`, `car`, `links` |
+| `src/lib/house3d/stills.mjs` | Indgangen for stillbilleder: huset plus **scener**, der kun findes som billede |
+| `src/lib/house3d/parts/workbench.mjs`, `workbench-faces.mjs` | Scenen `bench`: ESP32-kort på et arbejdsbord (mål i centimeter) og dens tegnede flader |
 | `src/lib/home-house.mjs` | Forsidens tilstand: tidspunkt og kapitel |
 | `src/lib/home-house-stage.mjs` | Henter modellen, kobler lærred, markører, træk og knapper |
 | `src/components/home/HomeStage.astro`, `HomeTour.astro` | Skærmen og rundturen |
@@ -70,11 +73,33 @@ esbuild, tegner hvert billede i dobbelt størrelse og skriver AVIF og WebP i hve
 `public/images/home/` (guidebillederne i `public/images/guide/`; mappen er billedets `folder`). Kør det, hver gang huset, lyset eller et kamera er ændret. Ét billede
 alene: `npm run house:posters -- topic-esp32` (navnets begyndelse).
 
+### Scener, der ikke er huset
+
+Et billede med `scene: "<navn>"` viser en scene fra `src/lib/house3d/stills.mjs` i stedet for
+huset. Der er én: `bench`, et ESP32-udviklingskort på et breadboard med en sensor, en lysdiode
+og en telefon, der viser målingen. Den bruges af `topic-esp32` og `guide-diy`. Scenen bruger
+husets lys, kamera og efterbehandling, så `mode` og `camera` virker som ellers.
+
+Forsiden henter `index.mjs` og får derfor aldrig scenerne med; kun `house-render.mjs` pakker
+`stills.mjs`.
+
+Ny scene:
+
+1. Byg den i en ny fil under `parts/` som en funktion `(parent, colors) => gruppe`. Læg den
+   omkring scenens midte `(0.6, 0, 0.7)`, og hold den inden for 14 enheder derfra, ellers
+   falder den uden for solens skygge.
+2. Tilføj den i `scenes` i `stills.mjs`: tøm `rig.root`, og byg scenen i den.
+3. Brug navnet som `scene` i `PICTURES`, og tegn billedet.
+
+Fjern scenen `bench`: slet de to `workbench`-filer og linjen i `scenes`, og giv de to billeder
+et kamera på huset igen.
+
 ### Tilføj et billede
 
 1. Tilføj en linje i `PICTURES`: `name`, `mode` (tidspunkt), enten `view` (et navngivet kamera
    fra `modes.mjs`) eller `camera` (`az`, `el`, `dist`, `target`), størrelsen og bredderne i
-   `widths`. `focus` fremhæver et system, som markørerne på forsiden gør.
+   `widths`. `focus` fremhæver et system, som markørerne på forsiden gør. `scene` vælger en
+   scene i stedet for huset.
 2. Kør `npm run house:posters -- <navn>`, og se billedet i `public/images/home/`.
 3. Brug det i komponenten med `<picture>` (AVIF først, så WebP) og faste `width` og `height`.
 4. Kør `npm run site:test`. Testen "every picture rendered from the 3D house exists in every

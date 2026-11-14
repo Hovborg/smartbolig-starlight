@@ -3,8 +3,10 @@
 //
 //   node scripts/house-render.mjs <outDir> <name>|<width>x<height>|<mode>|<view>|<focus?>|<az?> ...
 //
-// From code, a job may carry its own camera instead of a named view:
-//   { name, width, height, scale, mode, focus, camera: { az, el, dist, target: [x, y, z] } }
+// From code, a job may carry its own camera instead of a named view, and
+// `scene` to draw one of the scenes in src/lib/house3d/stills.mjs instead of
+// the house:
+//   { name, width, height, scale, mode, focus, scene, camera: { az, el, dist, target: [x, y, z] } }
 //
 // The pictures are PNG on the dark page colour, drawn at twice the size and
 // left to the caller to scale down (scripts/house-posters.mjs).
@@ -19,7 +21,7 @@ const CHROME = process.env.CHROME_PATH ?? "C:/Program Files/Google/Chrome/Applic
 
 const PAGE = `<!doctype html><meta charset="utf-8"><style>html,body{margin:0;background:#090d11}canvas{display:block}</style>
 <canvas id="c"></canvas><script type="module">
-import { mountHouse } from "/house.js";
+import { mountStill } from "/house.js";
 window.renderHouse = (job) => {
   const canvas = document.getElementById("c");
   window.house?.dispose();
@@ -28,7 +30,7 @@ window.renderHouse = (job) => {
   fresh.id = "c";
   fresh.style.width = job.width + "px";
   fresh.style.height = job.height + "px";
-  const house = mountHouse(fresh, { still: true, mode: job.mode, view: job.camera || job.view, focus: job.focus || null, time: 2.1, shadowSize: 4096, quality: job.quality || "high", background: job.background || "#090d11" });
+  const house = mountStill(fresh, { still: true, scene: job.scene, mode: job.mode, view: job.camera || job.view, focus: job.focus || null, time: 2.1, shadowSize: 4096, quality: job.quality || "high", background: job.background || "#090d11" });
   if (!house) return false;
   window.house = house;
   house.resize(job.width, job.height, job.scale);
@@ -41,7 +43,7 @@ window.ready = true;
 
 async function bundle() {
   const result = await build({
-    entryPoints: ["src/lib/house3d/index.mjs"], bundle: true, format: "esm", write: false, minify: true, logLevel: "error",
+    entryPoints: ["src/lib/house3d/stills.mjs"], bundle: true, format: "esm", write: false, minify: true, logLevel: "error",
   });
   return result.outputFiles[0].text;
 }

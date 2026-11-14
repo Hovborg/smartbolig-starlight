@@ -327,3 +327,13 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Rækken viser hovedhistorien i stedet for "AI-nyheder, <dato>", som 63 af 64 titler hed.
 - Nyhedsoversigten og nyhedsartiklerne har deres egne billeder og får ikke 3D-husets banner.
 - Kendt mangel: billedets tekst er dansk, også på den engelske side.
+
+### B48. ESP32 får sit eget nærbillede i stedet for et billede af huset
+- Fund: ESP32-kortet på forsiden og banneret på ESP32-guiderne viste stuen; printpladen var
+  en prik i en plante. Billedet sagde ikke, hvad emnet er.
+- Valg: en scene for sig, `bench`: et udviklingskort på et breadboard med sensor, lysdiode,
+  ledninger og en telefon med målingen, på et træbord. Bygget af de samme byggeklodser og
+  tegnet med husets lys, så det ligner resten. Mål i centimeter, så delene har rigtige forhold
+  (hulafstand 2,54 mm, 19 ben pr. side).
+- Scenen ligger bag `stills.mjs`, som kun billedtegneren pakker. Forsiden henter den ikke.
+- Telefonens skærm viser kun tal og en kurve, så billedet er ens på dansk og engelsk.

@@ -16,6 +16,8 @@ export function createEngine(canvas, options) {
     still, shadowSize: options.shadowSize, quality: options.quality, background: options.background,
   });
   const rig = createRig(colors);
+  // Still pictures can swap the house for a scene of their own (stills.mjs).
+  options.extend?.(rig, colors);
   stage.scene.add(rig.root);
   for (const mover of Object.values(rig.movers)) mover.body.traverse((part) => { part.castShadow = false; });
 

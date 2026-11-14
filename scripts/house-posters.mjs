@@ -19,14 +19,15 @@ const TOPIC = { width: 960, height: 720, widths: [480, 960] };
 const GUIDE = { folder: "guide", width: 1600, height: 640, widths: [800, 1600] };
 
 /** Each picture: a time of day and a named view or a camera of its own.
- *  `folder` is the folder under public/images/ ("home" when left out). */
+ *  `folder` is the folder under public/images/ ("home" when left out).
+ *  `scene` draws a scene from src/lib/house3d/stills.mjs instead of the house. */
 export const PICTURES = [
   // Same start as the live model in src/lib/home-house-stage.mjs.
   { name: "house-evening", mode: "evening", view: "overview", width: 1440, height: 1080, widths: [640, 960, 1440] },
   { name: "house-morning", mode: "morning", camera: { az: 34, el: 28, dist: 27, target: [0.7, 1.0, 0.3] }, width: 1280, height: 720, widths: [640, 1280] },
   { name: "topic-home-assistant", mode: "evening", camera: { az: 58, el: 24, dist: 10, target: [-4.2, 1.0, 0.1] }, ...TOPIC },
   { name: "topic-automations", mode: "evening", focus: "light", camera: { az: 14, el: 34, dist: 14, target: [-2.5, 0.9, 0.2] }, ...TOPIC },
-  { name: "topic-esp32", mode: "day", focus: "diy", camera: { az: -8, el: 30, dist: 12, target: [-2.4, 0.9, -0.6] }, ...TOPIC },
+  { name: "topic-esp32", mode: "day", scene: "bench", camera: { az: -24, el: 36, dist: 30, target: [0.6, 1.2, -1.4] }, ...TOPIC },
   { name: "topic-products", mode: "day", camera: { az: 24, el: 22, dist: 10, target: [0.2, 0.7, 2.6] }, ...TOPIC },
   { name: "topic-ai", mode: "night", camera: { az: 0, el: 72, dist: 24, target: [0.9, 0.5, -0.6] }, ...TOPIC },
   { name: "guide-overview", mode: "day", camera: { az: 34, el: 28, dist: 25, target: [0.7, 1.0, 0.3] }, ...GUIDE },
@@ -36,7 +37,7 @@ export const PICTURES = [
   { name: "guide-heat", mode: "morning", focus: "heat", camera: { az: -28, el: 32, dist: 17, target: [-3.4, 0.8, 0.4] }, ...GUIDE },
   { name: "guide-energy", mode: "day", focus: "energy", camera: { az: 52, el: 25, dist: 17, target: [5.0, 1.3, 1.2] }, ...GUIDE },
   { name: "guide-security", mode: "night", focus: "security", camera: { az: 22, el: 24, dist: 15, target: [1.3, 1.1, 1.2] }, ...GUIDE },
-  { name: "guide-diy", mode: "day", focus: "diy", camera: { az: -8, el: 30, dist: 12, target: [-2.4, 0.9, -0.6] }, ...GUIDE },
+  { name: "guide-diy", mode: "day", scene: "bench", camera: { az: -24, el: 34, dist: 27, target: [1.6, 1.2, -1.2] }, ...GUIDE },
   { name: "guide-network", mode: "night", camera: { az: 0, el: 70, dist: 24, target: [0.9, 0.5, -0.6] }, ...GUIDE },
   { name: "guide-products", mode: "day", camera: { az: 24, el: 22, dist: 11, target: [0.2, 0.7, 2.6] }, ...GUIDE },
   { name: "guide-garden", mode: "day", camera: { az: 20, el: 22, dist: 18, target: [-2.0, 0.3, 5.5] }, ...GUIDE },
