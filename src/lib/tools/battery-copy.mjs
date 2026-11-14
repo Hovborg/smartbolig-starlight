@@ -27,17 +27,17 @@ export const BATTERY_DEFAULTS = {
 export const batteryCopy = {
   da: {
     title: "Batterilevetid",
-    capacity: { label: "Batteriets kapacitet", unit: "mAh", hint: "Står på batteriet eller i databladet.", invalid: "Skriv et tal fra 0,1 til 1.000.000." },
-    sleep: { label: "Strøm i søvn", unit: "µA", hint: "Mål den selv, se under værktøjet.", invalid: "Skriv et tal fra 0 til 1.000.000." },
-    awake: { label: "Strøm, når den er vågen", unit: "mA", hint: "Gennemsnit over hele opvågningen, ikke kun toppen.", invalid: "Skriv et tal fra 0 til 10.000." },
+    capacity: { label: "Batteriets kapacitet", unit: "mAh", hint: "Står på batteriet eller i databladet.", invalid: "Skriv et tal fra 0,1 til 1000000 uden tusindtegn, for eksempel 2500." },
+    sleep: { label: "Strøm i søvn", unit: "µA", hint: "Mål den selv, se under værktøjet.", invalid: "Skriv et tal fra 0 til 1000000 uden tusindtegn, for eksempel 10." },
+    awake: { label: "Strøm, når den er vågen", unit: "mA", hint: "Gennemsnit over hele opvågningen, ikke kun toppen.", invalid: "Skriv et tal fra 0 til 10000 uden tusindtegn, for eksempel 180." },
     seconds: {
       label: "Vågen pr. opvågning",
       unit: "sek.",
       hint: "Fra den vågner, til den sover igen.",
-      invalid: "Skriv et tal fra 0 til 86.400.",
+      invalid: "Skriv et tal fra 0 til 86400 uden tusindtegn, for eksempel 5.",
       tooLong: "Den kan ikke være vågen længere end tiden mellem opvågninger.",
     },
-    interval: { label: "Opvågning hver", unit: "min.", hint: "Tiden fra en opvågning til den næste.", invalid: "Skriv et tal fra 0,1 til 10.080." },
+    interval: { label: "Opvågning hver", unit: "min.", hint: "Tiden fra en opvågning til den næste.", invalid: "Skriv et tal fra 0,1 til 10080 uden tusindtegn, for eksempel 30." },
     usable: { label: "Brugbar del af kapaciteten", unit: "%", hint: "Enheden stopper ofte, før batteriet er helt tomt.", invalid: "Skriv et tal fra 1 til 100." },
     presets: {
       label: "Tal fra et datablad",
@@ -68,17 +68,17 @@ export const batteryCopy = {
   },
   en: {
     title: "Battery life",
-    capacity: { label: "Battery capacity", unit: "mAh", hint: "It is printed on the battery or in the datasheet.", invalid: "Type a number from 0.1 to 1,000,000." },
-    sleep: { label: "Current while asleep", unit: "µA", hint: "Measure it yourself, see below the tool.", invalid: "Type a number from 0 to 1,000,000." },
-    awake: { label: "Current while awake", unit: "mA", hint: "The average over the whole wake-up, not only the peak.", invalid: "Type a number from 0 to 10,000." },
+    capacity: { label: "Battery capacity", unit: "mAh", hint: "It is printed on the battery or in the datasheet.", invalid: "Type a number from 0.1 to 1000000 without a thousands separator, for example 2500." },
+    sleep: { label: "Current while asleep", unit: "µA", hint: "Measure it yourself, see below the tool.", invalid: "Type a number from 0 to 1000000 without a thousands separator, for example 10." },
+    awake: { label: "Current while awake", unit: "mA", hint: "The average over the whole wake-up, not only the peak.", invalid: "Type a number from 0 to 10000 without a thousands separator, for example 180." },
     seconds: {
       label: "Awake per wake-up",
       unit: "sec.",
       hint: "From waking up to going back to sleep.",
-      invalid: "Type a number from 0 to 86,400.",
+      invalid: "Type a number from 0 to 86400 without a thousands separator, for example 5.",
       tooLong: "It cannot be awake longer than the time between wake-ups.",
     },
-    interval: { label: "Wake up every", unit: "min.", hint: "The time from one wake-up to the next.", invalid: "Type a number from 0.1 to 10,080." },
+    interval: { label: "Wake up every", unit: "min.", hint: "The time from one wake-up to the next.", invalid: "Type a number from 0.1 to 10080 without a thousands separator, for example 30." },
     usable: { label: "Usable share of the capacity", unit: "%", hint: "The device often stops before the battery is completely empty.", invalid: "Type a number from 1 to 100." },
     presets: {
       label: "Figures from a datasheet",

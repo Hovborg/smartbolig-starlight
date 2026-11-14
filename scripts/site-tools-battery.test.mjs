@@ -7,6 +7,7 @@ import { TOOLS } from "../src/lib/tools/catalog.mjs";
 import { BATTERY_PRESETS, BATTERY_SOURCES, batteryCopy } from "../src/lib/tools/battery-copy.mjs";
 import { BATTERY_LIMITS, batteryLife, isValid } from "../src/lib/tools/battery-life.mjs";
 import { formatCurrent, formatLife, formatMeaning } from "../src/lib/tools/battery-view.mjs";
+import { parseDecimal } from "../src/lib/tools/format.mjs";
 
 const root = new URL("../", import.meta.url);
 const near = (actual, expected, tolerance = 1e-9) => assert.ok(Math.abs(actual - expected) < tolerance, `${actual} is not ${expected}`);
@@ -91,4 +92,32 @@ test("the batterilevetid tool is in the catalog, the sidebar and both languages,
       await readFile(file, "utf8").catch(() => assert.fail(`${slug} (${lang}) links to ${link}, which does not exist`));
     }
   }
+});
+
+test("a number with a thousands sign is refused, and the field says how to type it", () => {
+  // "2.500" is 2500 mAh to a Dane and 2.5 to others; the tool must not guess.
+  assert.ok(Number.isNaN(parseDecimal("2.500")));
+  assert.ok(Number.isNaN(parseDecimal("2,500")));
+  assert.equal(parseDecimal("2500"), 2500);
+  for (const lang of ["da", "en"]) {
+    const copy = batteryCopy[lang];
+    for (const key of ["capacity", "sleep", "awake", "seconds", "interval"]) {
+      // The message itself has no thousands sign, and it shows an example.
+      assert.doesNotMatch(copy[key].invalid, /\d[.,]\d{3}/, `${lang} ${key}`);
+      assert.match(copy[key].invalid, lang === "da" ? /uden tusindtegn, for eksempel \d+\./ : /without a thousands separator, for example \d+\./);
+    }
+  }
+});
+
+test("a hidden error text is not named as a field's description", async () => {
+  const [component, ui] = await Promise.all([
+    readFile(new URL("src/components/tools/BatteryLife.astro", root), "utf8"),
+    readFile(new URL("src/lib/tools/battery-ui.mjs", root), "utf8"),
+  ]);
+  // A description is read out also when it is hidden, so the page names only the hint,
+  // and the script adds the error while the field is wrong (setInvalid in dom.mjs).
+  assert.ok(component.includes("aria-describedby={`${id}-${key}-hint`}"));
+  assert.doesNotMatch(component, /aria-describedby=[^>]*-error/);
+  assert.equal((ui.match(/setInvalid\(/g) ?? []).length, 2);
+  assert.doesNotMatch(ui, /setAttribute\("aria-invalid"/);
 });

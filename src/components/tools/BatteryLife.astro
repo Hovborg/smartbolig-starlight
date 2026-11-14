@@ -36,7 +36,7 @@ const fields = [
         <div class="sb-tool-field">
           <label class="sb-tool-field__label" for={`${id}-${key}`}>{t[name].label}</label>
           <div class="sb-tool-input">
-            <input type="text" inputmode="decimal" autocomplete="off" id={`${id}-${key}`} data-part={key} value={String(BATTERY_DEFAULTS[key])} aria-describedby={`${id}-${key}-error ${id}-${key}-hint`} />
+            <input type="text" inputmode="decimal" autocomplete="off" id={`${id}-${key}`} data-part={key} value={String(BATTERY_DEFAULTS[key])} aria-describedby={`${id}-${key}-hint`} />
             <span class="sb-tool-input__unit" aria-hidden="true">{t[name].unit}</span>
           </div>
           <p class="sb-tool-field__error" id={`${id}-${key}-error`} data-part={`${key}-error`} hidden>{t[name].invalid}</p>

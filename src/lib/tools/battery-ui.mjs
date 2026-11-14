@@ -4,7 +4,7 @@
 import { batteryCopy } from "./battery-copy.mjs";
 import { BATTERY_LIMITS, batteryLife } from "./battery-life.mjs";
 import { formatCurrent, formatLife, formatMeaning } from "./battery-view.mjs";
-import { part, setText, show } from "./dom.mjs";
+import { part, setInvalid, setText } from "./dom.mjs";
 import { formatNumber, parseDecimal } from "./format.mjs";
 
 const FIELDS = Object.keys(BATTERY_LIMITS);
@@ -21,8 +21,7 @@ export function startBatteryTool(root) {
     const { min, max } = BATTERY_LIMITS[key];
     const value = parseDecimal($(key).value);
     const valid = value >= min && value <= max;
-    $(key).setAttribute("aria-invalid", String(!valid));
-    show($(`${key}-error`), !valid);
+    setInvalid($(key), $(`${key}-error`), !valid);
     return valid ? value : null;
   }
 
@@ -31,9 +30,8 @@ export function startBatteryTool(root) {
     const missing = Object.values(input).includes(null);
     const tooLong = !missing && input.awakeSeconds > input.intervalMinutes * 60;
     // The awake-time field has two messages: not a number, or longer than the interval.
-    $("awakeSeconds").setAttribute("aria-invalid", String(tooLong || input.awakeSeconds === null));
     setText($("awakeSeconds-error"), tooLong ? copy.seconds.tooLong : copy.seconds.invalid);
-    show($("awakeSeconds-error"), tooLong || input.awakeSeconds === null);
+    setInvalid($("awakeSeconds"), $("awakeSeconds-error"), tooLong || input.awakeSeconds === null);
 
     const result = missing || tooLong ? null : batteryLife(input);
     if (!result) {
