@@ -1,0 +1,32 @@
+---
+// The first steps of a starter kit, in the order they are done. Every step
+// in the catalog is built here; the answers decide which three to five show.
+// Each step links to the guide that carries it out.
+import { STEPS } from "../../lib/tools/starter-kit-items.mjs";
+import { starterKitCopy } from "../../lib/tools/starter-kit-copy.mjs";
+import { startState } from "../../lib/tools/starter-kit-view.mjs";
+
+interface Props {
+  id: string;
+  lang: "da" | "en";
+}
+
+const { id, lang } = Astro.props;
+const t = starterKitCopy[lang];
+---
+
+<section class="sb-kit-steps" aria-labelledby={`${id}-steps`}>
+  <h3 class="sb-kit-layer__title" id={`${id}-steps`}>{t.stepsTitle}</h3>
+  <ol class="sb-kit-steps__list" role="list">
+    {Object.entries(STEPS).map(([step, guides]) => (
+      <li class="sb-kit-step" {...startState(`step:${step}`)}>
+        <p class="sb-kit-step__text">{t.steps[step].text}</p>
+        <p class="sb-kit-step__guides">
+          {guides.map((path, index) => (
+            <a class="sb-kit-guide" href={`/${lang}/${path}/`}>{t.steps[step].guides[index]}</a>
+          ))}
+        </p>
+      </li>
+    ))}
+  </ol>
+</section>

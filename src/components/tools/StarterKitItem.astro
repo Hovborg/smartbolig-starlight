@@ -1,0 +1,34 @@
+---
+// One part of a starter kit: what it is, the model, why it is in the kit and
+// where to go next. A product gets the site's shop link (AffiliateLink, from
+// the register); a part without a product gets a tag that says so, never a
+// made-up link. A part of the fixed installation says who must fit it.
+import AffiliateLink from "../AffiliateLink.astro";
+import { ITEMS } from "../../lib/tools/starter-kit-items.mjs";
+import { starterKitCopy } from "../../lib/tools/starter-kit-copy.mjs";
+import { startState } from "../../lib/tools/starter-kit-view.mjs";
+
+interface Props {
+  item: string;
+  lang: "da" | "en";
+}
+
+const { item: id, lang } = Astro.props;
+const item = ITEMS[id];
+const t = starterKitCopy[lang];
+const text = t.items[id];
+---
+
+<li class="sb-kit-item" {...startState(`item:${id}`)}>
+  <div class="sb-kit-item__text">
+    <p class="sb-kit-item__role">{text.role}</p>
+    {item.name && <p class="sb-kit-item__model">{item.name}</p>}
+    <p class="sb-kit-item__why">{text.why}</p>
+    {item.fixed && <p class="sb-kit-item__fixed">{t.fixed}</p>}
+    {(item.notes ?? []).map((note) => <p class="sb-kit-item__note" {...startState(`note:${note}`)}>{t.notes[note].text}</p>)}
+  </div>
+  <div class="sb-kit-item__next">
+    {item.product ? <AffiliateLink product={item.product} /> : <p class="sb-kit-tag">{item.gap ? t.gap : text.tag}</p>}
+    <a class="sb-kit-guide" href={`/${lang}/${item.guide}/`}>{text.guide}</a>
+  </div>
+</li>

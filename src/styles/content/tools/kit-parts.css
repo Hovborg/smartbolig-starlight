@@ -1,0 +1,123 @@
+/*
+ * The parts of a starter kit (StarterKitItem.astro). A part is a row: what
+ * it is and why on one side, where to buy it and read more on the other.
+ * Every link that stands alone is at least 2.75rem (44 px) high. The first
+ * steps are in kit-steps.css.
+ */
+.sb-kit-items {
+  display: grid;
+  gap: var(--sb-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.sb-kit-item {
+  display: grid;
+  gap: var(--sb-space-2);
+  min-width: 0;
+  /* The last link is a full touch target, so it brings its own air below. */
+  padding: var(--sb-space-4) var(--sb-space-4) var(--sb-space-2);
+  border: 1px solid var(--sb-line);
+  border-radius: var(--sb-radius-md);
+  background: var(--sb-bg);
+}
+
+.sb-kit-item__text {
+  display: grid;
+  gap: var(--sb-space-1);
+  min-width: 0;
+}
+
+.sb-kit-item__role {
+  color: var(--sb-ink-strong);
+  font-size: var(--sb-text-base);
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.sb-kit-item__model {
+  color: var(--sb-ink-muted);
+  font-size: var(--sb-text-xs);
+  font-weight: 650;
+}
+
+/* Who must fit a part of the fixed installation: said in words, on a warm ground. */
+.sb-kit-item__fixed {
+  margin-top: var(--sb-space-2);
+  padding: var(--sb-space-2) var(--sb-space-3);
+  border-radius: var(--sb-radius-sm);
+  background: var(--sb-warm-soft);
+  color: var(--sb-warm);
+  font-weight: 650;
+}
+
+.sb-kit-item__note {
+  margin-top: var(--sb-space-2);
+  padding-inline-start: var(--sb-space-3);
+  border-inline-start: 3px solid var(--sb-sky);
+  color: var(--sb-ink-muted);
+}
+
+.sb-kit-item__next {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0 var(--sb-space-4);
+  min-width: 0;
+}
+
+/* In a wide card the shop link and the guide sit beside the text. */
+@container sb-tool (min-width: 40rem) {
+  .sb-kit-item {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 17rem);
+    gap: var(--sb-space-5);
+    align-items: start;
+    padding: var(--sb-space-4);
+  }
+
+  .sb-kit-item__next {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sb-space-1);
+  }
+}
+
+/* The shop link is the site's own (AffiliateLink.astro); here it only gets
+   the height of a touch target and keeps its colour on hover. */
+.sb-kit .affiliate-link {
+  min-height: 2.75rem;
+}
+
+.sb-kit .affiliate-link:hover {
+  color: var(--affiliate-ink);
+}
+
+/* Said instead of a shop link: nothing to buy, or no recommendation yet. */
+.sb-kit-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding: var(--sb-space-1) var(--sb-space-3);
+  border: 1px dashed var(--sb-line-strong);
+  border-radius: var(--sb-radius-pill);
+  color: var(--sb-ink-muted);
+  font-size: var(--sb-text-xs);
+  font-weight: 650;
+}
+
+/* A link to a guide that stands alone. The padding only shows when the
+   title wraps: two lines must not touch the shop link above. */
+.sb-kit-guide {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  padding-block: var(--sb-space-2);
+  font-weight: 600;
+}
+
+/* After a sentence it gets a line of its own. */
+:is(.sb-kit-note, .sb-kit-limit) .sb-kit-guide {
+  display: flex;
+  width: fit-content;
+}
