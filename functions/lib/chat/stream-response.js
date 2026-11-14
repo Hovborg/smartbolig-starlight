@@ -1,6 +1,6 @@
 // Delivers a turn as Server-Sent Events:
 //
-//   status   { stage }            "reading" | "searching" | "writing" | "revising"
+//   status   { stage }            "searching" | "writing" | "revising"
 //   sources  { sources }          once, as soon as the search has run, before any text
 //   delta    { text }             the answer while it is written
 //   done     { answer, ... }      the checked answer: the same body as the JSON response

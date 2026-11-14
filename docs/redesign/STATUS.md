@@ -42,8 +42,44 @@ Sidst opdateret: 2026-11-14.
   alle af testene. Dokumentation: `docs/assistent.md`. Kendt i vinduet og ikke rettet: på en
   telefon på 375×760 px er samtalefeltet ca. 209 px højt; ved 320 px står overskriftens tekst
   under nulstil-knappen; statusteksten kan stå to gange et øjeblik; "Kopiér kode" vises også
-  på en kodeblok, der endnu skrives. Kan først ses på den levende side: et rigtigt svar gennem
-  Workerens egen binding, og om Cloudflare sender strømmen videre uden at samle den.
+  på en kodeblok, der endnu skrives. Udgivet 2026-11-14 (PR #206, `main` 9caab95, Worker
+  `234155f6`). Set på den levende side: status efter 0,10 s, kilder efter 0,14 s, første ord
+  efter ca. 19 s og hele svaret efter ca. 31 s for et spørgsmål om Zigbee; teksten strømmer.
+  Vej tilbage: `npx wrangler rollback e7f0c884-ed6a-4ec8-880c-e76a412809bd -m "<besked>" -y`.
+- **Assistenten søger først (B62, tilføjelser):** fundet på den levende side, at et
+  spørgsmål uden et smart home-ord ("Hvordan får jeg lyset til at tænde ved bevægelse?") gav
+  33 s uden tekst, hele svaret på én gang og ingen kilder. Nu søges sidens indeks for hver
+  besked, der ikke er en ren afslutning (»Tak for det«, »Okay«), med beskeden alene og højst
+  én gang. Resultatet bruges, når beskeden har et smart home-ord og opslaget fandt noget,
+  eller bedste svar har mindst 12 point (`USEFUL_SCORE`), og modellen får aldrig et værktøj:
+  ét modelkald, der altid strømmer. Et fejlet opslag meldes til modellen som »ikke
+  tilgængeligt«, et tomt som »intet fundet«, og en senere besked uden sider som »ingen side
+  til den seneste besked« (`continued`): modellen svarer da ud fra samtalen. Bygget advarer
+  (stopper ikke), når et spørgsmål i prøvelisterne flytter over grænsen. Fire uafhængige
+  gennemgange før udgivelsen: den første fandt, at et emneskift gav sider om det gamle emne;
+  den anden, at en opfølgning uden »den« eller »det« ingen sider fik; den tredje, at
+  ordreglerne fra den rettelse tog rigtige spørgsmål med sig; den fjerde, at reglen, der stod
+  tilbage (søg sammen med beskeden før, når beskeden intet finder alene og kun har ord, siden
+  kender), gav et nyt emne lige under grænsen og afslutninger som »Tak for din hjælp« det
+  tidligere spørgsmåls sider. Målt bagefter: indekset kan ikke skelne en opfølgning fra et
+  nyt emne eller en afslutning (hverken point, antal søgeord eller ordenes sjældenhed).
+  Derfor søges en besked nu aldrig sammen med en tidligere. Målt med den tredje og den
+  fjerde gennemgangs 2.261 samtaler mod det byggede indeks: i alle viser den senere besked
+  præcis de kilder, den viser som første besked. En femte gennemgang fandt ingen besked, der
+  får et tidligere spørgsmåls sider (520 egne samtaler, også som strøm og i kæder); dens
+  mindre fund er rettet (»HA« med store bogstaver søges, undtagen i en besked helt med store bogstaver, ordlisterne sammenlignes med koden,
+  prompten til en opfølgning). 195 prøver med en fejl sat ind i koden fanges alle af
+  testene. Pris, kendt: en opfølgning uden eget emne (»Kan du uddybe?«) får
+  ingen nye sider og ingen kildelinks (356 af 524 danske og 340 af 485 engelske
+  opfølgningssamtaler); svaret bygger på samtalen. Kendt i øvrigt: en tak i ord, listerne
+  ikke har (»Tak, jeg vender tilbage«), søges alene og viste en irrelevant kilde i 11 af den
+  femte gennemgangs 100 nye takkebeskeder; en opfølgning, der selv når
+  grænsen (»Hvad koster det cirka?«), får sine egne sider; et nyt smart home-emne under
+  grænsen (»Hvordan styrer jeg min garageport?«) får ingen kilder; nogle hverdagsspørgsmål når
+  stadig grænsen (2 af 20 danske, 6 af 24 engelske) og kan få en kilde; tiden til første ord
+  (ca. 19 s, modellens tænketid) er ikke ændret og står på listen til ejeren. Muligt næste
+  skridt, ikke bygget: lade modellen skrive søgeteksten til en opfølgning (ét modelkald mere).
+  Tal og grænser: `docs/assistent.md`, "Målt med samtaler".
 - **Automatiske opdateringer set i drift 2026-11-14:** Dependabot åbnede otte pull requests
   efter udgivelsen. Gruppen med små npm-opdateringer (PR #192) blev flettet af sig selv, efter
   at `deploy`-kontrollen var grøn, og kontrollerne kørte derefter på `main`. Starlight 0.42.8

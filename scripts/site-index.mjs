@@ -1,15 +1,17 @@
 // Builds the assistant's search index from the built site:
 //   node scripts/site-index.mjs            (after astro build; part of npm run build)
 // Reads dist/<language>/**/index.html, writes dist/_index/<language>/, and
-// asks the index a fixed set of questions (scripts/lib/site-index/probes.mjs).
+// asks the index a fixed set of questions (scripts/lib/site-index/probes.mjs):
+// pages that must be found (the build stops when one is not), and scores that
+// should stay on the right side of USEFUL_SCORE (the build warns when one does not).
 
 import { mkdir, readFile, readdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { createSiteSearch, INDEX_ROOT } from "../functions/lib/site-search/search.js";
+import { createSiteSearch, INDEX_ROOT, USEFUL_SCORE } from "../functions/lib/site-search/search.js";
 import { buildIndex } from "./lib/site-index/build.mjs";
 import { extractPage } from "./lib/site-index/extract.mjs";
-import { PROBES } from "./lib/site-index/probes.mjs";
+import { OFF_TOPIC, ON_TOPIC, PROBES } from "./lib/site-index/probes.mjs";
 
 const LOCALES = ["da", "en"];
 const dist = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../dist");
@@ -23,15 +25,37 @@ async function pagesUnder(directory, url) {
   return pages;
 }
 
-/** Ask the freshly built index the probe questions. Returns the ones that failed. */
-export async function runProbes(files, locale, probes = PROBES[locale] ?? []) {
-  const search = createSiteSearch({
+const searchOver = (files, locale) =>
+  createSiteSearch({
     readJson: async (address) => JSON.parse(files.get(address.slice(`${INDEX_ROOT}/${locale}/`.length))),
   });
+
+/** Ask the freshly built index the probe questions. Returns the ones that failed. */
+export async function runProbes(files, locale, probes = PROBES[locale] ?? []) {
+  const search = searchOver(files, locale);
   const failed = [];
   for (const probe of probes) {
     const found = (await search(probe.query, locale)).slice(0, 3).map((result) => result.url.split("#")[0]);
     if (!found.includes(probe.page)) failed.push({ ...probe, found });
+  }
+  return failed;
+}
+
+/**
+ * Off-topic questions should score below USEFUL_SCORE and on-topic ones at least
+ * that. Returns the ones that do not as { query, score, rule } (no result scores 0).
+ */
+export async function runScoreProbes(files, locale, { offTopic = OFF_TOPIC[locale] ?? [], onTopic = ON_TOPIC[locale] ?? [] } = {}) {
+  const search = searchOver(files, locale);
+  const failed = [];
+  for (const [questions, rule, holds] of [
+    [offTopic, "below", (score) => score < USEFUL_SCORE],
+    [onTopic, "at least", (score) => score >= USEFUL_SCORE],
+  ]) {
+    for (const query of questions) {
+      const score = (await search(query, locale))[0]?.score ?? 0;
+      if (!holds(score)) failed.push({ query, score, rule });
+    }
   }
   return failed;
 }
@@ -58,6 +82,12 @@ async function main() {
     for (const probe of await runProbes(files, locale)) {
       failures += 1;
       console.error(`Site index ${locale}: "${probe.query}" should find ${probe.page}, found ${probe.found.join(", ") || "nothing"}.`);
+    }
+    // A warning, not a stop: scores move a little with every new page, and a
+    // question on the wrong side only gives an answer with or without a source.
+    // The site is built by itself every day and must not stand still for that.
+    for (const probe of await runScoreProbes(files, locale)) {
+      console.warn(`::warning title=Site index score line::${locale}: "${probe.query}" scores ${probe.score}, which should be ${probe.rule} ${USEFUL_SCORE}. Measure again, see docs/assistent.md.`);
     }
   }
   if (failures) throw new Error(`${failures} search probe(s) failed`);

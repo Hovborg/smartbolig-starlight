@@ -2,6 +2,7 @@
 // The JSON response and the event stream are two ways to deliver the same turn.
 
 import { selectOfficialEvidence } from "../official-evidence.js";
+import { USEFUL_SCORE } from "../site-search/search.js";
 import { createPublicDiagnostics } from "./diagnostics.js";
 import { MAX_ANSWER_CHARS, MAX_SEARCH_QUERY_CHARS, MAX_SEARCH_RESULTS } from "./limits.js";
 import { safeErrorName, withTimeout } from "./runtime.js";
@@ -20,14 +21,20 @@ export function createTurn({
 }) {
   const officialEvidence = selectOfficialEvidence(chat.messages.at(-1).content, chat.locale);
   const sourceMap = new Map(officialEvidence.sources.map((source) => [source.url, source]));
+  // Searches the site. A result is used, and its pages become sources, when a smart
+  // home word asked for the search (`always`) or its best score is at least USEFUL_SCORE.
+  // Otherwise nothing from it is kept: { results: [] }.
   const searchSmartbolig = search
-    ? async (query) => {
+    ? async (query, { always = false } = {}) => {
         const safeQuery = typeof query === "string" ? query.trim().slice(0, MAX_SEARCH_QUERY_CHARS) : "";
         if (safeQuery.length < 2) return { results: [] };
 
         try {
           const found = await withTimeout(() => search(safeQuery, chat.locale, MAX_SEARCH_RESULTS), searchTimeoutMs);
           const normalized = normalizeSearchResults(found);
+          const best = Math.max(...normalized.results.map((result) => result.score ?? -Infinity));
+          if (!always && !(best >= USEFUL_SCORE)) return { results: [] };
+
           for (const source of normalized.sources) {
             if (!sourceMap.has(source.url)) sourceMap.set(source.url, source);
           }

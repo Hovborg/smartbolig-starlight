@@ -56,12 +56,18 @@ specialdesignet Astro-widget:
 - **SmartBolig som ekstra kilde:** Workeren slår op i et indeks over sidens
   egne sider. Indekset bygges sammen med siden og ligger som statiske filer
   under `/_index/`; der bruges ingen betalt søgetjeneste (se
-  [`docs/assistent.md`](docs/assistent.md), kontrolleret 2026-11-14). Faglige
-  smart-home/homelab-spørgsmål får højst ét afgrænset opslag. Resultatet gives
-  til den brede model som ubetroet reference-data. Efter opslaget får både
-  primær- og fallbackmodel en særskilt slutprompt uden et tilgængeligt
-  søgeværktøj, så interne værktøjsnavne og retrieval-trin ikke bliver vist som
-  kommandoer. Sidens guides er ikke assistentens eneste viden.
+  [`docs/assistent.md`](docs/assistent.md), kontrolleret 2026-11-14). Hver
+  besked, der ikke er en ren afslutning (»Tak for det«, »Okay«), får et
+  afgrænset opslag med beskeden alene, før modellen kaldes. En besked søges
+  aldrig sammen med en tidligere besked: en opfølgning uden eget emne (»Kan du
+  uddybe?«, »Fortsæt«) får ingen nye sider, og modellen svarer da ud fra
+  samtalen. Resultatet gives til
+  den brede model som ubetroet reference-data, når spørgsmålet har et
+  smart-home/homelab-ord og opslaget fandt noget, eller det bedste svar har
+  mindst 12 point; ellers svarer modellen uden sidens tekst og uden kilder. Modellen får aldrig et
+  værktøj, og både primær- og fallbackmodel får en prompt, der forbyder interne
+  værktøjsnavne og retrieval-trin som kommandoer.
+  Sidens guides er ikke assistentens eneste viden.
 - **Svar, mens det skrives:** Widgeten beder om svaret som en strøm
   (`Accept: text/event-stream`). Læseren ser først en statuslinje (»Søger i
   guiderne …«, »Skriver svar …«), så kilderne, når opslaget er færdigt, og
@@ -137,8 +143,8 @@ specialdesignet Astro-widget:
   **Fejlsøg/Debug**, **Byg/Build**, **Forklar/Explain** og
   **Sammenlign/Compare** — indsætter synlig, redigerbar tekst i promptfeltet;
   de ændrer ikke skjult systemprompt eller permissions. Under et kald viser
-  konsollen det trin, serveren har meldt (»Læser dit spørgsmål …«, »Søger i
-  guiderne …«, »Skriver svar …«), og den reelle forløbne ventetid i browseren.
+  konsollen det trin, serveren har meldt (»Søger i guiderne …«,
+  »Skriver svar …«), og den reelle forløbne ventetid i browseren.
   `WORKER · CONTEXT · MODEL`-linjen er en fast tekst, ikke et indblik i interne
   modeltrin. »Stop« står på »Send«-knappens plads, mens et svar er på vej, og
   overtager tastaturfokus fra feltet. Skærmlæsere får statusskift og det
@@ -247,16 +253,16 @@ Guidesidernes top, sidemenu og sidefod er beskrevet i `docs/designsystem.md` und
 | `request.js` | begrænset læsning af kroppen og validering af samtalen |
 | `sources.js` | kanoniske SmartBolig-URL'er, titler og søgeresultater |
 | `prompt.js` | systemprompten og referencedata til den seneste besked |
-| `search-tool.js` | hvornår søgeværktøjet kræves, og aflæsning af modellens værktøjskald |
+| `search-need.js` | ordene, der afgør opslaget (smart home-ord og afslutningsord), og om læseren har spurgt om noget før den seneste besked |
 | `yaml-request.js` | hvilken YAML-form og automation-`mode` brugeren har bedt om |
 | `yaml-checks.js` | kontrol af YAML i svaret mod den ønskede form |
 | `answer.js` | udtræk af modelsvar og accept af svar |
 | `runtime.js` | timeout med afbrydelse og sikre fejlnavne til log |
-| `agent.js` | Workers AI-agenten: hvornår der søges, og hvilken prompt hvert modeltrin får |
+| `agent.js` | Workers AI-agenten: søger først hver gang, vælger prompt efter resultatet og kører ét modeltrin uden værktøj |
 | `model-runs.js` | ét modeltrin: primær model, derefter reservemodel; sender teksten videre, mens den skrives |
 | `model-stream.js` | læser Workers AI's strøm til samme form som et almindeligt modelsvar |
 | `sse-decoder.js` | afkoder Server-Sent Events fra bytes; bruges af både Workeren og browseren |
-| `turn.js` | ét spørgsmål: kilder, søgning med tidsgrænse, agentkørsel og det færdige svar |
+| `turn.js` | ét spørgsmål: kilder, søgning med tidsgrænse (kilder kun fra et resultat, der bruges), agentkørsel og det færdige svar |
 | `diagnostics.js` | de driftsoplysninger, en besøgende må se |
 | `sse.js` | et svar som Server-Sent Events og genkendelse af `Accept: text/event-stream` |
 | `stream-response.js` | leverer et svar som events: `status`, `sources`, `delta`, `done`, `error` |

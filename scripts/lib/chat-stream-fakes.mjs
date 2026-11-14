@@ -70,19 +70,6 @@ export const completion = (content, finishReason = "stop") => ({
   choices: [{ message: { content }, finish_reason: finishReason }],
 });
 
-export const searchCall = (query) => ({
-  choices: [
-    {
-      message: {
-        content: null,
-        tool_calls: [
-          { id: "call-1", type: "function", function: { name: "search_smartbolig", arguments: JSON.stringify({ query }) } },
-        ],
-      },
-    },
-  ],
-});
-
 /**
  * A chat handler around a scripted model. `script(call)` returns what the model
  * answers for that call; `call` is { index, model, stream, tools, primary }.
