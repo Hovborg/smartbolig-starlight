@@ -1237,8 +1237,7 @@ Denne tilføjelse afløser reglerne om opfølgninger i de tre tilføjelser ovenf
 - Kontrolleret før udgivelsen: `npm run site:test` (testen for omdirigeringer). På den levende
   side svarer `/en/legal/`, `/produkter/shelly`, `/index.html` og `/` allerede 301 fra
   `_redirects` (set 2026-11-14, mens filen endnu lå der), og `www.smartbolig.net` svarer 301
-  til hoveddomænet, også for `/api/*`. De samme adresser ses igen efter udgivelsen
-  (`STATUS.md`, "Næste skridt").
+  til hoveddomænet, også for `/api/*`. Set igen efter udgivelsen (PR #213): de samme svar.
 
 ## B68. Dokumentationen er afprøvet af læsere, der ikke kendte repoet (2026-11-14)
 

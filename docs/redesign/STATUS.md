@@ -280,7 +280,22 @@ Sidst opdateret: 2026-11-14.
   hjørnetrin og fem kopier mere af den mørke sidefarve; rettet, og testen holder dem nu.
   Fjerde runde (design og nyheder): design "ja"; nyheder "delvist", fordi der manglede en
   opskrift for en manglende udgave og en tabel over lofterne. Begge dele er skrevet ind.
-  Ikke kontrolleret: en femte runde efter de sidste rettelser.
+  Ikke kontrolleret: en femte runde efter de sidste rettelser. En uafhængig gennemgang før
+  udgivelsen fandt tre ting, som er rettet: en ældre test skrev falske "Slot:"-linjer i en
+  rigtig kørsels oversigt, `docs/drift.md` viste Bings bekræftelseskode, og B67 noterede en
+  kontrol som udført for tidligt. `gmail-signature.html` er taget ud af repoet (ejerens navn
+  og adresse; står stadig i historikken, se TIL-EJEREN punkt 7). Udgivet 2026-11-14 (PR #213,
+  `main` 654f805, Worker `56ec6c49`). Set på den levende side bagefter: `/en/legal/`,
+  `/produkter/shelly`, `/index.html`, `/` og `/da/products/shelly/shelly-1` svarer 301 til
+  de samme adresser som før, `www.smartbolig.net/api/elpris` svarer 301 til hoveddomænet,
+  forsiden, værktøjerne, `/api/elpris`, `llms.txt` og sitemappet svarer 200, og
+  `--sb-brand-a` giver samme farve som før i begge temaer (#2ef0aa mørkt, #0a7556 lyst).
+- **Guide om Companion-appen:** `home-assistant/companion-app` på begge sprog (installation,
+  lokal og ekstern adresse, hvad appen sender, tilladelser, sensorer til og fra, en første
+  prøvebesked, fejlsøgning) med én tegning pr. sprog. Hver påstand er holdt op mod
+  Companion-appens og Home Assistants egen dokumentation af en uafhængig model; menustien
+  "Udviklerværktøjer" er rettet i seks andre guides. Ikke afprøvet: trinnene er ikke fulgt på
+  en telefon.
 
 ## Udgivelser og vej tilbage
 
@@ -291,6 +306,7 @@ flytter kun Workeren og de statiske filer; `main` er uændret, så den næste ud
 
 | Udgivelse | Pull request | Worker-version |
 |---|---|---|
+| Dokumentation og oprydning | #213 | `56ec6c49-5d79-4ecf-a8d7-94e96b46a9cc` |
 | Assistenten søger først, hver besked alene | #209 | `fd3bd2e3-b4c5-4b4b-9bd6-11f719ada749` |
 | Startsæt-bygger | #212 | `202ffebc-da12-4db7-8b7d-865293a6cfd2` |
 | Gamle adresser sendes videre | #211 | `4eaa513f-7377-4e9c-97c4-6ac39cac9278` |
@@ -305,15 +321,11 @@ nyere end tabellens øverste række. Se den aktuelle med `npx wrangler deploymen
 
 Det, der ikke er gjort. Det, kun ejeren kan gøre, står i [TIL-EJEREN.md](TIL-EJEREN.md).
 
-- **Tegninger i guidernes tekst:** 23 af 86 danske guides har en tegning eller et billede i
+- **Tegninger i guidernes tekst:** 24 af 87 danske guides har en tegning eller et billede i
   teksten (alle har topbilledet af 3D-huset). Uden: Home Assistant 22, produkter 25, AI-CLI 9,
   automationer 4, ESP32 2, sikkerhed 1. Talt 2026-11-14 med et skript, der leder efter et
   billede i brødteksten. Reglerne for nye tegninger står i `docs/billeder.md` ("Diagrammer");
   en tegning skal holdes op mod guidens tekst og kode af en anden end den, der tegnede den.
-- **Guide, der mangler:** Companion App på telefonen (installation, sensorer, placering).
-  `home-assistant/mobilnotifikationer` dækker kun beskedgrupper. De to andre emner fra den
-  gamle planfil er dækket: fjernadgang med Home Assistant Cloud står i `sikkerhed/fjernadgang`,
-  og backup til et sted uden for huset i `home-assistant/backup-sikkerhed`.
 - **Strukturerede produktdata:** produktsiderne har ikke `Product` i deres strukturerede data.
   Fravalgt for nu: uden pris, lagerstatus eller anmeldelser giver de ingen udvidet visning, og
   siden viser ingen priser (B65). Tages op igen, hvis registret får priser.
@@ -342,10 +354,8 @@ Det, der ikke er gjort. Det, kun ejeren kan gøre, står i [TIL-EJEREN.md](TIL-E
 3. Mål siden igen (Lighthouse, Core Web Vitals, sikkerhedshoveder) efter samme fremgangsmåde
    som før-målingen i `docs/measurements/2026-11-13-baseline/README.md`, og læg tallene ved
    siden af.
-4. Tegninger til de guides, der mangler en (se "Åbent"), og guiden om Companion App.
-5. Efter udgivelsen af oprydningen (B67): se de gamle adresser på den levende side igen
-   (`/en/legal/`, `/produkter/shelly`, `/index.html`, `/` og `www.smartbolig.net/api/elpris`).
-6. Når ejeren har udgivet samtykkebeskeden: se forløbene ja og nej på den levende side, og
+4. Tegninger til de guides, der mangler en (se "Åbent").
+5. Når ejeren har udgivet samtykkebeskeden: se forløbene ja og nej på den levende side, og
    slå den strenge CSP til.
 
 ## Udskudt fra designgennemgangen
