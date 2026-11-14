@@ -65,7 +65,9 @@ EU/EØS, og indstillingerne i AdSense under "Privatliv og beskeder"
    callbacks (`CONSENT_MODE_DATA_READY` og `CONSENT_DATA_READY`) er kun lovet én gang. Efter
    et svar læses værdierne igen et sekund senere.
 6. `decision.mjs` gør svaret til ja eller nej for hver nøgle. `boot.mjs` sender det videre til
-   Google (`consent update`) og henter kun de scripts, der er sagt ja til. Et svar, koden ikke
+   Google (`consent update`) og henter kun de scripts, der er sagt ja til. Efter et ja til
+   statistik tælles også tryk på reklamelinks, og efter et ja til annoncer vises de faste
+   annoncepladser (`docs/indtjening.md`). Et svar, koden ikke
    forstår (manglende værdier, ukendte tal, et andet navn i Googles liste), er ikke et svar:
    så hentes intet.
 

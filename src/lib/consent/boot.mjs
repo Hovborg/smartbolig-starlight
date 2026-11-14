@@ -1,5 +1,7 @@
 // Consent on every page: ask with Google's message, then fetch Google
 // Analytics and AdSense only if the visitor said yes. docs/samtykke.md.
+import { hideAdSlots, showAdSlots } from "../ad-slots.mjs";
+import { watchAffiliateClicks } from "../affiliate-clicks.mjs";
 import { createTags } from "./google-tags.mjs";
 import { ADS_PUBLISHER, ANALYTICS_ID } from "./ids.mjs";
 import { loadMessage, reopenMessage } from "./message.mjs";
@@ -26,8 +28,8 @@ export function boot(win = window, doc = document) {
       win.location.reload();
       return;
     }
-    if (decision.analytics_storage) tags.loadAnalytics();
-    if (decision.ad_storage) tags.loadAds();
+    if (decision.analytics_storage && tags.loadAnalytics()) watchAffiliateClicks(win, doc);
+    if (decision.ad_storage && tags.loadAds(() => hideAdSlots(doc))) showAdSlots(win, doc);
   };
 
   // After the page has loaded: the message is a large script, and the page's
