@@ -5,8 +5,8 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-      # UTC. Well clear of the news runs (04:37 and 11:37 UTC), so an automatic
-      # merge does not land between a news push and its deploy.
+      # UTC. Well clear of the news runs (04:37 and 11:37 UTC, stand-ins at 08:37
+      # and 14:37), so an automatic merge does not land between a news push and its deploy.
       time: "07:00"
     # The updates that wait for a human stay open; leave room for the rest.
     open-pull-requests-limit: 10
@@ -36,8 +36,8 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-      # UTC. Well clear of the news runs (04:37 and 11:37 UTC), so an automatic
-      # merge does not land between a news push and its deploy.
+      # UTC. Well clear of the news runs (04:37 and 11:37 UTC, stand-ins at 08:37
+      # and 14:37), so an automatic merge does not land between a news push and its deploy.
       time: "07:00"
     # The updates that wait for a human stay open; leave room for the rest.
     open-pull-requests-limit: 10

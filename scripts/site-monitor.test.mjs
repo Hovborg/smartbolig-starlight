@@ -152,10 +152,22 @@ test("monitor.yml: issues write only, a schedule, concurrency, every action pinn
   const writes = [...yml.matchAll(/^\s+([\w-]+): write\s*$/gm)].map((match) => match[1]);
   assert.deepEqual(writes, ["issues"]);
   assert.match(yml, /^\s+schedule:\s*\n(?:\s+#.*\n)*\s+- cron: '\d+ \d+ \* \* \*'/m);
+  // Three runs a day, so one run GitHub drops still leaves two.
+  assert.deepEqual([...yml.matchAll(/- cron: '(\d+ \d+) \* \* \*'/g)].map((match) => match[1]), ["23 2", "23 10", "23 18"]);
+  // A manual run can point the checks at another address to try the alarm; a scheduled run passes an empty value.
+  assert.ok(yml.includes("MONITOR_BASE_URL: ${{ inputs.base }}"));
+  const run = readFileSync(new URL("./monitor/run.mjs", import.meta.url), "utf8");
+  assert.ok(run.includes("values.base || process.env.MONITOR_BASE_URL || SITE"), "an empty address means the live site");
   assert.match(yml, /^concurrency:\s*\n\s+group: monitor/m);
   assert.match(yml, /timeout-minutes: 15/);
   assert.match(yml, /if: \$\{\{ github\.repository == 'Hovborg\/smartbolig-starlight' \}\}/);
-  assert.match(yml, /issues\?labels=monitor&state=open&creator=github-actions%5Bbot%5D/, "only the workflow's own issue is commented on and closed");
+  assert.match(yml, /issues\?labels=\$label&state=open&creator=github-actions%5Bbot%5D/, "only the workflow's own issue is commented on and closed");
+  // A trial against another address has its own label, so it can neither close nor rewrite the live site's alarm.
+  assert.ok(yml.includes("BASE: ${{ inputs.base }}"));
+  assert.ok(yml.includes('label=monitor; where=smartbolig.net'));
+  assert.ok(yml.includes('if [ -n "$BASE" ]; then label=monitor-trial; where="$BASE (trial run)"; fi'));
+  assert.ok(yml.includes('--label "$label"'), "a new issue gets the label of its kind");
+  assert.ok(!/labels=monitor&/.test(yml) && !/--label monitor\b/.test(yml), "no step names the live label directly");
   const uses = [...yml.matchAll(/^\s+uses:\s*(\S+)/gm)].map((match) => match[1]);
   assert.ok(uses.length >= 2);
   for (const reference of uses) assert.match(reference, /^[\w.-]+\/[\w.-]+@[0-9a-f]{40}$/, reference);

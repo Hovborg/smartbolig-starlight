@@ -206,6 +206,14 @@ Sidst opdateret: 2026-11-14.
   400 på et ukendt område og 405 på POST; forsidens kort og elprisværktøjet viser tal på dansk
   og engelsk i headless Chrome (390 px) uden fejl i konsollen; sidevagtens kontrol af
   `/api/elpris` bestod i en kørsel startet i hånden.
+- **Tidsplaner og repo (B64):** nyhederne har en reserve for hver af de to daglige kørsler
+  (08:37 og 14:37 UTC), som kun skriver, hvis den almindelige kørsel ikke er startet
+  (`scripts/ai-news-slot.mjs`). Sidevagten kører tre gange i døgnet (02:23, 10:23, 18:23 UTC)
+  og kan i en manuel kørsel pege på en anden adresse. `SECURITY.md` med privat indberetning;
+  wikien er slået fra; en test kræver, at hver handling i hver workflow er låst til et commit.
+  Set 2026-11-14: den første planlagte nyhedskørsel startede selv kl. 11:43 UTC og lykkedes;
+  sidevagten bestod alle 14 kontroller i en kørsel startet i hånden. Ikke set endnu: en
+  planlagt sidevagtskørsel, en reservekørsel, og alarmens opret- og luk-trin.
 
 ## Næste skridt
 

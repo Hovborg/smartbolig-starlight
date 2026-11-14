@@ -109,3 +109,16 @@ En ny tjeneste (et script, en ramme, et kald) virker først, når værten står 
 - Id'erne i `src/lib/consent/ids.mjs` og giscus-id'erne i `src/lib/comments.mjs` er ikke
   hemmelige: enhver browser ser dem.
 - Skal en nøgle skiftes, står fremgangsmåden i `docs/nyhedsflow.md`.
+
+## Repoets indstillinger på GitHub
+
+Aflæst 2026-11-14 med `gh api repos/Hovborg/smartbolig-starlight` og `.../rulesets`:
+
+- Regelsættet "main: no force push, no deletion" er aktivt på `main`.
+- Hemmelighedsscanning og push-beskyttelse er slået til, og Dependabots sikkerhedsopdateringer
+  er slået til.
+- Privat indberetning af sårbarheder er slået til; `SECURITY.md` i roden siger, hvordan man
+  bruger den.
+- Wikien er slået fra (den var tom, og en åben wiki kan redigeres uden gennemgang).
+- Handlinger i workflows er låst til et commit, og hvert job nævner selv sine rettigheder;
+  `scripts/site-workflows.test.mjs` (`npm run site:test`) fejler, hvis det ikke holder.
