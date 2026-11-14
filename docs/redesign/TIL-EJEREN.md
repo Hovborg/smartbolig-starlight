@@ -2,7 +2,7 @@
 
 Ting, som kræver dig: en beslutning, et login eller betaling. Alt andet arbejdes der videre med.
 
-Sidst opdateret: 2026-11-13.
+Sidst opdateret: 2026-11-14.
 
 ## Kræver dit login
 
@@ -28,3 +28,11 @@ Sidst opdateret: 2026-11-13.
 
 6. **OpenAI-nyheder.** OpenAI's artikelsider svarer 403 til robotter. Kun korte resuméer kan
    hentes, og de er for tynde til faktatjekket. Det omgås ikke.
+
+## Rester fra den gamle nyhedskørsel
+
+7. **Gamle filer på din maskine.** Den tidligere kørsel efterlod kørselsmapper, en launcher og
+   adgang til dit GitHub-login for kørslen. De gør ingen skade, og opgaven er slået fra.
+   Sig til, hvis de skal slettes.
+8. **Gammelt GitHub-token på Linux-værten.** Den ældre kørsel brugte en tokenfil. Tilbagekald
+   tokenet på GitHub (Settings → Developer settings → Personal access tokens), hvis det findes endnu.
