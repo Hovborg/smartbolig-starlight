@@ -25,13 +25,6 @@
     "binding": "AI",
     "remote": true
   },
-  "ai_search": [
-    {
-      "binding": "SMARTBOLIG_SEARCH",
-      "instance_name": "smartbolig-ai-search",
-      "remote": true
-    }
-  ],
   "ratelimits": [
     {
       "name": "CHAT_RATE_LIMITER",
