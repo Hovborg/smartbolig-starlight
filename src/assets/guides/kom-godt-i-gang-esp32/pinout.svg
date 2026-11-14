@@ -1,117 +1,92 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 350">
-  <defs>
-    <linearGradient id="boardGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#1a1a2e"/>
-      <stop offset="100%" style="stop-color:#16213e"/>
-    </linearGradient>
-    <linearGradient id="chipGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#0f172a"/>
-      <stop offset="100%" style="stop-color:#020617"/>
-    </linearGradient>
-  </defs>
-  
-  <!-- Background -->
-  <rect width="600" height="350" fill="#0f0f1a"/>
-  
-  <!-- Title -->
-  <text x="300" y="30" text-anchor="middle" fill="#f1f5f9" font-family="system-ui" font-size="18" font-weight="bold">ESP32 DevKit V1 Pinout</text>
-  
-  <!-- ESP32 Board -->
-  <rect x="150" y="50" width="300" height="250" rx="8" fill="url(#boardGrad)" stroke="#3b82f6" stroke-width="3"/>
-  
-  <!-- ESP32 Chip -->
-  <rect x="220" y="100" width="80" height="80" rx="4" fill="url(#chipGrad)" stroke="#475569" stroke-width="2"/>
-  <text x="260" y="145" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="10" font-weight="bold">ESP32</text>
-  
-  <!-- Antenna -->
-  <rect x="235" y="60" width="50" height="30" rx="3" fill="#1e293b" stroke="#64748b" stroke-width="1"/>
-  <text x="260" y="80" text-anchor="middle" fill="#94a3b8" font-family="system-ui" font-size="8">WiFi</text>
-  
-  <!-- USB Port -->
-  <rect x="240" y="260" width="40" height="20" rx="3" fill="#1e293b" stroke="#a855f7" stroke-width="2"/>
-  <text x="260" y="274" text-anchor="middle" fill="#c084fc" font-family="system-ui" font-size="8">USB</text>
-  
-  <!-- Left pins -->
-  <g fill="#22c55e" font-family="monospace" font-size="9">
-    <!-- Power pins -->
-    <rect x="155" y="70" width="40" height="16" rx="2" fill="#1e293b" stroke="#ef4444"/>
-    <text x="175" y="82" text-anchor="middle" fill="#f87171">3.3V</text>
-    
-    <rect x="155" y="90" width="40" height="16" rx="2" fill="#1e293b" stroke="#64748b"/>
-    <text x="175" y="102" text-anchor="middle" fill="#94a3b8">GND</text>
-    
-    <!-- GPIO pins -->
-    <rect x="155" y="115" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
-    <text x="175" y="127" text-anchor="middle" fill="#4ade80">GPIO4</text>
-    
-    <rect x="155" y="135" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
-    <text x="175" y="147" text-anchor="middle" fill="#4ade80">GPIO5</text>
-    
-    <rect x="155" y="155" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
-    <text x="175" y="167" text-anchor="middle" fill="#4ade80">GPIO16</text>
-    
-    <rect x="155" y="175" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
-    <text x="175" y="187" text-anchor="middle" fill="#4ade80">GPIO17</text>
-    
-    <rect x="155" y="195" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
-    <text x="175" y="207" text-anchor="middle" fill="#4ade80">GPIO18</text>
-    
-    <rect x="155" y="215" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
-    <text x="175" y="227" text-anchor="middle" fill="#4ade80">GPIO19</text>
-    
-    <rect x="155" y="235" width="40" height="16" rx="2" fill="#1e293b" stroke="#64748b"/>
-    <text x="175" y="247" text-anchor="middle" fill="#94a3b8">GND</text>
-  </g>
-  
-  <!-- Right pins -->
-  <g font-family="monospace" font-size="9">
-    <rect x="405" y="70" width="40" height="16" rx="2" fill="#1e293b" stroke="#f59e0b"/>
-    <text x="425" y="82" text-anchor="middle" fill="#fbbf24">5V/VIN</text>
-    
-    <rect x="405" y="90" width="40" height="16" rx="2" fill="#1e293b" stroke="#64748b"/>
-    <text x="425" y="102" text-anchor="middle" fill="#94a3b8">GND</text>
-    
-    <rect x="405" y="115" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
-    <text x="425" y="127" text-anchor="middle" fill="#4ade80">GPIO21</text>
-    
-    <rect x="405" y="135" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
-    <text x="425" y="147" text-anchor="middle" fill="#4ade80">GPIO22</text>
-    
-    <rect x="405" y="155" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
-    <text x="425" y="167" text-anchor="middle" fill="#4ade80">GPIO23</text>
-    
-    <rect x="405" y="175" width="40" height="16" rx="2" fill="#1e293b" stroke="#3b82f6"/>
-    <text x="425" y="187" text-anchor="middle" fill="#60a5fa">GPIO2</text>
-    
-    <rect x="405" y="195" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
-    <text x="425" y="207" text-anchor="middle" fill="#4ade80">GPIO25</text>
-    
-    <rect x="405" y="215" width="40" height="16" rx="2" fill="#1e293b" stroke="#22c55e"/>
-    <text x="425" y="227" text-anchor="middle" fill="#4ade80">GPIO26</text>
-    
-    <rect x="405" y="235" width="40" height="16" rx="2" fill="#1e293b" stroke="#64748b"/>
-    <text x="425" y="247" text-anchor="middle" fill="#94a3b8">GND</text>
-  </g>
-  
-  <!-- Built-in LED indicator -->
-  <circle cx="340" cy="175" r="6" fill="#3b82f6" opacity="0.8"/>
-  <text x="340" y="165" text-anchor="middle" fill="#60a5fa" font-family="system-ui" font-size="8">LED</text>
-  
-  <!-- Legend -->
-  <rect x="50" y="310" width="500" height="30" rx="6" fill="#1e293b" opacity="0.9"/>
-  
-  <rect x="70" y="318" width="12" height="12" rx="2" fill="#1e293b" stroke="#ef4444"/>
-  <text x="90" y="328" fill="#f87171" font-family="system-ui" font-size="10">3.3V</text>
-  
-  <rect x="140" y="318" width="12" height="12" rx="2" fill="#1e293b" stroke="#f59e0b"/>
-  <text x="160" y="328" fill="#fbbf24" font-family="system-ui" font-size="10">5V</text>
-  
-  <rect x="200" y="318" width="12" height="12" rx="2" fill="#1e293b" stroke="#64748b"/>
-  <text x="220" y="328" fill="#94a3b8" font-family="system-ui" font-size="10">GND</text>
-  
-  <rect x="270" y="318" width="12" height="12" rx="2" fill="#1e293b" stroke="#22c55e"/>
-  <text x="290" y="328" fill="#4ade80" font-family="system-ui" font-size="10">GPIO (Input/Output)</text>
-  
-  <rect x="420" y="318" width="12" height="12" rx="2" fill="#1e293b" stroke="#3b82f6"/>
-  <text x="440" y="328" fill="#60a5fa" font-family="system-ui" font-size="10">GPIO2 (LED)</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 1324" role="img" lang="da" font-family="system-ui, sans-serif">
+  <title>ESP32-DevKit: hvilke ben kan bruges til hvad</title>
+  <desc>Strøm: 3V3 giver 3,3 V, 5V/VIN giver 5 V fra USB, GND er minus. Frie GPIO: 4, 13, 14, 16, 17, 18, 19, 21, 22, 23, 25, 26, 27, 32 og 33. Kun input: 34, 35, 36 og 39; de kan ikke være udgang og har ingen pull-up. Læses ved opstart og bruges med omtanke: 0, 2, 5, 12 og 15. Optaget: 1 og 3 til USB-seriel og 6 til 11 til flash; på WROVER-moduler også 16 og 17. Benenes placering skifter fra board til board.</desc>
+  <rect x="0" y="0" width="640" height="1324" fill="#1a1a2e"/>
+  <text x="320" y="44" font-size="28" fill="#e2e8f0" text-anchor="middle" font-weight="700">ESP32-DevKit:</text>
+  <text x="320" y="82" font-size="28" fill="#e2e8f0" text-anchor="middle" font-weight="700">hvilke ben kan bruges?</text>
+  <rect x="24" y="110" width="592" height="182" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
+  <text x="40" y="146" font-size="24" fill="#fca5a5" font-weight="700">Strøm</text>
+  <rect x="40" y="162" width="90" height="44" rx="6" fill="#dc2626"/>
+  <text x="85" y="191.9" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">3V3</text>
+  <rect x="138" y="162" width="130" height="44" rx="6" fill="#dc2626"/>
+  <text x="203" y="191.9" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">5V/VIN</text>
+  <rect x="276" y="162" width="90" height="44" rx="6" fill="#111827" stroke="#9ca3af" stroke-width="1.5"/>
+  <text x="321" y="191.9" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">GND</text>
+  <text x="40" y="242" font-size="22" fill="#e2e8f0">3V3 = 3,3 V · GND = minus</text>
+  <text x="40" y="272" font-size="22" fill="#e2e8f0">5V/VIN = 5 V fra USB</text>
+  <rect x="24" y="308" width="592" height="206" rx="10" fill="#1e293b" stroke="#22c55e" stroke-width="2"/>
+  <text x="40" y="344" font-size="24" fill="#4ade80" font-weight="700">Frie GPIO</text>
+  <text x="40" y="376" font-size="22" fill="#e2e8f0">til sensorer, lys og relæer</text>
+  <rect x="40" y="396" width="62" height="44" rx="6" fill="#22c55e"/>
+  <text x="71" y="425.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">4</text>
+  <rect x="112" y="396" width="62" height="44" rx="6" fill="#22c55e"/>
+  <text x="143" y="425.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">13</text>
+  <rect x="184" y="396" width="62" height="44" rx="6" fill="#22c55e"/>
+  <text x="215" y="425.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">14</text>
+  <rect x="256" y="396" width="62" height="44" rx="6" fill="#22c55e"/>
+  <text x="287" y="425.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">16</text>
+  <rect x="328" y="396" width="62" height="44" rx="6" fill="#22c55e"/>
+  <text x="359" y="425.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">17</text>
+  <rect x="400" y="396" width="62" height="44" rx="6" fill="#22c55e"/>
+  <text x="431" y="425.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">18</text>
+  <rect x="472" y="396" width="62" height="44" rx="6" fill="#22c55e"/>
+  <text x="503" y="425.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">19</text>
+  <rect x="544" y="396" width="62" height="44" rx="6" fill="#22c55e"/>
+  <text x="575" y="425.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">21</text>
+  <rect x="40" y="450" width="62" height="44" rx="6" fill="#22c55e"/>
+  <text x="71" y="479.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">22</text>
+  <rect x="112" y="450" width="62" height="44" rx="6" fill="#22c55e"/>
+  <text x="143" y="479.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">23</text>
+  <rect x="184" y="450" width="62" height="44" rx="6" fill="#22c55e"/>
+  <text x="215" y="479.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">25</text>
+  <rect x="256" y="450" width="62" height="44" rx="6" fill="#22c55e"/>
+  <text x="287" y="479.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">26</text>
+  <rect x="328" y="450" width="62" height="44" rx="6" fill="#22c55e"/>
+  <text x="359" y="479.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">27</text>
+  <rect x="400" y="450" width="62" height="44" rx="6" fill="#22c55e"/>
+  <text x="431" y="479.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">32</text>
+  <rect x="472" y="450" width="62" height="44" rx="6" fill="#22c55e"/>
+  <text x="503" y="479.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">33</text>
+  <rect x="24" y="530" width="592" height="212" rx="10" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
+  <text x="40" y="566" font-size="24" fill="#60a5fa" font-weight="700">Kun input</text>
+  <rect x="40" y="582" width="62" height="44" rx="6" fill="#2563eb"/>
+  <text x="71" y="611.9" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">34</text>
+  <rect x="112" y="582" width="62" height="44" rx="6" fill="#2563eb"/>
+  <text x="143" y="611.9" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">35</text>
+  <rect x="184" y="582" width="62" height="44" rx="6" fill="#2563eb"/>
+  <text x="215" y="611.9" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">36</text>
+  <rect x="256" y="582" width="62" height="44" rx="6" fill="#2563eb"/>
+  <text x="287" y="611.9" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">39</text>
+  <text x="40" y="662" font-size="22" fill="#e2e8f0">kan ikke være udgang</text>
+  <text x="40" y="692" font-size="22" fill="#e2e8f0">har ingen pull-up</text>
+  <text x="40" y="722" font-size="22" fill="#e2e8f0">36/39 hedder ofte VP/VN</text>
+  <rect x="24" y="758" width="592" height="206" rx="10" fill="#1e293b" stroke="#9ca3af" stroke-width="2"/>
+  <text x="40" y="794" font-size="24" fill="#d1d5db" font-weight="700">Optaget: brug dem ikke</text>
+  <rect x="40" y="810" width="62" height="44" rx="6" fill="#4b5563"/>
+  <text x="71" y="839.9" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">1</text>
+  <rect x="112" y="810" width="62" height="44" rx="6" fill="#4b5563"/>
+  <text x="143" y="839.9" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">3</text>
+  <text x="190" y="839.9" font-size="22" fill="#e2e8f0">USB-seriel</text>
+  <rect x="40" y="864" width="134" height="44" rx="6" fill="#4b5563"/>
+  <text x="107" y="893.9" font-size="22" fill="#ffffff" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">6–11</text>
+  <text x="190" y="893.9" font-size="22" fill="#e2e8f0">flash</text>
+  <text x="40" y="944" font-size="22" fill="#e2e8f0">WROVER: også 16 og 17</text>
+  <rect x="24" y="980" width="592" height="218" rx="10" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
+  <text x="40" y="1016" font-size="24" fill="#fbbf24" font-weight="700">Læses ved opstart</text>
+  <text x="40" y="1048" font-size="22" fill="#e2e8f0">brug med omtanke</text>
+  <rect x="40" y="1068" width="62" height="44" rx="6" fill="#f59e0b"/>
+  <text x="71" y="1097.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">0</text>
+  <rect x="112" y="1068" width="62" height="44" rx="6" fill="#f59e0b"/>
+  <text x="143" y="1097.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">2</text>
+  <rect x="184" y="1068" width="62" height="44" rx="6" fill="#f59e0b"/>
+  <text x="215" y="1097.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">5</text>
+  <rect x="256" y="1068" width="62" height="44" rx="6" fill="#f59e0b"/>
+  <text x="287" y="1097.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">12</text>
+  <rect x="328" y="1068" width="62" height="44" rx="6" fill="#f59e0b"/>
+  <text x="359" y="1097.9" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">15</text>
+  <text x="40" y="1148" font-size="22" fill="#e2e8f0">GPIO0 = BOOT-knappen</text>
+  <text x="40" y="1178" font-size="22" fill="#e2e8f0">GPIO2 = lysdiode på mange boards</text>
+  <text x="320" y="1234" font-size="22" fill="#a3b1c6" text-anchor="middle">Benenes placering skifter fra</text>
+  <text x="320" y="1264" font-size="22" fill="#a3b1c6" text-anchor="middle">board til board. På mange boards</text>
+  <text x="320" y="1294" font-size="22" fill="#a3b1c6" text-anchor="middle">står der D4 i stedet for GPIO4.</text>
 </svg>

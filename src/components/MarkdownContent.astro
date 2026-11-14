@@ -1,7 +1,9 @@
 ---
-// Custom MarkdownContent that adds Giscus comments after article content
+// Custom MarkdownContent that adds an ad place and Giscus comments after article content
 import Default from '@astrojs/starlight/components/MarkdownContent.astro';
+import AdSlot from './AdSlot.astro';
 import Giscus from './Giscus.astro';
+import { isArticlePage } from '../lib/article-page.mjs';
 
 const pathname = Astro.url.pathname;
 const isAiNewsArticle = /^\/(?:da|en)\/ai\/nyheder\/\d{4}-\d{2}-\d{2}\/?$/.test(pathname);
@@ -31,6 +33,7 @@ const heroImage = isAiNewsArticle ? entry?.data?.heroImage : null;
   </figure>
 )}
 <Default><slot /></Default>
+{isArticlePage(pathname) && <AdSlot place="guideEnd" />}
 <Giscus />
 
 <script>

@@ -1,0 +1,85 @@
+name: Monitor
+
+# Checks the live site twice a day and tells the owner through one GitHub
+# issue labelled `monitor`: opened (or commented on) while a check fails,
+# closed when everything passes again. No outside service and no secrets;
+# only the workflow's own token writes the issue. See docs/overvaagning.md.
+
+on:
+  schedule:
+    # Odd minutes, because the top of the hour is when GitHub's schedule is busiest.
+    - cron: '23 6 * * *'
+    - cron: '23 18 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: monitor
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  check:
+    # A fork has no site to watch.
+    if: ${{ github.repository == 'Hovborg/smartbolig-starlight' }}
+    runs-on: ubuntu-latest
+    # With the whole site down every request times out twice: 13 x 35 s is
+    # close to 8 minutes, and the issue step must still get its turn.
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: '24'
+
+      # A failing check must not stop the issue step, so the exit code is
+      # kept as an output and the step itself ends green.
+      - name: Check the live site
+        id: run
+        run: |
+          set +e
+          node scripts/monitor/run.mjs --report monitor-report.md
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+
+      - name: Open, update or close the monitor issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CODE: ${{ steps.run.outputs.code }}
+          FAILING: ${{ steps.run.outputs.failing }}
+        run: |
+          # If the monitor crashed before it wrote a report, the issue still points at the run.
+          [ -f monitor-report.md ] || echo "The monitor wrote no report. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" > monitor-report.md
+          gh label create monitor --repo "$GITHUB_REPOSITORY" --color B60205 \
+            --description 'Live-site checks from monitor.yml' || true
+          # Only the issue this workflow opened itself. The REST list is used
+          # because the search behind `gh issue list --label` lags by minutes.
+          open="$(gh api "repos/$GITHUB_REPOSITORY/issues?labels=monitor&state=open&creator=github-actions%5Bbot%5D&per_page=1" --jq '.[0].number // ""')"
+          title="Monitor: ${FAILING:-1} check(s) failing on smartbolig.net"
+          if [ "$CODE" != '0' ]; then
+            if [ -n "$open" ]; then
+              gh issue comment "$open" --repo "$GITHUB_REPOSITORY" --body-file monitor-report.md
+              gh issue edit "$open" --repo "$GITHUB_REPOSITORY" --title "$title"
+            else
+              gh issue create --repo "$GITHUB_REPOSITORY" --label monitor \
+                --title "$title" \
+                --body-file monitor-report.md
+            fi
+          elif [ -n "$open" ]; then
+            gh issue comment "$open" --repo "$GITHUB_REPOSITORY" \
+              --body "All checks pass again ($(date -u '+%Y-%m-%d %H:%M') UTC)."
+            gh issue close "$open" --repo "$GITHUB_REPOSITORY"
+          fi
+
+      # The issue is the alarm for a scheduled run, so that run stays green.
+      # A person who started the run by hand gets the red result.
+      - name: Fail a manual run when a check failed
+        if: ${{ github.event_name == 'workflow_dispatch' && steps.run.outputs.code != '0' }}
+        run: exit 1

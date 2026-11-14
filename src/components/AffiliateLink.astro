@@ -4,21 +4,25 @@
  * Wraps product links in affiliate tracking URLs
  *
  * Usage:
- * <AffiliateLink store="proshop" url="https://www.proshop.dk/Smart-Home/..." text="Køb hos Proshop" />
+ * <AffiliateLink product="sonoff-zigbee-dongle-e" text="Køb" />
+ *
+ * The shop and the shop URL come from the register in src/data/products/;
+ * an unknown product id stops the build.
  */
 
-import { affiliateMerchants, buildAffiliateUrl, type AffiliateStore } from '../lib/affiliate';
+import { affiliateMerchants, buildAffiliateUrl } from '../lib/affiliate';
+import { productLink } from '../lib/affiliate-products.mjs';
 
 interface Props {
-  store: AffiliateStore;
-  url: string;
+  product: string;
   text?: string;
   price?: string;
   class?: string;
 }
 
-const { store, url, text, price, class: className } = Astro.props;
+const { product, text, price, class: className } = Astro.props;
 
+const { store, url } = productLink(product);
 const config = affiliateMerchants[store];
 const lang = Astro.url.pathname.startsWith('/en/') ? 'en' : 'da';
 const affiliateUrl = buildAffiliateUrl(store, url);
@@ -29,6 +33,8 @@ const displayText = text || `${lang === 'en' ? 'Buy at' : 'Køb hos'} ${config.n
   href={affiliateUrl}
   target="_blank"
   rel="noopener sponsored nofollow"
+  data-affiliate-product={product}
+  data-affiliate-store={store}
   class:list={['affiliate-link', `affiliate-${store}`, className]}
 >
   <span class="affiliate-icon" aria-hidden="true">{config.icon}</span>

@@ -5,6 +5,9 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkHead } from './lib/seo-head-checks.mjs';
 import { checkGuidePicture } from './lib/seo-guide-pictures.mjs';
+import { locsOf } from './lib/llms-pages.mjs';
+import { checkLlmsTxt } from './lib/seo-llms-check.mjs';
+import { foreignHosts } from './lib/seo-foreign-hosts.mjs';
 import { checkTitleAgreement, decodeEntities } from './lib/seo-title-checks.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -423,7 +426,17 @@ async function main() {
   if (!existsSync(pictureGuide)) fail(issues, pictureGuide, 'missing generated HTML');
   else for (const message of checkGuidePicture(await readFile(pictureGuide, 'utf8'))) fail(issues, pictureGuide, message);
 
-  await validatePage(issues, path.join(distDir, '404.html'), {
+  // Every HTML file the build wrote, also the ones the sitemap leaves out (the 404 page).
+  const htmlFiles = (await readdir(distDir, { recursive: true })).filter((name) => name.endsWith('.html'));
+  if (htmlFiles.length === 0) fail(issues, distDir, 'no HTML files to check for foreign hosts');
+  for (const name of htmlFiles) {
+    const htmlPath = path.join(distDir, name);
+    for (const message of foreignHosts(await readFile(htmlPath, 'utf8'))) fail(issues, htmlPath, message);
+  }
+
+  const notFoundPage = path.join(distDir, '404.html');
+
+  await validatePage(issues, notFoundPage, {
     required: [
       { needle: '<meta name="description" content="Siden blev ikke fundet. Find SmartBolig.net guides fra forsiden."', label: '404 meta description' },
       { needle: '<meta property="og:type" content="website"', label: '404 Open Graph type' },
@@ -447,6 +460,11 @@ async function main() {
   } else if (!existsSync(sitemapPath)) {
     fail(issues, sitemapPath, 'missing sitemap');
   }
+
+  const llmsPath = path.join(distDir, 'llms.txt');
+  const llmsText = existsSync(llmsPath) ? await readFile(llmsPath, 'utf8') : undefined;
+  const sitemapForLlms = existsSync(sitemapPath) ? await readFile(sitemapPath, 'utf8') : '';
+  for (const message of checkLlmsTxt(llmsText, locsOf(sitemapForLlms))) fail(issues, llmsPath, message);
 
   await validatePage(issues, path.join(distDir, 'da/ai/nyheder/rss.xml'), {
     required: [

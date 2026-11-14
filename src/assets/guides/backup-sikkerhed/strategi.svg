@@ -1,80 +1,38 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450">
-  <defs>
-    <linearGradient id="haGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0891b2;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="localGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="nasGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="cloudGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  
-  <!-- Background -->
-  <rect width="800" height="450" fill="#1a1a2e"/>
-  
-  <!-- Title -->
-  <text x="400" y="40" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="24" font-weight="bold">3-2-1 Backup Strategi</text>
-  
-  <!-- Home Assistant Source -->
-  <rect x="320" y="70" width="160" height="70" rx="12" fill="url(#haGrad)" stroke="#22d3ee" stroke-width="2"/>
-  <text x="400" y="100" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="14" font-weight="bold">Home Assistant</text>
-  <text x="400" y="120" text-anchor="middle" fill="#cffafe" font-family="system-ui, sans-serif" font-size="11">Kilde</text>
-  
-  <!-- Arrows from HA -->
-  <path d="M340 140 L200 180" stroke="#06b6d4" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
-  <path d="M400 140 L400 180" stroke="#06b6d4" stroke-width="2" fill="none"/>
-  <path d="M460 140 L600 180" stroke="#06b6d4" stroke-width="2" fill="none"/>
-  
-  <!-- 3 Copies Section -->
-  <rect x="50" y="175" width="700" height="100" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
-  <text x="100" y="200" fill="#10b981" font-family="system-ui, sans-serif" font-size="18" font-weight="bold">3</text>
-  <text x="120" y="200" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="14">Kopier af data</text>
-  
-  <!-- Copy 1: Local -->
-  <rect x="80" y="215" width="180" height="50" rx="8" fill="url(#localGrad)" stroke="#34d399" stroke-width="2"/>
-  <text x="170" y="240" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="12" font-weight="bold">📁 Lokal kopi</text>
-  <text x="170" y="255" text-anchor="middle" fill="#d1fae5" font-family="system-ui, sans-serif" font-size="10">/backup mappe</text>
-  
-  <!-- Copy 2: NAS -->
-  <rect x="310" y="215" width="180" height="50" rx="8" fill="url(#nasGrad)" stroke="#fbbf24" stroke-width="2"/>
-  <text x="400" y="240" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="12" font-weight="bold">🗄️ NAS/Netværk</text>
-  <text x="400" y="255" text-anchor="middle" fill="#fef3c7" font-family="system-ui, sans-serif" font-size="10">SMB/NFS share</text>
-  
-  <!-- Copy 3: Cloud -->
-  <rect x="540" y="215" width="180" height="50" rx="8" fill="url(#cloudGrad)" stroke="#a78bfa" stroke-width="2"/>
-  <text x="630" y="240" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="12" font-weight="bold">☁️ Cloud backup</text>
-  <text x="630" y="255" text-anchor="middle" fill="#ede9fe" font-family="system-ui, sans-serif" font-size="10">Google Drive / rclone</text>
-  
-  <!-- 2 Media Types Section -->
-  <rect x="50" y="290" width="340" height="70" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
-  <text x="100" y="315" fill="#f59e0b" font-family="system-ui, sans-serif" font-size="18" font-weight="bold">2</text>
-  <text x="120" y="315" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="14">Forskellige medietyper</text>
-  
-  <rect x="70" y="325" width="140" height="28" rx="6" fill="#374151"/>
-  <text x="140" y="344" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="11">💾 SSD/HDD</text>
-  
-  <rect x="230" y="325" width="140" height="28" rx="6" fill="#374151"/>
-  <text x="300" y="344" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="11">☁️ Cloud storage</text>
-  
-  <!-- 1 Offsite Section -->
-  <rect x="410" y="290" width="340" height="70" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
-  <text x="460" y="315" fill="#8b5cf6" font-family="system-ui, sans-serif" font-size="18" font-weight="bold">1</text>
-  <text x="480" y="315" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="14">Offsite backup</text>
-  
-  <rect x="430" y="325" width="300" height="28" rx="6" fill="#374151"/>
-  <text x="580" y="344" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="11">🌍 Ekstern lokation (cloud/anden adresse)</text>
-  
-  <!-- Summary -->
-  <rect x="150" y="380" width="500" height="55" rx="10" fill="#065f46" stroke="#10b981" stroke-width="2"/>
-  <text x="400" y="405" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="14" font-weight="bold">✅ Beskyttet mod: Hardware fejl • Ransomware • Brand/tyveri</text>
-  <text x="400" y="423" text-anchor="middle" fill="#d1fae5" font-family="system-ui, sans-serif" font-size="11">Automatisk daglig backup anbefales</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 834" role="img" lang="da" font-family="system-ui, sans-serif">
+  <title>3-2-1-reglen for backup</title>
+  <desc>3 kopier af dine data: originalen i Home Assistant, en backup på en NAS og en backup i skyen. 2 forskellige slags lager: disk i huset og cloud. 1 kopi uden for huset: cloud eller en disk på en anden adresse, så en brand, et tyveri eller et lynnedslag ikke tager det hele.</desc>
+  <rect x="0" y="0" width="640" height="834" fill="#1a1a2e"/>
+  <text x="320" y="44" font-size="28" fill="#e2e8f0" text-anchor="middle" font-weight="700">3-2-1-reglen for backup</text>
+  <rect x="24" y="72" width="592" height="262" rx="10" fill="#1e293b" stroke="#2563eb" stroke-width="2"/>
+  <circle cx="64" cy="110" r="24" fill="#2563eb"/>
+  <text x="64" y="120" font-size="28" fill="#ffffff" text-anchor="middle" font-weight="700">3</text>
+  <text x="100" y="119" font-size="24" fill="#60a5fa" font-weight="700">kopier af dine data</text>
+  <rect x="40" y="142" width="560" height="52" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+  <text x="56" y="175.9" font-size="22" fill="#ffffff" font-weight="700">Home Assistant</text>
+  <text x="584" y="175.9" font-size="22" fill="#a3b1c6" text-anchor="end">originalen</text>
+  <rect x="40" y="204" width="560" height="52" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+  <text x="56" y="237.9" font-size="22" fill="#ffffff" font-weight="700">NAS</text>
+  <text x="584" y="237.9" font-size="22" fill="#a3b1c6" text-anchor="end">SMB eller NFS</text>
+  <rect x="40" y="266" width="560" height="52" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+  <text x="56" y="299.9" font-size="22" fill="#ffffff" font-weight="700">Cloud</text>
+  <text x="584" y="299.9" font-size="22" fill="#a3b1c6" text-anchor="end">fx Google Drive</text>
+  <rect x="24" y="350" width="592" height="200" rx="10" fill="#1e293b" stroke="#7c3aed" stroke-width="2"/>
+  <circle cx="64" cy="388" r="24" fill="#7c3aed"/>
+  <text x="64" y="398" font-size="28" fill="#ffffff" text-anchor="middle" font-weight="700">2</text>
+  <text x="100" y="397" font-size="24" fill="#c4b5fd" font-weight="700">forskellige slags lager</text>
+  <rect x="40" y="420" width="560" height="52" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+  <text x="56" y="453.9" font-size="22" fill="#ffffff" font-weight="700">Disk i huset</text>
+  <text x="584" y="453.9" font-size="22" fill="#a3b1c6" text-anchor="end">server og NAS</text>
+  <rect x="40" y="482" width="560" height="52" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+  <text x="56" y="515.9" font-size="22" fill="#ffffff" font-weight="700">Cloud</text>
+  <text x="584" y="515.9" font-size="22" fill="#a3b1c6" text-anchor="end">hos en udbyder</text>
+  <rect x="24" y="566" width="592" height="174" rx="10" fill="#1e293b" stroke="#15803d" stroke-width="2"/>
+  <circle cx="64" cy="604" r="24" fill="#15803d"/>
+  <text x="64" y="614" font-size="28" fill="#ffffff" text-anchor="middle" font-weight="700">1</text>
+  <text x="100" y="613" font-size="24" fill="#4ade80" font-weight="700">kopi uden for huset</text>
+  <rect x="40" y="636" width="560" height="88" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+  <text x="320" y="672.9" font-size="22" fill="#ffffff" text-anchor="middle">Cloud eller en disk på en anden adresse</text>
+  <text x="320" y="704.9" font-size="22" fill="#a3b1c6" text-anchor="middle">klarer brand, tyveri og lynnedslag</text>
+  <text x="320" y="776" font-size="22" fill="#a3b1c6" text-anchor="middle">Home Assistant kan tage backup</text>
+  <text x="320" y="806" font-size="22" fill="#a3b1c6" text-anchor="middle">automatisk hver dag.</text>
 </svg>

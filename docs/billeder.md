@@ -3,10 +3,13 @@
 Sidst opdateret: 2026-11-14.
 Kontrolleret ved: `npm run site:test`, `npm run build` og `npm run seo:validate` kørt på grenen.
 Tekstspaltens bredde og den fil, browseren henter, er målt i headless Chrome på den byggede
-Zigbee2MQTT-guide ved 22 vinduesbredder. LD2410-diagrammet er set som billede på den byggede side.
-Ikke kontrolleret: en rigtig telefon, Safari og Firefox. De øvrige diagrammer (SVG) er ikke set
-igennem for overlappende tekst, sprog og fakta; det står som åbent punkt i
-`docs/redesign/STATUS.md`.
+Zigbee2MQTT-guide ved 22 vinduesbredder. Alle 36 diagrammer er set som billede i headless Chrome
+i 656 px bredde (2 × 328) på mørk baggrund; tekststørrelse (mindst 22 enheder), overlap og plads
+er målt i samme Chrome med både `system-ui` og `Verdana`.
+En uafhængig gennemgang har derefter set dem på lys baggrund og på den byggede side i 390 px
+bredde og holdt LD2410-benene op mod Hi-Links manual til HLK-LD2410C (TX, RX, OUT, GND, VCC).
+Ikke kontrolleret: en rigtig telefon, Safari og Firefox, og diagrammerne i 720 px bredde efter
+den seneste ændring. Det, der er tilbage for diagrammerne, står i `docs/redesign/STATUS.md`.
 
 ## Kort
 
@@ -65,6 +68,39 @@ Testen "the width the browser is told is the text column's at every window width
 op mod den målte spalte og fejler, hvis browseren får en bredde at vide, der er mindre end
 spalten (uskarpt billede) eller mere end 32 px større (for stor fil). Efter en layoutændring
 måles spalten igen, og tabellen i testen opdateres.
+
+## Diagrammer
+
+Et diagram er en SVG-fil i guidens mappe under `src/assets/guides/`. Reglerne gælder nye
+diagrammer og rettelser i de gamle.
+
+- **Fakta først.** Hvert ben, hver spænding, port og protokol, hvert produktnavn og tal står ens
+  i diagrammet og i guidens tekst og kode. Er de uenige, afgør en primær kilde (producentens
+  datablad eller dokumentationen for Home Assistant eller ESPHome). Kan det ikke afgøres, rettes
+  der ikke på gæt; det skrives op til ejeren.
+- **Læsbart på en telefon.** `viewBox` er 640 enheder bred, og ingen tekst er under 22 enheder.
+  Så er teksten ca. 11 px i en spalte på 328 px (vindue på 360 px). Brug linjeskift,
+  højere kasser eller ting under hinanden i stedet for mindre tekst, og hellere færre ting i
+  diagrammet end mindre tekst. Overskrifter er større end brødteksten (titlen 28, kasseoverskrifter 24–26).
+- **Intet oven på tekst.** Ingen tekst overlapper anden tekst, rager ud af sin kasse eller ud af
+  `viewBox`, og ingen ledning krydser en etiket eller et ben. Giv en tekst i en kasse mindst 8 %
+  luft; andre systemer har bredere skrifter. Mål derfor hver tekst (`getBBox()`) to gange: med
+  `system-ui` og med skriften tvunget til `Verdana`. I begge tilfælde skal teksten ligge mindst
+  8 enheder inde i `viewBox` og mindst 4 enheder inde i sin kasse, uden at krydse en kants linje,
+  uden at overlappe anden tekst og uden en ledning hen over sig.
+- **Egen baggrund.** Diagrammet har sit eget mørke panel (`#1a1a2e`), så det kan læses i både
+  mørkt og lyst tema. Tekst på et farvet felt er hvid på mørk farve eller mørk på lys farve.
+- **Ét sprog pr. fil.** Den danske fil hedder fx `wiring.svg`, den engelske `wiring-en.svg`, og
+  hver guide peger på filen på sit eget sprog. Dansk skrives med æ, ø og å.
+- **Tilgængelighed.** SVG-filen har `role="img"`, `lang`, en `<title>` og en `<desc>` på sit eget
+  sprog. Alt-teksten i MDX-filen siger, hvad diagrammet viser (hvilket ben går hvor), ikke kun
+  "diagram".
+- **Teknik.** Kun `viewBox` (ingen `width` og `height`), `font-family="system-ui, sans-serif"`
+  (ben og kode må stå i `ui-monospace, Menlo, Consolas, monospace`),
+  ingen eksterne skrifter, scripts, rasterbilleder eller links til andre værter, og ingen emoji
+  (de ser forskellige ud fra system til system).
+- **Se det som billede.** Åbn filen i en browser i 328 og 720 px bredde på mørk og lys baggrund,
+  før den lægges ind. Tegn selv; kopiér ikke andres diagrammer.
 
 ## Når noget ser forkert ud
 

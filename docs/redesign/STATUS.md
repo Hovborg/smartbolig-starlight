@@ -75,6 +75,14 @@ Sidst opdateret: 2026-11-14.
   og `http://` svarer alle 301 til samme sti på `https://smartbolig.net`; hoveddomænet og
   `/api/chat` er uændrede, og zonens anden regel (et andet projekts) er urørt. Beskrevet i
   `docs/seo.md`. Vej tilbage: slet reglen.
+- **Titler og interne links (B57):** ca. 70 titler rettet, menunavne i `config/sidebar/` rettet
+  med, `seoTitle` på oversigtssider og kontakt, interne links til 18 guides, årstal ud af
+  overskrifter, lister i stedet for rå diagramkode. Uafhængig gennemgang; fund rettet.
+  Dokumentation: `CONTENT-GUIDE.md` ("Titel og `seoTitle`") og `docs/seo.md`. Udgivet 2026-11-14
+  (#199, Worker-version 966fcabc). Kontrolleret på den levende side: `/da/automationer/` har
+  `<h1>` "Automationer" og samme søgetitel i `<title>`, `og:title` og `twitter:title`;
+  `/en/produkter/` ligeså ("Products"); hardwareguiden har sin gamle titel; fire af de nye
+  interne links svarer 200; menuen viser de rettede navne. Vej tilbage: Worker-version 35b19df2.
 
 ## I gang
 
@@ -110,20 +118,49 @@ Sidst opdateret: 2026-11-14.
   smart home i lejebolig. Gennemgået og rettet af en uafhængig model 2026-11-14 mod officielle
   kilder. Ikke afprøvet: automationerne er ikke kørt på et anlæg (skabelonerne i billige timer
   er regnet efter mod en uafhængig beregning), og netselskaber ud over de nævnte er ikke læst.
-- **CSP, kortlagt 2026-11-14 (til fase 5):** `script-src` har `'unsafe-inline'`, fordi siden har
-  8–12 inline-scripts pr. side (samtykke/gtag, sprogcookie, tema før første tegning, Starlights
-  søge- og sidemenuscripts og små Astro-moduler under 4 KB). `script-src-attr 'none'` er sat,
-  og der er ingen inline-handlere. Google dokumenterer kun nonce-baseret CSP for AdSense.
-  Plan: Workeren sætter en nonce pr. svar med HTMLRewriter (`run_worker_first` udvides), først
-  afprøvet som `Content-Security-Policy-Report-Only` på en preview. Mindre første skridt:
-  `vite.build.assetsInlineLimit: 0` og hashes for de få faste inline-scripts. Virker annoncerne
-  ikke med nonce, beholdes `'unsafe-inline'` på sider med annoncer, og det skrives i TIL-EJEREN.
-
-- **Titler og interne links (B57):** ca. 70 titler rettet, menunavne i `config/sidebar/` rettet med, `seoTitle` på oversigtssider og kontakt,
-  interne links til 18 guides, årstal ud af overskrifter, lister i stedet for rå diagramkode.
-  Dokumentation: `CONTENT-GUIDE.md` ("Titel og `seoTitle`") og `docs/seo.md`. Efter udgivelsen
-  kontrolleres på den levende side: `<title>`, `og:title` og `<h1>` på `/da/automationer/` og
-  `/en/produkter/`, og at tre af de nye interne links svarer 200. Resultatet skrives her.
+- **Samtykke først og strengere CSP (B56):** intet hentes fra Google Analytics eller AdSense før
+  et ja i Googles samtykkebesked; kommentarer hentes ved tryk; de juridiske sider passer med
+  koden. Bygningen laver en CSP uden `'unsafe-inline'` for scripts (4 hashes) og sender den som
+  Report-Only. Dokumentation: `docs/samtykke.md` og `docs/sikkerhed.md`.
+  Før udgivelsen (den levende side, headless Chrome, 2026-11-14): før noget svar hentede en
+  side `gtag.js`, `adsbygoogle.js`, Cloudflares måler, giscus og sendte et kald til Google
+  Analytics, og cookien `preferred-lang` blev sat.
+  **Fund 2026-11-14:** der er ingen udgivet samtykkebesked for siden i AdSense (Googles script
+  melder "inaktiv" på den levende side). Efter udgivelsen hentes derfor hverken Analytics
+  eller AdSense, hvor GDPR gælder (målt fra Danmark), før ejeren har udgivet beskeden
+  (TIL-EJEREN punkt 1). To uafhængige gennemgange; fund rettet (B56).
+  **Udgivet 2026-11-14** (PR #198, `main` 4282e27) efter tre uafhængige gennemgange. Målt på
+  den levende side bagefter (headless Chrome fra Danmark: forsiden, en guide,
+  privatlivspolitikken, kontaktsiden og nyhedsoversigten): en side henter kun fra
+  `static.cloudflareinsights.com` og `fundingchoicesmessages.google.com`; eneste cookie er
+  Googles `FCCDCF`; Googles script melder "inaktiv" og viser ingen besked;
+  "Cookieindstillinger" er skjult; konsollen viser ingen overtrædelser af den strenge
+  politik, heller ikke på en juridisk side. Forløbene ja og nej kan først ses på den levende
+  side, når beskeden er udgivet.
+  Næste skridt: `ENFORCE_STRICT_CSP = true`, når den levende side er set uden overtrædelser
+  med annoncer. Ikke valgt: nonce pr. svar i Workeren; hashes klarer det uden at Workeren skal
+  stå foran hver side.
+- **Indtjening (B60):** produktregister (115 produkter), klikmåling på reklamelinks efter et ja
+  til statistik (`affiliate_click`), og én fast annonceplads under guides og nyheder, slukket
+  til den får et annoncenummer (`docs/indtjening.md`). Uafhængig gennemgang: ingen blokerende
+  fund; fundene er rettet. Afprøvet i headless Chrome med efterlignet samtykke. Ikke set:
+  hændelsen i Google Analytics og en rigtig annonce (kræver udgivet samtykkebesked og et
+  annoncenummer; TIL-EJEREN punkt 1).
+- **Sidevagt og llms.txt (B58):** `.github/workflows/monitor.yml` henter tretten adresser på
+  den levende side to gange i døgnet og åbner en GitHub-sag med etiketten `monitor`, hvis en
+  kontrol fejler (`docs/overvaagning.md`). `llms.txt` laves af bygget, og bygget stopper, hvis
+  sitemappet får et område, som hverken er med eller valgt fra. Kørt lokalt mod den levende
+  side: alle 13 kontroller bestod. **Udgivet 2026-11-14** (PR #202, `main` 66cae87, Worker
+  `b3071424`). Workflowen er startet én gang i Actions bagefter: grøn, 13 af 13 bestod, ingen
+  sag åbnet. `llms.txt` på den levende side er den byggede (43,8 KB). Ikke set køre: trinene,
+  der åbner, kommenterer og lukker sagen (kræver en fejlende kontrol).
+- **Diagrammer:** alle 36 diagrammer i guiderne er tegnet om til telefonbredde og mørkt tema,
+  med engelske tvillinger og alt-tekster. Uafhængig gennemgang fandt én fejl i et 230 V-diagram
+  (Shelly Wall Display har ingen jordklemme; rettet efter Shellys egen dokumentation) og fem
+  mindre fakta, som er rettet. **Udgivet 2026-11-14** (PR #200, `main` efter 66cae87, Worker
+  `e4b21205`); set på den levende side i 390 px bredde. Åbent: teksten er ca. 10 px på en
+  telefon (mål: 11 px), og LD2410-tegningen har ikke printets benrækkefølge (guiden siger det).
+  Begge dele kræver ny opsætning af tegningerne.
 
 ## Næste skridt
 
@@ -148,9 +185,27 @@ Sidst opdateret: 2026-11-14.
   - Søgefeltet og tidsknapperne er skjult, til scriptet kører; pladsen bør holdes fri.
   - Filer uden brug fra før redesignet (`ProductCard.astro`, `scripts/content-inventory.mjs`,
     `public/images/produkter/`, `logo-email.png`): tjek ekstern brug, før de slettes.
-  - Diagrammerne i guiderne (27 SVG-filer) er ikke set igennem. LD2410-oversigten har
-    overlappende tekst og dansk tekst på den engelske side; de andre skal ses som billede, og
-    fakta holdes op mod guidens tekst og kode.
+  - Diagrammerne i guiderne: alle 27 SVG-filer er tegnet om og holdt op mod guidens tekst og
+    kode. Efter den seneste ændring (større tekst) er alle 36 filer set som billede i 656 px
+    (2 × 328) på mørk baggrund, og en uafhængig gennemgang har set dem på lys baggrund og på den
+    byggede side i 390 px; de er ikke set i 720 px efter ændringen. Teksten er mindst 22 enheder i
+    en 640 enheder bred `viewBox` (ca. 11 px på en telefon; før 2,5-5 px), intet overlapper, og
+    hver fil har `<title>` og `<desc>` på sit sprog. Syv engelske guides, der viste et dansk
+    diagram, har fået et engelsk, og den engelske ESP32-startguide viser nu oversigten og
+    benoversigten (ni nye engelske filer, 36 i alt). Reglerne for nye diagrammer står i
+    `docs/billeder.md` under "Diagrammer". Tilbage:
+    - LD2410-ledningsdiagrammet viser benene i printets rækkefølge (TX, RX, OUT, GND, VCC;
+      Hi-Links manual til HLK-LD2410C, V1.00) og skriver "OUT bruges ikke" under tegningen. Før var der en valgfri ledning fra
+      OUT til GPIO5, som guidens tabel og kode ikke bruger. Skal OUT bruges, vælges et frit ben,
+      og guide, kode og diagram ændres samlet.
+    - Den engelske LD2410-guide har ikke den danske guides tabel "ESP32 til LD2410C"; diagrammet
+      og koden er dens eneste kilde til ESP32-benene.
+    - Rettet i samme omgang: PIR-guiden, dens kode og diagram bruger nu GPIO13 (GPIO5 læses
+      ved opstart, og ESPHome advarer om det); Raspberry Pi-tabellen nævner 15 W til Pi 4 og
+      27 W til Pi 5 (Raspberry Pis dokumentation, "Recommended power supply", læst 2026-11-14);
+      vaskemaskine-guiden skriver 100-2000 W begge steder; overskriften "Wiring diagram" i tre
+      danske guider hedder "Ledningsdiagram".
+    - Ikke set på en rigtig telefon, i Safari eller i Firefox.
   - Indtryk: emoji i tabelceller, emnekortene for automationer og produkter ligner hinanden,
     det store Home Assistant-kort har få detaljer, nyhedsartikler mangler brødkrumme, og
     nyhedsoversigtens store kort gentager dato og overskrift.

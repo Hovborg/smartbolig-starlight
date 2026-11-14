@@ -5,36 +5,38 @@
  *
  * Usage:
  * <ProductCard
- *   name="Sonoff Zigbee 3.0 USB Dongle Plus"
+ *   product="sonoff-zigbee-dongle-e"
  *   image="/images/products/sonoff-dongle.jpg"
  *   price="149 kr"
  *   rating={5}
- *   store="proshop"
- *   url="https://www.proshop.dk/..."
  *   badge="Anbefalet"
  * >
+ * The name, shop and shop URL come from the register in src/data/products/.
+ * Pass `name` to show a different title than the register's.
  *   Bedste Zigbee coordinator til prisen. Understøtter Zigbee2MQTT.
  * </ProductCard>
  */
 
-import { affiliateMerchants, buildAffiliateUrl, type AffiliateStore } from '../lib/affiliate';
+import { affiliateMerchants, buildAffiliateUrl } from '../lib/affiliate';
+import { productLink } from '../lib/affiliate-products.mjs';
 
 interface Props {
-  name: string;
+  product: string;
+  name?: string;
   image?: string;
   price?: string;
   rating?: number;
-  store?: AffiliateStore;
-  url?: string;
   badge?: string;
 }
 
-const { name, image, price, rating, store, url, badge } = Astro.props;
+const { product, name: nameOverride, image, price, rating, badge } = Astro.props;
 
 // Locale-aware UI text (same URL-based detection as FAQ.astro / Head.astro).
 const lang = Astro.url.pathname.startsWith('/en/') ? 'en' : 'da';
 
-const affiliateUrl = url && store ? buildAffiliateUrl(store, url) : url;
+const { name: registerName, store, url } = productLink(product);
+const name = nameOverride ?? registerName;
+const affiliateUrl = buildAffiliateUrl(store, url);
 const stars = rating ? '★'.repeat(rating) + '☆'.repeat(5 - rating) : null;
 ---
 
@@ -71,18 +73,18 @@ const stars = rating ? '★'.repeat(rating) + '☆'.repeat(5 - rating) : null;
     <div class="product-footer">
       {price && <span class="product-price">{price}</span>}
 
-      {affiliateUrl && store && (
-        <a
-          href={affiliateUrl}
-          target="_blank"
-          rel="noopener sponsored nofollow"
-          class="product-buy-btn"
-        >
-          {lang === 'en' ? 'Buy at' : 'Køb hos'} {affiliateMerchants[store].name} →
-          <span class="affiliate-label">{lang === 'en' ? 'Ad link' : 'Reklamelink'}</span>
-          <span class="sr-only">{lang === 'en' ? '(opens in a new tab)' : '(åbner i ny fane)'}</span>
-        </a>
-      )}
+      <a
+        href={affiliateUrl}
+        target="_blank"
+        rel="noopener sponsored nofollow"
+        class="product-buy-btn"
+        data-affiliate-product={product}
+        data-affiliate-store={store}
+      >
+        {lang === 'en' ? 'Buy at' : 'Køb hos'} {affiliateMerchants[store].name} →
+        <span class="affiliate-label">{lang === 'en' ? 'Ad link' : 'Reklamelink'}</span>
+        <span class="sr-only">{lang === 'en' ? '(opens in a new tab)' : '(åbner i ny fane)'}</span>
+      </a>
     </div>
   </div>
 </div>

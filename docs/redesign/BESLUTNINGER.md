@@ -576,6 +576,180 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   produktsider erstattet af lister.
 - Sikring: `npm run seo:validate` kræver på alle sider, at `<title>` er `og:title` og `twitter:title`
   med sidenavnet efter, og på `/da/automationer/` søgetitel, kort overskrift og kort brødkrumme.
+### B56. Samtykke først, og en CSP uden `'unsafe-inline'` for scripts
+- Baggrund (den levende side, headless Chrome, 2026-11-14): før læseren havde svaret, hentede
+  hver side `gtag.js`, `adsbygoogle.js` og giscus og sendte et kald til Google Analytics.
+  Samtykket styrede kun, hvad scripts måtte gemme ("advanced consent mode"). De juridiske sider
+  beskrev noget andet (bl.a. Ezoic og et nyhedsbrev, der ikke findes).
+- Valg: "basic consent mode". Googles samtykkebesked hentes for sig, og Analytics og AdSense
+  hentes først efter et ja (`src/lib/consent/`). Begrundelse: det er det, cookiereglerne
+  kræver, og det er det eneste, læseren kan efterprøve i sin egen browser.
+- Pris: Google Analytics tæller kun læsere, der siger ja, og modellerer ikke resten. Samlede
+  sidevisninger ses i Cloudflare Web Analytics, som ikke bruger cookies.
+- Valg: svaret læses fra beskedens samtykke-API, og fra TCF, hvis "consent mode" ikke er slået
+  til i AdSense. Så virker siden rigtigt, uanset hvordan AdSense står, og ejeren kan slå det
+  til senere uden kodeændring.
+- Valg: et tilbagetrukket ja genindlæser siden. Et script, der er hentet, kan ikke fjernes igen.
+- Valg: kommentarer (giscus) hentes ved tryk. De sender læserens IP til giscus og GitHub, og de
+  færreste læser dem.
+- Valg: Cloudflare Web Analytics beholdes uden samtykke og beskrives i cookiepolitikken. Den
+  sætter ingen cookies (Cloudflares egen oplysning).
+- Fjernet: cookien `preferred-lang`. Siden satte den, når læseren skiftede sprog, og Workeren
+  læste den ved `/`. Nu vælger `/` sprog efter land (Danmark: dansk, ellers engelsk), og et
+  sprogskift huskes ikke dér. Sproget står i adressen, så links og bogmærker er uberørte.
+- CSP: de små scripts, Astro skrev ind i siden, er nu filer (`config/vite.mjs`), og de fire
+  tilbageværende får en hash. Den strenge politik sendes som Report-Only, til den er set på den
+  levende side med annoncer; derefter slås den til med én konstant.
+- Fravalgt: nonce pr. svar sat af Workeren. Det kræver, at Workeren står foran hver side
+  (i dag kun `/api/*`), og det koster svartid og gratis kald. Hashes dækker de fire scripts,
+  der står i siden, fordi de er ens på alle sider. Scripts, som Cloudflare selv skriver ind
+  (e-mail-sløring, robotkontrol), dækkes ikke; se `docs/sikkerhed.md`.
+- Fravalgt: egen samtykkebanner. Googles besked er certificeret til AdSense i EU/EØS; en egen
+  ville skulle certificeres eller betales for.
+- De juridiske sider er skrevet om på begge sprog, så de passer med koden. Det, kun ejeren kan
+  afgøre (navn og adresse på den dataansvarlige, jurist-tjek), står i TIL-EJEREN.
+- Efter den uafhængige gennemgang (2026-11-14):
+  - Fund på den levende side: der er ingen udgivet samtykkebesked for smartbolig.net i AdSense.
+    Googles script, hentet alene fra en dansk forbindelse, melder "inaktiv": ingen dialog,
+    intet svar fra læseren i TCF, "consent mode" ikke sat op. Siden hentede altså Analytics og
+    AdSense uden at spørge nogen. Med denne ændring hentes ingen af dem, hvor GDPR gælder, før
+    beskeden er udgivet (målt fra Danmark).
+  - Valg: udgiv alligevel. Siden overholder reglerne med det samme; prisen er ingen
+    Analytics-tal og ingen annoncer, til beskeden er udgivet. AdSense kunne ikke åbnes herfra
+    (kræver ejerens login), så det står øverst i TIL-EJEREN.
+  - Fravalgt for nu: sidens eget spørgsmål som reserve, når Googles besked ikke er udgivet. Det
+    ville give Analytics tal med det samme, men er en samtykkeflade mere at holde rigtig, og
+    annoncer i EU/EØS kræver alligevel Googles certificerede besked. Tages op igen, hvis
+    beskeden ikke bliver udgivet.
+  - Lande, hvor Google ikke spørger: siden følger Googles signal og henter. De juridiske sider
+    siger det nu på begge sprog (før lovede de "intet før et svar" uden forbehold). Om en dansk
+    dataansvarlig bør spørge alle, er en juridisk vurdering; ejeren kan vælge "alle lande" i
+    AdSense, og så spørges alle uden kodeændring.
+  - Koden læste Googles statusliste med navne uden præfiks; den levende liste har præfiks
+    (`CONSENT_MODE_PURPOSE_STATUS_GRANTED`). Med tomme værdier og tom liste gav den gamle kode
+    ja til alt. Nu kræves tal for både navne og værdier, begge navneformer forstås, og alt
+    andet er "intet svar".
+  - TCF-lytteren sættes altid op, og hvor både "consent mode" og TCF svarer, kræver et formål
+    ja fra begge. Før blev et tilbagetrukket ja ikke opdaget, når "consent mode" var slået til.
+  - "Cookieindstillinger" vises kun, hvor Google har spurgt (før: så snart scriptet var hentet).
+  - CSP: værterne følger Googles liste for Analytics (`*.google.com` i `connect-src`,
+    `www.googletagmanager.com` i `frame-src`). Hash regnes af teksten, som browseren læser den.
+  - Kommentarer: knappen bliver stående, til feltet er hentet (fokus tabes ikke), med tekst for
+    "henter" og "kunne ikke hentes".
+  - Tests: gennemgangen ændrede koden 31 steder og så, at 21 ændringer ikke blev opdaget. De
+    er dækket nu: rækkefølgen af `consent update` og scripts, hvert TCF-formål, mislykkede
+    TCF-svar, genindlæsning når kun annoncer trækkes tilbage, Googles signalramme, alle filer i
+    `config/head/`, hashens præcise tekst og at den strenge politik ikke slås til ved en fejl.
+- Efter anden uafhængige gennemgang (2026-11-14, af rettelserne; 1 blokerende fund, 2 andre):
+  - Uden en udgivet besked kalder Google alligevel TCF-lytteren med "GDPR gælder", men uden
+    svar. Knappen "Cookieindstillinger" blev derfor vist og åbnede ingenting. Nu vises den kun,
+    når Google faktisk har spurgt (hændelsen har en status).
+  - Googles kald kommer i rækkefølgen TCF-lytter, så "consent mode". Koden glemte TCF-svaret,
+    når "consent mode" kom sidst, så et ja i "consent mode" alene kunne hente scripts. Nu
+    huskes det seneste TCF-svar, et formål kræver ja i begge, og hvor GDPR gælder, er "consent
+    mode" alene aldrig et ja. Testene følger Googles rigtige rækkefølge.
+  - De juridiske sider lovede et spørgsmål og en knap, som ingen får, før beskeden er udgivet.
+    Ordlyden er nu sand i begge tilstande.
+  - Kontrollen mod fremmede værter dækker også 404-siden og springer kodeeksemplers
+    kopiér-knap over. Kommentarfeltet har fået rigtige tests (afsender, tidsgrænse, oprydning).
+  - Ikke afprøvet, før ejeren har udgivet beskeden: et rigtigt ja og et tilbagetrukket ja i
+    Googles rigtige besked, og om "consent mode" for statistik følger TCF-formål 1 og 8.
+- Efter tredje uafhængige gennemgang (2026-11-14, af rettelserne; 0 blokerende fund, 4 andre):
+  - Et TCF-ja kunne hente scripts, før Googles "consent mode"-værdier kunne læses, og et nej
+    derfra et øjeblik efter ville genindlæse siden, måske igen og igen. Nu afgøres intet, før
+    Google har meldt, at værdierne kan læses.
+  - "Consent mode" kunne afgøre alene, hvis det meldte sig før TCF. Nu ventes der på TCF's
+    første melding, hvor siden har en TCF-API, og en senere melding kan ikke lave "GDPR
+    gælder" om.
+  - Knappen vises kun ved de tre kendte TCF-statusser; privatlivspolitikkens sætning om en
+    besked, der ikke vises, gælder nu kun i lande, hvor Google skal spørge.
+  - Kontrollen mod fremmede værter læser nu hvert tag for sig (et ">" i en alt-tekst eller et
+    tag skrevet som tekst i en attribut snyder den ikke) og gennemgår alle byggede HTML-filer.
+  - Valgt fra: at trække samtykket tilbage, mens beskeden er åbnet igen og ubesvaret. Det
+    tidligere ja står, til læseren svarer.
+
+### B58. Sidevagt i GitHub Actions, og llms.txt lavet af bygget
+- Baggrund: ingen holdt øje med den levende side. En udløbet omdirigering, et tomt sitemap
+  eller nyheder, der holdt op med at udkomme, ville først blive set af en læser.
+- Valg: et workflow i repoet (`monitor.yml`) to gange i døgnet. Det sender kun GET, tjekker
+  tretten ting (statuskoder, sikkerhedshoveder, sitemappets størrelse, kanonisk adresse,
+  `www`-omdirigering, feeds, nyhedernes alder) og bruger en GitHub-sag som alarm: én sag med
+  etiketten `monitor`, som åbnes, får en kommentar og lukkes af workflowen selv.
+- Fravalgt: en ekstern overvågningstjeneste (ny konto, ny hemmelighed, gratisniveauer der
+  ændres) og en Worker med cron (endnu et sted med kode i drift). GitHub-sager giver ejeren
+  besked på mail uden opsætning.
+- Fravalgt: at stille assistenten et spørgsmål i hver kørsel. Det bruger modelkvote, og
+  svaret kan ikke tjekkes med en fast regel.
+- Nyheder: grænsen er 60 timer, målt på nyhedernes eget feed. Én stille dag åbner ingen sag;
+  to dage i træk gør.
+- `llms.txt`: bygget laver filen ud fra de byggede sider og sitemappet. Et nyt område i
+  sitemappet, som hverken står i `SECTIONS` eller `LEFT_OUT`, stopper bygget med områdets
+  navn i fejlen, så filen ikke stille mister sider.
+- Kontrol: `npm run site:test` (falsk `fetch`), og kørslen mod den levende side. Ikke set
+  køre: selve workflowen i Actions og trinene, der åbner og lukker sagen; de køres én gang
+  efter udgivelsen.
+- Uafhængig gennemgang før udgivelsen (ingen blokerende fund). Rettet:
+  - Rapporten sætter "forventet" og "set" i kodefelter, så tekst fra siden ikke kan blive til
+    en overskrift, et link, en omtale af en bruger eller en sagshenvisning, og "set" klippes
+    til én linje på 240 tegn, før den når loggen.
+  - Nyhedsgrænsen er 84 timer i stedet for 60, så kontrollen først fejler efter nyhedsflowets
+    egen sag (`ai-news-stalled`, dag 3). Den er sikkerhedsnettet, hvis nyhedsflowet slet ikke kører.
+  - Workflowen finder kun den sag, den selv har åbnet (ikke en, et menneske har mærket
+    `monitor`), retter sagens titel ved hver fejlende kørsel, har 15 minutters frist og kører
+    ikke i en fork.
+  - HSTS skal have `max-age` over nul, og `Referrer-Policy` skal være en af de fire strenge.
+  - `llms.txt`: sider under et område ved navn `start` faldt stille ud; nu stopper bygget.
+  - Valgt fra: at begrænse læsningen af et svar i bytes. Fristen på 15 sekunder sætter loftet,
+    og kontrollerne henter kun sidens egne adresser.
+### B60. Indtjening: klik på reklamelinks tælles, og én fast annonceplads står klar
+- Baggrund: reklamelinkene lå i et register (115 produkter), men ingen kunne se, hvilke guider
+  og produkter læserne trykkede på; Partner-Ads viser kun klik og salg pr. butik. Siden havde
+  heller ingen fast annonceplads, kun AdSenses automatiske annoncer.
+- Valg, klik: efter et ja til statistik sender et tryk på et reklamelink hændelsen
+  `affiliate_click` (produkt og butik) til Google Analytics. Lytteren sættes først op i
+  `boot.mjs`, når Analytics er hentet; før et ja og efter et nej sendes intet.
+- Fravalgt, klik: en egen tæller i Workeren (uden samtykke). Den ville kræve lager, drift og en
+  juridisk vurdering af, om tælling uden samtykke er i orden. Analytics findes allerede og er
+  bag samtykket.
+- Valg, annonceplads: én plads under teksten i guides og nyheder, over kommentarerne
+  (`AdSlot.astro`). Den står ikke i den byggede side, før den har et nummer fra AdSense
+  (`src/data/ad-slots.mjs`), og den er skjult, til læseren har sagt ja til annoncer. Ingen
+  inline-style og intet script i komponenten, så den strenge CSP holder.
+- Fravalgt, annonceplads: pladser midt i teksten og på forsiden. De flytter indhold, mens
+  læseren læser, og forsiden skal være ren. Automatiske annoncer kan ejeren stadig slå til i
+  AdSense.
+- Samme regel ét sted: "er det en guide eller en nyhed" lå i `Giscus.astro` og bruges nu også
+  af annoncepladsen; den er flyttet til `src/lib/article-page.mjs`.
+- Ideer, ikke bygget: startsæt-bygger med reklamelinks fra registret (bygges som værktøj), og
+  henvisning til elaftaler ved elprisværktøjet (kræver et godkendt program; ejerens liste).
+- Kontrol: `npm run site:test`; bygget side i headless Chrome med efterlignet samtykke.
+  Ikke set: hændelsen i Google Analytics og en rigtig annonce i pladsen (kræver udgivet
+  samtykkebesked og et annoncenummer).
+- Uafhængig gennemgang før udgivelsen (ingen blokerende fund). Rettet:
+  - Etiketten er "Annoncer"/"Advertisements"; Googles regler tillader ikke "Annonce".
+  - Pladsen skjules igen, hvis AdSense-scriptet ikke kan hentes, og den er væk på print.
+  - Cookiepolitikken nævner klikmålingen på begge sprog.
+  - Testene ser nu en lytter, der sættes op to gange, det samme id to gange i én gruppefil og
+    en anden fil end `boot.mjs`, der importerer klikmålingen eller annoncepladserne.
+  - Ikke rettet: pladsen flytter kommentarerne ned, når den vises (teksten i dokumentationen
+    er rettet, så den ikke lover andet), og fem produkter har to id'er, til de rigtige
+    adresser er hentet i Partner-Ads.
+
+### B59. Tekst i guidernes tegninger er mindst 22 enheder
+- Baggrund: efter første omtegning var teksten 18 enheder i en 640 enheder bred `viewBox`,
+  ca. 9 px i telefonens tekstspalte på 328 px. Det er under de 11 px, resten af siden bruger
+  som mindste tekst.
+- Valg: mindst 22 enheder (ca. 11 px) i alle 36 filer. Lange linjer brydes, kasser bliver
+  højere, og dele, der stod side om side, stables, så tegningerne bliver højere i stedet for
+  bredere. Reglen står i `docs/billeder.md` under "Diagrammer".
+- Fravalgt: en særlig, smallere tegning til telefoner (to filer pr. sprog at holde ens) og
+  vandret rulning (læseren mister overblikket over en ledningsføring).
+- LD2410-tegningen viser benene i printets rækkefølge (TX, RX, OUT, GND, VCC; Hi-Links manual
+  til HLK-LD2410C, V1.00, læst 2026-11-14), så ingen ledning krydser. OUT har ingen ledning;
+  det står under tegningen, fordi guidens kode ikke bruger benet.
+- Efter den uafhængige gennemgang: den stiplede stump fra OUT er fjernet (den lignede en løs
+  ledning), "bruges ikke" er flyttet ud af ESP32-kassen, og den engelske Proxmox-tegning
+  skriver "USB passthrough" i to ord som guiden.
 
 ### B62. Assistenten skriver svaret, mens læseren ser på
 - Baggrund: et svar tog 10-40 sekunder, og læseren så kun tre prikker. Modellerne bruger
