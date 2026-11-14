@@ -10,6 +10,7 @@ import {
   gitLastmodLogArgs,
   parseGitLastmodLog,
 } from "./lib/content-lastmod.mjs";
+import { collectInlineScriptHashes, withStrictPolicy } from "./lib/csp-inline.mjs";
 import { addLastmod } from "./lib/sitemap-lastmod.mjs";
 
 const execFileAsync = promisify(execFile);
@@ -31,6 +32,15 @@ if (!worker.endsWith(marker)) {
 }
 
 console.log("Finalized Pagefind worker cache policy.");
+
+// The strict policy: the hashes of the pages' own inline scripts instead of
+// 'unsafe-inline'. Report-Only until it has been watched on the live site
+// with the consent message, Analytics and AdSense; then ENFORCE_STRICT_CSP.
+const ENFORCE_STRICT_CSP = false;
+const builtHeadersPath = new URL("../dist/_headers", import.meta.url);
+const inlineHashes = await collectInlineScriptHashes(fileURLToPath(new URL("../dist", import.meta.url)));
+await writeFile(builtHeadersPath, withStrictPolicy(await readFile(builtHeadersPath, "utf8"), inlineHashes, { enforce: ENFORCE_STRICT_CSP }));
+console.log(`Strict Content-Security-Policy ${ENFORCE_STRICT_CSP ? "enforced" : "added as Report-Only"} with ${inlineHashes.length} inline script hash(es).`);
 
 // Enrich the Starlight-generated sitemap with truthful <lastmod> dates.
 // Editorial frontmatter wins; otherwise use the latest content-file commit.

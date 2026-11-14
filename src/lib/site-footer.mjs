@@ -42,8 +42,10 @@ const copy = {
     legal: [
       { label: "Brugsvilkår", path: "/juridisk/brugsvilkaar/" },
       { label: "Privatlivspolitik", path: "/juridisk/privatlivspolitik/" },
+      { label: "Cookiepolitik", path: "/juridisk/cookiepolitik/" },
       { label: "Reklamelinks", path: "/juridisk/affiliate-disclosure/" },
     ],
+    cookieSettings: "Cookieindstillinger",
     rights: "Alle rettigheder forbeholdes. Indhold må ikke kopieres uden skriftlig tilladelse.",
   },
   en: {
@@ -83,8 +85,10 @@ const copy = {
     legal: [
       { label: "Terms of use", path: "/juridisk/brugsvilkaar/" },
       { label: "Privacy policy", path: "/juridisk/privatlivspolitik/" },
+      { label: "Cookie policy", path: "/juridisk/cookiepolitik/" },
       { label: "Affiliate disclosure", path: "/juridisk/affiliate-disclosure/" },
     ],
+    cookieSettings: "Cookie settings",
     rights: "All rights reserved. Content may not be copied without written permission.",
   },
 };

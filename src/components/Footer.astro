@@ -53,6 +53,8 @@ const year = new Date().getFullYear();
       <p>© {year} SmartBolig.net. {footer.rights}</p>
       <nav class="legal-links" aria-label={footer.legalNav}>
         {footer.legal.map((link) => <a href={link.href}>{link.label}</a>)}
+        {/* Shown by src/lib/consent/boot.mjs when Google's consent message can be reopened. */}
+        <button type="button" data-cookie-settings hidden>{footer.cookieSettings}</button>
       </nav>
     </div>
   </div>
@@ -139,7 +141,8 @@ const year = new Date().getFullYear();
   }
 
   .site-footer li a,
-  .legal-links a {
+  .legal-links a,
+  .legal-links button {
     display: inline-block;
     padding-block: var(--sb-space-2);
     color: var(--sb-ink-muted);
@@ -148,7 +151,8 @@ const year = new Date().getFullYear();
   }
 
   .site-footer li a:hover,
-  .legal-links a:hover {
+  .legal-links a:hover,
+  .legal-links button:hover {
     color: var(--sb-accent);
     text-decoration: underline;
   }
@@ -175,9 +179,23 @@ const year = new Date().getFullYear();
     gap: 0 var(--sb-space-5);
   }
 
-  .legal-links a {
+  .legal-links a,
+  .legal-links button {
     color: var(--sb-ink-subtle);
     font-size: var(--sb-text-xs);
+  }
+
+  /* The cookie settings control looks like the links beside it. */
+  .legal-links button {
+    padding-inline: 0;
+    border: 0;
+    background: none;
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  .legal-links button[hidden] {
+    display: none;
   }
 
   @media (min-width: 40rem) {
