@@ -6,6 +6,7 @@
  */
 import { Font } from "astro:assets";
 import ThemeProvider from "../chrome/ThemeProvider.astro";
+import { themeColor } from "../../../config/head/icons.mjs";
 import type { NotFoundCopy, NotFoundLang } from "../../lib/not-found-copy";
 import { scriptJson } from "../../lib/script-json";
 import "../../styles/tokens/color.css";
@@ -32,7 +33,7 @@ const webPageSchemaJson = scriptJson({
 ---
 
 <!DOCTYPE html>
-<html lang={lang}>
+<html lang={lang} data-theme="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -45,8 +46,7 @@ const webPageSchemaJson = scriptJson({
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-    <meta name="theme-color" content="#fbfcfa" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0c1412" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content={themeColor.dark} data-dark={themeColor.dark} data-light={themeColor.light} />
     <script type="application/ld+json" set:html={webPageSchemaJson} />
     <Font cssVariable="--font-body" />
     <Font cssVariable="--font-display" />

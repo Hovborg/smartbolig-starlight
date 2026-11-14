@@ -59,9 +59,12 @@ Regler:
 
 ## Tema
 
-Siden følger enhedens indstilling (lys/mørk), indtil den besøgende vælger selv i
-temavælgeren. Valget gemmes i browseren. `src/components/chrome/ThemeProvider.astro`
-sætter `data-theme` på `<html>`, før siden tegnes.
+Mørkt tema er standard for alle besøgende, uanset enhedens indstilling. Lyst tema
+vælges med temavælgeren i topbjælken, og valget gemmes i browseren.
+`src/components/chrome/ThemeProvider.astro` sætter `data-theme` på `<html>`, før
+siden tegnes, og holder browserens temafarve (`theme-color`) i takt. Siderne
+leveres med `data-theme="dark"`, så mørkt også gælder uden JavaScript.
+Begge temaer skal fortsat virke fuldt ud: byg og kontrollér altid i begge.
 
 ## Skrift
 

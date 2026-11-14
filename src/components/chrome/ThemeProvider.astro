@@ -1,11 +1,12 @@
 ---
-// Sets the theme before the first paint. The page follows the device's light
-// or dark setting until the visitor picks one with the theme switch
-// (ThemeSelect.astro stores the choice). Works when browser storage is blocked.
+// Sets the theme before the first paint. Dark is the default; the visitor picks
+// light with the theme switch (ThemeSelect.astro stores the choice). Also keeps
+// the browser's theme colour in step. Works when browser storage is blocked.
 ---
 
 <script is:inline>
   (() => {
+    const root = document.documentElement;
     const read = () => {
       try {
         const stored = localStorage.getItem("starlight-theme");
@@ -14,12 +15,14 @@
         return null; // Storage can be blocked in private or embedded contexts.
       }
     };
-    const device = window.matchMedia("(prefers-color-scheme: dark)");
-    const apply = () => {
-      document.documentElement.dataset.theme = read() || (device.matches ? "dark" : "light");
+    // The meta tag carries both colours (config/head/icons.mjs); none live here.
+    const syncThemeColor = () => {
+      const meta = document.querySelector('meta[name="theme-color"]');
+      const color = meta?.dataset[root.dataset.theme];
+      if (color) meta.content = color;
     };
-    apply();
-    // Follow the device live while the visitor has not chosen.
-    device.addEventListener?.("change", apply);
+    root.dataset.theme = read() || "dark";
+    syncThemeColor();
+    new MutationObserver(syncThemeColor).observe(root, { attributes: true, attributeFilter: ["data-theme"] });
   })();
 </script>

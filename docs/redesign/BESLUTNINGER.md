@@ -10,7 +10,7 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   layout, som Starlights sideramme modarbejder.
 - Konsekvens: `starlight-theme-galaxy` fjernes. Udseendet styres af egne tokens i `src/design/`.
 
-### B2. Tema følger enheden; mørk er ikke længere tvunget standard
+### B2. Tema følger enheden; mørk er ikke længere tvunget standard (erstattet af B29)
 - Tidligere valg: mørk som standard for nye besøgende.
 - Nyt valg: `prefers-color-scheme` bestemmer første visning; brugerens valg gemmes.
 - Begrundelse: opgaven beder om et lyst, luftigt udtryk med begge temaer.
@@ -161,3 +161,13 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 ### B27. Kodeblokke bruger Expressive Codes standardtemaer
 - Valg: ingen egne syntaksfarver. Rammen (hjørner, kant, skrift) følger vores værdier.
 - Begrundelse: standardtemaerne er kontrastprøvede og følger med ved opgradering.
+
+### B29. Mørkt tema er standard; lyst vælges til
+- Ejerens beslutning 2026-11-14. Erstatter B2.
+- Valg: alle nye besøgende ser mørkt tema, uanset enhedens indstilling. Lyst tema vælges med
+  temavælgeren og huskes. Siderne leveres med `data-theme="dark"`, så det også gælder uden
+  JavaScript. Browserens temafarve følger det aktive tema.
+- Konsekvens: begge temaer vedligeholdes fuldt ud. Kontrasttesten i
+  `scripts/site-design-tokens.test.mjs` dækker fortsat begge.
+- Kontrolleret: `scripts/site-ui.test.mjs` (standard, gemt valg, blokeret lager, temafarve) og
+  i browser på forside, guide og 404.

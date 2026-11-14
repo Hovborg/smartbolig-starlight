@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- New design for the whole site in both languages: a light, airy look with a matching dark theme that follows the device. All colours, sizes, radii, shadows and motion come from one set of design tokens (`src/styles/tokens/`); the Galaxy theme and Tailwind are removed, and the two fonts (Figtree, Bricolage Grotesque, OFL-1.1) are served from the site itself. See `docs/designsystem.md`.
+- New design for the whole site in both languages: an airy look in a dark theme (the default) and a light theme the visitor can pick with the theme switch. All colours, sizes, radii, shadows and motion come from one set of design tokens (`src/styles/tokens/`); the Galaxy theme and Tailwind are removed, and the two fonts (Figtree, Bricolage Grotesque, OFL-1.1) are served from the site itself. See `docs/designsystem.md`.
 - New homepage with "a house through a day": an illustration where the reader picks morning, day, evening or night and sees which automation runs and which systems it uses. It is CSS only, works with a keyboard and without JavaScript, and animations follow the device setting with a start/pause control.
 - Own header with a live SVG logo, redesigned 404 page, news overview, product cards, FAQ, comments and footer on the same tokens. `Head.astro`, the 404 page, the news feed and the AI assistant are split into small single-purpose files.
 - Fixed: the AI assistant could not be clicked on wide screens because the table of contents covered it; its smallest text was 6 px and is now at least 13 px; ad links in tables were unreadable (blue text on a blue button) and are now a soft chip per merchant.

@@ -1,7 +1,7 @@
 /*
  * Colour tokens. The only place colours are defined.
- * Light is the default; dark applies when Starlight sets data-theme="dark"
- * (it follows the device unless the visitor has chosen).
+ * The page ships with data-theme="dark" (the default theme); the :root values
+ * are the light theme, which the visitor picks with the theme switch.
  * Every text/background pair is contrast-checked by
  * scripts/site-design-tokens.test.mjs, so change values here and run site:test.
  */
