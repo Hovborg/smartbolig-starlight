@@ -28,7 +28,7 @@ WebGL ikke læser CSS (se `docs/3d-hus.md`).
 | `src/lib/guide-art.mjs` | Hvilket billede af 3D-huset en guide åbner med |
 | `src/lib/sidebar-scope.mjs`, `src/route-data.ts` | Sidemenuen åbner på det emne, læseren står i |
 | `src/lib/site-footer.mjs`, `src/components/Footer.astro` | Sidefodens links og tekster |
-| `config/markdown/` | Små Markdown-plugins: overskrifter, kort og faner uden emoji; tabeller i rulleramme |
+| `config/markdown/` | Små Markdown-plugins: overskrifter, kort og faner uden emoji; tabeller i rulleramme; billeder i tekstspaltens bredde (`docs/billeder.md`) |
 
 En komponents egne stilregler ligger i komponentens `<style>` og bruger kun tokens.
 

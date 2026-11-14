@@ -4,6 +4,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkHead } from './lib/seo-head-checks.mjs';
+import { checkGuidePicture } from './lib/seo-guide-pictures.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const distDir = path.join(rootDir, 'dist');
@@ -431,6 +432,11 @@ async function main() {
       { needle: '"position":2,"name":"Automationer"', label: 'section page short breadcrumb name' },
     ],
   });
+
+  // A guide that opens with a picture: several widths, the column's width, fetched first.
+  const pictureGuide = path.join(distDir, 'da/home-assistant/kom-godt-i-gang/index.html');
+  if (!existsSync(pictureGuide)) fail(issues, pictureGuide, 'missing generated HTML');
+  else for (const message of checkGuidePicture(await readFile(pictureGuide, 'utf8'))) fail(issues, pictureGuide, message);
 
   await validatePage(issues, path.join(distDir, '404.html'), {
     required: [

@@ -145,13 +145,16 @@
 # Dynamic rules must remain last. See the quota note above.
 /en/ai/news/:slug/ /en/ai/nyheder/:slug/ 301
 /en/ai/news/:slug /en/ai/nyheder/:slug/ 301
-# One level without the closing slash: straight to the page, not by way of a
-# second redirect that adds the slash.
+# No two dynamic rules may match the same address. Cloudflare does not let the
+# rule written first win: on the live site a `*` rule beat the `:slug` rule
+# above it (2026-11-14), so `/produkter/shelly` took two redirects. Each prefix
+# has one rule for the address without the closing slash (straight to the page)
+# and one for everything deeper.
 /produkter/:slug /da/produkter/:slug/ 301
+/produkter/:slug/* /da/produkter/:slug/:splat 301
 /da/products/:slug /da/produkter/:slug/ 301
-/en/products/:slug /en/produkter/:slug/ 301
-/produkter/* /da/produkter/:splat 301
-/da/products/* /da/produkter/:splat 301
+/da/products/:slug/* /da/produkter/:slug/:splat 301
 # Any English product slug without its own rule above (for example a slug that
 # is already the canonical name) goes to the canonical English section.
-/en/products/* /en/produkter/:splat 301
+/en/products/:slug /en/produkter/:slug/ 301
+/en/products/:slug/* /en/produkter/:slug/:splat 301
