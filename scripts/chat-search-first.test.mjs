@@ -132,21 +132,15 @@ test("a search that fails for a question without a smart home word gives one run
   assert.equal(body.sourceMode, "general");
 });
 
-// "det" is searched alone first, "den" together with the question before it first.
-for (const [followUp, first] of [
-  ["Hvad koster det?", "Hvad koster det?"],
-  ["Hvad koster den?", `Hvad koster den?\n${NO_KEYWORD}`],
-]) {
-  test(`"${followUp}" whose first search fails is not searched a second time`, async () => {
-    const { converse, modelInputs, searches } = harness(new Error("index offline"));
+test("a follow-up whose first search fails is not searched a second time", async () => {
+  const { converse, modelInputs, searches } = harness(new Error("index offline"));
 
-    await converse(NO_KEYWORD, followUp);
+  await converse(NO_KEYWORD, "Hvad koster den?");
 
-    assert.deepEqual(searches, [first]);
-    assert.match(systemOf(modelInputs[0]), UNAVAILABLE_PROMPT);
-    assert.doesNotMatch(lastOf(modelInputs[0]), /smartbolig_reference_data/);
-  });
-}
+  assert.deepEqual(searches, ["Hvad koster den?"]);
+  assert.match(systemOf(modelInputs[0]), UNAVAILABLE_PROMPT);
+  assert.doesNotMatch(lastOf(modelInputs[0]), /smartbolig_reference_data/);
+});
 
 test("a search that fails for a question with a smart home word gives the unavailable prompt and no reference data", async () => {
   const { ask, modelInputs } = harness(new Error("index offline"));
@@ -214,7 +208,19 @@ test("a change of topic searches the latest question alone", async () => {
   assert.doesNotMatch(lastOf(modelInputs[1]), /smartbolig_reference_data/);
 });
 
-for (const followUp of ["Hvad koster det?", "Kan du uddybe?", "Forklar nærmere", "Hvorfor"]) {
+// A question about it, a request, a bare continuation and a problem: none is a
+// closing, and the scripted site knows every word of them.
+for (const followUp of [
+  "Hvad koster det?",
+  "Hvad koster den?",
+  "Kan du uddybe?",
+  "Forklar nærmere",
+  "Hvorfor",
+  "Fortsæt",
+  "Mere",
+  "Det virkede ikke",
+  "Ja",
+]) {
   test(`"${followUp}" finds nothing alone and is searched again with the one question before it`, async () => {
     const { converse, modelInputs, searches } = harness(knowsMotion);
 
@@ -227,13 +233,17 @@ for (const followUp of ["Hvad koster det?", "Kan du uddybe?", "Forklar nærmere"
   });
 }
 
-test("a follow-up that is strong alone is searched once", async () => {
-  const { converse, searches } = harness([hit(30)]);
+// Also with "den" in it: what the message finds alone decides, not its words.
+for (const question of ["Hvad koster det?", "Hvad er den bedste smart lås?", "Virker den udendørs?"]) {
+  test(`"${question}" that is strong alone is searched once and answered from its own result`, async () => {
+    const { converse, searches } = harness([hit(30)]);
 
-  await converse(NO_KEYWORD, "Hvad koster det?");
+    const body = await converse(NO_KEYWORD, question);
 
-  assert.deepEqual(searches, ["Hvad koster det?"]);
-});
+    assert.deepEqual(searches, [question]);
+    assert.deepEqual(body.sources, [SOURCE]);
+  });
+}
 
 test("a follow-up that is still weak with the question before it uses nothing", async () => {
   const { converse, modelInputs, searches } = harness([hit(2)]);
@@ -260,32 +270,14 @@ test("a follow-up whose second search fails gets the unavailable prompt, not the
   assert.deepEqual(body.sources, []);
 });
 
-test("a question about a thing only the conversation names is searched with the question before it first", async () => {
-  const { converse, modelInputs, searches } = harness(knowsMotion);
-
-  const body = await converse("Første emne", NO_KEYWORD, "Virker den med Zigbee?");
-
-  assert.deepEqual(searches, [TOGETHER("Virker den med Zigbee?")]);
-  assert.match(lastOf(modelInputs[0]), /Brug en bevægelsessensor/);
-  assert.deepEqual(body.sources, [SOURCE]);
-});
-
-test("when that finds nothing, the question is searched alone, and its smart home word still counts", async () => {
+test("a follow-up with a smart home word is answered from its own result, however weak, and not searched again", async () => {
   const { converse, modelInputs, searches } = harness([hit(2)]);
 
   const body = await converse(NO_KEYWORD, "Virker den med Zigbee?");
 
-  assert.deepEqual(searches, [TOGETHER("Virker den med Zigbee?"), "Virker den med Zigbee?"]);
+  assert.deepEqual(searches, ["Virker den med Zigbee?"]);
   assert.match(systemOf(modelInputs[0]), /reference data has already been supplied/i);
   assert.deepEqual(body.sources, [SOURCE]);
-});
-
-test("the article in a new question does not bring the old topic along", async () => {
-  const { converse, searches } = harness(knowsMotion);
-
-  await converse(NO_KEYWORD, "Hvad er den bedste smart lås?");
-
-  assert.equal(searches[0], "Hvad er den bedste smart lås?");
 });
 
 test("a follow-up with nothing before it is searched once", async () => {
@@ -296,8 +288,8 @@ test("a follow-up with nothing before it is searched once", async () => {
   assert.deepEqual(searches, ["Hvad koster den?"]);
 });
 
-// Neither asks nor points back; asks about something the site has no word for.
-for (const reply of ["Ok super", "Hvad er hovedstaden i Frankrig?"]) {
+// The site has no word for France or rye bread: a change of topic.
+for (const reply of ["Hvad er hovedstaden i Frankrig?", "Hvordan bager jeg et rugbrød?"]) {
   test(`"${reply}" after an on-topic question is searched alone, uses nothing and shows no sources`, async () => {
     const { converse, modelInputs, searches } = harness(knowsMotion);
 
@@ -311,8 +303,7 @@ for (const reply of ["Ok super", "Hvad er hovedstaden i Frankrig?"]) {
   });
 }
 
-// The last two hold a pointing word or a smart home word; thanks still end the subject.
-for (const reply of ["Tak", "Mange tak for hjælpen", "Tak for det", "Det var fint, tak", "Tak for hjælpen med Zigbee"]) {
+for (const reply of ["Tak", "Mange tak for hjælpen", "Tak for det", "Det var fint, tak", "Ok super", "Det lyder godt", "Farvel"]) {
   test(`"${reply}" is not searched for, also when every search would find pages`, async () => {
     const { converse, modelInputs, searches } = harness([hit(30)]);
 
@@ -326,6 +317,31 @@ for (const reply of ["Tak", "Mange tak for hjælpen", "Tak for det", "Det var fi
   });
 }
 
+test("a greeting as the first message is not searched for", async () => {
+  const { ask, modelInputs, searches } = harness([hit(30)]);
+
+  const body = await ask("Hej");
+
+  assert.deepEqual(searches, []);
+  assert.match(systemOf(modelInputs[0]), NOT_FOUND_PROMPT);
+  assert.deepEqual(body.sources, []);
+});
+
+// A thanks word does not end the subject when the message asks for something.
+for (const request of ["Vis mig hvordan jeg sætter det op, tak", "Tak, det virkede ikke"]) {
+  test(`"${request}" is searched like any message, as the first message and as a follow-up`, async () => {
+    const first = harness([hit(30)]);
+    const body = await first.ask(request);
+    assert.deepEqual(first.searches, [request]);
+    assert.deepEqual(body.sources, [SOURCE]);
+
+    const later = harness(knowsMotion);
+    const followed = await later.converse(NO_KEYWORD, request);
+    assert.deepEqual(later.searches, [request, TOGETHER(request)]);
+    assert.deepEqual(followed.sources, [SOURCE]);
+  });
+}
+
 test("thanks with a question in it is searched like any question", async () => {
   const { converse, searches } = harness([hit(30)]);
 
@@ -335,14 +351,25 @@ test("thanks with a question in it is searched like any question", async () => {
   assert.deepEqual(body.sources, [SOURCE]);
 });
 
-test("the smart home word of an older message does not force the search for the latest one", async () => {
+test("the smart home word of an older message forces neither search for the latest one", async () => {
   const { converse, modelInputs, searches } = harness([hit(1.5)]);
 
-  const body = await converse(KEYWORD, "Super");
+  const body = await converse(KEYWORD, "Hvorfor");
 
-  assert.deepEqual(searches, ["Super"]);
+  assert.deepEqual(searches, ["Hvorfor", `Hvorfor\n${KEYWORD}`]);
+  assert.match(systemOf(modelInputs[0]), NOT_FOUND_PROMPT);
   assert.doesNotMatch(lastOf(modelInputs[0]), /smartbolig_reference_data/);
   assert.deepEqual(body.sources, []);
+});
+
+test("a question that fills the search alone is searched once", async () => {
+  const { converse, searches } = harness([hit(2)]);
+  const long = `Hvorfor ${"virker det ikke ".repeat(30)}`.trim();
+
+  await converse(NO_KEYWORD, long);
+
+  assert.ok(long.length > 400);
+  assert.deepEqual(searches, [long.slice(0, 400)], "one search, cut at the longest query the search takes");
 });
 
 test("a follow-up with a smart home word is not searched a second time", async () => {
@@ -390,7 +417,7 @@ test("a streamed question without a smart home word reports searching, then writ
 test("a streamed question the site has nothing about still streams, with no sources", async () => {
   const { handler, modelInputs } = harness([hit(2)]);
 
-  const events = await readEvents(await handler({ request: chatRequest("Hej"), env: chatEnv() }));
+  const events = await readEvents(await handler({ request: chatRequest("Hvem vandt VM i fodbold?"), env: chatEnv() }));
 
   assert.deepEqual(
     events.filter(({ event }) => event === "status").map(({ data }) => data.stage),

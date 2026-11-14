@@ -2,16 +2,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import {
-  asks,
-  hasSmartHomeWord,
-  isFollowUp,
-  isThanks,
-  joinedQuery,
-  latestQuestion,
-  pointsBack,
-  standsForAThing,
-} from "../functions/lib/chat/search-need.js";
+import { hasSmartHomeWord, isClosing, isFollowUp, joinedQuery, latestQuestion } from "../functions/lib/chat/search-need.js";
 
 const all = (check, expected, texts) => {
   for (const text of texts) assert.equal(check(text), expected, text);
@@ -97,165 +88,91 @@ test("the everyday meaning of a smart home word does not count where the wording
   ]);
 });
 
-test("each word that points back does so, and so does an opening that continues", () => {
-  all(pointsBack, true, [
-    "Hvad koster den?",
-    "Kan det bruges uden hub?",
-    "Hvad koster de?",
-    "Kan jeg købe dem?",
-    "Er denne bedre?",
-    "Hvad er dette?",
-    "Er disse bedre?",
-    "Hvad er dens pris?",
-    "Hvad er dets pris?",
-    "Hvad er deres pris?",
-    "How much does it cost?",
-    "What is its range?",
-    "What is that?",
-    "What is this?",
-    "Are these better?",
-    "Are those better?",
-    "Do they work?",
-    "Can I use them outdoors?",
-    "What is their range?",
-    "Og uden hub?",
-    "og uden hub?",
-    "And without a hub?",
-    "Hvad med prisen?",
-    "Hvad så med prisen?",
-    "What about the price?",
-    "DEN er dyr",
-    "Er den?",
-    "Er den åben?",
-    "Er det æbler?",
-  ]);
-});
-
-test("a message that points back at nothing does not, also next to æ, ø and å", () => {
-  all(pointsBack, false, [
+test("thanks, a goodbye, a greeting and a short 'fine' are closings, with whatever pads them", () => {
+  all(isClosing, true, [
     "Tak",
-    "Ok super",
-    "Hvad er hovedstaden i Frankrig?",
-    "Hvordan bager jeg et rugbrød?",
-    "Hvad er pæden?",
-    "Hvad er røden?",
-    "Hvad koster en pære?",
-    "Hvem er Ogden?",
-    "Tell me a joke",
-    "Items and itself",
-    "Hvad er den bedste smart lås?",
-    "Hvem vandt det danske mesterskab?",
-    "Hvad er de nye regler?",
-    "Hvad er den mest solgte sensor?",
-    "Hvad er meningen med det hele?",
-  ]);
-});
-
-test("thanks and goodbyes without a question are thanks; with a question they are not", () => {
-  all(isThanks, true, [
-    "Tak",
+    "tak!",
     "Mange tak",
     "Tak for det",
+    "Tusind tak skal du have",
     "Det var fint, tak",
+    "Tak for hjælpen",
+    "Tak, det var en stor hjælp",
     "Tak, ha' det godt",
-    "Jeg takker",
-    "Thanks for that",
-    "Got it, thanks",
-    "Thank you very much",
-    "thx",
+    "Takker",
+    "Ok super",
+    "Okay",
+    "Nå okay",
+    "Super",
+    "Det lyder godt",
+    "Det giver mening",
+    "Godt at vide",
+    "Fedt, det virker nu",
+    "God weekend",
+    "Hej",
     "Farvel",
+    "Thanks",
+    "Thank you very much",
+    "Thanks for that",
+    "Thanks, that was a big help",
+    "Got it, thanks",
+    "Got it",
+    "thx",
+    "Fine",
+    "Good to know",
+    "That makes sense",
+    "Sounds good",
+    "Cool, it works now",
+    "That's great, thanks",
+    "That’s great, thanks",
+    "It's fine",
+    "Have a nice weekend",
     "That's all, bye",
     "Goodbye",
+    "Hello",
   ]);
-  all(isThanks, false, [
+});
+
+test("any other word, or a question mark, makes the message something to search for", () => {
+  all(isClosing, false, [
+    // A request or a problem with a thanks word in it.
+    "Vis mig hvordan jeg sætter Zigbee2MQTT op, tak",
+    "Tak, det virkede ikke",
     "Tak, men hvorfor?",
+    "Tak for hjælpen med Zigbee",
+    "Show me how to set up Zigbee2MQTT, thanks",
+    "Thanks, but it still fails",
     "Thanks, but does it work with Hue?",
+    "Okay, og uden hub",
+    "Er det godt?",
+    // Only whole words count.
     "Taksten er høj",
     "Kontakt mig",
     "Hvad er Thanksgiving",
-    "Super",
-    "Det lyder godt",
-  ]);
-});
-
-test("a question mark, a question word or a request at the start asks for something", () => {
-  all(asks, true, [
-    "Kan du uddybe?",
-    "Forklar nærmere",
-    "Uddyb",
+    "Hejs",
+    // An answer or a continuation is no closing.
+    "Ja",
+    "Nej",
+    "Yes",
+    "No",
+    "Fortsæt",
+    "Mere",
     "Hvorfor",
-    "hvordan gør jeg",
-    "Vis mig et eksempel",
-    "Giv mig et eksempel",
-    "Jeg vil gerne se et eksempel",
-    "Jeg har brug for et eksempel",
-    "En billigere?",
-    "Explain more",
-    "Show me an example",
-    "Why",
-    "Please continue",
-    "I'd like an example",
-    "I need an example",
-    "Æbler eller pærer?",
-  ]);
-  all(asks, false, ["Super", "ok", "Det lyder godt", "Fedt", "Ja", "Great", "Hvadbehager", "Showroom", "Det er en whyte"]);
-});
-
-test("a word that can only stand for a thing already named does", () => {
-  all(standsForAThing, true, [
-    "Virker den med Home Assistant?",
-    "Kan den bruges uden hub?",
-    "Hvad koster den?",
-    "Hvor køber jeg dem?",
-    "Hvad er dens rækkevidde?",
-    "Hvad er deres pris?",
-    "Does it work with Home Assistant?",
-    "Doesn't it need a hub?",
-    "Can it run without a hub?",
-    "Will it work in Denmark?",
-    "Which one is cheapest?",
-    "Is that one better?",
-    "Is this one better?",
-    "What is their range?",
-    "What is its range?",
-    "Can I use them outdoors?",
+    "Det virkede ikke",
+    "Det vil jeg prøve",
+    "I'll try that",
+    // Padding alone closes nothing; neither does an empty message.
+    "Det er det",
+    "That is it",
+    "",
+    "!",
   ]);
 });
 
-test("the article, an empty subject and a loose 'they' stand for nothing", () => {
-  all(standsForAThing, false, [
-    "Hvad er den bedste smart lås?",
-    "Hvordan sætter jeg den nye Home Assistant Voice op?",
-    "Hvad er den mest populære sensor?",
-    "Hvad er den mindst støjende?",
-    "Er det muligt at styre varmen?",
-    "Hvad er de bedste pærer?",
-    "Hvilke af disse protokoller er bedst?",
-    "How does it work with solar panels?",
-    "Is it possible to control heating?",
-    "Do they make a smart lock?",
-    "Are these any good?",
-    "Hvad er hovedstaden i Frankrig?",
-  ]);
-});
-
-test("a follow-up points back, or asks in words the site knows; thanks never are one", () => {
-  // Points back: also when it brings a word the site does not know.
-  assert.equal(isFollowUp("Hvad koster den i Bilka?", 1), true);
-  assert.equal(isFollowUp("Og uden hub?", 0), true);
-  // Asks, with no word from outside the site.
-  assert.equal(isFollowUp("Kan du uddybe?", 0), true);
-  assert.equal(isFollowUp("Forklar nærmere"), true);
-  assert.equal(isFollowUp("Hvorfor?", 0), true);
-  // Asks about something the site has no word for: a change of topic.
-  assert.equal(isFollowUp("Hvad er hovedstaden i Frankrig?", 2), false);
-  assert.equal(isFollowUp("Tell me a joke", 1), false);
-  // Neither asks nor points back.
-  assert.equal(isFollowUp("Ok super", 0), false);
-  // Thanks, also with a pointing word.
-  assert.equal(isFollowUp("Tak for det", 0), false);
-  assert.equal(isFollowUp("Thanks for that", 0), false);
-  assert.equal(isFollowUp("Tak, men hvad koster den?", 0), true);
+test("a message leans on the one before it when the site knows every word of it", () => {
+  assert.equal(isFollowUp(0), true);
+  assert.equal(isFollowUp(1), false);
+  assert.equal(isFollowUp(3), false);
 });
 
 const conversation = (...questions) =>
@@ -276,4 +193,12 @@ test("the joined query is cut at the longest query the search takes, with the la
 
   assert.equal(query.length, 400);
   assert.ok(query.startsWith("Hvad koster den?"));
+  assert.ok(query.endsWith("A"), "what is left is filled from the message before");
+});
+
+test("there is no joined query when the latest question fills the search alone", () => {
+  assert.equal(joinedQuery(conversation("Anden", "B".repeat(400))), null);
+  assert.equal(joinedQuery(conversation("Anden", `  ${"B".repeat(400)}  `)), null);
+  assert.equal(joinedQuery(conversation("Anden", "B".repeat(399))), `${"B".repeat(399)}\n`);
+  assert.equal(joinedQuery(conversation("Anden", `${"B".repeat(390)}          `)).length, 400);
 });

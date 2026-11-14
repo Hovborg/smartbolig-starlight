@@ -4,7 +4,7 @@
 import { extractModelAnswer } from "./answer.js";
 import { createModelRunner } from "./model-runs.js";
 import { buildSystemPrompt, withOfficialReference, withSmartboligReference } from "./prompt.js";
-import { hasSmartHomeWord, isFollowUp, isThanks, joinedQuery, latestQuestion, standsForAThing } from "./search-need.js";
+import { hasSmartHomeWord, isClosing, isFollowUp, joinedQuery, latestQuestion } from "./search-need.js";
 import { requestedHomeAssistantYamlShape } from "./yaml-request.js";
 
 const UNAVAILABLE = { searchState: "unavailable", supplied: null };
@@ -17,30 +17,24 @@ const stateOf = (found) => {
 
 // Decides what the site is searched for, at most twice per question. The rules
 // about wording are in search-need.js.
-// - A question is searched alone first, so one the site answers on its own
-//   never gets the old topic's pages.
-// - When that finds nothing and the message leans on the one before it, the two
-//   are searched together; the pages are then the earlier question's.
-// - A message about a thing only the conversation has named ("Virker den med
-//   Home Assistant?") is searched together with the message before it first.
-// - Thanks and goodbyes are not searched for.
+// - A closing ("Tak for det", "Okay") is not searched for.
+// - Every other message is searched alone first, and a result that is good
+//   enough is used. A question the site answers on its own never gets the old
+//   topic's pages.
+// - When the message alone finds nothing and it leans on the one before it,
+//   the two are searched together; the pages are then the earlier question's.
 // Returns the state the prompt tells the model and the result to hand over:
-// "supplied" (pages found), "nothing" (the search ran and found nothing) or
-// "unavailable" (a search failed).
+// "supplied" (pages found), "nothing" (nothing was found, or nothing was
+// searched for) or "unavailable" (a search failed).
 async function lookUpSite(searchSmartbolig, messages) {
   const latest = latestQuestion(messages);
-  if (isThanks(latest)) return NOTHING;
-  const joined = joinedQuery(messages);
-  const searchAlone = () => searchSmartbolig(latest, { always: hasSmartHomeWord(latest) });
+  if (isClosing(latest)) return NOTHING;
 
-  if (joined && standsForAThing(latest)) {
-    const together = await searchSmartbolig(joined);
-    return together.unavailable || !together.weak ? stateOf(together) : stateOf(await searchAlone());
-  }
-
-  const alone = await searchAlone();
+  const alone = await searchSmartbolig(latest, { always: hasSmartHomeWord(latest) });
   if (alone.unavailable || !alone.weak) return stateOf(alone);
-  if (!joined || !isFollowUp(latest, alone.unknownTerms)) return NOTHING;
+
+  const joined = joinedQuery(messages);
+  if (!joined || !isFollowUp(alone.unknownTerms)) return NOTHING;
   return stateOf(await searchSmartbolig(joined));
 }
 

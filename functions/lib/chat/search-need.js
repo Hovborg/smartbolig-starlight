@@ -31,52 +31,31 @@ const SMART_HOME_WORDS = [
 ];
 const SMART_HOME_PATTERN = new RegExp(wholeWords(SMART_HOME_WORDS), "iu");
 
-// Before an adjective "den", "det" and "de" are the article ("den bedste lås",
-// "det danske mesterskab", "de mest solgte"), and an adjective there ends in
-// -e. That use points back at nothing. The rule also leaves out a real
-// follow-up like "Kan den styre varmen?"; the other rules still catch it.
-const NOT_THE_ARTICLE = `(?!\\s+(?:\\p{L}*e|mest|mindst)${END})`;
-
-// A word that points back at something said before ("Hvad koster den?"), or an
-// opening that continues it ("Og uden hub?", "What about the price?").
-const POINTING_WORDS = [
-  `(?:den|det|de)${NOT_THE_ARTICLE}`, "dem", "denne", "dette", "disse", "dens", "dets", "deres",
-  "it", "its", "that", "this", "these", "those", "they", "them", "their",
-];
-const POINTS_BACK_PATTERN = new RegExp(
-  `${wholeWords(POINTING_WORDS)}|^\\s*(?:og|and)\\s|^\\s*(?:hvad\\s+(?:så\\s+)?med|what\\s+about)${END}`,
-  "iu",
-);
-
-// Words that stand for a thing already named, in the places where they can
-// mean little else.
-// - "den" is never an empty subject the way "det" is ("Er det muligt ...?").
-// - "Does it ...?" at the start asks about a thing. "Is it possible ...?" and
-//   "How does it work with ...?" often do not.
-const STANDS_FOR_A_THING_PATTERN = new RegExp(
-  `${START}den${NOT_THE_ARTICLE}${END}` +
-    `|${wholeWords(["dem", "dens", "deres", "them", "their", "its", "(?:this|that|which)\\s+one"])}` +
-    `|^\\s*(?:does|doesn['’]t|can|can['’]t|will|won['’]t|could|should|would|did)\\s+it${END}`,
-  "iu",
-);
-
-// Thanks and goodbyes. With no question mark in the message they end the
-// subject: "Tak for det" points back at nothing the site should be searched for.
-const THANKS_PATTERN = new RegExp(wholeWords(["tak", "takker", "thanks", "thank\\s+you", "thx", "farvel", "bye", "goodbye"]), "iu");
-
-// How a message opens when it asks for something: a question word, a verb that
-// opens a question, or a request ("Forklar nærmere", "Show me an example").
-const ASKING_OPENINGS = [
+// A closing is a message made of these words only: thanks, a goodbye, a
+// greeting or a short "fine". One word of the first list must be there; the
+// second list is what such a message is padded with ("Tak for det", "Det
+// lyder godt", "Thanks, that was a big help"). Any other word makes the
+// message something to search for: "Tak, det virkede ikke" is no closing.
+// "Ja" and "nej" are not closings; they answer something the assistant asked.
+const CLOSING_WORDS = new Set([
   // Danish
-  "hvad", "hvem", "hvor", "hvordan", "hvorfor", "hvornår", "hvilken", "hvilket", "hvilke", "kan", "kunne", "vil", "ville",
-  "skal", "skulle", "må", "er", "var", "har", "findes", "virker", "bør", "behøver", "forklar", "uddyb", "vis", "giv",
-  "fortæl", "beskriv", "sammenlign", "nævn", "hjælp", "anbefal", "foreslå", "jeg\\s+(?:vil|skal|mangler|søger|har\\s+brug)",
+  "tak", "takker", "farvel", "hej", "hejsa", "goddag", "ok", "okay", "super", "fint", "godt", "god", "perfekt",
+  "fedt", "dejligt", "fantastisk", "forstået", "mening",
   // English
-  "what", "who", "where", "how", "why", "when", "which", "can", "could", "will", "would", "should", "shall", "may",
-  "is", "are", "was", "were", "do", "does", "did", "has", "have", "explain", "elaborate", "show", "give", "tell",
-  "describe", "compare", "list", "name", "help", "recommend", "suggest", "please", "i\\s+(?:want|need|would)", "i['’]d",
-];
-const ASKS_PATTERN = new RegExp(`\\?|^\\s*(?:${ASKING_OPENINGS.join("|")})${END}`, "iu");
+  "thanks", "thank", "thx", "cheers", "bye", "goodbye", "alright", "fine", "great", "perfect", "nice", "cool",
+  "awesome", "understood", "sense", "good", "helps", "got", "hi", "hello", "hey",
+]);
+const PADDING_WORDS = new Set([
+  // Danish
+  "for", "det", "den", "du", "dig", "skal", "have", "hjælpen", "hjælp", "svaret", "nu", "nå", "så", "lige", "bare",
+  "meget", "mange", "tusind", "var", "er", "alt", "giver", "lyder", "igen", "med", "en", "stor", "at", "vide", "virker",
+  "dag", "aften", "weekend", "ha",
+  // English
+  "you", "so", "much", "very", "a", "lot", "the", "help", "answer", "that", "that's", "it", "it's", "this", "was", "is",
+  "all", "now", "i", "see", "sounds", "makes", "day", "evening", "one", "again", "to", "know", "big", "works",
+]);
+// A word may hold an apostrophe ("that's"); one at its end is dropped ("ha'").
+const WORD_PATTERN = /[\p{L}\p{N}]+(?:'[\p{L}\p{N}]+)*/gu;
 
 const userMessages = (messages) => messages.filter((message) => message.role === "user");
 
@@ -90,49 +69,38 @@ export function hasSmartHomeWord(text) {
   return SMART_HOME_PATTERN.test(text);
 }
 
-/** Is the message thanks or a goodbye, with no question in it? */
-export function isThanks(text) {
-  return THANKS_PATTERN.test(text) && !text.includes("?");
-}
-
-/** Does the text point back at something said before, or open like a continuation? */
-export function pointsBack(text) {
-  return POINTS_BACK_PATTERN.test(text);
-}
-
-/** Does the text talk about a thing only the conversation has named ("Virker den med Home Assistant?")? */
-export function standsForAThing(text) {
-  return STANDS_FOR_A_THING_PATTERN.test(text);
-}
-
-/** Does the text ask for something: a question mark, or an opening that asks or requests? */
-export function asks(text) {
-  return ASKS_PATTERN.test(text);
+/**
+ * Is the message a closing and nothing else: thanks, a goodbye, a greeting or
+ * a short "fine", with no question mark? Such a message is not searched for.
+ */
+export function isClosing(text) {
+  if (text.includes("?")) return false;
+  const words = text.toLowerCase().replaceAll("’", "'").match(WORD_PATTERN) ?? [];
+  return words.some((word) => CLOSING_WORDS.has(word)) && words.every((word) => CLOSING_WORDS.has(word) || PADDING_WORDS.has(word));
 }
 
 /**
- * Does the latest message lean on the question before it? `unknownTerms` is
- * how many of its search terms no page of the site uses.
- * - Thanks and goodbyes never do.
- * - A message that points back does ("Hvad koster den?", "Og uden hub?").
- * - So does one that asks for something in words the site knows ("Kan du
- *   uddybe?", "Hvorfor?", "Vis mig et eksempel"). A question that brings its
- *   own subject from outside the site ("Hvad er hovedstaden i Frankrig?") does
- *   not: it is a change of topic.
+ * Does the latest message lean on the question before it? Asked when the
+ * message alone found nothing. `unknownTerms` is how many of its search terms
+ * no page of the site uses.
+ * - A message in words the site knows does: "Kan du uddybe?", "Hvorfor?",
+ *   "Fortsæt", "Det virkede ikke". It brings no subject of its own.
+ * - A message with a word the site does not use is a change of topic ("Hvad
+ *   er hovedstaden i Frankrig?").
  */
-export function isFollowUp(text, unknownTerms = 0) {
-  if (isThanks(text)) return false;
-  return pointsBack(text) || (asks(text) && unknownTerms === 0);
+export function isFollowUp(unknownTerms) {
+  return unknownTerms === 0;
 }
 
 /**
  * The latest question together with the user message before it. Only that
  * one, so a topic from further back cannot take over. Latest first, because
  * the search only reads the first terms of a query (MAX_QUERY_TERMS in
- * site-search/tokens.js). null when there is no message before it.
+ * site-search/tokens.js). null when there is no message before it, or when
+ * the latest question fills the query alone and the search would be the same.
  */
 export function joinedQuery(messages) {
   const asked = userMessages(messages).map((message) => message.content);
-  if (asked.length < 2) return null;
+  if (asked.length < 2 || asked.at(-1).trim().length >= MAX_SEARCH_QUERY_CHARS) return null;
   return `${asked.at(-1)}\n${asked.at(-2)}`.slice(0, MAX_SEARCH_QUERY_CHARS);
 }
