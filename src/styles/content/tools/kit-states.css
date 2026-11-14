@@ -1,0 +1,55 @@
+/*
+ * The starter kit builder: how a part arrives after an answer, and what the
+ * page shows without JavaScript (the kit for NOSCRIPT_ANSWERS, from the
+ * data-noscript attribute on every element). Comes last, after kit.css,
+ * kit-parts.css and kit-steps.css.
+ */
+
+/* --- A part that comes into view after an answer arrives calmly -------- */
+@media (prefers-reduced-motion: no-preference) {
+  .sb-kit [data-arrived] {
+    animation: sb-kit-arrive var(--sb-dur) var(--sb-ease);
+  }
+
+  .sb-kit-goal rect,
+  .sb-kit-goal path {
+    transition:
+      fill var(--sb-dur-fast) var(--sb-ease),
+      opacity var(--sb-dur-fast) var(--sb-ease);
+  }
+}
+
+@keyframes sb-kit-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(0.375rem);
+  }
+}
+
+/* --- Without JavaScript: no questions, the whole kit for a tenant ------ */
+@media (scripting: none) {
+  .sb-tool[data-tool="startsaet"] .sb-tool__body {
+    display: grid;
+  }
+
+  .sb-tool[data-tool="startsaet"] :is(.sb-tool__form, .sb-tool__result) {
+    display: none;
+  }
+
+  .sb-tool[data-tool="startsaet"] .sb-tool__more {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .sb-kit [data-noscript="hide"] {
+    display: none;
+  }
+
+  .sb-kit :is(.sb-kit-layer, .sb-kit-block, .sb-kit-item, .sb-kit-step)[data-noscript="show"] {
+    display: grid;
+  }
+
+  .sb-kit :is(.sb-kit-note, .sb-kit-item__note)[data-noscript="show"] {
+    display: block;
+  }
+}

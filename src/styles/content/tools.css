@@ -1,6 +1,7 @@
 /*
  * Tools (src/components/tools/): the card every tool sits in and the parts
- * tools share, one file per part. Class names start with sb-tool.
+ * tools share, one file per part. Class names start with sb-tool; the
+ * starter kit's own (the kit files) start with sb-kit.
  * How to build a tool from them: docs/vaerktoejer.md.
  */
 @import "./tools/frame.css";
@@ -12,3 +13,7 @@
 @import "./tools/chart.css";
 @import "./tools/strip.css";
 @import "./tools/table.css";
+@import "./tools/kit.css";
+@import "./tools/kit-parts.css";
+@import "./tools/kit-steps.css";
+@import "./tools/kit-states.css";

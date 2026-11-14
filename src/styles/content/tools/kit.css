@@ -1,0 +1,153 @@
+/*
+ * The starter kit builder (StarterKit.astro): the goal chips, the summary,
+ * the notes and the three layers of a kit. The parts are in kit-parts.css,
+ * the first steps in kit-steps.css, and the arrival and the page without
+ * JavaScript in kit-states.css. Everything the answers can show is in the
+ * page from the start and carries data-kit; the script only switches `hidden`.
+ */
+
+/* --- Questions --------------------------------------------------------- */
+/* A goal chip is a tick box: the box is always there, the tick shows when
+   the chip is pressed, so the choice is not told by colour alone. */
+.sb-kit-goal {
+  gap: var(--sb-space-2);
+  padding-inline-start: var(--sb-space-3);
+}
+
+.sb-kit-goal svg {
+  flex: none;
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.5;
+}
+
+.sb-kit-goal path {
+  stroke: var(--sb-on-accent);
+  stroke-width: 2;
+  opacity: 0;
+}
+
+.sb-kit-goal[aria-pressed="true"] rect {
+  fill: var(--sb-accent);
+  stroke: var(--sb-accent);
+}
+
+.sb-kit-goal[aria-pressed="true"] path {
+  opacity: 1;
+}
+
+/* Three choices with longer words stack in a narrow card. */
+@container sb-tool (max-width: 30rem) {
+  .sb-kit-choice {
+    grid-auto-flow: row;
+  }
+}
+
+/* --- Summary: three numbers side by side, also on a phone -------------- */
+.sb-kit-stats {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  /* A label that wraps must not push its number below the others. */
+  align-items: end;
+  gap: var(--sb-space-3);
+}
+
+.sb-kit-stats dd {
+  font-family: var(--sb-font-display);
+  font-size: var(--sb-text-h3);
+  line-height: 1.15;
+}
+
+/* --- The kit ----------------------------------------------------------- */
+.sb-kit {
+  display: grid;
+  gap: var(--sb-space-5);
+  min-width: 0;
+}
+
+.sb-kit p {
+  margin: 0;
+}
+
+/* A line that depends on the answers: who the kit suits, what to know first. */
+.sb-kit-note {
+  padding: var(--sb-space-3) var(--sb-space-4);
+  border-inline-start: 3px solid var(--sb-sky);
+  border-radius: var(--sb-radius-sm);
+  background: var(--sb-bg-subtle);
+  color: var(--sb-ink);
+}
+
+.sb-kit-disclosure {
+  color: var(--sb-ink-subtle);
+  font-size: var(--sb-text-xs);
+}
+
+/* --- Layers: the brain, the connection, the goals ---------------------- */
+.sb-kit-layers {
+  display: grid;
+  gap: var(--sb-space-6);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: sb-kit-layer;
+}
+
+.sb-kit-layer {
+  display: grid;
+  gap: var(--sb-space-3);
+  min-width: 0;
+  counter-increment: sb-kit-layer;
+}
+
+/* "Lag 1": a hidden layer is not counted, so the numbers never skip. */
+.sb-kit-layer::before {
+  content: attr(data-label) " " counter(sb-kit-layer);
+  margin-bottom: calc(var(--sb-space-2) * -1);
+  color: var(--sb-accent);
+  font-size: var(--sb-text-xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.sb-kit-layer__title,
+.sb-kit-block__title {
+  margin: 0;
+  color: var(--sb-ink-strong);
+  font-family: var(--sb-font-display);
+  line-height: var(--sb-leading-tight);
+}
+
+.sb-kit-layer__title {
+  font-size: var(--sb-text-h4);
+}
+
+.sb-kit-layer__intro {
+  color: var(--sb-ink-muted);
+}
+
+/* One block per goal inside the third layer, each under a hairline. */
+.sb-kit-block {
+  display: grid;
+  gap: var(--sb-space-3);
+  min-width: 0;
+  padding-top: var(--sb-space-4);
+  border-top: 1px solid var(--sb-line);
+}
+
+.sb-kit-block__title {
+  font-size: var(--sb-text-lg);
+}
+
+/* What the block cannot do. */
+.sb-kit-limit {
+  color: var(--sb-ink-muted);
+}
+
+.sb-kit-limit strong {
+  color: var(--sb-ink-strong);
+}

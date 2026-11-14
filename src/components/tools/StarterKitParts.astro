@@ -1,0 +1,53 @@
+---
+// The three layers of a starter kit: the brain, the connection and one block
+// per goal (and one for DIY). Every part in the catalog is built here; the
+// answers decide which ones show. The affiliate disclosure sits above them.
+import StarterKitItem from "./StarterKitItem.astro";
+import { GOALS, ITEMS, LIMITS, NOTES } from "../../lib/tools/starter-kit-items.mjs";
+import { starterKitCopy } from "../../lib/tools/starter-kit-copy.mjs";
+import { startState } from "../../lib/tools/starter-kit-view.mjs";
+
+interface Props {
+  id: string;
+  lang: "da" | "en";
+}
+
+const { id, lang } = Astro.props;
+const t = starterKitCopy[lang];
+const itemsIn = (block: string) => Object.keys(ITEMS).filter((item) => ITEMS[item].block === block);
+const page = (path: string) => `/${lang}/${path}/`;
+---
+
+{["tenant", "bridge"].map((note) => (
+  <p class="sb-kit-note" {...startState(`note:${note}`)}>
+    {t.notes[note].text}
+    {NOTES[note] && <a class="sb-kit-guide" href={page(NOTES[note])}>{t.notes[note].link}</a>}
+  </p>
+))}
+
+<p class="sb-kit-disclosure">{t.disclosure.text} <a href={page("juridisk/affiliate-disclosure")}>{t.disclosure.link}</a></p>
+
+<ol class="sb-kit-layers" role="list">
+  {["brain", "link"].map((block) => (
+    <li class="sb-kit-layer" data-label={t.layer} {...startState(`block:${block}`)}>
+      <h3 class="sb-kit-layer__title" id={`${id}-${block}`}>{t.blocks[block]}</h3>
+      <p class="sb-kit-layer__intro">{t.intros[block]}</p>
+      <ul class="sb-kit-items" role="list">{itemsIn(block).map((item) => <StarterKitItem item={item} lang={lang} />)}</ul>
+    </li>
+  ))}
+  <li class="sb-kit-layer" data-label={t.layer}>
+    <h3 class="sb-kit-layer__title" id={`${id}-goals-title`}>{t.goalsTitle}</h3>
+    <p class="sb-kit-note" {...startState("note:no-goal")}>{t.notes["no-goal"].text}</p>
+    {[...GOALS, "diy"].map((block) => (
+      <section class="sb-kit-block" aria-labelledby={`${id}-${block}`} {...startState(`block:${block}`)}>
+        <h4 class="sb-kit-block__title" id={`${id}-${block}`}>{t.blocks[block]}</h4>
+        {t.intros[block] && <p class="sb-kit-layer__intro">{t.intros[block]}</p>}
+        <ul class="sb-kit-items" role="list">{itemsIn(block).map((item) => <StarterKitItem item={item} lang={lang} />)}</ul>
+        <p class="sb-kit-limit">
+          <strong>{t.limit}</strong> {t.limits[block].text}
+          {LIMITS[block] && <a class="sb-kit-guide" href={page(LIMITS[block])}>{t.limits[block].link}</a>}
+        </p>
+      </section>
+    ))}
+  </li>
+</ol>

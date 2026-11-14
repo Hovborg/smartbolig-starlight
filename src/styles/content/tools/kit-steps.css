@@ -1,0 +1,59 @@
+/*
+ * The first steps of a starter kit (StarterKitSteps.astro): a numbered list
+ * with the guides for each step. The guide link itself is in kit-parts.css.
+ */
+
+.sb-kit-steps {
+  display: grid;
+  gap: var(--sb-space-4);
+  min-width: 0;
+  padding-top: var(--sb-space-5);
+  border-top: 1px solid var(--sb-line);
+}
+
+.sb-kit-steps__list {
+  display: grid;
+  gap: var(--sb-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: sb-kit-step;
+}
+
+/* A hidden step is not counted, so the numbers always run 1, 2, 3. */
+.sb-kit-step {
+  position: relative;
+  display: grid;
+  min-width: 0;
+  padding-inline-start: calc(2rem + var(--sb-space-3));
+  counter-increment: sb-kit-step;
+}
+
+.sb-kit-step::before {
+  content: counter(sb-kit-step);
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  display: grid;
+  place-items: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--sb-radius-pill);
+  background: var(--sb-accent-soft);
+  color: var(--sb-accent-strong);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+}
+
+.sb-kit-step__text {
+  padding-top: var(--sb-space-1);
+  color: var(--sb-ink-strong);
+  font-size: var(--sb-text-base);
+  line-height: 1.5;
+}
+
+.sb-kit-step__guides {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 var(--sb-space-4);
+}

@@ -20,14 +20,18 @@ interface Props {
   lang: "da" | "en";
   /** Astro passes the scope class of the tool that uses the frame. */
   class?: string;
+  /** Said instead of the standard line by a tool that still shows something without JavaScript. */
+  noscript?: string;
   [attribute: `data-${string}`]: string | undefined;
 }
 
-const { id, title, lang, class: scope, ...attributes } = Astro.props;
-const noscript = {
-  da: "Værktøjet bruger JavaScript, som er slået fra i din browser. Forklaringen under værktøjet kan læses uden.",
-  en: "The tool uses JavaScript, which is switched off in your browser. The explanation below the tool can be read without it.",
-}[lang];
+const { id, title, lang, class: scope, noscript: ownNoscript, ...attributes } = Astro.props;
+const noscript =
+  ownNoscript ??
+  {
+    da: "Værktøjet bruger JavaScript, som er slået fra i din browser. Forklaringen under værktøjet kan læses uden.",
+    en: "The tool uses JavaScript, which is switched off in your browser. The explanation below the tool can be read without it.",
+  }[lang];
 ---
 
 <section class:list={["sb-tool", "not-content", scope]} id={id} aria-labelledby={`${id}-title`} data-lang={lang} {...attributes}>
