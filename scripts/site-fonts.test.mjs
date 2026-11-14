@@ -37,7 +37,8 @@ test("the first variant of each family is the Latin file, which is the one the h
 
 test("no font is loaded from another host", () => {
   const seoFiles = readdirSync(new URL("../src/lib/seo/", import.meta.url)).map((name) => `src/lib/seo/${name}`);
-  for (const path of ["config/head/index.mjs", "config/site.mjs", "src/components/Head.astro", ...seoFiles, "src/styles/index.css"]) {
+  // public/_headers holds the CSP: no font host may be allowed there either.
+  for (const path of ["config/head/index.mjs", "config/site.mjs", "src/components/Head.astro", ...seoFiles, "src/styles/index.css", "public/_headers"]) {
     assert.equal(/fonts\.googleapis|fonts\.gstatic|use\.typekit|fonts\.bunny/.test(read(path)), false, path);
   }
 });

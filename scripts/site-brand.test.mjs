@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { readFileSync, statSync } from "node:fs";
+import { existsSync, readFileSync, statSync } from "node:fs";
 import test from "node:test";
 
 import { MARK } from "./lib/brand/mark.mjs";
@@ -74,4 +74,25 @@ test("pages link the favicon, the ICO fallback, the touch icon and a theme colou
   assert.match(text("config/site.mjs"), /favicon: "\/favicon\.svg"/);
   const notFound = text("src/components/not-found/NotFoundLayout.astro");
   for (const needle of ["/favicon.ico", "/favicon.svg", "/apple-touch-icon.png", 'name="theme-color"']) assert.ok(notFound.includes(needle), needle);
+});
+
+test("the browser theme colour, the brand palette and the manifest follow the bg tokens", async () => {
+  const css = text("src/styles/tokens/color.css");
+  const token = (block, name) => block.match(new RegExp(`${name}:\\s*(#[0-9a-f]{6})`, "i"))[1].toLowerCase();
+  const darkStart = css.indexOf(':root[data-theme="dark"]');
+  const lightBlock = css.slice(0, darkStart);
+  const darkBlock = css.slice(darkStart);
+  const { themeColor } = await import("../config/head/icons.mjs");
+  const palette = await import("./lib/brand/palette.mjs");
+  assert.equal(themeColor.light, token(lightBlock, "--sb-bg"));
+  assert.equal(themeColor.dark, token(darkBlock, "--sb-bg"));
+  assert.equal(palette.light.bg, token(lightBlock, "--sb-bg"));
+  assert.equal(palette.dark.bg, token(darkBlock, "--sb-bg"));
+  assert.equal(palette.light.accent, token(lightBlock, "--sb-accent"));
+  assert.equal(palette.dark.accent, token(darkBlock, "--sb-accent"));
+  const manifest = JSON.parse(text("public/site.webmanifest"));
+  assert.equal(manifest.theme_color, themeColor.dark);
+  assert.equal(manifest.background_color, themeColor.dark);
+  for (const icon of manifest.icons) assert.equal(existsSync(new URL(`../public${icon.src}`, import.meta.url)), true, icon.src);
+  assert.ok(text("config/head/icons.mjs").includes('href: "/site.webmanifest"'));
 });

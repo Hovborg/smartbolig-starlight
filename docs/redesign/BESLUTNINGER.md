@@ -8,7 +8,7 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Begrundelse: 320 MDX-sider bruger Starlights komponenter, i18n, sidebar, indholdsfortegnelse og
   Pagefind. Det er velafprøvet og tilgængeligt. Forside, oversigter og værktøjer har brug for frit
   layout, som Starlights sideramme modarbejder.
-- Konsekvens: `starlight-theme-galaxy` fjernes. Udseendet styres af egne tokens i `src/design/`.
+- Konsekvens: `starlight-theme-galaxy` fjernes. Udseendet styres af egne tokens i `src/styles/tokens/`.
 
 ### B2. Tema følger enheden; mørk er ikke længere tvunget standard (erstattet af B29)
 - Tidligere valg: mørk som standard for nye besøgende.

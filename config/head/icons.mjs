@@ -7,6 +7,7 @@ export const themeColor = { dark: "#0c1412", light: "#fbfcfa" };
 export default [
   { tag: "link", attrs: { rel: "icon", href: "/favicon.ico", sizes: "32x32" } },
   { tag: "link", attrs: { rel: "apple-touch-icon", href: "/apple-touch-icon.png" } },
+  { tag: "link", attrs: { rel: "manifest", href: "/site.webmanifest" } },
   {
     tag: "meta",
     attrs: { name: "theme-color", content: themeColor.dark, "data-dark": themeColor.dark, "data-light": themeColor.light },

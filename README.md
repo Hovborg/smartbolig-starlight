@@ -196,9 +196,10 @@ src/content/docs/
 
 Sitets konfiguration ligger i `config/`, og `astro.config.mjs` er kun en tynd indgang, der samler delene:
 
-- `config/site.mjs`: site-URL, titel, logo, sprog og øvrige skalare Starlight-indstillinger.
+- `config/site.mjs`: site-URL, titel, sprog og øvrige skalare Starlight-indstillinger.
+- `config/fonts.mjs`: de to selvhostede skrifter.
 - `config/sidebar/`: sidebaren, én fil pr. hovedsektion (Home Assistant er delt i undermapper).
-- `config/head/`: `<head>`-tags, én fil pr. område (tema, social meta, samtykke, analytics, RSS, annoncer).
+- `config/head/`: `<head>`-tags, én fil pr. område (ikoner og temafarve, social meta, samtykke, analytics, RSS, annoncer).
 - `config/components.mjs`: Starlight-komponentoverrides.
 
 ---

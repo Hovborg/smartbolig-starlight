@@ -30,9 +30,15 @@ const showComments = !isSplashPage && !isLegalPage && !isIndexPage && !isUtility
 
   const currentTheme = () => (document.documentElement.dataset.theme === "dark" ? "dark" : "light");
 
+  // The widget starts with the theme it was loaded with; a message is only
+  // needed when the site theme differs from what the widget last got.
+  let sentTheme = currentTheme();
   const sendTheme = () => {
+    const theme = currentTheme();
     const frame = document.querySelector<HTMLIFrameElement>("iframe.giscus-frame");
-    frame?.contentWindow?.postMessage({ giscus: { setConfig: { theme: currentTheme() } } }, GISCUS_ORIGIN);
+    if (theme === sentTheme || !frame?.contentWindow) return;
+    frame.contentWindow.postMessage({ giscus: { setConfig: { theme } } }, GISCUS_ORIGIN);
+    sentTheme = theme;
   };
 
   if (wrapper) {

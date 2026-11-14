@@ -53,3 +53,10 @@ test('theme starts dark, keeps a stored choice and still initializes when browse
   live.observers.forEach((fn) => fn());
   assert.equal(live.meta.content, '#light');
 });
+
+test("JSON written into a script block cannot close the block", async () => {
+  const { scriptJson } = await import("../src/lib/script-json.ts");
+  const out = scriptJson({ title: "</script><img src=x onerror=alert(1)>", n: 1 });
+  assert.equal(out.includes("<"), false);
+  assert.deepEqual(JSON.parse(out), { title: "</script><img src=x onerror=alert(1)>", n: 1 });
+});

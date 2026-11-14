@@ -41,8 +41,8 @@ kører på siden, og fordi CSP'en i `public/_headers` skal tillade dem.
 | Tjeneste | Hvad | Hvornår |
 |---|---|---|
 | Giscus (MIT, giscus.app) | Kommentarer via GitHub Discussions | Når kommentarfeltet vises |
-| Google AdSense | Annoncer | Efter samtykke |
-| Google Analytics 4 | Besøgsmåling | Efter samtykke |
+| Google AdSense | Annoncer | Scriptet hentes på alle sider. Cookies og personlige annoncer først efter samtykke (Consent Mode starter som "denied") |
+| Google Analytics 4 | Besøgsmåling | Scriptet hentes på alle sider. Cookies og måling med id først efter samtykke |
 
 ## Skrifterne
 
