@@ -79,8 +79,12 @@ de nærmeste guides står, og tilføj siden dér med **dansk sti** og **translat
 ```
 
 Har emnet en oversigtsside med en tabel eller kort over sine guides (fx
-`home-assistant/index.mdx`), så tilføj guiden dér på begge sprog. Ingen test fanger, at den
-mangler.
+`home-assistant/index.mdx`), så tilføj guiden dér på begge sprog, i samme tabel som de guides,
+den står ved siden af i sidemenuen. Ingen test fanger, at den mangler.
+
+`sidebar.badge` i frontmatter er valgfri: et lille mærke ved siden i menuen. Brug den kun,
+når siden skal fremhæves, og kopiér ikke en `danger` fra en anden guide. Varianterne er
+Starlights: `note`, `tip`, `caution`, `danger`, `success` og `default`.
 
 ### Engelske adresser
 
@@ -100,8 +104,12 @@ adresser. Gamle engelske adresser (`/en/products/…`) sendes videre med `301`; 
 - Slut guiden med afsnittet `## Officielle kilder` (engelsk: `## Official sources`) med links
   til de sider, guidens fakta kommer fra. Se `home-assistant/mobilnotifikationer.mdx`.
 - Priser skrives ikke i guider; de forældes. Købslinks går gennem registret (nedenfor).
-- Findes emnet allerede? Søg først: `grep -ril "companion" src/content/docs/da`. Link til den
-  guide, der findes, i stedet for at skrive det samme to gange.
+- Findes emnet allerede? Søg først: `grep -ril "companion" src/content/docs/da`. Dækker en
+  guide emnet, så udvid den i stedet for at lave en ny. En ny guide er kun rigtig, når læseren
+  skal løse en anden opgave; så linker de to guides til hinanden og gentager ikke hinanden.
+- Menunavne skrives, som de står i Home Assistant på sidens sprog (dansk på danske sider:
+  **Indstillinger → System → Backups**). Er du i tvivl om det danske navn, så skriv det
+  engelske; gæt ikke.
 - Kode (YAML til Home Assistant og ESPHome) skal være afprøvet eller taget fra den officielle
   dokumentation og tilpasset. Skriv, hvilken version den gælder for, når det betyder noget.
 
@@ -186,6 +194,7 @@ npm run build                     # bygger siden; stopper på et ukendt produkt-
 npm run seo:validate              # efter build: beskrivelsens længde, ens titler, billeder
 ```
 
+`python` er Python 3; hedder den `python3` eller `py` på din maskine, så brug det navn.
 De fire er nok til en ændring, der kun rører guides. Hele listen før en udgivelse står i
 `AGENTS.md`; den kører også i `deploy.yml` på hver pull request.
 

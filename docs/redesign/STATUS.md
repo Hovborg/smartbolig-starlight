@@ -229,6 +229,9 @@ Sidst opdateret: 2026-11-14.
   nyhedskørsler) og kun repoets egne dokumenter. Første runde: alle tre løste opgaven, men
   svarede "delvist" på, om dokumenterne var nok. Det, de snublede over, er rettet i
   `CONTENT-GUIDE.md`, `docs/designsystem.md`, `docs/nyhedsflow.md`, `AGENTS.md` og `README.md`.
+  Anden runde med tre nye læsere og nye opgaver af samme slags: guiden "ja"; design og
+  nyheder "delvist", begge med ordene "opskriften virker som skrevet" og hver med ét hul
+  (en tredje kopi af accentfarven; en kørsel uden tidspunkt i titlen), som også er rettet.
 
 ## Udgivelser og vej tilbage
 
