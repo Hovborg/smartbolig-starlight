@@ -9,7 +9,8 @@ Extracts and validates all fenced code blocks in src/content/docs/**/*.mdx:
 
 Also checks:
   - internal markdown links resolve to an existing content page or public/ file
-  - image references resolve to files in public/
+  - absolute image references resolve to files in public/
+  - relative image references (guide pictures in src/assets/) resolve to files
 """
 import json
 import os
@@ -49,6 +50,8 @@ yaml.add_multi_constructor("!", _unknown_tag, Loader=HALoader)
 
 CODE_FENCE_RE = re.compile(r"^```(\w*)\s*$")
 LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
+# Guide pictures live in src/assets/ and are written relative to the MDX file.
+REL_IMG_RE = re.compile(r'!\[[^\]]*\]\((\.{1,2}/[^)\s]+\.(?:png|jpe?g|svg|gif|webp|avif))\)')
 IMG_SRC_RE = re.compile(r'(?:src=["\']|!\[[^\]]*\]\()(/[^"\')\s]+\.(?:png|jpe?g|svg|gif|webp|ico))')
 
 
@@ -229,6 +232,11 @@ def main():
             if not fs.exists():
                 line_no = text[: m.start()].count("\n") + 1
                 image_issues.append((rel, f"line {line_no}: {target}", "image missing in public/"))
+
+        for m in REL_IMG_RE.finditer(text):
+            if not (f.parent / m.group(1)).exists():
+                line_no = text[: m.start()].count("\n") + 1
+                image_issues.append((rel, f"line {line_no}: {m.group(1)}", "image missing next to the guide"))
 
     print("=== CODE BLOCK STATS ===")
     for lang, count in sorted(stats.items(), key=lambda kv: -kv[1]):

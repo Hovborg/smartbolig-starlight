@@ -32,6 +32,21 @@ class ContentAuditTests(unittest.TestCase):
                 with contextlib.redirect_stdout(io.StringIO()) as output:
                     self.assertEqual(audit.main(), 0, output.getvalue())
 
+    def test_relative_guide_pictures_must_exist_next_to_the_guide(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            docs = root / "src" / "content" / "docs"
+            section = docs / "da" / "guides"
+            section.mkdir(parents=True)
+            (section / "example.mdx").write_text("![Alt](../../../../assets/guides/missing.png)\n", encoding="utf-8")
+            with patch.multiple(audit, ROOT=root, DOCS=docs, PUBLIC=root / "public"):
+                with contextlib.redirect_stdout(io.StringIO()) as output:
+                    self.assertEqual(audit.main(), 1, output.getvalue())
+                (root / "src" / "assets" / "guides").mkdir(parents=True)
+                (root / "src" / "assets" / "guides" / "missing.png").write_bytes(b"x")
+                with contextlib.redirect_stdout(io.StringIO()) as output:
+                    self.assertEqual(audit.main(), 0, output.getvalue())
+
     def test_javascript_accepts_node_red_return_but_rejects_invalid_code(self):
         self.assertIsNone(audit.check_javascript('msg.payload = "blåbær";\nreturn msg;'))
         self.assertIsNotNone(audit.check_javascript('const x = ;'))
