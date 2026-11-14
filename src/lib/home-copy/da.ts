@@ -197,7 +197,7 @@ export const da: HomeCopy = {
   tools: {
     eyebrow: "Værktøjer",
     title: "Regn på dit eget hjem",
-    intro: "Små beregnere med rigtige tal: elprisen lige nu, hvad dine apparater koster at have tændt, hvilken Zigbee-kanal der passer, og hvor længe et batteri holder.",
+    intro: "Små værktøjer, der regner og vælger for dig: elprisen lige nu, hvad dine apparater koster at have tændt, hvilken Zigbee-kanal der passer, hvor længe et batteri holder, og hvad du skal købe først.",
     all: { label: "Alle værktøjer", href: "/da/vaerktoejer/" },
     price: {
       label: "Elprisen lige nu",

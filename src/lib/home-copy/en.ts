@@ -197,7 +197,7 @@ export const en: HomeCopy = {
   tools: {
     eyebrow: "Tools",
     title: "Run the numbers on your own home",
-    intro: "Small calculators with real numbers: the electricity price right now, what your appliances cost to keep on, which Zigbee channel fits, and how long a battery lasts.",
+    intro: "Small tools that do the sums and the choosing: the electricity price right now, what your appliances cost to keep on, which Zigbee channel fits, how long a battery lasts, and what to buy first.",
     all: { label: "All tools", href: "/en/vaerktoejer/" },
     price: {
       label: "Electricity price right now",

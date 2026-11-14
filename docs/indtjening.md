@@ -24,6 +24,7 @@ Begge dele kræver, at samtykkebeskeden er udgivet (`docs/redesign/TIL-EJEREN.md
 | `src/lib/affiliate-products.mjs` | `productLink(id)`: slår et id op og stopper bygget, hvis id'et ikke findes |
 | `src/components/AffiliateLink.astro` | Knappen i en guide: `<AffiliateLink product="id" text="Køb" />` |
 | `src/components/ProductCard.astro` | Produktkort med samme `product`-felt. Bruges ikke i nogen guide endnu |
+| `src/lib/tools/starter-kit-items.mjs` | Startsæt-byggerens dele (`/vaerktoejer/startsaet/`). Hver del med købslink er et id fra registret; se `docs/vaerktoejer.md` |
 | `scripts/site-affiliate.test.mjs` | Tester sporingslinket og butiksreglerne |
 | `scripts/site-affiliate-products.test.mjs` | Tester registret og at guiderne kun bruger produkter derfra |
 | `src/lib/affiliate-clicks.mjs` | Klikmålingen: et tryk på et reklamelink sendes til Google Analytics som `affiliate_click` |
@@ -54,7 +55,8 @@ En guide nævner kun produktets id. Butikken og adressen står ét sted: i regis
 og tilføj en række i testen i `scripts/site-affiliate.test.mjs`.
 
 **Fjern et produkt**: fjern linket i guiden og linjen i registret. Testen fejler, hvis registret
-har et produkt, ingen guide bruger.
+har et produkt, ingen guide bruger. Bruger startsæt-byggeren produktet, så ret også delen i
+`src/lib/tools/starter-kit-items.mjs`; ellers stopper testen og bygget.
 
 ## Klikmåling
 
@@ -93,11 +95,24 @@ hvor den skal stå. Hold den uden for forsiden og de juridiske sider.
 
 Automatiske annoncer (dem AdSense selv placerer) styres i AdSense, ikke her.
 
+## Startsæt-byggeren
+
+Værktøjet `/vaerktoejer/startsaet/` giver læseren et startsæt ud fra fire svar. 11 af sættets
+dele har et købslink til i alt 9 produkter fra registret; resten har ingen købsanbefaling endnu
+eller skal ikke købes, og linker til en guide. Linkene er de samme `<AffiliateLink>` som i
+guiderne, så sporing, mærket "Reklamelink" og klikmålingen følger med uden ekstra kode. Over
+sættet står den samme oplysning om reklamelinks som i guiderne. Værktøjet viser ingen priser.
+
+Registret mangler produkter til tre ting, sættet nævner: en computer til Home Assistant, en
+aflæser til elmålerens HAN-port og ESP32-dele. Kommer de i registret, bliver hullet til et
+købslink ved at rette én linje (`docs/vaerktoejer.md`, "Tilføj eller skift en del").
+
+Startsættets engelske side er den første engelske side med købslinks; de engelske guider har
+ingen. Butikkerne er danske.
+
 ## Ideer til mere indtjening (ikke bygget)
 
-1. **Startsæt-bygger.** Læseren vælger bolig og behov og får en indkøbsliste med reklamelinks
-   fra registret. Bygges som et værktøj (`docs/vaerktoejer.md`), når værktøjssektionen er ude.
-2. **Henvisning til elaftaler ved elprisværktøjet.** Kræver et godkendt program hos Partner-Ads
+1. **Henvisning til elaftaler ved elprisværktøjet.** Kræver et godkendt program hos Partner-Ads
    eller et elselskab. Står på ejerens liste; intet er bygget.
 
 ## Hvad testene stopper
