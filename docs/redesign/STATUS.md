@@ -200,14 +200,17 @@ Sidst opdateret: 2026-11-14.
   - Søgefeltet og tidsknapperne er skjult, til scriptet kører; pladsen bør holdes fri.
   - Filer uden brug fra før redesignet (`ProductCard.astro`, `scripts/content-inventory.mjs`,
     `public/images/produkter/`, `logo-email.png`): tjek ekstern brug, før de slettes.
-  - Diagrammerne i guiderne: alle 27 SVG-filer er tegnet om, set som billede (328 og 720 px,
-    mørk og lys baggrund) og holdt op mod guidens tekst og kode. Teksten er mindst 18 enheder i
-    en 640 enheder bred `viewBox` (ca. 9 px på en telefon; før 2,5-5 px), intet overlapper, og
+  - Diagrammerne i guiderne: alle 27 SVG-filer er tegnet om og holdt op mod guidens tekst og
+    kode. Efter den seneste ændring (større tekst) er alle 36 filer set som billede i 656 px
+    (2 × 328) på mørk baggrund, og en uafhængig gennemgang har set dem på lys baggrund og på den
+    byggede side i 390 px; de er ikke set i 720 px efter ændringen. Teksten er mindst 22 enheder i
+    en 640 enheder bred `viewBox` (ca. 11 px på en telefon; før 2,5-5 px), intet overlapper, og
     hver fil har `<title>` og `<desc>` på sit sprog. Syv engelske guides, der viste et dansk
     diagram, har fået et engelsk, og den engelske ESP32-startguide viser nu oversigten og
     benoversigten (ni nye engelske filer, 36 i alt). Reglerne for nye diagrammer står i
     `docs/billeder.md` under "Diagrammer". Tilbage:
-    - LD2410-ledningsdiagrammet viser OUT som "bruges ikke". Før var der en valgfri ledning fra
+    - LD2410-ledningsdiagrammet viser benene i printets rækkefølge (TX, RX, OUT, GND, VCC;
+      Hi-Links manual til HLK-LD2410C, V1.00) og skriver "OUT bruges ikke" under tegningen. Før var der en valgfri ledning fra
       OUT til GPIO5, som guidens tabel og kode ikke bruger. Skal OUT bruges, vælges et frit ben,
       og guide, kode og diagram ændres samlet.
     - Den engelske LD2410-guide har ikke den danske guides tabel "ESP32 til LD2410C"; diagrammet

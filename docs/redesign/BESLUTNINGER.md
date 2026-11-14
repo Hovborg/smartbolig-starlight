@@ -735,6 +735,21 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
     er rettet, så den ikke lover andet), og fem produkter har to id'er, til de rigtige
     adresser er hentet i Partner-Ads.
 
+### B59. Tekst i guidernes tegninger er mindst 22 enheder
+- Baggrund: efter første omtegning var teksten 18 enheder i en 640 enheder bred `viewBox`,
+  ca. 9 px i telefonens tekstspalte på 328 px. Det er under de 11 px, resten af siden bruger
+  som mindste tekst.
+- Valg: mindst 22 enheder (ca. 11 px) i alle 36 filer. Lange linjer brydes, kasser bliver
+  højere, og dele, der stod side om side, stables, så tegningerne bliver højere i stedet for
+  bredere. Reglen står i `docs/billeder.md` under "Diagrammer".
+- Fravalgt: en særlig, smallere tegning til telefoner (to filer pr. sprog at holde ens) og
+  vandret rulning (læseren mister overblikket over en ledningsføring).
+- LD2410-tegningen viser benene i printets rækkefølge (TX, RX, OUT, GND, VCC; Hi-Links manual
+  til HLK-LD2410C, V1.00, læst 2026-11-14), så ingen ledning krydser. OUT har ingen ledning;
+  det står under tegningen, fordi guidens kode ikke bruger benet.
+- Efter den uafhængige gennemgang: den stiplede stump fra OUT er fjernet (den lignede en løs
+  ledning), "bruges ikke" er flyttet ud af ESP32-kassen, og den engelske Proxmox-tegning
+  skriver "USB passthrough" i to ord som guiden.
 ## B61. Værktøjer: egen sektion, elpris og strømforbrug (2026-11-14)
 
 - Valgt: en sektion `/vaerktoejer/` med sit eget punkt i topbjælken, og en fælles ramme
@@ -782,6 +797,24 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   er højt for et nyt køleskab.
 - Valgt: forsidens sektion (B63) udgives sammen med værktøjerne. Begrundelse: den viser de
   samme tal gennem den samme kode, og rettelserne ovenfor gælder begge steder.
+
+### B61, tilføjelse efter den opfølgende gennemgang (2026-11-14)
+
+- Valgt: kaldet til Energinet gives til `waitUntil` og har en hård tidsgrænse på 8 sekunder,
+  som ikke afhænger af, at `fetch` reagerer på afbrydelsen. Begrundelse: forlader læseren siden,
+  skal svaret stadig gemmes til den næste, og et kald må aldrig hænge. Tidspunktet i
+  hukommelsen (se ovenfor) er stadig den sidste sikring.
+- Valgt: et svar, der slutter før det kvarter, vi er i, gemmes ikke. Begrundelse: det ville
+  erstatte en kopi, der stadig har prisen for nu, med en, der ikke kan vises.
+- Valgt: forsidens kort sammenligner prisen med dagens timer, mens værktøjet sammenligner med
+  alle kendte timer. Begrundelse: kortet tegner kun i dag, og "lav" ved siden af dagens
+  højeste søjle ville se forkert ud. Fravalgt: samme regel begge steder; i værktøjet er
+  morgendagen med i grafen, og dér er sammenligningen med begge dage den rigtige.
+- Valgt: pladsen til kortets tal holdes fra siden åbnes (`data-state="loading"`). Begrundelse:
+  ellers flytter resten af forsiden sig, når priserne kommer. Uden JavaScript tages pladsen
+  ikke, og teksten står der.
+- Kendt og ladt være: søjler for timer, der er gået, har lav kontrast, og første svar fra
+  browserens cache kan give et ur, der er op til ti minutter bagud (`docs/vaerktoejer.md`).
 
 ## B63. Forsiden: værktøjer med elprisen lige nu (2026-11-14)
 

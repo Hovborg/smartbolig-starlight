@@ -1,48 +1,49 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 612" role="img" lang="da" font-family="system-ui, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 792" role="img" lang="da" font-family="system-ui, sans-serif">
   <title>PIR-sensor og mmWave-radar sammenlignet</title>
   <desc>En PIR-sensor registrerer bevægelse, men ikke en person, der sidder stille, så lyset slukker. En mmWave-radar som LD2410 registrerer både bevægelse og en person, der sidder stille, så lyset bliver tændt.</desc>
-  <rect x="0" y="0" width="640" height="612" fill="#1a1a2e"/>
-  <text x="320" y="46" font-size="26" fill="#e2e8f0" text-anchor="middle" font-weight="700">PIR eller mmWave?</text>
-  <rect x="24" y="70" width="592" height="250" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2.5"/>
-  <text x="320" y="108" font-size="22" fill="#f87171" text-anchor="middle" font-weight="700">PIR-sensor</text>
-  <path d="M104 182L548 136V228Z" fill="#ef4444" opacity="0.16"/>
-  <rect x="44" y="156" width="60" height="52" rx="8" fill="#374151" stroke="#6b7280" stroke-width="1.5"/>
-  <circle cx="74" cy="182" r="13" fill="#ef4444"/>
-  <circle cx="250" cy="153" r="11" fill="#22c55e"/>
-  <path d="M250 164V194M234 178L250 172L266 182M250 194L236 220M250 194L266 220" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M280 174h20M280 188h14" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="462" cy="153" r="11" fill="#ef4444"/>
-  <path d="M462 164V194M462 174L478 186M462 194H482V220" fill="none" stroke="#ef4444" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M450 164V200H474M450 200V220" fill="none" stroke="#4b5563" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="250" y="248" font-size="18" fill="#e2e8f0" text-anchor="middle" font-weight="700">Bevægelse</text>
-  <path d="M183.5 268L190.3 274.3L201.5 261.7" fill="none" stroke="#4ade80" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="262" y="274" font-size="18" fill="#4ade80" text-anchor="middle">registreres</text>
-  <text x="462" y="248" font-size="18" fill="#e2e8f0" text-anchor="middle" font-weight="700">Sidder stille</text>
-  <path d="M373.1 260L389.1 276M389.1 260L373.1 276" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="474" y="274" font-size="18" fill="#fca5a5" text-anchor="middle">registreres ikke</text>
-  <text x="320" y="306" font-size="18" fill="#a3b1c6" text-anchor="middle">Lyset slukker, mens du sidder stille.</text>
-  <rect x="24" y="340" width="592" height="250" rx="10" fill="#1e293b" stroke="#22c55e" stroke-width="2.5"/>
-  <text x="320" y="378" font-size="22" fill="#4ade80" text-anchor="middle" font-weight="700">mmWave-radar (LD2410)</text>
-  <path d="M152.8 406A70 70 0 0 1 152.8 498" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
-  <path d="M221.6 406A130 130 0 0 1 221.6 498" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
-  <path d="M284.3 406A190 190 0 0 1 284.3 498" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
-  <path d="M345.7 406A250 250 0 0 1 345.7 498" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
-  <path d="M406.6 406A310 310 0 0 1 406.6 498" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
-  <path d="M467.1 406A370 370 0 0 1 467.1 498" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
-  <path d="M527.5 406A430 430 0 0 1 527.5 498" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
-  <rect x="44" y="426" width="60" height="52" rx="8" fill="#374151" stroke="#6b7280" stroke-width="1.5"/>
-  <rect x="56" y="440" width="36" height="24" rx="4" fill="#3b82f6"/>
-  <circle cx="250" cy="423" r="11" fill="#22c55e"/>
-  <path d="M250 434V464M234 448L250 442L266 452M250 464L236 490M250 464L266 490" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M280 444h20M280 458h14" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="462" cy="423" r="11" fill="#22c55e"/>
-  <path d="M462 434V464M462 444L478 456M462 464H482V490" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M450 434V470H474M450 470V490" fill="none" stroke="#4b5563" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="250" y="518" font-size="18" fill="#e2e8f0" text-anchor="middle" font-weight="700">Bevægelse</text>
-  <path d="M183.5 538L190.3 544.3L201.5 531.7" fill="none" stroke="#4ade80" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="262" y="544" font-size="18" fill="#4ade80" text-anchor="middle">registreres</text>
-  <text x="462" y="518" font-size="18" fill="#e2e8f0" text-anchor="middle" font-weight="700">Sidder stille</text>
-  <path d="M395.5 538L402.3 544.3L413.5 531.7" fill="none" stroke="#4ade80" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="474" y="544" font-size="18" fill="#4ade80" text-anchor="middle">registreres</text>
-  <text x="320" y="576" font-size="18" fill="#a3b1c6" text-anchor="middle">Lyset bliver tændt, så længe du er i rummet.</text>
+  <rect x="0" y="0" width="640" height="792" fill="#1a1a2e"/>
+  <text x="320" y="44" font-size="28" fill="#e2e8f0" text-anchor="middle" font-weight="700">PIR eller mmWave?</text>
+  <rect x="24" y="72" width="592" height="324" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2.5"/>
+  <text x="320" y="112" font-size="24" fill="#f87171" text-anchor="middle" font-weight="700">PIR-sensor</text>
+  <path d="M104 188L560 142V234Z" fill="#ef4444" opacity="0.16"/>
+  <rect x="44" y="162" width="60" height="52" rx="8" fill="#374151" stroke="#6b7280" stroke-width="1.5"/>
+  <circle cx="74" cy="188" r="13" fill="#ef4444"/>
+  <circle cx="230" cy="159" r="11" fill="#22c55e"/>
+  <path d="M230 170V200M214 184L230 178L246 188M230 200L216 226M230 200L246 226" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M260 180h20M260 194h14" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="440" cy="159" r="11" fill="#ef4444"/>
+  <path d="M440 170V200M440 180L456 192M440 200H460V226" fill="none" stroke="#ef4444" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M428 170V206H452M428 206V226" fill="none" stroke="#4b5563" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="230" y="298" font-size="22" fill="#e2e8f0" text-anchor="middle" font-weight="700">Bevægelse</text>
+  <text x="440" y="298" font-size="22" fill="#e2e8f0" text-anchor="middle" font-weight="700">Sidder stille</text>
+  <path d="M134 324L141 330L152 317" fill="none" stroke="#4ade80" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="160" y="336" font-size="22" fill="#4ade80">registreres</text>
+  <path d="M346 319L362 335M362 319L346 335" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="370" y="336" font-size="22" fill="#fca5a5">registreres ikke</text>
+  <text x="320" y="376" font-size="22" fill="#a3b1c6" text-anchor="middle">Lyset slukker, mens du sidder stille.</text>
+  <rect x="24" y="414" width="592" height="354" rx="10" fill="#1e293b" stroke="#22c55e" stroke-width="2.5"/>
+  <text x="320" y="454" font-size="24" fill="#4ade80" text-anchor="middle" font-weight="700">mmWave-radar (LD2410)</text>
+  <path d="M152.8 484A70 70 0 0 1 152.8 576" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
+  <path d="M221.6 484A130 130 0 0 1 221.6 576" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
+  <path d="M284.3 484A190 190 0 0 1 284.3 576" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
+  <path d="M345.7 484A250 250 0 0 1 345.7 576" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
+  <path d="M406.6 484A310 310 0 0 1 406.6 576" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
+  <path d="M467.1 484A370 370 0 0 1 467.1 576" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
+  <path d="M527.5 484A430 430 0 0 1 527.5 576" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" opacity="0.45"/>
+  <rect x="44" y="504" width="60" height="52" rx="8" fill="#374151" stroke="#6b7280" stroke-width="1.5"/>
+  <rect x="56" y="518" width="36" height="24" rx="4" fill="#3b82f6"/>
+  <circle cx="230" cy="501" r="11" fill="#22c55e"/>
+  <path d="M230 512V542M214 526L230 520L246 530M230 542L216 568M230 542L246 568" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M260 522h20M260 536h14" fill="none" stroke="#22c55e" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="440" cy="501" r="11" fill="#22c55e"/>
+  <path d="M440 512V542M440 522L456 534M440 542H460V568" fill="none" stroke="#22c55e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M428 512V548H452M428 548V568" fill="none" stroke="#4b5563" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="230" y="640" font-size="22" fill="#e2e8f0" text-anchor="middle" font-weight="700">Bevægelse</text>
+  <text x="440" y="640" font-size="22" fill="#e2e8f0" text-anchor="middle" font-weight="700">Sidder stille</text>
+  <path d="M134 666L141 672L152 659" fill="none" stroke="#4ade80" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="160" y="678" font-size="22" fill="#4ade80">registreres</text>
+  <path d="M344 666L351 672L362 659" fill="none" stroke="#4ade80" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="370" y="678" font-size="22" fill="#4ade80">registreres</text>
+  <text x="320" y="718" font-size="22" fill="#a3b1c6" text-anchor="middle">Lyset bliver tændt, så længe</text>
+  <text x="320" y="748" font-size="22" fill="#a3b1c6" text-anchor="middle">du er i rummet.</text>
 </svg>
