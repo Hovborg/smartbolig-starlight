@@ -4,7 +4,7 @@ import { Font, fontData } from "astro:assets";
 import { getAiNewsAssets } from "../lib/seo/ai-news";
 import { getPageDates } from "../lib/seo/dates";
 import { getPageKind } from "../lib/seo/page-kind";
-import { getRobotsContent, getTitleAndDescription } from "../lib/seo/page-text";
+import { getRobotsContent, getSearchTitle, getTitleAndDescription } from "../lib/seo/page-text";
 import { buildSchemaJson } from "../lib/seo/schema-graph";
 import { applySocialMeta, type HeadEntry } from "../lib/seo/social-meta";
 
@@ -34,6 +34,7 @@ applySocialMeta({
   kind,
   entry,
   title,
+  searchTitle: getSearchTitle(entry, title),
   description,
   aiNews,
   dateModified,

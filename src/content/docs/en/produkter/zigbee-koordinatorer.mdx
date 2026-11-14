@@ -14,7 +14,7 @@ import FAQ from '../../../../components/FAQ.astro';
 
 A Zigbee coordinator is **the heart of your Zigbee network**. It connects all your Zigbee devices (sensors, bulbs, switches) to Home Assistant. Your choice of coordinator affects range, stability, and the number of devices you can connect.
 
-<Aside type="tip" title="Our 2025 Recommendations">
+<Aside type="tip" title="Our Recommendations">
 - **Budget**: Sonoff ZBDongle-E (~$15) - Best price/quality
 - **Best USB**: Sonoff Dongle Plus MG24 (~$35) - Latest chip
 - **Best PoE/LAN**: SLZB-06 series (~$45-65) - Flexible placement
@@ -226,6 +226,8 @@ The official Home Assistant coordinator from Nabu Casa. Supports Home Assistant 
 
 ## 📶 Range Tips
 
+If the coordinator runs Zigbee2MQTT, you can optimise the network further with [network, groups and bindings](/en/home-assistant/zigbee2mqtt-avanceret/).
+
 1. **Use USB extension cable** - Away from USB 3.0 interference
 2. **Place centrally** - PoE coordinators can be placed optimally
 3. **Router devices** - Zigbee bulbs and plugs extend the network
@@ -301,6 +303,8 @@ Starting from scratch?
 ---
 
 ## 📚 Next Steps
+
+If you rent, you can read about battery sensors and other things that go up without drilling in [smart home in a rented flat](/en/produkter/smart-home-i-lejebolig/).
 
 <CardGrid>
   <Card title="Zigbee Sensors" icon="puzzle">

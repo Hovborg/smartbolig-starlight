@@ -17,6 +17,15 @@ export function getTitleAndDescription(entry: PageEntry, lang: Lang, isNotFoundP
   return { title, description };
 }
 
+/**
+ * The title for search results and social cards. A section page has a short
+ * title for its heading, menus and breadcrumb ("Automationer") and a fuller
+ * `seoTitle` that says what the reader finds there.
+ */
+export function getSearchTitle(entry: PageEntry, title: string): string {
+  return entry?.data?.seoTitle || title;
+}
+
 export function getSocialImageAlt(lang: Lang) {
   return lang === "da"
     ? "SmartBolig.net — dansk guide til smart home med Home Assistant og ESP32"

@@ -1,6 +1,7 @@
 // Sidebar section: ESP32 & ESPHome.
 export default {
-  label: "ESP32 & ESPHome",
+  label: "ESP32 og ESPHome",
+  translations: { en: "ESP32 & ESPHome" },
   items: [
     {
       label: "Oversigt",
@@ -19,7 +20,7 @@ export default {
       collapsed: false,
       items: [
         {
-          label: "Temperatur sensor",
+          label: "Temperatursensor",
           translations: { en: "Temperature Sensor" },
           link: "/esp32/temperatur-sensor/",
         },
@@ -29,7 +30,8 @@ export default {
           link: "/esp32/bevaegelsessensor/",
         },
         {
-          label: "LD2410 mmWave Presence",
+          label: "LD2410 mmWave",
+          translations: { en: "LD2410 mmWave Presence" },
           link: "/esp32/ld2410-mmwave/",
         },
       ],
@@ -41,7 +43,7 @@ export default {
       collapsed: false,
       items: [
         {
-          label: "LED Strip kontrol",
+          label: "LED-strip",
           translations: { en: "LED Strip Control" },
           link: "/esp32/led-strip/",
         },
@@ -54,12 +56,13 @@ export default {
       collapsed: true,
       items: [
         {
-          label: "ESPHome Avanceret",
+          label: "ESPHome avanceret",
           translations: { en: "ESPHome Advanced" },
           link: "/esp32/esphome-avanceret/",
         },
         {
-          label: "Bluetooth Proxy",
+          label: "Bluetooth-proxy",
+          translations: { en: "Bluetooth Proxy" },
           link: "/esp32/bluetooth-proxy/",
         },
       ],
