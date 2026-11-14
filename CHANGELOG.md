@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- Homepage news: each of the three newest articles is named after its main story instead of "AI news, <date>" (the date already stands beside it). The rows come from the same selection as the news overview, so the separate homepage selection is removed.
 - ESP32 has a close-up of its own: a development board on a breadboard with a sensor, a light diode, jumper wires and a phone showing the reading, rendered with the same kit and light as the 3D house. It replaces the living-room picture on the homepage's ESP32 card and at the top of the ESP32 and DIY guides. The scene lives behind `src/lib/house3d/stills.mjs`, which only the picture renderer bundles, so the homepage downloads nothing extra.
 - AI news overview rebuilt: one line with the number of articles and the RSS feed, the newest article as a large card with its picture and its stories numbered below, and the earlier articles grouped by month with one row each (small picture, date, main story, the other stories on one line). The list of official sources is closed until it is opened. The page is at least 40 % shorter.
 - AI news header images redrawn in the new graphite-and-green design, with all text as outlined paths from the site fonts so CI and local renders are identical. All 64 issues were re-rendered (30 MB to 11.5 MB).

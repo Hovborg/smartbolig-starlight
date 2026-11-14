@@ -27,7 +27,7 @@ export const PICTURES = [
   { name: "house-morning", mode: "morning", camera: { az: 34, el: 28, dist: 27, target: [0.7, 1.0, 0.3] }, width: 1280, height: 720, widths: [640, 1280] },
   { name: "topic-home-assistant", mode: "evening", camera: { az: 58, el: 24, dist: 10, target: [-4.2, 1.0, 0.1] }, ...TOPIC },
   { name: "topic-automations", mode: "evening", focus: "light", camera: { az: 14, el: 34, dist: 14, target: [-2.5, 0.9, 0.2] }, ...TOPIC },
-  { name: "topic-esp32", mode: "day", scene: "bench", camera: { az: -24, el: 36, dist: 30, target: [0.6, 1.2, -1.4] }, ...TOPIC },
+  { name: "topic-esp32", mode: "day", scene: "bench", camera: { az: -24, el: 38, dist: 29, target: [-0.2, 0.3, 2.2] }, ...TOPIC },
   { name: "topic-products", mode: "day", camera: { az: 24, el: 22, dist: 10, target: [0.2, 0.7, 2.6] }, ...TOPIC },
   { name: "topic-ai", mode: "night", camera: { az: 0, el: 72, dist: 24, target: [0.9, 0.5, -0.6] }, ...TOPIC },
   { name: "guide-overview", mode: "day", camera: { az: 34, el: 28, dist: 25, target: [0.7, 1.0, 0.3] }, ...GUIDE },

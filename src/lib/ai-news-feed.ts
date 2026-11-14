@@ -1,6 +1,6 @@
 import { slug } from "github-slugger";
-import { isLocaleNewsEntry, type NewsLocale } from "./home-news";
-import { sourceLabel, sourceName } from "./ai-news-sources";
+import { isLocaleNewsEntry, type NewsLocale } from "./home-news.ts";
+import { sourceLabel, sourceName } from "./ai-news-sources.ts";
 
 export type Signal = "high" | "medium" | "low";
 

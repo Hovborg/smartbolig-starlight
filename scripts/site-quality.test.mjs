@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
-import { selectLatestNews } from "../src/lib/home-news.ts";
+import { selectIssues } from "../src/lib/ai-news-feed.ts";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 // The sidebar lives in config/sidebar/ (one file per section); concatenate them all.
@@ -424,41 +424,52 @@ test("homepage news module defers its below-hero images", async () => {
   assert.match(news, /height="\d+"/);
 });
 
-test("homepage news selector is read-only, bounded and deterministic", async () => {
-  const source = await read("src/lib/home-news.ts");
-  assert.match(source, /export function selectLatestNews/);
-  assert.match(source, /slice\(0, limit\)/);
-  assert.doesNotMatch(source, /writeFile|mkdir|rmSync|unlink|fetch\(/);
+test("homepage news uses the news overview's selection, three at most, and only reads", async () => {
+  const [component, feed, shared] = await Promise.all([
+    read("src/components/HomeLatestNews.astro"),
+    read("src/lib/ai-news-feed.ts"),
+    read("src/lib/home-news.ts"),
+  ]);
+  assert.match(component, /selectIssues\(docs, locale\)\.slice\(0, 3\)/);
+  assert.match(component, /\{item\.lead\}/, "a row is named after its main story; the date stands beside it");
+  assert.doesNotMatch(feed + shared, /writeFile|mkdir|rmSync|unlink|fetch\(/);
 });
 
-test("homepage news selector exposes optional editorial image metadata", () => {
-  const items = selectLatestNews([
+test("the news selection names an article after its main story and exposes its picture", () => {
+  const items = selectIssues([
     {
       id: "da/ai/nyheder/2026-07-11",
+      body: "### 1. Another headline\n",
       data: {
-        title: "Concrete story",
+        title: "AI-nyheder, 11. juli 2026: Concrete story",
         description: "A source-backed update.",
         date: "2026-07-11",
         heroImage: {
-          src: "/images/ai-news/2026-07-11-16x9.webp",
+          src: "/images/ai-news/2026-07-11.jpg",
           alt: "Concrete AI story image",
         },
       },
     },
     {
       id: "da/ai/nyheder/2026-07-10",
+      body: "### 1. First headline\n\n### 2. Second headline\n",
       data: {
-        title: "Text-only story",
+        title: "AI-nyheder, 10. juli 2026",
         description: "A valid legacy entry.",
         date: "2026-07-10",
       },
     },
+    { id: "en/ai/nyheder/2026-07-12", data: { title: "AI news, 12 July 2026", date: "2026-07-12" } },
+    { id: "da/ai/nyheder/index", data: { title: "AI-nyheder" } },
   ], "da");
 
+  assert.deepEqual(items.map((item) => item.dateString), ["2026-07-11", "2026-07-10"], "newest first, this language only, no index page");
+  assert.equal(items[0].lead, "Concrete story");
   assert.deepEqual(items[0].image, {
-    src: "/images/ai-news/2026-07-11-16x9.webp",
+    src: "/images/ai-news/2026-07-11.jpg",
     alt: "Concrete AI story image",
   });
+  assert.equal(items[1].lead, "First headline");
   assert.equal(items[1].image, null);
 });
 
