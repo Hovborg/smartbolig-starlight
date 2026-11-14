@@ -52,13 +52,15 @@ specialdesignet Astro-widget:
   `@cf/qwen/qwen3-30b-a3b-fp8` med et kortere, separat budget. Qwen-fallbacken
   er valgt til flersproget instruktionsefterlevelse og tekniske svar frem for
   blot lavest mulig latenstid.
-- **SmartBolig som ekstra kilde:** Bindingen `SMARTBOLIG_SEARCH` peger på
-  `smartbolig-ai-search`. Faglige smart-home/homelab-spørgsmål får højst ét
-  afgrænset opslag, hvis bindingen er tilgængelig. Resultatet gives til den
-  brede model som ubetroet reference-data. Efter opslaget får både primær- og
-  fallbackmodel en særskilt slutprompt uden et tilgængeligt søgeværktøj, så
-  interne værktøjsnavne og retrieval-trin ikke bliver vist som kommandoer.
-  AI Search er ikke assistentens eneste viden.
+- **SmartBolig som ekstra kilde:** Workeren slår op i et indeks over sidens
+  egne sider. Indekset bygges sammen med siden og ligger som statiske filer
+  under `/_index/`; der bruges ingen betalt søgetjeneste (se
+  [`docs/assistent.md`](docs/assistent.md), kontrolleret 2026-11-14). Faglige
+  smart-home/homelab-spørgsmål får højst ét afgrænset opslag. Resultatet gives
+  til den brede model som ubetroet reference-data. Efter opslaget får både
+  primær- og fallbackmodel en særskilt slutprompt uden et tilgængeligt
+  søgeværktøj, så interne værktøjsnavne og retrieval-trin ikke bliver vist som
+  kommandoer. Sidens guides er ikke assistentens eneste viden.
 - **Kontrolleret officiel evidens:** Syv gennemgåede evidenspakker vælges
   deterministisk i Workeren: automationstrace, automationsmåder,
   template-tilstande og Home Assistant-sikkerhed samt ESPHome-sikkerhed,
@@ -80,7 +82,7 @@ specialdesignet Astro-widget:
   og også den fejler lukket frem for at vise et vildledende næsten-svar. Det
   reducerer kendte fejl, men er ikke en generel garanti for, at al
   modelgenereret konfiguration er korrekt.
-- **Ingen dokumentationskopi:** SmartBolig kopierer ikke Home Assistant- eller ESPHome-dokumentation ind i AI Search.
+- **Ingen dokumentationskopi:** SmartBolig kopierer ikke Home Assistant- eller ESPHome-dokumentation ind i sit søgeindeks.
   Den brede model svarer fortsat om hele fagområdet, mens kun serverens konkrete,
   gennemgåede fakta får officiel status.
 - **Ærlige kildegrader:** Svar vises som **Officielle kilder
@@ -88,14 +90,15 @@ specialdesignet Astro-widget:
   AI-viden**. Et svar får aldrig officielt badge alene på grund af modellens
   generelle træningsviden. API-feltet `officialVerifiedAt` viser den ældste
   reviewdato blandt de anvendte evidenspakker og er ellers `null`.
-- **Ingen ekstra RAG-database:** AI Search ejer allerede sin søgeindeksering, så
-  projektet opretter ikke en separat D1- eller Vectorize-database.
+- **Ingen database:** Søgeindekset er statiske filer, der bygges sammen med
+  siden. Projektet har ingen D1- eller Vectorize-database og ingen betalt
+  søgetjeneste.
 - **Abuse-kontrol:** `CHAT_RATE_LIMITER` tillader 12 chatkald pr. minut pr.
   forbindende IP i hver Cloudflare-lokation. Et normalt svar bruger ét
   logisk modelkald med højst ét sekundært forsøg. Et fagligt svar kan desuden
-  bruge ét AI Search-opslag; en valgfri modelstyret søgesti er fortsat
-  begrænset til højst to logiske modelkald. AI Search falder tilbage til bred
-  modelviden efter fem sekunder.
+  bruge ét opslag i sidens indeks; en valgfri modelstyret søgesti er fortsat
+  begrænset til højst to logiske modelkald. Tager opslaget over fem sekunder,
+  svarer assistenten ud fra bred modelviden.
 - **Dataminimering:** Endpointet accepterer højst 10 skiftevis bruger/assistent-
   beskeder, 2.000 tegn pr. besked og 8.000 tegn i alt. Widgeten gemmer kun den
   aktuelle samtale i browserens `sessionStorage`. Hvert gemt og genudsendt
@@ -136,7 +139,7 @@ specialdesignet Astro-widget:
   Qwen-fallbacken højst 1.600, så modellernes skjulte ræsonnering ikke afskærer
   et teknisk svar midt i en sætning. Gemma har 55 sekunder pr. kald og Qwen har
   25 sekunder. Browserens 180-sekunders maksimum dækker den sjældne værste sti
-  med fem sekunders AI Search, to Gemma-kald, op til to Qwen-fallbackkald og ti
+  med fem sekunders opslag i sidens indeks, to Gemma-kald, op til to Qwen-fallbackkald og ti
   sekunders netværksmargin. Et providerresultat med token-limit, en uafsluttet
   kodeblok eller et tydeligt hængende bindeord vises aldrig: primærsvaret går
   til fallback, og en afskåret fallback fejler lukket. Normale svar returneres
@@ -169,7 +172,7 @@ npx wrangler deploy --dry-run
 ```
 
 En rigtig lokal chat kræver remote Cloudflare-bindings og bruger Workers
-AI/AI Search-kvoten:
+AI-kvoten:
 
 ```bash
 npm run build
@@ -204,6 +207,29 @@ Sitets konfiguration ligger i `config/`, og `astro.config.mjs` er kun en tynd in
 - `config/markdown/`: små Markdown-plugins (overskrifter, kort og faner uden emoji; tabeller i en rulleramme).
 
 Guidesidernes top, sidemenu og sidefod er beskrevet i `docs/designsystem.md` under "Guidesider".
+
+### Hvor tingene ligger: AI-assistentens endpoint
+
+`functions/api/chat.js` er kun den tynde indgang (`onRequest` og genudstillede navne). Logikken ligger i `functions/lib/chat/`, ét ansvar pr. fil:
+
+| Fil | Ansvar |
+|-----|--------|
+| `limits.js` | modelnavne, størrelsesgrænser og timeouts |
+| `responses.js` | JSON-svar, fejlkoder og tekster, `ChatRequestError` |
+| `request.js` | begrænset læsning af kroppen og validering af samtalen |
+| `sources.js` | kanoniske SmartBolig-URL'er, titler og søgeresultater |
+| `prompt.js` | systemprompten og referencedata til den seneste besked |
+| `search-tool.js` | hvornår søgeværktøjet kræves, og aflæsning af modellens værktøjskald |
+| `yaml-request.js` | hvilken YAML-form og automation-`mode` brugeren har bedt om |
+| `yaml-checks.js` | kontrol af YAML i svaret mod den ønskede form |
+| `answer.js` | udtræk af modelsvar og accept af svar |
+| `runtime.js` | timeout med afbrydelse og sikre fejlnavne til log |
+| `agent.js` | Workers AI-agenten: primær model, reservemodel og søgeløkken |
+| `handler.js` | selve anmodningsforløbet: metode, oprindelse, rate limit, validering, søgning og svar |
+
+Søgningen i sidens egne guides ligger i `functions/lib/site-search/` (søgning i Workeren) og `scripts/lib/site-index/` (bygning af indekset). Opbygning, fejlsøgning og fjernelse: [`docs/assistent.md`](docs/assistent.md).
+
+Det officielle bevismateriale ligger fortsat i `functions/lib/official-evidence.js`.
 
 ---
 
@@ -250,8 +276,13 @@ I CI sammenlignes der med det seneste commit, som blev udgivet uden fejl
 afhængighedsændring, der aldrig har bestået porten, bliver derfor ved med at
 være spærret, indtil en kørsel med den består.
 
-Nye pakkeversioner tages først i brug, når de er mindst tre døgn gamle. Det
-giver tid til, at en kompromitteret udgivelse bliver opdaget og trukket tilbage.
+Pakkerne opdateres af sig selv: Dependabot åbner hver mandag en pull request med
+små opdateringer (patch, og minor af pakker fra version 1), og den flettes, når
+kontrollen `deploy` er grøn. En ny version tages først, når den er 14 dage gammel;
+sikkerhedsrettelser venter ikke (Dependabots advarsler og sikkerhedsrettelser er
+slået til i repoet). Store opdateringer, minor af pakker under version 1 og
+GitHub Actions flettes i hånden. Se
+[`docs/opdateringer.md`](docs/opdateringer.md) (kontrolleret 2026-11-14).
 
 Der er ingen undtagelsesliste. Et højt fund løses ved at opdatere pakken.
 På Windows bruges den installerede Python og Git for Windows Bash;
