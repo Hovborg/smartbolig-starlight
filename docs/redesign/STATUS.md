@@ -173,9 +173,14 @@ Sidst opdateret: 2026-11-14.
   svar, afbrudt besøgende, kortets højde, manglende tests); de er rettet, og ti prøver med
   rettelsen taget ud viser, at testene fanger hver af dem. Afprøvet 2026-11-14: alle tests,
   bygget side og en rigtig browser (tal med tusindtegn afvises, eksempler, enhedens ur en
-  time forkert, forsidens kort). Kan først ses på den levende side: Cloudflares cache pr.
-  datacenter, gæt på prisområde ud fra den besøgendes sted, og om Energinet begrænser kald
-  fra Cloudflares adresser.
+  time forkert, forsidens kort). **Udgivet 2026-11-14** (PR #204, `main` efter a6dcfde, Worker
+  `bec7ef7c`; vejen tilbage til før værktøjerne er Worker `26dcf207`).
+  Fundet på den levende side: `/api/elpris` svarede 502, fordi Energinets datasæt-adresse
+  afviser Cloudflares delte adresse med 429 (14 af 14 kald). Siderne, strømforbrugsværktøjet og
+  forsidens kort (med tekst i stedet for tal) virkede imens. Rettet i en opfølgende ændring
+  (grenen `fix/elpris-source`): download-adressen spørges først (200 i 15 af 15 kald fra
+  Cloudflare), og fire mindre fund fra gennemgangen efter udgivelsen er rettet med hver sin
+  test (B61, tilføjelsen efter udgivelsen). Vejen tilbage fra rettelsen er Worker `bec7ef7c`.
 
 ## Næste skridt
 

@@ -4,6 +4,8 @@
 export const ENDPOINT = "/api/elpris";
 /** Prices older than this are fetched again. The endpoint keeps its copy as long. */
 export const REFRESH_SECONDS = 600;
+/** The endpoint answers in well under a second, or within eight when it has to ask Energinet. */
+export const FETCH_TIMEOUT_MS = 12_000;
 
 /** Is this an answer the code can draw: a known area and a list of [time, price]? */
 export const isPrices = (data) =>
@@ -22,14 +24,21 @@ const CLOCK_TOLERANCE_SECONDS = 900;
  * whose clock is an hour off would otherwise show the price of the wrong
  * quarter as "right now". An answer from the browser's cache carries an old
  * Date, which only makes the difference smaller, so the largest difference
- * seen is the one closest to the truth. 0 when the clocks agree to within a
- * quarter of an hour, or when no header could be read.
+ * seen is the one closest to the truth. A difference that is much smaller
+ * than the largest cannot come from the cache (its answers are at most
+ * REFRESH_SECONDS old): the device clock itself was moved, for example set
+ * right while the page was open, and the reading starts again from there.
+ * 0 when the clocks agree to within a quarter of an hour, or when no header
+ * could be read.
  */
 export function createClockReader() {
   let largest = Number.NEGATIVE_INFINITY;
   return (dateHeader, deviceNowMs) => {
     const server = Date.parse(dateHeader ?? "");
-    if (Number.isFinite(server)) largest = Math.max(largest, (server - deviceNowMs) / 1000);
+    if (Number.isFinite(server)) {
+      const difference = (server - deviceNowMs) / 1000;
+      largest = largest - difference > CLOCK_TOLERANCE_SECONDS ? difference : Math.max(largest, difference);
+    }
     return Number.isFinite(largest) && Math.abs(largest) > CLOCK_TOLERANCE_SECONDS ? largest : 0;
   };
 }
@@ -46,8 +55,20 @@ const readClock = createClockReader();
  * whatever the reason.
  */
 export async function fetchPrices(area, signal) {
-  const response = await fetch(area ? `${ENDPOINT}?area=${area}` : ENDPOINT, { signal });
-  const data = response.ok ? await response.json() : null;
-  if (!isPrices(data)) throw new Error("no prices");
-  return { ...data, clockOffset: readClock(response.headers.get("date"), Date.now()) };
+  // The call is stopped by the caller's signal or when the time is up, so an
+  // endpoint that never answers ends as "no prices" and not as an endless wait.
+  const limit = new AbortController();
+  const stop = () => limit.abort();
+  if (signal?.aborted) stop();
+  signal?.addEventListener("abort", stop, { once: true });
+  const timer = setTimeout(stop, FETCH_TIMEOUT_MS);
+  try {
+    const response = await fetch(area ? `${ENDPOINT}?area=${area}` : ENDPOINT, { signal: limit.signal });
+    const data = response.ok ? await response.json() : null;
+    if (!isPrices(data)) throw new Error("no prices");
+    return { ...data, clockOffset: readClock(response.headers.get("date"), Date.now()) };
+  } finally {
+    clearTimeout(timer);
+    signal?.removeEventListener("abort", stop);
+  }
 }

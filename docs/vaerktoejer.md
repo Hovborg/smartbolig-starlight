@@ -11,8 +11,15 @@ lavt, og seks mindre fejl; de er rettet og har hver sin test (se "Rettet efter g
 En opfølgende gennemgang fandt fem ting mere i endpointet og forsidens kort; de er også rettet
 (samme afsnit). Forsidens kort er målt i headless Chrome ved 320, 390 og 1440 px: kortet er lige
 højt, før og efter priserne kommer (666, 582 og 611 px), så siden under det flytter sig ikke.
-Ikke kontrolleret: endpointet på Cloudflare. Workerens cache, gættet på prisområde ud fra
-`request.cf` og Energinets grænse set fra Cloudflares adresser kan kun ses på den levende side.
+Efter udgivelsen 2026-11-14 svarede `/api/elpris` 502 på den levende side. Målt fra Cloudflares
+net med en prøve-Worker samme dag: Energinets datasæt-adresse svarede 429 i 14 af 14 kald,
+download-adressen svarede 200 med alle 192 rækker i 15 af 15 kald. Workeren spørger derfor
+download-adressen først (se "Regler, der er valgt med vilje"). Rettelsen og fire mindre fund fra
+gennemgangen efter udgivelsen har hver sin test; femten prøver med en rettelse taget ud viser, at
+testene fanger hver af dem. En uafhængig gennemgang af rettelsen fandt ingen fejl, der skulle
+rettes før udgivelse, og seks bemærkninger; fire er rettet, to står under "Kendt".
+Ikke kontrolleret: Energinets svar omkring midnat og på de to dage, hvor uret stilles;
+skærmlæsere på forsidens kort; Safari og Firefox.
 
 ## Kort
 
@@ -62,8 +69,19 @@ Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Ene
   `src/components/tools/`.
 - **Værktøjerne gemmer intet i browseren.** Ingen `localStorage`, ingen cookies. Valg af
   prisområde, moms og tillæg gælder, til siden lukkes. Samme test holder øje med det.
-- **Ét kald henter begge prisområder.** Energinet tillader en kalder uden nøgle ét kald i
-  minuttet (målt 2026-11-14: det andet kald fik 429). Kopien af hvert område gemmes hver for sig.
+- **Ét kald henter begge prisområder.** Kopien af hvert område gemmes hver for sig.
+- **Energinet har to adresser til de samme rækker, og download-adressen spørges først.**
+  Datasæt-adressen (`/dataset/DayAheadPrices`) tillader en kalder uden nøgle ét kald i minuttet
+  pr. IP-adresse, og en Worker deler sin udgående adresse med alle andre Workers: fra Cloudflare
+  svarede den 429 hver gang (14 af 14, målt 2026-11-14). Download-adressen
+  (`/dataset/DayAheadPrices/download?format=json`) svarede 200 hver gang (15 af 15). Den spørges
+  først; datasæt-adressen er reserve og spørges kun, når den første fejler. Download-adressen
+  svarer med rækkerne som en liste, datasæt-adressen med `{ "records": [...] }`; koden læser
+  begge former. Adresserne står ét sted: `UPSTREAM_URLS` i `upstream.js`.
+- **Mangler et prisområde i svaret, får kilden også ro.** Det område, der kom, vises. Et kald
+  efter det manglende område udløser ikke et nyt kald til Energinet de næste 60 sekunder, for
+  området ville mangle igen: det får den gamle kopi, hvis den stadig dækker nu, og ellers 502.
+  I loggen står `UpstreamAreaMissing` én gang.
 - **En kopi er frisk i ti minutter.** Fejler Energinet, vises den gamle kopi, så længe den
   indeholder prisen for det kvarter, vi er i, og Workeren venter 60 sekunder med at prøve igen.
   Et svar med en gammel kopi har `"stale": true`; værktøjet læser ikke feltet i dag. Værktøjet
@@ -72,8 +90,12 @@ Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Ene
   bliver ikke gemt og erstatter aldrig en kopi, der stadig har prisen for nu
   (`UpstreamIncomplete` i loggen).
 - **Kaldet til Energinet slutter altid.** Efter 8 sekunder afbrydes det, også hvis `fetch` ikke
-  reagerer på afbrydelsen. Kaldet gives til `waitUntil`, så det gøres færdigt og gemmes, selv om
-  læseren, der udløste det, forlader siden.
+  reagerer på afbrydelsen. De 8 sekunder gælder begge adresser tilsammen: er tiden gået på den
+  første, spørges reserven ikke. Kaldet gives til `waitUntil`, så det gøres færdigt og gemmes,
+  selv om læseren, der udløste det, forlader siden.
+- **Browserens kald slutter også altid.** Svarer `/api/elpris` ikke inden for 12 sekunder
+  (`FETCH_TIMEOUT_MS` i `price-data.mjs`), afbrydes kaldet. Værktøjet viser da fejlteksten med
+  "Prøv igen", og forsidens kort går tilbage til sin tekst. Uden grænsen blev kortet stående tomt.
 - **Kald, der kommer samtidig til samme Worker-instans, koster ét kald til Energinet.** Hver
   instans husker, hvornår den sidst spurgte, og det sidste gode svar (`memory.js`); efter hver
   ventetid på cachen ser den i sin hukommelse igen, før den selv spørger. Mens ét kald er på vej,
@@ -186,7 +208,9 @@ skriv kilden og licensen i `docs/oss.md`.
 - **Moms:** `VAT` i `price-window.mjs`.
 - **Hvor længe en kopi er frisk:** `FRESH_SECONDS` i `functions/lib/elpris/responses.js`.
   Ventetiden efter en fejl er `BACKOFF_SECONDS` i `cache.js`, og tidsgrænsen for kaldet er
-  `UPSTREAM_TIMEOUT_MS` i `upstream.js`.
+  `UPSTREAM_TIMEOUT_MS` i `upstream.js`. Browserens tidsgrænse er `FETCH_TIMEOUT_MS` i
+  `src/lib/tools/price-data.mjs`; den skal være længere end Workerens.
+- **Energinets adresser og deres rækkefølge:** `UPSTREAM_URLS` i `upstream.js`.
 
 Kør `npm run site:test` bagefter. Testene holder fast i flere af værdierne og skal rettes med.
 
@@ -196,9 +220,14 @@ Kør `npm run site:test` bagefter. Testene holder fast i flere af værdierne og 
   eller afviste kaldet, og der er ingen kopi, der dækker nu. Workeren prøver igen efter 60
   sekunder; knappen "Prøv igen" spørger med det samme. I Workerens log står
   `SmartBolig elpris upstream failed` med fejlens navn: `UpstreamStatus429` (for mange kald),
-  `TimeoutError` (intet svar inden for 8 sekunder) eller `UpstreamAreaMissing` (for få rækker
-  for området). Bliver 429 ved, deler siden Cloudflares udgående adresse med andre, der kalder
-  Energinet. Så bør priserne hentes på et fast tidspunkt i stedet (se "Ikke bygget").
+  `UpstreamEmpty` (et svar uden brugbare rækker), `TimeoutError` (intet svar inden for 8
+  sekunder) eller `UpstreamAreaMissing` (for få rækker for ét område; det andet område vises
+  stadig). Fejler begge adresser, er det fejlen fra den første (download-adressen), der står i
+  loggen. Se loggen med `npx wrangler tail smartbolig-starlight --format json`. Bliver
+  `UpstreamStatus429` ved, begrænser Energinet nu også download-adressen fra Cloudflare. Så bør
+  priserne hentes på et fast tidspunkt i stedet (se "Ikke bygget").
+- **Forsidens kort viser sin tekst i stedet for tal.** Enten svarer `/api/elpris` 502 (se
+  ovenfor), eller også gik der mere end 12 sekunder. Kortet prøver igen ved næste kvarter.
 - **Der er ingen priser for i morgen.** De kommer mellem kl. 13 og 14 dansk tid (Energinets
   egen beskrivelse af datasættet; 2026-11-13 kom de kl. 13:28). Før det viser værktøjet kun i
   dag og skriver, at morgendagens priser ikke er ude endnu. Bagefter kan der gå op til ti
@@ -252,6 +281,22 @@ En opfølgende gennemgang samme dag fandt disse; de er rettet på samme måde:
 | Forsidens kort kaldte en pris "lav" ud fra to dage, men tegnede kun i dag; nøglen "billigst" stod der, selv om ingen søjle var mærket | `price-view.mjs` (`levelOver`), `home-price.mjs` | `site-home-price.test.mjs` |
 | Et svar fra browserens cache kunne ophæve rettelsen af et ur, der går forkert | `price-data.mjs` (`createClockReader`: den største forskel gælder) | `site-home-tools.test.mjs` |
 
+Fundet på den levende side og i gennemgangen efter udgivelsen 2026-11-14; rettet på samme måde:
+
+| Fejl | Rettet i | Test |
+|---|---|---|
+| `/api/elpris` svarede 502: Energinets datasæt-adresse afviser Cloudflares delte adresse med 429 | `upstream.js`: download-adressen først, datasæt-adressen som reserve, begge svarformer læses | `site-tools-api.test.mjs` |
+| Manglede ét område i svaret, kaldte næste forespørgsel på det område Energinet igen med det samme | `handler.js`: pause og én linje i loggen (`UpstreamAreaMissing`) | `site-tools-api.test.mjs` |
+| Svarede `/api/elpris` aldrig, blev forsidens kort stående tomt | `price-data.mjs`: `FETCH_TIMEOUT_MS` | `site-home-price.test.mjs`, `site-home-tools.test.mjs` |
+| Et ur, der gik forkert og blev stillet rigtigt, mens siden var åben, blev ved med at blive rettet | `price-data.mjs` (`createClockReader`: en forskel, der er meget mindre end den største, starter aflæsningen forfra) | `site-home-tools.test.mjs` |
+| Efter et svar, der rettede uret, blev næste kvarter talt fra det forkerte ur (testen manglede; koden var rigtig) | `home-price.mjs`, `price-ui.mjs` | `site-home-price.test.mjs`, `site-home-tools.test.mjs` |
+
+Kendt efter den gennemgang og ikke rettet: at værktøjet (`price-ui.mjs`) tæller næste kvarter
+forfra efter et svar, holdes kun af en test, der læser koden; forsidens kort har en test, der
+kører den. Urets rettelse kan være forkert til næste svar i to sjældne tilfælde: når enheden
+går i dvale midt i et kald i over et kvarter, og når uret stilles en time tilbage til en
+forkert tid, mens siden er åben.
+
 Kendt og ikke rettet: på de to dage om året, hvor uret stilles, står timen 02 to gange (eller
 mangler) uden forklaring; en time, hvor Energinet mangler nogle kvarterer, vises som
 gennemsnittet af de kvarterer, der er; grafens tekst til skærmlæsere siger ikke, hvilken dag
@@ -301,8 +346,10 @@ Kortet gemmer intet og sender kun det, elprisværktøjet sender. Testene står i
 ## Ikke bygget
 
 Workerens cache gælder pr. datacenter hos Cloudflare, så hvert datacenter henter sin egen
-kopi. Hvis Energinets grænse bliver et problem, kan priserne i stedet hentes af en Cron Trigger
-og gemmes i KV. Det kræver en binding i `wrangler.jsonc` og er ikke lavet.
+kopi. Hvis Energinet også begrænser download-adressen, kan priserne i stedet hentes af en Cron
+Trigger og gemmes i KV. Det kræver en binding i `wrangler.jsonc` og er ikke lavet. En anden
+kilde er overvejet og fravalgt (B61, tilføjelsen efter udgivelsen i
+`docs/redesign/BESLUTNINGER.md`).
 
 ## Fjern det igen
 
