@@ -316,7 +316,7 @@ test("tables scroll sideways in a wrapper named after the heading above them", a
   const danish = { type: "root", children: [heading("Priser"), table()] };
   rehypeTableScroll()(danish, { path: "C:\\repo\\src\\content\\docs\\da\\produkter\\index.mdx" });
   assert.equal(danish.children[1].properties.dataLabel, "Tabel: Priser");
-  assert.match(await read("astro.config.mjs"), /rehypePlugins: \[rehypePlainHeadings, rehypeTableScroll\]/);
+  assert.match(await read("astro.config.mjs"), /rehypePlugins: \[rehypePlainHeadings, rehypeTableScroll, rehypeLeadImage\]/);
   assert.match(await read("src/styles/content/blocks.css"), /\.table-scroll\s*\{[^}]*overflow-x:\s*auto/);
 });
 
@@ -694,7 +694,7 @@ test("six illustrated Home Assistant guides stay bilingual, natural and discover
 
   for (const [index, source] of sources.entries()) {
     const slug = guideSlugs[Math.floor(index / 2)];
-    const image = `/images/guides/${slug}.webp`;
+    const image = `../../../../assets/guides/${slug}.webp`;
     assert.equal((source.match(/^title:/gm) || []).length, 1);
     assert.equal((source.match(/^description:/gm) || []).length, 1);
     assert.ok((source.match(/^## /gm) || []).length >= 5);
@@ -710,7 +710,7 @@ test("six illustrated Home Assistant guides stay bilingual, natural and discover
   }
 
   for (const slug of guideSlugs) {
-    const asset = `public/images/guides/${slug}.webp`;
+    const asset = `src/assets/guides/${slug}.webp`;
     assert.ok(existsSync(new URL(`../${asset}`, import.meta.url)), `missing guide asset: ${asset}`);
   }
 
