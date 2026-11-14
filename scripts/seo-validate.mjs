@@ -248,8 +248,6 @@ async function main() {
   if (existsSync(robotsPath)) {
     const robots = (await readFile(robotsPath, 'utf8')).replace(/\r\n/g, '\n');
     const requiredRobotRules = [
-      { needle: 'User-agent: Googlebot\nAllow: /', label: 'Googlebot allowed' },
-      { needle: 'User-agent: Bingbot\nAllow: /', label: 'Bingbot allowed' },
       { needle: 'User-agent: ChatGPT-User\nAllow: /', label: 'ChatGPT user-request crawler allowed' },
       { needle: 'User-agent: OAI-SearchBot\nAllow: /', label: 'OpenAI search crawler allowed' },
       { needle: 'User-agent: PerplexityBot\nAllow: /', label: 'Perplexity answer crawler allowed' },
@@ -258,6 +256,10 @@ async function main() {
       { needle: 'User-agent: CCBot\nDisallow: /', label: 'Common Crawl training crawler blocked' },
     ];
     for (const check of requiredRobotRules) requireText(issues, robotsPath, robots, check.needle, check.label);
+    // A crawler with its own group ignores the * group and its Disallow lines.
+    rejectText(issues, robotsPath, robots, 'User-agent: Googlebot', 'a Googlebot group (it would skip the * Disallow lines)');
+    rejectText(issues, robotsPath, robots, 'User-agent: Bingbot', 'a Bingbot group (it would skip the * Disallow lines)');
+    rejectText(issues, robotsPath, robots, 'Crawl-delay', 'Crawl-delay (Google ignores it)');
   } else {
     fail(issues, robotsPath, 'missing robots.txt');
   }

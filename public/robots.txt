@@ -1,5 +1,5 @@
 # robots.txt for smartbolig.net
-# Last updated: April 2026
+# Last updated: November 2026
 
 # ===== STANDARD CRAWLERS =====
 
@@ -16,24 +16,11 @@ Sitemap: https://smartbolig.net/sitemap-index.xml
 # AI News English: https://smartbolig.net/en/ai/news/rss.xml
 
 # Disallow internal/admin paths
+# Googlebot and Bingbot have no group of their own on purpose: a crawler with a
+# specific group ignores the * group, so they would skip these Disallow lines.
 # Note: /_astro/ (JS/CSS bundles) must stay crawlable so Googlebot can render pages.
 Disallow: /api/
 Disallow: /pagefind/
-
-# Crawl-delay for polite crawling
-Crawl-delay: 1
-
-# ===== SEARCH ENGINES =====
-
-# Google
-User-agent: Googlebot
-Allow: /
-Crawl-delay: 0
-
-# Bing
-User-agent: Bingbot
-Allow: /
-Crawl-delay: 1
 
 # ===== AI CRAWLER POLICY =====
 # We allow search/retrieval crawlers that can send users to SmartBolig.net.
