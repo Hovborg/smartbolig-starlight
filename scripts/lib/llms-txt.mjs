@@ -62,7 +62,8 @@ export function locate(url) {
 
 /** Top-level areas with pages below them that the file neither lists nor leaves out on purpose. */
 export function unknownAreas(urls) {
-  const known = new Set([...SECTIONS.map(([key]) => key), ...LEFT_OUT]);
+  // "start" is the name for the single pages under a language, not an area of its own.
+  const known = new Set([...SECTIONS.slice(1).map(([key]) => key), ...LEFT_OUT]);
   const unknown = new Set();
   for (const url of urls) {
     const [lang, top, ...deeper] = new URL(url).pathname.split("/").filter(Boolean);

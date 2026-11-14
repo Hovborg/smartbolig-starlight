@@ -38,11 +38,11 @@ kom tilbage, aldrig en hel header eller side. Læg en linje til den sunde side o
 ødelagte i `scripts/site-monitor.test.mjs` (tallet 13 i testen tæller kontrollerne).
 
 **Ændr tidspunkterne.** Ret de to `cron`-linjer i `monitor.yml` (UTC). Brug minutter som 23, ikke 00,
-for GitHubs planlægger er travlest ved hel time. Grænsen for nyhedernes alder (60 timer) er
+for GitHubs planlægger er travlest ved hel time. Grænsen for nyhedernes alder (84 timer) er
 `MAX_NEWS_AGE_HOURS` i `checks.mjs`.
 
 **Prøv mod en anden adresse.** `node scripts/monitor/run.mjs --base https://eksempel.dk --report rapport.md`.
-Kontrollerne for `www` og kanonisk adresse peger altid på `https://smartbolig.net`.
+Kontrollerne for `www`, kanonisk adresse og `robots.txt` peger altid på `https://smartbolig.net`.
 
 ## Når noget ser forkert ud
 
@@ -51,15 +51,18 @@ tilbage, og "Expected" hvad der skulle. Åbn adressen i en browser. Ret fejlen p
 (hvis kontrollen er forældet) i `checks.mjs`. Sagen lukker sig selv ved næste kørsel, hvor alt
 består. Du behøver ikke lukke den.
 
-**Falsk alarm.** Et enkelt netværkshik giver ikke en sag, for hvert kald prøves to gange. Fejler
+**Falsk alarm.** Et enkelt netværkshik giver ikke en sag: et kald, der fejler på nettet eller
+får 5xx, prøves én gang til (4xx prøves ikke igen). Fejler
 den samme kontrol uden grund, så er den enten for stram (fx grænsen på 300 sider i sitemappet,
 når siden er blevet mindre) eller siden har ændret sig med vilje. Ret kontrollen i samme
 ændring som siden.
 
 **"AI news is fresh" fejler.** Kontrollen læser nyhedernes eget feed (`/da/ai/nyheder/rss.xml`).
-Dagens nyheder er dateret ved midnat UTC. Er den nyeste over 60 timer gammel, er der ikke
-udkommet nyheder to dage i træk; én stille dag åbner ingen sag. Se `docs/nyhedsflow.md` og sagen
-med etiketten `ai-news-stalled`. `/rss.xml` er guidernes feed; dets datoer følger bygget og siger
+Dagens nyheder er dateret ved midnat UTC. Er den nyeste over 84 timer gammel, er der ikke
+udkommet nyheder i tre dage. Nyhedsflowet åbner selv sagen `ai-news-stalled` kl. 11:37 UTC på
+tredjedagen; denne kontrol fejler først kl. 18:23 samme dag. Den er altså sikkerhedsnettet,
+hvis nyhedsflowet slet ikke kører (så åbner det heller ikke sin egen sag). Se
+`docs/nyhedsflow.md`. `/rss.xml` er guidernes feed; dets datoer følger bygget og siger
 intet om nyhederne, så dér tjekkes kun, at feedet har punkter.
 
 **Ingen kørsler.** GitHub slår planlagte workflows fra efter 60 dage uden aktivitet i

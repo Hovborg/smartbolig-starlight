@@ -20,8 +20,12 @@ permissions: {}
 
 jobs:
   check:
+    # A fork has no site to watch.
+    if: ${{ github.repository == 'Hovborg/smartbolig-starlight' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    # With the whole site down every request times out twice: 13 x 35 s is
+    # close to 8 minutes, and the issue step must still get its turn.
+    timeout-minutes: 15
     permissions:
       contents: read
       issues: write
@@ -55,13 +59,17 @@ jobs:
           [ -f monitor-report.md ] || echo "The monitor wrote no report. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" > monitor-report.md
           gh label create monitor --repo "$GITHUB_REPOSITORY" --color B60205 \
             --description 'Live-site checks from monitor.yml' || true
-          open="$(gh issue list --repo "$GITHUB_REPOSITORY" --label monitor --state open --json number --jq '.[0].number // ""')"
+          # Only the issue this workflow opened itself. The REST list is used
+          # because the search behind `gh issue list --label` lags by minutes.
+          open="$(gh api "repos/$GITHUB_REPOSITORY/issues?labels=monitor&state=open&creator=github-actions%5Bbot%5D&per_page=1" --jq '.[0].number // ""')"
+          title="Monitor: ${FAILING:-1} check(s) failing on smartbolig.net"
           if [ "$CODE" != '0' ]; then
             if [ -n "$open" ]; then
               gh issue comment "$open" --repo "$GITHUB_REPOSITORY" --body-file monitor-report.md
+              gh issue edit "$open" --repo "$GITHUB_REPOSITORY" --title "$title"
             else
               gh issue create --repo "$GITHUB_REPOSITORY" --label monitor \
-                --title "Monitor: ${FAILING:-1} check(s) failing on smartbolig.net" \
+                --title "$title" \
                 --body-file monitor-report.md
             fi
           elif [ -n "$open" ]; then

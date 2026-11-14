@@ -20,7 +20,7 @@ er set på den levende side efter udgivelsen, står i `docs/redesign/STATUS.md`.
 | `src/lib/seo/dates.ts`, `page-text.ts`, `site.ts` | Datoer, titel, søgetitel (`seoTitle`) og beskrivelse, sidens faste adresser |
 | `src/components/Head.astro` | Sætter det hele i sidens `<head>` |
 | `src/components/SiteTitle.astro` | Logoets link (`/da/` og `/en/` med skråstreg) |
-| `src/pages/rss.xml.js` | RSS-feedet med nyheder |
+| `src/pages/rss.xml.js` | RSS-feedet med guiderne (nyhederne har deres eget: `/da/ai/nyheder/rss.xml`) |
 | `scripts/finalize-build.mjs` | Sætter rigtige datoer (`lastmod`) i det sitemap, Starlight laver |
 | `scripts/lib/seo-llms-check.mjs` | Kontrollerer, at `llms.txt` findes, begynder rigtigt, og at hvert link er en side i sitemappet eller et kendt feed |
 | `scripts/seo-validate.mjs`, `scripts/lib/seo-head-checks.mjs` | Kontrollerer de byggede sider. Køres som `npm run seo:validate` |

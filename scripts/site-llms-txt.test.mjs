@@ -102,4 +102,5 @@ test("an area the file does not know is named, so the build can stop", () => {
   assert.deepEqual(unknownAreas(urls), []);
   assert.deepEqual(unknownAreas([...urls, `${O}/da/vaerktoejer/`]), [], "a single page under the language is a start page");
   assert.deepEqual(unknownAreas([...urls, `${O}/da/vaerktoejer/elpris/`, `${O}/en/vaerktoejer/elpris/`, `${O}/da/blog/a/`]), ["blog", "vaerktoejer"]);
+  assert.deepEqual(unknownAreas([`${O}/da/start/kom-i-gang/`]), ["start"], "pages below /start/ would be left out without a word");
 });

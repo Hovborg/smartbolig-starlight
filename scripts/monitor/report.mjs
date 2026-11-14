@@ -1,7 +1,13 @@
 // Results to Markdown. Pure. The report is the body of a GitHub issue, so it
 // holds only each check's name, expectation and short observation.
 
-const cell = (text) => String(text).replace(/\s+/g, " ").replace(/\|/g, "\\|").slice(0, 240);
+const MAX_CELL = 240;
+const oneLine = (text) => String(text).replace(/\s+/g, " ").slice(0, MAX_CELL);
+const cell = (text) => oneLine(text).replace(/\|/g, "\\|");
+// What the site sent goes in a code span, so it stays text: "<h1>" is shown
+// as written, and a "@name", a link or "#1" in a header or an address cannot
+// become a mention, a link or an issue reference.
+const quoted = (text) => `\`${cell(oneLine(text).replace(/`/g, "'")) || "-"}\``;
 
 /**
  * @param {{name: string, expected: string, ok: boolean, seen: string}[]} results
@@ -18,7 +24,7 @@ export function renderReport(results, { base, at, runUrl }) {
     "",
     "| Result | Check | Expected | Seen |",
     "|---|---|---|---|",
-    ...results.map((r) => `| ${r.ok ? "pass" : "**FAIL**"} | ${cell(r.name)} | ${cell(r.expected)} | ${cell(r.seen)} |`),
+    ...results.map((r) => `| ${r.ok ? "pass" : "**FAIL**"} | ${cell(r.name)} | ${quoted(r.expected)} | ${quoted(r.seen)} |`),
     "",
     "What to do: docs/overvaagning.md.",
     "",

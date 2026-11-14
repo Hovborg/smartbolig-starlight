@@ -6,19 +6,24 @@ import { canonicalOf, countH1, firstLoc, itemCount, locCount, newestPubDate } fr
 
 export const SITE = "https://smartbolig.net";
 export const MIN_SITEMAP_PAGES = 300;
-// The daily news issue is dated at midnight UTC and comes out in the morning.
-// 60 h is two days in a row without one; a single quiet day opens no issue.
+// The daily news issue is dated at midnight UTC. The news workflow raises its
+// own alarm (`ai-news-stalled`) at 11:37 UTC on the third day without an
+// issue; 84 h makes this check fail at 18:23 that day, so it is the backstop
+// for a news workflow that does not run at all, not a second alarm before it.
 // (/rss.xml is the guide feed; its dates follow the build, not the news.)
 export const NEWS_FEED = "/da/ai/nyheder/rss.xml";
-export const MAX_NEWS_AGE_HOURS = 60;
+export const MAX_NEWS_AGE_HOURS = 84;
 const GUIDE = "/da/home-assistant/zigbee2mqtt/";
 
 // What public/_headers sends on every page. Only these are checked.
+const STRICT_REFERRER = ["no-referrer", "same-origin", "strict-origin", "strict-origin-when-cross-origin"];
 const HEADERS = [
   ["content-security-policy", (value) => value.includes("default-src")],
-  ["strict-transport-security", (value) => value.length > 0],
-  ["x-content-type-options", (value) => value.toLowerCase() === "nosniff"],
-  ["referrer-policy", (value) => value.length > 0],
+  // max-age=0 switches HSTS off, so it must be a number above zero.
+  ["strict-transport-security", (value) => /max-age=[1-9]\d*/i.test(value)],
+  // A header sent twice arrives as "nosniff, nosniff".
+  ["x-content-type-options", (value) => value.split(",").every((part) => part.trim().toLowerCase() === "nosniff")],
+  ["referrer-policy", (value) => STRICT_REFERRER.includes(value.trim().toLowerCase())],
 ];
 
 const check = (name, expected, run) => ({ name, expected, run });

@@ -71,7 +71,7 @@ const BREAKS = [
   ["/robots.txt names the sitemap", { "/robots.txt": { body: "User-agent: *" } }, /sitemap line missing/],
   ["Sitemap lists enough pages", { "/sitemap-0.xml": { body: `<urlset>${locs(10)}</urlset>` } }, /10 <loc>/],
   ["/rss.xml lists the guides", { "/rss.xml": { body: "<rss><channel></channel></rss>" } }, /status 200, 0 <item>/],
-  ["AI news is fresh", { "/da/ai/nyheder/rss.xml": { body: rss("Wed, 11 Nov 2026 00:00:00 GMT") } }, /newest issue 2026-11-11, 84 h old/],
+  ["AI news is fresh", { "/da/ai/nyheder/rss.xml": { body: rss("Tue, 10 Nov 2026 00:00:00 GMT") } }, /newest issue 2026-11-10, 108 h old/],
   ["/llms.txt is served", { "/llms.txt": { body: "<html>" } }, /starts differently/],
   ["/api/chat refuses GET", { "/api/chat": { status: 200, body: "{}" } }, /status 200/],
   ["/ads.txt is served", { "/ads.txt": { body: "  \n" } }, /0 characters/],
@@ -90,11 +90,11 @@ for (const [name, override, message] of BREAKS) {
   });
 }
 
-test("the news age check uses the given time: 59 h passes, 61 h fails, and the guide feed's age is not judged", async () => {
+test("the news age check uses the given time: 83 h passes, 85 h fails, and the guide feed's age is not judged", async () => {
   const rssAt = (hours) => rss(new Date(NOW - hours * 3_600_000).toUTCString());
   const news = (body) => ({ "/da/ai/nyheder/rss.xml": { body } });
-  assert.deepEqual(failed((await run(news(rssAt(59)))).results), []);
-  assert.equal(failed((await run(news(rssAt(61)))).results).length, 1);
+  assert.deepEqual(failed((await run(news(rssAt(83)))).results), []);
+  assert.equal(failed((await run(news(rssAt(85)))).results).length, 1);
   assert.match(failed((await run(news("<rss></rss>"))).results)[0].seen, /no item with a date/);
   assert.deepEqual(failed((await run({ "/rss.xml": { body: rssAt(900) } })).results), [], "a guide feed built long ago is fine");
 });
@@ -134,13 +134,25 @@ test("the report has a table, names the failures and dumps no headers or bodies"
   assert.equal(renderReport(results.map((r) => ({ ...r, ok: true })), { base: BASE, at: NOW }).split("\n")[0], "All 13 checks pass on https://smartbolig.net.");
 });
 
+test("what the site sent stays text in the report, as one short line", async () => {
+  const sent = "@octocat [x](https://evil.example) #1 `code` <h1>\n::error title=x::y " + "z".repeat(500);
+  const [result] = await runChecks([{ name: "a|b", expected: "exactly one <h1>", run: async () => ({ ok: false, seen: sent }) }]);
+  assert.equal(result.seen.length, 240);
+  assert.doesNotMatch(result.seen, /\n/, "no line of its own in the log, where '::error' would be a command");
+  const row = renderReport([result], { base: BASE, at: NOW }).split("\n").find((line) => line.includes("**FAIL**"));
+  assert.match(row, /\| a\\\|b \| `exactly one <h1>` \| `@octocat \[x\]\(https:\/\/evil\.example\) #1 'code' <h1> ::error/);
+  assert.equal(row.split("`").length, 5, "two code spans, and nothing inside closes one early");
+});
+
 test("monitor.yml: issues write only, a schedule, concurrency, every action pinned to a SHA", () => {
   const yml = readFileSync(new URL("../.github/workflows/monitor.yml", import.meta.url), "utf8");
   const writes = [...yml.matchAll(/^\s+([\w-]+): write\s*$/gm)].map((match) => match[1]);
   assert.deepEqual(writes, ["issues"]);
   assert.match(yml, /^\s+schedule:\s*\n(?:\s+#.*\n)*\s+- cron: '\d+ \d+ \* \* \*'/m);
   assert.match(yml, /^concurrency:\s*\n\s+group: monitor/m);
-  assert.match(yml, /timeout-minutes: 10/);
+  assert.match(yml, /timeout-minutes: 15/);
+  assert.match(yml, /if: \$\{\{ github\.repository == 'Hovborg\/smartbolig-starlight' \}\}/);
+  assert.match(yml, /issues\?labels=monitor&state=open&creator=github-actions%5Bbot%5D/, "only the workflow's own issue is commented on and closed");
   const uses = [...yml.matchAll(/^\s+uses:\s*(\S+)/gm)].map((match) => match[1]);
   assert.ok(uses.length >= 2);
   for (const reference of uses) assert.match(reference, /^[\w.-]+\/[\w.-]+@[0-9a-f]{40}$/, reference);
