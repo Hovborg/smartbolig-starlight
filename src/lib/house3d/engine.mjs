@@ -2,6 +2,7 @@
 // that face the viewer and animates the small things. Draws only when
 // something changes, unless motion is on and the house is on screen.
 import { Vector3 } from "three";
+import { firstFrameGate } from "./first-frame.mjs";
 import { linkLevels, modes, views } from "./modes.mjs";
 import { animateLinks } from "./parts/links.mjs";
 import { createRig } from "./rig.mjs";
@@ -11,10 +12,6 @@ import {
 
 const SETTLE_MS = 2600;
 const LOW_WALL = 0.17;
-// The longest the first picture waits for the shaders. A browser that never
-// answers must not leave the still picture standing for good.
-const COMPILE_LIMIT_MS = 2500;
-const pause = (ms) => new Promise((done) => { setTimeout(done, ms); });
 
 export function createEngine(canvas, options) {
   const { colors, still = false, onFrame } = options;
@@ -145,8 +142,7 @@ export function createEngine(canvas, options) {
     height = Math.max(1, h);
     sizeStage(stage, width, height, pixelRatio);
     if (!ready && !compiling) {
-      const compiled = compileStage(stage).catch(() => {});
-      compiling = Promise.race([compiled, pause(COMPILE_LIMIT_MS)]).then(() => {
+      compiling = firstFrameGate(compileStage(stage)).then(() => {
         ready = true;
         wake();
       });

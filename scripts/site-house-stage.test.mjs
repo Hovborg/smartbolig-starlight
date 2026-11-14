@@ -4,7 +4,8 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { createHouseStage } from "../src/lib/home-house-stage.mjs";
-import { drawingPlace, OVERRIDE_KEY, SOFTWARE } from "../src/lib/house3d/probe.mjs";
+import { COMPILE_LIMIT_MS, firstFrameGate } from "../src/lib/house3d/first-frame.mjs";
+import { chipName, drawingPlace, OVERRIDE_KEY, SOFTWARE } from "../src/lib/house3d/probe.mjs";
 import { FakeWorker, fakePage } from "./lib/fake-house-page.mjs";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
@@ -75,6 +76,12 @@ test("the names of software drawing are recognised, the names of graphics chips 
   ]) assert.doesNotMatch(name, SOFTWARE, name);
 });
 
+test("a browser that hides the chip's name is judged by the name it does give", () => {
+  const gl = { RENDERER: 1, getExtension: () => null, getParameter: (key) => (key === 1 ? "llvmpipe (LLVM 15.0.7, 256 bits)" : null) };
+  assert.equal(chipName(gl), "llvmpipe (LLVM 15.0.7, 256 bits)");
+  assert.match(chipName(gl), SOFTWARE);
+});
+
 test("the way of drawing can be chosen by hand for debugging", () => {
   assert.equal(OVERRIDE_KEY, "sb-house-draw");
   const onPage = fakePage({ stored: "page" });
@@ -127,6 +134,43 @@ test("the first picture from the worker switches the screen from still to live",
   assert.equal(screen.dataset.state, "live");
   assert.equal(spotBox.hidden, false);
   assert.equal(house.live(), true);
+});
+
+test("a browser that cannot start a worker draws the house on the page", async () => {
+  const { house, canvas, screen, win } = await stage();
+  win.Worker = globalThis.Worker = class { constructor() { throw new Error("workers are blocked"); } };
+  // The fake canvas cannot really draw, so the house on the page gives up:
+  // its warning shows that drawing on the page was tried.
+  const warnings = [];
+  const { warn, error } = console;
+  console.warn = (...args) => warnings.push(String(args[0]));
+  console.error = () => {};
+  try {
+    await house.load();
+  } finally {
+    Object.assign(console, { warn, error });
+  }
+  assert.equal(canvas.handed, 0, "the canvas stayed with the page");
+  assert.equal(screen.dataset.state, "still");
+  assert.equal(warnings.filter((text) => text.startsWith("3D house unavailable")).length, 1);
+});
+
+test("a live house that is lost hides its hotspots with it", async () => {
+  const { house, workers, screen, spotBox } = await stage();
+  await house.load();
+  workers[0].emit("message", { type: "spots", spots: {} });
+  assert.equal(spotBox.hidden, false);
+  workers[0].emit("message", { type: "lost" });
+  assert.equal(screen.dataset.state, "still");
+  assert.equal(spotBox.hidden, true);
+});
+
+test("a house that was removed is not handed out again", async () => {
+  const { house, workers } = await stage();
+  assert.ok(await house.load());
+  house.dispose();
+  assert.equal(await house.load(), null);
+  assert.equal(workers.length, 1);
 });
 
 test("a worker that cannot draw gives the still picture back", async () => {
@@ -204,7 +248,29 @@ test("the engine stays stopped after dispose and does not wait for shaders for e
   assert.match(body("wake"), /^  function wake\(\) \{\n    if \(disposed\) return;/);
   assert.match(body("resize"), /\{\n    if \(disposed\) return;/);
   assert.match(engine, /dispose\(\) \{\n      disposed = true;\n      cancelAnimationFrame\(raf\);/);
-  assert.match(engine, /Promise\.race\(\[compiled, pause\(COMPILE_LIMIT_MS\)\]\)/);
-  const limit = Number(engine.match(/const COMPILE_LIMIT_MS = (\d+);/)[1]);
-  assert.ok(limit >= 1500 && limit <= 4000, "long enough for a slow phone, short enough to notice");
+  assert.match(engine, /compiling = firstFrameGate\(compileStage\(stage\)\)\.then\(\(\) => \{\n\s+ready = true;\n\s+wake\(\);/);
+  assert.ok(COMPILE_LIMIT_MS >= 1500 && COMPILE_LIMIT_MS <= 4000, "long enough for a slow phone, short enough to notice");
+});
+
+const turn = () => new Promise((done) => { setImmediate(done); });
+
+test("the first picture waits for the shaders, but not past the limit", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  let shown = false;
+  firstFrameGate(new Promise(() => {})).then(() => { shown = true; });
+  t.mock.timers.tick(COMPILE_LIMIT_MS - 1);
+  await turn();
+  assert.equal(shown, false, "still waiting for the shaders");
+  t.mock.timers.tick(1);
+  await turn();
+  assert.equal(shown, true, "the limit lets the picture through");
+});
+
+test("shaders that are ready, or that fail, let the first picture through at once", async (t) => {
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const shown = [];
+  firstFrameGate(Promise.resolve()).then(() => shown.push("ready"));
+  firstFrameGate(Promise.reject(new Error("no shaders"))).then(() => shown.push("failed"));
+  await turn();
+  assert.deepEqual(shown.sort(), ["failed", "ready"]);
 });

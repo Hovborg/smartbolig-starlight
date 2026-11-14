@@ -26,6 +26,7 @@ skal vises levende, og kun i en browser, der kan tegne det med et grafikkort.
 | `src/lib/house3d/protocol.mjs` | Beskederne mellem side og worker, og listen over de kald, siden må sende |
 | `src/lib/house3d/probe.mjs` | Spørger browseren, hvor huset kan tegnes: `drawingPlace` svarer `worker`, `page` eller `none`. Henter intet selv |
 | `src/lib/house3d/canvas.mjs` | Et tomt lærred til tegnede teksturer, på siden eller i en worker |
+| `src/lib/house3d/first-frame.mjs` | Hvornår første billede må vises: når shaderne er oversat, dog senest efter 2,5 sekunder |
 | `src/lib/house3d/engine.mjs` | Løkken og kameraets flyvning. Med bevægelse slået til tegnes hvert billede, mens huset er synligt; uden bevægelse kun, når noget ændrer sig. `setMode`, `setView`, `rotate`, `resize`, `dispose` |
 | `src/lib/house3d/stage.mjs` | Scene, kamera, lys, skygger og blanding mellem to tidspunkter |
 | `src/lib/house3d/modes.mjs` | **Tidspunkter** (sol, himmel, hvad der er tændt) og **kameraer** |
@@ -129,12 +130,12 @@ et kamera på huset igen.
 - Huset tegnes i en worker (`OffscreenCanvas`), så siden kan rulles og klikkes, mens modellen
   bygges og tegnes. Første billede vises først, når alle shadere er oversat
   (`compileStage` i `stage.mjs`), så der ikke kommer et halvfærdigt billede. Det venter
-  højst 2,5 sekunder (`COMPILE_LIMIT_MS` i `engine.mjs`); derefter tegnes huset alligevel.
+  højst 2,5 sekunder (`COMPILE_LIMIT_MS` i `first-frame.mjs`); derefter tegnes huset alligevel.
 - Tegner browseren WebGL i software (ingen grafikkort), bliver stillbilledet stående, og
   three.js hentes ikke: `probe.mjs` spørger, før noget hentes. `stage.mjs` afviser også en
   software-tegner, hvis den alligevel når dertil.
 - three.js findes i to pakker i `dist/_astro/`: én til workeren (`worker-*.js`) og én til
-  tegning på siden (`house3d.*.js`), hver på ca. 665 KB (ca. 170 KB over nettet). En
+  tegning på siden (`house3d.*.js`), hver på ca. 680.000 bytes (ca. 170 KB over nettet). En
   browser henter kun den ene.
 
 Målt 2026-11-14 i headless Chrome (forsiden, dansk, mørkt tema):
@@ -172,9 +173,11 @@ Kode, der kører i workeren, må ikke bruge `document` eller `window`. Brug `bla
 `canvas.mjs` til tegnede teksturer. En test i `scripts/site-house-worker.test.mjs` fejler,
 hvis en fil, workeren henter, bruger dem.
 
-Workeren hentes fra siden selv. `worker-src 'self'` i `public/_headers` skal blive stående:
-uden den afviser browseren workeren, og stillbilledet bliver stående. En test i
-`scripts/site-quality.test.mjs` holder øje med linjen.
+Workeren hentes fra siden selv. Så længe `public/_headers` har en `worker-src`, skal den
+indeholde `'self'`: ellers afviser browseren workeren, og stillbilledet bliver stående. En
+test i `scripts/site-quality.test.mjs` holder øje med linjen. Workeren får farver og
+indstillinger som en besked; `remote.mjs` prøver beskeden af, før lærredet gives væk, fordi
+et lærred, der er givet til en worker, ikke kan tages tilbage.
 
 Prøv de andre veje i din egen browser: skriv i konsollen på forsiden, og genindlæs.
 
@@ -186,9 +189,17 @@ sessionStorage.removeItem("sb-house-draw");      // tilbage til det normale
 
 Valget gælder kun fanen og forsvinder, når den lukkes.
 
-Slå workeren fra for alle: lad `drawingPlace` i `probe.mjs` aldrig svare `worker` (fjern
-linjen med `OffscreenCanvas`). Filerne `remote.mjs`, `worker.mjs` og `protocol.mjs` og
-testene, der nævner dem, kan så slettes.
+Slå workeren fra for alle (nødstop, hvis en browser tegner forkert i worker):
+
+1. I `src/lib/house3d/probe.mjs`: slet linjen, der ender med `return "worker";`. Huset
+   tegnes så altid på siden. Siden bygger stadig; resten kan blive liggende.
+2. Slet de tests, der forventer en worker: `scripts/site-house-worker.test.mjs` og de
+   tests i `scripts/site-house-stage.test.mjs`, der bruger `workers`. Kør `npm run site:test`.
+
+Fjern workeren helt bagefter: slet også `handsOver` i `probe.mjs`, blokken
+`if (place === "worker") { … }` og `handedOver` i `src/lib/home-house-stage.mjs`, filerne
+`remote.mjs`, `worker.mjs` og `protocol.mjs`, og linjen om `remote.mjs` i
+`scripts/site-quality.test.mjs`.
 
 ## Fejlsøgning
 

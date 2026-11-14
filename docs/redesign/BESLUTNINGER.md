@@ -466,7 +466,7 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   klik og søgefelt virker dermed, mens huset starter.
 - Før noget hentes, spørger `probe.mjs` browseren med et prøvelærred: worker, side eller slet
   ikke. Fundet i den uafhængige gennemgang: Safari 16.4 til 16.6 har lærred i worker uden
-  WebGL og ville have mistet det levende hus; en browser uden grafikkort hentede 683 KB for
+  WebGL og ville have mistet det levende hus; en browser uden grafikkort hentede ca. 680.000 bytes for
   at få et stillbillede. Begge dele er rettet og låst med tests mod en efterlignet browser.
 - Første billede venter på shaderne, højst 2,5 sekunder. Uden grænsen kunne en browser, der
   aldrig svarer, lade stillbilledet stå for altid.
@@ -474,8 +474,12 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   ene, så deling sparer intet over nettet og gør pakningen sværere at følge.
 - Fravalgt: at falde tilbage til tegning på siden, når workeren fejler efter start. Lærredet
   er da givet væk og kan ikke tages tilbage; stillbilledet er den sikre reserve.
-- Pris: three.js ligger to gange i `dist/` (ca. 665 KB hver). `worker-src 'self'` i
-  `public/_headers` er nu nødvendig.
+- Pris: three.js ligger to gange i `dist/` (ca. 680.000 bytes hver, ca. 170 KB over nettet).
+  Så længe `public/_headers` har en `worker-src`, skal den indeholde `'self'`.
+- Anden gennemgang (2026-11-14): indstillinger, der ikke kan sendes til en worker, opdages nu,
+  før lærredet gives væk (ellers stod siden med et dødt lærred); ventetiden på shaderne er
+  flyttet til `first-frame.mjs` og prøves med et efterlignet ur; et fjernet hus udleveres ikke
+  igen. Opskriften på at slå workeren fra er gjort præcis i `docs/3d-hus.md`.
 - Kontrolleret 2026-11-14 på den byggede side i headless Chrome: med grafikkort levende i
   worker (16 ms blokeret), tvunget til siden levende (675 ms), software-tegning og slået fra
   giver stillbillede uden three.js og uden fejl i konsollen. Ikke kontrolleret: Safari og

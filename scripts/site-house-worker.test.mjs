@@ -99,9 +99,18 @@ test("a canvas that cannot be handed over stops the worker again", () => {
   assert.equal(worker.sent.length, 0);
 });
 
+test("options a worker cannot receive are found before the canvas is handed over", () => {
+  const canvas = fakeCanvas();
+  let started = 0;
+  const house = mountHouse(canvas, { background: () => "not sendable" }, () => { started += 1; return new FakeWorker(); });
+  assert.equal(house, null);
+  assert.equal(canvas.handed, 0, "the page can still draw on the canvas");
+  assert.equal(started, 0);
+});
+
 test("a worker that refuses the mount message is stopped", () => {
   const worker = new FakeWorker();
-  worker.postMessage = () => { throw new Error("could not be cloned"); };
+  worker.postMessage = () => { throw new Error("refused"); };
   assert.equal(mountHouse(fakeCanvas(), {}, () => worker), null);
   assert.equal(worker.terminated, true);
 });

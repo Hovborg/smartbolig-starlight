@@ -87,9 +87,9 @@ export function createHouseStage(win, doc, root, { onUnavailable } = {}) {
       const remote = await import("./house3d/remote.mjs");
       // Removed while the file was fetched: the canvas stays with the page.
       if (gone) return null;
-      const house = remote.mountHouse(canvas, options);
-      handedOver = Boolean(house);
-      if (house) return house;
+      const inWorker = remote.mountHouse(canvas, options);
+      handedOver = Boolean(inWorker);
+      if (inWorker) return inWorker;
     }
     // Browsers that cannot draw a canvas from a worker draw it on the page.
     const onPage = await import("./house3d/index.mjs");
@@ -170,6 +170,7 @@ export function createHouseStage(win, doc, root, { onUnavailable } = {}) {
       undo.forEach((fn) => fn());
       house?.dispose();
       house = null;
+      loading = Promise.resolve(null);
       // A canvas that went to a worker cannot draw again: leave a fresh one.
       if (handedOver) canvas.replaceWith(canvas.cloneNode(false));
       delete screen.dataset.state;
