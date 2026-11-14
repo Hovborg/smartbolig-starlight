@@ -17,11 +17,20 @@ ingen farvekoder, skrifttyper eller skygger direkte i komponenterne.
 | `src/styles/base.css` | Side, baggrund, fokus, overskrifter |
 | `src/styles/chrome/` | Topbjælke, sidemenu, indholdsfortegnelse, sidefod-navigation |
 | `src/styles/content/` | Brødtekst, tabeller, kodeblokke, bokse, kort, faner |
+| `src/styles/home/` | Forsiden: `layout.css` (ramme, knapper), `hero.css`, `scene.css` (huset), `sections.css`, `motion.css` |
 | `src/styles/index.css` | Importerer det hele i rækkefølge. Den eneste fil, Starlight får |
 | `config/fonts.mjs` | Skrifttyper (selvhostede) |
 | `src/components/chrome/` | Egen topbjælke og temastart |
 
 En komponents egne stilregler ligger i komponentens `<style>` og bruger kun tokens.
+
+Forsiden er undtagelsen: dens stilregler ligger i `src/styles/home/` og hentes af
+`src/components/HomeStyles.astro`, fordi overskriften tegnes af `PageTitle.astro`
+uden for forsidens egne komponenter. Teksterne står i `src/lib/home-copy/da.ts` og `en.ts`.
+
+Starlight farver alle links i sideindhold. En komponent med egne linkfarver skal
+derfor skrive reglen som `:global(.sl-markdown-content) .min-klasse` (i en komponent)
+eller `:is(.home-portal, .home-hero) .min-klasse` (på forsiden). Ellers vinder Starlights farve.
 
 ## Farver
 
