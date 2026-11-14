@@ -926,7 +926,7 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   starter, og den koster ingenting, når den almindelige kørsel er startet.
 ## B65. Startsæt-bygger (2026-11-14)
 
-- Valgt: et tredje værktøj, `/vaerktoejer/startsaet/`, som ideen i B60 beskrev. Fire spørgsmål
+- Valgt: endnu et værktøj (det femte), `/vaerktoejer/startsaet/`, som ideen i B60 beskrev. Fire spørgsmål
   (hvad vil du starte med, ejer eller lejer, hvad har du i forvejen, vil du bygge selv med
   ESP32) giver et startsæt i tre lag (hjernen, forbindelsen, en blok pr. mål) og tre til fem
   første skridt.
