@@ -37,7 +37,8 @@ const SMART_HOME_PATTERN = new RegExp(wholeWords(SMART_HOME_WORDS), "iu");
 // lyder godt", "Thanks, that was a big help"). Any other word makes the
 // message something to search for: "Tak, det virkede ikke" is no closing.
 // "Ja" and "nej" are not closings; they answer something the assistant asked.
-const CLOSING_WORDS = new Set([
+// Both lists are exported for the test that holds them word for word.
+export const CLOSING_WORDS = new Set([
   // Danish
   "tak", "takker", "farvel", "hej", "hejsa", "goddag", "godmorgen", "godaften", "godnat", "ok", "okay", "super", "fint", "godt", "god", "perfekt",
   "fedt", "dejligt", "fantastisk", "forstået", "mening",
@@ -45,7 +46,7 @@ const CLOSING_WORDS = new Set([
   "thanks", "thank", "thx", "cheers", "bye", "goodbye", "alright", "fine", "great", "perfect", "nice", "cool",
   "awesome", "understood", "sense", "good", "goodnight", "helps", "got", "hi", "hello", "hey",
 ]);
-const PADDING_WORDS = new Set([
+export const PADDING_WORDS = new Set([
   // Danish
   "for", "det", "den", "du", "dig", "din", "dit", "skal", "have", "hav", "hjælpen", "hjælp", "svaret", "svar", "nu", "nå", "så",
   "lige", "bare", "meget", "mange", "tusind", "var", "er", "alt", "giver", "lyder", "igen", "med", "en", "stor", "at", "vide",
@@ -57,6 +58,9 @@ const PADDING_WORDS = new Set([
 ]);
 // A word may hold an apostrophe ("that's"); one at its end is dropped ("ha'").
 const WORD_PATTERN = /[\p{L}\p{N}]+(?:'[\p{L}\p{N}]+)*/gu;
+// "HA" in capitals is Home Assistant, not the Danish verb "ha" that pads a
+// goodbye ("Ha en god dag"): "Hej, jeg skal have hjælp med HA" is a request.
+const UPPER_HA = new RegExp(`${START}HA${END}`, "u");
 
 const userMessages = (messages) => messages.filter((message) => message.role === "user");
 
@@ -76,7 +80,11 @@ export function hasSmartHomeWord(text) {
  */
 export function isClosing(text) {
   if (text.includes("?")) return false;
-  const words = text.toLowerCase().replaceAll("’", "'").match(WORD_PATTERN) ?? [];
+  // Letters typed as a base letter and a combining mark ("a" + ring) read as one.
+  const plain = text.normalize("NFC");
+  // In a message written all in capitals, "HA" says nothing.
+  if (UPPER_HA.test(plain) && plain !== plain.toUpperCase()) return false;
+  const words = plain.toLowerCase().replaceAll("’", "'").match(WORD_PATTERN) ?? [];
   return words.some((word) => CLOSING_WORDS.has(word)) && words.every((word) => CLOSING_WORDS.has(word) || PADDING_WORDS.has(word));
 }
 

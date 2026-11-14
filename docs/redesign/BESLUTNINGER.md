@@ -1060,6 +1060,36 @@ Denne tilføjelse afløser reglerne om opfølgninger i de tre tilføjelser ovenf
   `npm run site:test`. Ikke kontrolleret før udgivelsen: hvordan den rigtige model svarer på
   en opfølgning med den nye prompt. Tal og grænser: `docs/assistent.md`, "Målt med samtaler".
 
+### B62, tilføjelse efter den femte gennemgang af søg først (2026-11-14)
+
+- Gennemgangen fandt ingen besked, der får et tidligere spørgsmåls sider: 520 samtaler i
+  dens egne ord, også som strøm og med tre og fem beskeder, og de 2.261 kørt igen.
+- Fundet: en tak i ord, ingen liste havde set, viser en irrelevant kilde i 11 af 100 (5 af 50
+  danske, 6 af 50 engelske): »Tak, jeg vender tilbage«, »Thanks, I'll read the guide«. Det er
+  beskedens egne sider. Fyldordene var udvidet ud fra de sæt, tabellen måler på, så tabellens
+  to rækker om tak forudsagde det ikke.
+- Valgt: ikke flere fyldord og ingen ny regel. Målt: et ord fra en sidetitel i beskeden
+  skiller ikke en tak fra en anmodning med en tak i, og en regel om »tak først og intet
+  spørgsmålstegn« tager anmodninger som »Mange tak, kan du også vise hvordan jeg opdager en
+  vandlækage« med sig. Tallet står i dokumentationen som en kendt grænse. Den rigtige
+  rettelse er den samme som for opfølgninger: at modellen selv siger, hvad der skal søges
+  efter.
+- Valgt: »HA« med store bogstaver er Home Assistant og gør en besked uden spørgsmålstegn til
+  noget, der søges efter. Før blev »Hej, jeg skal have hjælp med HA« læst som en hilsen, fordi
+  »ha« er fyld i »Ha en god dag«. Pris: »Tak, HA virker nu« søges og får sider om Home
+  Assistant.
+- Valgt: prompten til en senere besked uden sider siger nu, at modellen skal lægge bred viden
+  til, hvor samtalen ikke har svaret, og nævner et svar på noget, assistenten spurgte om.
+  Begrundelse: læst ordret gav den gamle tekst intet nyt til »Den blinker stadig rødt«.
+  Prompten til en første besked siger ikke længere, at der blev søgt; efter en hilsen blev der
+  ikke søgt.
+- Valgt: de to ordlister er eksporteret, og testen sammenligner dem med sine egne. Før fejlede
+  testen ikke på et ord, der blev sat ind, selv om dokumentationen sagde det.
+- Kontrolleret: fem ændringer, gennemgangen viste, at ingen test fangede (modellen får kun den
+  seneste besked; officielle kilder fra hele samtalen; en afslutning med et smart home-ord
+  søges; kun et spørgsmålstegn til sidst tæller; et nyt emne afvises), har nu hver sin test.
+  195 fejl sat ind i koden én ad gangen, og testene fejler på dem alle.
+
 ## B63. Forsiden: værktøjer med elprisen lige nu (2026-11-14)
 
 - Valgt: en sektion på forsiden efter de tre etaper med et kort, der viser elprisen i dette

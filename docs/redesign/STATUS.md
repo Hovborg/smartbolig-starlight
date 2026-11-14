@@ -65,10 +65,15 @@ Sidst opdateret: 2026-11-14.
   nyt emne eller en afslutning (hverken point, antal søgeord eller ordenes sjældenhed).
   Derfor søges en besked nu aldrig sammen med en tidligere. Målt med den tredje og den
   fjerde gennemgangs 2.261 samtaler mod det byggede indeks: i alle viser den senere besked
-  præcis de kilder, den viser som første besked. 181 prøver med en fejl sat ind i koden
-  fanges alle af testene. Pris, kendt: en opfølgning uden eget emne (»Kan du uddybe?«) får
+  præcis de kilder, den viser som første besked. En femte gennemgang fandt ingen besked, der
+  får et tidligere spørgsmåls sider (520 egne samtaler, også som strøm og i kæder); dens
+  mindre fund er rettet (»HA« med store bogstaver søges, ordlisterne sammenlignes med koden,
+  prompten til en opfølgning). 195 prøver med en fejl sat ind i koden fanges alle af
+  testene. Pris, kendt: en opfølgning uden eget emne (»Kan du uddybe?«) får
   ingen nye sider og ingen kildelinks (356 af 524 danske og 340 af 485 engelske
-  opfølgningssamtaler); svaret bygger på samtalen. Kendt i øvrigt: en opfølgning, der selv når
+  opfølgningssamtaler); svaret bygger på samtalen. Kendt i øvrigt: en tak i ord, listerne
+  ikke har (»Tak, jeg vender tilbage«), søges alene og viste en irrelevant kilde i 11 af den
+  femte gennemgangs 100 nye takkebeskeder; en opfølgning, der selv når
   grænsen (»Hvad koster det cirka?«), får sine egne sider; et nyt smart home-emne under
   grænsen (»Hvordan styrer jeg min garageport?«) får ingen kilder; nogle hverdagsspørgsmål når
   stadig grænsen (2 af 20 danske, 6 af 24 engelske) og kan få en kilde; tiden til første ord

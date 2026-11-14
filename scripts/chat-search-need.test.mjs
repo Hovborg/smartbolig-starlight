@@ -2,7 +2,14 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { hasEarlierQuestion, hasSmartHomeWord, isClosing, latestQuestion } from "../functions/lib/chat/search-need.js";
+import {
+  CLOSING_WORDS,
+  PADDING_WORDS,
+  hasEarlierQuestion,
+  hasSmartHomeWord,
+  isClosing,
+  latestQuestion,
+} from "../functions/lib/chat/search-need.js";
 
 const all = (check, expected, texts) => {
   for (const text of texts) assert.equal(check(text), expected, text);
@@ -218,6 +225,11 @@ const NEITHER = [
   "anden", "hub", "fejl", "koster", "why", "how", "what", "who", "can", "not", "but", "about", "more", "continue", "failed", "cost",
 ];
 
+test("the two lists in the code are these words and no others", () => {
+  assert.deepEqual([...CLOSING_WORDS].sort(), [...CLOSING].sort());
+  assert.deepEqual([...PADDING_WORDS].sort(), [...PADDING].sort());
+});
+
 test("every closing word closes a message on its own", () => {
   all(isClosing, true, CLOSING);
 });
@@ -225,6 +237,28 @@ test("every closing word closes a message on its own", () => {
 test("every padding word pads a closing and closes nothing on its own", () => {
   all(isClosing, false, PADDING);
   all(isClosing, true, PADDING.map((word) => `Tak ${word}`));
+});
+
+test("a question mark anywhere in the message makes it something to search for", () => {
+  all(isClosing, false, ["Er det godt? Tak", "Tak? Okay", "Okay?", "Godt? Det var fint"]);
+});
+
+test("HA in capitals is Home Assistant and no padding; in small letters it is the verb", () => {
+  all(isClosing, false, [
+    "Hej, jeg skal have hjælp med HA",
+    "Er HA godt",
+    "HA virker fint",
+    "Godt, jeg vil prøve HA nu",
+    "Giver det mening at prøve HA",
+    "Is HA good to try",
+  ]);
+  all(isClosing, true, ["Ha en god dag", "Tak, ha det godt", "Tak og ha en god weekend", "TAK HA DET GODT", "Tak, ha' en god dag"]);
+});
+
+test("a letter typed as a base letter and a combining mark reads like the letter", () => {
+  const decomposed = (text) => text.normalize("NFD");
+  assert.notEqual(decomposed("Forstået"), "Forstået");
+  all(isClosing, true, [decomposed("Forstået"), decomposed("Nå, så tak"), decomposed("Tak for hjælpen")]);
 });
 
 test("a word of a question, a problem or an answer neither closes a message nor pads a closing", () => {

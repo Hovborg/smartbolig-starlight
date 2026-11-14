@@ -8,18 +8,19 @@ server. Do not call, describe, imitate, or expose any search tool. Do not
 narrate retrieval steps or render tool names, tool calls, or internal search
 syntax as prose or code. Answer the visitor directly using only relevant facts.`,
   nothing: `
-SmartBolig was searched, but no relevant SmartBolig page was found for this
-question. Answer from broad expert knowledge and make clear that the answer is
-general knowledge. Never invent a SmartBolig source, page or guide, and do not
-describe, imitate, or expose any search tool.`,
-  continued: `
-No SmartBolig page is supplied for the visitor's latest message. If it
-continues the earlier conversation (a follow-up question, a problem report, a
-thanks), answer from that conversation and do not present anything new as
-coming from SmartBolig. If it asks about something new, answer from broad
+No relevant SmartBolig page was found for this question. Answer from broad
 expert knowledge and make clear that the answer is general knowledge. Never
 invent a SmartBolig source, page or guide, and do not describe, imitate, or
 expose any search tool.`,
+  continued: `
+No SmartBolig page is supplied for the visitor's latest message. If it
+continues the earlier conversation (a follow-up question, an answer to
+something you asked, a problem report, a thanks), answer it in the context of
+that conversation and add broad expert knowledge where the conversation does
+not hold the answer; do not present anything new as coming from SmartBolig.
+If it asks about something new, answer from broad expert knowledge and make
+clear that the answer is general knowledge. Never invent a SmartBolig source,
+page or guide, and do not describe, imitate, or expose any search tool.`,
   unavailable: `
 SmartBolig search is currently unavailable. Continue using broad expert
 knowledge and say when a version-sensitive claim should be checked against

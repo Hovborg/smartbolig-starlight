@@ -268,10 +268,60 @@ test("a first message the site has nothing about gets the nothing-found prompt, 
   assert.match(continued, CONTINUED_PROMPT);
   assert.doesNotMatch(continued, NOT_FOUND_PROMPT);
   // What keeps an answer without pages honest.
-  assert.match(continued, /do not present anything new as\s+coming from SmartBolig/);
-  assert.match(continued, /make clear that the answer is general knowledge/);
-  assert.match(continued, /Never\s+invent a SmartBolig source, page or guide/);
-  assert.match(continued, /do not describe, imitate, or\s+expose any search tool/);
+  assert.match(continued, /do not present anything new as\s+coming\s+from\s+SmartBolig/);
+  assert.match(continued, /make\s+clear\s+that\s+the\s+answer\s+is\s+general\s+knowledge/);
+  assert.match(continued, /Never\s+invent\s+a\s+SmartBolig\s+source,\s+page\s+or\s+guide/);
+  assert.match(continued, /do\s+not\s+describe,\s+imitate,\s+or\s+expose\s+any\s+search\s+tool/);
+  // A follow-up and a new subject are both answered, not declined.
+  assert.match(continued, /answer it in the context of\s+that conversation and add broad expert knowledge/);
+  assert.match(continued, /If it asks about something new, answer from broad expert knowledge/);
+});
+
+test("the model gets the whole conversation with a later message that finds no pages", async () => {
+  const { converse, modelInputs } = harness([hit(2)]);
+
+  await converse(NO_KEYWORD, "Kan du uddybe?");
+
+  assert.deepEqual(
+    modelInputs[0].messages.map(({ role, content }) => (role === "system" ? "system" : `${role}: ${content}`)),
+    ["system", `user: ${NO_KEYWORD}`, "assistant: Et svar", "user: Kan du uddybe?"],
+  );
+});
+
+const OFFICIAL_QUESTION = "Skal min Home Assistant YAML-automation have et id for at gemme spor?";
+
+test("official sources belong to the latest message only", async () => {
+  const first = harness([]);
+  const asked = await first.ask(OFFICIAL_QUESTION);
+  assert.equal(asked.sourceMode, "official");
+  assert.ok(asked.sources.length > 0);
+
+  const later = harness([]);
+  const thanked = await later.converse(OFFICIAL_QUESTION, "Tak for det");
+  assert.deepEqual(thanked.sources, []);
+  assert.equal(thanked.sourceMode, "general");
+});
+
+// "ha" is a smart home word (Home Assistant) and the verb of a goodbye; the goodbye wins.
+for (const goodbye of ["Ha en god dag", "Tak, ha det godt"]) {
+  test(`"${goodbye}" is a closing although "ha" is a smart home word: not searched, no sources`, async () => {
+    const first = harness([hit(30)]);
+    assert.deepEqual((await first.ask(goodbye)).sources, []);
+    assert.deepEqual(first.searches, []);
+
+    const later = harness([hit(30)]);
+    assert.deepEqual((await later.converse(NO_KEYWORD, goodbye)).sources, []);
+    assert.deepEqual(later.searches, []);
+  });
+}
+
+test("HA in capitals makes a message without a question mark something to search for", async () => {
+  const { ask, searches } = harness([hit(2)]);
+
+  const body = await ask("Hej, jeg skal have hjælp med HA");
+
+  assert.deepEqual(searches, ["Hej, jeg skal have hjælp med HA"]);
+  assert.deepEqual(body.sources, [SOURCE]);
 });
 
 test("a later message with a smart home word is answered from its own result, however weak", async () => {

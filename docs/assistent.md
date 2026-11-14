@@ -4,11 +4,13 @@ Sidst opdateret: 2026-11-14 (søg først; modellen får intet værktøj; hver be
 en ren afslutning søges der ikke efter, og en senere besked får aldrig siderne fra et
 tidligere spørgsmål).
 Sidst kontrolleret: 2026-11-14.
-Kontrolleret ved (reglen efter den fjerde uafhængige gennemgang): `npm run site:test` (alle
-bestået, tallet står i pull requesten). Reglen er målt med 2.261 samtaler på to beskeder
-(1.186 danske, 1.075 engelske), som den tredje og den fjerde gennemgang selv skrev, mod det
-byggede indeks i `dist/_index/` med et lille skript uden byggeri og med en efterlignet model
-(tallene står under "Målt med samtaler"). 181 ændringer af koden er prøvet én ad gangen, og
+Kontrolleret ved (reglen efter den fjerde og den femte uafhængige gennemgang): `npm run
+site:test` (alle bestået, tallet står i pull requesten). Reglen er målt med 2.261 samtaler på
+to beskeder (1.186 danske, 1.075 engelske), som den tredje og den fjerde gennemgang selv
+skrev, mod det byggede indeks i `dist/_index/` med et lille skript uden byggeri og med en
+efterlignet model (tallene står under "Målt med samtaler"). Den femte gennemgang kørte 520
+samtaler i sine egne ord, også som strøm og med tre og fem beskeder, og fandt ingen besked,
+der fik et tidligere spørgsmåls sider. 195 ændringer af koden er prøvet én ad gangen, og
 testene fejler på dem alle.
 Ikke kontrolleret før udgivelsen: et rigtigt svar gennem Workers AI på den levende side med
 den nye regel, herunder hvordan modellen svarer på en opfølgning, når den ingen nye uddrag
@@ -142,7 +144,11 @@ højst ét opslag pr. besked, og statussen `searching` meldes én gang.
    "Thanks, that was a big help" og "Hej" får derfor ingen kilder. Ét andet ord gør beskeden
    til noget, der søges efter: "Tak, det virkede ikke" og "Vis mig hvordan jeg sætter
    Zigbee2MQTT op, tak" er ikke afslutninger. "Ja" og "nej" er det heller ikke; de svarer på
-   noget, assistenten spurgte om.
+   noget, assistenten spurgte om. "HA" med store bogstaver er Home Assistant og gør også
+   beskeden til noget, der søges efter ("Hej, jeg skal have hjælp med HA", "Er HA godt"); med
+   små bogstaver er "ha" udsagnsordet i en hilsen ("Ha en god dag"). En afslutning går forud
+   for et smart home-ord: "Ha en god dag" søges der ikke efter, selv om "ha" også er et
+   smart home-ord.
 2. **Alle andre beskeder søges alene.** Har beskeden et smart home-ord, bruges resultatet,
    uanset point (`always`). Ellers bruges det, når det bedste svar har mindst `USEFUL_SCORE`
    point (12, i `site-search/search.js`). Et svar uden et tal som point tæller som under
@@ -162,13 +168,19 @@ Mindst ét af dem skal stå i beskeden. Fyldet omkring dem (`PADDING_WORDS`) er 
 det, den, du, din, skal, have, hjælpen, svar, var, er, lyder, giver, nu, og, jeg, vil, prøve,
 you, your, so, much, the, help, that, it, was, is, sounds, makes, and og try; hele listen står
 i filen. Ordene er hele ord, uanset store og små bogstaver, og begge slags apostrof læses ens
-("That's" og "That’s"). `scripts/chat-search-need.test.mjs` har begge lister ord for ord: et
-ord, der tages ud eller sættes ind, får testen til at fejle.
+("That's" og "That’s"), og et bogstav skrevet som grundbogstav og tegn ("a" og en ring) læses
+som bogstavet. `scripts/chat-search-need.test.mjs` har begge lister ord for ord og
+sammenligner dem med listerne i koden: et ord, der tages ud eller sættes ind, får testen til
+at fejle.
 
 Modellen får altid hele samtalen (højst 10 beskeder), også sit eget tidligere svar. En
 opfølgning uden eget emne ("Kan du uddybe?", "Hvorfor?", "Det virkede ikke") finder ingen
-sider alene. Den får derfor ingen nye uddrag og ingen kildelinks, og svaret bygger på det,
-der allerede står i samtalen. Kilderne under det tidligere svar står der stadig.
+sider alene. Den får derfor ingen nye uddrag og ingen kildelinks, og svaret bygger på
+samtalen og modellens egen viden. Uddragene fra det tidligere opslag er ikke med: modellen
+ser sit tidligere svar, ikke siderne, det blev skrevet ud fra. Var det tidligere svar et
+spørgsmål tilbage ("ZHA eller Zigbee2MQTT?"), og svarer læseren "Det ved jeg ikke", har
+modellen derfor ingen af sidens tekst at svare ud fra. Kilderne under det tidligere svar står
+der stadig.
 
 Resultatet får modellen i fire tilstande (`agent.js`, teksterne i `SEARCH_INSTRUCTIONS` i
 `prompt.js`):
@@ -181,10 +193,11 @@ Resultatet får modellen i fire tilstande (`agent.js`, teksterne i `SEARCH_INSTR
   SmartBolig-kilde.
 - `continued`: en senere besked i samtalen uden sider, af de samme grunde. Ingen afsnit, ingen
   kilder. Prompten siger, at der ikke er givet en side til den seneste besked. Fortsætter den
-  samtalen (en opfølgning, en fejlmelding, en tak), skal modellen svare ud fra samtalen og
-  ikke fremstille noget nyt som kommende fra SmartBolig. Spørger den om noget nyt, skal
-  modellen svare ud fra bred viden og sige, at svaret er almen viden. Den må aldrig opfinde en
-  SmartBolig-kilde.
+  samtalen (en opfølgning, et svar på noget, assistenten spurgte om, en fejlmelding, en tak),
+  skal modellen svare i samtalens sammenhæng, lægge bred viden til, hvor samtalen ikke har
+  svaret, og ikke fremstille noget nyt som kommende fra SmartBolig. Spørger den om noget nyt,
+  skal modellen svare ud fra bred viden og sige, at svaret er almen viden. Den må aldrig
+  opfinde en SmartBolig-kilde.
 - `unavailable`: indekset kan ikke læses, eller opslaget fejlede eller timede ud. Det gælder
   også med et smart home-ord. Ingen afsnit, og prompten siger, at søgningen ikke er
   tilgængelig.
@@ -270,6 +283,25 @@ Det, der falder anderledes, end en læser ville ønske:
 
 En første besked med et takkeord i ("Vis mig hvordan jeg sætter Zigbee2MQTT op, tak", "Help me
 choose a robot vacuum, thanks") får sine sider i alle 14 prøvede tilfælde.
+
+**En tak i ord, ingen liste har set, viser en kilde i ca. hver niende samtale.** Fyldordene
+er udvidet ud fra de to rækker med tak og afslutninger i tabellen, så de to rækker siger ikke,
+hvordan en ny tak falder. Den femte gennemgang skrev derfor 50 danske og 50 engelske
+takkebeskeder, som ingen tidligere liste havde, og sendte dem efter et spørgsmål om
+Zigbee-sensorer:
+
+| Sprog | Afslutning (søges ikke) | Søgt, ingen kilder | Viser kilder |
+|---|---|---|---|
+| Dansk | 16 af 50 | 29 | 5 |
+| Engelsk | 16 af 50 | 28 | 6 |
+
+De 11 får beskedens egne sider, ikke det tidligere spørgsmåls: "Tak, jeg vender tilbage"
+(23,92 point), "Tak, det løste problemet" (17,42), "Tak for en god forklaring" (17,15),
+"Thanks, I'll read the guide" (13,55), "Thanks, you've been a great help" (14,90). Siderne
+handler om beskedens ord og er irrelevante for læseren. Det er målt, om et ord fra en
+sidetitel i beskeden kan skille en tak fra en anmodning med en tak i: det kan det ikke ("Mange
+tak, kan du også vise hvordan jeg opdager en vandlækage" har intet titelord, "Thanks, I'll
+read the guide" har to). Flere fyldord retter de 11, men ikke den næste liste.
 
 Grænsen er målt 2026-11-14 for spørgsmål uden smart home-ord. "Før" er målt før de nye
 fyldord (167 sider), "Nu" mod indekset med 173 sider:
@@ -371,9 +403,13 @@ Kendte grænser:
   intet.
 - En bekræftelse uden et afslutningsord ("Det vil jeg prøve", "I'll try that") er ikke en
   afslutning og søges alene.
+- En tak i andre ord end listernes søges alene og kan vise en irrelevant kilde (11 af 100 i
+  den femte gennemgangs liste).
 - Et afslutningsord i en besked, der ellers kun har fyld, gør den til en afslutning, også når
-  den var ment som et svar eller et spørgsmål uden spørgsmålstegn: "Det er fint", "Er HA godt"
-  og "HA virker fint" søges der ikke efter.
+  den var ment som et svar eller et spørgsmål uden spørgsmålstegn: "Det er fint" og "Giver
+  det mening at prøve ha" (med små bogstaver) søges der ikke efter.
+- En tak, der nævner HA med store bogstaver ("Tak, HA virker nu"), søges og får sider om Home
+  Assistant.
 - Et spørgsmål, der kun har fyldord ("ja tak", "Hvorfor?"), har ingen søgeord og finder intet.
 - Valgt fra: at søge en besked sammen med en tidligere besked. Se "Hvorfor en besked søges
   alene".
