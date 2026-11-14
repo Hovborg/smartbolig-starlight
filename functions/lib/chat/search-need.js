@@ -1,6 +1,6 @@
-// When the site is searched for a question, and what is searched for.
-
-import { MAX_SEARCH_QUERY_CHARS } from "./limits.js";
+// When the site is searched for a message. A message is always searched for
+// alone: the index cannot tell a follow-up from a new subject or a thanks, so
+// the pages of an earlier question are never handed to a later message.
 
 // \b only knows ASCII letters, so it would split "pæha" after the "æ". These
 // make a word end at anything that is not a letter or a digit.
@@ -47,13 +47,13 @@ const CLOSING_WORDS = new Set([
 ]);
 const PADDING_WORDS = new Set([
   // Danish
-  "for", "det", "den", "du", "dig", "skal", "have", "hjælpen", "hjælp", "svaret", "nu", "nå", "så", "lige", "bare",
-  "meget", "mange", "tusind", "var", "er", "alt", "giver", "lyder", "igen", "med", "en", "stor", "at", "vide", "virker",
-  "dag", "morgen", "aften", "nat", "weekend", "ha",
+  "for", "det", "den", "du", "dig", "din", "dit", "skal", "have", "hav", "hjælpen", "hjælp", "svaret", "svar", "nu", "nå", "så",
+  "lige", "bare", "meget", "mange", "tusind", "var", "er", "alt", "giver", "lyder", "igen", "med", "en", "stor", "at", "vide",
+  "virker", "og", "dag", "morgen", "aften", "nat", "weekend", "ha", "jeg", "vil", "prøve", "prøver", "smartbolig",
   // English
-  "you", "so", "much", "very", "a", "lot", "the", "help", "answer", "that", "that's", "it", "it's", "this", "was", "is",
-  "all", "now", "i", "see", "sounds", "makes", "day", "morning", "afternoon", "evening", "night", "one", "again", "to", "know",
-  "big", "works",
+  "you", "your", "so", "much", "very", "a", "lot", "the", "help", "answer", "that", "that's", "it", "it's", "this", "was", "is",
+  "all", "now", "i", "see", "sounds", "makes", "and", "day", "morning", "afternoon", "evening", "night", "one", "again", "to",
+  "know", "big", "works", "i'll", "try", "give", "go",
 ]);
 // A word may hold an apostrophe ("that's"); one at its end is dropped ("ha'").
 const WORD_PATTERN = /[\p{L}\p{N}]+(?:'[\p{L}\p{N}]+)*/gu;
@@ -80,28 +80,7 @@ export function isClosing(text) {
   return words.some((word) => CLOSING_WORDS.has(word)) && words.every((word) => CLOSING_WORDS.has(word) || PADDING_WORDS.has(word));
 }
 
-/**
- * Does the latest message lean on the question before it? Asked when the
- * message alone found nothing. `unknownTerms` is how many of its search terms
- * no page of the site uses.
- * - A message in words the site knows does: "Kan du uddybe?", "Hvorfor?",
- *   "Fortsæt", "Det virkede ikke". It brings no subject of its own.
- * - A message with a word the site does not use is a change of topic ("Hvad
- *   er hovedstaden i Frankrig?").
- */
-export function isFollowUp(unknownTerms) {
-  return unknownTerms === 0;
-}
-
-/**
- * The latest question together with the user message before it. Only that
- * one, so a topic from further back cannot take over. Latest first, because
- * the search only reads the first terms of a query (MAX_QUERY_TERMS in
- * site-search/tokens.js). null when there is no message before it, or when
- * the latest question fills the query alone and the search would be the same.
- */
-export function joinedQuery(messages) {
-  const asked = userMessages(messages).map((message) => message.content);
-  if (asked.length < 2 || asked.at(-1).trim().length >= MAX_SEARCH_QUERY_CHARS) return null;
-  return `${asked.at(-1)}\n${asked.at(-2)}`.slice(0, MAX_SEARCH_QUERY_CHARS);
+/** Has the visitor asked something before the latest message? */
+export function hasEarlierQuestion(messages) {
+  return userMessages(messages).length > 1;
 }

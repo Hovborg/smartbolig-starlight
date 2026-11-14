@@ -21,7 +21,7 @@ export const USEFUL_SCORE = 12;
 const CANDIDATES = 12;
 const PER_PAGE = 2;
 // A question reads at most 1 + MAX_QUERY_TERMS + MAX_CHUNK_FILES files (19),
-// so two searches in one chat request stay below the Worker's subrequest limit.
+// which keeps the one search of a chat request below the Worker's subrequest limit.
 const MAX_CHUNK_FILES = 8;
 // A chunk that answers more of the question's terms beats one that repeats a single term.
 const COVERAGE_BONUS = 0.6;
@@ -40,9 +40,7 @@ function checkMeta(meta) {
 
 /**
  * readJson(path) → parsed JSON of one index file, e.g. "/_index/da/meta.json".
- * Returns search(query, locale, limit, report) → [{ url, title, heading, text, score }], best first.
- * `report`, when given, is an object the search fills in: `terms` is how many
- * search terms the question has, `unknownTerms` how many of them no page uses.
+ * Returns search(query, locale, limit) → [{ url, title, heading, text, score }], best first.
  */
 export function createSiteSearch({ readJson }) {
   // The read value is kept, not the read in progress: a request that is
@@ -53,10 +51,9 @@ export function createSiteSearch({ readJson }) {
     return metas.get(locale);
   };
 
-  return async function search(query, locale = "da", limit = MAX_SITE_RESULTS, report = null) {
+  return async function search(query, locale = "da", limit = MAX_SITE_RESULTS) {
     if (!/^[a-z]{2}$/.test(locale)) return [];
     const wanted = queryTerms(query, locale);
-    if (report) Object.assign(report, { terms: wanted.length, unknownTerms: 0 });
     if (!wanted.length) return [];
     const meta = await metaFor(locale);
     const base = `${INDEX_ROOT}/${locale}`;
@@ -77,10 +74,7 @@ export function createSiteSearch({ readJson }) {
     for (const term of wanted) {
       const shard = shards.get(shardOf(term, meta.shards));
       const list = shard && Object.hasOwn(shard, term) ? shard[term] : null;
-      if (!Array.isArray(list) || !list.length) {
-        if (report) report.unknownTerms += 1;
-        continue;
-      }
+      if (!Array.isArray(list)) continue;
       for (let i = 0; i + 1 < list.length; i += 2) {
         const id = list[i];
         const weight = list[i + 1];

@@ -49,27 +49,32 @@ Sidst opdateret: 2026-11-14.
 - **Assistenten søger først (B62, tilføjelser):** fundet på den levende side, at et
   spørgsmål uden et smart home-ord ("Hvordan får jeg lyset til at tænde ved bevægelse?") gav
   33 s uden tekst, hele svaret på én gang og ingen kilder. Nu søges sidens indeks for hver
-  besked, der ikke er en ren afslutning (»Tak for det«, »Okay«), med beskeden alene. Finder
-  den intet alene, og har den kun ord, siden kender (»Kan du uddybe?«, »Fortsæt«, »Det virkede
-  ikke«), søges den én gang til sammen med brugerbeskeden før. Resultatet bruges, når beskeden
-  har et smart home-ord og opslaget fandt noget, eller bedste svar har mindst 12 point
-  (`USEFUL_SCORE`), og modellen får aldrig et værktøj: ét modelkald, der altid strømmer. Et
-  fejlet opslag meldes til modellen som »ikke tilgængeligt«, et tomt som »intet fundet«.
-  Bygget advarer (stopper ikke), når et spørgsmål i prøvelisterne flytter over grænsen. Tre
-  uafhængige gennemgange før udgivelsen: den første fandt, at et emneskift gav sider om det
-  gamle emne; den anden, at en opfølgning uden »den« eller »det« ingen sider fik; den tredje,
-  at ordreglerne fra den rettelse tog rigtige spørgsmål med sig (en anmodning med »tak« i blev
-  ikke søgt). Ordreglerne er taget ud igen, og reglen ovenfor står tilbage. Målt med
-  gennemgangens 1.281 samtaler mod det byggede indeks: en opfølgning uden »den« eller »det«
-  får åbningens sider i 57 af 84 danske samtaler (før 9) og 66 af 80 engelske (før 6), en bar
-  fortsættelse i 54 af 60 og 47 af 50 (før 0 og 2). 46 prøver med en fejl sat ind i koden
-  fanges alle af testene. Kendt: et spørgsmål om andet, hvor siden bruger alle ordene (»Hvad
-  er klokken?«), får det gamle emnes kilder (36 af 96 danske og 40 af 80 engelske spørgsmål om
-  andet får en kilde); en opfølgning, der selv når grænsen (»Virker den uden internet?«), får
-  sine egne sider; nogle hverdagsspørgsmål når stadig grænsen (2 af 20 danske, 6 af 24
-  engelske) og kan få en kilde; tiden til første ord (ca. 19 s, modellens tænketid) er ikke
-  ændret og står på listen til ejeren. Tal og grænser: `docs/assistent.md`, "Målt med
-  samtaler".
+  besked, der ikke er en ren afslutning (»Tak for det«, »Okay«), med beskeden alene og højst
+  én gang. Resultatet bruges, når beskeden har et smart home-ord og opslaget fandt noget,
+  eller bedste svar har mindst 12 point (`USEFUL_SCORE`), og modellen får aldrig et værktøj:
+  ét modelkald, der altid strømmer. Et fejlet opslag meldes til modellen som »ikke
+  tilgængeligt«, et tomt som »intet fundet«, og en senere besked uden sider som »ingen side
+  til den seneste besked« (`continued`): modellen svarer da ud fra samtalen. Bygget advarer
+  (stopper ikke), når et spørgsmål i prøvelisterne flytter over grænsen. Fire uafhængige
+  gennemgange før udgivelsen: den første fandt, at et emneskift gav sider om det gamle emne;
+  den anden, at en opfølgning uden »den« eller »det« ingen sider fik; den tredje, at
+  ordreglerne fra den rettelse tog rigtige spørgsmål med sig; den fjerde, at reglen, der stod
+  tilbage (søg sammen med beskeden før, når beskeden intet finder alene og kun har ord, siden
+  kender), gav et nyt emne lige under grænsen og afslutninger som »Tak for din hjælp« det
+  tidligere spørgsmåls sider. Målt bagefter: indekset kan ikke skelne en opfølgning fra et
+  nyt emne eller en afslutning (hverken point, antal søgeord eller ordenes sjældenhed).
+  Derfor søges en besked nu aldrig sammen med en tidligere. Målt med den tredje og den
+  fjerde gennemgangs 2.261 samtaler mod det byggede indeks: i alle viser den senere besked
+  præcis de kilder, den viser som første besked. 181 prøver med en fejl sat ind i koden
+  fanges alle af testene. Pris, kendt: en opfølgning uden eget emne (»Kan du uddybe?«) får
+  ingen nye sider og ingen kildelinks (356 af 524 danske og 340 af 485 engelske
+  opfølgningssamtaler); svaret bygger på samtalen. Kendt i øvrigt: en opfølgning, der selv når
+  grænsen (»Hvad koster det cirka?«), får sine egne sider; et nyt smart home-emne under
+  grænsen (»Hvordan styrer jeg min garageport?«) får ingen kilder; nogle hverdagsspørgsmål når
+  stadig grænsen (2 af 20 danske, 6 af 24 engelske) og kan få en kilde; tiden til første ord
+  (ca. 19 s, modellens tænketid) er ikke ændret og står på listen til ejeren. Muligt næste
+  skridt, ikke bygget: lade modellen skrive søgeteksten til en opfølgning (ét modelkald mere).
+  Tal og grænser: `docs/assistent.md`, "Målt med samtaler".
 - **Automatiske opdateringer set i drift 2026-11-14:** Dependabot åbnede otte pull requests
   efter udgivelsen. Gruppen med små npm-opdateringer (PR #192) blev flettet af sig selv, efter
   at `deploy`-kontrollen var grøn, og kontrollerne kørte derefter på `main`. Starlight 0.42.8

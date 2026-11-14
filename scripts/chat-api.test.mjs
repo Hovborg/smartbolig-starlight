@@ -572,7 +572,7 @@ test("fallback after a search that found nothing keeps the nothing-found prompt 
     env: createEnv(),
     locale: "da",
     messages: validBody("Find en relevant guide på hjemmesiden.").messages,
-    searchSmartbolig: async () => ({ results: [], weak: true }),
+    searchSmartbolig: async () => ({ results: [] }),
   });
 
   assert.equal(result.answer, "Et direkte svar uden et søgeresultat.");
@@ -1524,7 +1524,7 @@ test("a tool call in the model's output is never executed and never starts a sec
     messages: validBody("Find en relevant artikel.").messages,
     searchSmartbolig: async () => {
       searches += 1;
-      return { results: [], weak: true };
+      return { results: [] };
     },
   });
 
@@ -1545,7 +1545,7 @@ test("legacy Workers AI response shape remains compatible during platform transi
     env: createEnv(),
     locale: "da",
     messages: validBody("Find en relevant artikel.").messages,
-    searchSmartbolig: async () => ({ results: [], weak: true }),
+    searchSmartbolig: async () => ({ results: [] }),
   });
 
   assert.equal(result.answer, "Et svar fra det ældre bindingformat.");

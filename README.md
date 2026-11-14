@@ -58,9 +58,10 @@ specialdesignet Astro-widget:
   under `/_index/`; der bruges ingen betalt søgetjeneste (se
   [`docs/assistent.md`](docs/assistent.md), kontrolleret 2026-11-14). Hver
   besked, der ikke er en ren afslutning (»Tak for det«, »Okay«), får et
-  afgrænset opslag med beskeden alene, før modellen kaldes. Finder den intet
-  alene, og har den kun ord, siden kender (»Kan du uddybe?«, »Fortsæt«), søges
-  den igen sammen med brugerbeskeden før. Resultatet gives til
+  afgrænset opslag med beskeden alene, før modellen kaldes. En besked søges
+  aldrig sammen med en tidligere besked: en opfølgning uden eget emne (»Kan du
+  uddybe?«, »Fortsæt«) får ingen nye sider, og modellen svarer da ud fra
+  samtalen. Resultatet gives til
   den brede model som ubetroet reference-data, når spørgsmålet har et
   smart-home/homelab-ord og opslaget fandt noget, eller det bedste svar har
   mindst 12 point; ellers svarer modellen uden sidens tekst og uden kilder. Modellen får aldrig et
@@ -252,7 +253,7 @@ Guidesidernes top, sidemenu og sidefod er beskrevet i `docs/designsystem.md` und
 | `request.js` | begrænset læsning af kroppen og validering af samtalen |
 | `sources.js` | kanoniske SmartBolig-URL'er, titler og søgeresultater |
 | `prompt.js` | systemprompten og referencedata til den seneste besked |
-| `search-need.js` | ordene, der afgør opslaget (smart home-ord og afslutningsord), reglen for, hvornår en besked læner sig op ad beskeden før, og søgeteksten for to beskeder sammen (seneste besked, så brugerbeskeden før) |
+| `search-need.js` | ordene, der afgør opslaget (smart home-ord og afslutningsord), og om læseren har spurgt om noget før den seneste besked |
 | `yaml-request.js` | hvilken YAML-form og automation-`mode` brugeren har bedt om |
 | `yaml-checks.js` | kontrol af YAML i svaret mod den ønskede form |
 | `answer.js` | udtræk af modelsvar og accept af svar |

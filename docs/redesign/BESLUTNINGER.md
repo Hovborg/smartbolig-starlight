@@ -1013,6 +1013,53 @@ udgave og ikke den udgivne.
   blinkede bare rødt« får intet); 46 fejl sat ind i koden én ad gangen, og testene fejler på
   dem alle; `npm run site:test`. Tal og grænser: `docs/assistent.md`, "Målt med samtaler".
 
+### B62, tilføjelse efter den fjerde gennemgang af søg først (2026-11-14)
+
+Denne tilføjelse afløser reglerne om opfølgninger i de tre tilføjelser ovenfor.
+
+- Fundet af gennemgangen, blokerende. Begge fejl kom af reglen »finder beskeden intet alene,
+  og bruger siden alle dens søgeord, søges den sammen med brugerbeskeden før«: (1) et nyt emne
+  lige under pointgrænsen (»Hvordan styrer jeg min garageport?«, 11,81 point) fik det
+  tidligere spørgsmåls sider, i 55 af gennemgangens 240 samtaler med et nyt emne; (2)
+  afslutninger og spørgsmål om assistenten i andre ord end listens (»Tak for din hjælp«,
+  »Hvem er du?«, »👍«) fik det tidligere emnes kilder.
+- Målt, før der blev valgt: på gennemgangens egne beskeder skiller hverken bedste point,
+  antallet af søgeord eller hvor mange stykker af siden der bruger hvert ord, en opfølgning
+  fra et nyt emne eller en afslutning. »Kan du uddybe?« og »Hvem er du?« ser ens ud for
+  indekset. Fire runder har vist det samme på hver sin måde.
+- Valgt: en besked søges altid alene og højst én gang, og siderne fra et tidligere spørgsmål
+  gives aldrig til en senere besked. Begrundelse: det er den eneste regel, hvis fejl altid er
+  den samme og den mildeste, nemlig et svar uden kilder. Et link til en side om noget andet
+  under et »Tak« eller et nyt spørgsmål koster læserens tillid; en manglende kilde gør ikke.
+- Valgt: en senere besked uden sider får sin egen tilstand i prompten (`continued`). Modellen
+  får at vide, at der ikke er givet en side til den seneste besked: fortsætter den samtalen,
+  svares der ud fra samtalen, uden at noget nyt fremstilles som kommende fra SmartBolig;
+  spørger den om noget nyt, svares der ud fra bred viden. Begrundelse: teksten til en første
+  besked (»der blev ikke fundet en relevant side«) passer ikke på »Kan du uddybe?«, hvor
+  modellen lige har svaret ud fra sidens uddrag.
+- Valgt: afslutningsordene og fyldet omkring dem står ord for ord i testen. Flere fyldord er
+  kommet til efter gennemgangens egne afslutninger (din, dit, svar, og, jeg, vil, prøve,
+  your, and, try m.fl.).
+- Pris, kendt: en opfølgning uden eget emne får ingen nye uddrag og ingen kildelinks: 356 af
+  524 danske og 340 af 485 engelske opfølgningssamtaler i målingen. Den forrige regel gav
+  åbningens sider til en opfølgning uden »den« eller »det« i 57 af 84 danske og 66 af 80
+  engelske samtaler. Modellen har stadig hele samtalen, også sit eget svar, og kilderne under
+  det tidligere svar står der stadig.
+- Pris, kendt: en opfølgning, der selv når grænsen (»Hvad koster det cirka?«), får sider om
+  sine egne ord, ikke nødvendigvis om åbningens emne.
+- Fravalgt: endnu en ordregel eller en grænse på point, antal søgeord eller ordenes
+  sjældenhed. Målingen ovenfor viser, at ingen af dem skiller de tre slags beskeder ad.
+- Fravalgt nu, muligt senere: at lade modellen skrive søgeteksten til en opfølgning. Det
+  koster ét modelkald mere pr. opfølgning (neuroner og ventetid) og skal måles først. Også
+  muligt: at give modellen det tidligere spørgsmåls uddrag mærket som tidligere, uden at vise
+  dem som kilder.
+- Kontrolleret: den tredje og den fjerde gennemgangs 2.261 samtaler på to beskeder (1.186
+  danske, 1.075 engelske) mod det byggede indeks: i alle viser den senere besked præcis de
+  kilder, den viser som første besked, og den søges højst én gang; 30 samtaler på tre
+  beskeder ligeså. 181 fejl sat ind i koden én ad gangen, og testene fejler på dem alle;
+  `npm run site:test`. Ikke kontrolleret før udgivelsen: hvordan den rigtige model svarer på
+  en opfølgning med den nye prompt. Tal og grænser: `docs/assistent.md`, "Målt med samtaler".
+
 ## B63. Forsiden: værktøjer med elprisen lige nu (2026-11-14)
 
 - Valgt: en sektion på forsiden efter de tre etaper med et kort, der viser elprisen i dette

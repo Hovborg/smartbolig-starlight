@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { hasSmartHomeWord, isClosing, isFollowUp, joinedQuery, latestQuestion } from "../functions/lib/chat/search-need.js";
+import { hasEarlierQuestion, hasSmartHomeWord, isClosing, latestQuestion } from "../functions/lib/chat/search-need.js";
 
 const all = (check, expected, texts) => {
   for (const text of texts) assert.equal(check(text), expected, text);
@@ -99,6 +99,15 @@ test("thanks, a goodbye, a greeting and a short 'fine' are closings, with whatev
     "Tak for hjælpen",
     "Tak, det var en stor hjælp",
     "Tak, ha' det godt",
+    "Tak for din hjælp",
+    "Mange tak for dit svar",
+    "Tak for svar",
+    "Tak og farvel",
+    "Tak og god weekend",
+    "Hav en god dag",
+    "Tak, så prøver jeg det",
+    "Tak, det vil jeg prøve",
+    "Hej SmartBolig",
     "Takker",
     "Ok super",
     "Okay",
@@ -133,6 +142,12 @@ test("thanks, a goodbye, a greeting and a short 'fine' are closings, with whatev
     "Good morning",
     "Good night",
     "That's all, bye",
+    "Thanks for your help",
+    "Thank you for your answer",
+    "Thanks and goodbye",
+    "Have a nice day",
+    "Thanks, I'll give it a go",
+    "Thanks, I'll try that",
     "Goodbye",
     "Hello",
   ]);
@@ -149,6 +164,11 @@ test("any other word, or a question mark, makes the message something to search 
     "Thanks, but it still fails",
     "Thanks, but does it work with Hue?",
     "Okay, og uden hub",
+    "Tak og hvad så nu",
+    "Tak for dit svar om Zigbee",
+    "Tak, jeg vil prøve en anden hub",
+    "SmartBolig",
+    "Thanks and what about the hub",
     "Er det godt?",
     // Only whole words count.
     "Taksten er høj",
@@ -176,36 +196,52 @@ test("any other word, or a question mark, makes the message something to search 
   ]);
 });
 
-test("a message leans on the one before it when the site knows every word of it", () => {
-  assert.equal(isFollowUp(0), true);
-  assert.equal(isFollowUp(1), false);
-  assert.equal(isFollowUp(3), false);
+// The two word lists, word for word. A word that is taken out of a list, or
+// one that slips into it, fails here.
+const CLOSING = [
+  "tak", "takker", "farvel", "hej", "hejsa", "goddag", "godmorgen", "godaften", "godnat", "ok", "okay", "super", "fint", "godt", "god",
+  "perfekt", "fedt", "dejligt", "fantastisk", "forstået", "mening",
+  "thanks", "thank", "thx", "cheers", "bye", "goodbye", "alright", "fine", "great", "perfect", "nice", "cool", "awesome", "understood",
+  "sense", "good", "goodnight", "helps", "got", "hi", "hello", "hey",
+];
+const PADDING = [
+  "for", "det", "den", "du", "dig", "din", "dit", "skal", "have", "hav", "hjælpen", "hjælp", "svaret", "svar", "nu", "nå", "så", "lige",
+  "bare", "meget", "mange", "tusind", "var", "er", "alt", "giver", "lyder", "igen", "med", "en", "stor", "at", "vide", "virker", "og",
+  "dag", "morgen", "aften", "nat", "weekend", "ha", "jeg", "vil", "prøve", "prøver", "smartbolig",
+  "you", "your", "so", "much", "very", "a", "lot", "the", "help", "answer", "that", "that's", "it", "it's", "this", "was", "is", "all",
+  "now", "i", "see", "sounds", "makes", "and", "day", "morning", "afternoon", "evening", "night", "one", "again", "to", "know", "big",
+  "works", "i'll", "try", "give", "go",
+];
+// Words of a question, a problem or an answer: none may close a message or pad a closing.
+const NEITHER = [
+  "ja", "nej", "yes", "no", "fortsæt", "mere", "hvorfor", "hvordan", "hvad", "hvem", "kan", "ikke", "virkede", "men", "om", "uden",
+  "anden", "hub", "fejl", "koster", "why", "how", "what", "who", "can", "not", "but", "about", "more", "continue", "failed", "cost",
+];
+
+test("every closing word closes a message on its own", () => {
+  all(isClosing, true, CLOSING);
+});
+
+test("every padding word pads a closing and closes nothing on its own", () => {
+  all(isClosing, false, PADDING);
+  all(isClosing, true, PADDING.map((word) => `Tak ${word}`));
+});
+
+test("a word of a question, a problem or an answer neither closes a message nor pads a closing", () => {
+  all(isClosing, false, NEITHER);
+  all(isClosing, false, NEITHER.map((word) => `Tak ${word}`));
 });
 
 const conversation = (...questions) =>
   questions.flatMap((content, index) => [...(index ? [{ role: "assistant", content: "Svar" }] : []), { role: "user", content }]);
 
-test("the joined query is the latest question and the one user message before it, nothing older", () => {
-  assert.equal(joinedQuery(conversation("Første", "Anden", "Hvad koster den?")), "Hvad koster den?\nAnden");
-  assert.equal(joinedQuery(conversation("Anden", "Hvad koster den?")), "Hvad koster den?\nAnden");
-  assert.equal(joinedQuery(conversation("Hvad koster den?")), null);
-  assert.equal(joinedQuery([{ role: "assistant", content: "Svar" }]), null);
+test("the latest question is the last user message, and only user messages count as earlier questions", () => {
   assert.equal(latestQuestion(conversation("Første", "Anden")), "Anden");
   assert.equal(latestQuestion([{ role: "assistant", content: "Svar" }]), "");
-});
 
-test("the joined query is cut at the longest query the search takes, with the latest question first", () => {
-  const latest = `Hvad koster den? ${"B".repeat(300)}`;
-  const query = joinedQuery(conversation("A".repeat(300), latest));
-
-  assert.equal(query.length, 400);
-  assert.ok(query.startsWith("Hvad koster den?"));
-  assert.ok(query.endsWith("A"), "what is left is filled from the message before");
-});
-
-test("there is no joined query when the latest question fills the search alone", () => {
-  assert.equal(joinedQuery(conversation("Anden", "B".repeat(400))), null);
-  assert.equal(joinedQuery(conversation("Anden", `  ${"B".repeat(400)}  `)), null);
-  assert.equal(joinedQuery(conversation("Anden", "B".repeat(399))), `${"B".repeat(399)}\n`);
-  assert.equal(joinedQuery(conversation("Anden", `${"B".repeat(390)}          `)).length, 400);
+  assert.equal(hasEarlierQuestion(conversation("Første")), false);
+  assert.equal(hasEarlierQuestion([{ role: "assistant", content: "Hej" }, { role: "user", content: "Første" }]), false);
+  assert.equal(hasEarlierQuestion(conversation("Første", "Anden")), true);
+  assert.equal(hasEarlierQuestion(conversation("Første", "Anden", "Tredje")), true);
+  assert.equal(hasEarlierQuestion([]), false);
 });

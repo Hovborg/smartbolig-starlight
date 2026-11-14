@@ -342,22 +342,6 @@ test("no words, unknown words and filler words give no results and read no term 
   assert.deepEqual(await search("kvantecomputer", "da"), []);
 });
 
-test("the search reports how many of a question's terms no page uses, and the report changes no result", async () => {
-  const { search } = indexOf(PAGES);
-  const report = {};
-
-  const found = await search("zigbee kvantecomputer", "da", 5, report);
-  assert.deepEqual(report, { terms: 2, unknownTerms: 1 });
-  assert.deepEqual(found, await search("zigbee kvantecomputer", "da", 5));
-
-  await search("kvantecomputer hovedstaden", "da", 5, report);
-  assert.deepEqual(report, { terms: 2, unknownTerms: 2 });
-  await search("zigbee", "da", 5, report);
-  assert.deepEqual(report, { terms: 1, unknownTerms: 0 });
-  await search("og eller men", "da", 5, report);
-  assert.deepEqual(report, { terms: 0, unknownTerms: 0 });
-});
-
 test("a damaged index is refused or skipped, never trusted", async () => {
   const broken = (meta) => createSiteSearch({ readJson: async () => meta })("zigbee", "da");
   await assert.rejects(broken({ v: 2, shards: 8, chunks: 1, chunksPerFile: 8 }), /SiteIndexInvalid/);

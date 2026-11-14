@@ -23,21 +23,17 @@ export function createTurn({
   const sourceMap = new Map(officialEvidence.sources.map((source) => [source.url, source]));
   // Searches the site. A result is used, and its pages become sources, when a smart
   // home word asked for the search (`always`) or its best score is at least USEFUL_SCORE.
-  // Otherwise nothing from it is kept: { results: [], weak: true, unknownTerms }, where
-  // unknownTerms is how many of the query's search terms no page of the site uses.
+  // Otherwise nothing from it is kept: { results: [] }.
   const searchSmartbolig = search
     ? async (query, { always = false } = {}) => {
         const safeQuery = typeof query === "string" ? query.trim().slice(0, MAX_SEARCH_QUERY_CHARS) : "";
-        if (safeQuery.length < 2) return { results: [], weak: !always, unknownTerms: 0 };
+        if (safeQuery.length < 2) return { results: [] };
 
         try {
-          const report = {};
-          const found = await withTimeout(() => search(safeQuery, chat.locale, MAX_SEARCH_RESULTS, report), searchTimeoutMs);
+          const found = await withTimeout(() => search(safeQuery, chat.locale, MAX_SEARCH_RESULTS), searchTimeoutMs);
           const normalized = normalizeSearchResults(found);
           const best = Math.max(...normalized.results.map((result) => result.score ?? -Infinity));
-          if (!always && !(best >= USEFUL_SCORE)) {
-            return { results: [], weak: true, unknownTerms: Number.isInteger(report.unknownTerms) ? report.unknownTerms : 0 };
-          }
+          if (!always && !(best >= USEFUL_SCORE)) return { results: [] };
 
           for (const source of normalized.sources) {
             if (!sourceMap.has(source.url)) sourceMap.set(source.url, source);

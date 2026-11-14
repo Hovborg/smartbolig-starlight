@@ -4,38 +4,31 @@
 import { extractModelAnswer } from "./answer.js";
 import { createModelRunner } from "./model-runs.js";
 import { buildSystemPrompt, withOfficialReference, withSmartboligReference } from "./prompt.js";
-import { hasSmartHomeWord, isClosing, isFollowUp, joinedQuery, latestQuestion } from "./search-need.js";
+import { hasEarlierQuestion, hasSmartHomeWord, isClosing, latestQuestion } from "./search-need.js";
 import { requestedHomeAssistantYamlShape } from "./yaml-request.js";
 
 const UNAVAILABLE = { searchState: "unavailable", supplied: null };
 const NOTHING = { searchState: "nothing", supplied: null };
-const stateOf = (found) => {
-  if (found.unavailable) return UNAVAILABLE;
-  if (found.weak || !found.results?.length) return NOTHING;
-  return { searchState: "supplied", supplied: found };
-};
+const CONTINUED = { searchState: "continued", supplied: null };
 
-// Decides what the site is searched for, at most twice per question. The rules
-// about wording are in search-need.js.
+// Decides what the model is told about the site, with one search at most. The
+// rules about wording are in search-need.js.
 // - A closing ("Tak for det", "Okay") is not searched for.
-// - Every other message is searched alone first, and a result that is good
-//   enough is used. A question the site answers on its own never gets the old
-//   topic's pages.
-// - When the message alone finds nothing and it leans on the one before it,
-//   the two are searched together; the pages are then the earlier question's.
+// - Every other message is searched for alone. A result that is good enough is
+//   used; the pages of an earlier question are never used for a later message.
 // Returns the state the prompt tells the model and the result to hand over:
-// "supplied" (pages found), "nothing" (nothing was found, or nothing was
-// searched for) or "unavailable" (a search failed).
+// "supplied" (pages found), "nothing" (a first message without pages),
+// "continued" (a later message without pages: the model has the conversation
+// to build on) or "unavailable" (the search failed).
 async function lookUpSite(searchSmartbolig, messages) {
   const latest = latestQuestion(messages);
-  if (isClosing(latest)) return NOTHING;
+  const withoutPages = hasEarlierQuestion(messages) ? CONTINUED : NOTHING;
+  if (isClosing(latest)) return withoutPages;
 
-  const alone = await searchSmartbolig(latest, { always: hasSmartHomeWord(latest) });
-  if (alone.unavailable || !alone.weak) return stateOf(alone);
-
-  const joined = joinedQuery(messages);
-  if (!joined || !isFollowUp(alone.unknownTerms)) return NOTHING;
-  return stateOf(await searchSmartbolig(joined));
+  const found = await searchSmartbolig(latest, { always: hasSmartHomeWord(latest) });
+  if (found.unavailable) return UNAVAILABLE;
+  if (!found.results?.length) return withoutPages;
+  return { searchState: "supplied", supplied: found };
 }
 
 export function createWorkersAgent(dependencies = {}) {

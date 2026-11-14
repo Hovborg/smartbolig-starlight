@@ -12,6 +12,14 @@ SmartBolig was searched, but no relevant SmartBolig page was found for this
 question. Answer from broad expert knowledge and make clear that the answer is
 general knowledge. Never invent a SmartBolig source, page or guide, and do not
 describe, imitate, or expose any search tool.`,
+  continued: `
+No SmartBolig page is supplied for the visitor's latest message. If it
+continues the earlier conversation (a follow-up question, a problem report, a
+thanks), answer from that conversation and do not present anything new as
+coming from SmartBolig. If it asks about something new, answer from broad
+expert knowledge and make clear that the answer is general knowledge. Never
+invent a SmartBolig source, page or guide, and do not describe, imitate, or
+expose any search tool.`,
   unavailable: `
 SmartBolig search is currently unavailable. Continue using broad expert
 knowledge and say when a version-sensitive claim should be checked against
