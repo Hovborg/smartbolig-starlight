@@ -39,7 +39,7 @@
   <path d="M52 574L46 562L58 562Z" fill="#4ade80"/>
   <text x="76" y="567" font-size="22" fill="#e2e8f0">Ned: dashboard</text>
   <text x="76" y="621" font-size="22" fill="#e2e8f0">Notifikationer: via Apples eller</text>
-  <text x="76" y="649" font-size="22" fill="#e2e8f0">Googles push-tjeneste</text>
+  <text x="76" y="651" font-size="22" fill="#e2e8f0">Googles push-tjeneste</text>
   <text x="320" y="714" font-size="22" fill="#a3b1c6" text-anchor="middle">Appen vælger adressen ud fra</text>
   <text x="320" y="744" font-size="22" fill="#a3b1c6" text-anchor="middle">det wifi-netværk, du er på.</text>
 </svg>

@@ -30,8 +30,8 @@ Appen hentes via [companion.home-assistant.io/download](https://companion.home-a
 
 <Steps>
 1. **Åbn appen** og vælg **Connect to my Home Assistant server** på
-   velkomstskærmen. Guiden bruger de engelske menunavne fra den officielle
-   dokumentation.
+   velkomstskærmen. Guiden bruger de engelske navne for appens egne skærme,
+   som den officielle dokumentation gør.
 
 2. **Vælg server.** Appen leder efter servere på netværket. Finder den én,
    tilbyder den at forbinde. Finder den ingen, eller er du ikke hjemme, så vælg
@@ -68,7 +68,8 @@ VPN. Den anbefalede vej er Home Assistant Cloud. Det hele står i
 [Sikker fjernadgang til Home Assistant](/da/sikkerhed/fjernadgang/).
 
 Appen vælger adresse ud fra navnet på det wifi-netværk, den er på. Under
-**Settings → Companion app → [din server]** finder du **Internal URL**, hvor du
+**Indstillinger → Home Assistant-appen** (engelsk: Settings → Companion app)
+**→ [din server]** finder du **Internal URL**, hvor du
 angiver hjemmenetværkets wifi-navne, og **Connection security level**. Appen kan
 kun aflæse wifi-navnet med adgang til placering: **Always** og **Precise** på iPhone,
 **Allow all the time** på Android. Uden den bruger **Most secure** kun den
@@ -108,11 +109,11 @@ kræver den. Apple Health-sensorer er slået fra, indtil du selv tænder dem.
 
 ## Tænd og sluk sensorer
 
-- **iPhone:** **Settings → Companion app → Sensors.** Har du flere servere, så
-  vælg først serveren under **Servers**.
-- **Android:** **Settings → Companion App → Manage Sensors**, og vælg en
-  sensor. Hyppigheden ligger i stedet under **Settings → Companion App →
-  Sensor Update Frequency**.
+- **iPhone:** **Indstillinger → Home Assistant-appen → Sensors.** Har du flere
+  servere, så vælg derefter serveren under **Servers** på samme skærm.
+- **Android:** **Indstillinger → Home Assistant-appen → Manage Sensors**, og
+  vælg en sensor. Hyppigheden ligger i stedet under **Indstillinger → Home
+  Assistant-appen → Sensor Update Frequency**.
 
 Skal en server slet ikke have sensorer fra en iPhone, så sæt **Sensors Sent** til
 **None** under **Privacy** på serveren.
@@ -137,8 +138,8 @@ Assistant Cloud, og ikke via andre servere.
 
 <Steps>
 1. Gå til **Indstillinger → Værktøjer → Handlinger** (engelsk: Settings →
-   Tools → Actions). Siden hed *Developer tools* før Home Assistant 2026.8 og
-   blev flyttet ind under Indstillinger i 2026.2.
+   Tools → Actions). Siden hed *Udviklerværktøjer* (engelsk: Developer tools) før
+   Home Assistant 2026.8 og blev flyttet ind under Indstillinger i 2026.2.
 2. Vælg en handling, der starter med `notify.mobile_app_`, efterfulgt af din
    telefons ID. ID'et bygger på enhedens navn, hvor mellemrum og specialtegn er
    erstattet af understregning.
@@ -167,14 +168,14 @@ dens tilladelser er givet.
 
 **Placeringen sidder fast.** Sæt placering til *Allow all the time* (Android)
 eller *Always* (iPhone). På Android skal du desuden tænde GPS og give præcis
-placering, og **Background location**, **Location zone** og **Single accurate
-location** skal være tændt under **Manage Sensors**. Appen må ikke være begrænset
+placering, og **Background Location**, **Location Zone** og **Single Accurate
+Location** skal være tændt under **Manage Sensors**. Appen må ikke være begrænset
 af batterioptimering. Hænger din
 `person`-entitet, så fjern tracking-enheder, der bare står hjemme eller ikke
 bruges længere.
 
 **Notifikationer kommer ikke.** Prøv først testbeskeden ovenfor. Kommer den, er
-din oprindelige besked sandsynligvis fejlformet. Hver app kan højst modtage 500
+din oprindelige besked sandsynligvis fejlformet. Hver telefon kan højst modtage 500
 notifikationer om dagen, og tælleren nulstilles ved midnat UTC. Tjek, at
 telefonen tillader notifikationer fra Home Assistant; på Android gælder det også
 den kanal, du bruger.
