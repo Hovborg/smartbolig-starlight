@@ -54,7 +54,7 @@ Sidst opdateret: 2026-11-14.
   Udgivet 2026-11-14 (PR #195, `main` e0c6f9a, Worker-version 680d5226). Set på den levende
   forside i headless Chrome: med grafikkort er huset levende og tegnes i en worker; uden
   grafikkort står stillbilledet, og three.js hentes ikke. Ikke set: Safari og Firefox på en
-  rigtig enhed (TIL-EJEREN punkt 9). Vej tilbage: Worker-version db439722.
+  rigtig enhed (TIL-EJEREN punkt 15). Vej tilbage: Worker-version db439722.
 - **Søgemaskinernes grundregler (B54):** omdirigeringer for gamle adresser, `robots.txt` uden
   grupper til Googlebot og Bingbot og med Anthropics træningscrawler spærret, ingen HowTo-data,
   `og:type` efter sidens slags, forside uden brødkrumme-liste. Uafhængig gennemgang; fund
