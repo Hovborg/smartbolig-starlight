@@ -62,8 +62,16 @@ Hver farve har en rolle. Brug rollen, ikke en bestemt nuance.
 Regler:
 
 - Tekst skal have kontrast 4,5:1 mod sin baggrund (overskrifter og brødtekst 7:1).
-  `scripts/site-design-tokens.test.mjs` tester parrene i begge temaer.
+  `scripts/site-design-tokens.test.mjs` tester parrene i begge temaer. Parrene står i `PAIRS`
+  øverst i testen, hvert med sit krav: fx `--sb-ink` mod `--sb-bg`, `--sb-bg-subtle` og
+  `--sb-surface` (7:1), og `--sb-warm` mod `--sb-warm-soft` og `--sb-bg` (4,5:1). Et par, der
+  ikke står i listen, bliver ikke testet.
+- `--sb-ink-strong` er overskrifter, `--sb-ink` brødtekst. Hold `--sb-ink` svagere end
+  `--sb-ink-strong`, ellers forsvinder forskellen mellem dem. Ingen test ser det.
 - `-vivid`-farver er til illustrationer og ikoner. De består ikke tekstkravet.
+- `-soft` og `-vivid` er egne værdier og følger ikke hovedfarven af sig selv. Flyttes
+  `--sb-warm`, så se, om `--sb-warm-soft` og `--sb-warm-vivid` skal med; kontrasttesten
+  fejler, hvis teksten på `-soft` bliver for svag.
 - Gennemsigtige varianter laves med `color-mix(in srgb, var(--sb-accent) 12%, transparent)`.
 - Lyst og mørkt tema har de samme tokens. En komponent skal aldrig spørge, hvilket
   tema der er aktivt.
@@ -129,7 +137,7 @@ Hjørnetrinene og hvad de bruges til (talt i `src/` 2026-11-14 med
 | Trin | Værdi | Bruges til |
 |---|---|---|
 | `--sb-radius-sm` | 0,5 rem | Små ting: felter, mærkater, links i en række, kode, punkter i sidemenuen |
-| `--sb-radius-md` | 0,875 rem | Bokse inde i brødteksten: `ProductCard`, `FAQ`, noter og tabeller (`blocks.css`), felter og resultater i værktøjerne, assistentens beskeder, kortet på 404-siden |
+| `--sb-radius-md` | 0,875 rem | Bokse inde i brødteksten: `ProductCard`, `FAQ`, noter og tabeller (`blocks.css`), billeder i en guides tekst (`prose.css`), felter og resultater i værktøjerne, assistentens beskeder, kortet på 404-siden |
 | `--sb-radius-lg` | 1,25 rem | Starlights kort i en guides tekst (`<Card>` og `<LinkCard>`: `.card` og `.sl-link-card` i `blocks.css`) og kort og rammer på sideniveau: forsidens kort, nyhedskortene, guidens hoved, værktøjets ramme, topbjælke og sidemenu, assistentens knap |
 | `--sb-radius-xl` | 1,75 rem | Store paneler: forsidens scene, assistentens panel |
 | `--sb-radius-pill` | 999 px | Knapper og piller |
@@ -163,6 +171,9 @@ nyt trin i `scale.css` (se "Tilføj en ny farve eller størrelse"), og skriv det
 2. Ret værdien. For farver: ret både lyst og mørkt tema (`:root` er lyst,
    `[data-theme="dark"]` er mørkt), medmindre kun det ene skal ændres. Retter du et hjørnetrin
    eller en anden værdi, der står med tal i dette dokument, så ret tallet her også.
+   Eksempel: "lysere brødtekst og en mere orange varm farve i mørkt tema" er `--sb-ink` og
+   `--sb-warm` i `[data-theme="dark"]`-blokken i `color.css`; reglerne under "Farver" siger,
+   hvad der skal følge med.
 3. Står farven også i `scripts/lib/brand/palette.mjs` (baggrund, accent, tekstfarver, flader og
    linjer), så ret den samme værdi dér, og kør `npm run brand:build`. Logo, favicon, appikoner,
    delingsbilledet og nyhedsbillederne tegnes ud fra den fil, ikke fra CSS.
@@ -186,8 +197,10 @@ nyt trin i `scale.css` (se "Tilføj en ny farve eller størrelse"), og skriv det
 6. Kør `npm run dev`, og se forsiden, en guide og et værktøj i begge temaer ved 375 og 1440 px.
    Ingen test ser, om det er pænt. Før udgivelse skal `npm run build` og resten af listen i
    `AGENTS.md` bestå som ved enhver anden ændring.
-7. Skriv ændringen i `CHANGELOG.md`. Er det et valg (en ny farve, et andet udtryk), så også i
-   `docs/redesign/BESLUTNINGER.md`.
+7. Skriv ændringen i `CHANGELOG.md`. Er det et valg, så også i
+   `docs/redesign/BESLUTNINGER.md`. Et valg er en ny farve, et nyt trin eller et andet udtryk
+   for hele siden (en anden accentfarve, rundere hjørner overalt). At flytte én værdi lidt,
+   fordi den var svær at læse, er en rettelse og hører kun til i `CHANGELOG.md`.
 
 ### Tilføj en ny farve eller størrelse
 

@@ -232,6 +232,11 @@ Sidst opdateret: 2026-11-14.
   Anden runde med tre nye læsere og nye opgaver af samme slags: guiden "ja"; design og
   nyheder "delvist", begge med ordene "opskriften virker som skrevet" og hver med ét hul
   (en tredje kopi af accentfarven; en kørsel uden tidspunkt i titlen), som også er rettet.
+  Tredje runde (design og nyheder): designlæseren fandt en fejl i den nye tabel over
+  hjørnetrin og fem kopier mere af den mørke sidefarve; rettet, og testen holder dem nu.
+  Fjerde runde (design og nyheder): design "ja"; nyheder "delvist", fordi der manglede en
+  opskrift for en manglende udgave og en tabel over lofterne. Begge dele er skrevet ind.
+  Ikke kontrolleret: en femte runde efter de sidste rettelser.
 
 ## Udgivelser og vej tilbage
 

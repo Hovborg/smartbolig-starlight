@@ -1046,5 +1046,12 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   den mørke sidefarve står fem steder mere, hvoraf to ikke blev holdt af en test. Tabellen er
   rettet, og testen holder nu alle kopierne. Nyhedslæseren manglede, hvordan man ser, hvem
   der startede en kørsel, og rækker for et rødt `slot`- og `watch`-job.
+- Fjerde runde (design og nyheder, nye læsere og nye opgaver): designlæseren svarede "ja" og
+  foreslog småting, som er skrevet ind (hvilke par kontrasttesten tester, at `-soft` og
+  `-vivid` ikke følger hovedfarven af sig selv, at billeder i en guide bruger `-md`, og
+  hvornår en ændring er et valg). Nyhedslæseren svarede "delvist": der manglede en kort
+  opskrift for "dagens udgave mangler" med den præcise kommando, en tabel over, hvad hvert
+  loft gør, når det nås, og at en reserve også holder sig i ro efter en fejlet kørsel. Det er
+  skrevet ind. Der er ikke kørt en femte runde.
 - Indholdsguiden beskrev en `200`-regel for "pæne" engelske adresser. Den bruges ikke (gamle
   engelske adresser sendes videre med 301), og afsnittet er skrevet om.
