@@ -123,6 +123,7 @@ Konsekvens: som i baselinen viser score, vægt, request-antal og TBT siden UDEN 
 |---|---|---|---|---|---|---|---|---|---|---|
 | mobile | 100 | 100 | 96 | 100 | 1.0 s | 0 | 18 ms | 1.2 s | 345 KiB | 19 |
 | desktop | 100 | 100 | 96 | 100 | 0.3 s | 0 | 0 ms | 0.4 s | 340 KiB | 18 |
+
 Overblik: Performance 99-100 på alle 16 kørsler (baseline 89-100). Accessibility 100 overalt (baseline 96-100). Best Practices 96 overalt (baseline 92-96). SEO 100 overalt. CLS er 0 på alle 16 kørsler (baseline: op til 0,229). Disse tal er som baselinen målt uden annoncescriptet (se forbeholdet).
 
 ## Før og efter

@@ -246,8 +246,8 @@ Sidst opdateret: 2026-11-14.
   wikien er slået fra; en test kræver, at hver handling i hver workflow er låst til et commit.
   Set 2026-11-14: den første planlagte nyhedskørsel startede selv kl. 11:43 UTC og lykkedes;
   sidevagten bestod alle 14 kontroller i en kørsel startet i hånden. **Udgivet 2026-11-14**
-  (PR #208, Worker `b79c25e4`). Ikke set endnu: en planlagt sidevagtskørsel, en reservekørsel,
-  og at en grøn kørsel selv lukker en åben sag (se "Næste skridt").
+  (PR #208, Worker `b79c25e4`). Ikke set endnu: en planlagt sidevagtskørsel, en reserve, der
+  tager over, og at en grøn kørsel selv lukker en åben sag (se "Åbent").
 - **Værktøjer, to mere (B66):** Zigbee-kanalvælger (`/vaerktoejer/zigbee-kanal/`) og
   batterilevetid (`/vaerktoejer/batterilevetid/`) på begge sprog, i den fælles ramme, med
   kilder på siderne. Set i headless Chrome i mørkt og lyst tema ved 320, 375 og 1440 px, med
@@ -301,19 +301,23 @@ Sidst opdateret: 2026-11-14.
   tegningen hentes, og siden står i sitemappet; indeksering er anmodet i Search Console for
   begge sprog. Ikke afprøvet: trinnene er ikke fulgt på en telefon.
 - **Eftermåling 2026-11-14:** de samme otte adresser som før-målingen, målt med samme
-  fremgangsmåde mod den levende side (Worker `336b9305`). Rapport med alle tal, forbehold og
-  sikkerhedshoveder før og efter: `docs/measurements/2026-11-14-efter-redesign/README.md`
-  (de to mellemmålinger ligger ved siden af). Lighthouse, enkeltmålinger: Performance 98-99
-  på mobil og 100 på desktop på alle otte sider (før: 96-100, produktsiden 89 på desktop),
-  Best Practices 96 overalt (før 92 på fire sider), SEO 100, Accessibility 100 på syv sider.
-  Forsiden på mobil: LCP 2,3 s til 2,4 s, TBT 110 ms til 19 ms. Produktsiden på desktop: CLS
-  0,229 til 0. Overført vægt på guides og produktsiden: 507-509 KiB til 299-324 KiB.
-  Sikkerhedshoveder: den strenge CSP uden `'unsafe-inline'` for scripts sendes nu som
-  rapport, og filer med hash i navnet caches i et år; resten er uændret. Nyhedsoversigten fik
-  Accessibility 96: linket til en historie var 23,8 px højt (kravet er 24 px). Det er rettet
-  i `StoryDigest.astro`. Målt bagefter med Lighthouse (kun Accessibility) mod den byggede
-  side, serveret lokalt: 100 på `/da/ai/nyheder/` og `/en/ai/nyheder/`, mobil og desktop, og
-  `target-size` er bestået. Ikke målt igen på den levende side.
+  fremgangsmåde mod den levende side kl. 19:57-20:02 UTC, et minut efter at udgivelsen af
+  #214 sluttede (Worker `336b9305`; versionen er ikke aflæst udefra). Rapport med alle tal,
+  forbehold og sikkerhedshoveder før og efter:
+  `docs/measurements/2026-11-14-efter-redesign/README.md` (de to mellemmålinger ligger ved
+  siden af). Lighthouse, enkeltmålinger: Performance 98-99 på mobil og 100 på desktop på alle
+  otte sider (før: 96-100, produktsiden 89 på desktop), Best Practices 96 overalt (før 92 på
+  fire sider), SEO 100, Accessibility 100 på syv sider. Forsiden på mobil: LCP 2,3 s til
+  2,4 s, TBT 110 ms til 19 ms. Produktsiden på desktop: CLS 0,229 til 0. Overført vægt på
+  guides og produktsiden: 507-511 KiB til 299-324 KiB. Sikkerhedshoveder: den strenge CSP
+  uden `'unsafe-inline'` for scripts sendes nu som rapport, og filer med hash i navnet
+  caches i et år. Den håndhævede CSP har stadig `'unsafe-inline'` for scripts, men andre
+  værtslister (Google Fonts og Ezoic er ude); de øvrige hoveder er uændrede.
+  Nyhedsoversigten fik Accessibility 96: linket til en historie var 23,8 px højt (kravet er
+  24 px). Det er rettet i `StoryDigest.astro`. Målt bagefter med Lighthouse (kun
+  Accessibility) mod den byggede side, serveret lokalt: 100 på `/da/ai/nyheder/` og
+  `/en/ai/nyheder/`, mobil og desktop, og `target-size` er bestået. Ikke målt igen på den
+  levende side.
 
 ## Udgivelser og vej tilbage
 
@@ -367,11 +371,12 @@ Det, der ikke er gjort. Det, kun ejeren kan gøre, står i [TIL-EJEREN.md](TIL-E
   besøgende med grafikkort (med metodens software-tegning lader siden stillbilledet stå;
   `docs/3d-hus.md` har egne tal). Forsiden på desktop har CLS 0,021 (to små skift i
   `.home-stage__screen`); grænsen for "god" er 0,1.
-- **Ikke set køre endnu:** en planlagt sidevagtskørsel (ingen var startet 2026-11-14 kl. 20:00
-  UTC), og at en grøn sidevagtskørsel selv lukker en åben sag. Reservekørslen for nyhederne
-  er set 2026-11-14: kørslen til 14:37 UTC holdt sig i ro ("Not writing: run … already
-  covered the late slot today"), fordi kørslen til 11:37 var startet. GitHub startede begge
-  ca. fem timer for sent (17:16 og 19:24 UTC).
+- **Ikke set køre endnu:** en planlagt sidevagtskørsel (ingen var startet 2026-11-14 kl. 20:28
+  UTC), at en grøn sidevagtskørsel selv lukker en åben sag, og en nyhedsreserve, der tager
+  over. Set 2026-11-14: en reserve, der holder sig i ro. Linjen `37 11` startede kl. 11:43 UTC
+  (før reserverne kom på `main`) og igen kl. 17:16 UTC; reserven `37 14` startede kl. 19:24
+  UTC og skrev "Not writing: run … already covered the late slot today". De to sidste
+  startede 5 t 39 min og 4 t 47 min efter deres tidspunkt.
 
 ## Næste skridt
 

@@ -12,9 +12,12 @@ afvist med `daily_budget_exhausted`).
 Den første planlagte kørsel startede af sig selv 2026-11-14 kl. 11:43 UTC (seks minutter efter
 planen) og lykkedes; dagens udgave fandtes allerede (udgivet af den manuelle kørsel kl. 00:27),
 så den udgav ikke noget nyt. Reserverne kl. 08:37 og 14:37 kom først på `main` samme dag kl.
-12:36 UTC; kl. 16:40 UTC var der ingen kørsel for 14:37.
-Ikke kontrolleret endnu: en planlagt kørsel, der selv udgiver en udgave, en reservekørsel, og
-tre dages drift i træk.
+12:36 UTC. Derefter startede linjen `37 11` én gang til kl. 17:16 UTC ("Nothing published":
+udgaven fandtes), og reserven `37 14` startede kl. 19:24 UTC og holdt sig i ro ("Not writing:
+run … already covered the late slot today"). Hvorfor `37 11` startede to gange, er ikke
+undersøgt.
+Ikke kontrolleret endnu: en planlagt kørsel, der selv udgiver en udgave, en reserve, der tager
+over, og tre dages drift i træk.
 
 ## Hvad sker der hver dag
 
@@ -148,7 +151,8 @@ Kommandoerne køres i en klon af repoet. Andre steder: tilføj
 
 1. Se dagens kørsler (trin 1 til 3 ovenfor). Står der "Nothing published" med en grund, er
    dagen sprunget over med vilje: gør intet.
-2. Er der ingen kørsel, så vent på reserven (08:37 og 14:37 UTC, op til en halv time senere).
+2. Er der ingen kørsel, så vent på reserven (08:37 og 14:37 UTC; den kan komme flere timer senere, se "En planlagt
+   kørsel mangler").
 3. Fejlede kørslen (`publish` rød), kommer reserven ikke: en reserve holder sig i ro, når
    kørslen, den står for, er startet, også når den fejlede. Kun en afbrudt kørsel
    (`cancelled`) tæller ikke. Fejlede morgenkørslen, prøver kørslen kl. 11:37 UTC igen; fejlede
@@ -158,7 +162,8 @@ Kommandoerne køres i en klon af repoet. Andre steder: tilføj
    dens modelkald tæller med i dagens loft (se "Hvad det koster").
 5. Følg den: `gh run watch <kørsel>`, og læs derefter jobbene og rapporten som i trin 2 og 3.
 
-**En planlagt kørsel mangler.** Forsinkelser på 5 til 30 minutter er almindelige. Mangler én
+**En planlagt kørsel mangler.** Forsinkelser på 5 til 30 minutter er almindelige; 2026-11-14
+startede to kørsler 5 t 39 min og 4 t 47 min efter deres tidspunkt. Mangler én
 kørsel helt, tager reserven over; mangler begge i et par, tager næste par over. Et nyt
 tidspunkt i workflowet kan mangle den første dag (set 2026-11-14: tidspunkterne 04:37 og 11:37 kom på
 `main` kl. 00:01 UTC; kørslen kl. 04:37 kom ikke, den kl. 11:37 kom). Se, at workflowet er slået til:
@@ -356,8 +361,8 @@ ikke kravene.
 
 - OpenAI's artikelsider svarer 403 til robotter. Kun korte feed-resuméer er
   tilgængelige, og de falder for kravet om 240 tegn. Det omgås ikke.
-- GitHub kan forsinke eller springe planlagte kørsler over (set 2026-11-14: kørslerne til
-  11:37 og 14:37 UTC startede 17:16 og 19:24 UTC). Derfor to tidspunkter, hver
+- GitHub kan forsinke eller springe planlagte kørsler over (set 2026-11-14: linjen `37 11`
+  startede kl. 11:43 og igen kl. 17:16 UTC, reserven `37 14` kl. 19:24 UTC). Derfor to tidspunkter, hver
   med en reserve nogle timer senere. Reserverne hjælper ikke, hvis GitHub slet ikke starter
   planlagte kørsler i repoet; så skal workflowet startes udefra (`docs/redesign/TIL-EJEREN.md`, punkt 16).
 - Beskeden om, at udgivelsen er gået i stå, sendes af `watch`-jobbet i samme
