@@ -123,6 +123,38 @@ test("the run report states the outcome and shows external text as plain text", 
   const published = renderReport({ date: "2026-11-13", status: "publish", stories: 4, ledeSource: "llm", calls: 16, neurons: 4200, dropped: [] }, "publish");
   assert.match(published, /\*\*Published\*\* 4 fact-checked stories/);
   assert.match(published, /Model calls: 16\. Neurons: 4200\./);
+  assert.doesNotMatch(published, /\| Model \|/);
+
+  const measured = renderReport({
+    date: "2026-11-14",
+    status: "publish",
+    stories: 4,
+    ledeSource: "llm",
+    calls: 10,
+    neurons: 1500,
+    byModel: { "@cf/a/writer": { answers: 5, inputTokens: 9000, outputTokens: 2000.4, neurons: 1100 }, "evil | [x](y)": { answers: 5 } },
+    budget: { spent: 1502.2, limit: 8000 },
+    dropped: [],
+  }, "publish");
+  assert.match(measured, /\| @\u200Bcf\/a\/writer \| 5 \| 9000 \| 2000 \| 1100 \|/);
+  assert.match(measured, /\| evil x y \| 5 \| 0 \| 0 \| 0 \|/);
+  assert.match(measured, /Relay budget today: 1502 of 8000 neurons used\./);
+
+  // The report is also printed to the step log, where a line starting with
+  // `::` or containing `##[` would be read as a workflow command.
+  const hostile = "x\n::set-output name=a::b\r::error::boom\u2028::warning::w ##[error]e";
+  const printed = renderReport({
+    date: hostile, status: "skip", reason: hostile, calls: 1, neurons: 1,
+    byModel: { [hostile]: null },
+    budget: { spent: 1, limit: 2 },
+    dropped: [{ title: hostile, reasons: [hostile] }],
+  }, "skip");
+  for (const line of printed.split(/\r|\n/)) {
+    assert.doesNotMatch(line, /^\s*::/, line);
+    assert.ok(!line.includes("##["), line);
+  }
+  // A row without numbers is shown as zeros instead of failing the report step.
+  assert.match(printed, /\| 0 \| 0 \| 0 \| 0 \|/);
 
   const skipped = renderReport({
     date: "2026-11-13",
