@@ -6,6 +6,11 @@
 /_astro/*
   Cache-Control: public, max-age=31536000, immutable
 
+# The assistant's search index: JSON files the Worker reads (docs/assistent.md).
+# They hold the pages' own text and are not pages for search engines.
+/_index/*
+  X-Robots-Tag: noindex
+
 /*
   # Remove broad CORS if a zone/default rule added it elsewhere
   ! Access-Control-Allow-Origin

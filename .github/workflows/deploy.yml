@@ -30,9 +30,11 @@ jobs:
     permissions:
       contents: read
       actions: read # read the last successful deploy for the audit base
-    # Production deploys run one at a time; pull requests only validate.
+    # Production deploys run one at a time; pull requests only validate. A run
+    # started by hand or by the dependency auto-merge only validates too. It
+    # has its own group, so it can never replace a deploy that waits its turn.
     concurrency:
-      group: ${{ github.event_name == 'pull_request' && format('deploy-pr-{0}', github.event.number) || 'deploy-production' }}
+      group: ${{ github.event_name == 'pull_request' && format('deploy-pr-{0}', github.event.number) || (github.event_name == 'workflow_dispatch' && inputs.publish != true) && 'deploy-validate' || 'deploy-production' }}
       cancel-in-progress: false
     env:
       # The only place that decides whether a run publishes: a push to main,
@@ -50,8 +52,10 @@ jobs:
           persist-credentials: false
 
       # A call from the news workflow names the commit it wants deployed. When
-      # main has moved on since, that commit is stale: the newer push has its
-      # own deploy run, so this run only validates and publishes nothing.
+      # main has moved on since, that commit is stale, so this run only
+      # validates and publishes nothing. A newer push has its own deploy run.
+      # An automatic dependency merge has none: then the issue goes out with
+      # the next run that publishes (docs/opdateringer.md).
       - name: Check that the requested commit is still the tip of main
         id: tip
         if: inputs.ref != ''
@@ -64,7 +68,7 @@ jobs:
             echo "current=true" >> "$GITHUB_OUTPUT"
           else
             echo "current=false" >> "$GITHUB_OUTPUT"
-            echo "::notice::main has moved on from $REQUESTED_REF to $tip. Nothing is published by this run; the newer push has its own deploy run."
+            echo "::notice::main has moved on from $REQUESTED_REF to $tip. Nothing is published by this run; the next deploy of main publishes it."
           fi
 
       - name: Setup Node.js

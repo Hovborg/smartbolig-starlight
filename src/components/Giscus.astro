@@ -18,7 +18,7 @@ const showComments = !isSplashPage && !isLegalPage && !isIndexPage && !isUtility
 ---
 
 {showComments && (
-  <div class="giscus-wrapper" data-giscus-lang={locale}>
+  <div class="giscus-wrapper" data-giscus-lang={locale} data-pagefind-ignore>
     <hr class="giscus-divider" />
     <h2 class="giscus-title">{copy.title}</h2>
     <div class="giscus-ask" data-giscus-ask>
