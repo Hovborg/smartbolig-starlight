@@ -16,7 +16,7 @@ kan sende sensorer og sin placering til serveren og modtage notifikationer. Denn
 guide tager dig fra installation til en første testbesked og forklarer, hvad
 appen sender, og hvad det betyder for batteri og privatliv.
 
-![Telefonen med Companion-appen taler med Home Assistant-serveren på den lokale adresse hjemme og den eksterne adresse ude. Sensorer og placering går op til serveren, notifikationer og dashboard kommer ned til telefonen.](../../../../assets/guides/companion-app/overview.svg)
+![Telefonen med Companion-appen taler med Home Assistant-serveren på den lokale adresse hjemme og den eksterne adresse ude. Sensorer og placering går op til serveren, dashboardet kommer ned til telefonen. Notifikationer sendes som udgangspunkt gennem Apples eller Googles push-tjeneste.](../../../../assets/guides/companion-app/overview.svg)
 
 ## Det skal du bruge
 
@@ -47,7 +47,8 @@ Appen hentes via [companion.home-assistant.io/download](https://companion.home-a
    om du er hjemme, og er nødvendig for den sikreste forbindelse. På Android
    giver du **Allow all the time** og **Nearby devices**; på iPhone vælger du
    **Allow While Using the App** og derefter **Allow always**. **Do not share my
-   location** er også et gyldigt valg.
+   location** er også et gyldigt valg, men på iPhone virker ingen af
+   sensorerne, hvis placering er slået fra.
 
 6. **Vælg forbindelsessikkerhed**, hvis adressen ikke er krypteret, for eksempel
    en lokal IP-adresse. **Most secure** bruger kun den ukrypterede adresse på dit
@@ -62,15 +63,14 @@ Til sidst åbner appen dit dashboard.
 ## Lokal og ekstern adresse
 
 Hjemme kan appen bruge serverens lokale adresse. Er du ude, skal den bruge en
-ekstern adresse, og den skal være krypteret (HTTPS): appen kræver en krypteret
-forbindelse uden for hjemmet. Den anbefalede vej er Home Assistant Cloud; en
-VPN er et alternativ. Begge dele står i
+ekstern adresse, og forbindelsen skal være krypteret: en HTTPS-adresse eller en
+VPN. Den anbefalede vej er Home Assistant Cloud. Det hele står i
 [Sikker fjernadgang til Home Assistant](/da/sikkerhed/fjernadgang/).
 
 Appen vælger adresse ud fra navnet på det wifi-netværk, den er på. Under
 **Settings → Companion app → [din server]** finder du **Internal URL**, hvor du
-angiver hjemmenetværkets wifi-navne, og **Connection security level**. Begge dele
-kræver, at appen må se placeringen: **Always** og **Precise** på iPhone,
+angiver hjemmenetværkets wifi-navne, og **Connection security level**. Appen kan
+kun aflæse wifi-navnet med adgang til placering: **Always** og **Precise** på iPhone,
 **Allow all the time** på Android. Uden den bruger **Most secure** kun den
 eksterne HTTPS-adresse.
 
@@ -84,22 +84,21 @@ iPhone i baggrunden i det tempo, iOS bestemmer.
 
 **Device tracker.** Efter første start opretter appen en `device_tracker`-entitet,
 som typisk er opkaldt efter enhedens ID. Du finder den under integrationen
-Mobile App og kan omdøbe den. Den har blandt andet breddegrad, længdegrad og
-GPS-nøjagtighed.
+Mobile App og kan omdøbe den.
 
 **Zoner.** På iPhone sætter appen selv geofences op for alle dine zoner og
 melder, når du kommer ind og ud. På Android skal du slå sensoren
-**Location Zone** til. Android tillader højst 100 geofences, så kun de første 100
-zoner bruges.
+**Location Zone** til.
+
 ## Tilladelser, og hvad de bruges til
 
 | Tilladelse | Bruges til |
 |---|---|
 | Placering (Android: *Allow all the time*, iPhone: *Always*) | Device tracker, zoner og valg af adresse ud fra wifi-netværk |
-| Nearby devices (Android) | Opdateringer i baggrunden |
+| Nearby devices (Android) | Placeringsopdateringer i baggrunden |
 | Notifikationer | Beskeder fra Home Assistant; kritiske beskeder på iPhone |
 | Bevægelse (iPhone) | Aktivitet og skridtmåling |
-| Kamera (iPhone) | Kun sensorerne kamerabevægelse og kamerastream |
+| Kamera (iPhone) | Sensorerne kamerabevægelse og kamerastream |
 | Aktivitetsgenkendelse (Android) | Aktivitetssensorer og skridttæller |
 | Telefon (Android) | Sensoren for telefonens tilstand |
 | Adgang til notifikationer (Android) | Notifikationssensorer |
@@ -112,30 +111,35 @@ kræver den. Apple Health-sensorer er slået fra, indtil du selv tænder dem.
 - **iPhone:** **Settings → Companion app → Sensors.** Har du flere servere, så
   vælg først serveren under **Servers**.
 - **Android:** **Settings → Companion App → Manage Sensors**, og vælg en
-  sensor. Hyppigheden ligger under **Sensor Update Frequency**.
+  sensor. Hyppigheden ligger i stedet under **Settings → Companion App →
+  Sensor Update Frequency**.
 
 Skal en server slet ikke have sensorer fra en iPhone, så sæt **Sensors Sent** til
 **None** under **Privacy** på serveren.
 
-Under **Location Sent** vælger du, hvor meget placering serveren får:
+Under **Location Sent** (iPhone: under serverens **Privacy**; Android: under
+**Manage Sensors → Background Location**) vælger du, hvor meget placering
+serveren får:
 **Exact** sender GPS-koordinater, **Zone Name Only** kun zonens navn eller
 `not_home`, og **Never** (iPhone) eller **Disabled** (Android) ingenting. Vil du
 stoppe sporingen uden at fjerne tilladelsen, kan du deaktivere
 `device_tracker`-entiteten i entitetsregistret.
 
-Batteri: Android-sensoren **High Accuracy Mode** bruger GPS hele tiden og
-tømmer batteriet hurtigere. Notifikationssensoren på Android kan trække meget
-batteri, hvis du ikke bruger en tilladelsesliste, og Bluetooth-beacon-sensoren
-kan også påvirke batteriet. Tænd kun det, du bruger. Placeringen går ifølge
+Batteri: Indstillingen **High accuracy mode** på Android-sensoren **Background
+Location** bruger GPS hele tiden og tømmer batteriet hurtigere.
+Notifikationssensoren på Android kan trække meget batteri, hvis du ikke bruger
+en tilladelsesliste, og sensoren **BLE Transmitter** kan også påvirke
+batteriet. Tænd kun det, du bruger. Placeringen går ifølge
 dokumentationen fra telefonen til din server, enten direkte eller via Home
 Assistant Cloud, og ikke via andre servere.
 
 ## Test en notifikation
 
 <Steps>
-1. Gå til **Indstillinger → Tools → Actions** (før Home Assistant 2026.2:
-   *Udviklerværktøjer*).
-2. Vælg en action, der starter med `notify.mobile_app_`, efterfulgt af din
+1. Gå til **Indstillinger → Værktøjer → Handlinger** (engelsk: Settings →
+   Tools → Actions). Siden hed *Developer tools* før Home Assistant 2026.8 og
+   blev flyttet ind under Indstillinger i 2026.2.
+2. Vælg en handling, der starter med `notify.mobile_app_`, efterfulgt af din
    telefons ID. ID'et bygger på enhedens navn, hvor mellemrum og specialtegn er
    erstattet af understregning.
 3. Skriv en besked i YAML-tilstand, og ret navnet til din egen telefon:
@@ -146,7 +150,8 @@ Assistant Cloud, og ikke via andre servere.
      message: "Hello World"
    ```
 
-4. Kør handlingen. Beskeden skal komme frem på telefonen.
+4. Tryk på **Udfør handling**. Beskeden skal komme frem på telefonen. Mangler
+   handlingen, så genstart Home Assistant.
 </Steps>
 
 Notifikationsgrupper til flere telefoner står i
@@ -164,8 +169,7 @@ dens tilladelser er givet.
 eller *Always* (iPhone). På Android skal du desuden tænde GPS og give præcis
 placering, og **Background location**, **Location zone** og **Single accurate
 location** skal være tændt under **Manage Sensors**. Appen må ikke være begrænset
-af batterioptimering. Springes gyldige punkter over på grund af lav
-nøjagtighed, kan du hæve minimumsnøjagtigheden lidt. Hænger din
+af batterioptimering. Hænger din
 `person`-entitet, så fjern tracking-enheder, der bare står hjemme eller ikke
 bruges længere.
 
@@ -174,13 +178,11 @@ din oprindelige besked sandsynligvis fejlformet. Hver app kan højst modtage 500
 notifikationer om dagen, og tælleren nulstilles ved midnat UTC. Tjek, at
 telefonen tillader notifikationer fra Home Assistant; på Android gælder det også
 den kanal, du bruger.
+
 **Appen kan ikke forbinde, når du er ude.** Er Home Assistant Cloud slået til
 uden Remote UI, så tænd Remote UI, eller slå **Connect Via Cloud** fra og skriv
 en krypteret ekstern adresse. Se
 [Sikker fjernadgang](/da/sikkerhed/fjernadgang/).
-
-**Widgets og handlinger timer ud, når du forlader appen.** Slå batterioptimering
-fra for appen og producentens strømbesparelse, og tillad data i baggrunden.
 
 ## Officielle kilder
 
@@ -192,3 +194,5 @@ fra for appen og producentens strømbesparelse, og tillad data i baggrunden.
 - [Troubleshooting: FAQs](https://companion.home-assistant.io/docs/troubleshooting/faqs)
 - [Troubleshooting: networking](https://companion.home-assistant.io/docs/troubleshooting/networking)
 - [Mobile App-integrationen](https://www.home-assistant.io/integrations/mobile_app/)
+- [Home Assistant: Værktøjer (Tools)](https://www.home-assistant.io/docs/tools/dev-tools/)
+- [Home Assistant: Fjernadgang (Remote access)](https://www.home-assistant.io/docs/configuration/remote/)
