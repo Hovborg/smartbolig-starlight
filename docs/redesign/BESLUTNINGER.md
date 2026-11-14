@@ -667,3 +667,37 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
     tag skrevet som tekst i en attribut snyder den ikke) og gennemgår alle byggede HTML-filer.
   - Valgt fra: at trække samtykket tilbage, mens beskeden er åbnet igen og ubesvaret. Det
     tidligere ja står, til læseren svarer.
+
+### B58. Sidevagt i GitHub Actions, og llms.txt lavet af bygget
+- Baggrund: ingen holdt øje med den levende side. En udløbet omdirigering, et tomt sitemap
+  eller nyheder, der holdt op med at udkomme, ville først blive set af en læser.
+- Valg: et workflow i repoet (`monitor.yml`) to gange i døgnet. Det sender kun GET, tjekker
+  tretten ting (statuskoder, sikkerhedshoveder, sitemappets størrelse, kanonisk adresse,
+  `www`-omdirigering, feeds, nyhedernes alder) og bruger en GitHub-sag som alarm: én sag med
+  etiketten `monitor`, som åbnes, får en kommentar og lukkes af workflowen selv.
+- Fravalgt: en ekstern overvågningstjeneste (ny konto, ny hemmelighed, gratisniveauer der
+  ændres) og en Worker med cron (endnu et sted med kode i drift). GitHub-sager giver ejeren
+  besked på mail uden opsætning.
+- Fravalgt: at stille assistenten et spørgsmål i hver kørsel. Det bruger modelkvote, og
+  svaret kan ikke tjekkes med en fast regel.
+- Nyheder: grænsen er 60 timer, målt på nyhedernes eget feed. Én stille dag åbner ingen sag;
+  to dage i træk gør.
+- `llms.txt`: bygget laver filen ud fra de byggede sider og sitemappet. Et nyt område i
+  sitemappet, som hverken står i `SECTIONS` eller `LEFT_OUT`, stopper bygget med områdets
+  navn i fejlen, så filen ikke stille mister sider.
+- Kontrol: `npm run site:test` (falsk `fetch`), og kørslen mod den levende side. Ikke set
+  køre: selve workflowen i Actions og trinene, der åbner og lukker sagen; de køres én gang
+  efter udgivelsen.
+- Uafhængig gennemgang før udgivelsen (ingen blokerende fund). Rettet:
+  - Rapporten sætter "forventet" og "set" i kodefelter, så tekst fra siden ikke kan blive til
+    en overskrift, et link, en omtale af en bruger eller en sagshenvisning, og "set" klippes
+    til én linje på 240 tegn, før den når loggen.
+  - Nyhedsgrænsen er 84 timer i stedet for 60, så kontrollen først fejler efter nyhedsflowets
+    egen sag (`ai-news-stalled`, dag 3). Den er sikkerhedsnettet, hvis nyhedsflowet slet ikke kører.
+  - Workflowen finder kun den sag, den selv har åbnet (ikke en, et menneske har mærket
+    `monitor`), retter sagens titel ved hver fejlende kørsel, har 15 minutters frist og kører
+    ikke i en fork.
+  - HSTS skal have `max-age` over nul, og `Referrer-Policy` skal være en af de fire strenge.
+  - `llms.txt`: sider under et område ved navn `start` faldt stille ud; nu stopper bygget.
+  - Valgt fra: at begrænse læsningen af et svar i bytes. Fristen på 15 sekunder sætter loftet,
+    og kontrollerne henter kun sidens egne adresser.

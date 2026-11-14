@@ -129,14 +129,23 @@ Sidst opdateret: 2026-11-14.
   melder "inaktiv" på den levende side). Efter udgivelsen hentes derfor hverken Analytics
   eller AdSense, hvor GDPR gælder (målt fra Danmark), før ejeren har udgivet beskeden
   (TIL-EJEREN punkt 1). To uafhængige gennemgange; fund rettet (B56).
-  Efter udgivelsen kontrolleres på den levende side: hvilke værter en side henter fra før et
-  svar; hvilke cookies der sættes; at "Cookieindstillinger" er skjult, så længe beskeden ikke
-  er udgivet; og om konsollen viser overtrædelser af den strenge politik (også på en juridisk
-  side, hvor Cloudflare slører e-mailadressen). Forløbene ja og nej kan først ses, når beskeden
-  er udgivet. Resultatet skrives her.
+  **Udgivet 2026-11-14** (PR #198, `main` 4282e27) efter tre uafhængige gennemgange. Målt på
+  den levende side bagefter (headless Chrome fra Danmark: forsiden, en guide,
+  privatlivspolitikken, kontaktsiden og nyhedsoversigten): en side henter kun fra
+  `static.cloudflareinsights.com` og `fundingchoicesmessages.google.com`; eneste cookie er
+  Googles `FCCDCF`; Googles script melder "inaktiv" og viser ingen besked;
+  "Cookieindstillinger" er skjult; konsollen viser ingen overtrædelser af den strenge
+  politik, heller ikke på en juridisk side. Forløbene ja og nej kan først ses på den levende
+  side, når beskeden er udgivet.
   Næste skridt: `ENFORCE_STRICT_CSP = true`, når den levende side er set uden overtrædelser
   med annoncer. Ikke valgt: nonce pr. svar i Workeren; hashes klarer det uden at Workeren skal
   stå foran hver side.
+- **Sidevagt og llms.txt (B58):** `.github/workflows/monitor.yml` henter tretten adresser på
+  den levende side to gange i døgnet og åbner en GitHub-sag med etiketten `monitor`, hvis en
+  kontrol fejler (`docs/overvaagning.md`). `llms.txt` laves af bygget, og bygget stopper, hvis
+  sitemappet får et område, som hverken er med eller valgt fra. Kørt lokalt mod den levende
+  side: alle 13 kontroller bestod. Efter udgivelsen: start workflowen én gang i Actions, og
+  se, at den ender grøn.
 
 ## Næste skridt
 
