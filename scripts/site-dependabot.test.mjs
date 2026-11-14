@@ -59,6 +59,11 @@ test("the merge takes only the checked commit and then starts the gates on main"
   assert.doesNotMatch(workflow, /--delete-branch/, "a failed branch delete would skip the run on main");
   assert.match(workflow, /if: steps\.merge\.outputs\.merged == 'true'\n\s+run: gh workflow run deploy\.yml --repo "\$GITHUB_REPOSITORY" --ref main/);
   assert.match(workflow, /case "\$HEAD_REF" in dependabot\/npm_and_yarn\/\*\) npm_branch=true ;; esac/);
+  // Each step runs only when the one before it said yes.
+  assert.match(workflow, /id: gate
+\s+if: steps\.policy\.outputs\.small == 'true'/);
+  assert.match(workflow, /id: merge
+\s+if: steps\.gate\.outputs\.passed == 'true'/);
   assert.match(workflow, /\[ "\$npm_branch" != "true" \] \|\| \[ "\$only_packages" != "true" \] \|\| \[ "\$small" != "true" \]/);
 });
 
@@ -74,6 +79,7 @@ test("only patches and minors from version 1 count as small updates", { skip: ha
 
   assert.equal(await small([update("minor", "0.42.8")]), false, "a minor of a 0.x package may break");
   assert.equal(await small([update("patch", "0.0.9")]), false, "a patch of a 0.0.x package may break");
+  assert.equal(await small([update("patch", "v0.0.9")]), false);
   assert.equal(await small([update("major", "8.0.0")]), false);
   assert.equal(await small([update("patch", "1.2.4"), update("minor", "0.188.0")]), false);
   assert.equal(await small([update("patch", "1.2.4"), update("major", "8.0.0")]), false);
@@ -107,6 +113,7 @@ test("a pull request that changes anything but the two package files is not merg
   assert.equal(await onlyPackages(["package-lock.json", ".github/workflows/dependabot-automerge.yml"]), false);
   assert.equal(await onlyPackages(["workers/news-llm/package.json"]), false);
   assert.equal(await answer(rule, "not json"), false);
+  assert.equal(await answer(rule, JSON.stringify({ a: { filename: "package.json" } })), false, "an object of files is not a list");
 });
 
 test("every dependency below version 1 has its own pull request", async () => {

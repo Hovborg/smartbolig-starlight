@@ -88,7 +88,7 @@ Accepteret risiko:
 | Titlen begynder med `chore(ci)` | Det er en GitHub Action. Se, at den nye version stadig er låst til en commit, og flet i hånden. |
 | `deploy` er rød | Åbn kørslen, og find det trin, der fejlede. Ret fejlen på en gren, eller luk pull requesten; Dependabot åbner en ny, når der kommer en nyere version. |
 | `deploy` var rød, er kørt om og er nu grøn, men intet flettes | Auto-fletningen var allerede færdig. Kør jobbet "Dependabot auto-merge" om på pull requesten (Re-run all jobs). |
-| Jobbet "Dependabot auto-merge" er rødt | Åbn kørslen, og se, hvilket trin der fejlede. "Read Dependabot metadata": kør jobbet om. "Merge": pull requesten kan ikke flettes, oftest på grund af en konflikt; skriv kommentaren `@dependabot rebase`. "Run the gates on main": opdateringen er flettet; start kørslen selv med `gh workflow run deploy.yml --ref main`. |
+| Jobbet "Dependabot auto-merge" er rødt | Åbn kørslen, og se, hvilket trin der fejlede. "Read Dependabot metadata": kør jobbet om. "Merge": pull requesten kan ikke flettes, oftest på grund af en konflikt; skriv kommentaren `@dependabot rebase`. "Run the gates on main": opdateringen er flettet; start kørslen selv med `gh workflow run deploy.yml --ref main`. Står pull requesten som flettet, selv om "Merge" er rød, gør du det samme. |
 | Der ligger en opdatering af en pakke under version 1 åben, og pakken får ingen rettelser | Se "Kort": flet den ventende minor i hånden. |
 | En ny pakke under version 1 er kommet til | Tilføj den under `exclude-patterns` i `.github/dependabot.yml`. Ellers holder dens minor-opdateringer gruppen tilbage. |
 

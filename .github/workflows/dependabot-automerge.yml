@@ -73,7 +73,7 @@ jobs:
           npm_branch=false
           case "$HEAD_REF" in dependabot/npm_and_yarn/*) npm_branch=true ;; esac
           only_packages="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files?per_page=100" --jq '
-            length > 0 and all(.[]; .filename == "package.json" or .filename == "package-lock.json")
+            type == "array" and length > 0 and all(.[]; .filename == "package.json" or .filename == "package-lock.json")
           ' || echo false)"
           small="$(jq -r '
             type == "array" and length > 0 and all(.[];
