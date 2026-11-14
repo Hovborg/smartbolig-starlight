@@ -6,10 +6,13 @@ side i headless Chrome med Googles samtykkebesked erstattet af en efterligning, 
 intet svar, ja og nej. Set: før et svar hentes kun samtykkebeskeden; efter et ja hentes
 `gtag.js` og `adsbygoogle.js`; efter et nej hentes ingen af dem; et tilbagetrukket ja genindlæser
 siden; kommentarerne hentes først ved tryk.
-Ikke kontrolleret: Googles rigtige besked med et rigtigt svar (kan kun ses på den levende side;
-resultatet står i `docs/redesign/STATUS.md`), hvilke cookies beskeden selv sætter, og
-indstillingerne i AdSense under "Privatliv og beskeder" (kræver ejerens login, se
-`docs/redesign/TIL-EJEREN.md`).
+Googles rigtige script er hentet alene på den levende side fra en dansk forbindelse
+(2026-11-14, headless Chrome og en almindelig browser): dets API svarer, det sætter cookien
+`FCCDCF`, og det melder, at **ingen besked er udgivet for smartbolig.net** (ingen dialog,
+intet TCF-svar, "consent mode" ikke sat op). Se "Ingen besked udgivet" nedenfor.
+Ikke kontrolleret: et rigtigt svar i Googles rigtige besked (kræver, at beskeden er udgivet),
+hvad Google svarer uden for EU/EØS, og indstillingerne i AdSense under "Privatliv og beskeder"
+(kræver ejerens login, se `docs/redesign/TIL-EJEREN.md`).
 
 ## Kort
 
@@ -20,9 +23,14 @@ indstillingerne i AdSense under "Privatliv og beskeder" (kræver ejerens login, 
 - Et ja henter de scripts, læseren sagde ja til. Et nej henter ingen.
 - Trækker læseren et ja tilbage, indlæses siden igen uden scriptet. Et script, der først er på
   siden, kan ikke tages af den.
-- "Cookieindstillinger" i sidefoden åbner beskeden igen. Knappen vises først, når beskeden kan
-  åbnes.
-- Uden for EU/EØS, hvor Google ikke kræver samtykke, tæller det som et ja.
+- "Cookieindstillinger" i sidefoden åbner beskeden igen. Knappen vises kun, hvor Google har
+  spurgt læseren.
+- Google afgør ud fra læserens land, om der spørges (EU/EØS, Storbritannien og Schweiz). Hvor
+  Google melder, at der ikke spørges, tæller det som et ja. De juridiske sider siger det.
+  Ejeren kan lade beskeden vises i alle lande i AdSense.
+- **Ingen besked udgivet:** er der ingen udgivet besked i AdSense for siden, kommer der intet
+  svar, og så hentes hverken Analytics eller AdSense for nogen. Siden virker ellers som
+  normalt.
 - Kommentarerne under en guide (giscus, GitHub) hentes først, når læseren trykker "Vis
   kommentarer".
 - Cloudflare Web Analytics tæller sidevisninger uden cookies og uden samtykke. Den sættes på af
@@ -35,11 +43,18 @@ indstillingerne i AdSense under "Privatliv og beskeder" (kræver ejerens login, 
    `ad_personalization`, `analytics_storage`) og slår `ads_data_redaction` til.
 3. Når siden er indlæst og browseren har ro, henter `message.mjs` beskeden fra
    `fundingchoicesmessages.google.com`.
-4. Svaret læses fra beskedens egen samtykke-API (`getGoogleConsentModeValues`). Er "consent
-   mode" ikke slået til i AdSense, læses svaret i stedet fra TCF (`__tcfapi`): Google skal være
-   godkendt som leverandør (nummer 755), og formålene følger Googles egen oversættelse.
-5. `decision.mjs` gør svaret til ja eller nej for hver nøgle. `boot.mjs` sender det videre til
-   Google (`consent update`) og henter kun de scripts, der er sagt ja til.
+4. Svaret læses to steder: beskedens egen samtykke-API (`getGoogleConsentModeValues`, kun hvis
+   "consent mode" er slået til i AdSense) og TCF (`__tcfapi`): Google skal være godkendt som
+   leverandør (nummer 755), og formålene følger Googles egen oversættelse. Svarer begge, kræver
+   et formål ja fra begge (`strictest`), så et tilbagetrukket ja aldrig overstemmes af en
+   værdi, der ikke er fulgt med endnu.
+5. TCF-lytteren kaldes igen, hver gang læseren svarer eller ændrer sit svar. Googles egne
+   callbacks (`CONSENT_MODE_DATA_READY` og `CONSENT_DATA_READY`) er kun lovet én gang. Efter
+   et svar læses værdierne igen et sekund senere.
+6. `decision.mjs` gør svaret til ja eller nej for hver nøgle. `boot.mjs` sender det videre til
+   Google (`consent update`) og henter kun de scripts, der er sagt ja til. Et svar, koden ikke
+   forstår (manglende værdier, ukendte tal, et andet navn i Googles liste), er ikke et svar:
+   så hentes intet.
 
 ## Hvor tingene ligger
 
@@ -70,9 +85,10 @@ indstillingerne i AdSense under "Privatliv og beskeder" (kræver ejerens login, 
 
 | Du ser | Årsag og rettelse |
 |---|---|
-| Beskeden kommer ikke | En annonceblokker eller DNS-filter spærrer `fundingchoicesmessages.google.com`. Så hentes hverken Analytics eller AdSense, og siden virker uden. Ellers: se efter fejl i browserens konsol og om beskeden er udgivet i AdSense |
-| "Cookieindstillinger" mangler i sidefoden | Beskeden er ikke indlæst (se ovenfor). Knappen er skjult, til den kan bruges |
-| Ingen tal i Google Analytics | Kun læsere, der har sagt ja, tælles. Det er meningen. Sidevisninger uden samtykke ses i Cloudflare Web Analytics |
+| Beskeden kommer ikke for nogen | Ingen besked er udgivet for siden i AdSense ("Privatliv og beskeder"). Tjek i browserens konsol på siden: `googlefc.getConsentStatus()` giver `0`, og `document.querySelector('iframe[name=googlefcInactive]')` findes. Rettes i AdSense, ikke i koden |
+| Beskeden kommer ikke hos dig | En annonceblokker eller et DNS-filter spærrer `fundingchoicesmessages.google.com`. Så hentes hverken Analytics eller AdSense, og siden virker uden. Tving beskeden frem med `?fc=alwaysshow&fctype=gdpr` efter adressen (Googles egen testparameter) |
+| "Cookieindstillinger" mangler i sidefoden | Google har ikke spurgt læseren: beskeden er ikke udgivet, er spærret, eller læseren er i et land, hvor Google ikke spørger. Knappen er skjult, til der er et svar at ændre |
+| Ingen tal i Google Analytics | Kun læsere, der har sagt ja, tælles. Det er meningen. Er tallet nul for alle, er beskeden ikke udgivet (se første række). Sidevisninger uden samtykke ses i Cloudflare Web Analytics |
 | Analytics hentes efter et ja, men AdSense ikke (eller omvendt) | Læseren har valgt formål enkeltvis. Det er svaret, ikke en fejl |
 | Siden indlæses igen efter et ændret svar | Et ja er trukket tilbage. Det er meningen |
 | Konsollen viser en blokeret adresse fra Google | Værten mangler i `public/_headers`. Se `docs/sikkerhed.md` |

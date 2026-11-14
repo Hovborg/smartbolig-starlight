@@ -6,12 +6,24 @@ Sidst opdateret: 2026-11-14.
 
 ## Kræver dit login
 
-1. **Google AdSense, "Privatliv og beskeder".** Siden bruger nu samtykkebeskeden derfra til
-   at spørge, før noget hentes fra Google (`docs/samtykke.md`). Tjek i AdSense:
-   - Beskeden for EU/EØS er udgivet for smartbolig.net og har tre knapper: "Giv samtykke",
-     "Giv ikke samtykke" og "Administrer valgmuligheder". Uden nej-knappen er et ja ikke frivilligt.
-   - Sproget er dansk (og engelsk), og linket til privatlivspolitikken er
-     `https://smartbolig.net/da/juridisk/privatlivspolitik/`.
+1. **Udgiv samtykkebeskeden i Google AdSense (vigtigst).** Der er ingen udgivet besked for
+   smartbolig.net (set 2026-11-14). Siden spørger med den besked, før noget hentes fra Google
+   (`docs/samtykke.md`). **Indtil den er udgivet, hentes hverken Google Analytics eller
+   annoncer for nogen besøgende**: ingen tal i Analytics og ingen annonceindtægt. Det er gratis
+   og tager omkring ti minutter:
+   1. Åbn AdSense → "Privatliv og beskeder" → "Europæiske forordninger" → opret en besked.
+   2. Vælg websitet smartbolig.net, sprog dansk og engelsk, og sæt linket til
+      privatlivspolitikken til `https://smartbolig.net/da/juridisk/privatlivspolitik/`.
+   3. Slå knappen "Giv ikke samtykke" til, så beskeden har tre knapper: "Giv samtykke",
+      "Giv ikke samtykke" og "Administrer valgmuligheder". Uden nej-knappen er et ja ikke frivilligt.
+   4. Vælg, hvem der spørges: kun EU/EØS, Storbritannien og Schweiz (Googles standard), eller
+      alle lande. Med standarden hentes Analytics og annoncer uden spørgsmål i andre lande; de
+      juridiske sider siger det. "Alle lande" er det forsigtige valg for en dansk side; hvad
+      der kræves, er en juridisk vurdering.
+   5. Tryk "Udgiv". Åbn derefter smartbolig.net i et privat vindue: beskeden skal komme, og
+      "Cookieindstillinger" skal stå nederst på siden, når du har svaret.
+
+   Tjek samme sted:
    - "Consent mode" er slået til for beskeden. Er den ikke det, virker siden stadig (svaret
      læses fra TCF), men Google Analytics får kun et ja fra læsere, der også siger ja til
      formål 1 og 8.

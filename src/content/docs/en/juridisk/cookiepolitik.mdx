@@ -14,6 +14,7 @@ This page explains what SmartBolig.net stores in your browser, who does it, and 
 - Until you have answered the consent message, the site fetches neither Google Analytics nor Google AdSense.
 - If you say no, they are not fetched and set no cookies.
 - You can change your answer at any time with **Cookie settings** at the bottom of every page.
+- Google shows the question only in countries where the rules require it (the EU/EEA, the United Kingdom and Switzerland). If you visit from another country, Google Analytics and Google AdSense may be fetched without a question.
 - The comments under the guides are fetched only when you press **Show comments**.
 
 ---
@@ -30,15 +31,19 @@ These are needed for the site to work, or to remember a choice you made yourself
 
 | Name | Who | Purpose | Lifetime |
 |------|-----|---------|----------|
-| `FCCDCF` | Google's consent message | Remembers your answer to the consent message | 13 months |
-| `FCNEC` | Google's consent message | May be set by the consent message; Google states its purpose as analytics | 365 days |
+| `FCCDCF` | Google's consent message | Remembers your answer to the consent message. Set when the message is fetched, also before you have answered | 13 months |
 | `starlight-theme` (local storage) | SmartBolig.net | Remembers whether you chose the light or dark theme | Until you delete it |
 | `smartbolig-motion-v1` (local storage) | SmartBolig.net | Remembers whether you switched off motion on the homepage | Until you delete it |
 | The conversation with SmartBolig AI (session storage) | SmartBolig.net | So the conversation survives a reload | Until you close the tab or press **New conversation** |
+| `sl-sidebar-state` (session storage) | SmartBolig.net | Remembers which menu sections you have opened | Until you close the tab |
 
-Cloudflare, which delivers the site, may set the cookie `__cf_bm` (expires after 30 minutes of inactivity) or `cf_clearance` if a visit has to be checked as a possible bot. On an ordinary visit the site itself sets no cookies (measured 14 November 2026).
+The consent message may also set the cookie `FCNEC` (365 days). Google itself lists that cookie under analytics, so it is not in the table of what is necessary.
 
-The site also uses **Cloudflare Web Analytics** to count page views and measure load time. Cloudflare states that the service uses no cookies or local storage and does not recognise individual visitors across sites.
+Cloudflare, which delivers the site, may set the cookie `__cf_bm` (expires after 30 minutes of inactivity) or `cf_clearance` if a visit has to be checked as a possible bot. Apart from the consent message's cookie, the site sets no cookies on an ordinary visit.
+
+If you visited the site before 14 November 2026, your browser may still hold the cookie `preferred-lang` (your choice of language). The site no longer uses it, and it expires by itself within a year.
+
+The site also uses **Cloudflare Web Analytics** to count page views and measure load time. Cloudflare states that the service uses no cookies or local storage and does not track individual visitors.
 
 ---
 
@@ -93,6 +98,8 @@ Names and lifetimes are Google's own information. The full, current list is at G
 
 ### On the site
 Press **Cookie settings** at the bottom of any page. The consent message opens again, and you can say yes or no to each purpose. If you withdraw a yes, the page is loaded again without the scripts you said no to.
+
+The button appears once Google has asked you. If you were not asked, there is no answer to change; use the browser's settings below instead.
 
 ### In your browser
 You can delete or block cookies in the browser's settings. That also removes cookies that are already set:

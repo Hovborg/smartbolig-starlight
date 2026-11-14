@@ -10,7 +10,9 @@ annoncer. Derfor er den kun rapporterende endnu (se "Den strenge politik").
 
 ## Kort
 
-- Alle sikkerhedshoveder står ét sted: `public/_headers`. Cloudflare sætter dem på hvert svar.
+- Sikkerhedshovederne for sider og filer står ét sted: `public/_headers`. Cloudflare sætter dem
+  på alt, der leveres som fil. Svar fra Workeren (`/api/*`, omdirigeringen ved `/`) får dem
+  ikke derfra; Workeren sætter sine egne i `functions/lib/chat/responses.js`.
 - `Content-Security-Policy` (CSP) siger, hvor siden må hente scripts, stilark, billeder og rammer
   fra. Alt andet afvises af browseren.
 - Siden har ingen hemmeligheder i repoet. Nøgler ligger som secrets i GitHub Actions og
@@ -39,8 +41,20 @@ Den gældende politik tillader scripts skrevet direkte i siden (`'unsafe-inline'
    den som `Content-Security-Policy-Report-Only`. Browseren følger stadig den gældende politik
    og skriver kun i konsollen, hvad den strenge ville have afvist.
 2. **Senere:** når den levende side er set uden overtrædelser med samtykkebesked, Analytics og
-   annoncer, sættes `ENFORCE_STRICT_CSP = true` i `scripts/finalize-build.mjs`. Så erstatter
-   den strenge politik den gældende.
+   annoncer, sættes `ENFORCE_STRICT_CSP = true` i `scripts/finalize-build.mjs` (og linjen i
+   `scripts/site-csp.test.mjs`, der holder den på `false`). Så erstatter den strenge politik
+   den gældende.
+
+Før trin 2 skal dette være set:
+
+- Den rapporterende politik har ingen `report-to`, så overtrædelser ses kun i ens egen konsol.
+  Åbn en guide, en juridisk side og forsiden med konsollen åben, med og uden et ja.
+- Cloudflare kan selv skrive scripts ind i siderne, og dem kender bygningens hashes ikke:
+  e-mail-sløring (Scrape Shield, slået til i zonen) på sider med en e-mailadresse, og
+  robotkontrol (JavaScript Detections), som kun virker med nonce. Giver de overtrædelser, slås
+  de fra for værten `smartbolig.net` med en konfigurationsregel hos Cloudflare, ikke for hele
+  zonen: zonen har underdomæner, som hører til andre projekter.
+- Google dokumenterer ingen CSP for AdSense. Annoncer skal derfor ses på den levende side.
 
 Sådan virker det:
 
@@ -64,7 +78,7 @@ små stilark direkte i siden, og de skifter med indholdet.
 | `scripts/finalize-build.mjs` | Skriver den strenge politik i `dist/_headers`. Her står `ENFORCE_STRICT_CSP` |
 | `config/vite.mjs` | Små scripts som filer i stedet for i siden |
 | `scripts/site-csp.test.mjs` | Tests af hashes, politikken og længdegrænsen |
-| `functions/_middleware.js` | Workeren foran `/api/*` |
+| `functions/_middleware.js` | Workeren foran `/api/*`, `/` og gamle adresser |
 
 ## Tilføj en vært
 

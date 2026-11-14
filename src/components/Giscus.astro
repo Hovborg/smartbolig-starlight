@@ -9,8 +9,20 @@ const isLegalPage = pathname.includes('/juridisk/');
 const isIndexPage = pathname.endsWith('/index') || pathname.match(/\/(home-assistant|esp32|produkter|automationer|sikkerhed|ai|ai-cli|nyheder)\/?$/);
 const isUtilityPage = pathname.includes('/404') || pathname.includes('/kontakt') || pathname.includes('/om-os');
 const copy = {
-  da: { title: "Kommentarer", show: "Vis kommentarer", note: "Kommentarerne hentes fra giscus.app og GitHub, når du trykker." },
-  en: { title: "Comments", show: "Show comments", note: "The comments are fetched from giscus.app and GitHub when you press the button." },
+  da: {
+    title: "Kommentarer",
+    show: "Vis kommentarer",
+    note: "Kommentarerne hentes fra giscus.app og GitHub, når du trykker.",
+    loading: "Henter kommentarerne …",
+    failed: "Kommentarerne kunne ikke hentes. Prøv igen.",
+  },
+  en: {
+    title: "Comments",
+    show: "Show comments",
+    note: "The comments are fetched from giscus.app and GitHub when you press the button.",
+    loading: "Fetching the comments …",
+    failed: "The comments could not be fetched. Try again.",
+  },
 }[locale === "en" ? "en" : "da"];
 
 // Don't show comments on splash, legal, section index, or utility pages.
@@ -18,12 +30,12 @@ const showComments = !isSplashPage && !isLegalPage && !isIndexPage && !isUtility
 ---
 
 {showComments && (
-  <div class="giscus-wrapper" data-giscus-lang={locale} data-pagefind-ignore>
+  <div class="giscus-wrapper" data-giscus-lang={locale} data-giscus-loading={copy.loading} data-giscus-failed={copy.failed} data-pagefind-ignore>
     <hr class="giscus-divider" />
-    <h2 class="giscus-title">{copy.title}</h2>
+    <h2 class="giscus-title" tabindex="-1">{copy.title}</h2>
     <div class="giscus-ask" data-giscus-ask>
       <button type="button" data-giscus-show>{copy.show}</button>
-      <p>{copy.note}</p>
+      <p role="status" data-giscus-note>{copy.note}</p>
     </div>
   </div>
 )}
@@ -33,10 +45,28 @@ const showComments = !isSplashPage && !isLegalPage && !isIndexPage && !isUtility
   import { loadComments } from "../lib/comments.mjs";
 
   const wrapper = document.querySelector<HTMLElement>(".giscus-wrapper");
-  wrapper?.querySelector("[data-giscus-show]")?.addEventListener("click", () => {
-    wrapper.querySelector("[data-giscus-ask]")?.remove();
-    loadComments(wrapper);
-  });
+  const ask = wrapper?.querySelector<HTMLElement>("[data-giscus-ask]");
+  const button = ask?.querySelector<HTMLButtonElement>("[data-giscus-show]");
+  const note = ask?.querySelector<HTMLElement>("[data-giscus-note]");
+  if (wrapper && ask && button && note) {
+    const tell = (text = "") => (note.textContent = text);
+    // The button stays in place while the widget is fetched, so keyboard focus is not lost.
+    const shown = () => {
+      const hadFocus = ask.contains(document.activeElement);
+      ask.remove();
+      if (hadFocus) wrapper.querySelector<HTMLElement>(".giscus-title")?.focus();
+    };
+    const failed = () => {
+      button.setAttribute("aria-disabled", "false");
+      tell(wrapper.dataset.giscusFailed);
+    };
+    button.addEventListener("click", () => {
+      if (button.getAttribute("aria-disabled") === "true") return;
+      button.setAttribute("aria-disabled", "true");
+      tell(wrapper.dataset.giscusLoading);
+      loadComments(wrapper, { onReady: shown, onError: failed });
+    });
+  }
 </script>
 
 <style>
@@ -81,6 +111,15 @@ const showComments = !isSplashPage && !isLegalPage && !isIndexPage && !isUtility
   .giscus-ask button:hover {
     border-color: var(--sb-accent);
     color: var(--sb-accent);
+  }
+
+  .giscus-ask button[aria-disabled="true"] {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  .giscus-title:focus {
+    outline: none;
   }
 
   .giscus-ask p {

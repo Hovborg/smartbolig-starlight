@@ -14,6 +14,7 @@ Denne side forklarer, hvad SmartBolig.net gemmer i din browser, hvem der gør de
 - Før du har svaret på samtykkebeskeden, henter siden hverken Google Analytics eller Google AdSense.
 - Siger du nej, bliver de ikke hentet, og de sætter ingen cookies.
 - Du kan ændre dit svar når som helst med **Cookieindstillinger** nederst på alle sider.
+- Google viser kun spørgsmålet i lande, hvor reglerne kræver det (EU/EØS, Storbritannien og Schweiz). Besøger du siden fra et andet land, kan Google Analytics og Google AdSense blive hentet uden spørgsmål.
 - Kommentarfeltet under guiderne hentes først, når du trykker **Vis kommentarer**.
 
 ---
@@ -30,15 +31,19 @@ Disse ting er nødvendige for, at siden virker, eller for at huske et valg, du s
 
 | Navn | Hvem | Formål | Levetid |
 |------|------|--------|---------|
-| `FCCDCF` | Googles samtykkebesked | Husker dit svar på samtykkebeskeden | 13 måneder |
-| `FCNEC` | Googles samtykkebesked | Kan sættes af samtykkebeskeden; Google angiver formålet som analyse | 365 dage |
+| `FCCDCF` | Googles samtykkebesked | Husker dit svar på samtykkebeskeden. Sættes, når beskeden hentes, også før du har svaret | 13 måneder |
 | `starlight-theme` (lokalt lager) | SmartBolig.net | Husker, om du har valgt lyst eller mørkt tema | Til du sletter det |
 | `smartbolig-motion-v1` (lokalt lager) | SmartBolig.net | Husker, om du har slået bevægelse på forsiden fra | Til du sletter det |
 | Samtalen med SmartBolig AI (sessionslager) | SmartBolig.net | Så samtalen overlever en genindlæsning | Til du lukker fanen eller trykker **Ny samtale** |
+| `sl-sidebar-state` (sessionslager) | SmartBolig.net | Husker, hvilke afsnit i menuen du har foldet ud | Til du lukker fanen |
 
-Cloudflare, som leverer siden, kan sætte cookien `__cf_bm` (udløber efter 30 minutters inaktivitet) eller `cf_clearance`, hvis et besøg skal kontrolleres som mulig robot. Ved et almindeligt besøg sætter siden ingen cookies selv (målt 14. november 2026).
+Samtykkebeskeden kan også sætte cookien `FCNEC` (365 dage). Google henfører selv den cookie til analyse, så den står ikke i tabellen over det nødvendige.
 
-Siden bruger også **Cloudflare Web Analytics** til at tælle sidevisninger og måle indlæsningstid. Cloudflare oplyser, at tjenesten ikke bruger cookies eller lokalt lager og ikke genkender den enkelte besøgende på tværs af sider.
+Cloudflare, som leverer siden, kan sætte cookien `__cf_bm` (udløber efter 30 minutters inaktivitet) eller `cf_clearance`, hvis et besøg skal kontrolleres som mulig robot. Ud over cookien fra samtykkebeskeden sætter siden ingen cookies ved et almindeligt besøg.
+
+Har du besøgt siden før 14. november 2026, kan din browser stadig have cookien `preferred-lang` (dit sprogvalg). Siden bruger den ikke længere, og den udløber af sig selv inden for et år.
+
+Siden bruger også **Cloudflare Web Analytics** til at tælle sidevisninger og måle indlæsningstid. Cloudflare oplyser, at tjenesten ikke bruger cookies eller lokalt lager og ikke følger den enkelte besøgende.
 
 ---
 
@@ -69,7 +74,7 @@ Navne og levetider er Googles egne oplysninger. Den fulde, aktuelle liste står 
 ## Tredjeparter
 
 ### Google (samtykkebesked, Analytics og AdSense)
-- **Samtykkebeskeden** er Googles egen (AdSense, Privacy & messaging) og følger IAB's standard for samtykke (TCF). Den hentes fra `fundingchoicesmessages.google.com` på alle sider.
+- **Samtykkebeskeden** er Googles egen (AdSense, Privacy & messaging) og følger IAB's standard for samtykke (TCF). Den hentes fra `fundingchoicesmessages.google.com` på alle sider, også før du har svaret; ellers kan den ikke spørge.
 - **Google Analytics** måler, hvilke sider der bliver læst. Hentes kun efter et ja til statistik.
 - **Google AdSense** viser annoncer. Hentes kun efter et ja til annoncer. Publisher-id: ca-pub-1259715054941263.
 - [Sådan bruger Google oplysninger fra sider, der bruger Googles tjenester](https://policies.google.com/technologies/partner-sites)
@@ -93,6 +98,8 @@ Navne og levetider er Googles egne oplysninger. Den fulde, aktuelle liste står 
 
 ### På siden
 Tryk **Cookieindstillinger** nederst på en hvilken som helst side. Så åbner samtykkebeskeden igen, og du kan sige ja eller nej til hvert formål. Trækker du et ja tilbage, indlæses siden igen uden de scripts, du har sagt nej til.
+
+Knappen vises, når Google har spurgt dig. Har du ikke fået spørgsmålet, er der ikke noget svar at ændre; brug da browserens indstillinger nedenfor.
 
 ### I din browser
 Du kan slette eller blokere cookies i browserens indstillinger. Det fjerner også cookies, der allerede er sat:

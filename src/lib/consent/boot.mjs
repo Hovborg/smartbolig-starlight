@@ -4,9 +4,10 @@ import { createTags } from "./google-tags.mjs";
 import { ADS_PUBLISHER, ANALYTICS_ID } from "./ids.mjs";
 import { loadMessage, reopenMessage } from "./message.mjs";
 
-/** The "cookie settings" controls are hidden until the message can be reopened. */
+/** The "cookie settings" controls are hidden until Google asks the visitor here. */
 function showSettingsControls(win, doc) {
   for (const control of doc.querySelectorAll("[data-cookie-settings]")) {
+    if (!control.hidden) continue;
     control.hidden = false;
     control.addEventListener("click", () => reopenMessage(win));
   }
@@ -31,7 +32,7 @@ export function boot(win = window, doc = document) {
 
   // After the page has loaded: the message is a large script, and the page's
   // own content comes first.
-  const start = () => loadMessage({ win, doc, publisher: ADS_PUBLISHER, onReady: () => showSettingsControls(win, doc), onAnswer });
+  const start = () => loadMessage({ win, doc, publisher: ADS_PUBLISHER, onAsked: () => showSettingsControls(win, doc), onAnswer });
   const whenIdle = () => (win.requestIdleCallback ? win.requestIdleCallback(start, { timeout: 2000 }) : win.setTimeout(start, 200));
   if (doc.readyState === "complete") whenIdle();
   else win.addEventListener("load", whenIdle, { once: true });

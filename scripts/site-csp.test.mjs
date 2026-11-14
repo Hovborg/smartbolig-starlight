@@ -22,6 +22,15 @@ test("every script written into a page gets a hash, data blocks and files do not
   assert.deepEqual([...inlineScriptHashes(html)].sort(), [hashOf("one()"), hashOf("two()"), hashOf("three()")].sort());
 });
 
+test("a hash is of the script's exact text, as the browser reads it", () => {
+  assert.deepEqual([...inlineScriptHashes("<script>\n  one()\n</script>")], [hashOf("\n  one()\n")], "the white space around the code counts");
+  assert.deepEqual([...inlineScriptHashes("<script>one()\r\ntwo()\rthree()</script>")], [hashOf("one()\ntwo()\nthree()")], "the browser turns every line ending into a line feed");
+  // Only the attributes `src` and `type` themselves decide; data-src and data-type are something else.
+  assert.deepEqual([...inlineScriptHashes('<script data-src="/x.js">one()</script>')], [hashOf("one()")]);
+  assert.deepEqual([...inlineScriptHashes('<script data-type="application/json">one()</script>')], [hashOf("one()")]);
+  assert.deepEqual([...inlineScriptHashes('<script async SRC="/x.js"></script>')], []);
+});
+
 test("the hashes replace 'unsafe-inline' for scripts only", () => {
   const strict = strictPolicy(POLICY, ["'sha256-a'", "'sha256-b'"]);
   assert.equal(strict, "default-src 'self'; script-src 'self' 'sha256-a' 'sha256-b' https://example.com; style-src 'self' 'unsafe-inline';");
@@ -55,4 +64,19 @@ test("the site's policy has room for the hashes and no retired hosts", async () 
   assert.match(headers, /script-src-attr 'none'/);
   assert.match(vite, /assetsInlineLimit/, "small scripts stay files, so they need no hash");
   assert.match(finalize, /withStrictPolicy\(/);
+  // Report-Only until it has been watched on the live site (docs/sikkerhed.md, "Den strenge politik").
+  // Change this line together with the constant, and only after the steps there.
+  assert.match(finalize, /^const ENFORCE_STRICT_CSP = false;$/m);
+});
+
+test("the policy has the hosts Google lists for Analytics", async () => {
+  const policy = (await read("public/_headers")).split("\n").find((entry) => entry.trim().startsWith("Content-Security-Policy:"));
+  const directive = (name) => policy.split(";").map((part) => part.trim()).find((part) => part.startsWith(`${name} `)) ?? "";
+  for (const host of ["https://*.google-analytics.com", "https://*.googletagmanager.com", "https://*.g.doubleclick.net", "https://*.google.com"]) {
+    assert.ok(directive("connect-src").split(" ").includes(host), `connect-src ${host}`);
+  }
+  for (const host of ["https://td.doubleclick.net", "https://www.googletagmanager.com", "https://fundingchoicesmessages.google.com"]) {
+    assert.ok(directive("frame-src").split(" ").includes(host), `frame-src ${host}`);
+  }
+  assert.ok(directive("script-src").split(" ").includes("https://fundingchoicesmessages.google.com"));
 });

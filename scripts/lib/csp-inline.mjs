@@ -14,10 +14,12 @@ const DATA_TYPES = new Set(["application/ld+json", "application/json"]);
 export function inlineScriptHashes(html) {
   const hashes = new Set();
   for (const [, attributes, code] of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)) {
-    if (/\bsrc\s*=/.test(attributes)) continue;
-    const type = attributes.match(/\btype\s*=\s*["']?([^"'\s>]+)/i)?.[1]?.toLowerCase();
+    // Whole attribute names only: data-src and data-type are something else.
+    if (/(?:^|\s)src\s*=/i.test(attributes)) continue;
+    const type = attributes.match(/(?:^|\s)type\s*=\s*["']?([^"'\s>]+)/i)?.[1]?.toLowerCase();
     if (type && DATA_TYPES.has(type)) continue;
-    hashes.add(`'sha256-${createHash("sha256").update(code).digest("base64")}'`);
+    // The browser hashes the text as it parsed it: every line ending is a line feed.
+    hashes.add(`'sha256-${createHash("sha256").update(code.replace(/\r\n?/g, "\n")).digest("base64")}'`);
   }
   return hashes;
 }

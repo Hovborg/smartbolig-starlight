@@ -5,24 +5,44 @@
 const ALL = ["ad_storage", "ad_user_data", "ad_personalization", "analytics_storage"];
 const everything = (allowed) => Object.fromEntries(ALL.map((key) => [key, allowed]));
 
+const STATUS_NAMES = ["GRANTED", "DENIED", "NOT_APPLICABLE", "UNKNOWN"];
+
+/**
+ * The numbers behind Google's status names. The live enum writes them as
+ * CONSENT_MODE_PURPOSE_STATUS_GRANTED, the reference as GRANTED. A name that
+ * is missing or not a number means the enum is not understood: no answer.
+ */
+function statusNumbers(status) {
+  const numbers = {};
+  for (const name of STATUS_NAMES) {
+    const number = status[`CONSENT_MODE_PURPOSE_STATUS_${name}`] ?? status[name];
+    if (typeof number !== "number") return null;
+    numbers[name] = number;
+  }
+  return numbers;
+}
+
 /**
  * From googlefc.getGoogleConsentModeValues(). `status` is
  * googlefc.ConsentModePurposeStatusEnum. Returns null when consent mode is
- * not set up in AdSense (Privacy & messaging); then the TCF answer is used.
+ * not set up in AdSense (Privacy & messaging) or the values are not
+ * understood; then the TCF answer is used.
  */
 export function fromConsentMode(values, status) {
   if (!values || !status) return null;
+  const known = statusNumbers(status);
+  if (!known) return null;
   const read = {
     ad_storage: values.adStoragePurposeConsentStatus,
     ad_user_data: values.adUserDataPurposeConsentStatus,
     ad_personalization: values.adPersonalizationPurposeConsentStatus,
     analytics_storage: values.analyticsStoragePurposeConsentStatus,
   };
-  const known = [status.GRANTED, status.DENIED, status.NOT_APPLICABLE, status.UNKNOWN];
-  if (ALL.some((key) => !known.includes(read[key]))) return null;
-  // NOT_APPLICABLE: the visitor is where no consent is required.
+  const answers = Object.values(known);
+  if (ALL.some((key) => typeof read[key] !== "number" || !answers.includes(read[key]))) return null;
+  // NOT_APPLICABLE: Google does not ask where the visitor is.
   // UNKNOWN (no answer yet, or an error) counts as no.
-  return Object.fromEntries(ALL.map((key) => [key, read[key] === status.GRANTED || read[key] === status.NOT_APPLICABLE]));
+  return Object.fromEntries(ALL.map((key) => [key, read[key] === known.GRANTED || read[key] === known.NOT_APPLICABLE]));
 }
 
 const GOOGLE_VENDOR = 755;
@@ -36,6 +56,7 @@ const ANSWERED = ["tcloaded", "useractioncomplete"];
  */
 export function fromTcf(data) {
   if (!data) return null;
+  // Only Google's own "no": a missing value is not a no.
   if (data.gdprApplies === false) return everything(true);
   if (!ANSWERED.includes(data.eventStatus)) return null;
   const purpose = data.purpose?.consents ?? {};
@@ -47,6 +68,16 @@ export function fromTcf(data) {
     ad_personalization: google && yes(1, 3, 4),
     analytics_storage: yes(1, 8),
   };
+}
+
+/**
+ * One decision from the two sources. Where both have an answer, a purpose
+ * needs a yes from both: a withdrawn yes must never be outvoted by a value
+ * that has not caught up yet.
+ */
+export function strictest(first, second) {
+  if (!first || !second) return first ?? second ?? null;
+  return Object.fromEntries(ALL.map((key) => [key, first[key] === true && second[key] === true]));
 }
 
 /** The answer in the words consent mode wants. */

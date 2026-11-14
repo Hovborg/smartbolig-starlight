@@ -473,15 +473,49 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Valg: kommentarer (giscus) hentes ved tryk. De sender læserens IP til giscus og GitHub, og de
   færreste læser dem.
 - Valg: Cloudflare Web Analytics beholdes uden samtykke og beskrives i cookiepolitikken. Den
-  sætter ingen cookies og gemmer ikke IP-adresser.
-- Fjernet: cookien `preferred-lang`, som Workeren satte, og som intet læste.
+  sætter ingen cookies (Cloudflares egen oplysning).
+- Fjernet: cookien `preferred-lang`. Siden satte den, når læseren skiftede sprog, og Workeren
+  læste den ved `/`. Nu vælger `/` sprog efter land (Danmark: dansk, ellers engelsk), og et
+  sprogskift huskes ikke dér. Sproget står i adressen, så links og bogmærker er uberørte.
 - CSP: de små scripts, Astro skrev ind i siden, er nu filer (`config/vite.mjs`), og de fire
   tilbageværende får en hash. Den strenge politik sendes som Report-Only, til den er set på den
   levende side med annoncer; derefter slås den til med én konstant.
 - Fravalgt: nonce pr. svar sat af Workeren. Det kræver, at Workeren står foran hver side
-  (i dag kun `/api/*`), og det koster svartid og gratis kald. Hashes giver det samme for
-  scripts, der er ens på alle sider.
+  (i dag kun `/api/*`), og det koster svartid og gratis kald. Hashes dækker de fire scripts,
+  der står i siden, fordi de er ens på alle sider. Scripts, som Cloudflare selv skriver ind
+  (e-mail-sløring, robotkontrol), dækkes ikke; se `docs/sikkerhed.md`.
 - Fravalgt: egen samtykkebanner. Googles besked er certificeret til AdSense i EU/EØS; en egen
   ville skulle certificeres eller betales for.
 - De juridiske sider er skrevet om på begge sprog, så de passer med koden. Det, kun ejeren kan
   afgøre (navn og adresse på den dataansvarlige, jurist-tjek), står i TIL-EJEREN.
+- Efter den uafhængige gennemgang (2026-11-14):
+  - Fund på den levende side: der er ingen udgivet samtykkebesked for smartbolig.net i AdSense.
+    Googles script, hentet alene fra en dansk forbindelse, melder "inaktiv": ingen dialog,
+    intet TCF-svar, "consent mode" ikke sat op. Siden hentede altså Analytics og AdSense uden
+    at spørge nogen. Med denne ændring hentes ingen af dem for nogen, før beskeden er udgivet.
+  - Valg: udgiv alligevel. Siden overholder reglerne med det samme; prisen er ingen
+    Analytics-tal og ingen annoncer, til beskeden er udgivet. AdSense kunne ikke åbnes herfra
+    (kræver ejerens login), så det står øverst i TIL-EJEREN.
+  - Fravalgt for nu: sidens eget spørgsmål som reserve, når Googles besked ikke er udgivet. Det
+    ville give Analytics tal med det samme, men er en samtykkeflade mere at holde rigtig, og
+    annoncer i EU/EØS kræver alligevel Googles certificerede besked. Tages op igen, hvis
+    beskeden ikke bliver udgivet.
+  - Lande, hvor Google ikke spørger: siden følger Googles signal og henter. De juridiske sider
+    siger det nu på begge sprog (før lovede de "intet før et svar" uden forbehold). Om en dansk
+    dataansvarlig bør spørge alle, er en juridisk vurdering; ejeren kan vælge "alle lande" i
+    AdSense, og så spørges alle uden kodeændring.
+  - Koden læste Googles statusliste med navne uden præfiks; den levende liste har præfiks
+    (`CONSENT_MODE_PURPOSE_STATUS_GRANTED`). Med tomme værdier og tom liste gav den gamle kode
+    ja til alt. Nu kræves tal for både navne og værdier, begge navneformer forstås, og alt
+    andet er "intet svar".
+  - TCF-lytteren sættes altid op, og hvor både "consent mode" og TCF svarer, kræver et formål
+    ja fra begge. Før blev et tilbagetrukket ja ikke opdaget, når "consent mode" var slået til.
+  - "Cookieindstillinger" vises kun, hvor Google har spurgt (før: så snart scriptet var hentet).
+  - CSP: værterne følger Googles liste for Analytics (`*.google.com` i `connect-src`,
+    `www.googletagmanager.com` i `frame-src`). Hash regnes af teksten, som browseren læser den.
+  - Kommentarer: knappen bliver stående, til feltet er hentet (fokus tabes ikke), med tekst for
+    "henter" og "kunne ikke hentes".
+  - Tests: gennemgangen ændrede koden 31 steder og så, at 21 ændringer ikke blev opdaget. De
+    er dækket nu: rækkefølgen af `consent update` og scripts, hvert TCF-formål, mislykkede
+    TCF-svar, genindlæsning når kun annoncer trækkes tilbage, Googles signalramme, alle filer i
+    `config/head/`, hashens præcise tekst og at den strenge politik ikke slås til ved en fejl.

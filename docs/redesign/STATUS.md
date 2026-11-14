@@ -74,9 +74,14 @@ Sidst opdateret: 2026-11-14.
   Før udgivelsen (den levende side, headless Chrome, 2026-11-14): før noget svar hentede en
   side `gtag.js`, `adsbygoogle.js`, Cloudflares måler, giscus og sendte et kald til Google
   Analytics, og cookien `preferred-lang` blev sat.
+  **Fund 2026-11-14:** der er ingen udgivet samtykkebesked for siden i AdSense (Googles script
+  melder "inaktiv" på den levende side). Efter udgivelsen hentes derfor hverken Analytics
+  eller AdSense for nogen, før ejeren har udgivet beskeden (TIL-EJEREN punkt 1).
   Efter udgivelsen kontrolleres på den levende side: hvilke værter en side henter fra før et
-  svar, efter et ja og efter et nej; hvilke cookies der sættes; om "Cookieindstillinger" vises;
-  og om konsollen viser overtrædelser af den strenge politik. Resultatet skrives her.
+  svar; hvilke cookies der sættes; at "Cookieindstillinger" er skjult, så længe beskeden ikke
+  er udgivet; og om konsollen viser overtrædelser af den strenge politik (også på en juridisk
+  side, hvor Cloudflare slører e-mailadressen). Forløbene ja og nej kan først ses, når beskeden
+  er udgivet. Resultatet skrives her.
   Næste skridt: `ENFORCE_STRICT_CSP = true`, når den levende side er set uden overtrædelser
   med annoncer. Ikke valgt: nonce pr. svar i Workeren; hashes klarer det uden at Workeren skal
   stå foran hver side.
