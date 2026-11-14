@@ -3,7 +3,7 @@
 // it follows the theme. Decorative: the card's title says what the tool is.
 // A new drawing is one more branch below, on the same 48 x 48 grid.
 interface Props {
-  name: "price" | "power";
+  name: "price" | "power" | "zigbee" | "battery";
 }
 
 const { name } = Astro.props;
@@ -25,6 +25,22 @@ const { name } = Astro.props;
       <path class="sb-tool-icon__line" d="M18 6v10M30 6v10" />
       <path class="sb-tool-icon__hot sb-tool-icon__line" d="M12 16h24v5a12 12 0 0 1-24 0z" />
       <path class="sb-tool-icon__line" d="M24 33v9" />
+    </g>
+  )}
+  {name === "zigbee" && (
+    <g>
+      <rect class="sb-tool-icon__dim" x="3" y="6" width="26" height="10" rx="3" />
+      <rect class="sb-tool-icon__dim" x="15" y="18" width="26" height="10" rx="3" />
+      <rect class="sb-tool-icon__hot" x="8" y="32" width="5" height="12" rx="2" />
+      <rect class="sb-tool-icon__hot" x="23" y="32" width="5" height="12" rx="2" />
+      <rect class="sb-tool-icon__hot" x="38" y="32" width="5" height="12" rx="2" />
+    </g>
+  )}
+  {name === "battery" && (
+    <g>
+      <rect class="sb-tool-icon__line" x="4" y="14" width="36" height="22" rx="4" />
+      <path class="sb-tool-icon__line" d="M44 22v6" />
+      <rect class="sb-tool-icon__hot" x="9" y="19" width="14" height="12" rx="2" />
     </g>
   )}
 </svg>

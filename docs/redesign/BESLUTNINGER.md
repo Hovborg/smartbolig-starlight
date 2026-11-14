@@ -970,3 +970,40 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   selv 2026-11-14 kl. 11:43 UTC, seks minutter efter planen (11:37), og lykkedes. Planlagte
   kørsler virker altså i repoet. Reserven beholdes: GitHub lover stadig ikke, at hver kørsel
   starter, og den koster ingenting, når den almindelige kørsel er startet.
+## B66. Værktøjer: Zigbee-kanalvælger og batterilevetid (2026-11-14)
+
+- Valgt: to værktøjer mere i den fælles ramme (B61): en Zigbee-kanalvælger og en beregner af
+  batterilevetid. Begrundelse: begge svarer på spørgsmål, guiderne ellers kun kan svare på med
+  "det kommer an på": hvilken Zigbee-kanal passer til mit Wi-Fi, og hvor længe holder en
+  batterisensor.
+- Valgt: kanalvælgeren regner kun på frekvenser. Zigbee-kanal n ligger på 2405 + 5 × (n − 11)
+  MHz, Wi-Fi-kanal m på 2412 + 5 × (m − 1) MHz. En Wi-Fi-kanal regnes 22 MHz bred. Det er vores
+  valg af den bredeste almindelige maske, ikke en kildeoplysning, og det står på siden.
+- Valgt: kanal 26 anbefales aldrig først, og lige stillede kanaler vælges i rækkefølgen 15,
+  20, 25, 11. Begrundelse: ZHA's dokumentation foretrækker 15, 20 og 25 og siger, at ikke alle
+  enheder understøtter alle kanaler. Der er ingen officiel kilde til, hvorfor netop 26 volder
+  problemer, så siden påstår det ikke.
+- Valgt: frekvensstriben tegnes på serveren som inline SVG. Begrundelse: siden giver mening
+  uden JavaScript, og der er intet at hente.
+- Valgt: batteriberegneren har ét forvalg (ESP32-chip, 10 µA i Deep-sleep), og det har et
+  kildelink til Espressifs datablad. Fravalgt: forvalg for færdige sensorer; vi har ikke et
+  datablad for dem, og et tal uden kilde er et gæt. Siden beder læseren måle.
+- Valgt: et tal med tusindtegn afvises med en tekst, der siger, hvordan tallet skal skrives,
+  som i de andre værktøjer.
+- Fravalgt: at gemme læserens tal i browseren (samme regel som B61).
+
+### B66, tilføjelse efter gennemgangen (2026-11-14)
+
+- Fundet: kanalvælgeren valgte kanalen med størst afstand og brugte 15, 20, 25, 11 kun ved lige
+  stilling. Ved Wi-Fi 1 + 11 anbefalede den 17, selv om 15, 20 og 25 var fri. Det stred mod
+  Zigbee2MQTT (ZLL-kanalerne 11, 15, 20, 25) og ZHA (15, 20, 25), som siden selv henviser til.
+  Teksten glemte også, at kanal 26 holdes ude, og kaldte kanal 25 "længst fra Wi-Fi".
+- Valgt: de anbefalede kanaler først. Er en af 15, 20, 25, 11 fri, vælges den med størst afstand.
+  Er de alle dækket, vælges en anden fri kanal fra 11 til 25, og teksten siger, at den ikke er
+  blandt de anbefalede. Overlapper alle, vælges 15, 20, 25, 11 og så det laveste nummer.
+- Valgt: kanal 26 anbefales aldrig. Er den fri, siger teksten det og forklarer, at den holdes ude
+  af en forsigtig regel, ikke ud fra en kilde.
+- Valgt: batteriets levetid vises i timer under et døgn og "under en time" under en time, og
+  procenterne for søvn og vågen giver tilsammen 100.
+- Fravalgt: ren størst afstand. Den ser ud som den mest præcise regel, men den modsagde de kilder,
+  siden viser, og den gav kanaler, ingen af kilderne nævner.

@@ -1,0 +1,65 @@
+---
+// Tool: which Zigbee channel fits the Wi-Fi channels in use at home.
+// Texts: src/lib/tools/zigbee-copy.mjs. Calculation: zigbee-channel.mjs.
+// The script below wires the page to it (zigbee-ui.mjs). Without JavaScript
+// the tool shows the answer for "no Wi-Fi marked" and the strip.
+import ToolFrame from "./ToolFrame.astro";
+import ZigbeeStrip from "./ZigbeeStrip.astro";
+import { fill } from "../../lib/tools/format.mjs";
+import { WIFI_CHANNELS } from "../../lib/tools/zigbee-channel.mjs";
+import { zigbeeCopy } from "../../lib/tools/zigbee-copy.mjs";
+import { zigbeeView } from "../../lib/tools/zigbee-view.mjs";
+
+interface Props {
+  lang?: "da" | "en";
+  id?: string;
+}
+
+const lang = Astro.props.lang ?? (Astro.currentLocale === "en" ? "en" : "da");
+const id = Astro.props.id ?? "zigbee-kanal";
+const t = zigbeeCopy[lang];
+const view = zigbeeView([], lang);
+---
+
+<ToolFrame id={id} title={t.title} lang={lang} data-tool="zigbee-kanal">
+  <Fragment slot="form">
+    <div class="sb-tool-field" role="group" aria-labelledby={`${id}-wifi`}>
+      <p class="sb-tool-field__label" id={`${id}-wifi`}>{t.wifi.label}</p>
+      <ul class="sb-tool-chips sb-tool-chips--numbers" role="list">
+        {WIFI_CHANNELS.map((n) => (
+          <li>
+            <button type="button" class="sb-tool-chip" aria-pressed="false" data-wifi-chip={n} aria-label={fill(t.wifi.channel, { n })}>{n}</button>
+          </li>
+        ))}
+      </ul>
+      <p class="sb-tool-field__hint">{t.wifi.hint}</p>
+    </div>
+    <div class="sb-tool-actions">
+      <button type="button" class="sb-tool-button sb-tool-button--secondary" data-part="common" title={t.wifi.commonHint}>{t.wifi.common}</button>
+      <button type="button" class="sb-tool-button sb-tool-button--secondary" data-part="clear">{t.wifi.clear}</button>
+    </div>
+  </Fragment>
+
+  <Fragment slot="result">
+    <div class="sb-tool-figure">
+      <p class="sb-tool-figure__label">{t.result.best}</p>
+      <p class="sb-tool-figure__value" data-part="best">{view.best}</p>
+    </div>
+    <p class="sb-tool-answer" data-part="reason">{view.reason}</p>
+    <p class="sb-tool-aside" data-part="overlap">{view.overlap}</p>
+    <p class="sb-tool-aside" data-part="free">{view.free}</p>
+  </Fragment>
+
+  <Fragment>
+    <ZigbeeStrip titleId={`${id}-summary`} summary={view.summary} best={view.advice.best} />
+    <p class="sb-tool-field__hint">{t.strip.legend}</p>
+  </Fragment>
+
+  <p slot="note">{t.note}</p>
+</ToolFrame>
+
+<script>
+  import { startZigbeeTool } from "../../lib/tools/zigbee-ui.mjs";
+
+  for (const root of document.querySelectorAll('[data-tool="zigbee-kanal"]')) startZigbeeTool(root);
+</script>
