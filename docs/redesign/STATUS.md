@@ -38,11 +38,12 @@ Sidst opdateret: 2026-11-14.
     overskrifter/kort/faner uden emoji, tabeller i rulleramme, én ikonfarve på kort, grønne
     tips, sidemenu der åbner på det aktuelle emne, ny sidefod med YouTube.
     `npm run site:test` er grøn (149 tests).
-  - Mangler på forsiden: nyhedskortenes billeder (gammel lilla skabelon), et nærbillede til
-    ESP32-kortet.
-  - Mangler på resten af siden: nyhedsoversigten, assistenten, topbjælke på telefon.
+  - Flettet ind 2026-11-14: nye nyhedsbilleder i grafit og grøn (64 udgaver tegnet om, tekst
+    som omrids fra sidens skrifter; `docs/nyhedsflow.md`, "Overskriftsbilleder"). Ny
+    nyhedsoversigt (B47). `npm run ai-news:test` er grøn (308 tests).
+  - Mangler på forsiden: et nærbillede til ESP32-kortet.
+  - Mangler på resten af siden: assistenten, topbjælke på telefon, engelske nyhedsbilleder.
 - **Grene, der venter på at blive flettet ind i `redesign/v2`:**
-  - `redesign/news-image` (`4f65b80`): nye nyhedsbilleder i grafit og grøn, 64 udgaver tegnet om.
   - `content/new-guides-a` (`697fe46`): elmåler via HAN-port, valg af hardware, solceller og
     batteri. Skal gennemgås af en uafhængig model før fletning.
   - `content/new-guides-b` (`79c77e2`): billige timer, ferietilstand, smart home i lejebolig.

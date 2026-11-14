@@ -1,8 +1,9 @@
 ---
+// One earlier article: a single link with a small picture, the date, the
+// main story and the other stories on one line.
 import type { AiNewsCopy } from "../../lib/ai-news-copy";
-import type { NewsIssue } from "../../lib/ai-news-feed";
+import { formatDate, type NewsIssue } from "../../lib/ai-news-feed";
 import type { NewsLocale } from "../../lib/home-news";
-import IssueMeta from "./IssueMeta.astro";
 
 interface Props {
   issue: NewsIssue;
@@ -11,86 +12,95 @@ interface Props {
 }
 
 const { issue, copy, locale } = Astro.props;
+// ai-news-thumbs.mjs renders a 320x180 WebP next to every picture.
+const thumb = issue.image?.src.replace(/\.(?:jpg|png)$/, "-thumb.webp");
+const others = issue.headlines.map((headline) => headline.title).filter((title) => title !== issue.lead);
 ---
 
-<article class="issue-row" role="listitem">
-  <div class="issue-row-main">
-    <IssueMeta issue={issue} copy={copy} locale={locale} />
-    <h3><a href={issue.href}>{issue.title}</a></h3>
-    <p>{issue.description}</p>
-    {issue.headlines.length > 0 && (
-      <ul class="compact-headlines">
-        {issue.headlines.slice(0, 4).map((headline) => (
-          <li><a href={headline.href}><span>{headline.provider}</span>{" "}{headline.title}</a></li>
-        ))}
-      </ul>
-    )}
-  </div>
-  <a class="row-link" href={issue.href}>{copy.read}</a>
-</article>
+<li class="issue-row">
+  <a href={issue.href}>
+    {thumb && <img src={thumb} alt="" width="160" height="90" loading="lazy" decoding="async" />}
+    <span class="issue-row__text">
+      <span class="issue-row__meta">
+        <time datetime={issue.dateString}>{formatDate(issue.date, locale)}</time>
+        <span aria-hidden="true">·</span>
+        {issue.sources.length} {issue.sources.length === 1 ? copy.source : copy.sourcesPlural}
+      </span>
+      <strong>{issue.lead}</strong>
+      {others.length > 0 && <span class="issue-row__more">{others.join(" · ")}</span>}
+    </span>
+  </a>
+</li>
 
 <style>
-  .issue-row {
-    align-items: start;
+  .issue-row + .issue-row {
     border-top: 1px solid var(--sb-line);
+  }
+
+  .issue-row a {
     display: grid;
-    gap: 1rem;
-    grid-template-columns: minmax(0, 1fr) auto;
-    padding-top: 1rem;
-  }
-
-  .issue-row h3,
-  .issue-row p {
-    margin-bottom: 0;
-  }
-
-  .issue-row p {
-    color: var(--sb-ink-muted);
-  }
-
-  .compact-headlines {
-    display: grid;
-    gap: 0.35rem;
-    margin-bottom: 0;
-    padding-left: 1.2rem;
-  }
-
-  .compact-headlines li,
-  .compact-headlines a {
-    color: var(--sb-ink);
-  }
-
-  .compact-headlines a {
-    display: inline;
-  }
-
-  .compact-headlines span {
-    color: var(--sb-accent);
-    font-size: var(--sb-text-xs);
-    font-weight: 800;
-    margin-right: 0.35rem;
-    text-transform: uppercase;
-  }
-
-  .row-link {
-    border: 1px solid var(--sb-line-strong);
-    border-radius: var(--sb-radius-sm);
-    color: var(--sb-ink);
-    display: inline-flex;
-    font-weight: 700;
-    line-height: 1;
-    padding: 0.7rem 0.9rem;
+    grid-template-columns: 7.5rem minmax(0, 1fr);
+    gap: var(--sb-space-4);
+    align-items: center;
+    padding: var(--sb-space-3) var(--sb-space-4);
+    color: inherit;
     text-decoration: none;
   }
 
-  @media (max-width: 46rem) {
-    .issue-row {
-      grid-template-columns: 1fr;
-    }
+  .issue-row a:hover {
+    background: var(--sb-bg-subtle);
+  }
 
-    .row-link {
-      justify-content: center;
-      width: 100%;
+  .issue-row a:focus-visible {
+    outline: 2px solid var(--sb-accent);
+    outline-offset: -2px;
+  }
+
+  .issue-row img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: var(--sb-radius-sm);
+    background: var(--sb-stage);
+  }
+
+  .issue-row__text {
+    display: grid;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .issue-row__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--sb-space-2);
+    color: var(--sb-ink-subtle);
+    font-size: var(--sb-text-xs);
+  }
+
+  .issue-row strong {
+    color: var(--sb-ink-strong);
+    font-weight: 650;
+    line-height: 1.35;
+    overflow-wrap: anywhere;
+  }
+
+  .issue-row a:hover strong {
+    color: var(--sb-accent);
+  }
+
+  .issue-row__more {
+    overflow: hidden;
+    color: var(--sb-ink-muted);
+    font-size: var(--sb-text-sm);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 30rem) {
+    .issue-row a {
+      grid-template-columns: 5.5rem minmax(0, 1fr);
+      gap: var(--sb-space-3);
     }
   }
 </style>

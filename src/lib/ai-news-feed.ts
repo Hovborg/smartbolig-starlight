@@ -22,6 +22,14 @@ export interface NewsIssue {
   sources: string[];
   providers: string[];
   headlines: Headline[];
+  /** The main story: what the article is about, without the date. */
+  lead: string;
+  image: { src: string; alt: string } | null;
+}
+
+export interface NewsMonth {
+  label: string;
+  issues: NewsIssue[];
 }
 
 // The parts of a docs collection entry this module reads.
@@ -35,6 +43,7 @@ interface IssueDocument {
     date?: Date | string;
     lastUpdated?: Date | string | boolean;
     news?: { signal?: string; sources?: unknown };
+    heroImage?: { src?: string; alt?: string };
   };
 }
 
@@ -85,6 +94,25 @@ const extractHeadlines = (body: unknown, issueHref: string, sources: string[]): 
     .slice(0, 6);
 };
 
+// "AI-nyheder, 14. november 2026: OpenAI Codex 0.169.0" names its main story
+// after the colon; older titles are only a date, so the first story is used.
+const leadOf = (title: string, headlines: Headline[]) => {
+  const named = title.includes(": ") ? title.slice(title.indexOf(": ") + 2).trim() : "";
+  return named || headlines[0]?.title || title;
+};
+
+/** Articles grouped by calendar month, in the order they were given. */
+export function groupByMonth(issues: readonly NewsIssue[], locale: NewsLocale): NewsMonth[] {
+  const format = new Intl.DateTimeFormat(locale === "da" ? "da-DK" : "en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+  const months: NewsMonth[] = [];
+  for (const issue of issues) {
+    const label = format.format(issue.date);
+    const month = months.at(-1)?.label === label ? months.at(-1)! : months[months.push({ label, issues: [] }) - 1];
+    month.issues.push(issue);
+  }
+  return months;
+}
+
 const signalPriority: Record<Signal, number> = { high: 3, medium: 2, low: 1 };
 
 /** Every published article for the locale, newest first (ties: higher signal first). */
@@ -99,6 +127,8 @@ export function selectIssues(docs: readonly IssueDocument[], locale: NewsLocale)
         : [];
       const providers = [...new Set(sources.map(sourceLabel))].sort();
       const href = `/${getSlug(doc)}/`;
+      const headlines = extractHeadlines(doc.body, href, sources);
+      const hero = doc.data.heroImage;
       return {
         title: doc.data.title,
         description: doc.data.description || "",
@@ -108,7 +138,9 @@ export function selectIssues(docs: readonly IssueDocument[], locale: NewsLocale)
         signal,
         sources,
         providers,
-        headlines: extractHeadlines(doc.body, href, sources),
+        headlines,
+        lead: leadOf(doc.data.title, headlines),
+        image: hero?.src && hero?.alt ? { src: hero.src, alt: hero.alt } : null,
       };
     })
     .sort((a, b) => {

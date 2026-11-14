@@ -25,6 +25,7 @@ description: ${yamlString(copy.description)}
 lastUpdated: ${latestDate || new Date().toISOString().slice(0, 10)}
 sidebar:
   label: ${yamlString(copy.label)}
+tableOfContents: false
 ---
 
 import AiNewsFeed from "../../../../../components/AiNewsFeed.astro";

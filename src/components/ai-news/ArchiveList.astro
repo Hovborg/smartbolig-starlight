@@ -1,45 +1,64 @@
 ---
+// The earlier articles, grouped by month, newest first.
 import type { AiNewsCopy } from "../../lib/ai-news-copy";
-import type { NewsIssue } from "../../lib/ai-news-feed";
+import type { NewsMonth } from "../../lib/ai-news-feed";
 import type { NewsLocale } from "../../lib/home-news";
 import IssueRow from "./IssueRow.astro";
 
 interface Props {
-  issues: NewsIssue[];
+  months: NewsMonth[];
   copy: AiNewsCopy;
   locale: NewsLocale;
-  rssHref: string;
 }
 
-const { issues, copy, locale, rssHref } = Astro.props;
+const { months, copy, locale } = Astro.props;
 ---
 
-<div class="archive-panel">
-  <div class="section-heading">
-    <h2>{copy.archive}</h2>
-    <a href={rssHref}>{copy.rss}</a>
-  </div>
-  <div class="issue-list" role="list">
-    {issues.map((issue) => <IssueRow issue={issue} copy={copy} locale={locale} />)}
-  </div>
-</div>
+<section class="archive" aria-labelledby="ai-news-archive">
+  <h2 id="ai-news-archive">{copy.archive}</h2>
+  {
+    months.map((month) => (
+      <div class="archive-month">
+        <h3>{month.label}</h3>
+        <ul>
+          {month.issues.map((issue) => <IssueRow issue={issue} copy={copy} locale={locale} />)}
+        </ul>
+      </div>
+    ))
+  }
+</section>
 
 <style>
-  .section-heading {
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    justify-content: space-between;
-    margin-bottom: 0.75rem;
-  }
-
-  .section-heading h2 {
-    margin-top: 0;
-  }
-
-  .issue-list {
+  .archive {
     display: grid;
-    gap: 0.75rem;
+    gap: var(--sb-space-5);
+  }
+
+  .archive h2 {
+    margin: 0;
+    color: var(--sb-ink-strong);
+    font-family: var(--sb-font-display);
+    font-size: var(--sb-text-h2);
+    letter-spacing: -0.02em;
+    line-height: var(--sb-leading-tight);
+  }
+
+  .archive-month h3 {
+    margin: 0 0 var(--sb-space-2);
+    color: var(--sb-ink-muted);
+    font-family: var(--sb-font-body);
+    font-size: var(--sb-text-sm);
+    font-weight: 650;
+    text-transform: capitalize;
+  }
+
+  .archive-month ul {
+    margin: 0;
+    padding: 0;
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-lg);
+    background: var(--sb-surface);
+    list-style: none;
+    overflow: hidden;
   }
 </style>

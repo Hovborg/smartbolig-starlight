@@ -56,7 +56,8 @@ export const GUIDE_ARTS = {
 
 /** First match wins. `null` means the page keeps its own picture. */
 const RULES = [
-  [/^ai\/nyheder\/.+/, null],
+  // The news overview and each news issue have pictures of their own.
+  [/^ai\/nyheder(\/|$)/, null],
   [/^esp32(\/|$)/, "diy"],
   [/zigbee|z-wave|thread|matter|wifi|bluetooth|mqtt|proxy|fjernadgang|mcp/, "network"],
   [/energi|energy|elpris|elbil|solcelle|elmaaler|vaskemaskine|billige-timer/, "energy"],

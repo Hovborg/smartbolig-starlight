@@ -256,3 +256,26 @@ Tidligere kørte nyheden som en planlagt Windows-opgave på ejerens maskine, og 
 det via systemd og OpenClaw. Koden til alle tre er fjernet fra repoet 2026-11-14,
 og Windows-opgaven er slået fra samme dag (kontrolleret: opgavens tilstand er
 `Disabled`). Der er kun én udgivelsesvej. Genopret dem ikke ved siden af workflowet.
+
+## Nyhedsoversigten (siden `/ai/nyheder/`)
+
+Set i browser 2026-11-14 ved 1440 og 390 px, mørkt tema på dansk og lyst tema på engelsk.
+
+Siden skrives af `scripts/lib/ai-news-index-page.mjs` (kun `lastUpdated` ændrer sig fra dag til
+dag) og viser komponenten `src/components/AiNewsFeed.astro`. Den er en tynd indgang:
+
+| Del | Fil |
+|---|---|
+| Udvælgelse, hovedhistorie (`lead`), billede, måneder | `src/lib/ai-news-feed.ts` |
+| Tekster på dansk og engelsk | `src/lib/ai-news-copy.ts` |
+| Antal artikler og kilder, RSS-knap | `src/components/ai-news/FeedStats.astro` |
+| Seneste artikel som stort kort med billede | `LatestIssue.astro` og `StoryDigest.astro` |
+| Tidligere artikler pr. måned | `ArchiveList.astro` og `IssueRow.astro` |
+| De officielle kilder (lukket, til man åbner den) | `SourcePanel.astro` |
+
+En række i arkivet er ét link med det lille billede (`-thumb.webp`), dato, hovedhistorien og
+de øvrige historier på én linje. Hovedhistorien er teksten efter kolon i artiklens titel; ældre
+artikler, hvis titel kun er en dato, bruger deres første historie.
+
+Fejlsøgning: mangler et billede i arkivet, findes `-thumb.webp` ikke for den dato; kør
+`npm run build` (miniaturerne tegnes af `ai-news-thumbs.mjs` ved bygningen).

@@ -200,7 +200,8 @@ test("every guide opens with a picture that exists, and news issues keep their o
     assert.ok(GUIDE_ARTS[name]?.da && GUIDE_ARTS[name]?.en, `guide picture ${name} needs alternative text in both languages`);
   }
   assert.equal(guideArt("ai/nyheder/2026-11-14"), null);
-  assert.equal(guideArt("ai/nyheder").name, "guide-ai");
+  assert.equal(guideArt("ai/nyheder"), null, "the news overview opens with the newest article's picture");
+  assert.equal(guideArt("ai/ai-cli").name, "guide-ai");
   assert.equal(guideArt("esp32/led-strip").name, "guide-diy");
   assert.equal(guideArt("home-assistant/zigbee2mqtt").name, "guide-network");
   assert.equal(guideArt("kontakt").name, "guide-overview");

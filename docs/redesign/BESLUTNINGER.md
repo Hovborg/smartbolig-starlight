@@ -317,3 +317,13 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Valg: Starlights lilla (tip-bokse) peger nu på mærkefarven, og alle kortikoner bruger den.
 - Begrundelse: ejeren pegede på, at farverne ikke spillede sammen. Farve bruges nu kun til
   betydning: grøn (mærke/tip), blå (note), gul (advarsel), rød (fare).
+
+### B47. Nyhedsoversigten: ét stort kort for seneste artikel og et kompakt arkiv pr. måned
+- Fund: siden gentog sin egen titel i en boks, viste seneste artikel i en smal spalte med
+  kæmpe overskrift og listede alle 64 artikler med fire links hver (over 16.000 px høj).
+- Valg: én linje med antal og RSS, seneste artikel som kort med billedet øverst og historierne
+  nummereret under, og derefter arkivet grupperet pr. måned med én række pr. artikel (9.500 px ved 1440 px bredde).
+  Kildelisten er lukket, til man åbner den. Indholdsfortegnelsen er slået fra på siden.
+- Rækken viser hovedhistorien i stedet for "AI-nyheder, <dato>", som 63 af 64 titler hed.
+- Nyhedsoversigten og nyhedsartiklerne har deres egne billeder og får ikke 3D-husets banner.
+- Kendt mangel: billedets tekst er dansk, også på den engelske side.
