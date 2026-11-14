@@ -1,0 +1,51 @@
+---
+title: Zigbee-kanalvælger
+description: Marker de Wi-Fi-kanaler, du bruger, og se hvilke af de 16 Zigbee-kanaler der overlapper. Værktøjet peger på den kanal, der ligger længst fra dit Wi-Fi.
+lastUpdated: 2026-11-14
+---
+
+import ZigbeeChannel from '../../../../components/tools/ZigbeeChannel.astro';
+
+Marker de kanaler på 2,4 GHz, som din router og de stærkeste naboer bruger. Så ser du, hvilke Zigbee-kanaler der ligger under dem, og hvilken kanal der passer bedst.
+
+<ZigbeeChannel lang="da" />
+
+## Sådan er tallet regnet
+
+Zigbee bruger 16 kanaler, nummer 11 til 26. Kanal 11 ligger på 2405 MHz, og der er 5 MHz mellem midten af to kanaler. Hver kanal er 2 MHz bred. Wi-Fi-kanal 1 ligger på 2412 MHz, og kanal 11 på 2462 MHz; værktøjet viser kanal 1 til 13.
+
+Værktøjet regner en Wi-Fi-kanal som 22 MHz bred, den bredeste almindelige maske. Det er vores valg, ikke et tal fra en kilde, og det er forsigtigt: en smallere Wi-Fi-kanal fylder mindre. En Zigbee-kanal overlapper, når de to bånd rører mere end et enkelt punkt. Bedst er den Zigbee-kanal, hvis midte ligger længst fra kanten af et markeret Wi-Fi-bånd. Står flere lige, vælges 15, 20, 25 og 11 i den rækkefølge, og derefter det laveste nummer.
+
+Kanal 26 bliver aldrig valgt først. Vi har ikke fundet en officiel kilde, der siger, hvorfor lige den kanal er dårligere, så det er en forsigtig regel og ikke en påstand. ZHA anbefaler kun 15, 20 og 25, fordi ikke alle Zigbee-enheder understøtter alle kanaler.
+
+## Det er ikke med
+
+- **Signalstyrke.** Værktøjet kender kun frekvenserne. Et naboens Wi-Fi, der er svagt hos dig, forstyrrer mindre, end stregen antyder.
+- **Andet på 2,4 GHz.** Zigbee2MQTT nævner, at blandt andet Bluetooth og trådløst spiltilbehør kan forstyrre Zigbee. Dem kan værktøjet ikke se.
+- **Hvad dine enheder kan.** Ikke alle enheder understøtter alle kanaler. Se under "Skift kanal".
+
+## Skift kanal
+
+Dokumentationen er forskellig for de to systemer, og begge skal tages alvorligt.
+
+**Zigbee2MQTT** har kanal 11 som standard og skriver, at man bør bruge en ZLL-kanal for at undgå problemer: 11, 15, 20 eller 25. Dokumentationen siger, at det er understøttet at skifte kanal på et eksisterende netværk. Enheder, der sover (ofte batteridrevne), skifter først, næste gang de vågner, så du bør vække dem efter skiftet. Nogle enheder kan ikke skifte kanal; svarer en enhed ikke efter flere minutter, kan den skulle parres igen. Skift af kanal virker kun med adapterne `zstack` og `ember`.
+
+**ZHA** (Home Assistants egen Zigbee) skriver, at det er bedst ikke at ændre kanalen fra standarden. Valget "Smart" scanner kanalerne og vælger en, helst 15, 20 eller 25. Efter et skift kan der gå op til en time, før alle enheder har fundet den nye kanal; du kan fremskynde det ved at slukke og tænde endeenhederne. Har du problemer med overlap, skriver ZHA, at det som regel er bedre først at give Wi-Fi-routeren en fast kanal.
+
+Du kan også flytte Wi-Fi i stedet for Zigbee. Flytter du routerens kanal, så markér den nye kanal herover og se, om anbefalingen ændrer sig.
+
+## Læs videre
+
+- [Zigbee2MQTT opsætning](/da/home-assistant/zigbee2mqtt/) og [avanceret Zigbee2MQTT](/da/home-assistant/zigbee2mqtt-avanceret/)
+- [ZHA i praksis](/da/home-assistant/zha-enhedshaandtering/)
+- [Zigbee-koordinatorer](/da/produkter/zigbee-koordinatorer/) og [Zigbee-sensorer](/da/produkter/zigbee-sensorer/)
+- [Batterilevetid](/da/vaerktoejer/batterilevetid/): hvor længe holder batteriet i en sensor?
+
+## Kilder
+
+Alle læst 14. november 2026. Vi har skrevet teksten selv.
+
+- Zigbee2MQTT, [Zigbee network](https://www.zigbee2mqtt.io/guide/configuration/zigbee-network.html): standardkanal, ZLL-kanalerne, skift af kanal på et eksisterende netværk.
+- Zigbee2MQTT, [Improve network range and stability](https://www.zigbee2mqtt.io/advanced/zigbee/02_improve_network_range_and_stability.html): Wi-Fi og Zigbee deler 2,4 GHz; andre enheder på 2,4 GHz kan forstyrre.
+- Home Assistant, [ZHA](https://www.home-assistant.io/integrations/zha/): anbefalingen om ikke at ændre kanal, "Smart", tid til genforbindelse, ikke alle enheder understøtter alle kanaler.
+- NXP (Freescale), [AN5185 Wireless Coexistence in the 2.4 GHz Band](https://www.nxp.com/docs/en/application-note/AN5185.pdf): de 16 kanaler, 2405 MHz, 2 MHz bredde, 5 MHz afstand, Wi-Fi-kanal 1 på 2412 MHz og at brugen af Wi-Fi-kanaler afhænger af region.

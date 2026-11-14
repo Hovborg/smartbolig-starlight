@@ -1,0 +1,121 @@
+/* The frequency strip of the Zigbee channel picker (ZigbeeStrip.astro).
+   The SVG is drawn in its own units, 10 per MHz, and scales to the card, so
+   font sizes here are drawing units, not pixels. Wi-Fi channels are bars,
+   Zigbee channels marks; the state is told by shape as well as colour:
+   a picked Wi-Fi bar is solid, an overlapped Zigbee mark is a short stub and the
+   recommended one has a ring and a triangle. */
+.sb-strip {
+  display: block;
+  inline-size: 100%;
+  block-size: auto;
+  border: 1px solid var(--sb-line);
+  border-radius: var(--sb-radius-md);
+  background: var(--sb-bg);
+}
+
+.sb-strip text {
+  font: 600 26px / 1 var(--sb-font-body);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Wi-Fi: faint outlines until picked. */
+.sb-strip__wifi rect {
+  fill: var(--sb-bg-subtle);
+  stroke: var(--sb-line-strong);
+  stroke-dasharray: 6 5;
+}
+
+.sb-strip__wifi text {
+  fill: var(--sb-ink-subtle);
+}
+
+.sb-strip__wifi.is-picked rect {
+  fill: var(--sb-accent-soft);
+  stroke: var(--sb-accent);
+  stroke-dasharray: none;
+  stroke-width: 3;
+}
+
+.sb-strip__wifi.is-picked text {
+  fill: var(--sb-accent-strong);
+}
+
+/* Zigbee: a column behind each mark carries the state colour. */
+.sb-strip__cell {
+  fill: transparent;
+}
+
+.sb-strip__bar {
+  fill: var(--sb-accent-vivid);
+  stroke: var(--sb-accent-vivid);
+  stroke-width: 3;
+}
+
+.sb-strip__zigbee text {
+  fill: var(--sb-ink-muted);
+}
+
+.sb-strip__zigbee.is-overlap .sb-strip__cell {
+  fill: var(--sb-warm-soft);
+}
+
+/* An overlapped channel is a short stub, a free one a tall bar. */
+.sb-strip__zigbee.is-overlap .sb-strip__bar {
+  fill: var(--sb-warm);
+  stroke: var(--sb-warm);
+  transform: scaleY(0.3);
+  transform-box: fill-box;
+  transform-origin: bottom;
+}
+
+.sb-strip__zigbee.is-best .sb-strip__cell {
+  fill: var(--sb-accent-soft);
+  stroke: var(--sb-ink-strong);
+  stroke-width: 3;
+}
+
+.sb-strip__zigbee.is-best text {
+  fill: var(--sb-ink-strong);
+  font-weight: 800;
+}
+
+.sb-strip__best {
+  display: none;
+  fill: var(--sb-ink-strong);
+}
+
+.sb-strip__zigbee.is-best .sb-strip__best {
+  display: inline;
+}
+
+/* A narrow card: only the main Zigbee channels get a number, and larger. */
+@container sb-tool (max-width: 30rem) {
+  .sb-strip__wifi:not(.is-picked),
+  .sb-strip__wifi text,
+  .sb-strip__zigbee:not([data-major]) text {
+    display: none;
+  }
+
+  .sb-strip__zigbee text {
+    font-size: 36px;
+  }
+}
+
+/* Number buttons for Wi-Fi channels and the row of shortcuts. */
+.sb-tool-chips--numbers .sb-tool-chip {
+  min-width: 2.75rem;
+  padding: 0;
+}
+
+.sb-tool-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sb-space-2);
+}
+
+@media (forced-colors: active) {
+  .sb-strip__bar {
+    fill: CanvasText;
+    stroke: CanvasText;
+  }
+}

@@ -19,5 +19,10 @@ export default {
       translations: { en: "Cost of keeping it on" },
       link: "/vaerktoejer/stroemforbrug/",
     },
+    {
+      label: "Zigbee-kanalvælger",
+      translations: { en: "Zigbee channel picker" },
+      link: "/vaerktoejer/zigbee-kanal/",
+    },
   ],
 };

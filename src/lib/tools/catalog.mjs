@@ -30,6 +30,18 @@ export const TOOLS = [
       text: "Type the watts and the hours per day. You get the cost per day, month and year.",
     },
   },
+  {
+    slug: "zigbee-kanal",
+    icon: "zigbee",
+    da: {
+      title: "Zigbee-kanalvælger",
+      text: "Marker de Wi-Fi-kanaler, du bruger. Så ser du, hvilke Zigbee-kanaler der overlapper, og hvilken der passer bedst.",
+    },
+    en: {
+      title: "Zigbee channel picker",
+      text: "Mark the Wi-Fi channels you use. You see which Zigbee channels overlap and which one fits best.",
+    },
+  },
 ];
 
 /** The words on every card that are not about one tool. */
