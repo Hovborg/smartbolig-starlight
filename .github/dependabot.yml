@@ -1,0 +1,52 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      # UTC. Well clear of the news runs (04:37 and 11:37 UTC), so an automatic
+      # merge does not land between a news push and its deploy.
+      time: "07:00"
+    # The updates that wait for a human stay open; leave room for the rest.
+    open-pull-requests-limit: 10
+    cooldown:
+      default-days: 14
+    groups:
+      # One pull request for the small updates. Packages below version 1 get a
+      # pull request each: their minor updates may break and are not merged
+      # automatically (dependabot-automerge.yml), and in the group they would
+      # hold every other update back. Add a new 0.x dependency here.
+      npm-minor-patch:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@astrojs/starlight"
+          - "esbuild"
+          - "sharp"
+          - "three"
+        update-types:
+          - "minor"
+          - "patch"
+    commit-message:
+      prefix: "chore(deps)"
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      # UTC. Well clear of the news runs (04:37 and 11:37 UTC), so an automatic
+      # merge does not land between a news push and its deploy.
+      time: "07:00"
+    # The updates that wait for a human stay open; leave room for the rest.
+    open-pull-requests-limit: 10
+    cooldown:
+      default-days: 14
+    groups:
+      actions-minor-patch:
+        update-types:
+          - "minor"
+          - "patch"
+    commit-message:
+      prefix: "chore(ci)"

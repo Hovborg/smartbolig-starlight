@@ -250,8 +250,13 @@ I CI sammenlignes der med det seneste commit, som blev udgivet uden fejl
 afhængighedsændring, der aldrig har bestået porten, bliver derfor ved med at
 være spærret, indtil en kørsel med den består.
 
-Nye pakkeversioner tages først i brug, når de er mindst tre døgn gamle. Det
-giver tid til, at en kompromitteret udgivelse bliver opdaget og trukket tilbage.
+Pakkerne opdateres af sig selv: Dependabot åbner hver mandag en pull request med
+små opdateringer (patch, og minor af pakker fra version 1), og den flettes, når
+kontrollen `deploy` er grøn. En ny version tages først, når den er 14 dage gammel;
+sikkerhedsrettelser venter ikke (Dependabots advarsler og sikkerhedsrettelser er
+slået til i repoet). Store opdateringer, minor af pakker under version 1 og
+GitHub Actions flettes i hånden. Se
+[`docs/opdateringer.md`](docs/opdateringer.md) (kontrolleret 2026-11-14).
 
 Der er ingen undtagelsesliste. Et højt fund løses ved at opdatere pakken.
 På Windows bruges den installerede Python og Git for Windows Bash;

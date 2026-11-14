@@ -12,9 +12,9 @@ kontrol, før de tages i brug (se nederst).
 
 | Pakke | Version | Licens | Bruges til | Kilde |
 |---|---|---|---|---|
-| `astro` | 7.2.8 | MIT | Bygger siden | github.com/withastro/astro |
+| `astro` | 7.4.7 | MIT | Bygger siden | github.com/withastro/astro |
 | `@astrojs/starlight` | 0.41.7 | MIT | Guides: sidemenu, søgning, sprog | github.com/withastro/starlight |
-| `@astrojs/markdown-remark` | 7.2.4 | MIT | Markdown til HTML | github.com/withastro/astro |
+| `@astrojs/markdown-remark` | 7.3.0 | MIT | Markdown til HTML | github.com/withastro/astro |
 | `@astrojs/rss` | 4.0.19 | MIT | RSS-feed for nyheder | github.com/withastro/astro |
 | `remark-gfm` | 4.0.1 | MIT | Tabeller og fodnoter i Markdown | github.com/remarkjs/remark-gfm |
 | `github-slugger` | 2.0.0 | ISC | Ankre til overskrifter | github.com/Flet/github-slugger |
@@ -31,9 +31,21 @@ kontrol, før de tages i brug (se nederst).
 | Pakke | Version | Licens | Bruges til |
 |---|---|---|---|
 | `pagefind` | 1.5.2 | MIT | Søgning uden server |
-| `astro-expressive-code` | 0.44.1 | MIT | Kodeblokke |
-| `@astrojs/mdx` | 7.0.5 | MIT | MDX-sider |
+| `astro-expressive-code` | 0.44.3 | MIT | Kodeblokke |
+| `@astrojs/mdx` | 7.0.8 | MIT | MDX-sider |
 | `@astrojs/sitemap` | 3.7.3 | MIT | Sitemap |
+
+## GitHub Actions
+
+Bruges i `.github/workflows/`. Hver er låst til en commit (ikke et versionsnavn), så
+indholdet ikke kan skiftes ud bagefter.
+
+| Action | Version | Licens | Bruges til |
+|---|---|---|---|
+| `actions/checkout` | v6 | MIT | Henter repoet |
+| `actions/setup-node` | v6 | MIT | Node.js |
+| `actions/setup-python` | v6 | MIT | Python til indholdskontrollen |
+| `dependabot/fetch-metadata` | v3.1.0 | MIT | Læser, hvor stor en opdatering Dependabot foreslår (se `docs/opdateringer.md`) |
 
 ## Kode, der hentes udefra i browseren
 
