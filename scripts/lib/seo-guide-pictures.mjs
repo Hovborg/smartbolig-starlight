@@ -13,7 +13,7 @@ export function checkGuidePicture(html) {
   const [first] = pictures;
   const issues = [];
   const widths = (attribute(first, 'srcset') ?? '').split(',').filter((candidate) => /\.webp \d+w$/.test(candidate.trim()));
-  if (widths.length < 3) issues.push(`the opening picture comes in ${widths.length} WebP widths, expected at least 3`);
+  if (widths.length < 3) issues.push(`the opening picture has ${widths.length} WebP width(s) in srcset, expected at least 3`);
   if (attribute(first, 'fetchpriority') !== 'high') issues.push('the opening picture is not fetched with high priority');
   if (!attribute(first, 'width') || !attribute(first, 'height')) issues.push('the opening picture has no width and height');
   const eager = pictures.filter((tag) => attribute(tag, 'fetchpriority') === 'high').length;

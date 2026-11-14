@@ -3,7 +3,7 @@
 Sidst opdateret: 2026-11-14.
 Kontrolleret ved: `npm run site:test`, `npm run build` og `npm run seo:validate` kørt på grenen.
 Tekstspaltens bredde og den fil, browseren henter, er målt i headless Chrome på den byggede
-Zigbee2MQTT-guide ved 20 vinduesbredder. LD2410-diagrammet er set som billede på den byggede side.
+Zigbee2MQTT-guide ved 22 vinduesbredder. LD2410-diagrammet er set som billede på den byggede side.
 Ikke kontrolleret: en rigtig telefon, Safari og Firefox. De øvrige diagrammer (SVG) er ikke set
 igennem for overlappende tekst, sprog og fakta; det står som åbent punkt i
 `docs/redesign/STATUS.md`.
@@ -41,10 +41,16 @@ igennem for overlappende tekst, sprog og fakta; det står som åbent punkt i
 `COLUMN_SIZES` følger sidens layout: menuen står ved siden af teksten fra 50rem, menu og
 indholdsfortegnelse fra 72rem, og spalten bliver aldrig bredere end `--sb-measure` (45rem).
 
+Tallene gælder sider med indholdsfortegnelse. En side uden (`tableOfContents: false` eller
+`template: splash`) har en bredere spalte fra 72rem, og et billede dér ville blive uskarpt. Ingen
+sådan side har billeder i teksten i dag, og testen "a page without a table of contents has no
+pictures in its text" fejler, hvis en får det. Skal sådan en side have billeder, får
+`COLUMN_SIZES` først en variant til den.
+
 | Vindue | Spalte (målt) | Browseren får at vide | Fil ved almindelig pixeltæthed |
 |---|---|---|---|
 | 390 px | 358 px | 358 px | 640 px (32 KB) |
-| 767 px | 720 px | 735 px | 750 px (40 KB) |
+| 767 px | 720 px | 720 px | 750 px (40 KB) |
 | 820 px | 468 px | 468 px | 640 px (32 KB) |
 | 1072 px | 720 px | 720 px | 750 px (40 KB) |
 | 1280 px | 640 px | 640 px | 640 px (32 KB) |
@@ -67,14 +73,14 @@ måles spalten igen, og tabellen i testen opdateres.
 | `site:test`: "put guide pictures in src/assets/guides/" | En guide peger på `/images/...` for et billede i teksten. Flyt filen til `src/assets/guides/`, og skriv stien relativt til MDX-filen |
 | `content-audit`: "image missing next to the guide" | Den relative sti rammer ikke en fil. Tæl `../`: en guide i en undermappe har én mere |
 | `seo:validate`: "no picture says it is shown in the text column" | `rehypeBodyImages` kører ikke, eller `COLUMN_SIZES` er ændret uden bygning. Se `astro.config.mjs` |
-| `seo:validate`: "comes in 1 WebP widths" | `config/images.mjs` er ikke i brug i `astro.config.mjs` |
+| `seo:validate`: "has 1 WebP width(s) in srcset" | `config/images.mjs` er ikke i brug i `astro.config.mjs` |
 | `seo:validate`: "not fetched with high priority" | `rehypeLeadImage` kører ikke, eller Home Assistant-guidens åbningsbillede er flyttet ned i teksten |
-| Et diagram er smalt midt i spalten | Reglen for `img[src$=".svg"]` i `prose.css` mangler |
+| Et diagram er smalt midt i spalten | Reglen for `img[src*=".svg"]` i `prose.css` mangler |
 | Et billede er uskarpt på en bred skærm | Kilden er for smal. Læg en kilde på op til 1600 px |
 
 ## Fjern det igen
 
 1. Fjern `image` og de to plugins (`rehypeLeadImage`, `rehypeBodyImages`) i `astro.config.mjs`.
-2. Slet `config/images.mjs`, de tre filer i `config/markdown/`, `scripts/site-images.test.mjs` og
+2. Slet `config/images.mjs`, `body-images.mjs`, `lead-image.mjs` og `local-picture.mjs` i `config/markdown/`, `scripts/site-images.test.mjs` og
    `scripts/lib/seo-guide-pictures.mjs`, og fjern kaldet i `scripts/seo-validate.mjs`.
 3. Billederne virker stadig fra `src/assets/guides/`, men kun i én bredde.

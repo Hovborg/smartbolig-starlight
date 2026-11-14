@@ -10,8 +10,11 @@
 import { isLocalPicture } from "./local-picture.mjs";
 
 // All in rem. The column is never wider than --sb-measure; beside it stand the
-// menu (from 50rem) and the menu plus the table of contents (from 72rem).
+// page's edges (below 50rem), the menu (from 50rem) and the menu plus the table
+// of contents (from 72rem). A page without a table of contents has a wider
+// column from 72rem, so such pages have no pictures (site-images.test.mjs).
 const MEASURE = 45;
+const EDGES = 2;
 const MENU = 22;
 const MENU_AND_CONTENTS = 40;
 
@@ -21,7 +24,8 @@ export const COLUMN_SIZES = [
   `(min-width: 72rem) calc(100vw - ${MENU_AND_CONTENTS}rem)`,
   `(min-width: ${MEASURE + MENU}rem) ${MEASURE}rem`,
   `(min-width: 50rem) calc(100vw - ${MENU}rem)`,
-  "calc(100vw - 2rem)",
+  `(min-width: ${MEASURE + EDGES}rem) ${MEASURE}rem`,
+  `calc(100vw - ${EDGES}rem)`,
 ].join(", ");
 
 function eachImage(node, visit) {

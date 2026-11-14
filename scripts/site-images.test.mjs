@@ -13,6 +13,8 @@ const read = (path) => readFile(new URL(path, root), "utf8");
 // Folders under public/images/ that a page may still point at by address.
 const PUBLIC_PICTURES = /^\/images\/(home\/|guide\/|produkter\/|ai-news|og-image\.png$)/;
 const BODY_PICTURE = /!\[[^\]]*\]\((\/images\/[^)\s]+)\)|<img\b[^>]*\ssrc=["'](\/images\/[^"']+)["']/g;
+// A photo written relative to the page: the kind that is given COLUMN_SIZES.
+const COLUMN_PICTURE = /!\[[^\]]*\]\((?!\/|#|[a-z][a-z0-9+.-]*:)[^)\s]+\.(?:png|jpe?g|gif|webp|avif)\)/i;
 
 async function contentFiles(dir = "src/content") {
   const entries = await readdir(new URL(`${dir}/`, root), { withFileTypes: true });
@@ -91,8 +93,9 @@ function toldWidth(sizes, windowWidth) {
 test("the width the browser is told is the text column's at every window width", async () => {
   // [window, column] measured on the built Zigbee2MQTT guide in headless Chrome, 2026-11-14.
   const measured = [
-    [320, 288], [390, 358], [600, 568], [767, 720], [800, 448], [820, 468], [1000, 648], [1071, 719],
-    [1072, 720], [1151, 720], [1152, 512], [1280, 640], [1359, 688], [1360, 688], [1440, 720], [1920, 720],
+    [320, 288], [390, 358], [600, 568], [751, 719], [752, 720], [767, 720], [799, 720], [800, 448], [820, 468], [1000, 648],
+    [1071, 719], [1072, 720], [1151, 720], [1152, 512], [1280, 640], [1296, 656], [1344, 680], [1359, 688], [1360, 688],
+    [1424, 720], [1440, 720], [1920, 720],
   ];
   for (const [windowWidth, column] of measured) {
     const told = toldWidth(COLUMN_SIZES, windowWidth);
@@ -103,6 +106,18 @@ test("the width the browser is told is the text column's at every window width",
   assert.equal(toldWidth(COLUMN_SIZES, 1920), Number(measure) * 16, "COLUMN_SIZES must follow --sb-measure");
 });
 
+test("a page without a table of contents has no pictures in its text", async () => {
+  // Its column is wider than COLUMN_SIZES says from 72rem (up to 208 px at 1152 px), so a picture would be blurry.
+  const offenders = [];
+  for (const file of await contentFiles()) {
+    const source = await readFile(new URL(file, root), "utf8");
+    const frontmatter = source.match(/^---\r?\n([\s\S]*?)\r?\n---/)?.[1] ?? "";
+    const wide = /^tableOfContents:\s*false\s*$/m.test(frontmatter) || /^template:\s*splash\s*$/m.test(frontmatter);
+    if (wide && COLUMN_PICTURE.test(source)) offenders.push(file);
+  }
+  assert.deepEqual(offenders, [], "give COLUMN_SIZES a variant for pages without a table of contents first (docs/billeder.md)");
+});
+
 test("pictures are made in several widths, and a drawing fills the column like a photo", async () => {
   const { image: imageConfig } = await import("../config/images.mjs");
   assert.equal(imageConfig.layout, "constrained", "without it Astro makes one width only");
@@ -110,7 +125,7 @@ test("pictures are made in several widths, and a drawing fills the column like a
   assert.ok(config.includes('import { image } from "./config/images.mjs";') && /^\s*image,$/m.test(config));
   assert.ok(config.includes("rehypeLeadImage, rehypeBodyImages]"));
   // Astro writes the drawing's own width on the tag; without this rule a 600 px drawing stays 600 px in a 720 px column.
-  assert.match(await read("src/styles/content/prose.css"), /img\[src\$="\.svg"\][^{]*\{[^}]*width:\s*100%;[^}]*height:\s*auto;/);
+  assert.match(await read("src/styles/content/prose.css"), /img\[src\*="\.svg"\][^{]*\{[^}]*width:\s*100%;[^}]*height:\s*auto;/);
 });
 
 test("guide pictures are not pointed at by address from public/images", async () => {
@@ -136,7 +151,7 @@ test("the check of a built guide's opening picture finds each fault", () => {
   assert.deepEqual(checkGuidePicture(`<p>${tag()}</p><p>${lazy}</p>`), []);
   assert.match(checkGuidePicture('<img src="/a.png" alt="">')[0], /no picture says/);
   assert.match(checkGuidePicture(`<img src="/a.webp" sizes="(min-width: 50rem) 45rem, 100vw" srcset="${srcset}">`)[0], /no picture says/);
-  assert.match(checkGuidePicture(tag('fetchpriority="high"', "/_astro/a_1.webp 640w"))[0], /1 WebP widths/);
+  assert.match(checkGuidePicture(tag('fetchpriority="high"', "/_astro/a_1.webp 640w"))[0], /has 1 WebP width\(s\)/);
   assert.match(checkGuidePicture(lazy)[0], /not fetched with high priority/);
   assert.match(checkGuidePicture(tag().replace(' width="1080" height="720"', ""))[0], /no width and height/);
   assert.match(checkGuidePicture(tag() + tag())[0], /2 pictures in the text/);

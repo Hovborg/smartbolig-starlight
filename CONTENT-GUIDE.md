@@ -130,8 +130,8 @@ guidefiler ligger fire mapper under `src/`, så stien starter med `../../../../a
 ![Zigbee mesh-netværk med koordinator, routere og sensorer](../../../../assets/guides/zigbee2mqtt/mesh.svg)
 ```
 
-En guide i en undermappe (fx `ai/ai-cli/`) har én `../` mere. `npm run content-audit` fejler, hvis
-stien ikke rammer en fil.
+En guide i en undermappe (fx `ai/ai-cli/`) har én `../` mere. `python scripts/content-audit.py`
+fejler, hvis stien ikke rammer en fil.
 
 - Det første billede i teksten hentes med det samme og med høj prioritet, men kun hvis guiden åbner
   med det (ellers viser sidehovedet sit eget billede, og teksten holder sig til lazy loading).

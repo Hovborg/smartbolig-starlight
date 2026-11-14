@@ -54,7 +54,14 @@ ikke rettes i hånden.
 - **Ingen to regler med `*` eller `:navn` må kunne ramme samme adresse.** Cloudflare lader ikke
   den regel, der står først, vinde: på den levende side vandt `/produkter/*` over
   `/produkter/:slug` (set 2026-11-14). Derfor hedder reglen for alt dybere `/produkter/:slug/*`.
-  Testen "an old product or news address is one redirect" fejler, hvis en adresse rammer to regler.
+  Testen "no address made from a dynamic rule matches another dynamic rule" laver prøveadresser
+  ud fra hver regel og fejler, hvis en af dem også rammer en anden regel.
+- **`www.smartbolig.net` sendes til `smartbolig.net` hos Cloudflare, ikke i repoet.** `_redirects`
+  kan ikke skelne mellem værter. Reglen hedder "smartbolig.net: www til hoveddomænet" og står
+  under Rules → Redirect Rules i zonen; den gælder kun værten `www.smartbolig.net` (301, sti og
+  forespørgsel bevares). Før 2026-11-14 svarede `www` med 200 og samme indhold som hoveddomænet.
+  Kontrol: `curl -sI https://www.smartbolig.net/da/` skal svare 301 med
+  `location: https://smartbolig.net/da/`. Fjernes ved at slette reglen samme sted.
 
 ## Tilføj en omdirigering
 

@@ -68,6 +68,23 @@ test("an old product or news address is one redirect, whichever dynamic rule Clo
   }
 });
 
+// The shapes a dynamic rule can match: `:name` becomes "x"; a splat becomes nothing, "a" and "a/b/".
+const samples = (source) => {
+  const filled = source.replace(/:([A-Za-z]\w*)/g, "x");
+  return filled.includes("*") ? ["", "a", "a/b/"].map((rest) => filled.replace("*", rest)) : [filled];
+};
+
+test("no address made from a dynamic rule matches another dynamic rule", () => {
+  const dynamic = rules.filter(([source]) => /[*:]/.test(source));
+  assert.ok(dynamic.length > 0);
+  for (const [source] of dynamic) {
+    for (const address of samples(source)) {
+      const matches = dynamic.filter(([other]) => pattern(other).test(address)).map(([other]) => other);
+      assert.deepEqual(matches, [source], `${address} matches ${matches.join(" and ")}`);
+    }
+  }
+});
+
 test("the English products splat comes after every specific English product rule", () => {
   const splat = rules.findIndex(([source]) => source === "/en/products/:slug/*");
   const specific = rules.map(([source], index) => (source.startsWith("/en/products/") && index !== splat ? index : -1));

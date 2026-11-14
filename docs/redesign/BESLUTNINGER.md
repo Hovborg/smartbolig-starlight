@@ -536,9 +536,14 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Sikring: `scripts/site-images.test.mjs` afviser `/images/...` i en guides tekst, og at
   spaltebredden i `body-images.mjs` kommer ud af trit med `--sb-measure`.
 - Efter den uafhængige gennemgang (2026-11-14):
-  - `sizes` var for grov (45rem fra 50rem, ellers hele vinduet). Spalten er målt ved 20
+  - `sizes` var for grov (45rem fra 50rem, ellers hele vinduet). Spalten er målt ved 22
     vinduesbredder, og `COLUMN_SIZES` følger nu layoutets brudpunkter. En test holder værdien op
     mod den målte spalte: aldrig mindre end spalten, højst 32 px mere.
+  - Anden gennemgang fandt et hul ved 752 til 799 px (spalten er 720 px, browseren fik op til
+    767 px at vide); `COLUMN_SIZES` har fået et led til det. Tallene gælder sider med
+    indholdsfortegnelse; en test afviser billeder i teksten på sider uden. LD2410-oversigtens
+    mærkater TX og RX på sensoren var byttet om og er rettet. Testen af omdirigeringer laver nu
+    prøveadresser ud fra hver dynamisk regel i stedet for ni faste adresser.
   - Tegninger stod i deres egen bredde (ofte 600 px i en spalte på 720), fordi Astro skriver
     `width` og `height` på dem. En regel i `prose.css` lader dem fylde spalten som før.
   - Et billede er Astros, når stien er relativ, også uden `./` (`local-picture.mjs`). Før blev

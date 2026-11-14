@@ -136,10 +136,10 @@
     <text x="225" y="92" fill="#64748b" font-size="9" font-family="system-ui">GND</text>
     
     <rect x="210" y="105" width="10" height="15" fill="#3b82f6"/>
-    <text x="225" y="117" fill="#3b82f6" font-size="9" font-family="system-ui">TX</text>
+    <text x="225" y="117" fill="#3b82f6" font-size="9" font-family="system-ui">RX</text>
     
     <rect x="210" y="130" width="10" height="15" fill="#22c55e"/>
-    <text x="225" y="142" fill="#22c55e" font-size="9" font-family="system-ui">RX</text>
+    <text x="225" y="142" fill="#22c55e" font-size="9" font-family="system-ui">TX</text>
     
     <!-- Wires -->
     <line x1="140" y1="62" x2="210" y2="62" stroke="#ef4444" stroke-width="2"/>

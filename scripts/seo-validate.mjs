@@ -424,9 +424,8 @@ async function main() {
 
   // A guide that opens with a picture: several widths, the column's width, fetched first.
   const pictureGuide = path.join(distDir, 'da/home-assistant/kom-godt-i-gang/index.html');
-  if (existsSync(pictureGuide)) {
-    for (const message of checkGuidePicture(await readFile(pictureGuide, 'utf8'))) fail(issues, pictureGuide, message);
-  }
+  if (!existsSync(pictureGuide)) fail(issues, pictureGuide, 'missing generated HTML');
+  else for (const message of checkGuidePicture(await readFile(pictureGuide, 'utf8'))) fail(issues, pictureGuide, message);
 
   await validatePage(issues, path.join(distDir, '404.html'), {
     required: [

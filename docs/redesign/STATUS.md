@@ -66,6 +66,11 @@ Sidst opdateret: 2026-11-14.
   `docs/billeder.md`. Efter udgivelsen kontrolleres på den levende side: `srcset`, `sizes` og
   `fetchpriority` på Home Assistant-guidens åbningsbillede, at en billedfil svarer 200 som WebP,
   LD2410-diagrammet på dansk og engelsk, og `/produkter/shelly` i ét hop. Resultatet skrives her.
+- **`www` til hoveddomænet (2026-11-14):** en omdirigeringsregel hos Cloudflare, kun for værten
+  `www.smartbolig.net`. Kontrolleret på den levende side: `/`, `/da/`, en guide med forespørgsel
+  og `http://` svarer alle 301 til samme sti på `https://smartbolig.net`; hoveddomænet og
+  `/api/chat` er uændrede, og zonens anden regel (et andet projekts) er urørt. Beskrevet i
+  `docs/seo.md`. Vej tilbage: slet reglen.
 
 ## I gang
 
