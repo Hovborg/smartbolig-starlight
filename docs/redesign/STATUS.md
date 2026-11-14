@@ -317,9 +317,10 @@ Sidst opdateret: 2026-11-14.
   24 px). Det er rettet i `StoryDigest.astro`. Målt bagefter med Lighthouse (kun
   Accessibility) mod den byggede side, serveret lokalt: 100 på `/da/ai/nyheder/` og
   `/en/ai/nyheder/`, mobil og desktop, og `target-size` er bestået. Udgivet 2026-11-14 (PR
-  #215, `main` 54d3ac1, Worker `ec9bfedd`). Målt på den levende side bagefter med samme
-  kommando: Accessibility 100 på `/da/ai/nyheder/` (mobil og desktop) og `/en/ai/nyheder/`
-  (mobil), og `target-size` er bestået. De syv andre sider målte 100 i rapporten.
+  #215, `main` 54d3ac1, Worker `ec9bfedd`). Målt på den levende side bagefter på samme måde
+  (Lighthouse, kun Accessibility): 100 på `/da/ai/nyheder/` (mobil og desktop) og
+  `/en/ai/nyheder/` (mobil), og `target-size` er bestået. De syv andre af rapportens otte
+  adresser målte 100 i rapporten (før #215; ikke målt igen).
 
 ## Udgivelser og vej tilbage
 
