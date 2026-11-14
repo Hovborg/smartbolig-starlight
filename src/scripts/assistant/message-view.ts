@@ -86,7 +86,8 @@ export function createMessageView(
     messagesElement.hidden = !hasMessages;
     requestAnimationFrame(() => {
       const conversation = root.querySelector("[data-chat-conversation]");
-      if (conversation instanceof HTMLElement) conversation.scrollTop = conversation.scrollHeight;
+      // A conversation shows its newest message; the welcome starts at the top.
+      if (conversation instanceof HTMLElement) conversation.scrollTop = hasMessages ? conversation.scrollHeight : 0;
     });
   }
 
