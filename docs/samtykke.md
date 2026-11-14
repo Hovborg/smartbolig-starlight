@@ -12,7 +12,9 @@ Googles rigtige script er hentet alene på den levende side fra en dansk forbind
 TCF-lytteren kaldes, men uden noget svar fra læseren; "consent mode" ikke sat op). Se "Ingen
 besked udgivet" nedenfor.
 Ikke kontrolleret: et rigtigt svar i Googles rigtige besked (kræver, at beskeden er udgivet),
-hvad Google svarer uden for EU/EØS, og indstillingerne i AdSense under "Privatliv og beskeder"
+rækkefølgen af Googles kald med en udgivet besked, om et nej når siden, efter at beskeden er
+åbnet igen med "Cookieindstillinger" (`showRevocationMessage`), hvad Google svarer uden for
+EU/EØS, og indstillingerne i AdSense under "Privatliv og beskeder"
 (kræver ejerens login, se `docs/redesign/TIL-EJEREN.md`).
 
 ## Kort
@@ -27,7 +29,8 @@ hvad Google svarer uden for EU/EØS, og indstillingerne i AdSense under "Privatl
 - "Cookieindstillinger" i sidefoden åbner beskeden igen. Knappen vises kun, hvor Google har
   spurgt læseren.
 - Google afgør ud fra læserens land, om der spørges (EU/EØS, Storbritannien og Schweiz). Hvor
-  Google melder, at der ikke spørges, tæller det som et ja. De juridiske sider siger det.
+  Google melder, at der ikke spørges, tæller det som et ja (medmindre Googles "consent mode"
+  samtidig siger nej). De juridiske sider siger det.
   Ejeren kan lade beskeden vises i alle lande i AdSense.
 - **Ingen besked udgivet:** er der ingen udgivet besked i AdSense for siden, kommer der intet
   svar fra læseren, og så hentes hverken Analytics eller AdSense, hvor Google melder, at GDPR
@@ -49,9 +52,15 @@ hvad Google svarer uden for EU/EØS, og indstillingerne i AdSense under "Privatl
    "consent mode" er slået til i AdSense) og TCF (`__tcfapi`): Google skal være godkendt som
    leverandør (nummer 755), og formålene følger Googles egen oversættelse. Svarer begge, kræver
    et formål ja fra begge (`strictest`), så et tilbagetrukket ja aldrig overstemmes af en
-   værdi, der ikke er fulgt med endnu. Det seneste TCF-svar huskes, så rækkefølgen af Googles
-   kald er ligegyldig (på den levende side kaldes TCF-lytteren først). Hvor GDPR gælder, er
-   "consent mode" alene aldrig et ja: der skal være et TCF-svar fra læseren.
+   værdi, der ikke er fulgt med endnu. Tre regler holder rækkefølgen af Googles kald ude af
+   svaret (på den levende side kaldes TCF-lytteren først):
+   - Det seneste TCF-svar huskes, og intet afgøres, før Google har meldt, at dets egne værdier
+     kan læses (`CONSENT_MODE_DATA_READY` eller `CONSENT_DATA_READY`). Ellers kunne et TCF-ja
+     hente et script, som "consent mode" siger nej til et øjeblik efter.
+   - Har siden en TCF-API, ventes der på dens første melding. "Consent mode" afgør kun alene,
+     hvor der ingen TCF-API er.
+   - Har TCF én gang meldt, at GDPR gælder, kræves et svar fra læseren, og en senere melding
+     kan ikke lave det om.
 5. TCF-lytteren kaldes igen, hver gang læseren svarer eller ændrer sit svar. Googles egne
    callbacks (`CONSENT_MODE_DATA_READY` og `CONSENT_DATA_READY`) er kun lovet én gang. Efter
    et svar læses værdierne igen et sekund senere.
@@ -73,7 +82,7 @@ hvad Google svarer uden for EU/EØS, og indstillingerne i AdSense under "Privatl
 | `src/components/Footer.astro`, `src/lib/site-footer.mjs` | Knappen "Cookieindstillinger" |
 | `src/content/docs/da/juridisk/cookiepolitik.mdx` og `en/` | Det, læseren får at vide. Skal passe med koden |
 | `scripts/site-consent.test.mjs` | Tests af reglerne og af, at ingen side selv henter noget fra Google |
-| `scripts/lib/seo-foreign-hosts.mjs` | Kontrol af de byggede sider: ingen side henter selv noget fra en anden vært. Kører i `npm run seo:validate` |
+| `scripts/lib/seo-foreign-hosts.mjs` | Kontrol af alle byggede HTML-filer (også 404-siden): ingen side henter selv noget fra en anden vært. Kører i `npm run seo:validate` |
 
 ## Ændr noget
 
@@ -97,7 +106,7 @@ hvad Google svarer uden for EU/EØS, og indstillingerne i AdSense under "Privatl
 |---|---|
 | Beskeden kommer ikke for nogen | Ingen besked er udgivet for siden i AdSense ("Privatliv og beskeder"). Tjek i browserens konsol på siden: `googlefc.getConsentStatus()` giver `0`, og `document.querySelector('iframe[name=googlefcInactive]')` findes. Rettes i AdSense, ikke i koden |
 | Beskeden kommer ikke hos dig | En annonceblokker eller et DNS-filter spærrer `fundingchoicesmessages.google.com`. Så hentes hverken Analytics eller AdSense, og siden virker uden. Tving beskeden frem med `?fc=alwaysshow&fctype=gdpr` efter adressen (Googles egen testparameter) |
-| "Cookieindstillinger" mangler i sidefoden | Google har ikke spurgt læseren: beskeden er ikke udgivet, er spærret, eller læseren er i et land, hvor Google ikke spørger. Knappen er skjult, til der er et svar at ændre |
+| "Cookieindstillinger" mangler i sidefoden | Google har ikke spurgt læseren: beskeden er ikke udgivet, er spærret, eller læseren er i et land, hvor Google ikke spørger. Knappen er skjult, til Google spørger eller har et svar fra et tidligere besøg |
 | Ingen tal i Google Analytics | Kun læsere, der har sagt ja, tælles. Det er meningen. Er tallet nul for alle, er beskeden ikke udgivet (se første række). Sidevisninger uden samtykke ses i Cloudflare Web Analytics |
 | Analytics hentes efter et ja, men AdSense ikke (eller omvendt) | Læseren har valgt formål enkeltvis. Det er svaret, ikke en fejl |
 | Siden indlæses igen efter et ændret svar | Et ja er trukket tilbage. Det er meningen |

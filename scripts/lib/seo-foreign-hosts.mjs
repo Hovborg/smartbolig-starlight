@@ -8,10 +8,12 @@ const FETCHED = { script: "src", iframe: "src", img: "src", video: "src", audio:
 // <link> fetches only for these rel values; canonical, alternate and the like are just addresses.
 const FETCHING_RELS = new Set(["stylesheet", "preconnect", "dns-prefetch", "preload", "modulepreload", "prefetch", "prerender", "icon", "apple-touch-icon", "mask-icon", "manifest"]);
 
-const TAG = /<(script|iframe|img|video|audio|source|embed|object|link)\b([^>]*)>/gi;
-// A code sample's copy button keeps the sample as text in `data-code`. A sample
-// such as <script src="https://..."> is text for the reader, not a tag on the page.
-const CODE_TEXT = /\sdata-code=(?:"[^"]*"|'[^']*')/gi;
+// Every tag, with quoted values read as a whole. A value may hold ">" (an alt
+// text) or a whole tag as text (a code sample in a copy button's `data-code`);
+// neither ends the tag nor counts as one.
+const ANY_TAG = /<([a-zA-Z][\w:-]*)((?:"[^"]*"|'[^']*'|[^>"'])*)>/g;
+// What an inline script or style holds is code, not tags of the page.
+const CODE_BODY = /(<(script|style)\b(?:"[^"]*"|'[^']*'|[^>"'])*>)[\s\S]*?(<\/\2\s*>)/gi;
 
 function attribute(attributes, name) {
   const match = attributes.match(new RegExp(`(?:^|\\s)${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, "i"));
@@ -37,16 +39,18 @@ const srcsetAddresses = (srcset) => (srcset ?? "").split(",").map((entry) => ent
 /** One message for each thing the page would fetch from another host. */
 export function foreignHosts(html, ownHost = OWN_HOST) {
   const messages = [];
-  for (const [, rawName, attributes] of html.replace(CODE_TEXT, "").matchAll(TAG)) {
+  for (const [, rawName, attributes] of html.replace(CODE_BODY, "$1$3").matchAll(ANY_TAG)) {
     const name = rawName.toLowerCase();
     let addresses;
     if (name === "link") {
       const rels = (attribute(attributes, "rel") ?? "").toLowerCase().split(/\s+/);
       if (!rels.some((rel) => FETCHING_RELS.has(rel))) continue;
       addresses = [attribute(attributes, "href"), ...srcsetAddresses(attribute(attributes, "imagesrcset"))];
-    } else {
+    } else if (name in FETCHED) {
       addresses = [attribute(attributes, FETCHED[name]), ...srcsetAddresses(attribute(attributes, "srcset"))];
       if (name === "video") addresses.push(attribute(attributes, "poster"));
+    } else {
+      continue;
     }
     for (const address of addresses) {
       const host = foreignHost(address, ownHost);

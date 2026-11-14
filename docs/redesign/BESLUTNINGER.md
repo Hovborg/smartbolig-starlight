@@ -654,3 +654,16 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
     kopiér-knap over. Kommentarfeltet har fået rigtige tests (afsender, tidsgrænse, oprydning).
   - Ikke afprøvet, før ejeren har udgivet beskeden: et rigtigt ja og et tilbagetrukket ja i
     Googles rigtige besked, og om "consent mode" for statistik følger TCF-formål 1 og 8.
+- Efter tredje uafhængige gennemgang (2026-11-14, af rettelserne; 0 blokerende fund, 4 andre):
+  - Et TCF-ja kunne hente scripts, før Googles "consent mode"-værdier kunne læses, og et nej
+    derfra et øjeblik efter ville genindlæse siden, måske igen og igen. Nu afgøres intet, før
+    Google har meldt, at værdierne kan læses.
+  - "Consent mode" kunne afgøre alene, hvis det meldte sig før TCF. Nu ventes der på TCF's
+    første melding, hvor siden har en TCF-API, og en senere melding kan ikke lave "GDPR
+    gælder" om.
+  - Knappen vises kun ved de tre kendte TCF-statusser; privatlivspolitikkens sætning om en
+    besked, der ikke vises, gælder nu kun i lande, hvor Google skal spørge.
+  - Kontrollen mod fremmede værter læser nu hvert tag for sig (et ">" i en alt-tekst eller et
+    tag skrevet som tekst i en attribut snyder den ikke) og gennemgår alle byggede HTML-filer.
+  - Valgt fra: at trække samtykket tilbage, mens beskeden er åbnet igen og ubesvaret. Det
+    tidligere ja står, til læseren svarer.

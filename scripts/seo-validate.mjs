@@ -89,7 +89,6 @@ async function validateSitemapPages(issues, sitemapPath, sitemap) {
 
     const html = await readFile(htmlPath, 'utf8');
     for (const message of checkHead(html)) fail(issues, htmlPath, message);
-    for (const message of foreignHosts(html)) fail(issues, htmlPath, message);
     for (const message of checkTitleAgreement(html)) fail(issues, htmlPath, message);
 
     const h1Count = (html.match(/<h1\b/gi) ?? []).length;
@@ -425,11 +424,15 @@ async function main() {
   if (!existsSync(pictureGuide)) fail(issues, pictureGuide, 'missing generated HTML');
   else for (const message of checkGuidePicture(await readFile(pictureGuide, 'utf8'))) fail(issues, pictureGuide, message);
 
-  // The 404 page is not in the sitemap, so the check of every sitemap page does not reach it.
-  const notFoundPage = path.join(distDir, '404.html');
-  if (existsSync(notFoundPage)) {
-    for (const message of foreignHosts(await readFile(notFoundPage, 'utf8'))) fail(issues, notFoundPage, message);
+  // Every HTML file the build wrote, also the ones the sitemap leaves out (the 404 page).
+  const htmlFiles = (await readdir(distDir, { recursive: true })).filter((name) => name.endsWith('.html'));
+  if (htmlFiles.length === 0) fail(issues, distDir, 'no HTML files to check for foreign hosts');
+  for (const name of htmlFiles) {
+    const htmlPath = path.join(distDir, name);
+    for (const message of foreignHosts(await readFile(htmlPath, 'utf8'))) fail(issues, htmlPath, message);
   }
+
+  const notFoundPage = path.join(distDir, '404.html');
 
   await validatePage(issues, notFoundPage, {
     required: [

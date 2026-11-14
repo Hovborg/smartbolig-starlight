@@ -49,10 +49,19 @@ test("a resource hint or a style sheet from another host fails", () => {
   assert.match(foreignHosts('<link rel="preload" as="image" href="/a.webp" imagesrcset="https://cdn.example/a.webp 640w">').join("\n"), /cdn\.example/);
 });
 
-test("a code sample in a copy button is text, not a tag", () => {
+test("a tag written as text in an attribute or in an inline script is not a tag", () => {
   const sample = `<button data-code="<script src='https://cdn.example/x.js'></script>">Copy</button>`;
   assert.deepEqual(foreignHosts(sample), []);
   assert.match(foreignHosts(`${sample}<script src="https://cdn.example/x.js"></script>`).join("\n"), /cdn\.example/, "the real tag beside it still counts");
+  assert.deepEqual(foreignHosts(`<a title='<img src="https://cdn.example/a.png">' href="/">x</a>`), []);
+  assert.deepEqual(foreignHosts(`<script>const html = '<img src="https://cdn.example/a.png">';</script>`), []);
+  assert.deepEqual(foreignHosts(`<style>/* <link rel="stylesheet" href="https://cdn.example/a.css"> */</style>`), []);
+  assert.match(foreignHosts(`<script>const a = 1;</script><img alt="" src="https://cdn.example/a.png">`).join("\n"), /cdn\.example/, "what follows an inline script still counts");
+});
+
+test("a > inside a quoted value does not end the tag", () => {
+  assert.match(foreignHosts('<img alt="Indstillinger > Enheder" src="https://cdn.example/a.png">').join("\n"), /<img> fetches from cdn\.example/);
+  assert.match(foreignHosts(`<link title='a > b' rel="stylesheet" href="https://cdn.example/a.css">`).join("\n"), /<link> fetches from cdn\.example/);
 });
 
 test("only the attribute itself counts, and a subdomain is another host", () => {

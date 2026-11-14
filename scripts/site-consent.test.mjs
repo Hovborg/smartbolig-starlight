@@ -176,14 +176,14 @@ test("a yes fetches Analytics and AdSense once, a no fetches neither", () => {
   // gtag.js only understands the `arguments` object itself.
   assert.equal(Object.prototype.toString.call(yes.win.dataLayer[0]), "[object Arguments]");
 
-  const no = page();
+  const no = page({ tcfAtStart: tcf([], { eventStatus: "tcloaded" }) });
   boot(no.win, no.doc);
   no.ready(all(DENIED));
   assert.equal(no.scripts.length, 1, "only the consent message");
   assert.equal(no.sent("config").length, 0);
   assert.equal(no.sent("consent").at(-1)[1], "update");
 
-  const statistics = page();
+  const statistics = page({ tcfAtStart: tcf([1, 8], { google: false, eventStatus: "tcloaded" }) });
   boot(statistics.win, statistics.doc);
   statistics.ready(values(DENIED, DENIED, DENIED, GRANTED));
   assert.equal(statistics.fetched("gtag/js"), 1);
@@ -192,23 +192,24 @@ test("a yes fetches Analytics and AdSense once, a no fetches neither", () => {
 
 test("a visitor who withdraws a yes gets the page again without the scripts", () => {
   // Google's callbacks run once; the change arrives as a TCF event only.
-  const { win, doc, ready, setValues, tcfEvent } = page();
+  const { win, doc, ready, setValues, tcfEvent, fetched } = page({ tcfAtStart: tcf(EVERY_PURPOSE, { eventStatus: "tcloaded" }) });
   boot(win, doc);
   ready(all(GRANTED));
+  assert.equal(fetched("gtag/js"), 1);
   assert.equal(win.reloads, 0);
   setValues(all(DENIED));
   tcfEvent(tcf([]));
   assert.equal(win.reloads, 1);
 
   // Google's consent mode values have not caught up: the TCF no decides.
-  const stale = page();
+  const stale = page({ tcfAtStart: tcf(EVERY_PURPOSE, { eventStatus: "tcloaded" }) });
   boot(stale.win, stale.doc);
   stale.ready(all(GRANTED));
   stale.tcfEvent(tcf([]));
   assert.equal(stale.win.reloads, 1);
 
   // Statistics stay allowed, ads are withdrawn.
-  const adsOnly = page();
+  const adsOnly = page({ tcfAtStart: tcf(EVERY_PURPOSE, { eventStatus: "tcloaded" }) });
   boot(adsOnly.win, adsOnly.doc);
   adsOnly.ready(all(GRANTED));
   adsOnly.setValues(values(DENIED, DENIED, DENIED, GRANTED));
@@ -306,14 +307,52 @@ test("a purpose needs a yes from both, whichever of the two Google tells last", 
   assert.equal(bothYes.fetched("gtag/js"), 1);
   assert.equal(bothYes.fetched("adsbygoogle"), 1);
   assert.equal(bothYes.win.reloads, 0);
+  assert.equal(bothYes.controls[0].hidden, false, "an answer from an earlier visit can be changed");
 
   // The message is open and unanswered: nothing yet, whatever consent mode says.
   const open = page({ tcfAtStart: tcf([], { eventStatus: "cmpuishown" }) });
   boot(open.win, open.doc);
   open.ready(all(GRANTED));
   assert.equal(open.scripts.length, 1);
+  assert.equal(open.controls[0].hidden, false, "Google is asking");
   open.tcfEvent(tcf(EVERY_PURPOSE));
   assert.equal(open.fetched("gtag/js"), 1);
+
+  // Once Google has said that the GDPR applies, a later event cannot turn a no into a yes.
+  const flip = page({ tcfAtStart: tcf([], { eventStatus: "tcloaded" }) });
+  boot(flip.win, flip.doc);
+  flip.ready(all(NOT_CONFIGURED));
+  flip.tcfEvent({ gdprApplies: false, eventStatus: "tcloaded" });
+  assert.equal(flip.scripts.length, 1);
+});
+
+test("a TCF yes waits for Google's own values, so no script is fetched and then taken back", () => {
+  const { win, doc, fire, setValues, fetched } = page({ tcfAtStart: tcf(EVERY_PURPOSE, { eventStatus: "tcloaded" }) });
+  boot(win, doc);
+  fire("CONSENT_API_READY");
+  assert.equal(fetched("gtag/js"), 0, "the listener has the yes, but Google's consent mode values cannot be read yet");
+  assert.equal(fetched("adsbygoogle"), 0);
+  setValues(values(GRANTED, GRANTED, GRANTED, DENIED));
+  fire("CONSENT_MODE_DATA_READY");
+  assert.equal(fetched("gtag/js"), 0, "consent mode says no to statistics");
+  assert.equal(fetched("adsbygoogle"), 1);
+  assert.equal(win.reloads, 0);
+});
+
+test("consent mode decides alone only where the page has no TCF API", () => {
+  const silent = page();
+  boot(silent.win, silent.doc);
+  silent.ready(all(GRANTED));
+  assert.equal(silent.scripts.length, 1, "there is a TCF API, so its word comes first");
+  silent.tcfEvent(tcf(EVERY_PURPOSE, { eventStatus: "tcloaded" }));
+  assert.equal(silent.fetched("gtag/js"), 1);
+
+  const noTcf = page({ withTcf: false });
+  boot(noTcf.win, noTcf.doc);
+  noTcf.ready(all(NOT_APPLICABLE));
+  assert.equal(noTcf.fetched("gtag/js"), 1, "Google does not ask here");
+  assert.equal(noTcf.fetched("adsbygoogle"), 1);
+  assert.equal(noTcf.controls[0].hidden, true);
 });
 
 test("the cookie settings control appears where Google asks the visitor", () => {
@@ -321,7 +360,10 @@ test("the cookie settings control appears where Google asks the visitor", () => 
   boot(win, doc);
   ready();
   assert.equal(controls[0].hidden, true);
+  tcfEvent({ gdprApplies: true, eventStatus: "" });
+  assert.equal(controls[0].hidden, true, "a status that is not one of the three is not a question");
   tcfEvent(tcf([], { eventStatus: "cmpuishown" }));
+  assert.equal(controls[0].hidden, false, "shown as soon as Google asks");
   tcfEvent(tcf([]));
   assert.equal(controls[0].hidden, false);
   assert.equal(controls[0].clicks.length, 1, "one click handler, however many events");
