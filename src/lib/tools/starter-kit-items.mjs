@@ -11,7 +11,8 @@
 // `radio` is how the part talks to Home Assistant. `fixed` marks a part of
 // the fixed 230 V installation: an authorised electrician fits it, and a
 // tenant never gets it. `landlord` marks a part a tenant asks the landlord
-// about first. `guide` is a page on the site, without the language.
+// about first. `notes` are lines from NOTES that are shown inside the part.
+// `guide` is a page on the site, without the language.
 
 export const GOALS = ["light", "heating", "energy", "security", "climate"];
 export const HOMES = ["tenant", "owner"];
@@ -29,7 +30,7 @@ export const ITEMS = {
   "brain-ha": { block: "brain", gap: true, guide: "home-assistant/hardware-valg" },
   "brain-own": { block: "brain", guide: "home-assistant/backup-sikkerhed" },
 
-  "link-zigbee": { block: "link", product: "sonoff-zigbee-dongle-e", name: "Sonoff Zigbee Dongle-E", guide: "produkter/zigbee-koordinatorer" },
+  "link-zigbee": { block: "link", product: "sonoff-zigbee-dongle-e", name: "Sonoff Zigbee Dongle-E", notes: ["have-zigbee", "bridge-zigbee"], guide: "produkter/zigbee-koordinatorer" },
   "link-wifi": { block: "link", guide: "produkter/wifi-enheder" },
 
   "light-bulb": { block: "light", product: "philips-hue-color-a60-e27", name: "Philips Hue Color A60 E27", radio: "zigbee", guide: "produkter/smart-belysning" },
@@ -37,7 +38,7 @@ export const ITEMS = {
   "light-motion": { block: "light", product: "aqara-motion-sensor-p1", name: "Aqara Motion Sensor P1", radio: "zigbee", guide: "automationer/bevaegelseslys-med-overstyring" },
   "light-dimmer": { block: "light", product: "shelly-dimmer-2", name: "Shelly Dimmer 2", radio: "wifi", fixed: true, guide: "produkter/smart-belysning" },
 
-  "heat-trv": { block: "heating", product: "aqara-e1-trv", name: "Aqara Smart Radiator Thermostat E1", radio: "zigbee", landlord: true, guide: "produkter/smart-termostater" },
+  "heat-trv": { block: "heating", product: "aqara-e1-trv", name: "Aqara Smart Radiator Thermostat E1", radio: "zigbee", landlord: true, notes: ["landlord"], guide: "produkter/smart-termostater" },
   "heat-sensor": { block: "heating", product: "sonoff-snzb-02p", name: "Sonoff SNZB-02P", radio: "zigbee", guide: "home-assistant/better-thermostat" },
   // Shown instead of heat-sensor when the climate block already has the sensor.
   "heat-sensor-shared": { block: "heating", guide: "home-assistant/better-thermostat" },
@@ -52,7 +53,7 @@ export const ITEMS = {
 
   "climate-sensor": { block: "climate", product: "sonoff-snzb-02p", name: "Sonoff SNZB-02P", radio: "zigbee", guide: "produkter/zigbee-sensorer" },
 
-  "diy-board": { block: "diy", gap: true, guide: "esp32/kom-godt-i-gang" },
+  "diy-board": { block: "diy", gap: true, radio: "wifi", guide: "esp32/kom-godt-i-gang" },
   "diy-light": { block: "diy", gap: true, guide: "esp32/led-strip" },
   "diy-motion": { block: "diy", gap: true, guide: "esp32/bevaegelsessensor" },
   "diy-climate": { block: "diy", gap: true, guide: "esp32/temperatur-sensor" },
@@ -81,6 +82,7 @@ export const NOTES = {
   tenant: "produkter/smart-home-i-lejebolig",
   bridge: null,
   "have-zigbee": null,
+  "bridge-zigbee": null,
   landlord: null,
   "no-goal": null,
 };

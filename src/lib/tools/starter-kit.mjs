@@ -67,6 +67,7 @@ export function buildKit(answers) {
     tenant && "tenant",
     have === "bridge" && "bridge",
     have === "ha" && zigbee && "have-zigbee",
+    have === "bridge" && zigbee && "bridge-zigbee",
     askLandlord && "landlord",
     goals.length === 0 && "no-goal",
   ].filter(Boolean);

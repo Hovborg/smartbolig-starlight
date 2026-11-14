@@ -91,6 +91,7 @@ test("the connection follows the parts: a coordinator only with Zigbee parts", (
     assert.equal(kit.items.includes("link-wifi"), radios.has("wifi"), say(answers));
     assert.equal(kit.steps.includes("zigbee"), radios.has("zigbee"), say(answers));
     assert.equal(kit.notes.includes("have-zigbee"), answers.have === "ha" && radios.has("zigbee"), say(answers));
+    assert.equal(kit.notes.includes("bridge-zigbee"), answers.have === "bridge" && radios.has("zigbee"), say(answers));
   }
   assert.deepEqual(buildKit({ goals: ["energy"], home: "tenant", have: "nothing" }).items, ["brain-ha", "link-wifi", "energy-plug", "energy-han"]);
 });
