@@ -205,6 +205,27 @@ Sitets konfiguration ligger i `config/`, og `astro.config.mjs` er kun en tynd in
 
 Guidesidernes top, sidemenu og sidefod er beskrevet i `docs/designsystem.md` under "Guidesider".
 
+### Hvor tingene ligger: AI-assistentens endpoint
+
+`functions/api/chat.js` er kun den tynde indgang (`onRequest` og genudstillede navne). Logikken ligger i `functions/lib/chat/`, ét ansvar pr. fil:
+
+| Fil | Ansvar |
+|-----|--------|
+| `limits.js` | modelnavne, størrelsesgrænser og timeouts |
+| `responses.js` | JSON-svar, fejlkoder og tekster, `ChatRequestError` |
+| `request.js` | begrænset læsning af kroppen og validering af samtalen |
+| `sources.js` | kanoniske SmartBolig-URL'er, titler og søgeresultater |
+| `prompt.js` | systemprompten og referencedata til den seneste besked |
+| `search-tool.js` | hvornår søgeværktøjet kræves, og aflæsning af modellens værktøjskald |
+| `yaml-request.js` | hvilken YAML-form og automation-`mode` brugeren har bedt om |
+| `yaml-checks.js` | kontrol af YAML i svaret mod den ønskede form |
+| `answer.js` | udtræk af modelsvar og accept af svar |
+| `runtime.js` | timeout med afbrydelse og sikre fejlnavne til log |
+| `agent.js` | Workers AI-agenten: primær model, reservemodel og søgeløkken |
+| `handler.js` | selve anmodningsforløbet: metode, oprindelse, rate limit, validering, søgning og svar |
+
+Det officielle bevismateriale ligger fortsat i `functions/lib/official-evidence.js`.
+
 ---
 
 ## 🚀 Deployment
