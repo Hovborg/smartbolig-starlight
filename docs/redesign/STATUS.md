@@ -171,8 +171,8 @@ Sidst opdateret: 2026-11-14.
   - Filer uden brug fra før redesignet (`ProductCard.astro`, `scripts/content-inventory.mjs`,
     `public/images/produkter/`, `logo-email.png`): tjek ekstern brug, før de slettes.
   - Diagrammerne i guiderne: alle 27 SVG-filer er tegnet om, set som billede (328 og 720 px,
-    mørk og lys baggrund) og holdt op mod guidens tekst og kode. Teksten er mindst 18 enheder i
-    en 640 enheder bred `viewBox` (ca. 9 px på en telefon; før 2,5-5 px), intet overlapper, og
+    mørk og lys baggrund) og holdt op mod guidens tekst og kode. Teksten er mindst 22 enheder i
+    en 640 enheder bred `viewBox` (ca. 11 px på en telefon; før 2,5-5 px), intet overlapper, og
     hver fil har `<title>` og `<desc>` på sit sprog. Syv engelske guides, der viste et dansk
     diagram, har fået et engelsk, og den engelske ESP32-startguide viser nu oversigten og
     benoversigten (ni nye engelske filer, 36 i alt). Reglerne for nye diagrammer står i

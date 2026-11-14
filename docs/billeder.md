@@ -3,10 +3,11 @@
 Sidst opdateret: 2026-11-14.
 Kontrolleret ved: `npm run site:test`, `npm run build` og `npm run seo:validate` kørt på grenen.
 Tekstspaltens bredde og den fil, browseren henter, er målt i headless Chrome på den byggede
-Zigbee2MQTT-guide ved 22 vinduesbredder. LD2410-diagrammet er set som billede på den byggede side.
-Diagrammerne er set som billede i headless Chrome i 328 og 720 px bredde på mørk og lys
-baggrund; tekststørrelse, overlap og plads er målt samme sted.
-Ikke kontrolleret: en rigtig telefon, Safari og Firefox. Det, der er tilbage for diagrammerne,
+Zigbee2MQTT-guide ved 22 vinduesbredder. Alle 36 diagrammer er set som billede i headless Chrome
+i 656 px bredde (2 × 328) på mørk baggrund; tekststørrelse (mindst 22 enheder), overlap og plads
+er målt i samme Chrome med både `system-ui` og `Verdana`.
+Ikke kontrolleret: en rigtig telefon, Safari og Firefox, diagrammerne på lys baggrund og i 720 px
+bredde efter den seneste ændring, og at diagrammerne ser rigtige ud på den byggede side. Det, der er tilbage for diagrammerne,
 står i `docs/redesign/STATUS.md`.
 
 ## Kort
@@ -76,12 +77,16 @@ diagrammer og rettelser i de gamle.
   i diagrammet og i guidens tekst og kode. Er de uenige, afgør en primær kilde (producentens
   datablad eller dokumentationen for Home Assistant eller ESPHome). Kan det ikke afgøres, rettes
   der ikke på gæt; det skrives op til ejeren.
-- **Læsbart på en telefon.** `viewBox` er 640 enheder bred, og ingen tekst er under 18 enheder.
-  Så er teksten ca. 9 px i en spalte på 328 px (vindue på 360 px). Hellere færre ting i
-  diagrammet end mindre tekst.
+- **Læsbart på en telefon.** `viewBox` er 640 enheder bred, og ingen tekst er under 22 enheder.
+  Så er teksten ca. 11 px i en spalte på 328 px (vindue på 360 px). Brug linjeskift,
+  højere kasser eller ting under hinanden i stedet for mindre tekst, og hellere færre ting i
+  diagrammet end mindre tekst. Overskrifter er større end brødteksten (titlen 28, kasseoverskrifter 24–26).
 - **Intet oven på tekst.** Ingen tekst overlapper anden tekst, rager ud af sin kasse eller ud af
   `viewBox`, og ingen ledning krydser en etiket eller et ben. Giv en tekst i en kasse mindst 8 %
-  luft; andre systemer har bredere skrifter.
+  luft; andre systemer har bredere skrifter. Mål derfor hver tekst (`getBBox()`) to gange: med
+  `system-ui` og med skriften tvunget til `Verdana`. I begge tilfælde skal teksten ligge mindst
+  8 enheder inde i `viewBox` og mindst 4 enheder inde i sin kasse, uden at krydse en kants linje,
+  uden at overlappe anden tekst og uden en ledning hen over sig.
 - **Egen baggrund.** Diagrammet har sit eget mørke panel (`#1a1a2e`), så det kan læses i både
   mørkt og lyst tema. Tekst på et farvet felt er hvid på mørk farve eller mørk på lys farve.
 - **Ét sprog pr. fil.** Den danske fil hedder fx `wiring.svg`, den engelske `wiring-en.svg`, og

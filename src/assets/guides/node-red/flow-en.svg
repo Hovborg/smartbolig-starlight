@@ -1,50 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 548" role="img" lang="en" font-family="system-ui, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 686" role="img" lang="en" font-family="system-ui, sans-serif">
   <title>Example of a Node-RED flow that turns a light on and off from a motion sensor</title>
   <desc>The events: state node listens to a motion sensor. A switch node routes the message by state. On on, a function node sets the brightness to 80 % and an action node calls light.turn_on. On off, a delay node waits 5 minutes and an action node calls light.turn_off.</desc>
-  <rect x="0" y="0" width="640" height="548" fill="#1a1a2e"/>
-  <text x="320" y="46" font-size="26" fill="#e2e8f0" text-anchor="middle" font-weight="700">Example of a Node-RED flow</text>
-  <rect x="206" y="70" width="228" height="66" rx="8" fill="#7dd3fc" stroke="#0369a1" stroke-width="2"/>
-  <rect x="207" y="71" width="24" height="64" rx="7" fill="#0369a1" opacity="0.4"/>
-  <text x="332" y="97" font-size="18" fill="#0b1220" text-anchor="middle" font-weight="700">events: state</text>
-  <text x="332" y="122" font-size="18" fill="#0b1220" text-anchor="middle">motion sensor</text>
-  <path d="M320 138L320 147" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M320 158L326.1 147L313.9 147Z" fill="#9ca3af"/>
-  <rect x="206" y="160" width="228" height="66" rx="8" fill="#fde68a" stroke="#a16207" stroke-width="2"/>
-  <rect x="207" y="161" width="24" height="64" rx="7" fill="#a16207" opacity="0.4"/>
-  <text x="332" y="187" font-size="18" fill="#0b1220" text-anchor="middle" font-weight="700">switch</text>
-  <text x="332" y="212" font-size="18" fill="#0b1220" text-anchor="middle">on or off?</text>
-  <path d="M320 228V252M170 252H470" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M170 252L170 287" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M170 298L176.1 287L163.9 287Z" fill="#9ca3af"/>
-  <path d="M470 252L470 287" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M470 298L476.1 287L463.9 287Z" fill="#9ca3af"/>
-  <text x="184" y="284" font-size="18" fill="#4ade80" font-weight="700">on</text>
-  <text x="456" y="284" font-size="18" fill="#fca5a5" text-anchor="end" font-weight="700">off</text>
-  <rect x="56" y="300" width="228" height="66" rx="8" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
-  <rect x="57" y="301" width="24" height="64" rx="7" fill="#c2410c" opacity="0.4"/>
-  <text x="182" y="327" font-size="18" fill="#0b1220" text-anchor="middle" font-weight="700">function</text>
-  <text x="182" y="352" font-size="18" fill="#0b1220" text-anchor="middle">brightness 80 %</text>
-  <rect x="356" y="300" width="228" height="66" rx="8" fill="#ddd6fe" stroke="#6d28d9" stroke-width="2"/>
-  <rect x="357" y="301" width="24" height="64" rx="7" fill="#6d28d9" opacity="0.4"/>
-  <text x="482" y="327" font-size="18" fill="#0b1220" text-anchor="middle" font-weight="700">delay</text>
-  <text x="482" y="352" font-size="18" fill="#0b1220" text-anchor="middle">5 minutes</text>
-  <path d="M170 368L170 377" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M170 388L176.1 377L163.9 377Z" fill="#9ca3af"/>
-  <path d="M470 368L470 377" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M470 388L476.1 377L463.9 377Z" fill="#9ca3af"/>
-  <rect x="56" y="390" width="228" height="66" rx="8" fill="#7dd3fc" stroke="#0369a1" stroke-width="2"/>
-  <rect x="57" y="391" width="24" height="64" rx="7" fill="#0369a1" opacity="0.4"/>
-  <text x="182" y="417" font-size="18" fill="#0b1220" text-anchor="middle" font-weight="700">action</text>
-  <text x="182" y="442" font-size="18" fill="#0b1220" text-anchor="middle" font-family="ui-monospace, Menlo, Consolas, monospace">light.turn_on</text>
-  <rect x="356" y="390" width="228" height="66" rx="8" fill="#7dd3fc" stroke="#0369a1" stroke-width="2"/>
-  <rect x="357" y="391" width="24" height="64" rx="7" fill="#0369a1" opacity="0.4"/>
-  <text x="482" y="417" font-size="18" fill="#0b1220" text-anchor="middle" font-weight="700">action</text>
-  <text x="482" y="442" font-size="18" fill="#0b1220" text-anchor="middle" font-family="ui-monospace, Menlo, Consolas, monospace">light.turn_off</text>
-  <rect x="24" y="480" width="592" height="50" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
-  <rect x="94.2" y="494" width="22" height="22" rx="4" fill="#7dd3fc" stroke="#0369a1" stroke-width="1.5"/>
-  <text x="124.2" y="511.3" font-size="18" fill="#e2e8f0">Home Assistant node</text>
-  <rect x="342.1" y="494" width="22" height="22" rx="4" fill="#fde68a" stroke="#a16207" stroke-width="1.5"/>
-  <rect x="368.1" y="494" width="22" height="22" rx="4" fill="#fdba74" stroke="#c2410c" stroke-width="1.5"/>
-  <rect x="394.1" y="494" width="22" height="22" rx="4" fill="#ddd6fe" stroke="#6d28d9" stroke-width="1.5"/>
-  <text x="424.1" y="511.3" font-size="18" fill="#e2e8f0">built-in node</text>
+  <rect x="0" y="0" width="640" height="686" fill="#1a1a2e"/>
+  <text x="320" y="44" font-size="28" fill="#e2e8f0" text-anchor="middle" font-weight="700">Example of a Node-RED flow</text>
+  <rect x="170" y="72" width="300" height="76" rx="8" fill="#7dd3fc" stroke="#0369a1" stroke-width="2"/>
+  <rect x="171" y="73" width="24" height="74" rx="7" fill="#0369a1" opacity="0.4"/>
+  <text x="332.5" y="104" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700">events: state</text>
+  <text x="332.5" y="134" font-size="22" fill="#0b1220" text-anchor="middle">motion sensor</text>
+  <path d="M320 149L320 172" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M320 183L314 172L326 172Z" fill="#9ca3af"/>
+  <rect x="170" y="184" width="300" height="76" rx="8" fill="#fde68a" stroke="#a16207" stroke-width="2"/>
+  <rect x="171" y="185" width="24" height="74" rx="7" fill="#a16207" opacity="0.4"/>
+  <text x="332.5" y="216" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700">switch</text>
+  <text x="332.5" y="246" font-size="22" fill="#0b1220" text-anchor="middle">on or off?</text>
+  <path d="M320 261V292M164 292H476" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M164 291L164 341" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M164 352L158 341L170 341Z" fill="#9ca3af"/>
+  <path d="M476 291L476 341" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M476 352L470 341L482 341Z" fill="#9ca3af"/>
+  <text x="182" y="332" font-size="22" fill="#4ade80" font-weight="700">on</text>
+  <text x="458" y="332" font-size="22" fill="#fca5a5" text-anchor="end" font-weight="700">off</text>
+  <rect x="24" y="352" width="280" height="76" rx="8" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <rect x="25" y="353" width="24" height="74" rx="7" fill="#c2410c" opacity="0.4"/>
+  <text x="176.5" y="384" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700">function</text>
+  <text x="176.5" y="414" font-size="22" fill="#0b1220" text-anchor="middle">brightness 80 %</text>
+  <rect x="336" y="352" width="280" height="76" rx="8" fill="#ddd6fe" stroke="#6d28d9" stroke-width="2"/>
+  <rect x="337" y="353" width="24" height="74" rx="7" fill="#6d28d9" opacity="0.4"/>
+  <text x="488.5" y="384" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700">delay</text>
+  <text x="488.5" y="414" font-size="22" fill="#0b1220" text-anchor="middle">5 minutes</text>
+  <path d="M164 429L164 453" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M164 464L158 453L170 453Z" fill="#9ca3af"/>
+  <path d="M476 429L476 453" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M476 464L470 453L482 453Z" fill="#9ca3af"/>
+  <rect x="24" y="464" width="280" height="76" rx="8" fill="#7dd3fc" stroke="#0369a1" stroke-width="2"/>
+  <rect x="25" y="465" width="24" height="74" rx="7" fill="#0369a1" opacity="0.4"/>
+  <text x="176.5" y="496" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700">action</text>
+  <text x="176.5" y="526" font-size="22" fill="#0b1220" text-anchor="middle" font-family="ui-monospace, Menlo, Consolas, monospace">light.turn_on</text>
+  <rect x="336" y="464" width="280" height="76" rx="8" fill="#7dd3fc" stroke="#0369a1" stroke-width="2"/>
+  <rect x="337" y="465" width="24" height="74" rx="7" fill="#0369a1" opacity="0.4"/>
+  <text x="488.5" y="496" font-size="22" fill="#0b1220" text-anchor="middle" font-weight="700">action</text>
+  <text x="488.5" y="526" font-size="22" fill="#0b1220" text-anchor="middle" font-family="ui-monospace, Menlo, Consolas, monospace">light.turn_off</text>
+  <rect x="24" y="566" width="592" height="96" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+  <rect x="44" y="580" width="24" height="24" rx="4" fill="#7dd3fc" stroke="#0369a1" stroke-width="1.5"/>
+  <text x="82" y="600" font-size="22" fill="#e2e8f0">Home Assistant node</text>
+  <rect x="44" y="622" width="24" height="24" rx="4" fill="#fde68a" stroke="#a16207" stroke-width="1.5"/>
+  <rect x="74" y="622" width="24" height="24" rx="4" fill="#fdba74" stroke="#c2410c" stroke-width="1.5"/>
+  <rect x="104" y="622" width="24" height="24" rx="4" fill="#ddd6fe" stroke="#6d28d9" stroke-width="1.5"/>
+  <text x="144" y="642" font-size="22" fill="#e2e8f0">built-in node</text>
 </svg>
