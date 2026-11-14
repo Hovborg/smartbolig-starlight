@@ -118,6 +118,12 @@ starlight-tabs [role="tab"] {
   font-weight: 650;
 }
 
+/* Many guides open with badges on a line of their own. Starlight gives no
+   space after an inline element, so the text below needs its own. */
+.sl-markdown-content > .sl-badge + :is(p, ul, ol, div, aside, table) {
+  margin-top: var(--sb-space-3);
+}
+
 /* --- Buttons that guides use (Starlight's LinkButton) ------------------ */
 .sl-link-button {
   border-radius: var(--sb-radius-pill);
