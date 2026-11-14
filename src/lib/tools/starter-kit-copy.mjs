@@ -20,7 +20,7 @@ export const starterKitCopy = {
     blocks: { brain: "Hjernen", link: "Forbindelsen", light: "Lys", heating: "Varme", energy: "Elforbrug", security: "Sikkerhed", climate: "Indeklima", diy: "Byg selv" },
     intros: { brain: "Det, der styrer det hele.", link: "Det, der forbinder delene med hjernen.", diy: "Dele, du selv samler og programmerer." },
     gap: "Ingen købsanbefaling endnu",
-    fixed: "Den bliver en del af den faste installation. Lad en autoriseret elinstallatør montere den.",
+    fixed: "Den bliver en del af den faste installation, så en autoriseret elinstallatør skal montere den.",
     items: partsCopy.da,
     limit: "Det kan sættet ikke:",
     limits: {
@@ -33,7 +33,7 @@ export const starterKitCopy = {
     },
     notes: {
       tenant: { text: "Sættet passer til en lejer: ingen af delene kræver, at du borer eller rører den faste elinstallation, og du kan tage dem med, når du flytter. Tjek kontrakten, før du klæber noget fast.", link: "Guide: Det må du selv som lejer" },
-      bridge: { text: "Du kan beholde din bro. Vi har ikke undersøgt, hvilke af delene den kan styre, så sættet er valgt til Home Assistant." },
+      bridge: { text: "Du kan beholde din bro. En Hue-bro kan styre Hue-pærer; hvilke af sættets andre dele din bro kan styre, har vi ikke undersøgt, så sættet er valgt til Home Assistant." },
       "have-zigbee": { text: "Har du allerede en Zigbee-koordinator i Home Assistant, skal du ikke købe en ny." },
       "bridge-zigbee": { text: "Sættets Zigbee-dele parres med koordinatoren, ikke med din bro. En Zigbee-enhed kan kun være forbundet til én koordinator. Flytter du en enhed fra broen, skal den nulstilles til fabriksindstillinger først." },
       landlord: { text: "Skriv til din udlejer først. Skift kun termostathovedet, ikke ventilen, og lad rørene være. Gem det gamle hoved, så du kan sætte det tilbage, når du flytter." },
@@ -82,7 +82,7 @@ export const starterKitCopy = {
     },
     notes: {
       tenant: { text: "The kit suits a tenant: none of the parts needs drilling or touches the fixed electrical installation, and you can take them with you when you move. Check your lease before you stick anything in place.", link: "Guide: What a tenant may do" },
-      bridge: { text: "You can keep your bridge. We have not checked which of the parts it can control, so the kit is built for Home Assistant." },
+      bridge: { text: "You can keep your bridge. A Hue bridge can control Hue bulbs; we have not checked which of the kit's other parts your bridge can control, so the kit is built for Home Assistant." },
       "have-zigbee": { text: "If you already have a Zigbee coordinator in Home Assistant, you do not need a new one." },
       "bridge-zigbee": { text: "The kit's Zigbee parts pair with the coordinator, not with your bridge. A Zigbee device can only be connected to one coordinator. If you move a device over from the bridge, it has to be reset to factory settings first." },
       landlord: { text: "Write to your landlord first. Replace only the thermostat head, not the valve, and leave the pipes alone. Keep the old head so you can put it back when you move out." },

@@ -126,6 +126,9 @@ test("the view lists the blocks, the parts, the steps and the notes of a kit", (
 });
 
 test("the live region reads the labels with the numbers", async () => {
-  const frame = await source("src/components/tools/StarterKit.astro");
-  assert.match(frame, /<dl class="sb-tool-stats sb-kit-stats" aria-atomic="true">/);
+  const kit = await source("src/components/tools/StarterKit.astro");
+  const result = /<Fragment slot="result">([\s\S]*?)<\/Fragment>/.exec(kit)?.[1] ?? "";
+  assert.match(result, /<dl class="sb-tool-stats sb-kit-stats" aria-atomic="true">/, "the numbers are in the result slot");
+  const frame = await source("src/components/tools/ToolFrame.astro");
+  assert.match(frame, /<div class="sb-tool__result" aria-live="polite"><slot name="result" \/><\/div>/, "the result slot is a live region");
 });

@@ -951,7 +951,7 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Valgt: samme sensor står kun ét sted. Deler to mål en sensor, peger den anden blok på den
   første.
 - OSS og data: ingen nye pakker og ingen data udefra. Intet gemmes, og intet sendes.
-- Kontrol: `npm run site:test` (15 tests i to nye filer; reglerne køres for alle 384
+- Kontrol: `npm run site:test` (25 tests i tre nye filer; reglerne køres for alle 384
   kombinationer af svar), `python scripts/content-audit.py`, `npm run build` og
   `npm run seo:validate`; den byggede side i headless Chrome i begge temaer ved 320, 375, 390
   og 1440 px, på begge sprog, med tastatur og uden JavaScript. Ikke set: en skærmlæser, og om

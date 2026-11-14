@@ -35,7 +35,10 @@ function kitTool(start = DEFAULT_ANSWERS) {
   ];
   const marked = keys.map((key) => {
     const element = fakeElement({ dataset: { kit: key }, hidden: true });
-    element.toggleAttribute = (name, on) => (on ? flags.add(element) : flags.delete(element));
+    element.toggleAttribute = (name, on) => {
+      assert.equal(name, "data-arrived", "the stylesheet reads data-arrived");
+      return on ? flags.add(element) : flags.delete(element);
+    };
     return element;
   });
   const parts = { parts: fakeElement(), links: fakeElement(), steps: fakeElement() };
@@ -68,6 +71,7 @@ test("kit ui: the start answers show the start kit and hide everything else", ()
   sameKeys(tool, DEFAULT_ANSWERS);
   assert.ok(tool.visible().has("item:light-bulb"));
   assert.ok(!tool.visible().has("item:heat-trv"));
+  assert.equal(tool.flags.size, 0, "nothing arrives before the reader answers");
   assert.deepEqual(tool.numbers(), kitCounts(buildKit(DEFAULT_ANSWERS)));
 });
 

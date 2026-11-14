@@ -32,6 +32,11 @@ test("every combination of answers gives a kit of known parts, steps and notes",
   }
 });
 
+test("the last step follows the first goal in the order shown, not the order given", () => {
+  assert.equal(buildKit({ ...DEFAULT_ANSWERS, goals: ["climate", "light"] }).steps.at(-1), "auto-light");
+  assert.equal(buildKit({ ...DEFAULT_ANSWERS, goals: ["security", "energy", "heating"] }).steps.at(-1), "auto-heating");
+});
+
 test("every part, step and note in the catalog is used by some kit", () => {
   const used = (name) => new Set(kits.flatMap(({ kit }) => kit[name]));
   assert.deepEqual([...used("items")].sort(), Object.keys(ITEMS).sort());
