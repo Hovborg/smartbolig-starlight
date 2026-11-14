@@ -46,7 +46,9 @@ for GitHubs planlægger er travlest ved hel time. Grænsen for nyhedernes alder 
 **Prøv mod en anden adresse.** `node scripts/monitor/run.mjs --base https://eksempel.dk --report rapport.md`.
 I GitHub: Actions → Monitor → Run workflow, og skriv adressen i feltet `base`. Det er også
 måden at se alarmen virke på: en adresse, der ikke er siden, får kontrollerne til at fejle,
-kørslen ender rød, og sagen `monitor` åbnes. Næste kørsel mod den rigtige side lukker den igen.
+kørslen ender rød, og der åbnes en sag med mærket `monitor-trial` og adressen i titlen. En
+prøvekørsel rører aldrig sagen `monitor` for den rigtige side: den hverken lukker eller
+omskriver den. Prøvesagen lukkes af den næste prøvekørsel, der består, eller i hånden.
 Kontrollerne for `www`, kanonisk adresse og `robots.txt` peger altid på `https://smartbolig.net`.
 
 ## Når noget ser forkert ud

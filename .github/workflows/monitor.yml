@@ -65,21 +65,29 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           CODE: ${{ steps.run.outputs.code }}
           FAILING: ${{ steps.run.outputs.failing }}
+          # Set when a person pointed the run at another address: a trial.
+          BASE: ${{ inputs.base }}
         run: |
           # If the monitor crashed before it wrote a report, the issue still points at the run.
           [ -f monitor-report.md ] || echo "The monitor wrote no report. Run: $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" > monitor-report.md
+          # A trial against another address has its own issue: it must neither
+          # close nor rewrite the alarm for the live site.
+          label=monitor; where=smartbolig.net
+          if [ -n "$BASE" ]; then label=monitor-trial; where="$BASE (trial run)"; fi
           gh label create monitor --repo "$GITHUB_REPOSITORY" --color B60205 \
             --description 'Live-site checks from monitor.yml' || true
+          gh label create monitor-trial --repo "$GITHUB_REPOSITORY" --color FBCA04 \
+            --description 'A manual monitor run against another address' || true
           # Only the issue this workflow opened itself. The REST list is used
           # because the search behind `gh issue list --label` lags by minutes.
-          open="$(gh api "repos/$GITHUB_REPOSITORY/issues?labels=monitor&state=open&creator=github-actions%5Bbot%5D&per_page=1" --jq '.[0].number // ""')"
-          title="Monitor: ${FAILING:-1} check(s) failing on smartbolig.net"
+          open="$(gh api "repos/$GITHUB_REPOSITORY/issues?labels=$label&state=open&creator=github-actions%5Bbot%5D&per_page=1" --jq '.[0].number // ""')"
+          title="Monitor: ${FAILING:-1} check(s) failing on $where"
           if [ "$CODE" != '0' ]; then
             if [ -n "$open" ]; then
               gh issue comment "$open" --repo "$GITHUB_REPOSITORY" --body-file monitor-report.md
               gh issue edit "$open" --repo "$GITHUB_REPOSITORY" --title "$title"
             else
-              gh issue create --repo "$GITHUB_REPOSITORY" --label monitor \
+              gh issue create --repo "$GITHUB_REPOSITORY" --label "$label" \
                 --title "$title" \
                 --body-file monitor-report.md
             fi

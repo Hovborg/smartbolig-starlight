@@ -95,3 +95,10 @@ Sidst opdateret: 2026-11-14.
    blive levende efter et øjeblik og kunne drejes. Bliver billedet stående, virker siden
    stadig; skriv det til mig, så ser jeg på det.
 
+## Kun hvis det bliver nødvendigt
+
+10. **Start af nyhedskørslen udefra.** GitHub starter de planlagte kørsler selv (set
+    2026-11-14), og hver af de to daglige kørsler har en reserve nogle timer senere. Holder
+    GitHub alligevel op med at starte dem i flere dage, kan en gratis tjeneste uden for
+    GitHub starte workflowet. Det kræver et GitHub-token, som kun du kan oprette. Gør intet,
+    før sidevagten åbner en sag om, at nyeste udgave er for gammel (`docs/overvaagning.md`).

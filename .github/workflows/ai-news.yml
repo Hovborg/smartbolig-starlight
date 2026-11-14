@@ -60,7 +60,8 @@ jobs:
           SCHEDULE: ${{ github.event.schedule }}
         run: |
           # Today's scheduled runs of this workflow (UTC day: all four runs lie in one).
-          { gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ai-news.yml/runs?event=schedule&created=%3E%3D$(date -u +%F)&per_page=50" \
+          # A call that hangs counts as a list that could not be read: the run writes.
+          { timeout 60 gh api "repos/$GITHUB_REPOSITORY/actions/workflows/ai-news.yml/runs?event=schedule&created=%3E%3D$(date -u +%F)&per_page=50" \
               --jq '[.workflow_runs[] | {id, conclusion, display_title}]' || true; } | node scripts/ai-news-slot.mjs >> "$GITHUB_OUTPUT"
 
   publish:

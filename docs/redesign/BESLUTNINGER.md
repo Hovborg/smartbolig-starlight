@@ -918,8 +918,8 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   (`scripts/site-workflows.test.mjs`), der kræver, at hver handling i hver workflow er låst
   til et commit, og at intet job får rettigheder, det ikke selv har nævnt.
 - Fravalgt: en udenforstående tjeneste til at starte workflowet. Den kræver et GitHub-token,
-  som ejeren skal oprette; det står på ejerens liste og tages kun i brug, hvis planlagte
-  kørsler bliver ved med at udeblive.
+  som ejeren skal oprette; det står på ejerens liste (punkt 10) og tages kun i brug, hvis
+  planlagte kørsler bliver ved med at udeblive.
 - Set samme dag, efter at dette var skrevet: den første planlagte nyhedskørsel startede af sig
   selv 2026-11-14 kl. 11:43 UTC, seks minutter efter planen (11:37), og lykkedes. Planlagte
   kørsler virker altså i repoet. Reserven beholdes: GitHub lover stadig ikke, at hver kørsel

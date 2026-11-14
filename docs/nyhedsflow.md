@@ -269,7 +269,7 @@ ikke kravene.
   tilgængelige, og de falder for kravet om 240 tegn. Det omgås ikke.
 - GitHub kan forsinke eller springe planlagte kørsler over. Derfor to tidspunkter, hver
   med en reserve nogle timer senere. Reserverne hjælper ikke, hvis GitHub slet ikke starter
-  planlagte kørsler i repoet; så skal workflowet startes udefra (se `docs/redesign/TIL-EJEREN.md`).
+  planlagte kørsler i repoet; så skal workflowet startes udefra (`docs/redesign/TIL-EJEREN.md`, punkt 10).
 - Beskeden om, at udgivelsen er gået i stå, sendes af `watch`-jobbet i samme
   workflow. Starter workflowet slet ikke, kommer der ingen besked derfra. Sidevagten
   (`docs/overvaagning.md`) læser den udgivne side uafhængigt og åbner en sag, når nyeste

@@ -58,7 +58,7 @@ liggende").
 | Grenens navn og de ændrede filer læses fra GitHub | En pull request, der opdaterer `fetch-metadata`, bestemmer også, hvad den svarer. Derfor afgør flettejobbet selv, at grenen er en npm-gren, og at kun de to pakkefiler er ændret. Fra `fetch-metadata` bruges kun, hvor stor opdateringen er. |
 | En version, der ikke kan læses, tæller som stor | Ellers ville en rettelse uden versionsnummer slippe forbi reglen om 0.0.x. |
 | Grenen slettes af repo-indstillingen, ikke af jobbet | Fejlede sletningen i jobbet, ville trinnet efter fletningen ikke køre. |
-| Fast tidspunkt (07:00 UTC) | Nyhedskørslerne går kl. 04:37 og 11:37 UTC. En fletning midt i en nyhedsudgivelse ville udskyde dagens udgave. |
+| Fast tidspunkt (07:00 UTC) | Nyhedskørslerne går kl. 04:37 og 11:37 UTC, med reserver kl. 08:37 og 14:37. Nærmeste kørsel er 97 minutter efter. En fletning midt i en nyhedsudgivelse ville udskyde dagens udgave. |
 | `--match-head-commit` | Kun den commit, kontrollen kørte på, kan blive flettet. |
 | Major flettes ikke | En ny hovedversion kan ændre opførsel, som testene ikke fanger. |
 | Minor af 0.x-pakker flettes ikke | Starlight 0.42 fjernede den mobilmenu-knap, som sidens stylesheet og assistentknap bygger på. Den slags fanger `deploy` ikke. |
