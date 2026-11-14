@@ -61,6 +61,8 @@ Energy monitoring is the **foundation for smart power management**. By measuring
 
 ## 🇪🇺 Smart Meter Ports - Europe
 
+How to get the port opened and the keys from your grid company: [open the HAN port and get the keys](/en/home-assistant/elmaaler-han-port/).
+
 Many European smart meters have a **P1/HAN port** providing real-time data:
 
 ### HomeWizard P1 Meter
@@ -318,6 +320,8 @@ For **single-device monitoring** use smart plugs:
 | **IKEA TRETAKT** | Zigbee | 2300W | $14 |
 | **Aqara Smart Plug** | Zigbee | 2300W | $21 |
 
+Kitchen appliances such as coffee makers and ovens can be measured too; see the [smart kitchen guide](/en/produkter/smart-koekken/).
+
 ### Combination: Whole + Details
 
 ```yaml
@@ -347,6 +351,8 @@ template:
 ---
 
 ## 📱 Home Assistant Energy Dashboard
+
+If you have solar panels or a home battery, you can add them to the dashboard. See [solar and battery in the Energy dashboard](/en/home-assistant/solceller-og-batteri/).
 
 ### Configuration
 
@@ -381,6 +387,8 @@ Home Assistant's **Energy Dashboard** provides fantastic insights:
 ## 💰 Automations for Savings
 
 ### Run appliances when power is cheap
+
+If the machines should wait for the cheapest hours, you will find a ready-made setup in [automation for the cheapest hours](/en/automationer/billige-timer/).
 
 ```yaml
 automation:

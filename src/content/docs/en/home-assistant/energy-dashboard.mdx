@@ -55,6 +55,8 @@ before changing units or sums.
 
 ## Step 1: configure grid consumption
 
+If your meter has a HAN port, the [guide to the meter via the HAN port](/en/home-assistant/elmaaler-han-port/) shows how to get the readings into Home Assistant.
+
 <Steps>
 1. **Find a cumulative import sensor**
 
@@ -85,6 +87,8 @@ always a safe replacement for separate import and export totals; follow the
 integration's documented semantics.
 
 ## Step 2: add solar production
+
+The solar forecast and shifting use to hours with surplus are covered in [solar panels and a home battery in Home Assistant](/en/home-assistant/solceller-og-batteri/).
 
 Add the inverter's cumulative production energy. Determine whether it represents
 the whole array, one inverter, one phase or one string. Give multiple sources
