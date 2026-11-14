@@ -10,6 +10,7 @@
 // decoding="sync" and fetchpriority="high" when it renders the picture.
 
 import { hasLeadPicture } from "../../src/lib/guide-art.mjs";
+import { isLocalPicture } from "./local-picture.mjs";
 
 function firstImage(node) {
   if (node.type === "element" && node.tagName === "img") return node;
@@ -27,6 +28,6 @@ export function rehypeLeadImage() {
     if (!hasLeadPicture(String(file?.value ?? "").trimStart())) return;
     const image = firstImage(tree);
     // Only pictures Astro optimizes understand `priority`; public/ ones stay as written.
-    if (image && String(image.properties?.src ?? "").startsWith(".")) image.properties.priority = "true";
+    if (image && isLocalPicture(image.properties?.src)) image.properties.priority = "true";
   };
 }

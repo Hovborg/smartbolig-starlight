@@ -51,6 +51,10 @@ ikke rettes i hånden.
   regler efter den første af dem mod en grænse på 100 (brugt: 8).
 - **En produktadresse uden afsluttende skråstreg får ét hop.** Reglerne med `:slug` sender
   `/produkter/shelly` direkte til `/da/produkter/shelly/`.
+- **Ingen to regler med `*` eller `:navn` må kunne ramme samme adresse.** Cloudflare lader ikke
+  den regel, der står først, vinde: på den levende side vandt `/produkter/*` over
+  `/produkter/:slug` (set 2026-11-14). Derfor hedder reglen for alt dybere `/produkter/:slug/*`.
+  Testen "an old product or news address is one redirect" fejler, hvis en adresse rammer to regler.
 
 ## Tilføj en omdirigering
 
@@ -85,6 +89,7 @@ ikke rettes i hånden.
 | `seo:validate`: en navngiven gruppe i `robots.txt` mangler `Disallow` | Tilføj de to `Disallow`-linjer i gruppen |
 | En gammel adresse svarer 404 | Tilføj en regel i `_redirects` (se ovenfor) |
 | En gammel adresse svarer 307 og derefter 200 | Linket mangler den afsluttende skråstreg. Ret linket, ikke omdirigeringen |
+| En gammel adresse får to hop (301 og så 301 eller 307) | To dynamiske regler rammer adressen, og Cloudflare valgte den anden. Gør reglerne adskilte, se ovenfor |
 
 ## Fjern en del
 

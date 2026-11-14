@@ -121,22 +121,27 @@ src/content/docs/
 ## Billeder i en guide
 
 Billeder, som guiden viser i teksten, lægges i `src/assets/guides/` (samme undermapper som guiden,
-fx `src/assets/guides/smart-doorbell/wiring.svg`) og skrives med en sti relativt til MDX-filen. Så
+fx `src/assets/guides/zigbee2mqtt/mesh.svg`) og skrives med en sti relativt til MDX-filen. Så
 laver bygningen selv WebP-filer i flere bredder med `width` og `height`, og browseren henter den
-mindste, der fylder tekstspalten; du skal ikke konvertere noget. Alle
+mindste, der fylder tekstspalten; du skal ikke konvertere noget. De fleste
 guidefiler ligger fire mapper under `src/`, så stien starter med `../../../../assets/`:
 
 ```md
-![DHT22 koblet til ESP32](../../../../assets/guides/smart-doorbell/wiring.svg)
+![Zigbee mesh-netværk med koordinator, routere og sensorer](../../../../assets/guides/zigbee2mqtt/mesh.svg)
 ```
+
+En guide i en undermappe (fx `ai/ai-cli/`) har én `../` mere. `npm run content-audit` fejler, hvis
+stien ikke rammer en fil.
 
 - Det første billede i teksten hentes med det samme og med høj prioritet, men kun hvis guiden åbner
   med det (ellers viser sidehovedet sit eget billede, og teksten holder sig til lazy loading).
 - Kilden må gerne være op til 1600 px bred; kom ikke større filer ind. Fotolignende billeder gemmes
   som WebP eller JPEG, skærmbilleder og tegninger som PNG eller SVG.
+- En tegning (SVG) fylder hele tekstspalten. Tegn den, så teksten kan læses ved 360 px bredde.
 - Kun billeder med en fast offentlig adresse bliver i `public/images/`: `home/`, `guide/`
-  (sidehovedets billeder), `produkter/`, nyhedsbillederne (`ai-news*`) og `og-image.png`.
-  `npm run site:test` fejler, hvis en MDX-fil peger på andre `/images/...`-stier.
+  (sidehovedets billeder), `produkter/`, nyhedsbillederne (`ai-news*`), `og-image.png` og
+  `logo-email.png`. `npm run site:test` fejler, hvis en guide peger på andre `/images/...`-stier.
+- Hvordan det virker, og hvad der gøres ved fejl, står i `docs/billeder.md`.
 
 ---
 

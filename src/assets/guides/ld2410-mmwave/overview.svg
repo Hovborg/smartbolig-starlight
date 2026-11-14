@@ -112,7 +112,7 @@
     
     <!-- ESP32 pins -->
     <rect x="130" y="55" width="10" height="15" fill="#ef4444"/>
-    <text x="125" y="67" text-anchor="end" fill="#ef4444" font-size="9" font-family="system-ui">3.3V</text>
+    <text x="125" y="67" text-anchor="end" fill="#ef4444" font-size="9" font-family="system-ui">5V</text>
     
     <rect x="130" y="80" width="10" height="15" fill="#64748b"/>
     <text x="125" y="92" text-anchor="end" fill="#64748b" font-size="9" font-family="system-ui">GND</text>

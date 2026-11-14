@@ -51,7 +51,7 @@ yaml.add_multi_constructor("!", _unknown_tag, Loader=HALoader)
 CODE_FENCE_RE = re.compile(r"^```(\w*)\s*$")
 LINK_RE = re.compile(r"\[([^\]]*)\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)")
 # Guide pictures live in src/assets/ and are written relative to the MDX file.
-REL_IMG_RE = re.compile(r'!\[[^\]]*\]\((\.{1,2}/[^)\s]+\.(?:png|jpe?g|svg|gif|webp|avif))\)')
+REL_IMG_RE = re.compile(r'!\[[^\]]*\]\((?!/|#|[A-Za-z][A-Za-z0-9+.-]*:)([^)\s]+\.(?:png|jpe?g|svg|gif|webp|avif))\)')
 IMG_SRC_RE = re.compile(r'(?:src=["\']|!\[[^\]]*\]\()(/[^"\')\s]+\.(?:png|jpe?g|svg|gif|webp|ico))')
 
 

@@ -507,8 +507,13 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   træning. Den er nu spærret som `GPTBot`; `Claude-User` og `Claude-SearchBot` har ingen gruppe
   og er tilladt gennem `*`. `seo:validate` kræver nu også de to `Disallow`-linjer i `*`-gruppen
   og `Sitemap:`-linjen. Tre regler med `:slug` giver produktadresser uden skråstreg ét hop.
+- Efter udgivelsen (2026-11-14): på den levende side fik `/produkter/shelly` stadig to hop.
+  Cloudflare lod `*`-reglen vinde over `:slug`-reglen, selv om `:slug` stod først i filen
+  (lokalt og i Cloudflares dokumentation vinder den første). Valg: ingen to dynamiske regler må
+  kunne ramme samme adresse. Hvert præfiks har nu `/:slug` (uden skråstreg) og `/:slug/*` (alt
+  dybere), og `scripts/site-redirects.test.mjs` fejler, hvis en adresse rammer to regler.
 ### B55. Guidernes billeder går gennem Astros billedbehandling
-- Baggrund: 16 guides åbnede med et PNG-billede på 2 til 2,4 MB fra `public/images/guides/`.
+- Baggrund: 16 guides åbnede med et PNG-billede på 2,2 til 2,7 MB fra `public/images/guides/`.
   Filer i `public/` sendes, som de er: ingen WebP, ingen bredder, ingen `width` og `height`.
 - Valg: billeder i en guides tekst ligger i `src/assets/guides/` og skrives med en relativ sti.
   Astro laver dem som WebP i seks bredder (`image.layout: "constrained"`), og
@@ -524,8 +529,24 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Fravalgt: at flytte sidehovedets billeder, forsidens billeder og nyhedsbillederne. De har en
   fast offentlig adresse (sociale kort, RSS) og laves allerede i de rigtige bredder af egne scripts.
 - Målt på den byggede side 2026-11-14: Zigbee2MQTT-guidens første billede var 2.420.126 bytes
-  og er nu 40.184 bytes i 750 px (bærbar, almindelig skærm), 46.406 i 828 px (telefon) og
-  132.868 i fuld bredde. Billedfilerne i repoet fylder 29 MB mod 55 MB før.
+  og er nu 32.326 bytes i 640 px (telefon og 1280 px bærbar ved almindelig pixeltæthed), 40.184
+  i 750 px (fuld spalte), 65.936 i 1080 px (telefon med tredobbelt pixeltæthed) og 132.868 i
+  1536 px (fuld spalte ved dobbelt pixeltæthed). Billedfilerne i repoet fylder 26,5 MB mod
+  55 MB før.
 - Sikring: `scripts/site-images.test.mjs` afviser `/images/...` i en guides tekst, og at
   spaltebredden i `body-images.mjs` kommer ud af trit med `--sb-measure`.
+- Efter den uafhængige gennemgang (2026-11-14):
+  - `sizes` var for grov (45rem fra 50rem, ellers hele vinduet). Spalten er målt ved 20
+    vinduesbredder, og `COLUMN_SIZES` følger nu layoutets brudpunkter. En test holder værdien op
+    mod den målte spalte: aldrig mindre end spalten, højst 32 px mere.
+  - Tegninger stod i deres egen bredde (ofte 600 px i en spalte på 720), fordi Astro skriver
+    `width` og `height` på dem. En regel i `prose.css` lader dem fylde spalten som før.
+  - Et billede er Astros, når stien er relativ, også uden `./` (`local-picture.mjs`). Før blev
+    `billede.webp` overset af begge plugins. `content-audit.py` kontrollerer de samme stier.
+  - `npm run seo:validate` kontrollerer det byggede åbningsbillede på Home Assistant-guiden:
+    flere bredder, spaltens `sizes`, høj prioritet, `width` og `height`.
+  - `public/images/guides/` er tom og væk. LD2410-diagrammet viste TX0 og RX0, mens guidens kode
+    bruger GPIO17 og GPIO16; mærkaterne er rettet, og den danske guide viser nu diagrammet.
+  - Fravalgt nu: at gå alle diagrammer igennem for overlappende tekst, sprog og fakta. Det er
+    en opgave for sig (åbent punkt i STATUS).
 
