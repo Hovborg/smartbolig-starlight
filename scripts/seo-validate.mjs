@@ -5,6 +5,8 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { checkHead } from './lib/seo-head-checks.mjs';
 import { checkGuidePicture } from './lib/seo-guide-pictures.mjs';
+import { locsOf } from './lib/llms-pages.mjs';
+import { checkLlmsTxt } from './lib/seo-llms-check.mjs';
 import { foreignHosts } from './lib/seo-foreign-hosts.mjs';
 import { checkTitleAgreement, decodeEntities } from './lib/seo-title-checks.mjs';
 
@@ -458,6 +460,11 @@ async function main() {
   } else if (!existsSync(sitemapPath)) {
     fail(issues, sitemapPath, 'missing sitemap');
   }
+
+  const llmsPath = path.join(distDir, 'llms.txt');
+  const llmsText = existsSync(llmsPath) ? await readFile(llmsPath, 'utf8') : undefined;
+  const sitemapForLlms = existsSync(sitemapPath) ? await readFile(sitemapPath, 'utf8') : '';
+  for (const message of checkLlmsTxt(llmsText, locsOf(sitemapForLlms))) fail(issues, llmsPath, message);
 
   await validatePage(issues, path.join(distDir, 'da/ai/nyheder/rss.xml'), {
     required: [
