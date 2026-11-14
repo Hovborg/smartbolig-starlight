@@ -35,6 +35,8 @@ const PAIRS = [
   ["--sb-danger", "--sb-bg", 4.5],
   ["--sb-line-strong", "--sb-bg", 1.4],
   ["--sb-accent-vivid", "--sb-bg", 2],
+  ["--sb-on-stage", "--sb-stage", 7],
+  ["--sb-on-stage-muted", "--sb-stage", 7],
 ];
 
 for (const [name, tokens] of Object.entries(themes)) {

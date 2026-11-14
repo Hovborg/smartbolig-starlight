@@ -1,8 +1,11 @@
 ---
+// The newest article as one large card: picture, title, summary and the
+// stories it covers.
 import type { AiNewsCopy } from "../../lib/ai-news-copy";
 import type { NewsIssue } from "../../lib/ai-news-feed";
 import type { NewsLocale } from "../../lib/home-news";
 import IssueMeta from "./IssueMeta.astro";
+import StoryDigest from "./StoryDigest.astro";
 
 interface Props {
   issue: NewsIssue;
@@ -14,36 +17,113 @@ const { issue, copy, locale } = Astro.props;
 ---
 
 <article class="latest-card">
-  <IssueMeta issue={issue} copy={copy} locale={locale} />
-  <h3>{copy.latest}: <a href={issue.href}>{issue.title}</a></h3>
-  <p>{issue.description}</p>
-  <div class="provider-strip" role="group" aria-label={locale === "da" ? "Dækkede områder" : "Covered areas"}>
-    {issue.providers.map((provider) => <span>{provider}</span>)}
+  {
+    issue.image && (
+      <a class="latest-card__media" href={issue.href} tabindex="-1" aria-hidden="true">
+        <img src={issue.image.src} alt="" width="1200" height="630" loading="eager" fetchpriority="high" decoding="async" />
+      </a>
+    )
+  }
+  <div class="latest-card__body">
+    <p class="latest-card__eyebrow"><span class="dot"></span>{copy.latest}</p>
+    <h2><a href={issue.href}>{issue.title}</a></h2>
+    <IssueMeta issue={issue} copy={copy} locale={locale} />
+    <p class="latest-card__summary">{issue.description}</p>
+    <a class="latest-card__cta" href={issue.href}>
+      {copy.read}
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+        <path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </a>
   </div>
+  {issue.headlines.length > 0 && <StoryDigest headlines={issue.headlines} copy={copy} />}
 </article>
 
 <style>
-  .latest-card h3 {
-    margin-top: 0;
+  .latest-card {
+    overflow: hidden;
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-lg);
+    background: var(--sb-surface);
+    box-shadow: var(--sb-shadow-md);
   }
 
-  .latest-card p {
-    color: var(--sb-ink-muted);
-    margin-bottom: 0;
+  .latest-card__media {
+    display: block;
+    background: var(--sb-stage);
   }
 
-  .provider-strip {
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
+  .latest-card__media img {
+    display: block;
+    width: 100%;
+    height: auto;
   }
 
-  .provider-strip span {
-    border: 1px solid var(--sb-line-strong);
-    border-radius: var(--sb-radius-pill);
+  .latest-card__body {
+    display: grid;
+    justify-items: start;
+    gap: var(--sb-space-3);
+    padding: clamp(1.25rem, 3vw, 2rem);
+  }
+
+  .latest-card__eyebrow {
     display: inline-flex;
-    line-height: 1;
-    padding: 0.35rem 0.55rem;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0;
+    color: var(--sb-accent);
+    font-size: var(--sb-text-sm);
+    font-weight: 650;
+  }
+
+  .dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: var(--sb-accent-vivid);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--sb-accent-vivid) 22%, transparent);
+  }
+
+  .latest-card h2 {
+    margin: 0;
+    color: var(--sb-ink-strong);
+    font-family: var(--sb-font-display);
+    font-size: var(--sb-text-h2);
+    letter-spacing: -0.02em;
+    line-height: var(--sb-leading-tight);
+    text-wrap: balance;
+  }
+
+  .latest-card h2 a {
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .latest-card h2 a:hover {
+    color: var(--sb-accent);
+  }
+
+  .latest-card__summary {
+    max-width: 62ch;
+    margin: 0;
+    color: var(--sb-ink-muted);
+  }
+
+  .latest-card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sb-space-2);
+    min-height: 2.75rem;
+    margin-top: var(--sb-space-2);
+    padding: 0 var(--sb-space-5);
+    border-radius: var(--sb-radius-pill);
+    background: var(--sb-accent);
+    color: var(--sb-on-accent);
+    font-weight: 650;
+    text-decoration: none;
+  }
+
+  .latest-card__cta:hover {
+    background: var(--sb-accent-strong);
   }
 </style>

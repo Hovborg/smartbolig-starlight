@@ -1,36 +1,47 @@
 ---
-// Five topic links with decorative icons, plus a separate beginner route.
+// "Choose your direction": five topics as picture cards, plus the beginner
+// route. The pictures are rendered from the 3D house (npm run house:posters).
 import type { HomeNavigatorCopy } from "../../lib/home-copy";
-import HomeTopicScene from './HomeTopicScene.astro';
-import HomeTopicIcon from './HomeTopicIcon.astro';
 
 interface Props {
   copy: HomeNavigatorCopy;
 }
 
 const { copy } = Astro.props;
+const srcset = (id: string, format: string) =>
+  [480, 960].map((width) => `/images/home/topic-${id}-${width}.${format} ${width}w`).join(", ");
+// The first card is twice as wide as the others on wide screens.
+const sizes = (index: number) =>
+  index === 0 ? "(min-width: 64rem) 36rem, 100vw" : "(min-width: 64rem) 18rem, 50vw";
 ---
 
 <section class="home-section home-navigator" aria-labelledby="home-navigator-title">
-  <div class="home-section__heading">
-    <p class="home-eyebrow">{copy.eyebrow}</p>
-    <h2 id="home-navigator-title">{copy.title}</h2>
+  <div class="home-navigator__head">
+    <div class="home-section__heading">
+      <p class="home-eyebrow">{copy.eyebrow}</p>
+      <h2 id="home-navigator-title">{copy.title}</h2>
+    </div>
+    <aside class="home-navigator__beginner">
+      <p>
+        <strong>{copy.beginner.question}</strong>
+        {copy.beginner.description}
+      </p>
+      <a class="home-text-link" href={copy.beginner.link.href}>{copy.beginner.link.label}<span aria-hidden="true"> →</span></a>
+    </aside>
   </div>
-  <aside class="home-navigator__beginner">
-    <p>
-      <strong>{copy.beginner.question}</strong>
-      {copy.beginner.description}
-    </p>
-    <a class="home-text-link" href={copy.beginner.link.href}>{copy.beginner.link.label}<span aria-hidden="true"> →</span></a>
-  </aside>
-  <ul class="home-navigator__rows">
+  <ul class="home-navigator__rows" role="list">
     {copy.rows.map((row, index) => (
       <li>
-        <a href={row.href} data-motion-stage>
-          <HomeTopicScene topic={index} />
-          <span class="home-navigator__icon"><HomeTopicIcon topic={index} /></span>
-          <h3>{row.title}</h3>
-          <p>{row.description}</p>
+        <a class="home-topic" href={row.href}>
+          <picture>
+            <source type="image/avif" srcset={srcset(row.id, "avif")} sizes={sizes(index)} />
+            <source type="image/webp" srcset={srcset(row.id, "webp")} sizes={sizes(index)} />
+            <img class="home-topic__picture" src={`/images/home/topic-${row.id}-960.webp`} alt="" width="960" height="720" loading="lazy" decoding="async" />
+          </picture>
+          <div class="home-topic__text">
+            <h3>{row.title}</h3>
+            <p>{row.description}</p>
+          </div>
           <span class="home-navigator__arrow" aria-hidden="true">→</span>
         </a>
       </li>

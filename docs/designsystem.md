@@ -5,7 +5,9 @@ Kontrolleret ved: `npm run site:test` (kontrasttesten `scripts/site-design-token
 og tematesten i `scripts/site-ui.test.mjs`) og `npm run build`.
 
 Siden har ét sæt designværdier (tokens). Alle komponenter bruger dem. Der står
-ingen farvekoder, skrifttyper eller skygger direkte i komponenterne.
+ingen farvekoder, skrifttyper eller skygger direkte i komponenterne. Eneste undtagelse er
+3D-modellen i `src/lib/house3d/`: dens materialer har egne farver i `palette.mjs`, fordi
+WebGL ikke læser CSS (se `docs/3d-hus.md`).
 
 ## Hvor tingene ligger
 
@@ -16,12 +18,17 @@ ingen farvekoder, skrifttyper eller skygger direkte i komponenterne.
 | `src/styles/starlight/bridge.css` | Oversætter tokens til Starlights egne variabler (`--sl-*`) |
 | `src/styles/base.css` | Side, baggrund, fokus, overskrifter |
 | `src/styles/chrome/` | Topbjælke, sidemenu, indholdsfortegnelse, sidefod-navigation |
-| `src/styles/content/` | Brødtekst, tabeller, kodeblokke, bokse, kort, faner |
+| `src/styles/content/` | `prose.css` (brødtekst), `blocks.css` (tabeller, kodeblokke, bokse, kort, faner), `guide-head.css` (guidens hoved med billede) |
 | `src/styles/print.css` | Print: skjuler menuer, assistent og kommentarer |
-| `src/styles/home/` | Forsiden: `layout.css` (ramme, knapper), `hero.css`, `scene.css` (huset), `sections.css`, `motion.css` |
+| `src/styles/home/` | Forsiden: `layout.css` (ramme, knapper), `hero.css`, `stage.css` (3D-husets skærm), `tour.css` (rundturen), `topics.css` (emnekort med billeder), `sections.css`, `motion.css` |
 | `src/styles/index.css` | Importerer det hele i rækkefølge. Den eneste fil, Starlight får |
 | `config/fonts.mjs` | Skrifttyper (selvhostede) |
 | `src/components/chrome/` | Egen topbjælke og temastart |
+| `src/components/guide/GuideHead.astro` | Toppen af hver guide: brødkrumme, titel, dato, billede |
+| `src/lib/guide-art.mjs` | Hvilket billede af 3D-huset en guide åbner med |
+| `src/lib/sidebar-scope.mjs`, `src/route-data.ts` | Sidemenuen åbner på det emne, læseren står i |
+| `src/lib/site-footer.mjs`, `src/components/Footer.astro` | Sidefodens links og tekster |
+| `config/markdown/` | Små Markdown-plugins: overskrifter, kort og faner uden emoji; tabeller i rulleramme |
 
 En komponents egne stilregler ligger i komponentens `<style>` og bruger kun tokens.
 
@@ -47,7 +54,10 @@ Hver farve har en rolle. Brug rollen, ikke en bestemt nuance.
 | `--sb-accent-soft` | Baggrund bag accentfarvet tekst (mærkater, aktiv menu) |
 | `--sb-accent-vivid` | Kun grafik og pynt, aldrig tekst |
 | `--sb-on-accent` | Tekst på en accentfarvet flade |
-| `--sb-warm`, `--sb-sky`, `--sb-violet`, `--sb-danger` (+ `-soft`, `-vivid`) | Advarsel, information, tip, fejl |
+| `--sb-warm`, `--sb-sky`, `--sb-violet`, `--sb-danger` (+ `-soft`, `-vivid`) | Lys og advarsel, sikkerhed og information, AI, varme og fejl. Tips bruger brandfarven |
+| `--sb-brand-a`, `--sb-brand-b` | Brandforløbet (to ender), kun til store overskrifter og grafik |
+| `--sb-time-morning`, `-day`, `-evening`, `-night` | Tidspunktets lys bag 3D-huset |
+| `--sb-stage`, `--sb-on-stage`, `--sb-on-stage-muted` | 3D-husets skærm og teksten på den. Mørk i begge temaer |
 
 Regler:
 
@@ -115,13 +125,17 @@ store overskrift). Linjehøjde: `--sb-leading` (brødtekst), `--sb-leading-tight
 
 ## Regler for bevægelse og illustrationer
 
-- Al bevægelse ligger inde i `@media (prefers-reduced-motion: no-preference)`.
-  Uden den skal siden se færdig ud og virke.
+- Bevægelse følger enhedens indstilling. Forsiden styres af `data-home-motion` på siden
+  (sat ud fra `prefers-reduced-motion` og start/pause-knappen; se `src/styles/home/motion.css`).
+  Små overgange på kort og knapper slås fra under `@media (prefers-reduced-motion: reduce)`.
+  Uden bevægelse skal siden se færdig ud og virke.
 - En animation skal forklare noget (et signal, en rækkefølge, en tilstand). Pynt
   uden indhold udelades.
-- Illustrationer er SVG i koden og bruger tokens, så de følger temaet.
-- Tung grafik (3D, lærred) indlæses først, når den er synlig, og har et stillbillede
-  som reserve.
+- Billederne på forsiden og i guidernes hoved er stillbilleder tegnet fra 3D-modellen
+  (AVIF og WebP). De har mørk baggrund i begge temaer. Diagrammer i guiderne er SVG.
+- 3D-modellen hentes, når browseren er ledig (på telefoner først efter første berøring eller
+  rul, aldrig uopfordret med Save-Data). Stillbilledet vises med det samme og bliver stående,
+  hvis WebGL mangler eller går tabt.
 
 ## Sådan gør du
 
@@ -142,7 +156,8 @@ store overskrift). Linjehøjde: `--sb-leading` (brødtekst), `--sb-leading-tight
 
 1. Læg den i `src/components/` (i en undermappe, hvis den hører til et område).
 2. Skriv stilreglerne i komponentens `<style>` med tokens.
-3. Ingen farvekoder, ingen `px`-skriftstørrelser, ingen egne skygger.
+3. Ingen farvekoder, ingen `px`-skriftstørrelser, ingen egne skygger (3D-modellens
+   materialer er undtaget, se øverst).
 4. Tjek den i lyst og mørkt tema, på 375 px og 1440 px bredde, og med tastatur.
 
 ### Fjern det igen
@@ -150,6 +165,55 @@ store overskrift). Linjehøjde: `--sb-leading` (brødtekst), `--sb-leading-tight
 Temaet er samlet i `src/styles/`, `src/components/chrome/` og `config/fonts.mjs`.
 Sæt `customCss` i `config/site.mjs` til en tom liste, og fjern `Header` og
 `ThemeProvider` i `config/components.mjs`, så står Starlights standardudseende tilbage.
+
+## Guidesider
+
+Set i browser 2026-11-14 ved 1440 og 390 px, mørkt tema på dansk og lyst tema på engelsk.
+
+- **Toppen** tegnes af `GuideHead.astro` (valgt i `PageTitle.astro`): brødkrumme til forsiden
+  og emnet, titel, "Opdateret" og et billede af 3D-huset. Nyhedsartikler bruger Starlights
+  egen titel og deres eget billede.
+- **Billedet** vælges af `guideArt()` i `src/lib/guide-art.mjs` ud fra guidens sti: første
+  regel i `RULES`, der passer, vinder. En guide, der selv begynder med et billede (inden for de
+  første 1500 tegn), beholder sit eget og får intet banner.
+- **Overskrifter, korttitler og fanenavne** vises uden emoji foran. Det sker ved bygningen
+  (`config/markdown/plain-headings.mjs` og `plain-labels.mjs`), så teksten i guiderne er
+  uændret, og ankre og indholdsfortegnelse er rene.
+- **Tabeller** pakkes i en ramme, der ruller sidelæns (`config/markdown/table-scroll.mjs`),
+  og fylder hele spalten. Kun en tabel, der er bredere end spalten, bliver et stop for
+  tastaturet og et navngivet område for skærmlæsere; navnet er overskriften over tabellen,
+  fx "Tabel: Priser" (`src/lib/table-scroll.mjs`, hentet i `MarkdownContent.astro`).
+- **Datoen** for seneste opdatering står ét sted: i guidens hoved.
+- **Kort** har én ikonfarve (`src/styles/content/blocks.css`), ikke Starlights fire på skift.
+- **Sidemenuen** viser emnet, læseren står i, øverst og åbent; de andre emner følger lukket
+  (`scopeSidebar()` i `src/lib/sidebar-scope.mjs`, kaldt fra `src/route-data.ts`). En
+  nyhedsartikel hører til siden over sig.
+- **Sidefoden** har tre kolonner med links (guides, om siden, følg med), mærke og juridiske
+  links. Links og tekster står i `src/lib/site-footer.mjs`, ét sæt pr. sprog.
+
+### Giv en guide et andet billede
+
+1. Åbn `src/lib/guide-art.mjs`. Tilføj en regel i `RULES` over den, der rammer i dag:
+   `[/mit-emne/, "energy"]`. Navnene står i `GUIDE_ARTS`.
+2. Nyt motiv: tilføj det i `GUIDE_ARTS` (alt-tekst på begge sprog) og et billede med navnet
+   `guide-<motiv>` i `PICTURES` i `scripts/house-posters.mjs`; se `docs/3d-hus.md`.
+3. Kør `npm run site:test`. Testen "every guide opens with a picture that exists" fejler, hvis
+   en fil mangler.
+
+### Tilføj et link i sidefoden
+
+1. Åbn `src/lib/site-footer.mjs`. Tilføj linket i samme kolonne på begge sprog: `path` til en
+   side på siden (uden sprog), `href` til et link ud af siden.
+2. Kør `npm run site:test`. Testen "the footer links to pages that exist" fejler, hvis siden
+   ikke findes på begge sprog.
+
+### Fjern det igen
+
+- Banner og brødkrumme: lad `PageTitle.astro` vise `<DefaultPageTitle />` på alle sider.
+- Emoji tilbage: fjern `rehypePlainHeadings` og `remarkPlainLabels` i `astro.config.mjs`.
+- Tabelrammen: fjern `rehypeTableScroll` samme sted, og sæt tabelreglen i `blocks.css` tilbage
+  til `display: block; overflow-x: auto`.
+- Hele sidemenuen på alle sider: fjern `routeMiddleware` i `config/site.mjs`.
 
 ## Logo og brandfiler
 

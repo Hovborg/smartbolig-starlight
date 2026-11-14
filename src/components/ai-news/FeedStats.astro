@@ -1,61 +1,71 @@
 ---
+// One line above the feed: how much there is, and the RSS feed.
 import type { AiNewsCopy } from "../../lib/ai-news-copy";
-import type { NewsLocale } from "../../lib/home-news";
 
 interface Props {
   copy: AiNewsCopy;
-  locale: NewsLocale;
   issueCount: number;
-  latestSourceCount: number;
   totalSourceCount: number;
+  rssHref: string;
 }
 
-const { copy, locale, issueCount, latestSourceCount, totalSourceCount } = Astro.props;
-const issueLabel = issueCount === 1 ? copy.issueCount : copy.issueCountPlural;
+const { copy, issueCount, totalSourceCount, rssHref } = Astro.props;
 ---
 
-<div class="feed-stats" role="group" aria-label={locale === "da" ? "AI-nyheder status" : "AI News status"}>
-  <div>
-    <strong>{issueCount}</strong>
-    <span>{issueLabel}</span>
-  </div>
-  <div>
-    <strong>{latestSourceCount}</strong>
-    <span>{copy.sourceCount}</span>
-  </div>
-  <div>
-    <strong>{totalSourceCount}</strong>
-    <span>{copy.monitoredCount}</span>
-  </div>
+<div class="feed-stats">
+  <p>
+    <span><strong>{issueCount}</strong> {issueCount === 1 ? copy.issueCount : copy.issueCountPlural}</span>
+    <span><strong>{totalSourceCount}</strong> {copy.monitoredCount}</span>
+  </p>
+  <a class="feed-rss" href={rssHref}>
+    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+      <path d="M5 11a8 8 0 0 1 8 8M5 5a14 14 0 0 1 14 14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"></path>
+      <circle cx="6" cy="18" r="1.8" fill="currentColor"></circle>
+    </svg>
+    {copy.rss}
+  </a>
 </div>
 
 <style>
   .feed-stats {
-    display: grid;
-    gap: 0.75rem;
-    /* Matches the three stat items rendered above (issues / latest sources / monitored). */
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sb-space-3) var(--sb-space-5);
   }
 
-  .feed-stats div {
-    border: 1px solid var(--sb-line);
-    border-radius: var(--sb-radius-sm);
-    padding: 0.85rem;
+  .feed-stats p {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--sb-space-1) var(--sb-space-5);
+    margin: 0;
+    color: var(--sb-ink-muted);
+    font-size: var(--sb-text-sm);
   }
 
   .feed-stats strong {
-    display: block;
-    font-size: var(--sb-text-h3);
-    line-height: 1;
+    color: var(--sb-ink-strong);
+    font-family: var(--sb-font-display);
+    font-size: var(--sb-text-lg);
   }
 
-  .feed-stats span {
-    color: var(--sb-ink-muted);
+  .feed-rss {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--sb-space-2);
+    min-height: 2.75rem;
+    padding: 0 var(--sb-space-4);
+    border: 1px solid var(--sb-line-strong);
+    border-radius: var(--sb-radius-pill);
+    color: var(--sb-ink-strong);
+    font-size: var(--sb-text-sm);
+    font-weight: 650;
+    text-decoration: none;
   }
 
-  @media (max-width: 46rem) {
-    .feed-stats {
-      grid-template-columns: 1fr;
-    }
+  .feed-rss:hover {
+    border-color: var(--sb-accent);
+    color: var(--sb-accent);
   }
 </style>

@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync } from "node:fs";
 import { readFile, readdir } from "node:fs/promises";
 import test from "node:test";
-import { selectLatestNews } from "../src/lib/home-news.ts";
+import { selectIssues } from "../src/lib/ai-news-feed.ts";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 // The sidebar lives in config/sidebar/ (one file per section); concatenate them all.
@@ -20,7 +20,8 @@ const readHomeStyles = async () => {
 
 const HOME_COMPONENTS = [
   "src/components/home/HomeHero.astro",
-  "src/components/home/HomeNetworkScene.astro",
+  "src/components/home/HomeStage.astro",
+  "src/components/home/HomeTour.astro",
   "src/components/home/HomeGoalNavigator.astro",
   "src/components/home/HomeFieldGuide.astro",
   "src/components/home/HomeFeaturedGuides.astro",
@@ -127,7 +128,7 @@ test("homepage portal is a thin orchestrator with the editorial section order", 
     assert.match(portal, new RegExp(`import ${component} from`), `portal must compose ${component}`);
   }
   assert.match(portal, /getHomeCopy|homeCopy\[/);
-  const order = ['slot name="editorial-news"', "<HomeGoalNavigator", "<HomeFieldGuide", "<HomeFeaturedGuides", "<HomeTrustEvidence", "<HomeClosingCta"];
+  const order = ["<HomeGoalNavigator", "<HomeFieldGuide", "<HomeFeaturedGuides", 'slot name="editorial-news"', "<HomeTrustEvidence", "<HomeClosingCta"];
   const positions = order.map((needle) => portal.indexOf(needle));
   for (const [index, position] of positions.entries()) {
     assert.ok(position >= 0, `portal missing section: ${order[index]}`);
@@ -136,31 +137,300 @@ test("homepage portal is a thin orchestrator with the editorial section order", 
   assert.doesNotMatch(portal, /<\/?main\b/);
 });
 
-test("hero takes an explicit locale, owns the homepage h1 and keeps the responsive image contract", async () => {
+test("hero takes an explicit locale and owns the homepage h1", async () => {
   const hero = await read("src/components/home/HomeHero.astro");
   assert.doesNotMatch(hero, /Astro\.url/, "hero must use an explicit locale prop, not URL sniffing");
   assert.match(hero, /<h1 id="_top">/);
   assert.match(hero, /aria-labelledby="_top"/);
-  assert.match(hero, /<picture>/);
-  for (const width of [640, 960, 1440]) {
-    assert.match(hero, new RegExp(`smart-home-editorial-${width}\\.avif ${width}w`));
-    assert.match(hero, new RegExp(`smart-home-editorial-${width}\\.webp ${width}w`));
+  for (const part of ["HomeStage", "HomeTour", "HomeHouseScript"]) {
+    assert.match(hero, new RegExp(`<${part}\\b`), `hero must compose ${part}`);
   }
-  assert.match(hero, /width="1440"/);
-  assert.match(hero, /height="810"/);
-  assert.match(hero, /loading="eager"/);
-  assert.doesNotMatch(hero, /fetchpriority/, "the thumbnail is not the LCP element");
-  assert.match(hero, /decoding="async"/);
   const skipLink = await read("src/components/SkipLink.astro");
   assert.match(skipLink, /href=["']#_top["']/);
 });
 
-test("homepage hero has a complete responsive AVIF and WebP image family", () => {
+test("the 3D house starts as a still picture: the largest picture on the page, in every size", async () => {
+  const stage = await read("src/components/home/HomeStage.astro");
+  assert.match(stage, /<picture>/);
+  assert.match(stage, /\[640, 960, 1440\]/);
+  assert.match(stage, /house-evening-\$\{width\}\.\$\{format\} \$\{width\}w/);
+  for (const format of ["avif", "webp"]) assert.match(stage, new RegExp(`srcset\\("${format}"\\)`));
+  assert.match(stage, /width="1440"/);
+  assert.match(stage, /height="1080"/);
+  assert.match(stage, /loading="eager"/);
+  assert.match(stage, /fetchpriority="high"/, "the still picture is the LCP element");
+  assert.match(stage, /decoding="async"/);
+  assert.match(stage, /alt=\{copy\.imageAlt\}/);
   for (const width of [640, 960, 1440]) {
     for (const format of ["avif", "webp"]) {
-      const asset = `public/images/hero/smart-home-editorial-${width}.${format}`;
-      assert.ok(existsSync(new URL(`../${asset}`, import.meta.url)), `missing hero asset: ${asset}`);
+      const asset = `public/images/home/house-evening-${width}.${format}`;
+      assert.ok(existsSync(new URL(`../${asset}`, import.meta.url)), `missing still picture: ${asset}`);
     }
+  }
+});
+
+test("every picture rendered from the 3D house exists in every size and is used", async () => {
+  const { PICTURES, pictureFolder } = await import("./house-posters.mjs");
+  const { homeCopy } = await import("../src/lib/home-copy.ts");
+  for (const picture of PICTURES) {
+    for (const width of picture.widths) {
+      for (const format of ["avif", "webp"]) {
+        const asset = `public/${pictureFolder(picture)}/${picture.name}-${width}.${format}`;
+        assert.ok(existsSync(new URL(`../${asset}`, import.meta.url)), `missing picture: ${asset} (run npm run house:posters)`);
+      }
+    }
+  }
+  const names = PICTURES.map((picture) => picture.name);
+  for (const locale of ["da", "en"]) {
+    for (const row of homeCopy[locale].navigator.rows) {
+      assert.ok(names.includes(`topic-${row.id}`), `${locale}: no picture for topic ${row.id}`);
+    }
+  }
+  const navigatorSource = await read("src/components/home/HomeGoalNavigator.astro");
+  assert.match(navigatorSource, /loading="lazy"/, "topic pictures are below the fold");
+  assert.match(navigatorSource, /alt=""/, "topic pictures are decoration; the card has its own text");
+});
+
+test("every guide opens with a picture that exists, and news issues keep their own", async () => {
+  const { PICTURES } = await import("./house-posters.mjs");
+  const { GUIDE_ARTS, GUIDE_ART_NAMES, guideArt, guideSection } = await import("../src/lib/guide-art.mjs");
+  const rendered = PICTURES.filter((picture) => picture.folder === "guide").map((picture) => picture.name).sort();
+  assert.deepEqual(rendered, GUIDE_ART_NAMES.map((name) => `guide-${name}`).sort(), "guide-art.mjs and house-posters.mjs must list the same pictures");
+  for (const name of GUIDE_ART_NAMES) {
+    assert.ok(GUIDE_ARTS[name]?.da && GUIDE_ARTS[name]?.en, `guide picture ${name} needs alternative text in both languages`);
+  }
+  assert.equal(guideArt("ai/nyheder/2026-11-14"), null);
+  assert.equal(guideArt("ai/nyheder"), null, "the news overview opens with the newest article's picture");
+  assert.equal(guideArt("ai/ai-cli").name, "guide-ai");
+  assert.equal(guideArt("esp32/led-strip").name, "guide-diy");
+  assert.equal(guideArt("home-assistant/zigbee2mqtt").name, "guide-network");
+  assert.equal(guideArt("kontakt").name, "guide-overview");
+  assert.equal(guideArt("home-assistant/energy-dashboard", "en").alt, GUIDE_ARTS.energy.en);
+  assert.deepEqual(guideSection("esp32/led-strip", "en"), { label: "ESP32 & ESPHome", href: "/en/esp32/" });
+  assert.equal(guideSection("esp32"), null);
+  const { hasLeadPicture } = await import("../src/lib/guide-art.mjs");
+  assert.equal(hasLeadPicture("import x from 'y';\n\n![LED strip](/images/guides/led.png)\n\nText"), true);
+  assert.equal(hasLeadPicture("Text without a picture.\n\n## Heading"), false);
+
+  const [head, pageTitle] = await Promise.all([read("src/components/guide/GuideHead.astro"), read("src/components/PageTitle.astro")]);
+  assert.match(head, /<h1 id="_top">/);
+  assert.match(head, /width="1600"\s+height="640"/, "a fixed size keeps the page from jumping when the picture arrives");
+  assert.match(head, /fetchpriority="high"/);
+  assert.match(pageTitle, /<GuideHead \/>/);
+});
+
+test("the footer links to pages that exist, in both languages", async () => {
+  const { siteFooter, YOUTUBE_URL } = await import("../src/lib/site-footer.mjs");
+  for (const locale of ["da", "en"]) {
+    const footer = siteFooter(locale);
+    const links = [...footer.columns.flatMap((column) => column.links), ...footer.legal];
+    assert.ok(links.length >= 14, `${locale}: expected the full footer`);
+    for (const link of links.filter((item) => !item.external && !item.href.endsWith(".xml"))) {
+      assert.ok(link.href.startsWith(`/${locale}/`), `${locale} footer has a cross-language link: ${link.href}`);
+      const base = `src/content/docs${link.href.replace(/\/$/, "")}`;
+      const found = [`${base}.mdx`, `${base}.md`, `${base}/index.mdx`, `${base}/index.md`].some((path) => existsSync(new URL(`../${path}`, import.meta.url)));
+      assert.ok(found, `footer links to a page that does not exist: ${link.href}`);
+    }
+    assert.ok(links.some((link) => link.href === YOUTUBE_URL && link.external));
+    assert.ok(links.some((link) => link.href === (locale === "da" ? "/rss.xml" : "/en/rss.xml")));
+  }
+  const source = await read("src/components/Footer.astro");
+  assert.match(source, /siteFooter\(locale\)/);
+  assert.match(source, /class="legal-links"/, "print.css hides the legal links by this class");
+});
+
+test("headings are shown without a leading emoji", async () => {
+  const { stripLeadingEmoji, rehypePlainHeadings } = await import("../config/markdown/plain-headings.mjs");
+  assert.equal(stripLeadingEmoji("\u{1F4CB} Forudsætninger"), "Forudsætninger");
+  assert.equal(stripLeadingEmoji("\u{1F6E0}\uFE0F Værktøj"), "Værktøj");
+  assert.equal(stripLeadingEmoji("\u{1F468}\u200D\u{1F4BB} Kode"), "Kode");
+  assert.equal(stripLeadingEmoji("Trin 1: Installation"), "Trin 1: Installation");
+  assert.equal(stripLeadingEmoji("5 GHz og 2,4 GHz"), "5 GHz og 2,4 GHz");
+  const tree = { type: "root", children: [
+    { type: "element", tagName: "h2", children: [{ type: "text", value: "\u{1F680} Næste skridt" }] },
+    { type: "element", tagName: "p", children: [{ type: "text", value: "\u{2705} Færdig" }] },
+  ] };
+  rehypePlainHeadings()(tree);
+  assert.equal(tree.children[0].children[0].value, "Næste skridt");
+  assert.equal(tree.children[1].children[0].value, "\u{2705} Færdig", "only headings change");
+  assert.match(await read("astro.config.mjs"), /rehypePlugins: \[rehypePlainHeadings\b/);
+});
+
+test("the sidebar opens on the section the reader is in", async () => {
+  const { scopeSidebar } = await import("../src/lib/sidebar-scope.mjs");
+  const link = (href, isCurrent = false) => ({ type: "link", label: href, href, isCurrent });
+  const group = (label, entries) => ({ type: "group", label, entries, collapsed: false });
+  const sidebar = (current) => [
+    group("Home Assistant", [link("/da/home-assistant/", current === "ha"), group("Installation", [link("/da/home-assistant/docker/", current === "docker")])]),
+    group("AI", [link("/da/ai/"), link("/da/ai/nyheder/")]),
+    group("Produkter", [link("/da/produkter/", current === "produkter")]),
+  ];
+
+  const products = scopeSidebar(sidebar("produkter"), "/da/produkter/");
+  assert.deepEqual(products.map((entry) => entry.label), ["Produkter", "Home Assistant", "AI"]);
+  assert.deepEqual(products.map((entry) => entry.collapsed), [false, true, true]);
+
+  const nested = scopeSidebar(sidebar("docker"), "/da/home-assistant/docker/");
+  assert.equal(nested[0].label, "Home Assistant");
+  assert.equal(nested[0].entries[1].collapsed, false, "groups inside the section keep their own state");
+
+  const issue = scopeSidebar(sidebar(), "/da/ai/nyheder/2026-11-14/");
+  assert.equal(issue[0].label, "AI", "a news issue belongs to the news page above it");
+  assert.equal(issue[0].collapsed, false);
+
+  const outside = scopeSidebar(sidebar(), "/da/start/");
+  assert.deepEqual(outside.map((entry) => entry.label), ["Home Assistant", "AI", "Produkter"]);
+  assert.ok(outside.every((entry) => entry.collapsed), "no section is open on a page outside them");
+
+  const original = sidebar("produkter");
+  scopeSidebar(original, "/da/produkter/");
+  assert.equal(original[0].collapsed, false, "the sidebar it was given is left unchanged");
+
+  assert.match(await read("config/site.mjs"), /routeMiddleware: "\.\/src\/route-data\.ts"/);
+  assert.match(await read("src/route-data.ts"), /scopeSidebar\(route\.sidebar, context\.url\.pathname\)/);
+});
+
+test("tables scroll sideways in a wrapper named after the heading above them", async () => {
+  const { rehypeTableScroll } = await import("../config/markdown/table-scroll.mjs");
+  const table = () => ({ type: "element", tagName: "table", properties: {}, children: [] });
+  const heading = (text) => ({ type: "element", tagName: "h2", properties: {}, children: [
+    { type: "element", tagName: "code", properties: {}, children: [{ type: "text", value: text }] },
+  ] });
+  const tree = { type: "root", children: [
+    table(),
+    heading("Zigbee range"),
+    { type: "element", tagName: "blockquote", properties: {}, children: [table()] },
+    { type: "element", tagName: "p", properties: {}, children: [{ type: "text", value: "tekst" }] },
+  ] };
+  rehypeTableScroll()(tree, { path: "/repo/src/content/docs/en/produkter/index.mdx" });
+  const wrapper = tree.children[0];
+  assert.equal(wrapper.tagName, "div");
+  assert.deepEqual(wrapper.properties.className, ["table-scroll"]);
+  assert.equal(wrapper.properties.dataLabel, "Table", "a table before the first heading only gets the word");
+  assert.deepEqual(Object.keys(wrapper.properties).sort(), ["className", "dataLabel"], "no tab stop or region is written into the HTML");
+  assert.equal(wrapper.children[0].tagName, "table");
+  const nested = tree.children[2].children[0];
+  assert.equal(nested.properties.className[0], "table-scroll", "nested tables are wrapped too");
+  assert.equal(nested.properties.dataLabel, "Table: Zigbee range");
+  assert.equal(tree.children[3].tagName, "p");
+  const danish = { type: "root", children: [heading("Priser"), table()] };
+  rehypeTableScroll()(danish, { path: "C:\\repo\\src\\content\\docs\\da\\produkter\\index.mdx" });
+  assert.equal(danish.children[1].properties.dataLabel, "Tabel: Priser");
+  assert.match(await read("astro.config.mjs"), /rehypePlugins: \[rehypePlainHeadings, rehypeTableScroll\]/);
+  assert.match(await read("src/styles/content/blocks.css"), /\.table-scroll\s*\{[^}]*overflow-x:\s*auto/);
+});
+
+test("only a table wider than its column becomes a tab stop and a named region", async () => {
+  const { markTable } = await import("../src/lib/table-scroll.mjs");
+  const box = (scrollWidth, clientWidth) => {
+    const attributes = new Map();
+    return {
+      scrollWidth,
+      clientWidth,
+      dataset: { label: "Tabel: Priser" },
+      attributes,
+      setAttribute: (name, value) => attributes.set(name, value),
+      removeAttribute: (name) => attributes.delete(name),
+    };
+  };
+  const wide = box(900, 360);
+  assert.equal(markTable(wide), true);
+  assert.deepEqual(Object.fromEntries(wide.attributes), { tabindex: "0", role: "region", "aria-label": "Tabel: Priser" });
+  wide.scrollWidth = 360;
+  assert.equal(markTable(wide), false, "the same table on a wider screen");
+  assert.equal(wide.attributes.size, 0, "a table that fits adds no stop for the keyboard");
+  assert.equal(markTable(box(361, 360)), false, "a rounding pixel is not a scroll");
+  assert.match(await read("src/components/MarkdownContent.astro"), /import \{ watchTables \} from "\.\.\/lib\/table-scroll\.mjs";\s*watchTables\(\);/);
+});
+
+test("cards and tabs are shown without a leading emoji", async () => {
+  const { remarkPlainLabels } = await import("../config/markdown/plain-labels.mjs");
+  const attribute = (name, value) => ({ type: "mdxJsxAttribute", name, value });
+  const tree = { type: "root", children: [
+    { type: "mdxJsxFlowElement", name: "Tabs", attributes: [], children: [
+      { type: "mdxJsxFlowElement", name: "TabItem", attributes: [attribute("label", "\u{1F4F1} Via UI")], children: [] },
+    ] },
+    { type: "mdxJsxFlowElement", name: "Card", attributes: [attribute("title", "\u{1F6E0}️ Værktøj"), attribute("icon", "setting")], children: [] },
+    { type: "mdxJsxFlowElement", name: "LinkCard", attributes: [attribute("title", "\u{1F680} Start"), attribute("description", "\u{2705} Klar")], children: [] },
+    { type: "mdxJsxFlowElement", name: "Aside", attributes: [attribute("title", "\u{26A0}️ Pas på")], children: [] },
+  ] };
+  remarkPlainLabels()(tree);
+  assert.equal(tree.children[0].children[0].attributes[0].value, "Via UI");
+  assert.equal(tree.children[1].attributes[0].value, "Værktøj");
+  assert.equal(tree.children[2].attributes[0].value, "Start");
+  assert.equal(tree.children[2].attributes[1].value, "\u{2705} Klar", "only the title changes");
+  assert.equal(tree.children[3].attributes[0].value, "\u{26A0}️ Pas på", "other components are left alone");
+  assert.match(await read("astro.config.mjs"), /remarkPlugins: \[remarkGfm, remarkPlainLabels\]/);
+});
+
+test("the 3D library loads on demand and the controls work without it", async () => {
+  const [stage, controller, script] = await Promise.all([
+    read("src/lib/home-house-stage.mjs"),
+    read("src/lib/home-house.mjs"),
+    read("src/components/home/HomeHouseScript.astro"),
+  ]);
+  assert.match(stage, /import\("\.\/house3d\/index\.mjs"\)/, "three.js must stay out of the first page load");
+  assert.doesNotMatch(stage + controller + script, /from ["']three/);
+  assert.match(stage, /saveData/, "data-saving visitors must not get the model unasked");
+  assert.match(controller, /homeMotion !== "on"/, "the day only passes by itself while motion is on");
+  const markup = await read("src/components/home/HomeStage.astro");
+  for (const hook of ["data-house-spots hidden", "data-house-turn hidden", "data-house-modes hidden"]) {
+    assert.ok(markup.includes(hook), `control must stay hidden until the script runs: ${hook}`);
+  }
+});
+
+test("scenes that only exist as pictures stay out of the homepage's 3D bundle", async () => {
+  const [stills, posters] = await Promise.all([read("src/lib/house3d/stills.mjs"), read("scripts/house-posters.mjs")]);
+  // Everything the live house loads, followed import by import from its entry.
+  const dir = "src/lib/house3d/";
+  const loaded = new Set();
+  const follow = async (path) => {
+    if (loaded.has(path)) return;
+    loaded.add(path);
+    const source = await read(path);
+    for (const [, target] of source.matchAll(/(?:from|import)\s*\(?\s*["'](\.\.?\/[^"']+)["']/g)) {
+      await follow(new URL(target, `file:///${path}`).pathname.slice(1));
+    }
+  };
+  await follow(`${dir}index.mjs`);
+  assert.ok(loaded.has(`${dir}rig.mjs`) && loaded.has(`${dir}kit.mjs`) && loaded.has(`${dir}parts/shell.mjs`), "the walk reaches the model's parts and what they share");
+  for (const path of loaded) assert.doesNotMatch(path, /stills|workbench/, `the live house must not load ${path}`);
+  const known = [...stills.matchAll(/^  (\w+)\(rig, colors\) \{/gm)].map((match) => match[1]);
+  const used = [...posters.matchAll(/scene: "(\w+)"/g)].map((match) => match[1]);
+  assert.ok(used.length > 0, "at least one picture uses a scene");
+  for (const name of used) assert.ok(known.includes(name), `PICTURES uses the unknown scene ${name}`);
+});
+
+test("the tour, the hotspots and the 3D house agree on chapters and times of day", async () => {
+  const { homeCopy } = await import("../src/lib/home-copy.ts");
+  const { modes, views } = await import("../src/lib/house3d/modes.mjs");
+  for (const locale of ["da", "en"]) {
+    const { tour, stage, scene } = homeCopy[locale].hero;
+    assert.deepEqual(scene.modes.map((mode) => mode.id).sort(), Object.keys(modes).sort());
+    for (const chapter of tour.chapters) {
+      assert.ok(views[chapter.id], `${locale}: no camera view for chapter ${chapter.id}`);
+      assert.ok(modes[chapter.mode], `${locale}: no time of day ${chapter.mode}`);
+      assert.match(chapter.time, /^\d\d:\d\d$/);
+    }
+    const chapterIds = tour.chapters.map((chapter) => chapter.id);
+    for (const spot of stage.spots.filter((item) => item.href.startsWith("#"))) {
+      assert.ok(chapterIds.includes(spot.href.replace("#tour-", "")), `${locale}: hotspot ${spot.id} points at a missing chapter`);
+    }
+  }
+});
+
+test("every internal link in the homepage copy leads to a page that exists", async () => {
+  const { homeCopy } = await import("../src/lib/home-copy.ts");
+  const collect = (value, out = []) => {
+    if (Array.isArray(value)) value.forEach((item) => collect(item, out));
+    else if (value && typeof value === "object") Object.values(value).forEach((item) => collect(item, out));
+    else if (typeof value === "string" && value.startsWith("/")) out.push(value);
+    return out;
+  };
+  for (const href of new Set([...collect(homeCopy.da), ...collect(homeCopy.en)])) {
+    const base = `src/content/docs${href.replace(/\/$/, "")}`;
+    const found = [`${base}.mdx`, `${base}.md`, `${base}/index.mdx`, `${base}/index.md`].some((path) => existsSync(new URL(`../${path}`, import.meta.url)));
+    assert.ok(found, `homepage links to a page that does not exist: ${href}`);
   }
 });
 
@@ -191,41 +461,52 @@ test("homepage news module defers its below-hero images", async () => {
   assert.match(news, /height="\d+"/);
 });
 
-test("homepage news selector is read-only, bounded and deterministic", async () => {
-  const source = await read("src/lib/home-news.ts");
-  assert.match(source, /export function selectLatestNews/);
-  assert.match(source, /slice\(0, limit\)/);
-  assert.doesNotMatch(source, /writeFile|mkdir|rmSync|unlink|fetch\(/);
+test("homepage news uses the news overview's selection, three at most, and only reads", async () => {
+  const [component, feed, shared] = await Promise.all([
+    read("src/components/HomeLatestNews.astro"),
+    read("src/lib/ai-news-feed.ts"),
+    read("src/lib/home-news.ts"),
+  ]);
+  assert.match(component, /selectIssues\(docs, locale\)\.slice\(0, 3\)/);
+  assert.match(component, /\{item\.lead\}/, "a row is named after its main story; the date stands beside it");
+  assert.doesNotMatch(feed + shared, /writeFile|mkdir|rmSync|unlink|fetch\(/);
 });
 
-test("homepage news selector exposes optional editorial image metadata", () => {
-  const items = selectLatestNews([
+test("the news selection names an article after its main story and exposes its picture", () => {
+  const items = selectIssues([
     {
       id: "da/ai/nyheder/2026-07-11",
+      body: "### 1. Another headline\n",
       data: {
-        title: "Concrete story",
+        title: "AI-nyheder, 11. juli 2026: Concrete story",
         description: "A source-backed update.",
         date: "2026-07-11",
         heroImage: {
-          src: "/images/ai-news/2026-07-11-16x9.webp",
+          src: "/images/ai-news/2026-07-11.jpg",
           alt: "Concrete AI story image",
         },
       },
     },
     {
       id: "da/ai/nyheder/2026-07-10",
+      body: "### 1. First headline\n\n### 2. Second headline\n",
       data: {
-        title: "Text-only story",
+        title: "AI-nyheder, 10. juli 2026",
         description: "A valid legacy entry.",
         date: "2026-07-10",
       },
     },
+    { id: "en/ai/nyheder/2026-07-12", data: { title: "AI news, 12 July 2026", date: "2026-07-12" } },
+    { id: "da/ai/nyheder/index", data: { title: "AI-nyheder" } },
   ], "da");
 
+  assert.deepEqual(items.map((item) => item.dateString), ["2026-07-11", "2026-07-10"], "newest first, this language only, no index page");
+  assert.equal(items[0].lead, "Concrete story");
   assert.deepEqual(items[0].image, {
-    src: "/images/ai-news/2026-07-11-16x9.webp",
+    src: "/images/ai-news/2026-07-11.jpg",
     alt: "Concrete AI story image",
   });
+  assert.equal(items[1].lead, "First headline");
   assert.equal(items[1].image, null);
 });
 
@@ -484,7 +765,7 @@ test("Astro renders the guides' GitHub-flavoured Markdown tables", async () => {
   ]);
 
   assert.match(config, /import remarkGfm from ["']remark-gfm["']/);
-  assert.match(config, /markdown:\s*\{[\s\S]*remarkPlugins:\s*\[remarkGfm\]/);
+  assert.match(config, /markdown:\s*\{[\s\S]*remarkPlugins:\s*\[remarkGfm\b/);
   assert.equal(JSON.parse(packageJson).dependencies["remark-gfm"], "^4.0.1");
 });
 

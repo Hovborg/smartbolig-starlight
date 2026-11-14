@@ -1,8 +1,10 @@
 ---
-// Read-only adapter over the docs collection: renders the three latest AI News
-// entries as a compact editorial list. Selection logic stays in home-news.ts.
+// The three newest AI news articles as a compact list. The articles come from
+// the same selection as the news overview (ai-news-feed.ts); each row is named
+// after its main story, since the date already stands beside it.
 import { getCollection } from "astro:content";
-import { selectLatestNews, type NewsDocument, type NewsLocale } from "../lib/home-news";
+import { formatDate, selectIssues } from "../lib/ai-news-feed";
+import type { NewsLocale } from "../lib/home-news";
 
 interface Props {
   locale: NewsLocale;
@@ -11,7 +13,7 @@ interface Props {
 const { locale } = Astro.props;
 const isDa = locale === "da";
 const docs = await getCollection("docs");
-const latest = selectLatestNews(docs as unknown as NewsDocument[], locale);
+const latest = selectIssues(docs, locale).slice(0, 3);
 const archiveHref = isDa ? "/da/ai/nyheder/" : "/en/ai/nyheder/";
 const rssHref = isDa ? "/da/ai/nyheder/rss.xml" : "/en/ai/news/rss.xml";
 const copy = isDa
@@ -26,14 +28,6 @@ const copy = isDa
       empty: "There are no published AI news articles yet.",
     };
 
-const formatDate = (date: Date) =>
-  new Intl.DateTimeFormat(isDa ? "da-DK" : "en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  }).format(date);
-
 // ai-news-thumbs.mjs renders a 320x180 WebP next to every base hero at build
 // time, so the 160x90 list thumb never loads the full 1200x630 hero image.
 const thumbSrc = (src: string) => src.replace(/\.(?:jpg|png)$/, "-thumb.webp");
@@ -45,9 +39,9 @@ const thumbSrc = (src: string) => src.replace(/\.(?:jpg|png)$/, "-thumb.webp");
       <ul class="home-news-list">
         {latest.map((item) => (
           <li class="home-news-row">
-            <time datetime={item.dateString}>{formatDate(item.date)}</time>
+            <time datetime={item.dateString}>{formatDate(item.date, locale)}</time>
             <div class="home-news-row__text">
-              <h3><a href={item.href}>{item.title}</a></h3>
+              <h3><a href={item.href}>{item.lead}</a></h3>
               <p>{item.description}</p>
             </div>
             {item.image && (

@@ -201,6 +201,9 @@ Sitets konfiguration ligger i `config/`, og `astro.config.mjs` er kun en tynd in
 - `config/sidebar/`: sidebaren, én fil pr. hovedsektion (Home Assistant er delt i undermapper).
 - `config/head/`: `<head>`-tags, én fil pr. område (ikoner og temafarve, social meta, samtykke, analytics, RSS, annoncer).
 - `config/components.mjs`: Starlight-komponentoverrides.
+- `config/markdown/`: små Markdown-plugins (overskrifter, kort og faner uden emoji; tabeller i en rulleramme).
+
+Guidesidernes top, sidemenu og sidefod er beskrevet i `docs/designsystem.md` under "Guidesider".
 
 ---
 
@@ -295,11 +298,11 @@ Forsiden er bygget af små komponenter under `src/components/home/`, samlet af
 `HomePortal.astro`. Teksterne står i `src/lib/home-copy/da.ts` og `en.ts`
 (typer i `types.ts`), og stilreglerne i `src/styles/home/`:
 
-1. Hero med "Et hus gennem et døgn": en SVG, hvor læseren vælger morgen, dag, aften eller nat og ser, hvilken regel der kører, og hvilke systemer den bruger. Én primær knap, emnemarkører og et responsivt AVIF/WebP-boligfoto
-2. De tre seneste AI-nyheder med billeder, datoer, arkiv og RSS
-3. Målnavigator med begynderspor til `/start/` og fem emnefelter med hver sin SVG-scene
-4. Feltguide med en vandret etaperute på computer og lodret forløb på mobil
-5. Udvalgte guides
+1. Hero med søgefelt og et 3D-hus. Et stillbillede (AVIF/WebP) vises straks; den levende model hentes bagefter. Læseren vælger morgen, dag, aften eller nat, drejer huset og følger rundturen "Et døgn i et smart hjem" med fire kapitler (varme, energi, lys, sikkerhed), hvor kameraet flyver hen til det, teksten handler om
+2. Emnevælger: begynderspor til `/start/` og fem emnekort med billeder tegnet af 3D-huset. Det første kort er stort, de fire andre står to og to
+3. Feltguide med en vandret etaperute på computer og lodret forløb på mobil
+4. Udvalgte guides med et morgenbillede af huset
+5. De tre seneste AI-nyheder med billeder, datoer, arkiv og RSS
 6. Trust-sektion med efterprøvelige links (kilder, privatliv, affiliate, rettelser)
 7. Afsluttende opfordring
 
@@ -308,10 +311,12 @@ Sådan hænger det sammen:
 - **Udseende:** forsiden bruger de samme designværdier som resten af siden
   (`docs/designsystem.md`) og følger lyst og mørkt tema. Der står ingen farvekoder i
   `src/styles/home/`; en test i `scripts/site-quality.test.mjs` afviser dem.
-- **Huset:** ren CSS (radioknapper, `:has()` og CSS-variabler i `scene.css`). Ingen
-  JavaScript. Uden `:has()` vises aftenen, og vælgeren skjules.
+- **Huset:** en three.js-model i `src/lib/house3d/` (se `docs/3d-hus.md`).
+  `src/lib/home-house.mjs` ejer tilstanden (tidspunkt og kapitel), og
+  `src/lib/home-house-stage.mjs` henter modellen, når der er brug for den. Uden
+  JavaScript eller WebGL vises stillbilledet, og knapperne er skjult.
 - **Bevægelse:** `src/lib/home-motion.mjs` sætter `data-home-motion` på `<html>`.
-  Siden følger enhedens indstilling; knappen i husets fod starter eller standser
+  Siden følger enhedens indstilling; knappen øverst på husets skærm starter eller standser
   bevægelse, og valget gemmes lokalt under `smartbolig-motion-v1`. Scener uden for
   skærmen og skjulte faner står stille. Reglerne ligger i `motion.css`, og
   controlleren kontrolleres i `scripts/site-motion.test.mjs`.
@@ -319,15 +324,16 @@ Sådan hænger det sammen:
 - De få tilpasninger af Starlights ramme kræver `body:has(.home-portal)`, så guides
   beholder deres layout.
 
-Hero-masteren ligger under `src/assets/homepage/`. Generér de seks responsive
-AVIF/WebP-filer efter en ændring af masteren med:
+Stillbillederne (heroens aftenbillede, emnekortene og morgenbilledet ved de udvalgte
+guides) tegnes af den samme model i headless Chrome. Listen står i `PICTURES` i
+`scripts/house-posters.mjs`. Generér dem igen, når huset ændrer udseende:
 
 ```bash
-npm run images:home
+npm run house:posters
 ```
 
 Forsidens nyhedsliste bruger små WebP-thumbnails (`-thumb.webp`) ved siden af
-AI-nyhedernes hero-PNG'er. De genereres automatisk som første trin i
+AI-nyhedernes hero-JPG'er. De genereres automatisk som første trin i
 `npm run build`; kør dem manuelt med:
 
 ```bash

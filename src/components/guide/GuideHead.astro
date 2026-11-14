@@ -1,0 +1,55 @@
+---
+// The top of every guide: where you are, the title, when it was last updated
+// and a picture of the 3D house that fits the topic (src/lib/guide-art.mjs).
+// A guide that starts with a picture of its own keeps that one.
+import { guideArt, guideSection, hasLeadPicture } from "../../lib/guide-art.mjs";
+
+const route = Astro.locals.starlightRoute;
+const locale = Astro.currentLocale === "en" ? "en" : "da";
+const slug = route.id.replace(/^(da|en)(\/|$)/, "");
+const art = hasLeadPicture(route.entry.body) ? null : guideArt(slug, locale);
+const section = guideSection(slug, locale);
+const text = {
+  da: { home: "Forside", crumbs: "Du er her", updated: "Opdateret" },
+  en: { home: "Home", crumbs: "You are here", updated: "Updated" },
+}[locale];
+const updated = route.lastUpdated
+  ? new Intl.DateTimeFormat(locale === "da" ? "da-DK" : "en-GB", { dateStyle: "long", timeZone: "UTC" }).format(route.lastUpdated)
+  : null;
+const sources = (format: string) =>
+  `/images/guide/${art?.name}-800.${format} 800w, /images/guide/${art?.name}-1600.${format} 1600w`;
+---
+
+<div class="guide-head">
+  <nav class="guide-head__crumbs" aria-label={text.crumbs}>
+    <ol>
+      <li><a href={`/${locale}/`}>{text.home}</a></li>
+      {section && <li><a href={section.href}>{section.label}</a></li>}
+    </ol>
+  </nav>
+  <h1 id="_top">{route.entry.data.title}</h1>
+  {
+    updated && (
+      <p class="guide-head__meta">
+        {text.updated} <time datetime={route.lastUpdated?.toISOString().slice(0, 10)}>{updated}</time>
+      </p>
+    )
+  }
+  {
+    art && (
+      <picture class="guide-head__art">
+        <source type="image/avif" srcset={sources("avif")} sizes="(min-width: 72rem) 50rem, (min-width: 50rem) calc(100vw - 21rem), calc(100vw - 2rem)" />
+        <source type="image/webp" srcset={sources("webp")} sizes="(min-width: 72rem) 50rem, (min-width: 50rem) calc(100vw - 21rem), calc(100vw - 2rem)" />
+        <img
+          src={`/images/guide/${art.name}-800.webp`}
+          alt={art.alt}
+          width="1600"
+          height="640"
+          loading="eager"
+          fetchpriority="high"
+          decoding="async"
+        />
+      </picture>
+    )
+  }
+</div>

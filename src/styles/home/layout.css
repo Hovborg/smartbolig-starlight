@@ -4,6 +4,13 @@
 body:has(.home-portal) .content-panel { padding: 0; border: 0; }
 body:has(.home-portal) .sl-container { max-width: none; }
 body:has(.home-portal) .main-pane { width: 100%; }
+/* The footer sits in the panel whose padding is removed above. */
+body:has(.home-portal) .content-panel footer {
+  width: min(100% - 2 * clamp(1rem, 4vw, 2rem), var(--sb-page-max));
+  margin-inline: auto;
+}
+body:has(.home-portal) .site-footer { margin-top: 0; }
+.sl-markdown-content .home-portal > .home-section:last-child { margin-bottom: clamp(3rem, 6vw, 4.5rem); }
 
 .home-portal,
 .home-hero {
@@ -29,6 +36,10 @@ body:has(.home-portal) .main-pane { width: 100%; }
   margin: clamp(4rem, 9vw, 7rem) auto;
 }
 .sl-markdown-content .home-portal > .home-section { margin-top: clamp(4rem, 9vw, 7rem); }
+/* Starlight spaces every element that follows another one in the content;
+   an <img> after its <source> elements must not be pushed down by it. */
+.sl-markdown-content .home-portal picture > img { margin-top: 0; }
+.sl-markdown-content .home-portal > .home-section:first-child { margin-top: clamp(1.5rem, 4vw, 3rem); }
 
 .home-section__heading { max-width: 46rem; margin-bottom: var(--sb-space-7); }
 .home-section__heading h2,
@@ -124,5 +135,5 @@ body:has(.home-portal) .main-pane { width: 100%; }
 }
 
 @media (forced-colors: active) {
-  .home-scene, .home-fieldguide, .home-closing, .home-btn { border: 1px solid CanvasText; }
+  .home-stage__screen, .home-chapter, .home-fieldguide, .home-closing, .home-btn { border: 1px solid CanvasText; }
 }

@@ -53,9 +53,10 @@ sidebar:
 English content here...
 ```
 
-### Sidebar (astro.config.mjs)
+### Sidebar (`config/sidebar/`)
 
-Tilføj til sidebar med **dansk sti** og **translation**:
+Sidemenuen har én fil pr. emne i `config/sidebar/` (fx `produkter.mjs`; Home Assistant har en
+mappe). Tilføj siden i emnets fil med **dansk sti** og **translation**:
 
 ```javascript
 {
@@ -105,7 +106,11 @@ src/content/docs/
 
 - [ ] Opret dansk fil: `da/[kategori]/[dansk-filnavn].mdx`
 - [ ] Opret engelsk fil: `en/[kategori]/[dansk-filnavn].mdx` (samme sti!)
-- [ ] Tilføj til sidebar i `astro.config.mjs` med `translations: { en: "..." }`
+- [ ] Tilføj til sidemenuen i emnets fil i `config/sidebar/` med `translations: { en: "..." }`
+- [ ] Ingen emoji først i overskrifter, korttitler (`<Card title>`, `<LinkCard title>`) og fanenavne
+      (`<TabItem label>`). De fjernes alligevel ved bygningen, så skriv dem ikke.
+- [ ] Billedet øverst kommer af sig selv ud fra stien (`src/lib/guide-art.mjs`). Har guiden sit
+      eget billede, så sæt det i de første linjer; så bruges det i stedet.
 - [ ] (Valgfrit) Tilføj URL rewrite i `public/_redirects` for pæn engelsk URL
 - [ ] Test build: `npm run build`
 
@@ -139,4 +144,4 @@ Filer SKAL ligge på disse stier for at blive fundet. `slug` feltet i frontmatte
 
 ---
 
-*Sidst opdateret: Januar 2025*
+*Sidst opdateret: 2026-11-14 (afsnittet om sidemenuen). Resten gennemgås i fase 7.*

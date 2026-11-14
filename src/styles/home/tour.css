@@ -1,0 +1,132 @@
+/* The tour through a day (HomeTour.astro): four chapters that scroll past the
+   3D house. Cards on phones; an open timeline beside the house on wide screens. */
+
+.home-tour { padding-block: var(--sb-space-5) var(--sb-space-6); }
+.home-tour__head { margin-bottom: var(--sb-space-6); }
+.home-tour__head h2 {
+  margin: 0;
+  color: var(--sb-ink-strong);
+  font-family: var(--sb-font-display);
+  font-size: clamp(1.6rem, 1.3rem + 1.3vw, 2.25rem);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: var(--sb-leading-tight);
+  text-wrap: balance;
+}
+.home-tour__chapters { display: grid; gap: var(--sb-space-5); margin: 0; padding: 0; list-style: none; }
+
+.home-chapter {
+  --chapter: var(--sb-accent);
+  --chapter-vivid: var(--sb-accent-vivid);
+  position: relative;
+  /* Jump links land below the top bar and the house that sticks under it. */
+  scroll-margin-top: calc(var(--sl-nav-height) + 62.5vw + var(--sb-space-4));
+  padding: var(--sb-space-5);
+  border: 1px solid var(--sb-line);
+  border-radius: var(--sb-radius-lg);
+  background: var(--sb-surface);
+}
+.home-chapter[data-house-chapter="heat"] { --chapter: var(--sb-danger); --chapter-vivid: var(--sb-danger-vivid); }
+.home-chapter[data-house-chapter="light"] { --chapter: var(--sb-warm); --chapter-vivid: var(--sb-warm-vivid); }
+.home-chapter[data-house-chapter="security"] { --chapter: var(--sb-sky); --chapter-vivid: var(--sb-sky-vivid); }
+
+.home-chapter__when { display: flex; align-items: center; gap: var(--sb-space-3); margin: 0 0 var(--sb-space-3); }
+.home-chapter__when time {
+  color: var(--sb-ink-strong);
+  font-family: var(--sb-font-display);
+  font-size: clamp(1.9rem, 1.5rem + 1.6vw, 2.75rem);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.home-chapter__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.2rem 0.7rem;
+  border: 1px solid color-mix(in srgb, var(--chapter-vivid) 45%, transparent);
+  border-radius: var(--sb-radius-pill);
+  color: var(--chapter);
+  font-size: var(--sb-text-xs);
+  font-weight: 700;
+}
+.home-chapter__label::before { content: ""; width: 0.5rem; height: 0.5rem; border-radius: 50%; background: var(--chapter-vivid); }
+.home-chapter h3 {
+  margin: 0;
+  color: var(--sb-ink-strong);
+  font-family: var(--sb-font-display);
+  font-size: var(--sb-text-h3);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-wrap: balance;
+}
+.home-chapter__text { max-width: 58ch; margin: var(--sb-space-3) 0 0; color: var(--sb-ink-muted); line-height: var(--sb-leading); }
+.home-chapter__points { display: grid; gap: var(--sb-space-2); margin: var(--sb-space-4) 0 0; padding: 0; list-style: none; }
+.home-chapter__points li {
+  position: relative;
+  padding-inline-start: 1.6rem;
+  color: var(--sb-ink);
+  font-size: var(--sb-text-sm);
+  line-height: 1.55;
+}
+.home-chapter__points li::before {
+  content: "";
+  position: absolute;
+  top: 0.42em;
+  left: 0.15rem;
+  width: 0.7rem;
+  height: 0.38rem;
+  border: solid var(--chapter);
+  border-width: 0 0 2px 2px;
+  rotate: -45deg;
+}
+.home-chapter__links { display: flex; flex-wrap: wrap; gap: var(--sb-space-2) var(--sb-space-5); margin: var(--sb-space-4) 0 0; font-size: var(--sb-text-sm); }
+.home-hero .home-chapter__links a {
+  color: var(--sb-accent);
+  font-weight: 650;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--sb-accent) 35%, transparent);
+  text-underline-offset: 0.28em;
+}
+.home-hero .home-chapter__links a:hover { color: var(--sb-accent-strong); text-decoration-color: currentColor; }
+
+@media (min-width: 64rem) {
+  .home-tour { grid-column: 1; grid-row: 2; padding-block: 0; }
+  .home-tour__chapters { gap: 0; }
+  /* An open timeline: a line down the left with one dot per chapter. */
+  .home-chapter {
+    display: grid;
+    align-content: center;
+    min-height: 78svh;
+    scroll-margin-top: var(--sl-nav-height);
+    padding: var(--sb-space-6) 0 var(--sb-space-6) var(--sb-space-6);
+    border: 0;
+    border-inline-start: 1px solid var(--sb-line);
+    border-radius: 0;
+    background: none;
+  }
+  .home-chapter :is(time, h3, li) { transition: color var(--sb-dur-slow) var(--sb-ease); }
+  .home-chapter::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: -0.4rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    translate: 0 -50%;
+    border: 2px solid var(--sb-bg);
+    border-radius: 50%;
+    background: var(--sb-line-strong);
+    transition: background-color var(--sb-dur) var(--sb-ease), box-shadow var(--sb-dur) var(--sb-ease);
+  }
+  /* With the house running, the chapter in the middle of the window stands out.
+     The others step back in colour, never in opacity, so their text and links
+     keep their contrast; a chapter with keyboard focus inside is never dimmed. */
+  .home-day[data-house="on"] .home-chapter:not([data-active], :focus-within) :is(time, h3, li) { color: var(--sb-ink-muted); }
+  .home-chapter[data-active]::before {
+    background: var(--chapter-vivid);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--chapter-vivid) 25%, transparent);
+  }
+}

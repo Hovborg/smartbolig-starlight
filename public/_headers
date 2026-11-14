@@ -1,6 +1,11 @@
 # Security Headers for smartbolig.net
 # https://securityheaders.com
 
+# Files under /_astro/ carry a content hash in their name: a changed file gets
+# a new address, so the old one can be kept for a year.
+/_astro/*
+  Cache-Control: public, max-age=31536000, immutable
+
 /*
   # Remove broad CORS if a zone/default rule added it elsewhere
   ! Access-Control-Allow-Origin

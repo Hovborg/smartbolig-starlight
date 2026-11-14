@@ -70,7 +70,7 @@ test("the generator's mark is the mark in the header (SiteTitle.astro)", () => {
 
 test("pages link the favicon, the ICO fallback, the touch icon and a theme colour", () => {
   const icons = text("config/head/icons.mjs");
-  for (const needle of ["/favicon.ico", "/apple-touch-icon.png", "#fbfcfa", "#0c1412"]) assert.ok(icons.includes(needle), needle);
+  for (const needle of ["/favicon.ico", "/apple-touch-icon.png", "#f8fafb", "#090d11"]) assert.ok(icons.includes(needle), needle);
   assert.match(text("config/site.mjs"), /favicon: "\/favicon\.svg"/);
   const notFound = text("src/components/not-found/NotFoundLayout.astro");
   for (const needle of ["/favicon.ico", "/favicon.svg", "/apple-touch-icon.png", 'name="theme-color"']) assert.ok(notFound.includes(needle), needle);

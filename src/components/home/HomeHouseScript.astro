@@ -1,0 +1,16 @@
+---
+// Starts the 3D house and the tour on the homepage. The logic lives in
+// src/lib/home-house.mjs; this file only connects it to the page.
+---
+<script>
+  import { mountHomeHouse } from "../../lib/home-house.mjs";
+  let cleanup: (() => void) | undefined;
+  function init() {
+    cleanup?.();
+    const root = document.querySelector("[data-home-day]");
+    cleanup = root ? mountHomeHouse(window, document, root) : undefined;
+  }
+  init();
+  document.addEventListener("astro:page-load", init);
+  document.addEventListener("astro:before-swap", () => { cleanup?.(); cleanup = undefined; });
+</script>

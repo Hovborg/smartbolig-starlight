@@ -7,7 +7,7 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { promisify } from 'node:util';
 import sharp from 'sharp';
-import { frontmatter, renderEditorialSvg, selectMotif } from './ai-news-render-image.mjs';
+import { frontmatter, imageHeadline, renderEditorialSvg, selectMotif } from './ai-news-render-image.mjs';
 
 const execFileAsync = promisify(execFile);
 const repoRoot = path.resolve(import.meta.dirname, '..');
@@ -18,37 +18,6 @@ const variants = [
   { suffix: '-4x3', width: 1200, height: 900 },
   { suffix: '-1x1', width: 1200, height: 1200 },
 ];
-
-async function rasterHeadlineBounds(svg, width, height) {
-  const headlineElements = [...svg.matchAll(/<text[^>]+data-headline-line="true"[^>]*>[^<]+<\/text>/g)]
-    .map((match) => match[0])
-    .join('\n');
-  assert.ok(headlineElements, 'expected headline text elements');
-  const isolatedSvg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">${headlineElements}</svg>`;
-  const { data, info } = await sharp(Buffer.from(isolatedSvg))
-    .ensureAlpha()
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-  let minX = width;
-  let maxX = -1;
-  for (let y = 0; y < info.height; y += 1) {
-    for (let x = 0; x < info.width; x += 1) {
-      if (data[((y * info.width + x) * info.channels) + 3] === 0) continue;
-      minX = Math.min(minX, x);
-      maxX = Math.max(maxX, x);
-    }
-  }
-  assert.ok(maxX >= 0, 'expected rasterized headline pixels');
-  return { minX, maxX };
-}
-
-function decodeSvgText(value) {
-  return value
-    .replaceAll('&quot;', '"')
-    .replaceAll('&gt;', '>')
-    .replaceAll('&lt;', '<')
-    .replaceAll('&amp;', '&');
-}
 
 async function renderFixture(imageHeadline) {
   const root = await mkdtemp(path.join(tmpdir(), 'smartbolig-render-image-'));
@@ -103,6 +72,8 @@ test('offline renderer creates four valid JPEGs and makes the lead headline visu
   }
 });
 
+const decodeTitle = (svg) => svg.match(/<title>([^<]*)<\/title>/)?.[1].replaceAll('&amp;', '&');
+
 test('SVG layout uses the source-bound headline without the generic description', () => {
   const meta = frontmatter(`---
 title: "AI-nyheder, 3. oktober 2026"
@@ -121,88 +92,74 @@ sources:
       headline: meta.imageHeadline,
       providers: ['OpenClaw'],
     });
-    assert.match(svg, /OpenClaw 2026\.8\.34/);
+    assert.equal(decodeTitle(svg), 'OpenClaw 2026.8.34');
     assert.doesNotMatch(svg, /Generic description/);
     const copyBottom = Number(svg.match(/data-copy-bottom="(\d+)"/)?.[1]);
-    assert.ok(copyBottom > 0 && copyBottom < variant.height - 54, `copy bottom ${copyBottom} must fit ${variant.height}px canvas`);
+    assert.ok(copyBottom > 0 && copyBottom < variant.height - 40, `copy bottom ${copyBottom} must fit ${variant.height}px canvas`);
   }
 });
 
-test('compact SVG keeps a near-limit image headline complete and inside the canvas', () => {
-  const headline = 'OpenClaw 2026.8.34 adds guarded browser workflows and safer developer API controls';
-  assert.ok(headline.length >= 80 && headline.length <= 88);
+test('all text is outlined paths and the palette is graphite and green, never purple', () => {
   const svg = renderEditorialSvg({
-    width: 1200,
-    height: 630,
+    ...variants[0],
     date,
-    headline,
-    providers: ['OpenClaw'],
+    headline: 'Økonomi, sikkerhed og åbne modeller i AI',
+    providers: ['OpenAI', 'Claude'],
   });
-
-  assert.doesNotMatch(svg, /\.\.\./);
-  assert.match(svg, />controls<\/text>/);
-  const copyBottom = Number(svg.match(/data-copy-bottom="(\d+)"/)?.[1]);
-  assert.ok(copyBottom > 0 && copyBottom < 576, `copy bottom ${copyBottom} must fit 630px canvas`);
+  assert.doesNotMatch(svg, /<text[\s>]/, 'text must be drawn as paths, not <text>');
+  assert.doesNotMatch(svg, /font-family/);
+  assert.doesNotMatch(svg, /<image/);
+  const colors = [...new Set([...svg.matchAll(/#[0-9a-f]{6}(?![0-9a-f])/gi)].map((m) => m[0].toLowerCase()))];
+  assert.ok(colors.length > 0);
+  for (const hex of colors) {
+    const [r, g, b] = [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16));
+    const purple = b > g + 20 && r > g + 20; // red and blue both clearly above green
+    assert.ok(!purple, `${hex} is purple`);
+  }
+  assert.ok(colors.includes('#090d11'), 'dark graphite background from the tokens');
+  assert.ok(colors.includes('#3ee0a6'), 'accent green');
 });
 
-test('unbroken official-source headline stays complete in the text column for wide and square images', async () => {
-  const headline = 'OpenAIResponsesAPI20261003EnterpriseAgentWorkflowSecurityReleaseNotesUpdate';
-  assert.ok(headline.length >= 70 && headline.length <= 88);
-  assert.doesNotMatch(headline, /\s/);
-
-  for (const variant of [
-    { width: 1200, height: 630 },
-    { width: 1200, height: 1200 },
-  ]) {
-    const svg = renderEditorialSvg({
-      ...variant,
-      date,
-      headline,
-      providers: ['OpenAI'],
-    });
-    assert.match(svg, /LEAD STORY · HOVEDHISTORIE/);
-    assert.doesNotMatch(svg, /DAGENS HOVEDHISTORIE/);
-
-    const columnRight = Number(svg.match(/data-text-column-right="(\d+)"/)?.[1]);
-    const lines = [...svg.matchAll(/<text[^>]+data-headline-line="true"[^>]+data-render-width="([\d.]+)"[^>]*>([^<]+)<\/text>/g)];
-    assert.ok(lines.length >= 2 && lines.length <= 4, `expected 2-4 headline lines, got ${lines.length}`);
-    assert.equal(lines.map((match) => match[2]).join(''), headline);
-    for (const match of lines) {
-      assert.ok(78 + Number(match[1]) <= columnRight, `headline line must end within x=${columnRight}`);
+test('long and unbroken headlines stay within three lines and inside the canvas', async () => {
+  const long = 'OpenClaw 2026.8.34 adds guarded browser workflows and safer developer API controls';
+  const unbroken = 'OpenAIResponsesAPI20261003EnterpriseAgentWorkflowSecurityReleaseNotesUpdate';
+  const wide = 'W'.repeat(88);
+  for (const headline of [long, unbroken, wide, 'Økonomi, sikkerhed og åbne modeller: Gemini får større hukommelse og ændrer priserne']) {
+    for (const variant of variants) {
+      const svg = renderEditorialSvg({ ...variant, date, headline, providers: ['OpenAI'] });
+      const lines = Number(svg.match(/data-headline-lines="(\d+)"/)?.[1]);
+      assert.ok(lines >= 1 && lines <= 3, `expected 1-3 headline lines, got ${lines}`);
+      const shown = decodeTitle(svg);
+      const flat = (value) => value.replaceAll(' ', '');
+      const ok = shown.endsWith('…') ? flat(headline).startsWith(flat(shown.slice(0, -1))) : flat(shown) === flat(headline);
+      assert.ok(ok, `headline text changed: ${shown}`);
+      const { data, info } = await sharp(Buffer.from(svg)).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+      assert.equal(info.width, variant.width);
+      assert.equal(info.height, variant.height);
+      // Only background reaches the canvas edges: nothing is clipped.
+      for (let y = 0; y < info.height; y += 7) {
+        for (const x of [0, 1, 2, info.width - 3, info.width - 2, info.width - 1]) {
+          const i = (y * info.width + x) * info.channels;
+          assert.ok(data[i] < 90 && data[i + 1] < 90 && data[i + 2] < 90, `bright pixel at ${x},${y}`);
+        }
+      }
     }
-
-    const image = sharp(Buffer.from(svg)).jpeg({ quality: 82 });
-    const metadata = await image.metadata();
-    await image.raw().toBuffer();
-    assert.equal(metadata.width, variant.width);
-    assert.equal(metadata.height, variant.height);
   }
 });
 
-test('wide-glyph headline pixels stay inside the text column at 630px and 1200px heights', async (context) => {
-  // Font rasterizers may antialias a few pixels left of the SVG text anchor.
-  const leftRasterTolerance = 4;
-  for (const glyph of ['W', 'w', 'm', '@', '%', '&', '漢']) {
-    const headline = glyph.repeat(88);
-    for (const height of [630, 1200]) {
-      const svg = renderEditorialSvg({
-        width: 1200,
-        height,
-        date,
-        headline,
-        providers: ['OpenAI'],
-      });
-      const columnRight = Number(svg.match(/data-text-column-right="(\d+)"/)?.[1]);
-      const renderedHeadline = [...svg.matchAll(/<text[^>]+data-headline-line="true"[^>]*>([^<]+)<\/text>/g)]
-        .map((match) => decodeSvgText(match[1]))
-        .join('');
-      assert.equal(renderedHeadline, headline);
-      const { minX, maxX } = await rasterHeadlineBounds(svg, 1200, height);
-      assert.ok(minX >= 78 - leftRasterTolerance, `${glyph} headline starts at x=${minX}, outside the text-column raster margin`);
-      assert.ok(maxX <= columnRight, `${glyph} headline reaches x=${maxX}, beyond text column x=${columnRight}`);
-      context.diagnostic(`${glyph} height=${height}: raster headline x=${minX}..${maxX}, column right=${columnRight}`);
-    }
-  }
+test('the picture is shared by both languages: no language option, and a wordless fallback', () => {
+  const svg = renderEditorialSvg({ ...variants[0], date, headline: 'Gemini API pricing', providers: ['Google AI'] });
+  assert.equal(decodeTitle(svg), 'Gemini API pricing');
+  assert.equal(renderEditorialSvg({ ...variants[0], date, headline: 'Gemini API pricing', providers: ['Google AI'], lang: 'en' }), svg);
+  const empty = renderEditorialSvg({ ...variants[0], date, headline: '', providers: ['AI'] });
+  assert.equal(decodeTitle(empty), 'AI 2026-10-03');
+});
+
+test('the headline is the one the article names, else its main story, never the bare date title', () => {
+  const head = (extra) => `---\ntitle: "AI-nyheder, 3. oktober 2026"\n${extra}---\n\n### 1. OpenAI Codex releases: 0.154.0\n\n### 2. Other\n`;
+  assert.equal(imageHeadline(head('news:\n  imageHeadline: "OpenClaw 2026.8.34"\n')), 'OpenClaw 2026.8.34');
+  assert.equal(imageHeadline(head('')), 'OpenAI Codex releases: 0.154.0');
+  assert.equal(imageHeadline('---\ntitle: "AI-nyheder, 3. oktober 2026: Gemini 3"\n---\n\n### 1. Other\n'), 'Gemini 3');
 });
 
 test('frontmatter decodes JSON-escaped quotes in generated image headlines', () => {

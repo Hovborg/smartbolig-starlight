@@ -1,9 +1,11 @@
 ---
-// Homepage hero: markup only. Styling lives in src/styles/home/hero.css and
-// scene.css.
+// Homepage hero. The headline, the 3D house and the tour through a day share
+// one layout, so the house stays on screen while the chapters scroll past.
+// Markup only: styles in src/styles/home/, behaviour in HomeHouseScript.astro.
 import type { HomeHeroCopy } from "../../lib/home-copy";
-import HomeMotionControls from './HomeMotionControls.astro';
-import HomeNetworkScene from './HomeNetworkScene.astro';
+import HomeHouseScript from "./HomeHouseScript.astro";
+import HomeStage from "./HomeStage.astro";
+import HomeTour from "./HomeTour.astro";
 
 interface Props {
   copy: HomeHeroCopy;
@@ -13,55 +15,32 @@ const { copy } = Astro.props;
 ---
 
 <section class="home-hero" aria-labelledby="_top">
-  <div class="home-hero__inner">
-    <div class="home-hero__text">
+  <div class="home-day" data-home-day>
+    <div class="home-hero__text" data-house-intro>
       <p class="home-eyebrow"><span class="dot" aria-hidden="true"></span>{copy.kicker}</p>
       <h1 id="_top">
-        <span class="home-hero__line">{copy.titleLines[0]}</span>
+        <span class="home-hero__line">{copy.titleLines[0]}</span>{" "}
         <span class="home-hero__line">{copy.titleLines[1]}</span>
       </h1>
       <p class="home-hero__tagline">{copy.tagline}</p>
       <div class="home-hero__cta">
-        <a href={copy.primary.href} class="home-btn home-btn--primary">{copy.primary.label}<span aria-hidden="true"> ↗</span></a>
-        <a href={copy.secondary.href} class="home-text-link">{copy.secondary.label}<span aria-hidden="true"> →</span></a>
+        <a href={copy.primary.href} class="home-btn home-btn--primary">{copy.primary.label}<span aria-hidden="true"> →</span></a>
+        <a href={copy.secondary.href} class="home-text-link">{copy.secondary.label}</a>
       </div>
-      <ul class="home-hero__topics" role="list">
-        {copy.topics.map((topic) => <li><span aria-hidden="true">✓</span>{topic}</li>)}
-      </ul>
-      <a class="home-hero__news-link home-text-link" href={copy.newsLink.href}>{copy.newsLink.label}<span aria-hidden="true"> →</span></a>
-    </div>
-    <div class="home-hero__media">
-      <div class="home-scene" data-motion-stage>
-        <p class="home-scene__title">{copy.scene.title}</p>
-        <HomeNetworkScene copy={copy.scene} />
-        <div class="home-scene__foot">
-          <p class="home-scene__note">{copy.scene.note}</p>
-          <HomeMotionControls copy={copy.motion} />
-        </div>
+      <div class="home-ask">
+        <button class="home-ask__bar" type="button" data-home-search hidden>
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.6-3.6" /></svg>
+          <span class="home-ask__label">{copy.search.label}:</span>
+          <span class="home-ask__text">{copy.search.placeholder}</span>
+        </button>
+        <p class="home-ask__suggestions">
+          <span>{copy.search.suggestionsLabel}</span>
+          {copy.search.suggestions.map((link) => <a href={link.href}>{link.label}</a>)}
+        </p>
       </div>
-      <figure class="home-hero__frame">
-        <picture>
-          <source
-            type="image/avif"
-            srcset="/images/hero/smart-home-editorial-640.avif 640w, /images/hero/smart-home-editorial-960.avif 960w, /images/hero/smart-home-editorial-1440.avif 1440w"
-            sizes="(max-width: 32rem) 6.5rem, 8.5rem"
-          />
-          <source
-            type="image/webp"
-            srcset="/images/hero/smart-home-editorial-640.webp 640w, /images/hero/smart-home-editorial-960.webp 960w, /images/hero/smart-home-editorial-1440.webp 1440w"
-            sizes="(max-width: 32rem) 6.5rem, 8.5rem"
-          />
-          <img
-            src="/images/hero/smart-home-editorial-960.webp"
-            alt={copy.imageAlt}
-            width="1440"
-            height="810"
-            loading="eager"
-            decoding="async"
-          />
-        </picture>
-        <figcaption><span class="home-hero__caption-mark" aria-hidden="true">⌂</span>{copy.imageCaption}</figcaption>
-      </figure>
     </div>
+    <HomeStage copy={copy} />
+    <HomeTour copy={copy.tour} />
   </div>
 </section>
+<HomeHouseScript />

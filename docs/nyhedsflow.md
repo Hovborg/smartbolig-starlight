@@ -152,6 +152,55 @@ den eneste vej er at rette `scripts/lib/news-llm/models.mjs` og relayets
 tilladelsesliste og så udrulle relayet. Miljøvariablerne `AI_NEWS_WRITER_MODELS`
 og `AI_NEWS_REVIEWER_MODELS` bruges kun ved lokale kørsler; workflowet sætter dem ikke.
 
+## Overskriftsbilleder
+
+Hver udgave har fire JPEG-varianter (`public/images/ai-news/<dato>.jpg`, `-16x9`, `-4x3`,
+`-1x1`) og en WebP-miniature (`-thumb.webp`). `scripts/ai-news-render-image.mjs` tegner dem
+ud fra den danske artikel og kilderne i frontmatter; workflowet kalder det og
+`ai-news-thumbs.mjs` for den nye udgave.
+
+Overskriften på billedet er `news.imageHeadline`, ellers artiklens hovedhistorie: teksten
+efter kolon i titlen, ellers den første `###`-overskrift (`scripts/lib/news-lead.mjs`, som
+nyhedsoversigten også bruger). Den bare titel "AI-nyheder, <dato>" bruges kun, hvis artiklen
+ingen historier har.
+
+Den danske og den engelske artikel deler billedet. Derfor står der ingen ord på det ud over
+overskriften og kildenavnene: mærket hedder "SmartBolig.net · AI", og datoen står som
+`2026-11-14`. Der er ingen sprogindstilling.
+
+Udseendet følger sitets mørke tema: grafitbaggrund (`--sb-bg`), et blødt grønt skær i det
+ene hjørne, et næsten usynligt prikgitter, husmærket med "SmartBolig.net · AI",
+overskriften i Bricolage Grotesque bold
+(højst tre linjer; skrives mindre, og afkortes med "…" hvis den stadig er for lang),
+datoen i accentgrøn, kilderne som neutrale omridsede piller og til højre et abstrakt
+vektormotiv (netværk, signalbuer eller skjold efter emne) i accentfarven. Farverne står kun
+i `scripts/lib/brand/palette.mjs`.
+
+Al tekst er outlinede stier fra sitets egne skrifter (Bricolage Grotesque og Figtree fra
+`@fontsource-variable`, via `scripts/lib/brand/text.mjs`). Billedet er derfor ens på Ubuntu
+i CI og på Windows og afhænger ikke af installerede skrifter; SVG'en indeholder ingen
+`<text>`-elementer. Koden ligger i `scripts/lib/news-image/` (`headline.mjs`: tilpasning og
+ombrydning, `motif.mjs`: motiverne, `compose.mjs`: sammensætningen).
+
+Gentegn alle udgaver (kun billederne ændres, ikke artiklerne):
+
+```bash
+for f in src/content/docs/da/ai/nyheder/2026-*.mdx; do
+  node scripts/ai-news-render-image.mjs --date "$(basename "$f" .mdx)" --force
+done
+node scripts/ai-news-thumbs.mjs --force
+```
+
+Ny udgave, 2026-11-14: alle 64 udgaver (320 filer) er gentegnet med den nye skabelon;
+`public/images/ai-news` gik fra 30,0 til 11,5 MB. Kontrolleret ved at åbne JPEG'erne i fuld
+størrelse og skaleret til 300 px bredde (dansk æ/ø/å, lang og ubrudt overskrift, alle fire
+formater), og med `npm run ai-news:test`, `npm run site:test` og `npm run build`.
+
+Samme dag er alle 64 udgaver gentegnet igen med hovedhistorien som overskrift og uden
+sprogtekst; mappen fylder 13,1 MB (længere overskrifter giver lidt større filer).
+Kontrolleret ved at åbne to udgaver i fuld størrelse (16:9 og 1:1) og med
+`npm run ai-news:test`, `npm run site:test` og `npm run ai-news:validate`.
+
 ## Relayet
 
 `workers/news-llm/` er en lille Cloudflare Worker med én rute. Den kræver en
@@ -221,3 +270,26 @@ Tidligere kørte nyheden som en planlagt Windows-opgave på ejerens maskine, og 
 det via systemd og OpenClaw. Koden til alle tre er fjernet fra repoet 2026-11-14,
 og Windows-opgaven er slået fra samme dag (kontrolleret: opgavens tilstand er
 `Disabled`). Der er kun én udgivelsesvej. Genopret dem ikke ved siden af workflowet.
+
+## Nyhedsoversigten (siden `/ai/nyheder/`)
+
+Set i browser 2026-11-14 ved 1440 og 390 px, mørkt tema på dansk og lyst tema på engelsk.
+
+Siden skrives af `scripts/lib/ai-news-index-page.mjs` (kun `lastUpdated` ændrer sig fra dag til
+dag) og viser komponenten `src/components/AiNewsFeed.astro`. Den er en tynd indgang:
+
+| Del | Fil |
+|---|---|
+| Udvælgelse, hovedhistorie (`lead`), billede, måneder | `src/lib/ai-news-feed.ts` |
+| Tekster på dansk og engelsk | `src/lib/ai-news-copy.ts` |
+| Antal artikler og kilder, RSS-knap | `src/components/ai-news/FeedStats.astro` |
+| Seneste artikel som stort kort med billede | `LatestIssue.astro` og `StoryDigest.astro` |
+| Tidligere artikler pr. måned | `ArchiveList.astro` og `IssueRow.astro` |
+| De officielle kilder (lukket, til man åbner den) | `SourcePanel.astro` |
+
+En række i arkivet er ét link med det lille billede (`-thumb.webp`), dato, hovedhistorien og
+de øvrige historier på én linje. Hovedhistorien er teksten efter kolon i artiklens titel; ældre
+artikler, hvis titel kun er en dato, bruger deres første historie.
+
+Fejlsøgning: mangler et billede i arkivet, findes `-thumb.webp` ikke for den dato; kør
+`npm run build` (miniaturerne tegnes af `ai-news-thumbs.mjs` ved bygningen).

@@ -188,3 +188,181 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   `scripts/site-design-tokens.test.mjs` dækker fortsat begge.
 - Kontrolleret: `scripts/site-ui.test.mjs` (standard, gemt valg, blokeret lager, temafarve) og
   i browser på forside, guide og 404.
+
+### B30. Forsidens hus er en rigtig 3D-model. Erstatter B23
+- Ejerens krav 2026-11-14: forsiden skal have wow-effekt, grafikken skal være i høj kvalitet,
+  og huset skal se virkeligt ud, ikke som en tegnefilm.
+- Valg: et gennemskåret hus bygget i three.js 0.187.0 (MIT) af egne dele i `src/lib/house3d/`:
+  vægge, møbler, enheder, have, solceller og elbil. Materialerne er fysisk baserede med egne
+  tegnede teksturer, lyset er sol, himmel og lamper, og billedet efterbehandles (kontaktskygger,
+  glød, tonekurve). Ingen købte eller hentede 3D-modeller, teksturer eller billeder.
+- Fravalgt: færdige modeller fra modelbiblioteker (licens og stil kan ikke styres, og filerne
+  er store) og en forudindspillet video (kan ikke drejes eller følge teksten).
+- Kontrolleret i browser: fire tidspunkter, 375 og 1440 px, mørkt og lyst tema.
+
+### B31. Huset vises først som billede; modellen hentes bagefter
+- Valg: `HomeStage.astro` viser et stillbillede af aftenen (AVIF/WebP, tre bredder). Det er
+  sidens største billede og hentes med høj prioritet. three.js ligger i sit eget stykke kode
+  og hentes først, når siden er færdig: på computer i en ledig stund efter indlæsning, på
+  telefon efter første berøring eller rul, og med Datasparer kun når læseren rører huset.
+- Billedet tegnes af den samme model (`npm run house:posters`), så skiftet til den levende
+  model ikke kan ses.
+- To kvaliteter: "høj" (efterbehandling, skygger i 2048 px) på brede skærme med mus, "lav"
+  (direkte tegning, 1024 px, højst 1,5 gange opløsning) på telefoner.
+- Reserve: uden WebGL eller JavaScript bliver billedet stående, og knapper til tidspunkt og
+  drejning er skjult. Kontrolleret i browser ved at slå WebGL fra.
+- En test i `scripts/site-quality.test.mjs` afviser, at three.js importeres direkte fra forsiden.
+
+### B32. Skærmen bag huset er mørk i begge temaer
+- Valg: `--sb-stage` har samme værdi i lyst og mørkt tema. I mørkt tema er skærmen uden kant;
+  i lyst tema er den et mørkt kort.
+- Begrundelse: lyset fra lamper, skærme og solnedgang kan kun ses på mørk baggrund, og ét
+  stillbillede passer til begge temaer.
+- Tidspunktets farve (`--sb-time-*`) tegnes inde i 3D-scenen som en dis bag huset, der toner
+  ud til skærmens farve i alle kanter. Som CSS-lag oven på lærredet kunne kanten ses.
+
+### B33. Forsiden fortæller "Et døgn i et smart hjem"
+- Valg: under overskriften følger fire kapitler (07:00 varme, 12:00 energi, 19:30 lys,
+  23:00 sikkerhed). Når et kapitel når midten af vinduet, skifter huset tidspunkt, og kameraet
+  flyver hen til det, kapitlet handler om. På telefon bliver huset stående øverst, mens
+  teksten ruller under det. Hvert kapitel linker til de guides, der viser, hvordan det bygges.
+- På introen går døgnet af sig selv hvert 9. sekund, indtil læseren selv vælger et tidspunkt.
+  Det sker kun, når bevægelse er slået til.
+- Begrundelse: det viser, hvad et smart hjem gør, før læseren skal vælge en guide.
+- En test kontrollerer, at kapitler, markører og kameraer passer sammen i begge sprog, og at
+  alle forsidens interne links fører til en side, der findes.
+
+### B34. Start/pause-knappen står øverst på husets skærm. Erstatter B24
+- Valg: en ikonknap i skærmens øverste hjørne; teksten er bevaret til skærmlæsere. På telefon
+  vises kun start/pause, ikke "følg enheden".
+- Med bevægelse slået fra flyver kameraet ikke: billedet skifter i ét trin.
+
+### B35. Heroens emnemarkører og nyhedslink er fjernet; søgefelt er tilføjet
+- Valg: heroen har én primær knap, ét tekstlink, et søgefelt med tre forslag og huset.
+  Markørerne på huset og kapitlerne viser emnerne; nyhederne har deres egen sektion.
+- Søgefeltet åbner sidens søgning (Pagefind) og er skjult uden JavaScript.
+
+### B36. Brandfiler og temafarve følger farveværdierne
+- Fund: `scripts/lib/brand/palette.mjs`, `config/head/icons.mjs` og `public/site.webmanifest`
+  havde de gamle farver efter farveskiftet. `scripts/site-brand.test.mjs` fangede det.
+- Valg: værdierne er rettet, og `npm run brand:build` er kørt igen (favicon, ikoner, logoer,
+  delebillede).
+
+### B37. Emnekortene viser billeder fra 3D-huset. Stregtegningerne er fjernet
+- Valg: de fem emner under rundturen er billedkort. Hvert billede er tegnet af 3D-huset med
+  sit eget kamera (stuen med dashboardet til Home Assistant, huset set ovenfra om natten til
+  AI). Det første kort er stort; de fire andre står to og to. Teksten ligger på en mørk toning
+  nederst i kortet.
+- Begrundelse: ejeren bad om grafik i høj kvalitet og realistisk 3D. De animerede SVG-scener
+  lignede en anden side end huset og er fjernet sammen med deres bevægelsesregler.
+- Kortene er mørke i begge temaer af samme grund som husets skærm (B32).
+- Kendt mangel: ESP32-kortet viser huset, ikke en ESP32. Et nærbillede af et kredsløbskort
+  kommer med illustrationerne til guiderne (fase 3).
+
+### B38. Rækkefølgen under rundturen: emner, tre etaper, udvalgte guides, nyheder
+- Valg: emnevælger, feltguide, udvalgte guides, AI-nyheder, troværdighed, afslutning.
+  Nyhederne stod før øverst.
+- Begrundelse: den, der lige har set, hvad et smart hjem kan, skal først vælge retning.
+  Nyhederne er til den, der kommer igen, og har deres egen side og RSS.
+- Testen "the portal keeps its sections in a fixed order" følger den nye rækkefølge.
+
+### B39. Stillbilleder beskrives ét sted, og et billede kan have sit eget kamera
+- Valg: `PICTURES` i `scripts/house-posters.mjs` er den eneste liste over billeder af huset.
+  `engine.mjs` tager nu imod et kamera som objekt, så et billede ikke kræver et navngivet
+  kamera i `modes.mjs`, som kun er til rundturen.
+- En test læser listen og kræver, at hver fil findes i hver bredde og bruges af en komponent.
+
+### B40. Billeder i indholdet må ikke få Starlights afstand
+- Fund: Starlight giver ethvert element, der følger et andet i indholdet, 1 rem topmargen.
+  Et `<img>` efter sine `<source>`-elementer blev derfor skubbet 16 px ned i kortet.
+- Valg: én regel i `src/styles/home/layout.css` nulstiller topmargenen for `picture > img`
+  på forsiden.
+
+### B41. Hver guide åbner med et billede af 3D-huset, valgt ud fra stien
+- Valg: `GuideHead.astro` tegner brødkrumme, titel, dato og et banner (1600 × 640). Tolv
+  motiver dækker alle guides; `src/lib/guide-art.mjs` vælger motivet med en regelliste.
+- Begrundelse: ejeren bad om illustrationer på alle sider i høj kvalitet. Ét byggesæt giver
+  samme udtryk på forside og guides, og en ny guide får et billede uden arbejde.
+- En guide med eget billede i toppen beholder det (ellers stod to billeder over hinanden).
+  Nyhedsartikler og nyhedsoversigten har deres egne billeder.
+
+### B42. Overskrifter, korttitler og fanenavne vises uden emoji
+- Valg: tre små plugins i `config/markdown/` fjerner emoji først i teksten ved bygningen.
+  Kildeteksten er uændret.
+- Begrundelse: emoji tegnes forskelligt på hver enhed og brød med resten af grafikken.
+  Ankre og indholdsfortegnelse bliver rene. Ingen interne links brugte de gamle ankre med
+  bindestreg foran (søgt i hele indholdet 2026-11-14).
+- Emoji i brødtekst og tabelceller er ikke rørt; de ses igennem med guiderne (fase 3).
+
+### B43. Tabeller fylder spalten og ruller i deres egen ramme
+- Fund: `display: block` på tabellen gav en ramme i fuld bredde med en smal tabel i.
+- Valg: et rehype-plugin pakker hver tabel i `div.table-scroll` (`role="region"`, kan få
+  tastaturfokus). Tabellen er igen en rigtig tabel i fuld bredde.
+
+### B44. Sidemenuen åbner på det emne, læseren står i
+- Fund: menuen viste altid Home Assistant øverst og åbent, også på produkt- og nyhedssider.
+- Valg: Starlights route-middleware flytter det aktuelle emne øverst og åbner det; de andre
+  emner følger lukket. Forrige/næste-links er uændrede.
+- Fravalgt: kun at vise det aktuelle emne. Sikkerhed og Juridisk står ikke i topbjælken og
+  ville blive svære at finde.
+
+### B45. Sidefod med linkkolonner og YouTube
+- Valg: mærke og tagline, tre kolonner (guides, om siden, følg med: nyheder, RSS, YouTube,
+  GitHub) og de juridiske links. Links står i `src/lib/site-footer.mjs`.
+- De juridiske links står til venstre med luft under på telefon, fordi assistentknappen
+  ligger fast i nederste højre hjørne.
+- På forsiden får sidefoden selv sidens bredde og margen; forsiden fjerner panelets polstring.
+
+### B46. Tips er grønne, og kort har én ikonfarve
+- Valg: Starlights lilla (tip-bokse) peger nu på mærkefarven, og alle kortikoner bruger den.
+- Begrundelse: ejeren pegede på, at farverne ikke spillede sammen. Farve bruges nu kun til
+  betydning: grøn (mærke/tip), blå (note), gul (advarsel), rød (fare).
+
+### B47. Nyhedsoversigten: ét stort kort for seneste artikel og et kompakt arkiv pr. måned
+- Fund: siden gentog sin egen titel i en boks, viste seneste artikel i en smal spalte med
+  kæmpe overskrift og listede alle 64 artikler med fire links hver (over 16.000 px høj).
+- Valg: én linje med antal og RSS, seneste artikel som kort med billedet øverst og historierne
+  nummereret under, og derefter arkivet grupperet pr. måned med én række pr. artikel (9.500 px ved 1440 px bredde).
+  Kildelisten er lukket, til man åbner den. Indholdsfortegnelsen er slået fra på siden.
+- Rækken viser hovedhistorien i stedet for "AI-nyheder, <dato>", som 63 af 64 titler hed.
+- Nyhedsoversigten og nyhedsartiklerne har deres egne billeder og får ikke 3D-husets banner.
+- Billedets tekst var dansk, også på den engelske side. Rettet i B49.
+
+### B48. ESP32 får sit eget nærbillede i stedet for et billede af huset
+- Fund: ESP32-kortet på forsiden og banneret på ESP32-guiderne viste stuen; printpladen var
+  en prik i en plante. Billedet sagde ikke, hvad emnet er.
+- Valg: en scene for sig, `bench`: et udviklingskort på et breadboard med sensor, lysdiode,
+  ledninger og en telefon med målingen, på et træbord. Bygget af de samme byggeklodser og
+  tegnet med husets lys, så det ligner resten. Mål i centimeter, så delene har rigtige forhold
+  (hulafstand 2,54 mm, 19 ben pr. side).
+- Scenen ligger bag `stills.mjs`, som kun billedtegneren pakker. Forsiden henter den ikke.
+- Telefonens skærm viser kun tal og en kurve, så billedet er ens på dansk og engelsk.
+
+### B49. Nyhedsbilledet viser hovedhistorien og har ingen sprogtekst
+- Fund: 63 af 64 billeder havde "AI-nyheder, <dato>" som stor overskrift med den samme dato
+  nedenunder, og den engelske artikel viste det danske billede.
+- Valg: overskriften er artiklens hovedhistorie (samme regel som i nyhedsoversigten, nu ét
+  sted: `scripts/lib/news-lead.mjs`). Første overskrift er ens i de to sprog i alle 64
+  artikler, så ét billede kan deles.
+- Mærket hedder "SmartBolig.net · AI", og datoen står som `2026-11-14`. `--lang` er fjernet.
+- Fravalgt: et engelsk sæt billeder. Det ville fordoble 320 filer og give nyhedsflowet et
+  ekstra trin hver dag for en tekst, der i forvejen er ens.
+
+### B50. Rettelser efter den uafhængige gennemgang før udgivelsen af runde 2
+- Gennemgangen (uafhængig model, 2026-11-14) fandt ingen blokerende fejl. Disse er rettet:
+- Rundturen: kapitler, der ikke er i fokus, trådte tilbage med `opacity: 0.45`, så tekst og
+  links mistede kontrast. De træder nu tilbage i farve (`--sb-ink-muted`), og et kapitel med
+  tastaturfokus dæmpes aldrig.
+- Tabeller: alle 847 tabeller var stop for tastaturet og hed "Tabel". Nu er kun en tabel, der
+  er bredere end spalten, et stop og et navngivet område, og navnet er overskriften over den.
+  Det afgøres i browseren (`src/lib/table-scroll.mjs`), fordi bredden ikke kendes ved bygning.
+  Uden script ruller en bred tabel stadig med berøring og hjul.
+- 3D-huset: tager browseren grafikkonteksten (`webglcontextlost`), ryddes modellen væk, og
+  stillbilledet vises igen. Ikke fremprovokeret i en browser; koden følger samme vej som
+  "WebGL mangler", som er afprøvet.
+- Datoen for seneste opdatering stod både øverst og nederst. Den står nu kun øverst.
+  Engelske datoer skrives britisk (14 November 2026), som resten af den engelske tekst.
+- `/_astro/*` får et års cache: filnavnene har en hash af indholdet.
+- Punktet om et gammelt adgangstoken er taget ud af den offentlige ejerliste og gives til
+  ejeren direkte.
+- Udskudt med begrundelse står i STATUS.md under "Udskudt fra designgennemgangen".

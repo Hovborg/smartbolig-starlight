@@ -1,18 +1,16 @@
 ---
 /**
- * AI-news archive for the news index pages (da/en `ai/nyheder/index.mdx`).
+ * AI-news overview for the news index pages (da/en `ai/nyheder/index.mdx`).
  * Thin entry: selection lives in src/lib/ai-news-feed.ts, copy in
  * src/lib/ai-news-copy.ts, the parts in src/components/ai-news/.
  */
 import { getCollection } from "astro:content";
 import { aiNewsCopy } from "../lib/ai-news-copy";
-import { selectIssues } from "../lib/ai-news-feed";
+import { groupByMonth, selectIssues } from "../lib/ai-news-feed";
 import { totalSourceCount } from "../lib/ai-news-sources";
 import type { NewsLocale } from "../lib/home-news";
-import FeedHeader from "./ai-news/FeedHeader.astro";
 import FeedStats from "./ai-news/FeedStats.astro";
 import LatestIssue from "./ai-news/LatestIssue.astro";
-import StoryDigest from "./ai-news/StoryDigest.astro";
 import ArchiveList from "./ai-news/ArchiveList.astro";
 import SourcePanel from "./ai-news/SourcePanel.astro";
 import "./ai-news/panel.css";
@@ -22,38 +20,19 @@ interface Props {
 }
 
 const locale: NewsLocale = Astro.props.locale === "en" ? "en" : "da";
-const isDa = locale === "da";
-const baseHref = isDa ? "/da/ai/nyheder" : "/en/ai/nyheder";
-const rssHref = isDa ? "/da/ai/nyheder/rss.xml" : "/en/ai/news/rss.xml";
+const rssHref = locale === "da" ? "/da/ai/nyheder/rss.xml" : "/en/ai/news/rss.xml";
 const copy = aiNewsCopy[locale];
 
 const issues = selectIssues(await getCollection("docs"), locale);
-const latest = issues[0];
+const [latest, ...earlier] = issues;
 ---
 
-<section class="ai-news-feed" aria-labelledby="ai-news-feed-title">
-  <FeedHeader copy={copy} latestHref={latest?.href || baseHref} rssHref={rssHref} />
+<section class="ai-news-feed not-content" aria-label={copy.feed}>
+  <FeedStats copy={copy} issueCount={issues.length} totalSourceCount={totalSourceCount} rssHref={rssHref} />
 
-  <FeedStats
-    copy={copy}
-    locale={locale}
-    issueCount={issues.length}
-    latestSourceCount={latest?.sources.length || 0}
-    totalSourceCount={totalSourceCount}
-  />
+  {latest ? <LatestIssue issue={latest} copy={copy} locale={locale} /> : <p class="empty-feed">{copy.noIssues}</p>}
 
-  {
-    latest ? (
-      <div class="latest-layout">
-        <LatestIssue issue={latest} copy={copy} locale={locale} />
-        {latest.headlines.length > 0 && <StoryDigest headlines={latest.headlines} copy={copy} />}
-      </div>
-    ) : (
-      <p class="empty-feed">{copy.noIssues}</p>
-    )
-  }
-
-  <ArchiveList issues={issues} copy={copy} locale={locale} rssHref={rssHref} />
+  {earlier.length > 0 && <ArchiveList months={groupByMonth(earlier, locale)} copy={copy} locale={locale} />}
 
   <SourcePanel copy={copy} />
 </section>
@@ -61,19 +40,7 @@ const latest = issues[0];
 <style>
   .ai-news-feed {
     display: grid;
-    gap: 1.25rem;
-    margin-top: 1.25rem;
-  }
-
-  .latest-layout {
-    display: grid;
-    gap: 1rem;
-    grid-template-columns: minmax(16rem, 0.85fr) minmax(0, 1.35fr);
-  }
-
-  @media (max-width: 46rem) {
-    .latest-layout {
-      grid-template-columns: 1fr;
-    }
+    gap: var(--sb-space-6);
+    margin-top: var(--sb-space-5);
   }
 </style>

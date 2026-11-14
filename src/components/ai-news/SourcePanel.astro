@@ -1,4 +1,5 @@
 ---
+// The official sources the news is written from. Closed until it is opened.
 import type { AiNewsCopy } from "../../lib/ai-news-copy";
 import { criticalFeeds, sourceGroups } from "../../lib/ai-news-sources";
 
@@ -9,85 +10,124 @@ interface Props {
 const { copy } = Astro.props;
 ---
 
-<details class="source-panel" open>
-  <summary>{copy.sources}</summary>
-  <p>{copy.sourcesText}</p>
-  <p class="critical-feeds">
-    <strong>{copy.primaryFeeds}:</strong> {criticalFeeds.join(", ")}
-  </p>
-  <div class="source-grid">
-    {sourceGroups.map((group) => (
-      <div class="source-group">
-        <h3>{group.label}</h3>
-        <ul>
-          {group.urls.map((url) => (
-            <li><a href={url}>{url.replace(/^https?:\/\//, "")}</a></li>
-          ))}
-        </ul>
-      </div>
-    ))}
+<details class="source-panel">
+  <summary>
+    <h2>{copy.sources}</h2>
+    <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+      <path d="m6 9 6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"></path>
+    </svg>
+  </summary>
+  <div class="source-panel__body">
+    <p>{copy.sourcesText}</p>
+    <p><strong>{copy.primaryFeeds}:</strong> {criticalFeeds.join(", ")}</p>
+    <div class="source-grid">
+      {
+        sourceGroups.map((group) => (
+          <div>
+            <h3>{group.label}</h3>
+            <ul>
+              {group.urls.map((url) => (
+                <li>
+                  <a href={url}>{url.replace(/^https?:\/\//, "")}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
   </div>
 </details>
 
 <style>
+  .source-panel {
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-lg);
+    background: var(--sb-surface);
+  }
+
   .source-panel summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sb-space-4);
+    min-height: 3.25rem;
+    padding: 0 var(--sb-space-5);
+    color: var(--sb-ink-strong);
+    font-weight: 650;
     cursor: pointer;
-    font-size: var(--sb-text-h3);
-    font-weight: 700;
-    margin-top: 0;
+    list-style: none;
   }
 
-  .source-panel p,
-  .source-group li {
+  .source-panel summary h2 {
+    margin: 0;
+    color: inherit;
+    font: inherit;
+  }
+
+  .source-panel summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .source-panel[open] summary svg {
+    transform: rotate(180deg);
+  }
+
+  .source-panel__body {
+    display: grid;
+    gap: var(--sb-space-3);
+    padding: 0 var(--sb-space-5) var(--sb-space-5);
     color: var(--sb-ink-muted);
+    font-size: var(--sb-text-sm);
   }
 
-  .critical-feeds {
-    margin-top: 0.25rem;
+  .source-panel p {
+    margin: 0;
   }
 
   .source-grid {
     display: grid;
-    gap: 0.75rem;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin-top: 1rem;
+    gap: var(--sb-space-4) var(--sb-space-6);
+    margin-top: var(--sb-space-2);
   }
 
-  .source-group {
-    border-top: 1px solid var(--sb-line);
-    min-width: 0;
-    padding-top: 0.75rem;
+  .source-grid h3 {
+    margin: 0 0 var(--sb-space-1);
+    color: var(--sb-ink-strong);
+    font-family: var(--sb-font-body);
+    font-size: var(--sb-text-sm);
+    font-weight: 650;
   }
 
-  .source-group h3 {
-    margin-top: 0;
-  }
-
-  .source-group ul {
-    display: grid;
-    gap: 0.4rem;
-    list-style: none;
+  .source-grid ul {
     margin: 0;
     padding: 0;
-  }
-
-  .source-group li {
     list-style: none;
   }
 
-  .source-group li::marker,
-  .source-group li::before {
-    content: "";
-    display: none;
-  }
-
-  .source-group a {
+  .source-grid a {
+    display: inline-block;
+    padding-block: var(--sb-space-1);
+    color: var(--sb-ink-muted);
     overflow-wrap: anywhere;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, currentColor 40%, transparent);
+    text-underline-offset: 0.2em;
   }
 
-  @media (max-width: 46rem) {
+  .source-grid a:hover {
+    color: var(--sb-accent);
+  }
+
+  @media (min-width: 44rem) {
     .source-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .source-panel summary svg {
+      transition: transform var(--sb-dur) var(--sb-ease);
     }
   }
 </style>

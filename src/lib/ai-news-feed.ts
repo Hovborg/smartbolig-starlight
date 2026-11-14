@@ -1,6 +1,7 @@
 import { slug } from "github-slugger";
-import { isLocaleNewsEntry, type NewsLocale } from "./home-news";
-import { sourceLabel, sourceName } from "./ai-news-sources";
+import { isLocaleNewsEntry, type NewsLocale } from "./home-news.ts";
+import { sourceLabel, sourceName } from "./ai-news-sources.ts";
+import { decodeHeadline, mainStory } from "../../scripts/lib/news-lead.mjs";
 
 export type Signal = "high" | "medium" | "low";
 
@@ -22,6 +23,14 @@ export interface NewsIssue {
   sources: string[];
   providers: string[];
   headlines: Headline[];
+  /** The main story: what the article is about, without the date. */
+  lead: string;
+  image: { src: string; alt: string } | null;
+}
+
+export interface NewsMonth {
+  label: string;
+  issues: NewsIssue[];
 }
 
 // The parts of a docs collection entry this module reads.
@@ -35,6 +44,7 @@ interface IssueDocument {
     date?: Date | string;
     lastUpdated?: Date | string | boolean;
     news?: { signal?: string; sources?: unknown };
+    heroImage?: { src?: string; alt?: string };
   };
 }
 
@@ -45,25 +55,15 @@ const getDate = (doc: IssueDocument) => {
 };
 
 export const formatDate = (date: Date, locale: NewsLocale) =>
-  new Intl.DateTimeFormat(locale === "da" ? "da-DK" : "en-US", {
+  new Intl.DateTimeFormat(locale === "da" ? "da-DK" : "en-GB", {
     day: "numeric",
     month: "long",
     year: "numeric",
     timeZone: "UTC",
   }).format(date);
 
-// AI News headings contain fixed word breaks and escaped feed characters.
-// Astro displays this as text, while its Markdown heading IDs use github-slugger.
-const namedHeadlineEntities: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: "\"", apos: "'" };
-const decodeHeadline = (value: string) =>
-  value
-    .replace(/<wbr\s*\/?>/gi, "")
-    .replace(/&#(?:x([0-9a-f]+)|([0-9]+));/gi, (entity, hex, decimal) => {
-      const codePoint = Number.parseInt(hex || decimal, hex ? 16 : 10);
-      return codePoint <= 0x10ffff ? String.fromCodePoint(codePoint) : entity;
-    })
-    .replace(/&(amp|lt|gt|quot|apos);/gi, (entity, name) => namedHeadlineEntities[name.toLowerCase()] || entity);
-
+// AI News headings contain fixed word breaks and escaped feed characters
+// (decodeHeadline). Astro's Markdown heading IDs use github-slugger.
 const extractHeadlines = (body: unknown, issueHref: string, sources: string[]): Headline[] => {
   if (typeof body !== "string") return [];
   return [...body.matchAll(/^###\s+(.+)$/gm)]
@@ -85,6 +85,18 @@ const extractHeadlines = (body: unknown, issueHref: string, sources: string[]): 
     .slice(0, 6);
 };
 
+/** Articles grouped by calendar month, in the order they were given. */
+export function groupByMonth(issues: readonly NewsIssue[], locale: NewsLocale): NewsMonth[] {
+  const format = new Intl.DateTimeFormat(locale === "da" ? "da-DK" : "en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
+  const months: NewsMonth[] = [];
+  for (const issue of issues) {
+    const label = format.format(issue.date);
+    const month = months.at(-1)?.label === label ? months.at(-1)! : months[months.push({ label, issues: [] }) - 1];
+    month.issues.push(issue);
+  }
+  return months;
+}
+
 const signalPriority: Record<Signal, number> = { high: 3, medium: 2, low: 1 };
 
 /** Every published article for the locale, newest first (ties: higher signal first). */
@@ -99,6 +111,8 @@ export function selectIssues(docs: readonly IssueDocument[], locale: NewsLocale)
         : [];
       const providers = [...new Set(sources.map(sourceLabel))].sort();
       const href = `/${getSlug(doc)}/`;
+      const headlines = extractHeadlines(doc.body, href, sources);
+      const hero = doc.data.heroImage;
       return {
         title: doc.data.title,
         description: doc.data.description || "",
@@ -108,7 +122,9 @@ export function selectIssues(docs: readonly IssueDocument[], locale: NewsLocale)
         signal,
         sources,
         providers,
-        headlines: extractHeadlines(doc.body, href, sources),
+        headlines,
+        lead: mainStory(doc.data.title, headlines[0]?.title),
+        image: hero?.src && hero?.alt ? { src: hero.src, alt: hero.alt } : null,
       };
     })
     .sort((a, b) => {

@@ -2,7 +2,7 @@
 // `npm run brand:build` (scripts/brand-assets.mjs); the colours match the bg
 // tokens in src/styles/tokens/color.css. Dark is the default theme, so the tag
 // starts dark; ThemeProvider.astro swaps in `data-light` when light is chosen.
-export const themeColor = { dark: "#0c1412", light: "#fbfcfa" };
+export const themeColor = { dark: "#090d11", light: "#f8fafb" };
 
 export default [
   { tag: "link", attrs: { rel: "icon", href: "/favicon.ico", sizes: "32x32" } },

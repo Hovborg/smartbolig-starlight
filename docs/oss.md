@@ -21,6 +21,8 @@ kontrol, før de tages i brug (se nederst).
 | `sharp` | 0.35.5 | Apache-2.0 | Billeder ved build (ikke i browseren) | github.com/lovell/sharp |
 | `@fontsource-variable/figtree` | 5.3.0 | OFL-1.1 | Skrift til brødtekst | github.com/fontsource/font-files |
 | `@fontsource-variable/bricolage-grotesque` | 5.3.0 | OFL-1.1 | Skrift til overskrifter | github.com/fontsource/font-files |
+| `three` | 0.187.0 | MIT | 3D-huset på forsiden. Hentes først, når huset skal vises levende | github.com/mrdoob/three.js |
+| `esbuild` (kun udvikling) | 0.28.2 | MIT | Pakker 3D-huset, når stillbilledet tegnes (`npm run house:posters`) | github.com/evanw/esbuild |
 | `wrangler` (kun udvikling) | 4.159.0 | MIT eller Apache-2.0 | Udgivelse til Cloudflare | github.com/cloudflare/workers-sdk |
 | `fontkitten` (kun udvikling) | 1.0.3 | MIT | Tegner ordmærket som kurver i `npm run brand:build` | github.com/delucis/fontkitten |
 

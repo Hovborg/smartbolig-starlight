@@ -1,0 +1,37 @@
+---
+// The tour through a day: one chapter per system. While a chapter is on
+// screen, the 3D house shows that time of day and that part of the home
+// (src/lib/home-house.mjs). Without JavaScript it is a plain list of chapters.
+import type { HomeTourCopy } from "../../lib/home-copy";
+
+interface Props {
+  copy: HomeTourCopy;
+}
+
+const { copy } = Astro.props;
+---
+
+<div class="home-tour">
+  <div class="home-tour__head">
+    <p class="home-eyebrow">{copy.eyebrow}</p>
+    <h2>{copy.title}</h2>
+  </div>
+  <ol class="home-tour__chapters" role="list">
+    {copy.chapters.map((chapter) => (
+      <li class="home-chapter" id={`tour-${chapter.id}`} data-house-chapter={chapter.id} data-mode={chapter.mode}>
+        <p class="home-chapter__when">
+          <time datetime={chapter.time}>{chapter.time}</time>
+          <span class="home-chapter__label">{chapter.label}</span>
+        </p>
+        <h3>{chapter.title}</h3>
+        <p class="home-chapter__text">{chapter.text}</p>
+        <ul class="home-chapter__points" role="list">
+          {chapter.points.map((point) => <li>{point}</li>)}
+        </ul>
+        <p class="home-chapter__links">
+          {chapter.links.map((link) => <a href={link.href}>{link.label}<span aria-hidden="true"> →</span></a>)}
+        </p>
+      </li>
+    ))}
+  </ol>
+</div>

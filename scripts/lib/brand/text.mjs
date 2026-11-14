@@ -5,10 +5,19 @@ import { createRequire } from "node:module";
 import { create } from "fontkitten";
 
 const require = createRequire(import.meta.url);
-const file = require.resolve("@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2");
-const buffer = readFileSync(file);
-const base = create(buffer);
-const instances = new Map();
+const FONTS = {
+  // display: the headline and wordmark face; text: the body face (chips, dates).
+  display: "@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-wght-normal.woff2",
+  text: "@fontsource-variable/figtree/files/figtree-latin-wght-normal.woff2",
+};
+const loaded = new Map();
+function load(name) {
+  if (!loaded.has(name)) {
+    const buffer = readFileSync(require.resolve(FONTS[name]));
+    loaded.set(name, { buffer, base: create(buffer), instances: new Map() });
+  }
+  return loaded.get(name);
+}
 
 // fontkitten 1.0.3 cannot instance a WOFF2 variable font by itself: getVariation()
 // reopens the compressed bytes as a plain TTF, and decoding composite glyphs with
@@ -16,7 +25,7 @@ const instances = new Map();
 // from the same WOFF2 class instead, and let the one composite-decoding call that
 // fails skip the variation of component offsets (only the placement of accent
 // parts, not a single letter used in the wordmark, is affected).
-const Glyph = Object.getPrototypeOf(base.getGlyph(0).constructor.prototype);
+const Glyph = Object.getPrototypeOf(load("display").base.getGlyph(0).constructor.prototype);
 const decodeComposite = Glyph._decodeComposite;
 Glyph._decodeComposite = function (glyph, stream) {
   if (this.constructor !== Object) return decodeComposite.call(this, glyph, stream);
@@ -29,7 +38,8 @@ Glyph._decodeComposite = function (glyph, stream) {
   }
 };
 
-function instance(weight) {
+function instance(name, weight) {
+  const { buffer, base, instances } = load(name);
   if (!instances.has(weight)) {
     const stream = new base.stream.constructor(new Uint8Array(buffer));
     instances.set(weight, new base.constructor(stream, [weight]));
@@ -40,12 +50,13 @@ function instance(weight) {
 const round = (n) => Math.round(n * 100) / 100;
 
 /**
- * Lays out a single line. Returns path data in pixels with the baseline at y=0
+ * Lays out a single line in the display face (or font: "text" for Figtree). Returns path data in pixels with the baseline at y=0
  * and the left edge at x=0, plus the advance width. No kerning (fontkitten has
  * no layout engine), which is fine for the short strings used here.
  */
-export function textPath(text, { size, weight = 700, tracking = 0 }) {
-  const font = instance(weight);
+export function textPath(text, { size, weight = 700, tracking = 0, font: face = "display" }) {
+  const { base } = load(face);
+  const font = instance(face, weight);
   const scale = size / base.unitsPerEm;
   let x = 0;
   let d = "";

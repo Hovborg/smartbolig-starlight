@@ -8,11 +8,18 @@ export const da: HomeCopy = {
       "Gennemarbejdede guides til Home Assistant, ESPHome og automationer — med lokal kontrol og privatliv i fokus.",
     primary: { label: "Start her", href: "/da/start/" },
     secondary: { label: "Gå direkte til guidebiblioteket", href: "/da/home-assistant/" },
-    newsLink: { label: "Læs AI-nyheder", href: "/da/ai/nyheder/" },
     imageAlt:
-      "Roligt aftenlys i en moderne stue og et køkken, hvor diskret smart home-teknologi falder naturligt ind i boligen.",
-    imageCaption: "Teknologi, der passer ind i dit hjem.",
-    topics: ["Home Assistant", "ESPHome", "Lokal kontrol"],
+      "3D-model af et smart hjem i aftenlys, set oppefra: stue, køkken, soveværelse og bad, solceller på garagen og en elbil, der lader.",
+    search: {
+      label: "Søg i guiderne",
+      placeholder: "Hvad skal dit hjem kunne? Prøv »lys ved bevægelse«",
+      suggestionsLabel: "Populært lige nu",
+      suggestions: [
+        { label: "Lys ved bevægelse", href: "/da/automationer/bevaegelseslys-med-overstyring/" },
+        { label: "Følg elprisen", href: "/da/home-assistant/elpris-integration/" },
+        { label: "Zigbee uden cloud", href: "/da/home-assistant/zigbee2mqtt/" },
+      ],
+    },
     scene: {
       title: "Et døgn i et smart hjem",
       choose: "Vælg tidspunkt",
@@ -24,6 +31,93 @@ export const da: HomeCopy = {
         { id: "night", label: "Nat", rule: "Alle sover: lyset slukker, døren låser, og varmen sænkes." },
       ],
       systems: { light: "Lys", heat: "Varme", energy: "Energi", security: "Sikkerhed" },
+    },
+    stage: {
+      label: "3D-model af et smart hjem, som du kan dreje",
+      hint: "Træk for at dreje huset",
+      rotateLeft: "Drej huset mod venstre",
+      rotateRight: "Drej huset mod højre",
+      spots: [
+        { id: "light", label: "Lys", href: "#tour-light" },
+        { id: "heat", label: "Varme", href: "#tour-heat" },
+        { id: "energy", label: "Energi", href: "#tour-energy" },
+        { id: "security", label: "Sikkerhed", href: "#tour-security" },
+        { id: "hub", label: "Hjernen", href: "/da/home-assistant/" },
+        { id: "diy", label: "Byg selv", href: "/da/esp32/" },
+      ],
+    },
+    tour: {
+      eyebrow: "Et døgn i et smart hjem",
+      title: "Rul ned, og se hvad huset gør af sig selv",
+      chapters: [
+        {
+          id: "heat",
+          mode: "morning",
+          time: "06:30",
+          label: "Varme",
+          title: "Varmen er klar, før du står op",
+          text: "Badeværelsesgulvet er lunt, og radiatoren i stuen har skruet op, mens du sov. Resten af dagen sænker huset selv temperaturen, når ingen er hjemme.",
+          points: [
+            "Gulvvarme og radiatorer følger tidsplan og fravær",
+            "Varmepumpen arbejder, når strømmen er billigst",
+          ],
+          links: [
+            { label: "Better Thermostat", href: "/da/home-assistant/better-thermostat/" },
+            { label: "Smarte termostater", href: "/da/produkter/smart-termostater/" },
+          ],
+        },
+        {
+          id: "energy",
+          mode: "day",
+          time: "12:00",
+          label: "Energi",
+          title: "Solen lader bilen, mens du er væk",
+          text: "Solcellerne producerer mest midt på dagen. Huset sender strømmen til elbilen og vaskemaskinen først og venter med resten, til prisen er lav.",
+          points: [
+            "Forbrug og produktion samlet på ét dashboard",
+            "Opladning og vask starter efter elprisen",
+          ],
+          links: [
+            { label: "Energi-dashboardet", href: "/da/home-assistant/energy-dashboard/" },
+            { label: "Elpriser i Home Assistant", href: "/da/home-assistant/elpris-integration/" },
+            { label: "Udstyr til energistyring", href: "/da/produkter/energistyring/" },
+          ],
+        },
+        {
+          id: "light",
+          mode: "evening",
+          time: "19:30",
+          label: "Lys",
+          title: "Lyset følger jer gennem aftenen",
+          text: "Når solen går ned, tænder lamperne dæmpet, og gardinerne ruller ned. Går nogen ud i køkkenet, tænder lyset dér og slukker igen af sig selv.",
+          points: [
+            "Bevægelsesstyret lys, som kontakten stadig kan overstyre",
+            "Scener til film, mad og godnat",
+          ],
+          links: [
+            { label: "Bevægelseslys med overstyring", href: "/da/automationer/bevaegelseslys-med-overstyring/" },
+            { label: "Smart belysning", href: "/da/produkter/smart-belysning/" },
+            { label: "Byg en LED-strip", href: "/da/esp32/led-strip/" },
+          ],
+        },
+        {
+          id: "security",
+          mode: "night",
+          time: "23:00",
+          label: "Sikkerhed",
+          title: "Huset låser og holder øje om natten",
+          text: "Når alle sover, låser døren, lyset slukker, og sensorerne vågner. Sker der noget, får du besked på telefonen. Automationerne kører lokalt, også når internettet er nede.",
+          points: [
+            "Dørlås, sensorer og kamera samlet ét sted",
+            "Besked på mobilen, når noget er galt",
+          ],
+          links: [
+            { label: "Smart sikkerhed", href: "/da/produkter/smart-sikkerhed/" },
+            { label: "Sikker fjernadgang", href: "/da/sikkerhed/fjernadgang/" },
+            { label: "Mobilnotifikationer", href: "/da/home-assistant/mobilnotifikationer/" },
+          ],
+        },
+      ],
     },
     motion: {
       start: "Start animationer",
@@ -44,26 +138,31 @@ export const da: HomeCopy = {
     },
     rows: [
       {
+        id: "home-assistant",
         title: "Home Assistant",
         description: "Installation, integrationer og vedligehold af hjernen i dit smarte hjem.",
         href: "/da/home-assistant/",
       },
       {
+        id: "automations",
         title: "Automationer",
         description: "Pålidelig hverdagslogik med konkrete, testede eksempler.",
         href: "/da/automationer/",
       },
       {
+        id: "esp32",
         title: "ESP32 & ESPHome",
         description: "Byg dine egne lokale sensorer og enheder med YAML, du kan forstå.",
         href: "/da/esp32/",
       },
       {
+        id: "products",
         title: "Produkter & udstyr",
         description: "Kompatibelt udstyr valgt efter funktion og lokal kontrol.",
         href: "/da/produkter/",
       },
       {
+        id: "ai",
         title: "AI i praksis",
         description: "Værktøjer og workflows, når AI reelt hjælper dit smarte hjem.",
         href: "/da/ai/",
@@ -97,7 +196,7 @@ export const da: HomeCopy = {
   guides: {
     eyebrow: "Udvalgte guides",
     title: "Begynd med det, der holder",
-    photoAlt: "Detalje af et printkort med chips og forbindelser.",
+    photoAlt: "3D-model af et smart hjem i morgenlys: lyset er tændt i soveværelset og køkkenet, og solen står lavt over haven.",
     lead: {
       title: "Kom godt i gang med Home Assistant",
       description:

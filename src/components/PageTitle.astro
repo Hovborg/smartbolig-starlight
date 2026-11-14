@@ -1,14 +1,20 @@
 ---
+// The homepage opens with its hero, a news issue with Starlight's plain
+// title (it has its own picture), and every other page with the guide head.
 import DefaultPageTitle from "@astrojs/starlight/components/PageTitle.astro";
 import { getHomeCopy, type HomeLocale } from "../lib/home-copy";
+import GuideHead from "./guide/GuideHead.astro";
 import HomeHero from "./home/HomeHero.astro";
 
 const homepageMatch = Astro.url.pathname.match(/^\/(da|en)\/?$/);
 const homepageLocale = (homepageMatch?.[1] ?? null) as HomeLocale | null;
+const newsIssue = /^\/(da|en)\/ai\/nyheder\/.+/.test(Astro.url.pathname);
 ---
 
 {
   homepageLocale
     ? <HomeHero copy={getHomeCopy(homepageLocale).hero} />
-    : <DefaultPageTitle />
+    : newsIssue
+      ? <DefaultPageTitle />
+      : <GuideHead />
 }

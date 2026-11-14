@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
-    "images:home": "node scripts/optimize-home-images.mjs",
+    "house:posters": "node scripts/house-posters.mjs",
     "brand:build": "node scripts/brand-assets.mjs",
     "images:news-thumbs": "node scripts/ai-news-thumbs.mjs",
     "build": "node scripts/ai-news-thumbs.mjs && astro build && node scripts/finalize-build.mjs",
@@ -33,7 +33,8 @@
     "astro": "^7.2.8",
     "github-slugger": "2.0.0",
     "remark-gfm": "^4.0.1",
-    "sharp": "^0.35.4"
+    "sharp": "^0.35.4",
+    "three": "0.187.0"
   },
   "allowScripts": {
     "esbuild@0.28.2": true,
@@ -41,6 +42,7 @@
     "sharp@0.34.5": true
   },
   "devDependencies": {
+    "esbuild": "0.28.2",
     "fontkitten": "1.0.3",
     "wrangler": "4.159.0"
   }
