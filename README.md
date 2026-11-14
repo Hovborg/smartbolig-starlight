@@ -395,7 +395,9 @@ Aktuelle guideforløb omfatter blandt andet:
 ## Vedligeholdelse af reklamelinks
 
 `src/lib/affiliate.ts` er den fælles partnerliste og deeplink-generator for
-`AffiliateLink.astro` og `ProductCard.astro`. Brug kun godkendte aftaler og den
+`AffiliateLink.astro` og `ProductCard.astro`. Hvert produktlink ligger i registret
+`src/data/products/` og nævnes i guiderne med `product="id"`; se
+[`docs/indtjening.md`](docs/indtjening.md). Brug kun godkendte aftaler og den
 produktlink-bannerkode, der er vist på Partner-Ads-kontoen. De aktive aftaler er
 Proshop, Specialkamera, RobotterOnline, WATTOO og Batteribyen. Links valideres mod
 den valgte butiks domæne, så en forkert kombination stopper bygget.
