@@ -93,8 +93,6 @@ Sidst opdateret: 2026-11-14.
   `/en/produkter/` ligeså ("Products"); hardwareguiden har sin gamle titel; fire af de nye
   interne links svarer 200; menuen viser de rettede navne. Vej tilbage: Worker-version 35b19df2.
 
-## I gang
-
 - **Fase 2, design runde 1:** PR #180 flettet og udgivet 2026-11-14 (`main` 143eefc).
   Vej tilbage: `npx wrangler rollback <forrige version> -m "<besked>" -y`.
 - **Fase 2, design runde 2:** PR #182 flettet og udgivet 2026-11-14 (`main` d3eaa30). Ejeren bad om et løft:
@@ -121,7 +119,8 @@ Sidst opdateret: 2026-11-14.
     Fundene er rettet (B50): rundturens kontrast, tabeller som tastaturstop, tabt WebGL, én
     dato pr. side, bannere til have og energi, fejl i `docs/designsystem.md` og
     `docs/3d-hus.md`. `npm run site:test` er grøn (151 tests).
-  - Mangler på resten af siden: assistentens udseende.
+  - Assistentens udseende følger designsystemet (farveværdier, lyst og mørkt tema) og er set i
+    headless Chrome ved 320, 375 og 1440 px (B62).
 - **Seks nye guides:** PR #183 flettet og udgivet 2026-11-14 (`main` ce015e6):
   elmåler via HAN-port, valg af hardware, solceller og batteri, billige timer, ferietilstand,
   smart home i lejebolig. Gennemgået og rettet af en uafhængig model 2026-11-14 mod officielle
@@ -161,8 +160,9 @@ Sidst opdateret: 2026-11-14.
   sitemappet får et område, som hverken er med eller valgt fra. Kørt lokalt mod den levende
   side: alle 13 kontroller bestod. **Udgivet 2026-11-14** (PR #202, `main` 66cae87, Worker
   `b3071424`). Workflowen er startet én gang i Actions bagefter: grøn, 13 af 13 bestod, ingen
-  sag åbnet. `llms.txt` på den levende side er den byggede (43,8 KB). Ikke set køre: trinene,
-  der åbner, kommenterer og lukker sagen (kræver en fejlende kontrol).
+  sag åbnet. `llms.txt` på den levende side er den byggede (43,8 KB). Trinnet, der åbner sagen, er
+  set køre 2026-11-14 i en prøve mod en adresse, der fejler (sag #210, lukket i hånden bagefter).
+  Ikke set køre: at en grøn kørsel selv lukker en åben sag.
 - **Diagrammer:** alle 36 diagrammer i guiderne er tegnet om til telefonbredde og mørkt tema,
   med engelske tvillinger og alt-tekster. Uafhængig gennemgang fandt én fejl i et 230 V-diagram
   (Shelly Wall Display har ingen jordklemme; rettet efter Shellys egen dokumentation) og fem
@@ -201,33 +201,85 @@ Sidst opdateret: 2026-11-14.
   og kan i en manuel kørsel pege på en anden adresse. `SECURITY.md` med privat indberetning;
   wikien er slået fra; en test kræver, at hver handling i hver workflow er låst til et commit.
   Set 2026-11-14: den første planlagte nyhedskørsel startede selv kl. 11:43 UTC og lykkedes;
-  sidevagten bestod alle 14 kontroller i en kørsel startet i hånden. Ikke set endnu: en
-  planlagt sidevagtskørsel, en reservekørsel, og alarmens opret- og luk-trin.
+  sidevagten bestod alle 14 kontroller i en kørsel startet i hånden. **Udgivet 2026-11-14**
+  (PR #208, Worker `b79c25e4`). Ikke set endnu: en planlagt sidevagtskørsel, en reservekørsel,
+  og at en grøn kørsel selv lukker en åben sag (se "Næste skridt").
 - **Værktøjer, to mere (B66):** Zigbee-kanalvælger (`/vaerktoejer/zigbee-kanal/`) og
   batterilevetid (`/vaerktoejer/batterilevetid/`) på begge sprog, i den fælles ramme, med
-  kilder på siderne. Forsidens værktøjssektion viser nu fem værktøjer. Set i headless Chrome i
-  mørkt og lyst tema ved 320, 375 og 1440 px, med tastatur og uden JavaScript.
+  kilder på siderne. Set i headless Chrome i mørkt og lyst tema ved 320, 375 og 1440 px, med
+  tastatur og uden JavaScript. **Udgivet 2026-11-14** (PR #207, Worker `bd23498c`).
 - **Gamle adresser (Search Console 2026-11-14):** rapporten viste 24 adresser med 404. 19 blev
   allerede sendt videre; tre fik en regel i `public/_redirects`, og resten af de danske sider
   under de gamle engelske sektionsnavne og de gamle feed-adresser fik det samtidig (21 regler).
-  To er ladt være (`docs/seo.md`). Efter udgivelse skal disse vise 301 og den nye adresse:
+  To er ladt være (`docs/seo.md`). **Udgivet 2026-11-14** (PR #211, Worker `4eaa513f`). Set på
+  den levende side samme dag: disse syv svarer 301 med den nye adresse:
   `curl -sI https://smartbolig.net/da/legal/affiliate-disclosure/`, `/da/automations/`,
   `/da/about/`, `/da/contact/`, `/da/security/`, `/da/index.xml` og `/en/index.xml`.
 - **Startsæt-bygger (B65):** femte værktøj, `/vaerktoejer/startsaet/`, på begge sprog. Fire
   spørgsmål giver et startsæt i tre lag og de første skridt, med købslinks fra registret (11
-  dele, 9 produkter) og ingen priser. Ikke udgivet endnu. Åbent: registret har ingen produkter
+  dele, 9 produkter) og ingen priser. **Udgivet 2026-11-14** (PR #212, `main` e77b1ca, Worker
+  `202ffebc`). Set på den levende side: begge sider svarer 200, alle 384 kombinationer af svar
+  giver på hvert sprog det samme som koden, siden virker uden JavaScript, og forsiden viser
+  fem værktøjer. Indeksering er anmodet i Search Console. Åbent: registret har ingen produkter
   til computeren til Home Assistant, en aflæser til HAN-porten og ESP32-delene, så de tre
   steder siger sættet "Ingen købsanbefaling endnu".
 
+## Udgivelser og vej tilbage
+
+De seneste udgivelser, nyeste først. Vejen tilbage fra en udgivelse er Worker-versionen i
+rækken under den: `npx wrangler rollback <version> -m "<besked>" -y`. En tilbagerulning
+flytter kun Workeren og de statiske filer; `main` er uændret, så den næste udgivelse fra
+`main` bringer ændringen tilbage, medmindre den også tages ud af `main`.
+
+| Udgivelse | Pull request | Worker-version |
+|---|---|---|
+| Startsæt-bygger | #212 | `202ffebc-da12-4db7-8b7d-865293a6cfd2` |
+| Gamle adresser sendes videre | #211 | `4eaa513f-7377-4e9c-97c4-6ac39cac9278` |
+| Zigbee-kanalvælger og batterilevetid | #207 | `bd23498c-04ac-40d5-82b0-72b8a8d03689` |
+| Tidsplaner, `SECURITY.md`, workflow-regler | #208 | `b79c25e4-4ce0-4c43-b136-83fcbb8e4c72` |
+| Assistenten skriver svaret, mens læseren ser på | #206 | `234155f6-5826-4a53-bfb4-369c44e26f7e` |
+
+Nyhedsflowet udgiver selv hver dag gennem samme workflow, så den levende version kan være
+nyere end tabellens øverste række. Se den aktuelle med `npx wrangler deployments list`.
+
+## Åbent
+
+Det, der ikke er gjort. Det, kun ejeren kan gøre, står i [TIL-EJEREN.md](TIL-EJEREN.md).
+
+- **Tegninger i guidernes tekst:** 23 af 86 danske guides har en tegning eller et billede i
+  teksten (alle har topbilledet af 3D-huset). Uden: Home Assistant 22, produkter 25, AI-CLI 9,
+  automationer 4, ESP32 2, sikkerhed 1. Talt 2026-11-14 med et skript, der leder efter et
+  billede i brødteksten. Reglerne for nye tegninger står i `docs/billeder.md` ("Diagrammer");
+  en tegning skal holdes op mod guidens tekst og kode af en anden end den, der tegnede den.
+- **Guides, der mangler:** Nabu Casa (fjernadgang og stemme gennem Home Assistant Cloud),
+  Companion App på telefonen, og backup af Home Assistant til et sted uden for huset.
+- **Strukturerede produktdata:** produktsiderne har ikke `Product` i deres strukturerede data.
+  Fravalgt for nu: uden pris, lagerstatus eller anmeldelser giver de ingen udvidet visning, og
+  siden viser ingen priser (B65). Tages op igen, hvis registret får priser.
+- **Startsættet:** registret har ingen produkter til computeren til Home Assistant, en aflæser
+  til HAN-porten og ESP32-delene (B65).
+- **Den strenge CSP:** sendes kun som rapport. Den slås til, når samtykkebeskeden er udgivet
+  (TIL-EJEREN punkt 1) og den levende side er set uden overtrædelser med annoncer
+  (`docs/sikkerhed.md`, "Den strenge politik").
+- **Assistentens tid til første ord:** ca. 19 s (modellens tænketid). Står på listen til
+  ejeren, fordi en hurtigere model koster.
+- **`allowScripts` i `package.json`** nævner `sharp@0.34.5`, mens låsefilen har en nyere
+  version. npm 11 viser ingen brug af linjen ved installation; den er ladt stå.
+- **Ikke set køre endnu:** en planlagt sidevagtskørsel, en reservekørsel for nyhederne, og at
+  en grøn sidevagtskørsel selv lukker en åben sag.
+
 ## Næste skridt
 
-1. Gå resten af siden igennem (runde 2): indholdskomponenter, nyheder, assistent, 404, sidefod.
-2. Uafhængig gennemgang, alle kontroller fra AGENTS.md, udgiv i bidder, kontrollér den levende
-   side, og mål Lighthouse igen mod før-målingen.
-3. Fase 3: illustrationer på alle guides (billeder fra 3D-byggesættet) og nye guides.
-   Fase 4: smarte funktioner. Fase 5: SEO, CSP, indtjening. Fase 6: Search Console, Bing,
-   Cloudflare, uafhængig sidevagt. Fase 7: dokumentation og docs-test.
-4. Følg tre dages nyhedsdrift (planlagte kørsler kl. 04:37 og 11:37 UTC).
+1. Følg nyhedsdriften tre dage i træk fra 2026-11-15: en planlagt kørsel (04:37 eller 11:37
+   UTC, reserver 08:37 og 14:37) skal have skrevet og udgivet dagens udgave uden hjælp. Se
+   kørslerne med `gh run list --workflow ai-news.yml`; fejlsøgning står i `docs/nyhedsflow.md`.
+2. Se den første planlagte sidevagtskørsel (02:23, 10:23 eller 18:23 UTC) i Actions.
+3. Mål siden igen (Lighthouse, Core Web Vitals, sikkerhedshoveder) efter samme fremgangsmåde
+   som før-målingen i `docs/measurements/2026-11-13-baseline/README.md`, og læg tallene ved
+   siden af.
+4. Tegninger til de guides, der mangler en (se "Åbent"), og de tre manglende guides.
+5. Når ejeren har udgivet samtykkebeskeden: se forløbene ja og nej på den levende side, og
+   slå den strenge CSP til.
 
 ## Udskudt fra designgennemgangen
 
@@ -241,7 +293,7 @@ Sidst opdateret: 2026-11-14.
   - 3D-løkken har ingen grænse for billeder pr. sekund, mens bevægelse er slået til.
   - Søgefeltet og tidsknapperne er skjult, til scriptet kører; pladsen bør holdes fri.
   - Filer uden brug fra før redesignet (`ProductCard.astro`, `scripts/content-inventory.mjs`,
-    `public/images/produkter/`, `logo-email.png`): tjek ekstern brug, før de slettes.
+    `public/images/produkter/`): tjek ekstern brug, før de slettes (TIL-EJEREN punkt 7).
   - Diagrammerne i guiderne: alle 27 SVG-filer er tegnet om og holdt op mod guidens tekst og
     kode. Efter den seneste ændring (større tekst) er alle 36 filer set som billede i 656 px
     (2 × 328) på mørk baggrund, og en uafhængig gennemgang har set dem på lys baggrund og på den
