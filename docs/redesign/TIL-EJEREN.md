@@ -43,3 +43,11 @@ Sidst opdateret: 2026-11-14.
 
 8. **Gamle filer fra den tidligere kørsel.** Den efterlod kørselsmapper og en launcher uden
    for repoet. De bruges ikke længere, og opgaven er slået fra. Sig til, hvis de skal slettes.
+
+## Prøv selv
+
+9. **3D-huset er ikke set på en iPhone, en iPad eller i Firefox.** Det er afprøvet i Chrome
+   med og uden grafikkort. Åbn forsiden på din telefon og i Safari på en Mac: huset skal
+   blive levende efter et øjeblik og kunne drejes. Bliver billedet stående, virker siden
+   stadig; skriv det til mig, så ser jeg på det.
+

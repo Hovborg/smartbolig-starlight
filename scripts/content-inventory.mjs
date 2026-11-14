@@ -60,7 +60,6 @@ export function inventoryPage(file) {
     affiliateLinks: (body.match(/<(?:AffiliateLink|ProductCard)\b/g) ?? []).length,
     internalLinks: (body.match(/\]\(\/(?:da|en)\//g) ?? []).length + (body.match(/href="\/(?:da|en)\//g) ?? []).length,
     hasFaq: /<FAQ\b/.test(body),
-    hasHowTo: /<HowTo\b/.test(body),
   };
 }
 

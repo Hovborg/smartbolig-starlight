@@ -6,6 +6,7 @@ import {
   MeshPhysicalMaterial, MeshStandardMaterial, PlaneGeometry, SphereGeometry, Sprite, SpriteMaterial,
 } from "three";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { blankCanvas } from "./canvas.mjs";
 import { surfaceMaps } from "./textures.mjs";
 
 const materials = new Map();
@@ -78,8 +79,7 @@ let haloTexture;
 function halo() {
   if (!haloTexture) {
     const size = 128;
-    const canvas = document.createElement("canvas");
-    canvas.width = canvas.height = size;
+    const canvas = blankCanvas(size);
     const ctx = canvas.getContext("2d");
     const gradient = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
     gradient.addColorStop(0, "rgba(255,255,255,1)");
