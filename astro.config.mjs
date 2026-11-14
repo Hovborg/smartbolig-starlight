@@ -12,6 +12,7 @@ import { image } from "./config/images.mjs";
 import { rehypePlainHeadings } from "./config/markdown/plain-headings.mjs";
 import { remarkPlainLabels } from "./config/markdown/plain-labels.mjs";
 import { rehypeTableScroll } from "./config/markdown/table-scroll.mjs";
+import { vite } from "./config/vite.mjs";
 import { rehypeBodyImages } from "./config/markdown/body-images.mjs";
 import { rehypeLeadImage } from "./config/markdown/lead-image.mjs";
 
@@ -20,6 +21,7 @@ export default defineConfig({
   site: siteUrl,
   output: "static",
   fonts,
+  vite,
   image,
 
   // Starlight's MDX pipeline does not enable GFM tables by default.

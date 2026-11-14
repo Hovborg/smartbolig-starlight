@@ -1,14 +1,6 @@
 // Cloudflare Pages Function: Geo-based language redirect
 // Danske IP'er → /da/, alle andre → /en/
 
-function getCookieValue(cookieHeader, name) {
-  return cookieHeader
-    .split(';')
-    .map((part) => part.trim())
-    .find((part) => part.startsWith(`${name}=`))
-    ?.slice(name.length + 1);
-}
-
 function redirectTo(url, status = 302) {
   return Response.redirect(url.toString(), status);
 }
@@ -124,14 +116,6 @@ export async function onRequest(context) {
 
   // Kun redirect på root path (/)
   if (url.pathname === '/' || url.pathname === '') {
-    const cookies = request.headers.get('Cookie') || '';
-    const preferredLang = getCookieValue(cookies, 'preferred-lang');
-
-    if (preferredLang === 'da' || preferredLang === 'en') {
-      url.pathname = `/${preferredLang}/`;
-      return redirectTo(url);
-    }
-
     // Danmark → dansk version
     if (country === 'DK') {
       url.pathname = '/da/';
