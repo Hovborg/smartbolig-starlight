@@ -68,7 +68,7 @@ export function createHttpChat({ url, key, fetchImpl = fetch, wait = sleep, onAt
       const text = choice?.message?.content;
       if (typeof text !== "string" || !text.trim()) throw new Error("LLM endpoint returned no text");
       if (choice.finish_reason === "length") throw new Error("LLM answer was cut off at the token limit");
-      return { text, usage: data.usage || null };
+      return { text, usage: data.usage || null, budget: data.budget || null };
     }
     throw lastError;
   };

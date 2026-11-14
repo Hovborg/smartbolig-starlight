@@ -181,11 +181,7 @@ async function main() {
   const dateFilter = args.get('--date') ? String(args.get('--date')) : '';
   const pending = await findPendingImages({ rootDir, dateFilter });
 
-  if (args.has('--json')) {
-    console.log(JSON.stringify({ count: pending.length, pending }, null, 2));
-  } else {
-    printText(pending);
-  }
+  printText(pending);
 
   if (pending.length > 0 && args.has('--fail-on-pending')) process.exit(1);
 }

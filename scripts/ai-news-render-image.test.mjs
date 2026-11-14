@@ -63,12 +63,8 @@ sources:
   - "https://github.com/openclaw/openclaw/releases/tag/v2026.8.34"
 ---
 `);
-  const environment = { ...process.env };
-  delete environment.AI_NEWS_DISABLE_AI;
-  delete environment.AI_NEWS_ENABLE_COMFYUI;
   const { stdout } = await execFileAsync('node', ['scripts/ai-news-render-image.mjs', '--root', root, '--date', date, '--force'], {
     cwd: repoRoot,
-    env: environment,
   });
   return { root, stdout };
 }

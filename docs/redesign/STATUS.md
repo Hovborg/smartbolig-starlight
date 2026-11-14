@@ -13,33 +13,37 @@ Sidst opdateret: 2026-11-14.
 - `scripts/content-inventory.mjs`: opgørelse over alle sider (billeder, titler, links).
 - **Fase 1, afhængigheder:** PR #171 flettet og udgivet 2026-11-13.
 - **Vej tilbage afprøvet** på produktionssiden 2026-11-13 (`wrangler rollback` frem og tilbage).
-- **Fase 1, nyhedsflow:** PR #172 flettet og udgivet 2026-11-14. Relayet er udrullet.
-  Første kørsel i GitHub Actions (`dry_run`, 2026-11-14 kl. 00:03 UTC) bestod: 4 historier
-  bestod faktatjekket, 0 kasseret, 10 modelkald, alle kontroller grønne, intet udgivet.
+- **Fase 1, nyhedsflow:** PR #172 og #179 flettet og udgivet 2026-11-14. Relayet er udrullet.
+  Prøvekørsel og første rigtige kørsel i GitHub Actions bestod 2026-11-14: dagens udgave blev
+  udgivet af kørslen selv (4 historier, 12 modelkald, 3.282 neurons). Målingen står i
+  `docs/nyhedsflow.md`. Den tidligere Windows-opgave er slået fra.
 - **Fase 3, gennemgang af guides:** PR #173–#177 flettet og udgivet 2026-11-13.
   Logge og åbne punkter: `docs/redesign/guide-review/`.
+- **Fase 1, oprydning:** PR #181 flettet og udgivet 2026-11-14. De gamle kørsler (Windows,
+  systemd, OpenClaw) og ComfyUI-sporet er fjernet; GitHub Actions er eneste udgivelsesvej.
+  PR #170, #169, #166, #165 og #147 er lukket som forældede.
 
 ## I gang
 
-- **Fase 2, design:** grenen `redesign/theme` (worktree `smartbolig-theme`). Indeholder:
-  designværdier, egen topbjælke, forside med "et hus gennem et døgn", 404, nyhedsoversigt,
-  produktkort, FAQ, kommentarer, sidefod, AI-assistent (opdelt, læsbar tekst), ny brandpakke,
-  `docs/designsystem.md`, `docs/oss.md`. `main` er flettet ind.
-  Set i browser: 1440 og 375 px, lyst og mørkt (forside, guide, produktside, nyheder, 404, assistent).
-  Mangler: uafhængig gennemgang, alle kontroller, PR, udgivelse, kontrol af den levende side.
-- **Fase 1, oprydning:** grenen `chore/news-cleanup` fjerner Windows- og Linux-runnerne og deres
-  tests (17 filer). Under uafhængig gennemgang.
-- **Fase 1, rapport:** PR #179 viser forbrug pr. model og relayets dagstotal i kørslens rapport.
+- **Fase 2, design:** PR #180 (grenen `redesign/theme`). Designværdier, mørkt tema som standard,
+  egen topbjælke, forside med "et hus gennem et døgn", 404, nyhedsoversigt, produktkort, FAQ,
+  kommentarer, sidefod, AI-assistent, ny brandpakke, printregler. To uafhængige gennemgange
+  (kode og tilgængelighed) gav ingen blokerende fund; alle kodefund og tilgængelighedspunkt 1-13
+  er rettet. `main` er flettet ind 2026-11-14.
 
 ## Næste skridt
 
-1. Flet PR #179. Kør nyhedsworkflowet rigtigt (uden `dry_run`). Skriv det målte forbrug pr. model
-   ind i `docs/nyhedsflow.md`.
-2. Slå Windows-opgaven "Shark Smartbolig AI News" fra. Flet oprydnings-PR'en.
-   Luk PR #170, #169, #147; afgør #166/#165.
-3. Udgiv designet (denne gren) efter gennemgang. Mål Lighthouse igen og sammenlign med før-målingen.
-4. Fase 3: nye guides og illustrationer. Fase 4: smarte funktioner. Fase 5: SEO, CSP, indtjening.
-   Fase 6: Search Console, Bing, Cloudflare, overvågning. Fase 7: dokumentation og docs-test.
-5. Følg tre dages nyhedsdrift (kan ikke bekræftes samme dag).
+1. Udgiv designet (PR #180). Kontrollér den levende side i mørkt og lyst ved 375 og 1440 px.
+   Mål Lighthouse igen og sammenlign med før-målingen.
+2. Fase 3: nye guides og illustrationer. Fase 4: smarte funktioner. Fase 5: SEO, CSP, indtjening.
+   Fase 6: Search Console, Bing, Cloudflare, uafhængig sidevagt. Fase 7: dokumentation og docs-test.
+3. Følg tre dages nyhedsdrift (planlagte kørsler kl. 04:37 og 11:37 UTC; kan ikke bekræftes samme dag).
+
+## Udskudt fra designgennemgangen
+
+- Nyhedsoversigtens små billeder hentes i 1200 px; en 640 px-udgave med `srcset` hører til fase 5.
+- 404-siden forhåndsindlæser ikke skrifterne.
+- `--sb-ink-subtle` på sidens baggrundsvask giver 4,48:1 i lyst tema (lige under 4,5:1).
+- Ikke set i en browser: reduceret bevægelse, tvungne farver, forsiden ved ca. 800 px.
 
 Ting, der kræver ejeren, står i TIL-EJEREN.md.

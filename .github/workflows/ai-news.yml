@@ -44,7 +44,6 @@ jobs:
       base: ${{ steps.push.outputs.base }}
     env:
       # The lead image is rendered from text only; no image model is called.
-      AI_NEWS_DISABLE_AI: '1'
       DRY_RUN: ${{ inputs.dry_run == true }}
 
     steps:

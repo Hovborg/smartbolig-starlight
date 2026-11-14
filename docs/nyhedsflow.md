@@ -1,11 +1,16 @@
 # Nyhedsflow: den daglige AI-nyhed
 
-Sidst kontrolleret: 2026-11-13.
-Kontrolleret ved: hele kæden kørt mod dagens rigtige kilder uden at skrive filer
-(4 historier bestod, 0 kasseret, 16 modelkald, 245 sekunder), og relayets
-dagsspærre afprøvet mod den udrullede Worker (kald afvist med
-`daily_budget_exhausted`).
-Ikke kontrolleret endnu: første kørsel i GitHub Actions og tre dages drift i træk.
+Sidst kontrolleret: 2026-11-14.
+Kontrolleret ved: første rigtige kørsel i GitHub Actions (startet manuelt
+2026-11-14 kl. 00:27 UTC). 4 historier bestod faktatjekket, 0 kasseret, 12
+modelkald, 3.282 neurons, knap 7 minutter fra start til udgivet. Udgaven blev
+committet til `main` og udgivet af kørslen selv; bagefter svarede begge
+sprogsider, nyhedsoversigten, sitemap og RSS med dagens udgave. En prøvekørsel
+(`dry_run`) samme dag bestod også (4 historier, 10 kald, ca. 2.800 neurons).
+Relayets dagsspærre blev afprøvet 2026-11-13 mod den udrullede Worker (kald
+afvist med `daily_budget_exhausted`).
+Ikke kontrolleret endnu: en planlagt kørsel (de to første var startet manuelt)
+og tre dages drift i træk.
 
 ## Hvad sker der hver dag
 
@@ -48,8 +53,12 @@ Den blokerer ikke næste dag: der gemmes ingen tilstand mellem kørsler.
 ## Hvor ser jeg, hvad der skete
 
 Ét sted: GitHub → Actions → **AI News** → den enkelte kørsel → **Summary**.
-Den viser udgivet/sprunget over/fejlet, antal modelkald og neurons, og hvilke
-historier faktatjekket kasserede med begrundelse.
+Den viser udgivet/sprunget over/fejlet, antal modelkald og neurons, forbruget pr.
+model (svar, tokens ind og ud, neurons), relayets samlede forbrug for dagen, og
+hvilke historier faktatjekket kasserede med begrundelse.
+
+Samme tekst står i loggen for trinnet "Report the outcome", så den også kan
+læses fra en terminal: `gh run view <kørsel> --log`.
 
 Du får kun besked, når udgivelsen har stået stille i 3 dage (sagen med mærkatet
 `ai-news-stalled`), eller hvis selve udgivelsen til Cloudflare fejler.
@@ -96,6 +105,17 @@ rettes tallet dér.
 
 Sidens chat bruger samme gratis kvote; de 2.000 neurons mellem 8.000 og 10.000 er
 til den. Det målte forbrug står i hver kørsels Summary.
+
+Målt på den første rigtige kørsel (2026-11-14, 4 historier og indledning):
+
+| Model | Svar | Tokens ind | Tokens ud | Neurons |
+|---|---|---|---|---|
+| `deepseek-v4.1-flash` (skriver) | 6 | 14.444 | 18.389 | 2.404 |
+| `gpt-oss-120b` (kontrol) | 6 | 16.297 | 5.217 | 878 |
+| I alt | 12 | 30.741 | 23.606 | 3.282 |
+
+En normal dag bruger altså ca. 3.300 af de 8.000 neurons. Springer morgenens
+kørsel dagen over, kan middagskørslen bruge det samme igen uden at nå loftet.
 
 ## Modeller
 
@@ -189,3 +209,15 @@ ikke kravene.
 - OpenAI's artikelsider svarer 403 til robotter. Kun korte feed-resuméer er
   tilgængelige, og de falder for kravet om 240 tegn. Det omgås ikke.
 - GitHub kan forsinke eller springe planlagte kørsler over. Derfor to tidspunkter.
+- Beskeden om, at udgivelsen er gået i stå, sendes af `watch`-jobbet i samme
+  workflow. Starter workflowet slet ikke, kommer der ingen besked. En uafhængig
+  vagt, der læser den udgivne side, er planlagt (fase 6 i `docs/redesign/PLAN.md`).
+- Efter udgivelsen kontrolleres kun, at siden svarer (404-selvhelingen). At begge
+  sprog og begge oversigter viser udgaven, kontrolleres ikke automatisk endnu.
+
+## Historik
+
+Tidligere kørte nyheden som en planlagt Windows-opgave på ejerens maskine, og før
+det via systemd og OpenClaw. Koden til alle tre er fjernet fra repoet 2026-11-14,
+og Windows-opgaven er slået fra samme dag (kontrolleret: opgavens tilstand er
+`Disabled`). Der er kun én udgivelsesvej. Genopret dem ikke ved siden af workflowet.

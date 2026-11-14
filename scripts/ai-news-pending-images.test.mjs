@@ -54,7 +54,7 @@ async function writeValidImages(root, date) {
   }
 }
 
-test('AI News image scanner leaves missing ComfyUI output pending without crashing by default', async () => {
+test('AI News image scanner leaves missing images pending without crashing by default', async () => {
   const tmp = await mkdtemp(path.join(tmpdir(), 'smartbolig-ai-news-pending-'));
   await writeArticle(tmp, '2026-04-20');
 

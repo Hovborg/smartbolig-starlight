@@ -162,6 +162,23 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Valg: ingen egne syntaksfarver. Rammen (hjørner, kant, skrift) følger vores værdier.
 - Begrundelse: standardtemaerne er kontrastprøvede og følger med ved opgradering.
 
+### B28. Værtskørslerne for nyheden er fjernet
+- Fjernet: Windows-opgaven, systemd-timeren og OpenClaw-jobbet med installationsscripts,
+  fejlmelder, forældelsestjek i shell, PR-identitetshjælperen, hjælperen til gentagne forsøg,
+  hjælperen til offentlig kontrol efter udgivelse og deres tests. Desuden det valgfri
+  ComfyUI-billedspor (vagten for GPU-køen lå i det fjernede shell-script), det ubrugte
+  `scripts/indexnow-ping.sh` (`deploy.yml` sender selv til IndexNow) og et forældet researchnotat.
+- Begrundelse: ét udgivelsesforløb (B5, B15). De tre seneste fejlklasser var alle værtsfejl.
+  Ældre kørsler ved siden af workflowet kan udgive det samme to gange.
+- Bevaret: workflowtestene (ét flyttet til `scripts/ai-news-workflow.test.mjs`),
+  `ai-news-staleness.mjs` og alle kontroller, som workflowet bruger. Nyhedsbilledet er altid
+  den tegnede illustration.
+- Pris: det fjernede forældelsestjek læste den udgivne side uafhængigt af workflowet, og den
+  fjernede efterkontrol så begge sprog og begge oversigter efter. Workflowets `watch`-job
+  dækker kun, at der mangler udgaver i repoet. En uafhængig sidevagt bygges i fase 6.
+- Kontrolleret 2026-11-14: første rigtige kørsel i GitHub Actions udgav dagens nyhed;
+  Windows-opgaven er slået fra.
+
 ### B29. Mørkt tema er standard; lyst vælges til
 - Ejerens beslutning 2026-11-14. Erstatter B2.
 - Valg: alle nye besøgende ser mørkt tema, uanset enhedens indstilling. Lyst tema vælges med

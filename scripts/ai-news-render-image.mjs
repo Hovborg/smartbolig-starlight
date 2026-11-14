@@ -1,14 +1,9 @@
 #!/usr/bin/env node
 import { existsSync } from 'node:fs';
 import { mkdir, readFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import sharp from 'sharp';
-import { generateBackground, isReady, waitForReady } from './ai-news-comfyui-client.mjs';
-
-const COMFY_ENABLED = process.env.AI_NEWS_ENABLE_COMFYUI === '1'
-  && process.env.AI_NEWS_DISABLE_AI !== '1';
 
 const defaultRootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const variants = [
@@ -277,7 +272,7 @@ function motifArtwork(motif, { height, accent }) {
     </g>`;
 }
 
-export function renderEditorialSvg({ width, height, date, headline, providers, overlay = false }) {
+export function renderEditorialSvg({ width, height, date, headline, providers }) {
   const compact = height < 800;
   const safeHeadline = String(headline || `AI-nyheder, ${formatDate(date)}`).trim();
   const longHeadline = safeHeadline.length > 72;
@@ -306,9 +301,9 @@ export function renderEditorialSvg({ width, height, date, headline, providers, o
 <svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" data-motif="${motif}" data-text-column-right="${left + headlineWidth}" data-headline-bottom="${Math.round(headlineBottom)}" data-copy-bottom="${Math.round(chipY + 38)}">
   <defs>
     <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0%" stop-color="${overlay ? '#020617' : start}" stop-opacity="${overlay ? '0.58' : '1'}"/>
-      <stop offset="54%" stop-color="${overlay ? '#020617' : middle}" stop-opacity="${overlay ? '0.68' : '1'}"/>
-      <stop offset="100%" stop-color="${overlay ? '#020617' : end}" stop-opacity="${overlay ? '0.82' : '1'}"/>
+      <stop offset="0%" stop-color="${start}" stop-opacity="1"/>
+      <stop offset="54%" stop-color="${middle}" stop-opacity="1"/>
+      <stop offset="100%" stop-color="${end}" stop-opacity="1"/>
     </linearGradient>
     <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse">
       <path d="M44 0H0V44" fill="none" stroke="#ffffff" stroke-opacity="0.055" stroke-width="1"/>
@@ -318,7 +313,7 @@ export function renderEditorialSvg({ width, height, date, headline, providers, o
   <rect width="${width}" height="${height}" fill="url(#grid)"/>
   <circle cx="${width - 116}" cy="106" r="92" fill="${accent}" opacity="0.12"/>
   <circle cx="${width - 350}" cy="${height - 90}" r="180" fill="${accent}" opacity="0.08"/>
-  <g opacity="${overlay ? '0.42' : '1'}">${motifArtwork(motif, { height, accent })}</g>
+  <g opacity="1">${motifArtwork(motif, { height, accent })}</g>
   <rect x="${left}" y="48" width="268" height="40" rx="20" fill="#020617" opacity="0.56" stroke="${accent}" stroke-opacity="0.5"/>
   <text x="${left + 20}" y="74" font-family="Arial, Segoe UI, sans-serif" font-size="18" font-weight="800" fill="#e2e8f0">SMARTBOLIG · AI NEWS</text>
   <text x="${left}" y="140" font-family="Arial, Segoe UI, sans-serif" font-size="18" font-weight="800" letter-spacing="2" fill="${accent}">LEAD STORY · HOVEDHISTORIE</text>
@@ -327,53 +322,6 @@ export function renderEditorialSvg({ width, height, date, headline, providers, o
   <text x="${left}" y="${dateY}" font-family="Arial, Segoe UI, sans-serif" font-size="22" font-weight="800" fill="#e2e8f0">${xmlEscape(formatDate(date))}</text>
 </svg>
   `.trim();
-}
-
-async function compositeWithAiBackground({ aiBgPath, variant, date, meta, providers, outputPath }) {
-  const overlaySvg = renderEditorialSvg({
-    width: variant.width,
-    height: variant.height,
-    date,
-    headline: meta.imageHeadline || meta.title,
-    providers,
-    overlay: true,
-  });
-  await sharp(aiBgPath)
-    .resize(variant.width, variant.height, { fit: 'cover', position: 'center' })
-    .composite([{ input: Buffer.from(overlaySvg), top: 0, left: 0 }])
-    .jpeg({ quality: 82, mozjpeg: true })
-    .toFile(outputPath);
-}
-
-async function tryGenerateAiBackground({ date, meta, rootDir }) {
-  if (!COMFY_ENABLED) {
-    console.log('Using the offline editorial illustration. Set AI_NEWS_ENABLE_COMFYUI=1 to opt into a configured ComfyUI background.');
-    return null;
-  }
-  const ready = await isReady();
-  if (!ready) {
-    try {
-      console.log('Waiting briefly for the configured ComfyUI endpoint before using the offline illustration ...');
-      await waitForReady();
-    } catch (error) {
-      console.warn(`AI background unavailable: ${error.message} — using the offline editorial illustration.`);
-      return null;
-    }
-  }
-  const aiBgDir = process.env.AI_NEWS_BG_CACHE_DIR || path.join(tmpdir(), 'smartbolig-ai-news-bg-cache');
-  await mkdir(aiBgDir, { recursive: true });
-  const aiBgPath = path.join(aiBgDir, `${date}.png`);
-  try {
-    await generateBackground({
-      title: meta.imageHeadline || meta.title,
-      date,
-      outPath: aiBgPath,
-    });
-    return aiBgPath;
-  } catch (error) {
-    console.warn(`AI background generation failed: ${error.message} — using the offline editorial illustration.`);
-    return null;
-  }
 }
 
 export async function main(argv = process.argv.slice(2)) {
@@ -398,7 +346,7 @@ export async function main(argv = process.argv.slice(2)) {
   await mkdir(outputDir, { recursive: true });
 
   const allVariantsExist = !force && variants.every((variant) => existsSync(path.join(outputDir, `${date}${variant.suffix}.jpg`)));
-  const aiBgPath = allVariantsExist ? null : await tryGenerateAiBackground({ date, meta, rootDir });
+  if (!allVariantsExist) console.log('Using the offline editorial illustration.');
 
   for (const variant of variants) {
     const outputPath = path.join(outputDir, `${date}${variant.suffix}.jpg`);
@@ -406,20 +354,15 @@ export async function main(argv = process.argv.slice(2)) {
       console.log(`kept ${path.relative(rootDir, outputPath)}`);
       continue;
     }
-    if (aiBgPath) {
-      await compositeWithAiBackground({ aiBgPath, variant, date, meta, providers, outputPath });
-      console.log(`wrote ${path.relative(rootDir, outputPath)} (AI background)`);
-    } else {
-      const svg = renderEditorialSvg({
-        width: variant.width,
-        height: variant.height,
-        date,
-        headline: meta.imageHeadline || meta.title,
-        providers,
-      });
-      await sharp(Buffer.from(svg)).jpeg({ quality: 82, mozjpeg: true }).toFile(outputPath);
-      console.log(`wrote ${path.relative(rootDir, outputPath)} (offline editorial illustration)`);
-    }
+    const svg = renderEditorialSvg({
+      width: variant.width,
+      height: variant.height,
+      date,
+      headline: meta.imageHeadline || meta.title,
+      providers,
+    });
+    await sharp(Buffer.from(svg)).jpeg({ quality: 82, mozjpeg: true }).toFile(outputPath);
+    console.log(`wrote ${path.relative(rootDir, outputPath)} (offline editorial illustration)`);
   }
 }
 

@@ -287,10 +287,6 @@ fejlfinding, omkostningsloft, modelvalg og nøgleskift står i
 
 Kør manuelt under Actions → AI News → Run workflow (`dry_run` udgiver intet).
 
-Den tidligere Windows-opgave `Shark Smartbolig AI News` og dens scripts
-(`scripts/smartbolig-ai-news-daily.ps1` m.fl.) er udfaset 2026-11-13 og fjernes
-i en opfølgende ændring. De må ikke aktiveres igen ved siden af workflowet.
-
 ---
 
 ## 🧭 Portalstruktur

@@ -17,6 +17,7 @@ ingen farvekoder, skrifttyper eller skygger direkte i komponenterne.
 | `src/styles/base.css` | Side, baggrund, fokus, overskrifter |
 | `src/styles/chrome/` | Topbjælke, sidemenu, indholdsfortegnelse, sidefod-navigation |
 | `src/styles/content/` | Brødtekst, tabeller, kodeblokke, bokse, kort, faner |
+| `src/styles/print.css` | Print: skjuler menuer, assistent og kommentarer |
 | `src/styles/home/` | Forsiden: `layout.css` (ramme, knapper), `hero.css`, `scene.css` (huset), `sections.css`, `motion.css` |
 | `src/styles/index.css` | Importerer det hele i rækkefølge. Den eneste fil, Starlight får |
 | `config/fonts.mjs` | Skrifttyper (selvhostede) |
@@ -65,6 +66,13 @@ vælges med temavælgeren i topbjælken, og valget gemmes i browseren.
 siden tegnes, og holder browserens temafarve (`theme-color`) i takt. Siderne
 leveres med `data-theme="dark"`, så mørkt også gælder uden JavaScript.
 Begge temaer skal fortsat virke fuldt ud: byg og kontrollér altid i begge.
+
+Print bruger altid det lyse tema, fordi papir er hvidt. `ThemeProvider.astro`
+skifter til lyst, mens der printes, og tilbage bagefter. De mørke værdier i
+`src/styles/tokens/` står inde i `@media not print`, så det også gælder uden
+JavaScript. `src/styles/print.css` skjuler topbjælkens knapper, assistenten og
+kommentarerne. Kontrolleret 2026-11-14 ved at udskrive en guide til PDF fra
+Chrome: mørk tekst, læsbare kodeblokke, ingen menuer.
 
 ## Skrift
 
