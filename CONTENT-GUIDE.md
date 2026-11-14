@@ -191,6 +191,27 @@ tjekkes ikke automatisk. Se `docs/indtjening.md`.
 
 ---
 
+## Værktøjssider
+
+Siderne under `vaerktoejer/` er bygget om et værktøj, ikke om en tekst. De følger de samme regler
+for filnavne, titel og sidemenu som en guide, og derudover:
+
+- Start med to sætninger, der siger, hvad værktøjet regner ud. Så kommer værktøjet
+  (`<PowerPrice lang="da" />`), og først derefter forklaringen.
+- Forklaringen har altid: hvordan tallet er regnet, hvad der ikke er med, hvor data kommer fra
+  (med link og licens), og links til de guides, der bruger tallet.
+- Skriv ingen satser for afgift og nettarif. De skifter. Nettarif og elselskabets tillæg afhænger
+  af selskabet; elafgiften er ens for alle. Skriv ikke, at elafgiften afhænger af netselskabet.
+- Tekster inde i værktøjet står ikke i MDX-filen, men i `src/lib/tools/*-copy.mjs` på begge sprog.
+- Sæt `lastUpdated` i frontmatter, og tilføj værktøjet i `src/lib/tools/catalog.mjs`, så det får
+  et kort på oversigten.
+- Et ord, som en guide skal findes på i assistentens søgning, kan få bygningen til at stoppe,
+  hvis værktøjssiden bruger det meget (`docs/assistent.md`). Ret da teksten på værktøjssiden.
+
+Hvordan et nyt værktøj bygges, står i `docs/vaerktoejer.md`.
+
+---
+
 ## Hvorfor denne struktur?
 
 Starlight bruger sidebar-links som kanoniske URL'er for alle sprog. Hvis sidebar har:
@@ -213,6 +234,7 @@ Filer SKAL ligge på disse stier for at blive fundet. `slug` feltet i frontmatte
 | Produkter | `/produkter/` | `/products/` → `/produkter/` |
 | Home Assistant | `/home-assistant/` | (ingen rewrite) |
 | ESP32 | `/esp32/` | (ingen rewrite) |
+| Værktøjer | `/vaerktoejer/` | (ingen rewrite) |
 | Juridisk | `/juridisk/` | `/legal/` → `/juridisk/` |
 | Om os | `/om-os/` | `/about/` → `/om-os/` |
 | Kontakt | `/kontakt/` | `/contact/` → `/kontakt/` |

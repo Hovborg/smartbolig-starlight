@@ -13,6 +13,7 @@ export const SECTIONS = [
   ["home-assistant", "Home Assistant"],
   ["automationer", "Automationer"],
   ["esp32", "ESP32"],
+  ["vaerktoejer", "Værktøjer"],
   ["produkter", "Produkter"],
   ["sikkerhed", "Sikkerhed"],
   ["ai", "AI"],

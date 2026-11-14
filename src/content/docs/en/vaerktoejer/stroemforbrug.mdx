@@ -1,0 +1,32 @@
+---
+title: What does it cost to keep it on?
+description: Work out what an appliance costs in electricity per day, month and year. Type the watts, the hours per day and your price, and see what one hour less a day saves.
+lastUpdated: 2026-11-14
+---
+
+import PowerCost from '../../../../components/tools/PowerCost.astro';
+
+Type how many watts an appliance uses and how long it is on each day. You then see what it costs in electricity per day, month and year.
+
+<PowerCost lang="en" />
+
+## How the number is calculated
+
+The tool multiplies the power by the time and the price:
+
+**watts ÷ 1000 × hours per day × price per kWh = kroner per day**
+
+A month is counted as 30.4 days and a year as 365 days. Everything is calculated in your browser, and we do not store what you type.
+
+## What is not included
+
+- **The draw varies.** A fridge and a dehumidifier switch on and off by themselves, and a PC uses more when it is working. Use an average, or measure the consumption.
+- **The price varies.** The electricity price changes hour by hour. The tool uses the same price all year.
+- **Fixed amounts.** Subscription and other fixed amounts on the electricity bill are not included. They do not change when you switch an appliance off.
+
+## Find the right numbers
+
+- The power is printed on the appliance's rating plate. That is often the highest draw and not the typical one.
+- A smart plug with a meter shows the real consumption. See [Energy management and monitoring](/en/produkter/energistyring/).
+- Your price per kWh is on your electricity bill. The spot price right now is in [the electricity price tool](/en/vaerktoejer/elpris/).
+- To follow the consumption over time, use the [Home Assistant Energy Dashboard](/en/home-assistant/energy-dashboard/).

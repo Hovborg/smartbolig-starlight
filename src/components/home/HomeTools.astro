@@ -1,0 +1,117 @@
+---
+// The tools on the homepage: a card with the electricity price right now
+// (filled in by src/lib/home-price.mjs once the section is near the screen)
+// and a row per tool from src/lib/tools/catalog.mjs. Without JavaScript, or
+// when the prices cannot be fetched, the card invites to the tool instead of
+// showing numbers. Styles: src/styles/home/tools.css.
+import type { HomeLocale, HomeToolsCopy } from "../../lib/home-copy";
+import { TOOLS } from "../../lib/tools/catalog.mjs";
+import { fill } from "../../lib/tools/format.mjs";
+import { priceCopy } from "../../lib/tools/price-copy.mjs";
+import { SPARK } from "../../lib/tools/price-spark.mjs";
+import ToolIcon from "../tools/ToolIcon.astro";
+
+interface Props {
+  copy: HomeToolsCopy;
+  locale: HomeLocale;
+}
+
+const { copy, locale } = Astro.props;
+const { price } = copy;
+
+// Texts as long as the real ones, with dashes where the numbers will be. They
+// are never shown: while the prices are on their way they hold the room of the
+// real texts (data-room in tools.css), so the card keeps its height.
+const words = priceCopy[locale];
+const room = {
+  area: words.area.DK1,
+  level: words.level.mid,
+  period: fill(words.now.period, { from: "––:––", to: "––:––" }),
+  // The sentence of middle length: the other two are a line shorter or longer on a narrow phone.
+  run: fill(words.window.startNow, { price: `–––,– ${price.unit}`, time: "––:––" }),
+};
+---
+
+<section class="home-section home-tools" aria-labelledby="home-tools-title">
+  <div class="home-section__heading">
+    <p class="home-eyebrow">{copy.eyebrow}</p>
+    <h2 id="home-tools-title">{copy.title}</h2>
+    <p>{copy.intro}</p>
+  </div>
+  <div class="home-tools__layout">
+    <article class="home-price" data-home-price data-lang={locale} data-state="idle" data-spark-label={price.sparkLabel}>
+      <header class="home-price__head">
+        <h3 class="home-price__label"><span class="home-price__dot" aria-hidden="true"></span>{price.label}</h3>
+        <p class="home-price__area" data-part="area" data-room={room.area}></p>
+      </header>
+
+      <div class="home-price__live">
+        <p class="home-price__now">
+          <span class="home-price__value" data-part="value">–</span>
+          <span class="home-price__unit">{price.unit}</span>
+        </p>
+        <p class="home-price__meta">
+          <span class="home-price__level" data-part="level" data-level="mid" data-room={room.level}></span>
+          <span data-part="period" data-room={room.period}></span>
+        </p>
+        <div class="home-price__chart">
+          <svg class="home-price__spark" data-part="spark" viewBox={`0 0 ${SPARK.width} ${SPARK.height}`} preserveAspectRatio="none" role="img" aria-label="" focusable="false"></svg>
+          <p class="home-price__ticks" data-part="ticks" aria-hidden="true"></p>
+          <p class="home-price__legend" aria-hidden="true">
+            <span class="home-price__key home-price__key--now">{price.legendNow}</span>
+            <span class="home-price__key home-price__key--best" data-part="legend-best">{price.legendBest}</span>
+          </p>
+        </div>
+        <p class="home-price__run"><strong>{price.runLabel}</strong> <span data-part="run" data-room={room.run}></span></p>
+      </div>
+
+      <div class="home-price__idle">
+        <p class="home-price__idle-title">{price.idleTitle}</p>
+        <p>{price.idleText}</p>
+      </div>
+
+      <p class="home-price__foot">
+        <a class="home-text-link" href={price.link.href}>{price.link.label} →</a>
+        <span>{price.note}</span>
+      </p>
+    </article>
+
+    <ul class="home-tools__list">
+      {TOOLS.map((tool) => (
+        <li class="home-tools__row">
+          <span class="home-tools__icon"><ToolIcon name={tool.icon} /></span>
+          <div>
+            <h3><a href={`/${locale}/vaerktoejer/${tool.slug}/`}>{tool[locale].title}</a></h3>
+            <p>{tool[locale].text}</p>
+          </div>
+        </li>
+      ))}
+      <li class="home-tools__all"><a class="home-text-link" href={copy.all.href}>{copy.all.label} →</a></li>
+    </ul>
+  </div>
+</section>
+
+<script>
+  // The price code is fetched only when the card is about to be seen. The
+  // room for the numbers is taken now, while the card is far below the screen,
+  // so nothing moves when they arrive.
+  const card = document.querySelector<HTMLElement>("[data-home-price]");
+  if (card && "IntersectionObserver" in window) {
+    card.dataset.state = "loading";
+    const observer = new IntersectionObserver(
+      async (entries) => {
+        if (!entries.some((entry) => entry.isIntersecting)) return;
+        observer.disconnect();
+        try {
+          const { startHomePrice } = await import("../../lib/home-price.mjs");
+          startHomePrice(card);
+        } catch {
+          // The price code could not be fetched: back to the invitation.
+          card.dataset.state = "idle";
+        }
+      },
+      { rootMargin: "600px 0px" },
+    );
+    observer.observe(card);
+  }
+</script>

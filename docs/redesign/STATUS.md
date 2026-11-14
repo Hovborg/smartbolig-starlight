@@ -161,6 +161,21 @@ Sidst opdateret: 2026-11-14.
   `e4b21205`); set på den levende side i 390 px bredde. Åbent: teksten er ca. 10 px på en
   telefon (mål: 11 px), og LD2410-tegningen har ikke printets benrækkefølge (guiden siger det).
   Begge dele kræver ny opsætning af tegningerne.
+- **Værktøjer (B61):** ny sektion `/vaerktoejer/` på begge sprog med to værktøjer: elprisen
+  lige nu med de billigste timer (Energinet, CC BY 4.0, gennem sidens eget `/api/elpris`) og
+  "Hvad koster det at have apparatet tændt?". Fælles ramme, så et nyt værktøj er få filer
+  (`docs/vaerktoejer.md`). Sidevagten har fået kontrol nr. 14 (`/api/elpris`).
+  Forsiden har fået en værktøjssektion med elprisen lige nu (B63); den udgives sammen med
+  værktøjerne. Den uafhængige gennemgang fandt én blokerende fejl (flere samtidige kald til
+  Energinet ved kold start) og en række mindre; alle er rettet og står i
+  `docs/vaerktoejer.md` under "Rettet efter gennemgangen". En opfølgende gennemgang fandt ingen
+  blokerende fejl, men fem ting i endpointet og forsidens kort (ekstra kald til Energinet, halve
+  svar, afbrudt besøgende, kortets højde, manglende tests); de er rettet, og ti prøver med
+  rettelsen taget ud viser, at testene fanger hver af dem. Afprøvet 2026-11-14: alle tests,
+  bygget side og en rigtig browser (tal med tusindtegn afvises, eksempler, enhedens ur en
+  time forkert, forsidens kort). Kan først ses på den levende side: Cloudflares cache pr.
+  datacenter, gæt på prisområde ud fra den besøgendes sted, og om Energinet begrænser kald
+  fra Cloudflares adresser.
 
 ## Næste skridt
 

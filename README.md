@@ -16,6 +16,7 @@ overskueligt og driftssikkert smart home. Fokus er på:
 - **Home Assistant** - Installation, konfiguration og automationer
 - **ESP32/ESPHome** - DIY sensorer og enheder
 - **Produktguides** - Anbefalinger til smart home udstyr
+- **Værktøjer** - Elprisen lige nu og hvad et apparat koster i strøm (`/vaerktoejer/`)
 - **Lokal kontrol** - Løsninger der kan holde centrale funktioner i hjemmet
 - **International anvendelighed** - Generelle guides kræver ikke danske tjenester
 
@@ -232,6 +233,8 @@ Guidesidernes top, sidemenu og sidefod er beskrevet i `docs/designsystem.md` und
 Søgningen i sidens egne guides ligger i `functions/lib/site-search/` (søgning i Workeren) og `scripts/lib/site-index/` (bygning af indekset). Opbygning, fejlsøgning og fjernelse: [`docs/assistent.md`](docs/assistent.md).
 
 Det officielle bevismateriale ligger fortsat i `functions/lib/official-evidence.js`.
+
+Værktøjerne under `/vaerktoejer/` ligger i `src/components/tools/` og `src/lib/tools/`, og elprisværktøjets endpoint i `functions/api/elpris.js` og `functions/lib/elpris/`. Opbygning, nyt værktøj, fejlsøgning og fjernelse: [`docs/vaerktoejer.md`](docs/vaerktoejer.md).
 
 ---
 

@@ -51,6 +51,20 @@ can delete it with **New chat**, and it is normally cleared when the tab session
 ends. Do not enter passwords, API keys, tokens, private keys or sensitive
 personal data in the chat.
 
+### 2.4 The tools
+
+The electricity price tool gets the prices from our own server at Cloudflare, which gets them
+from Energinet. Your browser does not call Energinet, so Energinet does not see your IP
+address. When you open the tool, or when the electricity price card on the homepage comes
+into view, the server guesses your price area (West or East Denmark) from the region
+Cloudflare reports for your connection. If we do not know the region's code, the approximate
+place (longitude and latitude) that Cloudflare reports is used. The guess is not stored, and
+you can change the area in the tool.
+
+What you type into the tools (for example watts, hours and price) is calculated in your
+browser. It is not sent to us and is not stored. The only thing the electricity price tool
+sends is the price area you chose.
+
 ---
 
 ## 3. Why do we collect data?

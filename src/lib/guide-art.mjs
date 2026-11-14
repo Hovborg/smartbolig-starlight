@@ -54,10 +54,12 @@ export const GUIDE_ARTS = {
   },
 };
 
-/** First match wins. `null` means the page keeps its own picture. */
+/** First match wins. `null` means no picture of the house: the page has its own, or needs none. */
 const RULES = [
   // The news overview and each news issue have pictures of their own.
   [/^ai\/nyheder(\/|$)/, null],
+  // A tool page opens with the tool itself, so it has no picture above it.
+  [/^vaerktoejer\/./, null],
   [/^esp32(\/|$)/, "diy"],
   [/zigbee|z-wave|thread|matter|wifi|bluetooth|mqtt|proxy|fjernadgang|mcp/, "network"],
   [/energi|energy|elpris|elbil|solcelle|elmaaler|vaskemaskine|billige-timer/, "energy"],
@@ -90,6 +92,7 @@ const SECTIONS = {
   "home-assistant": { da: "Home Assistant", en: "Home Assistant" },
   esp32: { da: "ESP32 & ESPHome", en: "ESP32 & ESPHome" },
   automationer: { da: "Automationer", en: "Automations" },
+  vaerktoejer: { da: "Værktøjer", en: "Tools" },
   produkter: { da: "Produkter", en: "Products" },
   ai: { da: "AI", en: "AI" },
   sikkerhed: { da: "Sikkerhed", en: "Security" },

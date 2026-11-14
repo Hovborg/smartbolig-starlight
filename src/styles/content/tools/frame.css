@@ -1,0 +1,100 @@
+/*
+ * The card a tool sits in (ToolFrame.astro). It is a size container: the
+ * parts inside follow the card's width, not the window's, so a tool also
+ * fits a narrow column.
+ */
+.sb-tool {
+  container: sb-tool / inline-size;
+  display: grid;
+  gap: var(--sb-space-5);
+  margin-block: var(--sb-space-6);
+  padding: var(--sb-space-5) var(--sb-space-4) var(--sb-space-4);
+  border: 1px solid var(--sb-line);
+  border-radius: var(--sb-radius-lg);
+  /* A hairline in the brand colours along the top edge marks a tool. */
+  background: linear-gradient(90deg, var(--sb-brand-a), var(--sb-brand-b)) top / 100% 3px no-repeat var(--sb-surface);
+  box-shadow: var(--sb-shadow-md);
+  color: var(--sb-ink);
+  font-size: var(--sb-text-sm);
+  line-height: 1.5;
+}
+
+@media (min-width: 40rem) {
+  .sb-tool {
+    padding: var(--sb-space-6) var(--sb-space-5) var(--sb-space-5);
+  }
+}
+
+/* A part hidden with the hidden attribute stays hidden, whatever its layout. */
+.sb-tool [hidden] {
+  display: none;
+}
+
+.sb-tool__title {
+  margin: 0;
+  font-size: var(--sb-text-h4);
+  line-height: var(--sb-leading-tight);
+}
+
+.sb-tool__body,
+.sb-tool__form,
+.sb-tool__result,
+.sb-tool__more {
+  display: grid;
+  gap: var(--sb-space-5);
+  min-width: 0;
+}
+
+/* A hairline between the parts of a tool. */
+.sb-tool__body > * + *,
+.sb-tool__more > * + *,
+.sb-tool__note {
+  border-top: 1px solid var(--sb-line);
+  padding-top: var(--sb-space-5);
+}
+
+.sb-tool__note,
+.sb-tool__noscript {
+  margin: 0;
+  color: var(--sb-ink-subtle);
+  font-size: var(--sb-text-xs);
+}
+
+.sb-tool__note p {
+  margin: 0;
+}
+
+.sb-tool__note p + p {
+  margin-top: var(--sb-space-2);
+}
+
+.sb-tool a {
+  color: var(--sb-accent);
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, var(--sb-accent) 45%, transparent);
+  text-underline-offset: 0.2em;
+}
+
+.sb-tool a:hover {
+  color: var(--sb-accent-strong);
+  text-decoration-color: currentColor;
+}
+
+/* A tool that fetches data sets data-state on the card: "loading", "ready"
+   or "error". Parts that need the data are marked data-when="ready"; the
+   message shown instead is marked data-when="error". */
+.sb-tool[data-state="error"] :is(.sb-tool__more, [data-when="ready"]),
+.sb-tool:not([data-state="error"]) [data-when="error"] {
+  display: none;
+}
+
+.sb-tool[data-state="loading"] :is(.sb-tool__more, [data-when="ready"]) {
+  opacity: 0.55;
+}
+
+/* Without JavaScript the controls would do nothing, so only the text shows. */
+@media (scripting: none) {
+  .sb-tool__body {
+    display: none;
+  }
+}

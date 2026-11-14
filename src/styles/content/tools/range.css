@@ -1,0 +1,77 @@
+/* Slider: the label and the chosen value above, the track, and the ends of
+   the scale below. --fill is the share to the left of the thumb; it is set
+   by bindRange() in src/lib/tools/dom.mjs. */
+.sb-tool-range__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sb-space-3);
+}
+
+.sb-tool-range__value {
+  color: var(--sb-accent-strong);
+  font-size: var(--sb-text-base);
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.sb-tool-range {
+  --fill: 0%;
+  --track: linear-gradient(to right, var(--sb-accent) var(--fill), var(--sb-line-strong) var(--fill));
+  width: 100%;
+  height: 2.75rem;
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+  appearance: none;
+}
+
+.sb-tool-range::-webkit-slider-runnable-track {
+  height: 0.5rem;
+  border-radius: var(--sb-radius-pill);
+  background: var(--track);
+}
+
+.sb-tool-range::-moz-range-track {
+  height: 0.5rem;
+  border-radius: var(--sb-radius-pill);
+  background: var(--track);
+}
+
+.sb-tool-range::-webkit-slider-thumb {
+  width: 1.75rem;
+  height: 1.75rem;
+  /* Centres the thumb on the track: (track height - thumb height) / 2. */
+  margin-top: -0.625rem;
+  border: 3px solid var(--sb-surface);
+  border-radius: 50%;
+  background: var(--sb-accent);
+  box-shadow: var(--sb-shadow-sm), 0 0 0 1px var(--sb-accent);
+  appearance: none;
+}
+
+.sb-tool-range::-moz-range-thumb {
+  width: 1.375rem;
+  height: 1.375rem;
+  border: 3px solid var(--sb-surface);
+  border-radius: 50%;
+  background: var(--sb-accent);
+  box-shadow: var(--sb-shadow-sm), 0 0 0 1px var(--sb-accent);
+}
+
+.sb-tool-range:focus-visible {
+  outline: 3px solid var(--sb-accent);
+  outline-offset: 0;
+  border-radius: var(--sb-radius-pill);
+}
+
+/* The ends of the scale, right under the track. */
+.sb-tool-range__scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: calc(-1 * var(--sb-space-2));
+  color: var(--sb-ink-subtle);
+  font-size: var(--sb-text-xs);
+  font-variant-numeric: tabular-nums;
+}
