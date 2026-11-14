@@ -147,11 +147,11 @@ Sidst opdateret: 2026-11-14.
       har ingen `<title>`.
     - Den engelske ESP32-startguide viser hverken oversigten eller benoversigten; de findes kun
       på dansk.
-    - PIR-guiden bruger GPIO5, som er et strapping-ben (læses ved opstart). Det virker, men et
-      frit ben som GPIO13 er et renere valg; guide, kode og diagram skal i så fald ændres samlet.
-    - Raspberry Pi-guidens tabel nævner kun en 15 W strømforsyning, selvom guiden også dækker
-      Pi 5. Ikke kontrolleret mod Raspberry Pis egne oplysninger; diagrammet nævner ingen watt.
-    - Vaskemaskine-guiden skriver 500-2000 W i teksten og 100-2000 W i tabellen.
+    - Rettet i samme omgang: PIR-guiden, dens kode og diagram bruger nu GPIO13 (GPIO5 læses
+      ved opstart, og ESPHome advarer om det); Raspberry Pi-tabellen nævner 15 W til Pi 4 og
+      27 W til Pi 5 (Raspberry Pis dokumentation, "Recommended power supply", læst 2026-11-14);
+      vaskemaskine-guiden skriver 100-2000 W begge steder; overskriften "Wiring diagram" i tre
+      danske guider hedder "Ledningsdiagram".
     - Ikke set på en rigtig telefon, i Safari eller i Firefox.
   - Indtryk: emoji i tabelceller, emnekortene for automationer og produkter ligner hinanden,
     det store Home Assistant-kort har få detaljer, nyhedsartikler mangler brødkrumme, og

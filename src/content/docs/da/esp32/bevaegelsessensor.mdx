@@ -35,14 +35,14 @@ PIR sensorer er perfekte til at detektere bevægelse. Tænd lys automatisk, få 
 
 ## 🔌 Tilslutning
 
-### Wiring diagram
+### Ledningsdiagram
 
-![Ledningsdiagram: PIR-sensorens VCC går til 5V/VIN på ESP32, OUT til GPIO5 og GND til GND](../../../../assets/guides/bevaegelsessensor/wiring.svg)
+![Ledningsdiagram: PIR-sensorens VCC går til 5V/VIN på ESP32, OUT til GPIO13 og GND til GND](../../../../assets/guides/bevaegelsessensor/wiring.svg)
 
 <Steps>
 1. **Rød (VCC)** → ESP32 **5V** eller **VIN** pin
 
-2. **Gul (OUT/Signal)** → ESP32 **GPIO5**
+2. **Gul (OUT/Signal)** → ESP32 **GPIO13**
 
 3. **Sort (GND)** → ESP32 **GND**
 </Steps>
@@ -71,7 +71,7 @@ ota:
 # PIR Bevægelsessensor
 binary_sensor:
   - platform: gpio
-    pin: GPIO5
+    pin: GPIO13
     name: "Entré Bevægelse"
     device_class: motion
     filters:
@@ -207,7 +207,7 @@ automation:
 <Aside type="tip" title="Sensoren reagerer ikke?">
 - Tjek at VCC er 5V (ikke 3.3V)
 - Vent 60 sek efter opstart (kalibrering)
-- Tjek at OUT-ledningen sidder i GPIO5
+- Tjek at OUT-ledningen sidder i GPIO13
 - Test med `delayed_off` filter fjernet
 </Aside>
 

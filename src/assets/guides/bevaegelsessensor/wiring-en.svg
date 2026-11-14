@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 476" role="img" lang="en" font-family="system-ui, sans-serif">
   <title>HC-SR501 PIR sensor wired to an ESP32 with three wires</title>
-  <desc>VCC goes to 5V or VIN, OUT to GPIO5 and GND to GND. OUT gives a 3.3 V signal when the sensor sees motion.</desc>
+  <desc>VCC goes to 5V or VIN, OUT to GPIO13 and GND to GND. OUT gives a 3.3 V signal when the sensor sees motion.</desc>
   <defs><linearGradient id="sensor" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#065f46"/><stop offset="1" stop-color="#064e3b"/></linearGradient><linearGradient id="esp" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e3a5f"/><stop offset="1" stop-color="#0f172a"/></linearGradient></defs>
   <rect x="0" y="0" width="640" height="476" fill="#1a1a2e"/>
   <text x="320" y="46" font-size="26" fill="#e2e8f0" text-anchor="middle" font-weight="700">PIR sensor to ESP32: wiring</text>
@@ -20,7 +20,7 @@
   <rect x="394" y="159" width="92" height="34" rx="6" fill="#dc2626"/>
   <text x="440" y="182.3" font-size="18" fill="#ffffff" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">5V/VIN</text>
   <rect x="394" y="211" width="92" height="34" rx="6" fill="#facc15"/>
-  <text x="440" y="234.3" font-size="18" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">GPIO5</text>
+  <text x="440" y="234.3" font-size="18" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">GPIO13</text>
   <rect x="394" y="263" width="92" height="34" rx="6" fill="#111827" stroke="#9ca3af" stroke-width="1.5"/>
   <text x="440" y="286.3" font-size="18" fill="#ffffff" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">GND</text>
   <rect x="530" y="288" width="70" height="32" rx="5" fill="#374151" stroke="#6b7280" stroke-width="1.5"/>
@@ -36,11 +36,11 @@
   <circle cx="390" cy="280" r="5" fill="#9ca3af"/>
   <text x="96" y="310" font-size="18" fill="#d1fae5" text-anchor="middle">HC-SR501</text>
   <rect x="24" y="352" width="592" height="50" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
-  <path d="M83.2 377L113.2 377" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="121.2" y="383.3" font-size="18" fill="#e2e8f0">VCC → 5V/VIN</text>
-  <path d="M263.6 377L293.6 377" fill="none" stroke="#facc15" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="301.6" y="383.3" font-size="18" fill="#e2e8f0">OUT → GPIO5</text>
-  <path d="M434.5 377L464.5 377" fill="none" stroke="#9ca3af" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
-  <text x="472.5" y="383.3" font-size="18" fill="#e2e8f0">GND → GND</text>
+  <path d="M68.5 377L98.5 377" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="106.5" y="383.3" font-size="18" fill="#e2e8f0">VCC → 5V/VIN</text>
+  <path d="M247.5 377L277.5 377" fill="none" stroke="#facc15" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="285.5" y="383.3" font-size="18" fill="#e2e8f0">OUT → GPIO13</text>
+  <path d="M430.5 377L460.5 377" fill="none" stroke="#9ca3af" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="468.5" y="383.3" font-size="18" fill="#e2e8f0">GND → GND</text>
   <text x="320" y="444" font-size="18" fill="#a3b1c6" text-anchor="middle">OUT goes high (3.3 V) when the sensor sees motion.</text>
 </svg>
