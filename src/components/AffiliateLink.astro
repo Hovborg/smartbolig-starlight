@@ -39,58 +39,74 @@ const displayText = text || `${lang === 'en' ? 'Buy at' : 'Køb hos'} ${config.n
 </a>
 
 <style>
+  /* Starlight colours every link in page content. The first selector outranks
+     that rule; the second covers use outside page content. Each merchant sets
+     a text colour and a soft background from the same hue. */
+  .affiliate-link {
+    --affiliate-ink: var(--sb-accent-strong);
+    --affiliate-bg: var(--sb-accent-soft);
+  }
+
+  .affiliate-proshop {
+    --affiliate-ink: var(--sb-sky);
+    --affiliate-bg: var(--sb-sky-soft);
+  }
+
+  .affiliate-specialkamera {
+    --affiliate-ink: var(--sb-warm);
+    --affiliate-bg: var(--sb-warm-soft);
+  }
+
+  :global(.sl-markdown-content) .affiliate-link,
   .affiliate-link {
     display: inline-flex;
     flex-wrap: wrap;
     max-width: 100%;
     align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-    color: white;
+    gap: var(--sb-space-1) var(--sb-space-2);
+    padding: var(--sb-space-2) var(--sb-space-3);
+    border: 1px solid color-mix(in srgb, var(--affiliate-ink) 28%, transparent);
+    border-radius: var(--sb-radius-md);
+    background: var(--affiliate-bg);
+    color: var(--affiliate-ink);
+    font-size: var(--sb-text-sm);
+    font-weight: 650;
+    line-height: 1.35;
     text-decoration: none;
-    border-radius: 0.5rem;
-    font-weight: 500;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   }
 
   .affiliate-link:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    background: linear-gradient(135deg, #4338ca 0%, #6d28d9 100%);
+    border-color: var(--affiliate-ink);
+    box-shadow: var(--sb-shadow-sm);
   }
 
-  .affiliate-proshop {
-    background: linear-gradient(135deg, #00a0e3 0%, #0077b6 100%);
-  }
-
-  .affiliate-proshop:hover {
-    background: linear-gradient(135deg, #0077b6 0%, #005f8a 100%);
-  }
-
-  .affiliate-specialkamera {
-    background: linear-gradient(135deg, #e63946 0%, #c1121f 100%);
-  }
-
-  .affiliate-specialkamera:hover {
-    background: linear-gradient(135deg, #c1121f 0%, #9b1b30 100%);
+  .affiliate-link:focus-visible {
+    outline: 3px solid var(--sb-accent);
+    outline-offset: 2px;
   }
 
   .affiliate-icon {
-    font-size: 1.1rem;
+    font-size: var(--sb-text-base);
   }
 
   .affiliate-label {
-    font-size: 0.75rem;
-    font-weight: 400;
+    color: var(--sb-ink-muted);
+    font-size: var(--sb-text-xs);
+    font-weight: 500;
   }
 
   .affiliate-price {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 0.2rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 0.85rem;
+    padding: 0.1rem var(--sb-space-2);
+    border-radius: var(--sb-radius-sm);
+    background: var(--sb-surface);
+    color: var(--sb-ink-strong);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .affiliate-link {
+      transition:
+        border-color var(--sb-dur) var(--sb-ease),
+        box-shadow var(--sb-dur) var(--sb-ease);
+    }
   }
 </style>

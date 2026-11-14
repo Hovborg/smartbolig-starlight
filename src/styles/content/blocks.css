@@ -1,0 +1,117 @@
+/* Block elements inside guides: notes, tables, code, cards, tabs, badges. */
+
+/* --- Notes (asides) --------------------------------------------------- */
+.starlight-aside {
+  border: 1px solid color-mix(in srgb, var(--sl-color-asides-border) 35%, transparent);
+  border-inline-start: 4px solid var(--sl-color-asides-border);
+  border-radius: var(--sb-radius-md);
+  padding: 1rem 1.25rem;
+}
+
+.starlight-aside__title {
+  font-family: var(--sb-font-display);
+  font-size: var(--sb-text-base);
+  letter-spacing: -0.01em;
+}
+
+/* --- Tables: scroll sideways on phones instead of breaking the page ---- */
+.sl-markdown-content table:not(:where(.not-content *)) {
+  display: block;
+  overflow-x: auto;
+  border: 1px solid var(--sb-line);
+  border-radius: var(--sb-radius-md);
+  border-spacing: 0;
+  font-size: var(--sb-text-sm);
+}
+
+.sl-markdown-content :is(th, td):not(:where(.not-content *)) {
+  border-bottom: 1px solid var(--sb-line);
+  padding: 0.7rem 0.9rem;
+}
+
+.sl-markdown-content th:not(:where(.not-content *)) {
+  background: var(--sb-bg-subtle);
+  color: var(--sb-ink-strong);
+  font-weight: 650;
+  text-align: start;
+  white-space: nowrap;
+}
+
+.sl-markdown-content tr:last-child td:not(:where(.not-content *)) {
+  border-bottom: 0;
+}
+
+.sl-markdown-content tbody tr:nth-child(2n):not(:where(.not-content *)) {
+  background: color-mix(in srgb, var(--sb-bg-subtle) 55%, transparent);
+}
+
+/* --- Code blocks ------------------------------------------------------ */
+.expressive-code {
+  margin-block: 1.5rem;
+}
+
+.expressive-code .frame {
+  box-shadow: var(--sb-shadow-sm);
+}
+
+/* --- Cards ------------------------------------------------------------ */
+.sl-link-card,
+.card {
+  border-color: var(--sb-line);
+  border-radius: var(--sb-radius-lg);
+  background: var(--sb-surface);
+  box-shadow: var(--sb-shadow-sm);
+  transition: border-color var(--sb-dur) var(--sb-ease), transform var(--sb-dur) var(--sb-ease),
+    box-shadow var(--sb-dur) var(--sb-ease);
+}
+
+.sl-link-card:hover {
+  border-color: var(--sb-accent);
+  background: var(--sb-surface);
+  box-shadow: var(--sb-shadow-md);
+  transform: translateY(-2px);
+}
+
+.sl-link-card .title,
+.card .title {
+  font-family: var(--sb-font-display);
+  color: var(--sb-ink-strong);
+  letter-spacing: -0.01em;
+}
+
+.sl-link-card .description {
+  color: var(--sb-ink-muted);
+}
+
+/* --- Tabs and badges --------------------------------------------------- */
+starlight-tabs [role="tab"] {
+  font-weight: 600;
+}
+
+.sl-badge {
+  border-radius: var(--sb-radius-pill);
+  font-family: var(--sb-font-body);
+  font-weight: 650;
+}
+
+/* --- Buttons that guides use (Starlight's LinkButton) ------------------ */
+.sl-link-button {
+  border-radius: var(--sb-radius-pill);
+  font-weight: 650;
+  transition: transform var(--sb-dur-fast) var(--sb-ease), box-shadow var(--sb-dur) var(--sb-ease);
+}
+
+.sl-link-button.primary {
+  box-shadow: 0 8px 20px -10px var(--sb-accent);
+}
+
+.sl-link-button:hover {
+  transform: translateY(-1px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sl-link-card:hover,
+  .sl-link-button:hover {
+    transform: none;
+  }
+}

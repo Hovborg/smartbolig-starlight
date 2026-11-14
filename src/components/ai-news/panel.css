@@ -1,0 +1,24 @@
+/* Rules shared by the AI-news feed parts, written against the existing class
+   names. :where() keeps their specificity as low as a component's own scoped
+   rules, so those can still override them. */
+:where(.ai-news-feed) :is(.feed-header, .latest-card, .archive-panel, .story-digest, .source-panel) {
+  border: 1px solid var(--sb-line);
+  border-radius: var(--sb-radius-sm);
+  background: var(--sb-surface);
+  padding: clamp(1rem, 2vw, 1.5rem);
+}
+
+:where(.ai-news-feed) :is(.feed-eyebrow, .issue-meta) {
+  color: var(--sb-ink-muted);
+  font-size: var(--sb-text-sm);
+  font-weight: 700;
+  letter-spacing: 0;
+  margin: 0 0 0.5rem;
+}
+
+:where(.ai-news-feed) .issue-meta {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}

@@ -36,7 +36,7 @@ test('reduced motion starts still with an accessible explicit opt-in; pause and 
   assert.equal(h.state(), 'off'); assert.equal(h.control.hidden, false);
   assert.equal(h.button.textContent, 'Start');
   h.button.dispatchEvent(new Event('click'));
-  assert.equal(h.state(), 'on'); assert.equal(h.button.attributes['aria-pressed'], 'true');
+  assert.equal(h.state(), 'on'); assert.equal(h.button.textContent, 'Pause'); assert.equal(h.button.attributes['aria-pressed'], undefined);
   h.button.dispatchEvent(new Event('click')); assert.equal(h.state(), 'off');
   h.reset.dispatchEvent(new Event('click')); assert.equal(h.state(), 'off');
   h.media.matches = false; h.media.dispatchEvent(new Event('change')); assert.equal(h.state(), 'on');

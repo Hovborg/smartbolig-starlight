@@ -15,53 +15,91 @@ const showComments = !isSplashPage && !isLegalPage && !isIndexPage && !isUtility
 ---
 
 {showComments && (
-  <div class="giscus-wrapper">
+  <div class="giscus-wrapper" data-giscus-lang={locale}>
     <hr class="giscus-divider" />
     <h2 class="giscus-title">{title}</h2>
-    <script
-      src="https://giscus.app/client.js"
-      data-repo="Hovborg/smartbolig-starlight"
-      data-repo-id="R_kgDOQuqhoQ"
-      data-category="Comments"
-      data-category-id="DIC_kwDOQuqhoc4C0naS"
-      data-mapping="pathname"
-      data-strict="1"
-      data-reactions-enabled="1"
-      data-emit-metadata="0"
-      data-input-position="bottom"
-      data-theme="preferred_color_scheme"
-      data-lang={locale}
-      crossorigin="anonymous"
-      async
-    />
   </div>
 )}
 
+<script>
+  // The widget takes a theme name, so the client script is added here, after the
+  // site theme (data-theme on <html>, set before paint) is known, and the theme is
+  // pushed to the iframe with giscus' documented setConfig message on every change.
+  const wrapper = document.querySelector<HTMLElement>(".giscus-wrapper");
+  const GISCUS_ORIGIN = "https://giscus.app";
+
+  const currentTheme = () => (document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+
+  // The widget starts with the theme it was loaded with; a message is only
+  // needed when the site theme differs from what the widget last got. Nothing
+  // is sent (or counted as sent) before the widget has announced itself.
+  let widgetReady = false;
+  let sentTheme = currentTheme();
+  const sendTheme = () => {
+    const theme = currentTheme();
+    const frame = document.querySelector<HTMLIFrameElement>("iframe.giscus-frame");
+    if (!widgetReady || theme === sentTheme || !frame?.contentWindow) return;
+    frame.contentWindow.postMessage({ giscus: { setConfig: { theme } } }, GISCUS_ORIGIN);
+    sentTheme = theme;
+  };
+
+  if (wrapper) {
+    const client = document.createElement("script");
+    client.src = `${GISCUS_ORIGIN}/client.js`;
+    client.async = true;
+    client.crossOrigin = "anonymous";
+    client.dataset.repo = "Hovborg/smartbolig-starlight";
+    client.dataset.repoId = "R_kgDOQuqhoQ";
+    client.dataset.category = "Comments";
+    client.dataset.categoryId = "DIC_kwDOQuqhoc4C0naS";
+    client.dataset.mapping = "pathname";
+    client.dataset.strict = "1";
+    client.dataset.reactionsEnabled = "1";
+    client.dataset.emitMetadata = "0";
+    client.dataset.inputPosition = "bottom";
+    client.dataset.theme = currentTheme();
+    client.dataset.lang = wrapper.dataset.giscusLang ?? "da";
+    wrapper.append(client);
+
+    new MutationObserver(sendTheme).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-theme"],
+    });
+    // The widget announces itself when ready; sync in case the theme changed while it loaded.
+    window.addEventListener("message", (event) => {
+      if (event.origin === GISCUS_ORIGIN && event.data && typeof event.data === "object" && "giscus" in event.data) {
+        widgetReady = true;
+        sendTheme();
+      }
+    });
+  }
+</script>
+
 <style>
   .giscus-wrapper {
-    margin-top: 3rem;
-    padding-top: 1rem;
+    margin-top: var(--sb-space-7);
+    padding-top: var(--sb-space-4);
     width: 100%;
     max-width: 100%;
   }
 
   .giscus-divider {
     border: none;
-    border-top: 1px solid var(--sl-color-gray-5);
-    margin-bottom: 1.5rem;
+    border-top: 1px solid var(--sb-line);
+    margin-bottom: var(--sb-space-5);
   }
 
   .giscus-title {
-    font-size: 1.25rem;
+    font-size: var(--sb-text-h4);
     font-weight: 600;
-    margin-bottom: 1rem;
-    color: var(--sl-color-white);
+    margin-bottom: var(--sb-space-4);
+    color: var(--sb-ink-strong);
   }
 
   /* Make Giscus iframe full width */
   .giscus-wrapper :global(.giscus),
   .giscus-wrapper :global(.giscus-frame) {
-    width: 100% !important;
-    min-width: 100% !important;
+    width: 100%;
+    min-width: 100%;
   }
 </style>

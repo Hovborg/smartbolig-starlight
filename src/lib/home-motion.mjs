@@ -15,7 +15,7 @@ export function mountHomeMotion(win, doc, control) {
   const seen = new WeakSet();
   const visible = new Set();
   const stages = [...doc.querySelectorAll('[data-motion-stage]')];
-  const reveals = [...doc.querySelectorAll('.home-section__heading, .home-navigator__rows li, .home-news-row, .home-fieldguide__steps li, .home-featured__lead, .home-featured__list li, .home-trust__item, .home-closing, .home-hero__text > *')];
+  const reveals = [...doc.querySelectorAll('.home-section__heading, .home-navigator__rows li, .home-news-row, .home-fieldguide__steps li, .home-featured__lead, .home-featured__list li, .home-trust__item, .home-closing')];
   const reveal = (element) => {
     if (!enabled || doc.hidden || seen.has(element)) return;
     seen.add(element);
@@ -27,7 +27,6 @@ export function mountHomeMotion(win, doc, control) {
     if (!enabled || doc.hidden) reveals.forEach(element => element.classList.remove('home-reveal-play'));
     doc.documentElement.dataset.homeMotion = enabled && !doc.hidden ? 'on' : 'off';
     button.textContent = enabled ? control.dataset.pause : control.dataset.start;
-    button.setAttribute('aria-pressed', String(enabled));
     reset.hidden = preference === 'auto';
     status.textContent = preference === 'auto' ? control.dataset.system : control.dataset.manual;
     visible.forEach(reveal);

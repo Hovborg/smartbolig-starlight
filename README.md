@@ -196,9 +196,10 @@ src/content/docs/
 
 Sitets konfiguration ligger i `config/`, og `astro.config.mjs` er kun en tynd indgang, der samler delene:
 
-- `config/site.mjs`: site-URL, titel, logo, sprog og øvrige skalare Starlight-indstillinger.
+- `config/site.mjs`: site-URL, titel, sprog og øvrige skalare Starlight-indstillinger.
+- `config/fonts.mjs`: de to selvhostede skrifter.
 - `config/sidebar/`: sidebaren, én fil pr. hovedsektion (Home Assistant er delt i undermapper).
-- `config/head/`: `<head>`-tags, én fil pr. område (tema, social meta, samtykke, analytics, RSS, annoncer).
+- `config/head/`: `<head>`-tags, én fil pr. område (ikoner og temafarve, social meta, samtykke, analytics, RSS, annoncer).
 - `config/components.mjs`: Starlight-komponentoverrides.
 
 ---
@@ -290,32 +291,33 @@ Kør manuelt under Actions → AI News → Run workflow (`dry_run` udgiver intet
 
 ## 🧭 Portalstruktur
 
-Forsiden er en redaktionel "smart-home field guide" bygget af små komponenter
-under `src/components/home/`, orkestreret af `HomePortal.astro` og styret af den
-typede DA/EN copy-model i `src/lib/home-copy.ts`:
+Forsiden er bygget af små komponenter under `src/components/home/`, samlet af
+`HomePortal.astro`. Teksterne står i `src/lib/home-copy/da.ts` og `en.ts`
+(typer i `types.ts`), og stilreglerne i `src/styles/home/`:
 
-1. Hero med et animeret SVG-husdiagram, én primær CTA, emnemarkører og et responsivt AVIF/WebP-boligfoto
-2. De tre senest publicerede AI-nyheder lige under heroen, med billeder, datoer, arkiv og RSS; heroen linker også direkte til nyhedsarkivet
-3. Målnavigator med begynderspor til `/start/` og fem klikbare emnefelter med hver sin animerede SVG-scene (hjem, automation, ESP32, enheder og AI)
-4. Feltguide med en forbundet, vandret etaperute på computer og lodret forløb på mobil
-5. Udvalgte guides med elektronikfoto, SVG-illustration og separate guidekort
+1. Hero med "Et hus gennem et døgn": en SVG, hvor læseren vælger morgen, dag, aften eller nat og ser, hvilken regel der kører, og hvilke systemer den bruger. Én primær knap, emnemarkører og et responsivt AVIF/WebP-boligfoto
+2. De tre seneste AI-nyheder med billeder, datoer, arkiv og RSS
+3. Målnavigator med begynderspor til `/start/` og fem emnefelter med hver sin SVG-scene
+4. Feltguide med en vandret etaperute på computer og lodret forløb på mobil
+5. Udvalgte guides
 6. Trust-sektion med efterprøvelige links (kilder, privatliv, affiliate, rettelser)
-7. Afsluttende CTA, der ikke gentager startruten
+7. Afsluttende opfordring
 
-Forsiden arver Galaxy-temaets blå accenter, baggrund, Inter-skrifttype og både lys
-og mørk visning direkte fra guidernes CSS-variabler. Headeren har ingen særskilt
-forsidepalet. Den synlige Start/Pause-kontrol styrer SVG-scener, indgangsanimationer
-ved scrolling og hover-effekter samlet. Reduceret bevægelse respekteres som standard;
-brugerens eksplicitte valg kan starte animationer og gemmes lokalt under
-`smartbolig-motion-v1`. "Følg enheden" nulstiller dette valg. Scener uden for skærmen
-og skjulte faner sættes på pause. Diagrammerne er illustrationer, ikke live-data.
-Homepage-CSS er scoped til `.home-*` i `HomeStyles.astro`; de få tilpasninger
-af Starlight-rammen kræver `body:has(.home-portal)`, så guides beholder deres layout.
-`HomeMotionControls.astro` indlæser den lille controller `src/lib/home-motion.mjs`.
-Indholdet er stadig statisk og synligt uden JavaScript; ingen nye fonte eller
-afhængigheder. `HomeMotionStyles.astro` samler animationerne. Controllerens tilstande,
-reduced motion, utilgængeligt lager og oprydning kontrolleres i `site-motion.test.mjs`.
-Pagefind-søgning dækker fortsat guides og nyheder.
+Sådan hænger det sammen:
+
+- **Udseende:** forsiden bruger de samme designværdier som resten af siden
+  (`docs/designsystem.md`) og følger lyst og mørkt tema. Der står ingen farvekoder i
+  `src/styles/home/`; en test i `scripts/site-quality.test.mjs` afviser dem.
+- **Huset:** ren CSS (radioknapper, `:has()` og CSS-variabler i `scene.css`). Ingen
+  JavaScript. Uden `:has()` vises aftenen, og vælgeren skjules.
+- **Bevægelse:** `src/lib/home-motion.mjs` sætter `data-home-motion` på `<html>`.
+  Siden følger enhedens indstilling; knappen i husets fod starter eller standser
+  bevægelse, og valget gemmes lokalt under `smartbolig-motion-v1`. Scener uden for
+  skærmen og skjulte faner står stille. Reglerne ligger i `motion.css`, og
+  controlleren kontrolleres i `scripts/site-motion.test.mjs`.
+- **Uden JavaScript** er alt indhold synligt. Diagrammerne er illustrationer, ikke live-data.
+- De få tilpasninger af Starlights ramme kræver `body:has(.home-portal)`, så guides
+  beholder deres layout.
 
 Hero-masteren ligger under `src/assets/homepage/`. Generér de seks responsive
 AVIF/WebP-filer efter en ændring af masteren med:

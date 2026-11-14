@@ -1,25 +1,16 @@
 ---
 import Default from "@astrojs/starlight/components/Head.astro";
+import { Font, fontData } from "astro:assets";
+import { getAiNewsAssets } from "../lib/seo/ai-news";
+import { getPageDates } from "../lib/seo/dates";
+import { getPageKind } from "../lib/seo/page-kind";
+import { getRobotsContent, getTitleAndDescription } from "../lib/seo/page-text";
+import { buildSchemaJson } from "../lib/seo/schema-graph";
+import { applySocialMeta, type HeadEntry } from "../lib/seo/social-meta";
 
-type HeadEntry = {
-  tag: string;
-  attrs?: Record<string, string | boolean>;
-  content?: string;
-};
-
-const siteUrl = "https://smartbolig.net";
 const pathname = Astro.url.pathname;
-const pageUrl = new URL(pathname, siteUrl).href;
-const lang = pathname.startsWith("/en/") ? "en" : "da";
-const isNotFoundPage = /^\/(?:da\/|en\/)?404\/?$/.test(pathname);
-const defaultSocialImageUrl = `${siteUrl}/images/og-image.png`;
-const organizationLogoUrl = `${siteUrl}/brand/logo/logo-dark-1200x270.png`;
-const aiNewsSocialImageUrl = `${siteUrl}/images/ai-news-og.png`;
-const aiNewsSchemaImages = [
-  { url: `${siteUrl}/images/ai-news-og-16x9.png`, width: 1200, height: 675 },
-  { url: `${siteUrl}/images/ai-news-og-4x3.png`, width: 1200, height: 900 },
-  { url: `${siteUrl}/images/ai-news-og-1x1.png`, width: 1200, height: 1200 },
-];
+const kind = getPageKind(pathname);
+const { lang } = kind;
 
 let starlightRoute: typeof Astro.locals.starlightRoute | null = null;
 
@@ -32,352 +23,36 @@ try {
 // Get page data with fallbacks for 404 page and custom Starlight head props.
 const entry = Astro.props.entry || starlightRoute?.entry;
 const lastUpdated = Astro.props.lastUpdated || starlightRoute?.lastUpdated;
-const title = entry?.data?.title || (isNotFoundPage
-  ? lang === "da" ? "404 - Side ikke fundet" : "404 - Page not found"
-  : "SmartBolig.net");
-const description = entry?.data?.description || (isNotFoundPage
-  ? lang === "da"
-    ? "Siden blev ikke fundet. Find SmartBolig.net guides fra forsiden."
-    : "Page not found. Find SmartBolig.net guides from the homepage."
-  : "Dansk guide til smart home");
+const { title, description } = getTitleAndDescription(entry, lang, kind.isNotFoundPage);
+const { dateModified, datePublished } = getPageDates(entry, lastUpdated);
+const aiNews = getAiNewsAssets(entry, lang, kind.isAiNewsArticle);
+const robotsContent = getRobotsContent(kind.isNotFoundPage);
 
-const toIsoDate = (...values: unknown[]) => {
-  for (const value of values) {
-    if (!value || typeof value === "boolean") continue;
-    const date = new Date(value as string | number | Date);
-    if (!Number.isNaN(date.getTime())) return date.toISOString();
-  }
-  return null;
-};
-
-const languageCode = lang === "da" ? "da-DK" : "en-US";
-const openGraphLocale = lang === "da" ? "da_DK" : "en_US";
-const alternateOpenGraphLocale = lang === "da" ? "en_US" : "da_DK";
-const isAiNewsPage = /^\/(?:da|en)\/ai\/nyheder(?:\/|$)/.test(pathname);
-const isAiNewsArticle = /^\/(?:da|en)\/ai\/nyheder\/\d{4}-\d{2}-\d{2}\/?$/.test(pathname);
-const isAiNewsIndex = /^\/(?:da|en)\/ai\/nyheder\/?$/.test(pathname);
-const isHomePage = /^\/(?:da|en)\/?$/.test(pathname);
-const isStartPage = /^\/(?:da|en)\/start\/?$/.test(pathname);
-const isContactPage = /^\/(?:da|en)\/kontakt\/?$/.test(pathname);
-const isAboutPage = /^\/(?:da|en)\/om-os\/?$/.test(pathname);
-const isLegalPage = /^\/(?:da|en)\/(?:juridisk|kontakt|om-os)(?:\/|$)/.test(pathname);
-const isSectionIndex = /^\/(?:da|en)\/(?:ai|automationer|esp32|home-assistant|juridisk|produkter|sikkerhed)\/?$/.test(pathname)
-  || /^\/(?:da|en)\/ai\/ai-cli\/?$/.test(pathname);
-const shouldRenderArticleSchema = Boolean(entry?.data && !isHomePage && !isStartPage && !isSectionIndex && !isLegalPage && !isAiNewsIndex && !isNotFoundPage);
-const newsSources = Array.isArray(entry?.data?.news?.sources) ? entry.data.news.sources : [];
-const articleHeroImage = isAiNewsArticle ? entry?.data?.heroImage : null;
-const articleHeroImageSrc = typeof articleHeroImage?.src === "string" ? articleHeroImage.src : null;
-const articleHeroImageAlt = typeof articleHeroImage?.alt === "string" ? articleHeroImage.alt : null;
-const articleHeroImageUrl = articleHeroImageSrc ? new URL(articleHeroImageSrc, siteUrl).href : null;
-const articleHeroImageStem = articleHeroImageSrc?.replace(/\.[a-z0-9]+$/i, "");
-const articleHeroImageExt = articleHeroImageSrc?.match(/\.[a-z0-9]+$/i)?.[0] || "";
-const articleAiNewsSchemaImages = articleHeroImageUrl && articleHeroImageStem && articleHeroImageExt
-  ? [
-      { url: articleHeroImageUrl, width: 1200, height: 630 },
-      { url: `${siteUrl}${articleHeroImageStem}-16x9${articleHeroImageExt}`, width: 1200, height: 675 },
-      { url: `${siteUrl}${articleHeroImageStem}-4x3${articleHeroImageExt}`, width: 1200, height: 900 },
-      { url: `${siteUrl}${articleHeroImageStem}-1x1${articleHeroImageExt}`, width: 1200, height: 1200 },
-    ]
-  : null;
-const activeAiNewsSocialImageUrl = articleHeroImageUrl || aiNewsSocialImageUrl;
-const activeAiNewsSchemaImages = articleAiNewsSchemaImages || aiNewsSchemaImages;
-const activeAiNewsImageAlt = articleHeroImageAlt || (lang === "da" ? "SmartBolig.net AI-nyheder" : "SmartBolig.net AI News");
-const socialImageAlt = lang === "da"
-  ? "SmartBolig.net — dansk guide til smart home med Home Assistant og ESP32"
-  : "SmartBolig.net — smart home guides for Home Assistant and ESP32";
-const robotsContent = isNotFoundPage
-  ? "noindex, nofollow"
-  : "max-image-preview:large, max-snippet:-1, max-video-preview:-1";
-const defaultLanguagePath = pathname.startsWith("/en/") ? pathname.replace(/^\/en\//, "/da/") : pathname;
-const defaultLanguageUrl = new URL(defaultLanguagePath, siteUrl).href;
-const dateModified = toIsoDate(entry?.data?.updated, entry?.data?.lastUpdated, lastUpdated, entry?.data?.date);
-// Prefer a real date; never fabricate one. Falls back to the git-derived
-// modified date, and is omitted from schema entirely when nothing is known
-// (JSON.stringify drops undefined values).
-const datePublished =
-  toIsoDate(entry?.data?.date, entry?.data?.lastUpdated, lastUpdated) || dateModified || undefined;
-const aiNewsRssHref = lang === "da" ? `${siteUrl}/da/ai/nyheder/rss.xml` : `${siteUrl}/en/ai/news/rss.xml`;
-
-const starlightHead = (starlightRoute?.head ?? []) as HeadEntry[];
-
-const upsertMeta = (key: "name" | "property", value: string, content: string | null) => {
-  if (!content) return;
-  const existing = starlightHead.find((item) => item.tag === "meta" && item.attrs?.[key] === value);
-  if (existing?.attrs) {
-    existing.attrs.content = content;
-  } else {
-    starlightHead.push({ tag: "meta", attrs: { [key]: value, content } });
-  }
-};
-
-const addLink = (attrs: Record<string, string>) => {
-  const exists = starlightHead.some(
-    (item) =>
-      item.tag === "link" &&
-      item.attrs?.rel === attrs.rel &&
-      item.attrs?.href === attrs.href &&
-      item.attrs?.hreflang === attrs.hreflang &&
-      item.attrs?.type === attrs.type
-  );
-  if (!exists) starlightHead.push({ tag: "link", attrs });
-};
-
-if (entry?.data || isNotFoundPage) {
-  upsertMeta("name", "description", description);
-  upsertMeta("property", "og:description", description);
-  upsertMeta("property", "og:type", isHomePage || isStartPage || isAiNewsIndex || isNotFoundPage ? "website" : "article");
-  upsertMeta("property", "og:locale", openGraphLocale);
-  upsertMeta("property", "og:locale:alternate", alternateOpenGraphLocale);
-  upsertMeta("property", "og:image:alt", socialImageAlt);
-  upsertMeta("name", "twitter:title", title);
-  upsertMeta("name", "twitter:description", description);
-  upsertMeta("name", "twitter:image:alt", socialImageAlt);
-}
-
-if (isAiNewsPage) {
-  upsertMeta("property", "og:image", activeAiNewsSocialImageUrl);
-  upsertMeta("property", "og:image:width", "1200");
-  upsertMeta("property", "og:image:height", "630");
-  upsertMeta("property", "og:image:alt", activeAiNewsImageAlt);
-  upsertMeta("name", "twitter:image", activeAiNewsSocialImageUrl);
-  upsertMeta("name", "twitter:image:alt", activeAiNewsImageAlt);
-  addLink({
-    rel: "alternate",
-    type: "application/rss+xml",
-    title: lang === "da" ? "SmartBolig.net AI-nyheder" : "SmartBolig.net AI News",
-    href: aiNewsRssHref,
-  });
-}
-
-// NOTE: Starlight already emits the full hreflang set (da / en / x-default)
-// for localized pages, so we do not add another x-default here — a duplicate
-// x-default is malformed and can make Google ignore the whole alternate set.
-
-if (isAiNewsArticle) {
-  upsertMeta("property", "article:published_time", datePublished);
-  upsertMeta("property", "article:modified_time", dateModified || datePublished);
-  upsertMeta("property", "article:section", "AI News");
-}
-
-// Organization Schema (appears on all pages)
-const organizationSchema = {
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "@id": `${siteUrl}/#organization`,
-  name: "SmartBolig.net",
-  url: siteUrl,
-  logo: {
-    "@type": "ImageObject",
-    url: organizationLogoUrl,
-    width: 1200,
-    height: 270
-  },
-  description: lang === "da" 
-    ? "Dansk guide til smart home med Home Assistant, ESP32 og Zigbee"
-    : "Danish smart home guide with Home Assistant, ESP32 and Zigbee",
-  sameAs: [
-    "https://github.com/Hovborg/smartbolig-starlight"
-  ]
-};
-
-// WebSite Schema
-// Note: no SearchAction — site search is client-side (Pagefind), so there is
-// no URL-queryable search endpoint a SearchAction could legitimately point to.
-const websiteSchema = {
-  "@context": "https://schema.org",
-  "@type": "WebSite",
-  "@id": `${siteUrl}/#website`,
-  name: "SmartBolig.net",
-  url: siteUrl,
-  publisher: {
-    "@id": `${siteUrl}/#organization`
-  },
-  // The site entity itself is bilingual regardless of which page is rendered.
-  inLanguage: ["da-DK", "en-US"]
-};
-
-const pathParts = pathname.split('/').filter(Boolean);
-const localizedPathParts = pathParts[0] === "da" || pathParts[0] === "en" ? pathParts.slice(1) : pathParts;
-const breadcrumbLabels: Record<string, Record<string, string>> = {
-  da: {
-    ai: "AI",
-    "ai-cli": "AI CLI'er",
-    nyheder: "AI-nyheder",
-    automationer: "Automationer",
-    esp32: "ESP32",
-    "home-assistant": "Home Assistant",
-    juridisk: "Juridisk",
-    produkter: "Produkter",
-    sikkerhed: "Sikkerhed",
-    start: "Start her",
-    kontakt: "Kontakt",
-    "om-os": "Om SmartBolig.net",
-  },
-  en: {
-    ai: "AI",
-    "ai-cli": "AI CLIs",
-    nyheder: "AI News",
-    automationer: "Automations",
-    esp32: "ESP32",
-    "home-assistant": "Home Assistant",
-    juridisk: "Legal",
-    produkter: "Products",
-    sikkerhed: "Security",
-    start: "Start here",
-    kontakt: "Contact",
-    "om-os": "About SmartBolig.net",
-  },
-};
-const formatBreadcrumbPart = (part: string) =>
-  breadcrumbLabels[lang]?.[part] || part.replace(/-/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
-
-// BreadcrumbList Schema for navigation
-const breadcrumbItems = [
-  {
-    "@type": "ListItem",
-    position: 1,
-    name: lang === "da" ? "Forside" : "Home",
-    item: `${siteUrl}/${lang}/`,
-  },
-  ...localizedPathParts.map((part, index) => {
-    const path = `/${[lang, ...localizedPathParts.slice(0, index + 1)].join("/")}/`;
-    const isLast = index === localizedPathParts.length - 1;
-    const name = isLast
-      ? isStartPage ? breadcrumbLabels[lang]?.start || title : title
-      : formatBreadcrumbPart(part);
-
-    return {
-      "@type": "ListItem",
-      position: index + 2,
-      name,
-      item: `${siteUrl}${path}`
-    };
-  })
-];
-
-// Keep the homepage breadcrumb (just "Forside"/"Home") — the site's own
-// seo-validate.mjs requires the breadcrumb home label to be present.
-const breadcrumbSchema = breadcrumbItems.length > 0 ? {
-  "@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  itemListElement: breadcrumbItems
-} : null;
-
-const webPageType = isAiNewsIndex || isSectionIndex
-  ? "CollectionPage"
-  : isContactPage
-    ? "ContactPage"
-    : isAboutPage
-      ? "AboutPage"
-      : "WebPage";
-
-const defaultSchemaImage = {
-  "@type": "ImageObject",
-  url: defaultSocialImageUrl,
-  width: 1200,
-  height: 630
-};
-
-const webPageSchema = entry?.data || isNotFoundPage ? {
-  "@context": "https://schema.org",
-  "@type": webPageType,
-  "@id": `${pageUrl}#webpage`,
-  name: title,
+// Mutates Starlight's head list before <Default> renders it.
+applySocialMeta({
+  head: (starlightRoute?.head ?? []) as HeadEntry[],
+  kind,
+  entry,
+  title,
   description,
-  url: pageUrl,
-  inLanguage: languageCode,
-  dateModified: dateModified || datePublished,
-  isPartOf: {
-    "@id": `${siteUrl}/#website`
-  },
-  publisher: {
-    "@id": `${siteUrl}/#organization`
-  },
-  image: isAiNewsPage
-    ? activeAiNewsSchemaImages.map((image) => ({
-        "@type": "ImageObject",
-        ...image,
-      }))
-    : defaultSchemaImage,
-  ...(isAiNewsIndex && {
-    mainEntity: {
-      "@type": "DataFeed",
-      name: lang === "da" ? "SmartBolig.net AI-nyheder" : "SmartBolig.net AI News",
-      url: aiNewsRssHref,
-    },
-  }),
-} : null;
+  aiNews,
+  dateModified,
+  datePublished,
+});
 
-const aiNewsKeywords = lang === "da"
-  ? ["AI-nyheder", "OpenAI Codex", "Claude Code", "Gemini CLI", "AI CLI", "API-priser"]
-  : ["AI News", "OpenAI Codex", "Claude Code", "Gemini CLI", "AI CLI", "API pricing"];
+const combinedSchemaJson = buildSchemaJson({ pathname, entry, lastUpdated, aiNews });
 
-const articleSchema = shouldRenderArticleSchema ? {
-  "@context": "https://schema.org",
-  "@type": isAiNewsArticle ? "NewsArticle" : "TechArticle",
-  "@id": `${pageUrl}#article`,
-  headline: title,
-  description: description,
-  url: pageUrl,
-  inLanguage: languageCode,
-  datePublished: datePublished,
-  dateModified: dateModified || datePublished,
-  ...(isAiNewsArticle && {
-    articleSection: "AI News",
-    keywords: aiNewsKeywords,
-    genre: "AI news briefing",
-    isAccessibleForFree: true,
-  }),
-  ...(newsSources.length > 0 && {
-    citation: newsSources.map((url: string) => ({
-      "@type": "CreativeWork",
-      url,
-    })),
-  }),
-  isPartOf: {
-    "@id": `${siteUrl}/#website`
-  },
-  author: {
-    "@id": `${siteUrl}/#organization`
-  },
-  publisher: {
-    "@id": `${siteUrl}/#organization`
-  },
-  image: isAiNewsArticle
-    ? activeAiNewsSchemaImages.map((image) => ({
-        "@type": "ImageObject",
-        ...image,
-      }))
-    : defaultSchemaImage,
-  mainEntityOfPage: {
-    "@id": `${pageUrl}#webpage`
-  }
-} : null;
-
-// Combine all schemas
-const graphItems = [organizationSchema, websiteSchema];
-if (webPageSchema) {
-  graphItems.push(webPageSchema);
-}
-if (breadcrumbSchema) {
-  graphItems.push(breadcrumbSchema);
-}
-if (articleSchema) {
-  graphItems.push(articleSchema);
-}
-
-const combinedSchema = {
-  "@context": "https://schema.org",
-  "@graph": graphItems
-};
-
-// Escape "<" as the unicode sequence < so content that flows in from
-// external sources (e.g. AI-news source URLs) can never break out of the
-// JSON-LD <script> block. JSON.stringify does NOT escape "</script>" on its own.
-const combinedSchemaJson = JSON.stringify(combinedSchema).replace(/</g, "\\u003c");
+const latinFontUrls = ["--font-body", "--font-display"]
+  .map((cssVariable) => fontData[cssVariable as keyof typeof fontData]?.[0]?.src[0]?.url)
+  .filter((url): url is string => Boolean(url));
 ---
-
 <Default {...Astro.props} />
+
+<!-- Self-hosted fonts (config/fonts.mjs). Only the Latin file of each family is
+     preloaded: it is the first variant, and it covers Danish and English. -->
+{latinFontUrls.map((href) => <link rel="preload" as="font" type="font/woff2" href={href} crossorigin />)}
+<Font cssVariable="--font-body" />
+<Font cssVariable="--font-display" />
 
 <!-- Content Protection Meta Tags -->
 <meta name="robots" content={robotsContent} />
@@ -396,11 +71,3 @@ const combinedSchemaJson = JSON.stringify(combinedSchema).replace(/</g, "\\u003c
     document.cookie = "preferred-lang=" + lang + ";path=/;max-age=31536000;SameSite=Lax";
   } catch (e) {}
 </script>
-
-<style is:global>
-  /* Starlight's LinkCard description defaults to --sl-color-gray-3, which is
-     too dim against the dark card background. Lift it one step. */
-  .sl-link-card .description {
-    color: var(--sl-color-gray-2) !important;
-  }
-</style>

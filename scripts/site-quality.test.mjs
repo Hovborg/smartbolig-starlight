@@ -12,6 +12,12 @@ const readSidebarConfig = async (dir = "config/sidebar") => {
   return parts.join("\n");
 };
 
+// Homepage styles live in src/styles/home/ (one file per area); concatenate them all.
+const readHomeStyles = async () => {
+  const names = (await readdir(new URL("../src/styles/home/", import.meta.url))).filter((name) => name.endsWith(".css")).sort();
+  return (await Promise.all(names.map((name) => read(`src/styles/home/${name}`)))).join("\n");
+};
+
 const HOME_COMPONENTS = [
   "src/components/home/HomeHero.astro",
   "src/components/home/HomeNetworkScene.astro",
@@ -143,7 +149,7 @@ test("hero takes an explicit locale, owns the homepage h1 and keeps the responsi
   assert.match(hero, /width="1440"/);
   assert.match(hero, /height="810"/);
   assert.match(hero, /loading="eager"/);
-  assert.match(hero, /fetchpriority="high"/);
+  assert.doesNotMatch(hero, /fetchpriority/, "the thumbnail is not the LCP element");
   assert.match(hero, /decoding="async"/);
   const skipLink = await read("src/components/SkipLink.astro");
   assert.match(skipLink, /href=["']#_top["']/);
@@ -162,7 +168,7 @@ test("homepage keeps one number series and neutralises theme list counters", asy
   const [navigatorSource, fieldGuide, styles] = await Promise.all([
     read("src/components/home/HomeGoalNavigator.astro"),
     read("src/components/home/HomeFieldGuide.astro"),
-    read("src/components/HomeStyles.astro"),
+    readHomeStyles(),
   ]);
   assert.doesNotMatch(navigatorSource, /"0[0-9]"|__number/, "navigator rows must not carry a competing number series");
   assert.match(fieldGuide, /<ol/);
@@ -248,7 +254,7 @@ test("homepage keeps a single main landmark and a visible skip-link target", asy
     read("src/components/HomePortal.astro"),
     read("src/components/PageTitle.astro"),
     read("src/components/ThemeSelect.astro"),
-    read("src/components/HomeStyles.astro"),
+    readHomeStyles(),
     read("config/components.mjs"),
   ]);
   assert.doesNotMatch(portal, /<\/?main\b/);
@@ -260,7 +266,10 @@ test("homepage keeps a single main landmark and a visible skip-link target", asy
   assert.match(config, /PageTitle:\s*["']\.\/src\/components\/PageTitle\.astro["']/);
   assert.match(themeSelect, /aria-label=\{label\}/);
   assert.match(config, /ThemeSelect:\s*["']\.\/src\/components\/ThemeSelect\.astro["']/);
-  assert.match(styles, /--home-bg:\s*var\(--sl-color-bg\)/, 'homepage must inherit the active guide theme');
+  assert.match(styles, /var\(--sb-bg-subtle\)/, "homepage must use the design tokens, which follow the active theme");
+  assert.match(styles, /var\(--sb-ink-strong\)/, "homepage must use the design tokens, which follow the active theme");
+  assert.doesNotMatch(styles, /#[0-9a-f]{3,8}\b|\b(?:rgba?|hsla?|oklch|oklab)\(/i, "homepage styles must not hard-code colours");
+  assert.doesNotMatch(styles, /--sl-color-|--home-(?:bg|panel|line|text|muted|accent)\b/, "homepage must not keep its own colour aliases");
 });
 
 test("start pages have matching six-step journeys", async () => {
@@ -480,9 +489,11 @@ test("Astro renders the guides' GitHub-flavoured Markdown tables", async () => {
 });
 
 test("head metadata treats start pages as pages and preserves AI news schema", async () => {
-  const head = await read("src/components/Head.astro");
-  assert.match(head, /const isStartPage =/);
-  assert.match(head, /!isStartPage/);
+  // Head.astro is a thin component; the page-type and schema logic lives in src/lib/seo/.
+  const seoFiles = (await readdir(new URL("../src/lib/seo/", import.meta.url))).filter((name) => name.endsWith(".ts")).sort();
+  const head = (await Promise.all(["src/components/Head.astro", ...seoFiles.map((name) => `src/lib/seo/${name}`)].map(read))).join("\n");
+  assert.match(head, /isStartPage:\s*\//);
+  assert.match(head, /!kind\.isStartPage/);
   assert.doesNotMatch(head, /rel="preload"\s+as="image"/);
   for (const invariant of ["NewsArticle", "citation", "datePublished", "aiNewsRssHref"]) {
     assert.ok(head.includes(invariant), `missing AI news schema invariant: ${invariant}`);

@@ -1,74 +1,77 @@
 ---
-import { logos } from 'virtual:starlight/user-images';
-import config from 'virtual:starlight/user-config';
-const { siteTitle, siteTitleHref } = Astro.locals.starlightRoute;
+// Logo: the house mark plus the name as live text, so it is sharp at any size
+// and follows the light and dark theme through the colour tokens.
+const { siteTitleHref } = Astro.locals.starlightRoute;
+const label = Astro.currentLocale === "en" ? "SmartBolig.net, front page" : "SmartBolig.net, forside";
 ---
 
-<a href={siteTitleHref} class="site-title sl-flex">
-	{
-		config.logo && logos.dark && (
-			<>
-				<img
-					class:list={{ 'light:sl-hidden print:hidden': !('src' in config.logo) }}
-					alt={config.logo.alt}
-					src={logos.dark.src}
-					width={logos.dark.width}
-					height={logos.dark.height}
-				/>
-				{/* Show light alternate if a user configure both light and dark logos. */}
-				{!('src' in config.logo) && (
-					<img
-						class="dark:sl-hidden print:block"
-						alt={config.logo.alt}
-						src={logos.light?.src}
-						width={logos.light?.width}
-						height={logos.light?.height}
-					/>
-				)}
-			</>
-		)
-	}
-	<span class:list={{ 'sr-only': config.logo?.replacesTitle }} translate="no">
-		{siteTitle}
-	</span>
+<a href={siteTitleHref} class="sb-logo" aria-label={label}>
+  <svg class="sb-logo__mark" viewBox="0 0 32 32" width="34" height="34" aria-hidden="true">
+    <rect class="tile" width="32" height="32" rx="9.5"></rect>
+    <path class="line" d="M7.5 15.4 16 8l8.5 7.4"></path>
+    <path class="line" d="M10 14.2V22a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-7.8"></path>
+    <circle class="dot" cx="16" cy="18.7" r="2.1"></circle>
+  </svg>
+  <span class="sb-logo__word" translate="no">Smart<span class="bolig">Bolig</span><span class="tld">.net</span></span>
 </a>
 
 <style>
-	.site-title {
-		align-items: center;
-		gap: var(--sl-nav-gap);
-		font-size: var(--sl-text-h4);
-		font-weight: 600;
-		color: var(--sl-color-text-accent);
-		text-decoration: none;
-		white-space: nowrap;
-		min-width: 0;
-	}
-	span {
-		overflow: hidden;
-	}
-	img {
-		/* Bigger logo */
-		height: 4rem !important;
-		width: auto !important;
-		max-width: none !important;
-		max-height: none !important;
-		object-fit: contain;
-		object-position: 0 50%;
-	}
-	/* The logo is a full wordmark (800x180 SVG with "SmartBolig.net" baked in).
-	   On narrow screens the fixed 4rem height makes it ~284px wide, which gets
-	   clipped mid-word by the header controls. Let it shrink instead. */
-	@media (max-width: 50rem) {
-		img {
-			height: 3.25rem !important;
-			max-width: 100% !important;
-			min-width: 0;
-		}
-	}
-	@media (max-width: 26rem) {
-		img {
-			height: 2.75rem !important;
-		}
-	}
+  .sb-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--sb-ink-strong);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .sb-logo__mark {
+    flex: none;
+    transition: transform var(--sb-dur) var(--sb-ease);
+  }
+  .sb-logo:hover .sb-logo__mark {
+    transform: rotate(-6deg) scale(1.05);
+  }
+  .tile {
+    fill: var(--sb-accent);
+  }
+  .line {
+    fill: none;
+    stroke: var(--sb-on-accent);
+    stroke-width: 2.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .dot {
+    fill: var(--sb-on-accent);
+  }
+  .sb-logo__word {
+    font-family: var(--sb-font-display);
+    font-size: 1.3rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+  }
+  .bolig {
+    color: var(--sb-accent);
+  }
+  .tld {
+    color: var(--sb-ink-subtle);
+    font-size: 0.72em;
+    font-weight: 500;
+    letter-spacing: 0;
+  }
+  @media (max-width: 27rem) {
+    .tld {
+      display: none;
+    }
+  }
+  @media (max-width: 22.5rem) {
+    .sb-logo__word {
+      display: none;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .sb-logo:hover .sb-logo__mark {
+      transform: none;
+    }
+  }
 </style>

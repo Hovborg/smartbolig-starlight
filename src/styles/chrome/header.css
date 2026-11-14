@@ -1,0 +1,84 @@
+/* The fixed top bar that Starlight's PageFrame renders around our Header. */
+.page > header.header {
+  border-bottom: 1px solid transparent;
+  background: var(--sb-bg);
+  background: color-mix(in srgb, var(--sb-bg) 80%, transparent);
+  -webkit-backdrop-filter: saturate(1.5) blur(16px);
+  backdrop-filter: saturate(1.5) blur(16px);
+  transition: border-color var(--sb-dur) var(--sb-ease), box-shadow var(--sb-dur) var(--sb-ease);
+}
+
+/* Once the page has scrolled, the bar gets a hairline so it reads as a layer.
+   Scroll-driven, so it needs no script; older browsers always show the line. */
+@supports not (animation-timeline: scroll()) {
+  .page > header.header {
+    border-bottom-color: var(--sb-line);
+  }
+}
+
+@supports (animation-timeline: scroll()) {
+  .page > header.header {
+    animation: sb-header-line linear both;
+    animation-timeline: scroll(root block);
+    animation-range: 0 4rem;
+  }
+
+  @keyframes sb-header-line {
+    to {
+      border-bottom-color: var(--sb-line);
+      box-shadow: var(--sb-shadow-sm);
+    }
+  }
+}
+
+/* Search button: a quiet pill instead of a boxed input. */
+site-search > button[data-open-modal] {
+  border-radius: var(--sb-radius-pill);
+  border-color: var(--sb-line);
+  background: var(--sb-surface);
+  color: var(--sb-ink-subtle);
+  box-shadow: var(--sb-shadow-sm);
+  transition: border-color var(--sb-dur-fast) var(--sb-ease), color var(--sb-dur-fast) var(--sb-ease);
+}
+
+site-search > button[data-open-modal]:hover {
+  border-color: var(--sb-accent);
+  color: var(--sb-ink);
+}
+
+site-search > button[data-open-modal] kbd {
+  border-radius: var(--sb-radius-pill);
+  background: var(--sb-bg-subtle);
+}
+
+/* Search dialog. */
+site-search dialog {
+  border-color: var(--sb-line);
+  background: var(--sb-surface);
+  box-shadow: var(--sb-shadow-lg);
+}
+
+@media (min-width: 50rem) {
+  site-search dialog {
+    border-radius: var(--sb-radius-lg);
+  }
+}
+
+/* Language picker in the header. */
+starlight-lang-select select {
+  font-size: var(--sb-text-sm);
+}
+
+/* Mobile menu button. */
+starlight-menu-button button {
+  border-radius: var(--sb-radius-pill);
+  background: var(--sb-surface);
+  color: var(--sb-ink);
+  box-shadow: var(--sb-shadow-sm), inset 0 0 0 1px var(--sb-line);
+}
+
+starlight-menu-button[aria-expanded="true"] button {
+  background: var(--sb-accent);
+  color: var(--sb-on-accent);
+  box-shadow: none;
+}

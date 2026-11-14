@@ -19,21 +19,31 @@ Sidst opdateret: 2026-11-14.
   `docs/nyhedsflow.md`. Den tidligere Windows-opgave er slået fra.
 - **Fase 3, gennemgang af guides:** PR #173–#177 flettet og udgivet 2026-11-13.
   Logge og åbne punkter: `docs/redesign/guide-review/`.
+- **Fase 1, oprydning:** PR #181 flettet og udgivet 2026-11-14. De gamle kørsler (Windows,
+  systemd, OpenClaw) og ComfyUI-sporet er fjernet; GitHub Actions er eneste udgivelsesvej.
+  PR #170, #169, #166, #165 og #147 er lukket som forældede.
 
 ## I gang
 
-- **Fase 1, oprydning:** grenen `chore/news-cleanup` fjerner Windows- og Linux-runnerne, deres
-  tests og ComfyUI-sporet. Uafhængigt gennemgået 2026-11-14.
 - **Fase 2, design:** PR #180 (grenen `redesign/theme`). Designværdier, mørkt tema som standard,
   egen topbjælke, forside med "et hus gennem et døgn", 404, nyhedsoversigt, produktkort, FAQ,
-  kommentarer, sidefod, AI-assistent, ny brandpakke. Under uafhængig gennemgang.
+  kommentarer, sidefod, AI-assistent, ny brandpakke, printregler. To uafhængige gennemgange
+  (kode og tilgængelighed) gav ingen blokerende fund; alle kodefund og tilgængelighedspunkt 1-13
+  er rettet. `main` er flettet ind 2026-11-14.
 
 ## Næste skridt
 
-1. Flet oprydnings-PR'en. Luk PR #170, #169, #147, #166 og #165 (forældede).
-2. Udgiv designet (PR #180) efter gennemgang. Mål Lighthouse igen og sammenlign med før-målingen.
-3. Fase 3: nye guides og illustrationer. Fase 4: smarte funktioner. Fase 5: SEO, CSP, indtjening.
+1. Udgiv designet (PR #180). Kontrollér den levende side i mørkt og lyst ved 375 og 1440 px.
+   Mål Lighthouse igen og sammenlign med før-målingen.
+2. Fase 3: nye guides og illustrationer. Fase 4: smarte funktioner. Fase 5: SEO, CSP, indtjening.
    Fase 6: Search Console, Bing, Cloudflare, uafhængig sidevagt. Fase 7: dokumentation og docs-test.
-4. Følg tre dages nyhedsdrift (planlagte kørsler kl. 04:37 og 11:37 UTC; kan ikke bekræftes samme dag).
+3. Følg tre dages nyhedsdrift (planlagte kørsler kl. 04:37 og 11:37 UTC; kan ikke bekræftes samme dag).
+
+## Udskudt fra designgennemgangen
+
+- Nyhedsoversigtens små billeder hentes i 1200 px; en 640 px-udgave med `srcset` hører til fase 5.
+- 404-siden forhåndsindlæser ikke skrifterne.
+- `--sb-ink-subtle` på sidens baggrundsvask giver 4,48:1 i lyst tema (lige under 4,5:1).
+- Ikke set i en browser: reduceret bevægelse, tvungne farver, forsiden ved ca. 800 px.
 
 Ting, der kræver ejeren, står i TIL-EJEREN.md.

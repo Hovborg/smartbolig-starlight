@@ -1,0 +1,133 @@
+---
+// Panel header: brand, title and the new-chat and close buttons.
+import type { AssistantCopy } from '../../lib/assistant-copy';
+import CoreChip from './CoreChip.astro';
+
+interface Props {
+  t: AssistantCopy;
+}
+
+const { t } = Astro.props;
+---
+
+<header class="smartbolig-ai__header">
+  <div class="smartbolig-ai__brand">
+    <CoreChip variant="mark" />
+    <div>
+      <p class="smartbolig-ai__eyebrow">{t.eyebrow}</p>
+      <h2 id="smartbolig-ai-title">{t.title}</h2>
+    </div>
+  </div>
+  <div class="smartbolig-ai__header-actions">
+    <button class="smartbolig-ai__icon-button" type="button" title={t.newChat} aria-label={t.newChat} data-chat-reset>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M12 5a7 7 0 1 1-6.2 3.75"></path>
+        <path d="M3.5 5.5v4h4"></path>
+      </svg>
+    </button>
+    <button class="smartbolig-ai__icon-button" type="button" title={t.close} aria-label={t.close} data-chat-close>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m6 6 12 12M18 6 6 18"></path>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<style>
+  .smartbolig-ai__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1rem 0.78rem 1.05rem;
+    border-bottom: 1px solid var(--ai-line);
+    background: linear-gradient(90deg, color-mix(in srgb, var(--ai-signal) 5%, transparent), transparent 44%);
+  }
+
+  .smartbolig-ai__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.72rem;
+    min-width: 0;
+  }
+
+  .smartbolig-ai__eyebrow,
+  .smartbolig-ai__brand h2 {
+    margin: 0;
+  }
+
+  .smartbolig-ai__eyebrow {
+    overflow: hidden;
+    color: var(--sb-accent-strong);
+    font-family: var(--sb-font-mono);
+    font-size: var(--sb-text-xs);
+    font-weight: 720;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .smartbolig-ai__brand h2 {
+    margin-top: 0.18rem;
+    color: var(--ai-text-strong);
+    font-size: 1.03rem;
+    font-weight: 780;
+    letter-spacing: -0.025em;
+    line-height: 1.1;
+  }
+
+  .smartbolig-ai__header-actions {
+    display: flex;
+    gap: 0.35rem;
+  }
+
+  .smartbolig-ai__icon-button {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 1px solid var(--ai-line);
+    border-radius: var(--sb-radius-sm);
+    color: var(--ai-muted);
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .smartbolig-ai__icon-button:hover {
+    color: var(--ai-text-strong);
+    border-color: color-mix(in srgb, var(--ai-signal) 40%, transparent);
+    background: var(--sb-accent-soft);
+  }
+
+  .smartbolig-ai__icon-button svg {
+    width: 17px;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+  }
+
+  @media (max-width: 640px) {
+    .smartbolig-ai__header {
+      padding-top: 0.9rem;
+    }
+
+    .smartbolig-ai__icon-button {
+      width: 40px;
+      height: 40px;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .smartbolig-ai__icon-button {
+      transition:
+        color var(--sb-dur-fast) var(--sb-ease),
+        border-color var(--sb-dur-fast) var(--sb-ease),
+        background var(--sb-dur-fast) var(--sb-ease);
+    }
+  }
+</style>

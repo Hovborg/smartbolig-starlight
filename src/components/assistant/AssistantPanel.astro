@@ -1,0 +1,113 @@
+---
+// The dialog frame: a fixed panel on desktop and a bottom sheet on phones.
+---
+
+<section
+  class="smartbolig-ai__panel"
+  id="smartbolig-ai-panel"
+  role="dialog"
+  aria-labelledby="smartbolig-ai-title"
+  aria-describedby="smartbolig-ai-description"
+  aria-busy="false"
+  hidden
+  data-chat-panel
+>
+  <slot />
+</section>
+
+<style>
+  .smartbolig-ai__panel {
+    position: absolute;
+    right: 0;
+    bottom: calc(100% + 0.85rem);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(180px, 1fr) auto;
+    width: min(456px, calc(100vw - 2rem));
+    height: min(748px, calc(100dvh - 7rem));
+    min-height: min(570px, calc(100dvh - 7rem));
+    overflow: hidden;
+    border: 1px solid var(--ai-line);
+    border-radius: var(--sb-radius-xl);
+    background:
+      radial-gradient(circle at 16% -8%, color-mix(in srgb, var(--ai-signal) 14%, transparent), transparent 36%),
+      radial-gradient(circle at 100% 18%, color-mix(in srgb, var(--ai-glow) 9%, transparent), transparent 34%),
+      var(--ai-surface);
+    box-shadow: var(--sb-shadow-lg);
+    backdrop-filter: blur(30px) saturate(150%);
+    -webkit-backdrop-filter: blur(30px) saturate(150%);
+    transform-origin: bottom right;
+  }
+
+  .smartbolig-ai__panel::after {
+    position: absolute;
+    z-index: 0;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(var(--ai-grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--ai-grid) 1px, transparent 1px);
+    background-size: 32px 32px;
+    content: "";
+    mask-image: linear-gradient(to bottom, black, transparent 48%);
+    opacity: 0.7;
+  }
+
+  .smartbolig-ai__panel > :global(*) {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+  }
+
+  .smartbolig-ai__panel[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 640px) {
+    .smartbolig-ai__panel {
+      position: fixed;
+      inset-inline: 0;
+      right: auto;
+      bottom: 0;
+      width: auto;
+      height: min(88dvh, 760px);
+      min-height: min(560px, 88dvh);
+      border-right: 0;
+      border-bottom: 0;
+      border-left: 0;
+      border-radius: var(--sb-radius-xl) var(--sb-radius-xl) 0 0;
+      padding-bottom: env(safe-area-inset-bottom);
+      pointer-events: auto;
+      transform-origin: bottom center;
+    }
+
+    .smartbolig-ai__panel::before {
+      position: absolute;
+      top: 0.42rem;
+      left: 50%;
+      width: 42px;
+      height: 4px;
+      border-radius: var(--sb-radius-pill);
+      background: color-mix(in srgb, var(--sb-ink-subtle) 40%, transparent);
+      content: "";
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .smartbolig-ai__panel {
+      animation: smartbolig-ai-open var(--sb-dur) var(--sb-ease);
+    }
+  }
+
+  @keyframes smartbolig-ai-open {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.975);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+</style>

@@ -1,0 +1,65 @@
+---
+import type { NotFoundCopy } from "../../lib/not-found-copy";
+
+interface Props {
+  t: NotFoundCopy;
+}
+
+const { t } = Astro.props;
+---
+
+<section class="popular">
+  <h2 id="nf-popular-title">{t.popularTitle}</h2>
+  <div class="chips" id="nf-popular-links">
+    {t.guides.map((guide) => (
+      <a href={guide.href}>{guide.text}</a>
+    ))}
+  </div>
+</section>
+
+<style>
+  .popular {
+    margin-top: 2.25rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--sb-line);
+  }
+
+  .popular h2 {
+    margin: 0 0 0.85rem;
+    color: var(--sb-ink-muted);
+    font-family: var(--sb-font-mono);
+    font-size: var(--sb-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .chips a {
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-pill);
+    color: var(--sb-ink-muted);
+    font-size: 0.87rem;
+    text-decoration: none;
+  }
+
+  .chips a:hover,
+  .chips a:focus-visible {
+    border-color: var(--sb-line-strong);
+    color: var(--sb-accent);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .chips a {
+      transition:
+        border-color var(--sb-dur-fast) var(--sb-ease),
+        color var(--sb-dur-fast) var(--sb-ease);
+    }
+  }
+</style>

@@ -1,0 +1,86 @@
+---
+// Styles for message rows and bubbles. They are global because the client script creates these nodes.
+---
+
+<style is:global>
+  .smartbolig-ai__message {
+    display: grid;
+    gap: 0.32rem;
+  }
+
+  .smartbolig-ai__message p {
+    margin: 0;
+  }
+
+  .smartbolig-ai__message--user {
+    justify-items: end;
+  }
+
+  .smartbolig-ai__message-meta {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.38rem;
+    padding: 0 0.25rem;
+    color: var(--ai-muted);
+    font-size: var(--sb-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+  }
+
+  .smartbolig-ai__message--user .smartbolig-ai__message-meta {
+    justify-content: flex-end;
+  }
+
+  .smartbolig-ai__bubble {
+    max-width: 92%;
+    padding: 0.78rem 0.86rem;
+    border: 1px solid var(--ai-line);
+    border-inline-start: 3px solid color-mix(in srgb, var(--ai-signal) 35%, transparent);
+    border-radius: var(--sb-radius-sm) var(--sb-radius-md) var(--sb-radius-md) var(--sb-radius-md);
+    background: var(--ai-surface-soft);
+    box-shadow: var(--sb-shadow-sm);
+  }
+
+  .smartbolig-ai__message--user .smartbolig-ai__bubble {
+    border-color: color-mix(in srgb, var(--ai-signal) 30%, transparent);
+    border-radius: var(--sb-radius-md) var(--sb-radius-sm) var(--sb-radius-md) var(--sb-radius-md);
+    background: var(--ai-user);
+  }
+
+  .smartbolig-ai__bubble p {
+    color: var(--ai-text);
+    font-size: var(--sb-text-sm);
+    line-height: 1.55;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+
+  .smartbolig-ai__message-actions {
+    display: flex;
+    margin-top: 0.45rem;
+  }
+
+  .smartbolig-ai__message-action {
+    padding: 0.2rem 0.38rem;
+    border: 0;
+    border-radius: var(--sb-radius-sm);
+    color: var(--ai-muted);
+    background: transparent;
+    cursor: pointer;
+    font-size: var(--sb-text-xs);
+  }
+
+  @media (max-width: 640px) {
+    .smartbolig-ai__message-action {
+      min-height: 40px;
+      padding-inline: 0.7rem;
+    }
+  }
+
+  .smartbolig-ai__message-action:hover {
+    color: var(--sb-accent-strong);
+    background: var(--sb-accent-soft);
+  }
+</style>

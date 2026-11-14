@@ -6,6 +6,7 @@
     "dev": "astro dev",
     "start": "astro dev",
     "images:home": "node scripts/optimize-home-images.mjs",
+    "brand:build": "node scripts/brand-assets.mjs",
     "images:news-thumbs": "node scripts/ai-news-thumbs.mjs",
     "build": "node scripts/ai-news-thumbs.mjs && astro build && node scripts/finalize-build.mjs",
     "preview": "astro preview",
@@ -27,13 +28,12 @@
     "@astrojs/markdown-remark": "7.2.4",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/starlight": "^0.41.7",
-    "@tailwindcss/vite": "^4.3.2",
+    "@fontsource-variable/bricolage-grotesque": "5.3.0",
+    "@fontsource-variable/figtree": "5.3.0",
     "astro": "^7.2.8",
     "github-slugger": "2.0.0",
     "remark-gfm": "^4.0.1",
-    "sharp": "^0.35.4",
-    "starlight-theme-galaxy": "^0.8.0",
-    "tailwindcss": "^4.3.2"
+    "sharp": "^0.35.4"
   },
   "allowScripts": {
     "esbuild@0.28.2": true,
@@ -41,6 +41,7 @@
     "sharp@0.34.5": true
   },
   "devDependencies": {
+    "fontkitten": "1.0.3",
     "wrangler": "4.159.0"
   }
 }

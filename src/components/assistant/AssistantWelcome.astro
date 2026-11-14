@@ -1,0 +1,213 @@
+---
+// Empty-state visual, introduction and the four areas of expertise.
+import type { AssistantCopy } from '../../lib/assistant-copy';
+import CoreGlyph from './CoreGlyph.astro';
+
+interface Props {
+  t: AssistantCopy;
+}
+
+const { t } = Astro.props;
+---
+
+<div class="smartbolig-ai__welcome" data-chat-welcome>
+  <div class="smartbolig-ai__core-visual" aria-hidden="true">
+    <span class="smartbolig-ai__core-ring smartbolig-ai__core-ring--outer"></span>
+    <span class="smartbolig-ai__core-ring smartbolig-ai__core-ring--inner"></span>
+    <span class="smartbolig-ai__core-node smartbolig-ai__core-node--one"></span>
+    <span class="smartbolig-ai__core-node smartbolig-ai__core-node--two"></span>
+    <span class="smartbolig-ai__core-node smartbolig-ai__core-node--three"></span>
+    <CoreGlyph />
+  </div>
+  <p>{t.intro}</p>
+  <div class="smartbolig-ai__capability-grid" role="group" aria-label={t.capabilities}>
+    <span><i aria-hidden="true"></i><strong>Home Assistant</strong><small>{t.capabilityAutomations}</small></span>
+    <span><i aria-hidden="true"></i><strong>ESPHome</strong><small>{t.capabilityFirmware}</small></span>
+    <span><i aria-hidden="true"></i><strong>Zigbee · Matter</strong><small>{t.capabilityDevices}</small></span>
+    <span><i aria-hidden="true"></i><strong>Homelab</strong><small>{t.capabilityInfrastructure}</small></span>
+  </div>
+</div>
+
+<style>
+  .smartbolig-ai__welcome {
+    display: grid;
+    justify-items: center;
+    padding: 0.35rem 0.1rem 0.82rem;
+    text-align: center;
+  }
+
+  .smartbolig-ai__welcome[hidden] {
+    display: none;
+  }
+
+  .smartbolig-ai__core-visual {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 116px;
+    height: 82px;
+    margin: 0 0 0.55rem;
+    border-radius: var(--sb-radius-xl);
+    background:
+      radial-gradient(circle, color-mix(in srgb, var(--ai-signal) 12%, transparent), transparent 58%),
+      linear-gradient(
+        90deg,
+        transparent 49.5%,
+        color-mix(in srgb, var(--ai-signal) 9%, transparent) 50%,
+        transparent 50.5%
+      );
+  }
+
+  .smartbolig-ai__core-visual :global(svg) {
+    position: relative;
+    z-index: 2;
+    width: 38px;
+    padding: 8px;
+    overflow: visible;
+    border: 1px solid color-mix(in srgb, var(--ai-signal) 45%, transparent);
+    border-radius: var(--sb-radius-sm);
+    fill: none;
+    stroke: var(--ai-signal);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.4;
+    background: var(--sb-surface);
+    box-shadow: var(--sb-shadow-md);
+  }
+
+  /* The orbits are ellipses, so they keep a percentage radius. */
+  .smartbolig-ai__core-ring {
+    position: absolute;
+    border: 1px solid color-mix(in srgb, var(--ai-signal) 16%, transparent);
+    border-radius: 50%;
+  }
+
+  .smartbolig-ai__core-ring--outer {
+    width: 104px;
+    height: 62px;
+    border-right-color: color-mix(in srgb, var(--ai-glow) 52%, transparent);
+    border-left-color: color-mix(in srgb, var(--ai-signal) 38%, transparent);
+    transform: rotate(-8deg);
+  }
+
+  .smartbolig-ai__core-ring--inner {
+    width: 78px;
+    height: 46px;
+    border-top-color: color-mix(in srgb, var(--ai-signal) 50%, transparent);
+    transform: rotate(18deg);
+  }
+
+  .smartbolig-ai__core-node {
+    position: absolute;
+    z-index: 3;
+    width: 5px;
+    height: 5px;
+    border: 1px solid color-mix(in srgb, var(--sb-surface) 55%, transparent);
+    border-radius: var(--sb-radius-pill);
+    background: var(--ai-glow);
+  }
+
+  .smartbolig-ai__core-node--one {
+    top: 14px;
+    right: 17px;
+  }
+
+  .smartbolig-ai__core-node--two {
+    bottom: 13px;
+    left: 21px;
+    background: var(--ai-signal);
+  }
+
+  .smartbolig-ai__core-node--three {
+    right: 25px;
+    bottom: 16px;
+    width: 3px;
+    height: 3px;
+  }
+
+  .smartbolig-ai__welcome p {
+    max-width: 42ch;
+    margin: 0;
+    color: var(--ai-muted);
+    font-size: var(--sb-text-sm);
+    line-height: 1.48;
+  }
+
+  .smartbolig-ai__capability-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+    width: 100%;
+    margin-top: 0.72rem;
+  }
+
+  .smartbolig-ai__capability-grid > span {
+    position: relative;
+    display: grid;
+    justify-items: start;
+    gap: 0.08rem;
+    min-width: 0;
+    padding: 0.5rem 0.6rem 0.46rem;
+    overflow: hidden;
+    border: 1px solid var(--ai-line);
+    border-radius: var(--sb-radius-sm);
+    background: var(--ai-surface-soft);
+    text-align: left;
+  }
+
+  .smartbolig-ai__capability-grid i {
+    width: 5px;
+    height: 5px;
+    margin-bottom: 0.14rem;
+    border-radius: var(--sb-radius-pill);
+    background: var(--ai-glow);
+  }
+
+  .smartbolig-ai__capability-grid strong,
+  .smartbolig-ai__capability-grid small {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .smartbolig-ai__capability-grid strong {
+    color: var(--ai-text);
+    font-size: var(--sb-text-xs);
+    font-weight: 680;
+  }
+
+  .smartbolig-ai__capability-grid small {
+    color: var(--ai-dim);
+    font-family: var(--sb-font-mono);
+    font-size: var(--sb-text-xs);
+    letter-spacing: 0.01em;
+  }
+
+  /* The decorative orbit graphic gives its space to readable content on phones. */
+  @media (max-width: 640px) {
+    .smartbolig-ai__core-visual {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .smartbolig-ai__core-ring {
+      animation: smartbolig-ai-orbit 12s linear infinite;
+    }
+
+    .smartbolig-ai__core-ring--inner {
+      animation-direction: reverse;
+      animation-duration: 9s;
+    }
+  }
+
+  @keyframes smartbolig-ai-orbit {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+</style>

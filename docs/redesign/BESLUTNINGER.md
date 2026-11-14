@@ -8,9 +8,9 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Begrundelse: 320 MDX-sider bruger Starlights komponenter, i18n, sidebar, indholdsfortegnelse og
   Pagefind. Det er velafprøvet og tilgængeligt. Forside, oversigter og værktøjer har brug for frit
   layout, som Starlights sideramme modarbejder.
-- Konsekvens: `starlight-theme-galaxy` fjernes. Udseendet styres af egne tokens i `src/design/`.
+- Konsekvens: `starlight-theme-galaxy` fjernes. Udseendet styres af egne tokens i `src/styles/tokens/`.
 
-### B2. Tema følger enheden; mørk er ikke længere tvunget standard
+### B2. Tema følger enheden; mørk er ikke længere tvunget standard (erstattet af B29)
 - Tidligere valg: mørk som standard for nye besøgende.
 - Nyt valg: `prefers-color-scheme` bestemmer første visning; brugerens valg gemmes.
 - Begrundelse: opgaven beder om et lyst, luftigt udtryk med begge temaer.
@@ -109,6 +109,59 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 
 ## 2026-11-14
 
+### B20. Egne designværdier (`--sb-*`); Galaxy-temaet og Tailwind er fjernet
+- Valg: alle farver, størrelser, hjørner, skygger og bevægelse står i `src/styles/tokens/`.
+  `src/styles/starlight/bridge.css` oversætter dem til Starlights variabler.
+- Begrundelse: Galaxy-temaet tvang et mørkt, tæt udtryk og lagde sine egne farver oven på vores.
+  Tailwind blev kun brugt af det tema. Ét sæt værdier gør et lyst og et mørkt tema muligt
+  uden dobbelt arbejde.
+- Kontrolleret ved: `scripts/site-design-tokens.test.mjs` måler kontrasten for hvert
+  tekst/baggrund-par i begge temaer; en test afviser farvekoder uden for token-filen.
+
+### B21. Skrifttyper ligger på eget domæne; intet hentes fra en CDN
+- Valg: Figtree (brødtekst) og Bricolage Grotesque (overskrifter), begge OFL-1.1, pakket med
+  siden gennem Astros skriftfunktion (`config/fonts.mjs`).
+- Begrundelse: ingen forespørgsel til tredjepart (privatliv, CSP), og siden virker, selv om en
+  CDN er nede. Variable skrifter giver alle vægte i én fil pr. skrift.
+
+### B22. Forsiden er fortsat en Starlight-side, men med egne komponenter
+- Ændrer B1 for forsiden: den er en Starlight "splash"-side (`index.mdx`), som kun indeholder
+  `<HomeStyles />` og `<HomePortal />`. Topbjælke, sprogvalg, søgning, `<head>` og
+  struktureret data kommer derfor fra samme sted som resten af siden.
+- Begrundelse: en helt egen side skulle gentage `<head>`, sprogskift og søgning. Det er to steder
+  at vedligeholde for samme resultat. Layoutet er frit inde i `HomePortal`.
+
+### B23. Forsidens hus er ren CSS, ikke 3D
+- Valg: "Et hus gennem et døgn" er en SVG, der styres af fire radioknapper, `:has()` og
+  CSS-variabler. Der er ingen JavaScript i den.
+- Begrundelse: den forklarer, hvad en automation gør (tid → regel → lys, varme, energi, lås),
+  virker med tastatur og skærmlæser, og koster 0 kB script. Uden `:has()` vises aftenen,
+  og vælgeren skjules. Rigtig 3D er forbeholdt det interaktive hus (B3).
+- Kontrolleret i browser: fire tilstande, lyst og mørkt, 375 og 1440 px.
+
+### B24. Knappen til at starte og standse bevægelse står i husets fod
+- Valg: knappen er en del af illustrationen, ikke en flydende pille.
+- Begrundelse: som flydende pille lå den oven på AI-assistentens knap på telefon. Siden følger
+  enhedens indstilling for bevægelse; knappen lader læseren vælge selv (WCAG 2.2.2).
+
+### B25. Reklamelinks er en blød brik, ikke en udfyldt knap
+- Fund: Starlights linkfarve vandt over komponentens egen, så teksten på den udfyldte knap ikke
+  kunne læses (blå på blå).
+- Valg: lys baggrund i butikkens farvetone, tekst i samme tone, og mærkatet "Reklamelink" i
+  dæmpet tekst. Brikken fylder mindre i tabeller og kan ikke forveksles med sidens egne knapper.
+
+### B26. AI-assistenten flyttes til slutningen af `<body>`, når den starter
+- Fund: sidefoden ligger i Starlights hovedspalte, som er sit eget lag. På brede skærme lå
+  indholdsfortegnelsen derfor oven på assistenten, og knappen kunne ikke klikkes.
+- Valg: scriptet flytter assistenten ud af spalten (én linje i `src/scripts/assistant/index.ts`).
+  Fravalgt: at overskrive Starlights sideramme (skal følges ved hver opgradering) og at fjerne
+  spaltens lag (det beskytter indholdsfortegnelsen mod indhold med egne lag).
+- Kontrolleret i browser med rigtigt museklik, 1440 px, lyst og mørkt.
+
+### B27. Kodeblokke bruger Expressive Codes standardtemaer
+- Valg: ingen egne syntaksfarver. Rammen (hjørner, kant, skrift) følger vores værdier.
+- Begrundelse: standardtemaerne er kontrastprøvede og følger med ved opgradering.
+
 ### B28. Værtskørslerne for nyheden er fjernet
 - Fjernet: Windows-opgaven, systemd-timeren og OpenClaw-jobbet med installationsscripts,
   fejlmelder, forældelsestjek i shell, PR-identitetshjælperen, hjælperen til gentagne forsøg,
@@ -125,3 +178,13 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   dækker kun, at der mangler udgaver i repoet. En uafhængig sidevagt bygges i fase 6.
 - Kontrolleret 2026-11-14: første rigtige kørsel i GitHub Actions udgav dagens nyhed;
   Windows-opgaven er slået fra.
+
+### B29. Mørkt tema er standard; lyst vælges til
+- Ejerens beslutning 2026-11-14. Erstatter B2.
+- Valg: alle nye besøgende ser mørkt tema, uanset enhedens indstilling. Lyst tema vælges med
+  temavælgeren og huskes. Siderne leveres med `data-theme="dark"`, så det også gælder uden
+  JavaScript. Browserens temafarve følger det aktive tema.
+- Konsekvens: begge temaer vedligeholdes fuldt ud. Kontrasttesten i
+  `scripts/site-design-tokens.test.mjs` dækker fortsat begge.
+- Kontrolleret: `scripts/site-ui.test.mjs` (standard, gemt valg, blokeret lager, temafarve) og
+  i browser på forside, guide og 404.

@@ -36,18 +36,18 @@ const label = isDa ? "Skift mellem lys og mørk tilstand" : "Toggle light and da
   theme-toggle { display: grid; place-items: center; }
   button {
     display: grid;
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2.75rem;
+    height: 2.75rem;
     padding: 0;
     place-items: center;
     border: 0;
-    border-radius: 999px;
-    background: transparent;
-    color: var(--sl-color-text);
+    border-radius: var(--sb-radius-pill);
+    background: none;
+    color: var(--sb-ink);
     cursor: pointer;
   }
-  button:hover { color: var(--sl-color-accent-high); }
-  button:focus-visible { outline: 3px solid var(--sl-color-accent-high); outline-offset: 2px; }
+  button:hover { color: var(--sb-accent); }
+  button:focus-visible { outline: 3px solid var(--sb-accent); outline-offset: 2px; }
   svg { fill: none; stroke: currentColor; stroke-linecap: round; stroke-linejoin: round; stroke-width: 1.8; }
   .sun, .rays { display: none; }
   :global(html[data-theme="light"]) .moon { display: none; }

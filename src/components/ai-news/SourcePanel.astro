@@ -1,0 +1,93 @@
+---
+import type { AiNewsCopy } from "../../lib/ai-news-copy";
+import { criticalFeeds, sourceGroups } from "../../lib/ai-news-sources";
+
+interface Props {
+  copy: AiNewsCopy;
+}
+
+const { copy } = Astro.props;
+---
+
+<details class="source-panel" open>
+  <summary>{copy.sources}</summary>
+  <p>{copy.sourcesText}</p>
+  <p class="critical-feeds">
+    <strong>{copy.primaryFeeds}:</strong> {criticalFeeds.join(", ")}
+  </p>
+  <div class="source-grid">
+    {sourceGroups.map((group) => (
+      <div class="source-group">
+        <h3>{group.label}</h3>
+        <ul>
+          {group.urls.map((url) => (
+            <li><a href={url}>{url.replace(/^https?:\/\//, "")}</a></li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</details>
+
+<style>
+  .source-panel summary {
+    cursor: pointer;
+    font-size: var(--sb-text-h3);
+    font-weight: 700;
+    margin-top: 0;
+  }
+
+  .source-panel p,
+  .source-group li {
+    color: var(--sb-ink-muted);
+  }
+
+  .critical-feeds {
+    margin-top: 0.25rem;
+  }
+
+  .source-grid {
+    display: grid;
+    gap: 0.75rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 1rem;
+  }
+
+  .source-group {
+    border-top: 1px solid var(--sb-line);
+    min-width: 0;
+    padding-top: 0.75rem;
+  }
+
+  .source-group h3 {
+    margin-top: 0;
+  }
+
+  .source-group ul {
+    display: grid;
+    gap: 0.4rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .source-group li {
+    list-style: none;
+  }
+
+  .source-group li::marker,
+  .source-group li::before {
+    content: "";
+    display: none;
+  }
+
+  .source-group a {
+    overflow-wrap: anywhere;
+  }
+
+  @media (max-width: 46rem) {
+    .source-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,134 @@
+---
+// Styles for the source-mode chip, source links and the diagnostics rail. Global: the client script creates them.
+---
+
+<style is:global>
+  .smartbolig-ai__source-mode {
+    padding: 0.16rem 0.4rem;
+    border: 1px solid color-mix(in srgb, var(--sb-sky) 30%, transparent);
+    border-radius: var(--sb-radius-pill);
+    color: var(--sb-sky);
+    background: var(--sb-sky-soft);
+    font-size: var(--sb-text-xs);
+    font-weight: 690;
+    letter-spacing: 0.02em;
+    text-transform: none;
+  }
+
+  .smartbolig-ai__source-mode[data-source-mode="general"] {
+    border-color: var(--ai-line);
+    color: var(--ai-muted);
+    background: var(--ai-surface-soft);
+  }
+
+  .smartbolig-ai__source-mode[data-source-mode="official"] {
+    border-color: color-mix(in srgb, var(--ai-signal) 35%, transparent);
+    color: var(--sb-accent-strong);
+    background: var(--sb-accent-soft);
+  }
+
+  @media (max-width: 360px) {
+    .smartbolig-ai__source-mode {
+      display: none;
+    }
+  }
+
+  .smartbolig-ai__sources {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.7rem;
+    padding-top: 0.62rem;
+    border-top: 1px solid var(--ai-line);
+  }
+
+  .smartbolig-ai__sources > span {
+    width: 100%;
+    color: var(--ai-muted);
+    font-size: var(--sb-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .smartbolig-ai__source {
+    display: inline-flex;
+    max-width: 100%;
+    padding: 0.28rem 0.48rem;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--ai-signal) 30%, transparent);
+    border-radius: var(--sb-radius-pill);
+    color: var(--sb-accent-strong);
+    background: var(--sb-accent-soft);
+    font-size: var(--sb-text-xs);
+    line-height: 1.2;
+    text-decoration: none;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .smartbolig-ai__source:hover {
+    border-color: var(--ai-signal);
+    text-decoration: underline;
+  }
+
+  .smartbolig-ai__source[data-source-type="official"] {
+    border-color: color-mix(in srgb, var(--sb-sky) 30%, transparent);
+    color: var(--sb-sky);
+    background: var(--sb-sky-soft);
+  }
+
+  .smartbolig-ai__source[data-source-type="official"]:hover {
+    border-color: var(--sb-sky);
+  }
+
+  .smartbolig-ai__diagnostics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.34rem;
+    margin-top: 0.68rem;
+    padding: 0.42rem 0.1rem 0.08rem;
+    border-top: 1px solid var(--ai-line);
+  }
+
+  .smartbolig-ai__diagnostic {
+    display: grid;
+    flex: 0 0 auto;
+    gap: 0.08rem;
+    min-width: 54px;
+    padding: 0.28rem 0.38rem;
+    border: 1px solid var(--ai-line);
+    border-radius: var(--sb-radius-sm);
+    background: var(--sb-surface);
+    font-family: var(--sb-font-mono);
+    white-space: nowrap;
+  }
+
+  .smartbolig-ai__diagnostic small {
+    color: var(--ai-dim);
+    font-size: var(--sb-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+
+  .smartbolig-ai__diagnostic strong {
+    color: var(--ai-text);
+    font-size: var(--sb-text-xs);
+    font-weight: 720;
+    letter-spacing: 0.01em;
+  }
+
+  .smartbolig-ai__diagnostics[data-diagnostic-route="fallback"] .smartbolig-ai__diagnostic:nth-child(2) {
+    border-color: color-mix(in srgb, var(--sb-warm) 35%, transparent);
+    background: var(--sb-warm-soft);
+  }
+
+  .smartbolig-ai__diagnostics[data-diagnostic-route="fallback"] .smartbolig-ai__diagnostic:nth-child(2) small,
+  .smartbolig-ai__diagnostics[data-diagnostic-route="fallback"] .smartbolig-ai__diagnostic:nth-child(2) strong {
+    color: var(--sb-warm);
+  }
+
+  .smartbolig-ai__diagnostic:last-child strong {
+    color: var(--ai-signal);
+  }
+</style>

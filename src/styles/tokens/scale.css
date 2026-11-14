@@ -1,0 +1,66 @@
+/*
+ * Non-colour tokens: type, space, radius, shadow, motion and layout widths.
+ * Components use these instead of raw numbers, so one edit changes the site.
+ */
+:root {
+  /* Fonts. --font-body and --font-display come from config/fonts.mjs. */
+  --sb-font-body: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --sb-font-display: var(--font-display), var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --sb-font-mono: ui-monospace, "Cascadia Code", "SF Mono", SFMono-Regular, Menlo, Consolas,
+    "Liberation Mono", monospace;
+
+  /* Type scale. Headings grow with the viewport between a phone and a desktop. */
+  --sb-text-xs: 0.8125rem;
+  --sb-text-sm: 0.9375rem;
+  --sb-text-base: 1.0625rem;
+  --sb-text-lg: 1.1875rem;
+  --sb-text-h4: clamp(1.15rem, 1.1rem + 0.3vw, 1.3rem);
+  --sb-text-h3: clamp(1.3rem, 1.2rem + 0.5vw, 1.55rem);
+  --sb-text-h2: clamp(1.6rem, 1.4rem + 1vw, 2.1rem);
+  --sb-text-h1: clamp(2.1rem, 1.7rem + 2vw, 3.1rem);
+  --sb-text-display: clamp(2.5rem, 1.7rem + 4.2vw, 4.75rem);
+  --sb-leading: 1.7;
+  --sb-leading-tight: 1.12;
+
+  /* Space, 4 px base. */
+  --sb-space-1: 0.25rem;
+  --sb-space-2: 0.5rem;
+  --sb-space-3: 0.75rem;
+  --sb-space-4: 1rem;
+  --sb-space-5: 1.5rem;
+  --sb-space-6: 2rem;
+  --sb-space-7: 3rem;
+  --sb-space-8: 4rem;
+  --sb-space-9: 6rem;
+
+  /* Corners. */
+  --sb-radius-sm: 0.5rem;
+  --sb-radius-md: 0.875rem;
+  --sb-radius-lg: 1.25rem;
+  --sb-radius-xl: 1.75rem;
+  --sb-radius-pill: 999px;
+
+  /* Shadows, tinted with the ink colour so they stay soft on the light page. */
+  --sb-shadow-sm: 0 1px 2px rgb(15 28 23 / 0.06), 0 1px 1px rgb(15 28 23 / 0.04);
+  --sb-shadow-md: 0 8px 20px -6px rgb(15 28 23 / 0.1), 0 2px 4px rgb(15 28 23 / 0.05);
+  --sb-shadow-lg: 0 28px 56px -20px rgb(15 28 23 / 0.2), 0 8px 16px -8px rgb(15 28 23 / 0.08);
+
+  /* Motion. */
+  --sb-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --sb-dur-fast: 140ms;
+  --sb-dur: 240ms;
+  --sb-dur-slow: 560ms;
+
+  /* Layout widths. */
+  --sb-measure: 45rem;
+  --sb-page-max: 76rem;
+}
+
+/* Not in print, like the dark colours (tokens/color.css). */
+@media not print {
+  :root[data-theme="dark"] {
+    --sb-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --sb-shadow-md: 0 8px 20px -6px rgb(0 0 0 / 0.5), 0 2px 4px rgb(0 0 0 / 0.3);
+    --sb-shadow-lg: 0 28px 56px -20px rgb(0 0 0 / 0.7), 0 8px 16px -8px rgb(0 0 0 / 0.4);
+  }
+}

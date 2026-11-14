@@ -1,70 +1,18 @@
-# SmartBolig.net - Copilot Instructions
+# SmartBolig.net: instructions for coding assistants
 
-## Projekt Kontekst
+The rules live in one place so they cannot drift apart. Read these before changing anything:
 
-Dette er **smartbolig.net** - en dansk smart home tutorial website bygget med:
-- **Astro Starlight** (dokumentations-framework)
-- **Tailwind CSS** (styling)
-- **IBRACORP-inspireret dark theme** (GitHub Dark farver)
-- **Cloudflare Worker med Static Assets** (hosting)
+- `AGENTS.md`: project structure, release gates, AI news rules, deploy.
+- `CONTENT-GUIDE.md`: how guides are written (Danish first, English mirror).
+- `docs/designsystem.md`: colours, sizes, themes, how to change a value or add a component.
+- `docs/nyhedsflow.md`: the daily AI news flow and its troubleshooting.
+- `docs/oss.md`: the open source in use, with versions and licences.
 
-## Tech Stack
+Short version:
 
-- Framework: Astro 7.x + Starlight 0.41.x
-- Styling: Tailwind CSS 4.x + Custom CSS
-- Languages: Danish (da) default, English (en)
-- Build: Static site generation
-- Deploy: Cloudflare Worker med Static Assets via Wrangler
-
-## Farve Palette (GitHub Dark / IBRACORP)
-
-```css
---bg-primary: #0d1117
---bg-secondary: #161b22
---bg-tertiary: #1a2332
---text-primary: #e6edf3
---text-secondary: #8b949e
---accent-blue: #58a6ff
---accent-green: #3fb950
---accent-green-dark: #238636
---border: #30363d
-```
-
-## Fil Struktur
-
-```
-src/
-├── content/docs/
-│   ├── da/              # Dansk indhold
-│   │   ├── index.mdx    # Forside
-│   │   ├── home-assistant/
-│   │   ├── esp32/
-│   │   ├── automationer/
-│   │   ├── produkter/
-│   │   └── sikkerhed/
-│   └── en/              # Engelsk indhold
-├── styles/
-│   ├── global.css       # Tailwind import
-│   └── custom.css       # IBRACORP theme
-└── assets/
-    ├── logo-dark.svg
-    └── logo-light.svg
-```
-
-## Når du hjælper med kode
-
-1. **Brug danske kommentarer** i config filer
-2. **Følg Starlight conventions** for frontmatter
-3. **Brug CSS custom properties** fra custom.css
-4. **Følg kontrolkommandoerne i `AGENTS.md` og README** før deploy
-
-## Frontmatter Format
-
-```mdx
----
-title: "Sidetitel"
-description: "Beskrivelse til SEO"
-sidebar:
-  order: 1
----
-```
+- Astro + Starlight, published as a Cloudflare Worker with static assets. No Tailwind.
+- Every colour, size, radius, shadow and motion value is a `--sb-*` token in `src/styles/tokens/`. Do not write raw colours in components.
+- Dark theme is the default; light is the visitor's choice. Build and check in both.
+- Content is bilingual: a page under `src/content/docs/da/` has a mirror under `src/content/docs/en/`.
+- The repository is public: no secrets, tokens, internal paths or private details in commits.
+- Small files with one responsibility. Update the docs in the same change.

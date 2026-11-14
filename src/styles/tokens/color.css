@@ -1,0 +1,88 @@
+/*
+ * Colour tokens. The only place colours are defined.
+ * The page ships with data-theme="dark" (the default theme); the :root values
+ * are the light theme, which the visitor picks with the theme switch.
+ * Every text/background pair is contrast-checked by
+ * scripts/site-design-tokens.test.mjs, so change values here and run site:test.
+ */
+/* Dimmed layer behind a dialog; dark in both themes. Also set on ::backdrop,
+   which does not inherit from :root in older browsers. */
+:root,
+::backdrop {
+  --sb-scrim: rgb(12 20 18 / 0.55);
+}
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces */
+  --sb-bg: #fbfcfa;
+  --sb-bg-subtle: #f2f6f1;
+  --sb-surface: #ffffff;
+  --sb-line: #e1e8e0;
+  --sb-line-strong: #c5d1c7;
+
+  /* Text */
+  --sb-ink-strong: #0f1c17;
+  --sb-ink: #1c2b25;
+  --sb-ink-muted: #43554c;
+  --sb-ink-subtle: #5d6f66;
+
+  /* Brand accent (links, primary buttons, active states) */
+  --sb-accent: #0a7556;
+  --sb-accent-strong: #075a42;
+  --sb-accent-soft: #e0f4ea;
+  --sb-accent-vivid: #12b886;
+  --sb-on-accent: #ffffff;
+
+  /* Supporting hues: text / soft background / vivid graphic */
+  --sb-warm: #9a4f00;
+  --sb-warm-soft: #fff1dc;
+  --sb-warm-vivid: #f59f1a;
+  --sb-sky: #0a5fbd;
+  --sb-sky-soft: #e5f0fd;
+  --sb-sky-vivid: #3b96f5;
+  --sb-violet: #6540bd;
+  --sb-violet-soft: #f0eafb;
+  --sb-violet-vivid: #8b68e6;
+  --sb-danger: #b42d1a;
+  --sb-danger-soft: #fdebe7;
+  --sb-danger-vivid: #e8563f;
+}
+
+/* Not in print: paper is white, so print always uses the light values above. */
+@media not print {
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+
+    --sb-bg: #0c1412;
+    --sb-bg-subtle: #111b18;
+    --sb-surface: #16221e;
+    --sb-line: #22322c;
+    --sb-line-strong: #364b42;
+
+    --sb-ink-strong: #f4f9f6;
+    --sb-ink: #e3ece7;
+    --sb-ink-muted: #b3c2ba;
+    --sb-ink-subtle: #91a39a;
+
+    --sb-accent: #49d9a2;
+    --sb-accent-strong: #84ebc2;
+    --sb-accent-soft: #11342a;
+    --sb-accent-vivid: #2ee6a3;
+    --sb-on-accent: #05241a;
+
+    --sb-warm: #f7bd58;
+    --sb-warm-soft: #37280e;
+    --sb-warm-vivid: #f5a524;
+    --sb-sky: #86beff;
+    --sb-sky-soft: #10273e;
+    --sb-sky-vivid: #4ea3ff;
+    --sb-violet: #bca6f7;
+    --sb-violet-soft: #251c40;
+    --sb-violet-vivid: #9d7ff0;
+    --sb-danger: #ff9480;
+    --sb-danger-soft: #3c1b15;
+    --sb-danger-vivid: #ff6f57;
+  }
+}

@@ -35,22 +35,22 @@ const heroImage = isAiNewsArticle ? entry?.data?.heroImage : null;
 
 <style>
   :global(.ai-news-hero) {
-    margin: 0 0 1.5rem;
+    margin: 0 0 var(--sb-space-5);
   }
 
   :global(.ai-news-hero img) {
     display: block;
     width: 100%;
     height: auto;
-    border: 1px solid var(--sl-color-gray-5);
-    border-radius: 8px;
-    background: #071311;
+    border: 1px solid var(--sb-line);
+    border-radius: var(--sb-radius-sm);
+    background: var(--sb-bg-subtle);
   }
 
   :global(.ai-news-hero figcaption) {
-    margin-top: 0.5rem;
-    color: var(--sl-color-gray-3);
-    font-size: 0.875rem;
+    margin-top: var(--sb-space-2);
+    color: var(--sb-ink-subtle);
+    font-size: var(--sb-text-xs);
     line-height: 1.4;
   }
 </style>

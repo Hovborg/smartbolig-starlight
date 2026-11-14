@@ -1,0 +1,112 @@
+---
+import type { NotFoundCopy } from "../../lib/not-found-copy";
+
+interface Props {
+  t: NotFoundCopy;
+}
+
+const { t } = Astro.props;
+---
+
+<section class="suggest" id="nf-suggest" hidden>
+  <h2 id="nf-suggest-title">{t.suggestTitle}</h2>
+  <ul class="suggest-list" id="nf-suggest-list">
+    <li hidden><a href="/"><span class="suggest-text"></span><span class="suggest-path"></span></a></li>
+    <li hidden><a href="/"><span class="suggest-text"></span><span class="suggest-path"></span></a></li>
+    <li hidden><a href="/"><span class="suggest-text"></span><span class="suggest-path"></span></a></li>
+  </ul>
+</section>
+
+<style>
+  .suggest {
+    margin-top: 1.5rem;
+    border: 1px solid var(--sb-line-strong);
+    border-radius: var(--sb-radius-md);
+    padding: 1.1rem 1.15rem;
+    background: var(--sb-surface);
+  }
+
+  .suggest[hidden] {
+    display: none;
+  }
+
+  .suggest h2 {
+    margin: 0 0 0.7rem;
+    font-family: var(--sb-font-mono);
+    font-size: var(--sb-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sb-accent);
+  }
+
+  .suggest-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
+
+  .suggest-list li[hidden] {
+    display: none;
+  }
+
+  .suggest-list a {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    padding: 0.55rem 0.7rem;
+    border-radius: var(--sb-radius-sm);
+    color: var(--sb-ink);
+    text-decoration: none;
+  }
+
+  .suggest-list a::before {
+    content: "→";
+    color: var(--sb-accent);
+    font-family: var(--sb-font-mono);
+  }
+
+  .suggest-list a:hover,
+  .suggest-list a:focus-visible {
+    background: color-mix(in srgb, var(--sb-accent) 10%, transparent);
+    color: var(--sb-accent);
+  }
+
+  .suggest-path {
+    margin-left: auto;
+    color: var(--sb-ink-muted);
+    font-family: var(--sb-font-mono);
+    font-size: var(--sb-text-xs);
+  }
+
+  /* Narrow screens: the title and the path fight over the same row, so
+     stack them under the arrow instead of wrapping both mid-word. */
+  @media (max-width: 34rem) {
+    .suggest-list a {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: start;
+      row-gap: 0.15rem;
+    }
+
+    .suggest-list a::before {
+      grid-row: 1 / span 2;
+    }
+
+    .suggest-path {
+      grid-column: 2;
+      margin-left: 0;
+      overflow-wrap: anywhere;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .suggest-list a {
+      transition:
+        background var(--sb-dur-fast) var(--sb-ease),
+        color var(--sb-dur-fast) var(--sb-ease);
+    }
+  }
+</style>

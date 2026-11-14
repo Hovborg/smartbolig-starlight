@@ -1,0 +1,83 @@
+---
+/**
+ * Document shell of the standalone 404 page: head tags, the site's tokens and
+ * fonts, the theme start script and the few base rules the page needs outside
+ * Starlight. Page content goes in the default slot.
+ */
+import { Font } from "astro:assets";
+import ThemeProvider from "../chrome/ThemeProvider.astro";
+import { themeColor } from "../../../config/head/icons.mjs";
+import type { NotFoundCopy, NotFoundLang } from "../../lib/not-found-copy";
+import { scriptJson } from "../../lib/script-json";
+import "../../styles/tokens/color.css";
+import "../../styles/tokens/scale.css";
+import "../../styles/base.css";
+import "../../styles/print.css";
+
+interface Props {
+  lang: NotFoundLang;
+  t: NotFoundCopy;
+}
+
+const { lang, t } = Astro.props;
+
+// Minimal WebPage schema so the 404 page keeps valid structured data
+// (scripts/seo-validate.mjs requires a WebPage JSON-LD on dist/404.html).
+const webPageSchemaJson = scriptJson({
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  name: t.title,
+  description: t.metaDescription,
+  url: "https://smartbolig.net/404/",
+  inLanguage: lang === "en" ? "en-US" : "da-DK",
+});
+---
+
+<!DOCTYPE html>
+<html lang={lang} data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{t.title} | SmartBolig.net</title>
+    <meta name="description" content={t.metaDescription} />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={`${t.title} | SmartBolig.net`} />
+    <meta property="og:description" content={t.metaDescription} />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="theme-color" content={themeColor.dark} data-dark={themeColor.dark} data-light={themeColor.light} />
+    <script type="application/ld+json" set:html={webPageSchemaJson} />
+    <Font cssVariable="--font-body" />
+    <Font cssVariable="--font-display" />
+    <ThemeProvider />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>
+
+<style is:global>
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100vh;
+    padding: clamp(1.5rem, 5vw, 4rem) 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--sb-font-body);
+    background-image: radial-gradient(
+      ellipse at 92% 100%,
+      color-mix(in srgb, var(--sb-warm-vivid) 8%, transparent),
+      transparent 42%
+    );
+    background-attachment: fixed;
+  }
+</style>

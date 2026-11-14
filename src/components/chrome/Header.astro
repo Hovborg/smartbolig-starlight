@@ -1,0 +1,159 @@
+---
+// Top bar: logo, main sections, search, theme switch and language link.
+// Styling for the bar itself (blur, hairline) is in src/styles/chrome/header.css.
+import Search from "virtual:starlight/components/Search";
+import SiteTitle from "virtual:starlight/components/SiteTitle";
+import ThemeSelect from "virtual:starlight/components/ThemeSelect";
+import { alternateLocale, primaryNav, type NavLocale } from "../../lib/primary-nav";
+
+const locale: NavLocale = Astro.currentLocale === "en" ? "en" : "da";
+const items = primaryNav(locale, Astro.url.pathname);
+const other = alternateLocale(locale, Astro.url.pathname);
+const navLabel = locale === "da" ? "Hovedmenu" : "Main menu";
+const otherLabel = locale === "da" ? "Read this page in English" : "Læs denne side på dansk";
+---
+
+<div class="sb-header">
+  <div class="sb-header__brand"><SiteTitle /></div>
+  <nav class="sb-header__nav print:hidden" aria-label={navLabel}>
+    <ul role="list">
+      {items.map((item) => (
+        <li><a href={item.href} aria-current={item.current ? "true" : undefined}>{item.label}</a></li>
+      ))}
+    </ul>
+  </nav>
+  <div class="sb-header__tools print:hidden">
+    <div class="sb-header__search"><Search /></div>
+    <ThemeSelect />
+    <a class="sb-header__lang" href={other.href} hreflang={other.locale} lang={other.locale} aria-label={otherLabel} title={otherLabel}>
+      <span aria-hidden="true">{other.short}</span>
+    </a>
+  </div>
+</div>
+
+<style>
+  .sb-header {
+    display: flex;
+    align-items: center;
+    gap: var(--sb-space-4);
+    height: 100%;
+  }
+  .sb-header__brand {
+    flex: 0 0 auto;
+    min-width: 0;
+  }
+  .sb-header__nav {
+    display: none;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+  .sb-header__nav ul {
+    display: flex;
+    gap: var(--sb-space-1);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .sb-header__nav a {
+    display: block;
+    padding: 0.45rem 0.8rem;
+    border-radius: var(--sb-radius-pill);
+    color: var(--sb-ink-muted);
+    font-size: var(--sb-text-sm);
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background-color var(--sb-dur-fast) var(--sb-ease), color var(--sb-dur-fast) var(--sb-ease);
+  }
+  .sb-header__nav a:hover {
+    background: var(--sb-bg-subtle);
+    color: var(--sb-ink-strong);
+  }
+  .sb-header__nav a[aria-current="true"] {
+    background: var(--sb-accent-soft);
+    color: var(--sb-accent-strong);
+    /* Not colour alone: the current section is underlined too. */
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.3em;
+  }
+  .sb-header__tools {
+    display: flex;
+    flex: 1 1 auto;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--sb-space-2);
+    min-width: 0;
+  }
+  .sb-header__search {
+    display: flex;
+    flex: 0 1 15rem;
+    justify-content: flex-end;
+    min-width: 0;
+  }
+  .sb-header__lang {
+    display: grid;
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    place-items: center;
+    border-radius: var(--sb-radius-pill);
+    color: var(--sb-ink-muted);
+    font-size: var(--sb-text-xs);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: background-color var(--sb-dur-fast) var(--sb-ease), color var(--sb-dur-fast) var(--sb-ease);
+  }
+  .sb-header__lang:hover {
+    background: var(--sb-bg-subtle);
+    color: var(--sb-ink-strong);
+  }
+  /* Narrow phones: on pages with a menu the language choice is in the menu
+     (Starlight's mobile menu footer), so the top bar has room for the name
+     and 44 px buttons. */
+  @media (max-width: 25rem) {
+    :global(html[data-has-sidebar]) .sb-header__lang {
+      display: none;
+    }
+  }
+  /* Pages without a sidebar (the homepage) have no menu button. Below the
+     desktop width their section links sit in a second row that scrolls
+     sideways. The bar's height for this is set in styles/starlight/bridge.css. */
+  @media (max-width: 71.99rem) {
+    :global(html:not([data-has-sidebar])) .sb-header {
+      flex-wrap: wrap;
+      align-content: center;
+      row-gap: var(--sb-space-1);
+    }
+    :global(html:not([data-has-sidebar])) .sb-header__nav {
+      display: block;
+      order: 3;
+      flex: 1 0 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+      /* A scrolling box clips what sticks out, so the focus ring gets room
+         inside it; the negative margin keeps the row where it was. */
+      margin: -0.375rem;
+      padding: 0.375rem;
+      /* The row fades out at the end to show that it scrolls. */
+      mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
+    }
+    /* Space after the last link, so it can be scrolled clear of the fade. */
+    :global(html:not([data-has-sidebar])) .sb-header__nav ul {
+      width: max-content;
+      padding-inline-end: 2.5rem;
+    }
+    :global(html:not([data-has-sidebar])) .sb-header__nav a {
+      padding-block: 0.6rem;
+    }
+  }
+  @media (min-width: 72rem) {
+    .sb-header__nav {
+      display: block;
+    }
+    .sb-header__tools {
+      flex: 0 1 auto;
+    }
+  }
+</style>
