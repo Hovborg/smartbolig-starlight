@@ -316,8 +316,10 @@ Sidst opdateret: 2026-11-14.
   Nyhedsoversigten fik Accessibility 96: linket til en historie var 23,8 px højt (kravet er
   24 px). Det er rettet i `StoryDigest.astro`. Målt bagefter med Lighthouse (kun
   Accessibility) mod den byggede side, serveret lokalt: 100 på `/da/ai/nyheder/` og
-  `/en/ai/nyheder/`, mobil og desktop, og `target-size` er bestået. Ikke målt igen på den
-  levende side.
+  `/en/ai/nyheder/`, mobil og desktop, og `target-size` er bestået. Udgivet 2026-11-14 (PR
+  #215, `main` 54d3ac1, Worker `ec9bfedd`). Målt på den levende side bagefter med samme
+  kommando: Accessibility 100 på `/da/ai/nyheder/` (mobil og desktop) og `/en/ai/nyheder/`
+  (mobil), og `target-size` er bestået. De syv andre sider målte 100 i rapporten.
 
 ## Udgivelser og vej tilbage
 
@@ -328,6 +330,7 @@ flytter kun Workeren og de statiske filer; `main` er uændret, så den næste ud
 
 | Udgivelse | Pull request | Worker-version |
 |---|---|---|
+| Eftermåling og linkhøjde på nyhedsoversigten | #215 | `ec9bfedd-1a2a-4e59-b97d-8c828f1da236` |
 | Guide om Companion-appen | #214 | `336b9305-395f-408c-8d83-8230bde4d7fc` |
 | Dokumentation og oprydning | #213 | `56ec6c49-5d79-4ecf-a8d7-94e96b46a9cc` |
 | Assistenten søger først, hver besked alene | #209 | `fd3bd2e3-b4c5-4b4b-9bd6-11f719ada749` |
@@ -371,7 +374,7 @@ Det, der ikke er gjort. Det, kun ejeren kan gøre, står i [TIL-EJEREN.md](TIL-E
   besøgende med grafikkort (med metodens software-tegning lader siden stillbilledet stå;
   `docs/3d-hus.md` har egne tal). Forsiden på desktop har CLS 0,021 (to små skift i
   `.home-stage__screen`); grænsen for "god" er 0,1.
-- **Ikke set køre endnu:** en planlagt sidevagtskørsel (ingen var startet 2026-11-14 kl. 20:28
+- **Ikke set køre endnu:** en planlagt sidevagtskørsel (ingen var startet 2026-11-14 kl. 20:36
   UTC), at en grøn sidevagtskørsel selv lukker en åben sag, og en nyhedsreserve, der tager
   over. Set 2026-11-14: en reserve, der holder sig i ro. Linjen `37 11` startede kl. 11:43 UTC
   (før reserverne kom på `main`) og igen kl. 17:16 UTC; reserven `37 14` startede kl. 19:24
