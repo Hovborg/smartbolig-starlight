@@ -55,10 +55,13 @@ kører på siden, og fordi CSP'en i `public/_headers` skal tillade dem.
 | Tjeneste | Hvad | Hvornår |
 |---|---|---|
 | Giscus (MIT, giscus.app) | Kommentarer via GitHub Discussions | Når læseren trykker for at vise kommentarerne |
-| Googles samtykkebesked (Funding Choices) | Spørger om samtykke til statistik og annoncer | På alle sider, når siden er indlæst (`docs/samtykke.md`) |
+| Googles samtykkebesked (Funding Choices) | Spørger om samtykke til statistik og annoncer | På alle sider undtagen 404-siden, når siden er indlæst (`docs/samtykke.md`) |
 | Google AdSense | Annoncer | Først efter et ja til annoncer i samtykkebeskeden |
 | Google Analytics 4 | Besøgsmåling | Først efter et ja til statistik i samtykkebeskeden |
-| Cloudflare Web Analytics | Sidevisninger uden cookies | På alle sider. Sættes på af Cloudflare, ikke af koden her |
+| Cloudflare Web Analytics | Sidevisninger og indlæsningstid, uden cookies (Cloudflares oplysning) | På alle sider. Sættes på af Cloudflare, ikke af koden her |
+
+Hvor Google ikke spørger (uden for EU/EØS, Storbritannien og Schweiz), tæller det som et ja,
+og Analytics og AdSense hentes uden spørgsmål (`docs/samtykke.md`).
 
 ## Data, siden henter udefra
 

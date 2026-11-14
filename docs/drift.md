@@ -51,6 +51,7 @@ Aflæst 2026-11-14:
 | Rocket Loader, minify | fra | Skal blive fra: de ændrer sidens scripts, og den strenge CSP ville afvise dem |
 | E-mail-tilsløring | til | Giver adressen `/cdn-cgi/l/email-protection`, som Search Console melder som 404. Det er Cloudflares, ikke sidens |
 | Always Online, udviklingstilstand | fra | |
+| Web Analytics | til (sluttet af siden, ikke aflæst i Cloudflare) | Cloudflare sætter selv `static.cloudflareinsights.com/beacon.min.js` på siderne; set i målingen 2026-11-14. Står i cookiepolitikken |
 
 Workerens egne indstillinger (ruter, bindinger, hastighedsgrænsen for assistenten) står i
 `wrangler.jsonc` og udgives med koden.
