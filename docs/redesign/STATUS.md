@@ -22,7 +22,7 @@ Sidst opdateret: 2026-11-14.
 - **Fase 1, oprydning:** PR #181 flettet og udgivet 2026-11-14. De gamle kørsler (Windows,
   systemd, OpenClaw) og ComfyUI-sporet er fjernet; GitHub Actions er eneste udgivelsesvej.
   PR #170, #169, #166, #165 og #147 er lukket som forældede.
-- **Assistentens eget søgeindeks (B52):** bygges med siden, læses af Workeren fra `/_index/`;
+- **Assistentens eget søgeindeks (B52, rettet efter uafhængig gennemgang):** bygges med siden, læses af Workeren fra `/_index/`;
   `ai_search`-bindingen er fjernet. `functions/api/chat.js` er delt i `functions/lib/chat/`.
   Dokumentation: `docs/assistent.md`.
 

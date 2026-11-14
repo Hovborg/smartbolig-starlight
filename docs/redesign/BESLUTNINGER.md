@@ -379,9 +379,28 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Hvorfor ikke Pagefind (som sidens søgefelt bruger): Pagefinds indeks læses af dens egen
   WebAssembly i browseren og er ikke lavet til at blive læst i en Worker.
 - Hvorfor små filer: en Worker på gratisplanen har 10 ms CPU pr. kald. Ét stort indeks
-  skulle parses ved hvert spørgsmål; de små filer er på højst ca. 24 KB.
+  skulle parses ved hvert spørgsmål; ordfilerne sigter efter 12 KB (største i dag: 18 KB).
+  Målt værst tænkelige spørgsmål: ca. 160 KB læst og 1,7 ms CPU i Node.
 - Dansk: bøjningsendelser skæres af ("sensorerne" → "sensor"), og sammensatte ord deles ved
   bygning ("bevægelseslys" → "bevægelse" + "lys"). Synonymer forstås ikke.
+- Efter uafhængig gennemgang (2026-11-14):
+  - Overskrifter uden tekst under sig blev til egne stykker og vandt over rigtige afsnit
+    (hver femte danske stykke, plus "Kommentarer" på 151 sider). De giver nu intet stykke,
+    og et kort stykke får ingen fordel af at være kort.
+  - Afsnit, der næsten kun er links ("Næste skridt", sider med linkkort), udelades: de
+    nævner andre siders emner uden at sige noget om dem. Det samme gælder tekst, der står
+    ordret på tre sider eller flere (noten under hver nyhedsudgave).
+  - Ental og flertal var forskellige ord ("device"/"devices", "pris"/"priser"). Rettet,
+    med parvise tests.
+  - Faneblade ud over det første blev sprunget over (5,7 % af den danske tekst). Rettet.
+  - Emneregel: nævner spørgsmålet et ord fra en sidetitel, skal hvert svar indeholde et
+    sådant ord. Fravalgt: at kræve to af spørgsmålets ord i hvert svar; det gav ét svar på
+    "Hvad koster en Shelly?" og ingen Shelly-side.
+  - Loftet pr. ord er hævet fra 160 til 600 stykker (ramte 127 danske ord, nu 4).
+  - Korte forled i sammensatte ord ("elpris", "dørsensor") deles kun fra en fast liste.
+    Uden listen blev "seneste" til "se" + "nest" og "parring" til "par" + "ring".
+  - Indeksfilerne spærres ikke i `robots.txt`: de har `noindex`-hovedet, og en spærret fil
+    kan søgemaskinen ikke hente for at se det.
 - Sikring mod forringelse: faste prøvespørgsmål på begge sprog stilles efter hvert byg og
   stopper det, hvis den rigtige side falder ud af de tre bedste svar.
 - Kildekontrollen er uændret: kun `smartbolig.net`-adresser kan blive kilder, teksten

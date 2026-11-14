@@ -5,7 +5,9 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { createSiteSearch, INDEX_ROOT } from "../functions/lib/site-search/search.js";
 import { queryTerms, shardOf, stem, terms } from "../functions/lib/site-search/tokens.js";
-import { buildIndex, chunksOf, pieces, splitCompound } from "./lib/site-index/build.mjs";
+import { buildIndex } from "./lib/site-index/build.mjs";
+import { chunksOf, chunksOfSite, pieces } from "./lib/site-index/chunks.mjs";
+import { splitCompound } from "./lib/site-index/compounds.mjs";
 import { decodeEntities, extractPage, sectionsOf } from "./lib/site-index/extract.mjs";
 import { PROBES } from "./lib/site-index/probes.mjs";
 import { runProbes } from "./site-index.mjs";
@@ -56,12 +58,36 @@ test("words are stored under one form, and short words and numbers are left alon
   assert.equal(stem("lighting", "en"), "light");
 });
 
+test("singular, plural and definite forms of a word are one term", () => {
+  const same = (locale, ...forms) => assert.equal(new Set(forms.map((form) => stem(form, locale))).size, 1, forms.join(" / "));
+  same("da", "pris", "priser", "prisen", "priserne");
+  same("da", "elpris", "elpriser", "elprisen");
+  same("da", "bevægelse", "bevægelser", "bevægelses");
+  same("da", "status", "statussen");
+  same("da", "shelly", "shellys");
+  same("en", "device", "devices");
+  same("en", "price", "prices");
+  same("en", "scene", "scenes");
+  same("en", "update", "updates", "updated", "updating");
+  same("en", "battery", "batteries");
+  same("en", "entity", "entities");
+  same("en", "switch", "switches");
+  same("en", "class", "classes");
+  same("en", "status", "statuses");
+  assert.deepEqual(queryTerms("have"), ["hav"]); // the garden is a word, not filler
+});
+
 test("a question becomes distinct terms without filler words", () => {
-  assert.deepEqual(queryTerms("Hvordan tænder jeg lyset, når der er bevægelse?"), ["tænd", "lys", "bevægels"]);
+  assert.deepEqual(queryTerms("Hvordan tænder jeg lyset, når der er bevægelse?"), ["tænd", "lys", "bevægel"]);
   assert.deepEqual(queryTerms("How do I turn on the lights?", "en"), ["turn", "light"]);
   // A hyphenated name is stored joined and as its parts ("e" is a Danish ending, also here).
   assert.deepEqual(terms("Z-Wave og zigbee2mqtt"), ["zwav", "wav", "zigbee2mqtt"]);
   assert.deepEqual(terms("Z-Wave"), terms("zwave wave"));
+  // A page keeps the joined form of a hyphenated word; a question only when a part is too short to stand alone.
+  assert.deepEqual(terms("zigbee-sensor"), ["zigbeesensor", "zigbe", "sensor"]);
+  assert.deepEqual(queryTerms("zigbee-sensor"), ["zigbe", "sensor"]);
+  assert.deepEqual(queryTerms("Z-Wave"), ["zwav", "wav"]);
+  assert.deepEqual(queryTerms("zigbeesensor"), ["zigbeesensor"]);
   assert.deepEqual(queryTerms("", "da"), []);
   assert.equal(queryTerms(Array.from({ length: 40 }, (_, i) => `ord${i}`).join(" ")).length, 10);
 });
@@ -93,10 +119,38 @@ test("a page is cut at its h2 and h3 headings, and menus, buttons and hidden par
   trigger:
     - platform: state</code></pre>
     <script>alert(1)</script>`);
-  assert.deepEqual(sections.map((part) => [part.id, part.heading]), [["", ""], ["trin-1", "Trin 1"], ["kode", "Kode"]]);
+  assert.deepEqual(sections.map((part) => [part.id, part.heading, part.parent]), [["", "", ""], ["trin-1", "Trin 1", ""], ["kode", "Kode", "Trin 1"]]);
   assert.equal(sections[0].text, "Intro med link.");
   assert.equal(sections[1].text, "Første & anden linje.\nNavn | Pris |\nSensor | 99 kr. |");
   assert.equal(sections[2].text, "automation:\n  trigger:\n    - platform: state");
+});
+
+test("a heading with nothing under it gives no section, and the next h3 still names its h2", () => {
+  const sections = sectionsOf(`
+    <h2 id="opsaetning">Opsætning</h2>
+    <h3 id="docker">Docker</h3><p>Start containeren.</p>
+    <h2 id="kommentarer">Kommentarer</h2>`);
+  assert.deepEqual(sections, [{ id: "docker", heading: "Docker", parent: "Opsætning", text: "Start containeren." }]);
+});
+
+test("every tab's text is read, and words in neighbouring inline elements are not glued together", () => {
+  const sections = sectionsOf(`
+    <div role="tabpanel"><p>Første fane.</p></div>
+    <div role="tabpanel" hidden><p>Anden fane.</p></div>
+    <div hidden><p>Skjult.</p></div>
+    <p><a href="/x"><span>Bevægelseslys</span><span>Lær at bygge det</span></a></p>
+    <p><a href="/y">Køb</a><span class="badge">Reklamelink</span> hos <a href="/z">butikken</a>.</p>`);
+  assert.equal(sections[0].text, "Første fane.\nAnden fane.\nBevægelseslys Lær at bygge det\nKøb Reklamelink hos butikken.");
+});
+
+test("a section that is mostly links gives no section", () => {
+  const sections = sectionsOf(`
+    <p>En rigtig forklaring med <a href="/x">et link</a> midt i teksten, som stadig er en forklaring.</p>
+    <h2 id="naeste">Næste skridt</h2>
+    <ul><li><a href="/a">Elpris-integration</a></li><li><a href="/b">Zigbee2MQTT opsætning</a></li></ul>
+    <h2 id="mere">Mere</h2>
+    <p>Almindelig tekst.</p>`);
+  assert.deepEqual(sections.map((part) => part.id), ["", "mere"]);
 });
 
 test("a built page gives title, description and sections; a page that is not indexed gives nothing", () => {
@@ -111,8 +165,8 @@ test("a built page gives title, description and sections; a page that is not ind
     title: "Min guide",
     description: "Kort & godt",
     sections: [
-      { id: "", heading: "", text: "Tekst." },
-      { id: "a", heading: "A", text: "Mere." },
+      { id: "", heading: "", parent: "", text: "Tekst." },
+      { id: "a", heading: "A", parent: "", text: "Mere." },
     ],
   });
   assert.equal(extractPage(html('<meta name="robots" content="noindex, nofollow">', "<p>Tekst</p>")), null);
@@ -125,6 +179,8 @@ test("long text is cut at line ends and never above the size", () => {
   const long = pieces(`${"ord ".repeat(200)}`, 100);
   assert.ok(long.length > 5 && long.every((piece) => piece.length <= 100));
   assert.deepEqual(pieces("  \n \n"), []);
+  // A sentence that ends exactly at the limit is not cut one character too late.
+  assert.ok(pieces(`${"a".repeat(99)}. ${"b".repeat(150)}`, 100).every((piece) => piece.length <= 100));
 });
 
 test("a page's chunks carry the address with the section's anchor, and the intro gets the description", () => {
@@ -135,9 +191,47 @@ test("a page's chunks carry the address with the section's anchor, and the intro
   ]);
 });
 
+test("a section without text gives no chunk, an h3 carries its h2, and a page without intro still gets its description", () => {
+  const chunks = chunksOf(
+    page("/da/x/", "Titel", [section("tom", "Tom", ""), { id: "docker", heading: "Docker", parent: "Opsætning", text: "Start." }], "Beskrivelsen."),
+  );
+  assert.deepEqual(chunks, [
+    { u: "/da/x/", t: "Titel", h: "", x: "Beskrivelsen." },
+    { u: "/da/x/#docker", t: "Titel", h: "Opsætning › Docker", x: "Start." },
+  ]);
+});
+
+test("text repeated word for word on three pages is left out of the index", () => {
+  const notice = "Nyhederne er skrevet af en sprogmodel og kontrolleret mod kilderne.";
+  const pages = [1, 2, 3].map((day) => page(`/da/nyheder/${day}/`, `Dag ${day}`, [section("", "", `Nyhed nummer ${day}.`), section("om", "Om", notice)]));
+  const chunks = chunksOfSite(pages);
+  assert.equal(chunks.length, 3);
+  assert.ok(chunks.every((chunk) => chunk.x !== notice));
+  assert.equal(chunksOfSite(pages.slice(0, 2)).length, 4);
+});
+
+test("a heading alone never outranks the section that answers", async () => {
+  const pages = [
+    page("/da/a/", "Zigbee2MQTT", [
+      section("opsaetning", "Opsætning", "Installer Zigbee2MQTT som tilføjelse, og vælg din koordinator i opsætningen. ".repeat(4)),
+    ]),
+    page("/da/b/", "Netværk", [section("opsaetning", "Opsætning", ""), section("kort", "Opsætning", "Se her.")]),
+    page("/da/c/", "Andet", [section("", "", "Noget helt andet om lys og varme i huset.")]),
+  ];
+  const { files, search } = indexOf(pages);
+  assert.ok([...files].filter(([name]) => name.startsWith("c/")).every(([, content]) => JSON.parse(content).every((chunk) => chunk.x !== chunk.h)));
+  assert.equal((await search("zigbee2mqtt opsætning"))[0].url, "/da/a/#opsaetning");
+});
+
 test("a joined word is split into the two known words it is made of", () => {
-  const known = new Set(["bevægels", "lys", "gang", "sensor", "led", "control"]);
-  assert.deepEqual(splitCompound("bevægelseslys", known, "da"), ["bevægels", "lys"]);
+  const known = new Set(["bevægel", "lys", "gang", "sensor", "led", "control", "el", "pri", "mål", "dør", "se", "nest", "par", "ring"]);
+  assert.deepEqual(splitCompound("bevægelseslys", known, "da"), ["bevægel", "lys"]);
+  // A short first part is accepted from a fixed list only, and needs a last part of four letters.
+  assert.deepEqual(splitCompound("elpris", known, "da"), ["el", "pri"]);
+  assert.deepEqual(splitCompound("elmåler", known, "da"), ["el", "mål"]);
+  assert.deepEqual(splitCompound("dørsensor", known, "da"), ["dør", "sensor"]);
+  assert.equal(splitCompound("seneste", known, "da"), null); // not "se" + "nest"
+  assert.equal(splitCompound("parring", known, "da"), null); // not "par" + "ring"
   assert.deepEqual(splitCompound("ganglys", known, "da"), ["gang", "lys"]);
   assert.equal(splitCompound("sensorerne", known, "da"), null);
   assert.equal(splitCompound("udelys", known, "da"), null); // too short to be split safely
@@ -182,6 +276,19 @@ test("a chunk that answers more of the question wins over one that repeats a sin
     page("/da/b/", "B", [section("", "", "En sensor måler temperatur i drivhuset.")]),
   ]);
   assert.equal((await search("sensor temperatur drivhus", "da"))[0].url, "/da/b/");
+});
+
+test("when the question names something the site has a page about, every result is about it", async () => {
+  const pages = [
+    page("/da/a/shelly/", "Shelly Produktguide", [section("", "", "Shelly laver relæer til lys og måling af forbrug i hjemmet.")]),
+    page("/da/a/vand/", "Smart vand", [section("", "", "En Shelly Flood koster omkring 200 kr. og melder om lækage.")]),
+    page("/da/a/vilkaar/", "Vilkår", [section("", "", "Det koster ikke noget at læse med. Det koster heller ikke noget at skrive.")]),
+    page("/da/a/andet/", "Andet", [section("", "", "Noget om varme og gardiner."), section("x", "Mere", "Og lidt om ventilation.")]),
+  ];
+  const { search } = indexOf(pages);
+  assert.deepEqual((await search("Hvad koster en Shelly?")).map((result) => result.url), ["/da/a/vand/", "/da/a/shelly/"]);
+  // No page is about "koster": then any text that says it may answer.
+  assert.deepEqual((await search("hvad koster det")).map((result) => result.url), ["/da/a/vilkaar/", "/da/a/vand/"]);
 });
 
 test("at most two results come from the same page, and the limit is kept", async () => {

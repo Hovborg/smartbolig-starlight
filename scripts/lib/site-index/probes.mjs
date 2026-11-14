@@ -22,7 +22,7 @@ export const PROBES = {
     { query: "zigbee2mqtt setup", page: "/en/home-assistant/zigbee2mqtt/" },
     { query: "cheapest hours for the dishwasher", page: "/en/automationer/billige-timer/" },
     { query: "electricity meter HAN port", page: "/en/home-assistant/elmaaler-han-port/" },
-    { query: "holiday mode", page: "/en/automationer/ferietilstand/" },
+    { query: "vacation mode", page: "/en/automationer/ferietilstand/" },
     { query: "ld2410 mmwave sensor", page: "/en/esp32/ld2410-mmwave/" },
   ],
 };

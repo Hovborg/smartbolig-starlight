@@ -65,6 +65,11 @@ async function main() {
 
 /** `--ask <language> "<question>"`: show what the built index answers, for debugging. */
 async function ask(locale, query) {
+  if (!LOCALES.includes(locale) || !query) {
+    console.error(`Usage: node scripts/site-index.mjs --ask <${LOCALES.join("|")}> "<question>"`);
+    process.exitCode = 1;
+    return;
+  }
   const search = createSiteSearch({ readJson: async (address) => JSON.parse(await readFile(path.join(dist, address), "utf8")) });
   for (const result of await search(query, locale)) {
     console.log(`${result.score.toFixed(1).padStart(6)}  ${result.url}\n        ${result.title} · ${result.heading || "(intro)"}\n        ${result.text.slice(0, 110).replace(/\n/g, " ")}…`);
