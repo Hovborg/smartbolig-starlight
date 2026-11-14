@@ -170,9 +170,24 @@ Sidst opdateret: 2026-11-14.
   - Søgefeltet og tidsknapperne er skjult, til scriptet kører; pladsen bør holdes fri.
   - Filer uden brug fra før redesignet (`ProductCard.astro`, `scripts/content-inventory.mjs`,
     `public/images/produkter/`, `logo-email.png`): tjek ekstern brug, før de slettes.
-  - Diagrammerne i guiderne (27 SVG-filer) er ikke set igennem. LD2410-oversigten har
-    overlappende tekst og dansk tekst på den engelske side; de andre skal ses som billede, og
-    fakta holdes op mod guidens tekst og kode.
+  - Diagrammerne i guiderne: alle 27 SVG-filer er tegnet om, set som billede (328 og 720 px,
+    mørk og lys baggrund) og holdt op mod guidens tekst og kode. Teksten er mindst 18 enheder i
+    en 640 enheder bred `viewBox` (ca. 9 px på en telefon; før 2,5-5 px), intet overlapper, og
+    hver fil har `<title>` og `<desc>` på sit sprog. Syv engelske guides, der viste et dansk
+    diagram, har fået et engelsk, og den engelske ESP32-startguide viser nu oversigten og
+    benoversigten (ni nye engelske filer, 36 i alt). Reglerne for nye diagrammer står i
+    `docs/billeder.md` under "Diagrammer". Tilbage:
+    - LD2410-ledningsdiagrammet viser OUT som "bruges ikke". Før var der en valgfri ledning fra
+      OUT til GPIO5, som guidens tabel og kode ikke bruger. Skal OUT bruges, vælges et frit ben,
+      og guide, kode og diagram ændres samlet.
+    - Den engelske LD2410-guide har ikke den danske guides tabel "ESP32 til LD2410C"; diagrammet
+      og koden er dens eneste kilde til ESP32-benene.
+    - Rettet i samme omgang: PIR-guiden, dens kode og diagram bruger nu GPIO13 (GPIO5 læses
+      ved opstart, og ESPHome advarer om det); Raspberry Pi-tabellen nævner 15 W til Pi 4 og
+      27 W til Pi 5 (Raspberry Pis dokumentation, "Recommended power supply", læst 2026-11-14);
+      vaskemaskine-guiden skriver 100-2000 W begge steder; overskriften "Wiring diagram" i tre
+      danske guider hedder "Ledningsdiagram".
+    - Ikke set på en rigtig telefon, i Safari eller i Firefox.
   - Indtryk: emoji i tabelceller, emnekortene for automationer og produkter ligner hinanden,
     det store Home Assistant-kort har få detaljer, nyhedsartikler mangler brødkrumme, og
     nyhedsoversigtens store kort gentager dato og overskrift.

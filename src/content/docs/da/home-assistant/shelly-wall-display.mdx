@@ -12,7 +12,7 @@ Shelly Wall Display (model SAWD1) er en 4" touchskærm med indbyggede sensorer o
 
 ## 🤔 Hvad er Shelly Wall Display?
 
-![Shelly Wall Display oversigt](../../../../assets/guides/shelly-wall-display/overview.svg)
+![Shelly Wall Display: 4 tommer touchskærm med indbyggede sensorer, 5 A relæ, dashboard og termostat. Den kræver fase og neutral](../../../../assets/guides/shelly-wall-display/overview.svg)
 
 Shelly Wall Display er en alt-i-én løsning der kombinerer:
 
@@ -40,7 +40,7 @@ Shelly Wall Display er en alt-i-én løsning der kombinerer:
 - Home Assistant installation
 
 <Aside type="caution" title="Kræver neutral!">
-Shelly Wall Display kræver både fase (L), neutral (N) og jord. Ældre installationer uden neutral i kontakten virker IKKE.
+Shelly Wall Display kræver både fase (L) og neutral (N). Ældre installationer uden neutral i kontakten virker IKKE.
 </Aside>
 
 ## ⚡ Installation
@@ -51,10 +51,12 @@ Shelly Wall Display kræver både fase (L), neutral (N) og jord. Ældre installa
 1. **Sluk for strømmen** på grupppen i eltavlen
 2. **Verificer** med spændingstester at der ikke er strøm
 3. **Tilslut ledninger:**
-   - L (brun/sort) → L terminal
-   - N (blå) → N terminal
-   - Jord (gul/grøn) → ⏚ terminal
-   - Evt. switch wire → SW terminal (til det indbyggede relæ)
+   - L (brun/sort) → L-klemmen
+   - N (blå) → N-klemmen
+   - Lampen eller det, det indbyggede relæ skal tænde → O-klemmen (valgfrit)
+   - En eksisterende afbryder eller trykknap → SW-klemmen (valgfrit)
+
+   Displayet har ingen jordklemme. Ligger der en jordleder (gul/grøn) i dåsen, skal den stadig være forbundet videre til lampen som før.
 4. **Montér displayet** i indmuringsdåsen
 5. **Tænd for strømmen**
 </Steps>
