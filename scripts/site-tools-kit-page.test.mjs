@@ -45,7 +45,7 @@ test("the kit says who fits a part of the fixed installation, and never a price"
   for (const [lang, t] of languages) {
     // "Billigst" may be said of power by the hour, never of a part.
     const texts = [JSON.stringify(t.items), JSON.stringify(t.limits), JSON.stringify(t.notes), t.note, t.gap];
-    for (const text of texts) assert.equal(/\d\s*(kr\b|kr\.|DKK|øre\b)|billigst|cheapest|\bbedste\b|\bbest\b/i.test(text), false, `${lang}: a price or a "best" claim in the kit`);
+    for (const text of texts) assert.equal(/\d\s*(kr\b|kr\.|DKK|øre\b)|billigst|cheapest|\bbedste?\b|\bbest\b/i.test(text), false, `${lang}: a price or a "best" claim in the kit`);
     assert.equal(/\d\s*(kr\b|kr\.|DKK|øre\b)/i.test(JSON.stringify(t)), false, `${lang}: a price in the tool`);
   }
 });
@@ -111,4 +111,21 @@ test("the script only switches what is already on the page", async () => {
     assert.match(page, new RegExp(`<StarterKit lang="${lang}" />`));
     assert.match(page, /lastUpdated: 2026-11-14/);
   }
+});
+
+test("the view lists the blocks, the parts, the steps and the notes of a kit", () => {
+  const kit = buildKit({ goals: ["light", "security"], home: "owner", have: "bridge", diy: true });
+  const keys = kitKeys(kit);
+  assert.deepEqual([...keys].filter((key) => key.startsWith("block:")), kit.blocks.map((id) => `block:${id}`));
+  assert.ok(kit.blocks.length > 0 && kit.notes.length > 0 && kit.steps.length > 0);
+  assert.equal(keys.size, kit.items.length + kit.blocks.length + kit.steps.length + kit.notes.length);
+  for (const id of kit.items) assert.ok(keys.has(`item:${id}`));
+  for (const id of kit.steps) assert.ok(keys.has(`step:${id}`));
+  for (const id of kit.notes) assert.ok(keys.has(`note:${id}`));
+  assert.ok(keys.has("block:security") && keys.has("block:diy"));
+});
+
+test("the live region reads the labels with the numbers", async () => {
+  const frame = await source("src/components/tools/StarterKit.astro");
+  assert.match(frame, /<dl class="sb-tool-stats sb-kit-stats" aria-atomic="true">/);
 });

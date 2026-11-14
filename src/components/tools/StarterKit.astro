@@ -27,7 +27,7 @@ const t = starterKitCopy[lang];
 
   <Fragment slot="result">
     <p class="sb-tool-figure__label">{t.summary.title}</p>
-    <dl class="sb-tool-stats sb-kit-stats">
+    <dl class="sb-tool-stats sb-kit-stats" aria-atomic="true">
       <div><dt>{t.summary.parts}</dt><dd data-part="parts">{START_COUNTS.parts}</dd></div>
       <div><dt>{t.summary.links}</dt><dd data-part="links">{START_COUNTS.links}</dd></div>
       <div><dt>{t.summary.steps}</dt><dd data-part="steps">{START_COUNTS.steps}</dd></div>

@@ -121,3 +121,34 @@ test("answers that make no sense become the careful choice", () => {
   assert.deepEqual(readAnswers({ goals: ["climate", "nonsense", "light", "light"] }).goals, ["light", "climate"]);
   assert.deepEqual(buildKit(undefined), { items: ["brain-ha"], blocks: ["brain"], steps: ["install", "device", "auto-first"], notes: ["tenant", "no-goal"] });
 });
+
+test("the DIY parts follow the goals: strip with light, motion with light or security, sensor with climate or heating", () => {
+  for (const { answers, kit } of kits.filter(({ answers }) => answers.diy)) {
+    const has = (id) => kit.items.includes(id);
+    const wants = (...names) => names.some((name) => answers.goals.includes(name));
+    assert.ok(has("diy-board"), say(answers));
+    assert.equal(has("diy-light"), wants("light"), `${say(answers)}: the LED strip`);
+    assert.equal(has("diy-motion"), wants("light", "security"), `${say(answers)}: the motion sensor`);
+    assert.equal(has("diy-climate"), wants("climate", "heating"), `${say(answers)}: the climate sensor`);
+  }
+  for (const { answers, kit } of kits.filter(({ answers }) => !answers.diy)) assert.ok(kit.items.every((id) => !id.startsWith("diy-")), say(answers));
+  // Without a DIY goal the DIY block is the board alone.
+  assert.deepEqual(buildKit({ goals: ["energy"], diy: true }).items.filter((id) => id.startsWith("diy-")), ["diy-board"]);
+  assert.deepEqual(buildKit({ goals: ["heating"], diy: true }).items.filter((id) => id.startsWith("diy-")), ["diy-board", "diy-climate"]);
+});
+
+test("a part that points at a shared part is used only when its source is in the kit", () => {
+  const SOURCE = { "heat-sensor-shared": "climate-sensor", "security-motion-shared": "light-motion" };
+  const own = { "heat-sensor-shared": "heat-sensor", "security-motion-shared": "security-motion" };
+  assert.deepEqual(Object.keys(SOURCE).sort(), Object.keys(ITEMS).filter((id) => id.endsWith("-shared")).sort());
+  for (const { answers, kit } of kits) {
+    for (const [shared, source] of Object.entries(SOURCE)) {
+      if (kit.items.includes(shared)) assert.ok(kit.items.includes(source) && !kit.items.includes(own[shared]), `${say(answers)}: ${shared} without ${source}`);
+      if (kit.items.includes(own[shared])) assert.ok(!kit.items.includes(source), `${say(answers)}: ${own[shared]} bought twice`);
+    }
+  }
+  assert.ok(buildKit({ goals: ["heating", "climate"] }).items.includes("heat-sensor-shared"));
+  assert.ok(buildKit({ goals: ["heating"] }).items.includes("heat-sensor"));
+  assert.ok(buildKit({ goals: ["security", "light"] }).items.includes("security-motion-shared"));
+  assert.ok(buildKit({ goals: ["security"] }).items.includes("security-motion"));
+});

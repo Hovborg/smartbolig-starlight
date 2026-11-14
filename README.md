@@ -16,7 +16,7 @@ overskueligt og driftssikkert smart home. Fokus er på:
 - **Home Assistant** - Installation, konfiguration og automationer
 - **ESP32/ESPHome** - DIY sensorer og enheder
 - **Produktguides** - Anbefalinger til smart home udstyr
-- **Værktøjer** - Elprisen lige nu, hvad et apparat koster i strøm, og en startsæt-bygger (`/vaerktoejer/`)
+- **Værktøjer** - Elprisen lige nu, hvad et apparat koster i strøm, en Zigbee-kanalvælger, batterilevetid og en startsæt-bygger (`/vaerktoejer/`)
 - **Lokal kontrol** - Løsninger der kan holde centrale funktioner i hjemmet
 - **International anvendelighed** - Generelle guides kræver ikke danske tjenester
 

@@ -64,7 +64,7 @@ Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Ene
 
 | Sti | Indhold |
 |---|---|
-| `src/content/docs/da/vaerktoejer/`, `src/content/docs/en/vaerktoejer/` | Siderne: `index.mdx` (oversigt), `elpris.mdx`, `stroemforbrug.mdx`, `startsaet.mdx`. Samme filnavne på begge sprog |
+| `src/content/docs/da/vaerktoejer/`, `src/content/docs/en/vaerktoejer/` | Siderne: `index.mdx` (oversigt), `elpris.mdx`, `stroemforbrug.mdx`, `zigbee-kanal.mdx`, `batterilevetid.mdx`, `startsaet.mdx`. Samme filnavne på begge sprog |
 | `config/sidebar/vaerktoejer.mjs` | Sidemenuen for sektionen |
 | `src/lib/primary-nav.ts` | Punktet "Værktøjer" i topbjælken |
 | `src/lib/tools/catalog.mjs` | Listen over værktøjer. Oversigtens kort tegnes af den (`ToolCards.astro`, `ToolIcon.astro`) |
@@ -95,7 +95,7 @@ Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Ene
 | `src/lib/tools/starter-kit-view.mjs` | Hvad et sæt betyder for siden: hvilke mærkede elementer vises, de tre tal, og starttilstanden. Uden DOM |
 | `src/lib/tools/starter-kit-copy.mjs`, `starter-kit-parts-copy.mjs` | Teksterne på dansk og engelsk. Delenes tekster står i den anden fil |
 | `src/lib/tools/starter-kit-ui.mjs` | Læser svarene og skifter `hidden` på de mærkede elementer |
-| `scripts/site-tools.test.mjs`, `site-tools-price.test.mjs`, `site-tools-api.test.mjs`, `site-tools-zigbee.test.mjs`, `site-tools-battery.test.mjs`, `site-tools-ui.test.mjs`, `site-tools-kit.test.mjs`, `site-tools-kit-page.test.mjs` | Tests. Køres med `npm run site:test` |
+| `scripts/site-tools.test.mjs`, `site-tools-price.test.mjs`, `site-tools-api.test.mjs`, `site-tools-zigbee.test.mjs`, `site-tools-battery.test.mjs`, `site-tools-ui.test.mjs`, `site-tools-kit.test.mjs`, `site-tools-kit-page.test.mjs`, `site-tools-kit-ui.test.mjs` | Tests. Køres med `npm run site:test` |
 
 ## Regler, der er valgt med vilje
 
@@ -196,6 +196,9 @@ Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Ene
   HTML.
 - **En lejer får aldrig en del af den faste installation.** En del med `fixed: true` vises kun
   for en ejer, og dér står, at en autoriseret elinstallatør skal montere den.
+- **Kendte grænser i startsættet.** DIY-delene følger målene lys, sikkerhed, varme og indeklima.
+  Med "DIY: ja" og intet mål, eller kun målet energi, viser blokken kun printpladen (12 af de
+  384 kombinationer). Det er med vilje.
 
 ## Sådan svarer `/api/elpris`
 
@@ -306,7 +309,7 @@ første skridt.
    - En lejer får ingen del med `fixed`.
    - Forbindelsen følger delene: en koordinator kun, når sættet har Zigbee-dele.
    - Skridtene: udlejer (kun en lejer med radiatortermostat), installér eller backup, Zigbee
-     (kun med koordinator), tilføj en del, og én automation til det første valgte mål.
+     (kun med koordinator), tilføj en del, og én automation til det første af de valgte mål i den viste rækkefølge.
 3. Komponenterne bygger alle dele og skridt på serveren og mærker dem `data-kit="item:<id>"`,
    `block:`, `step:` eller `note:`. Det, startsvarene (`DEFAULT_ANSWERS`: lys, lejer, intet i
    forvejen) ikke viser, får `hidden`.

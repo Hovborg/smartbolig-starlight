@@ -942,8 +942,8 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   elinstallatør skal montere den. En lejer med radiatortermostat får "skriv til din udlejer"
   som første skridt.
 - Valgt: sættet er bygget til Home Assistant med en Zigbee-koordinator, også for en læser med
-  en bro fra Hue eller IKEA. Begrundelse: guiderne siger ikke, hvilke af delene en bro kan
-  styre; sættet siger det åbent.
+  en bro fra Hue eller IKEA. Begrundelse: guiderne dækker Hue-pærer på en Hue Bridge (`smart-belysning.mdx`), men
+  sættet giver stadig én vej, koordinatoren, og siger det åbent.
 - Valgt: ZHA og Zigbee2MQTT nævnes begge, uden at sættet vælger. Begrundelse: `start.mdx` og
   `zigbee-koordinatorer.mdx` anbefaler hver sin til en begynder.
 - Valgt: blokken Sikkerhed er besked på telefonen (dør- og bevægelsessensor), ikke sirene
