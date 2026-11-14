@@ -6,6 +6,23 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
+  # The daily news workflow (ai-news.yml) publishes through this workflow, so
+  # there is one deploy path with one set of gates.
+  workflow_call:
+    inputs:
+      ref:
+        description: 'Commit to check out and deploy.'
+        required: true
+        type: string
+      quality_base:
+        description: 'Commit before the change, for the changed-issue quality check.'
+        required: false
+        type: string
+      publish:
+        description: 'Deploy after the gates pass.'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   deploy:
@@ -13,14 +30,42 @@ jobs:
     permissions:
       contents: read
       actions: read # read the last successful deploy for the audit base
+    # Production deploys run one at a time; pull requests only validate.
+    concurrency:
+      group: ${{ github.event_name == 'pull_request' && format('deploy-pr-{0}', github.event.number) || 'deploy-production' }}
+      cancel-in-progress: false
+    env:
+      # The only place that decides whether a run publishes: a push to main,
+      # or a call from the news workflow on main.
+      SHOULD_DEPLOY: ${{ github.ref == 'refs/heads/main' && (github.event_name == 'push' || inputs.publish == true) }}
 
     steps:
       - name: Checkout
         # SHA-pinned (v6); no persisted token — this job never pushes.
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
         with:
+          # Empty outside workflow_call: the event's own commit is used.
+          ref: ${{ inputs.ref }}
           fetch-depth: 0
           persist-credentials: false
+
+      # A call from the news workflow names the commit it wants deployed. When
+      # main has moved on since, that commit is stale: the newer push has its
+      # own deploy run, so this run only validates and publishes nothing.
+      - name: Check that the requested commit is still the tip of main
+        id: tip
+        if: inputs.ref != ''
+        env:
+          REQUESTED_REF: ${{ inputs.ref }}
+        run: |
+          git fetch --quiet origin main
+          tip="$(git rev-parse origin/main)"
+          if [ "$tip" = "$REQUESTED_REF" ]; then
+            echo "current=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "current=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::main has moved on from $REQUESTED_REF to $tip. Nothing is published by this run; the newer push has its own deploy run."
+          fi
 
       - name: Setup Node.js
         uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
@@ -53,7 +98,7 @@ jobs:
 
       - name: Validate automatically published AI News quality
         env:
-          QUALITY_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          QUALITY_BASE: ${{ inputs.quality_base || github.event.pull_request.base.sha || github.event.before }}
         run: npm run ai-news:quality:changed -- --base "$QUALITY_BASE"
 
       - name: Audit guide content
@@ -97,8 +142,12 @@ jobs:
       - name: Validate Workers deployment
         run: npm exec --no -- wrangler deploy --dry-run
 
+      - name: Validate the news relay Worker
+        # Validated here, deployed by hand: see workers/news-llm/README.md.
+        run: npm exec --no -- wrangler deploy --dry-run --config workers/news-llm/wrangler.jsonc
+
       - name: Deploy to Cloudflare Workers
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: env.SHOULD_DEPLOY == 'true' && (inputs.publish != true || steps.tip.outputs.current == 'true')
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
@@ -107,7 +156,7 @@ jobs:
         run: npm exec --no -- wrangler deploy
 
       - name: Ping IndexNow
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: env.SHOULD_DEPLOY == 'true' && (inputs.publish != true || steps.tip.outputs.current == 'true')
         # The site is already deployed at this point — a failed search-engine
         # ping (e.g. missing key or IndexNow API hiccup) must not fail the run.
         continue-on-error: true

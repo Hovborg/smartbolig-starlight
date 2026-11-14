@@ -42,3 +42,7 @@ service-account*.json
 
 # playwright-cli session artefacts
 .playwright-cli/
+
+# Raw measurement output stays local; the summary README is committed.
+docs/measurements/**/lighthouse/
+docs/measurements/**/screenshots/

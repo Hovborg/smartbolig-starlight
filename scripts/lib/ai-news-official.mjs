@@ -10,6 +10,9 @@ export const OFFICIAL_HOSTS = [
   "claude.com",
   "blog.google",
   "ai.google.dev",
+  "deepmind.google",
+  "mistral.ai",
+  "home-assistant.io",
 ];
 
 // GitHub is only official for these exact owner/repository paths.
@@ -18,6 +21,7 @@ export const OFFICIAL_GITHUB_REPOS = [
   "openai/codex",
   "google-gemini/gemini-cli",
   "openclaw/openclaw",
+  "ollama/ollama",
 ];
 
 export function isOfficialUrl(value) {

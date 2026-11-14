@@ -1,0 +1,274 @@
+name: AI News
+
+# Writes, fact-checks and publishes the daily AI-news issue without a human.
+# A day without enough verified stories is a successful run that publishes
+# nothing. Flow, troubleshooting and secret rotation: docs/nyhedsflow.md.
+
+on:
+  schedule:
+    # 04:37 and 11:37 UTC. The second run exits at once when the first one
+    # published; otherwise it tries again with the sources of the day.
+    - cron: '37 4 * * *'
+    - cron: '37 11 * * *'
+  workflow_dispatch:
+    inputs:
+      date:
+        description: 'Issue date (YYYY-MM-DD). Empty = today in Copenhagen.'
+        required: false
+        type: string
+      dry_run:
+        description: 'Run every step, but do not commit, push or deploy.'
+        required: false
+        type: boolean
+        default: false
+
+concurrency:
+  group: ai-news
+  cancel-in-progress: false
+
+permissions: {}
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # A failed run shows red on this job without failing the workflow, so no
+    # failure mail goes out for a single bad day. The watch job reports when
+    # publishing has been stalled for several days.
+    continue-on-error: true
+    permissions:
+      contents: write
+    outputs:
+      deploy: ${{ steps.decide.outputs.deploy }}
+      ref: ${{ steps.decide.outputs.ref }}
+      base: ${{ steps.push.outputs.base }}
+    env:
+      # The lead image is rendered from text only; no image model is called.
+      AI_NEWS_DISABLE_AI: '1'
+      DRY_RUN: ${{ inputs.dry_run == true }}
+
+    steps:
+      - name: Checkout
+        # No persisted token: only the push step gets one.
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+
+      - name: Install the font for the lead image
+        run: sudo apt-get update -qq && sudo apt-get install -y --no-install-recommends fonts-liberation
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Resolve the issue date
+        env:
+          REQUESTED_DATE: ${{ inputs.date }}
+        run: |
+          date="${REQUESTED_DATE:-$(TZ=Europe/Copenhagen date +%F)}"
+          # Whole-string match: a value with a newline must not pass and
+          # write extra lines to GITHUB_ENV.
+          if ! [[ "$date" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+            echo "Invalid date: expected YYYY-MM-DD" >&2
+            exit 1
+          fi
+          echo "AI_NEWS_DATE=$date" >> "$GITHUB_ENV"
+          echo "AI_NEWS_RESULT_PATH=$RUNNER_TEMP/ai-news-result.json" >> "$GITHUB_ENV"
+
+      - name: Check the official sources
+        # Informational: shows which sources are down. The writing step has
+        # its own rule for a day where every critical source fails.
+        continue-on-error: true
+        run: npm run ai-news:source-health
+
+      - name: Write and fact-check the issue
+        id: write
+        env:
+          AI_NEWS_LLM_URL: ${{ secrets.AI_NEWS_LLM_URL }}
+          AI_NEWS_LLM_KEY: ${{ secrets.AI_NEWS_LLM_KEY }}
+        run: node scripts/ai-news-publish.mjs --write --require-llm
+
+      - name: Report the outcome
+        id: report
+        if: always()
+        env:
+          WRITE_OUTCOME: ${{ steps.write.outcome }}
+        run: node scripts/ai-news-run-report.mjs
+
+      - name: Render the lead image
+        if: steps.report.outputs.status == 'publish'
+        run: |
+          node scripts/ai-news-render-image.mjs --date "$AI_NEWS_DATE"
+          node scripts/ai-news-thumbs.mjs --date "$AI_NEWS_DATE"
+
+      # The gates that decide whether an issue can be deployed, run before
+      # anything reaches main, so a bad issue can never block the next day's
+      # deploy. deploy.yml also runs the audits that do not depend on the
+      # issue (dependency audit, content-audit unit tests, Wrangler dry runs).
+      - name: Setup Python
+        if: steps.report.outputs.status == 'publish'
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.14'
+
+      - name: Install content-audit dependency
+        if: steps.report.outputs.status == 'publish'
+        run: python3 -m pip install --disable-pip-version-check PyYAML==6.0.3
+
+      - name: Test AI News automation
+        if: steps.report.outputs.status == 'publish'
+        run: npm run ai-news:test
+
+      - name: Validate AI News content
+        if: steps.report.outputs.status == 'publish'
+        run: npm run ai-news:validate
+
+      - name: Validate the quality of the new issue
+        if: steps.report.outputs.status == 'publish'
+        run: npm run ai-news:quality -- --date "$AI_NEWS_DATE"
+
+      - name: Validate the image assets of the new issue
+        if: steps.report.outputs.status == 'publish'
+        run: npm run ai-news:pending-images -- --date "$AI_NEWS_DATE" --fail-on-pending
+
+      - name: Test site invariants
+        if: steps.report.outputs.status == 'publish'
+        run: npm run site:test
+
+      - name: Audit guide content
+        if: steps.report.outputs.status == 'publish'
+        run: python3 scripts/content-audit.py
+
+      - name: Build
+        if: steps.report.outputs.status == 'publish'
+        run: npm run build
+
+      - name: Validate SEO metadata
+        if: steps.report.outputs.status == 'publish'
+        run: npm run seo:validate
+
+      - name: Build Workers router
+        if: steps.report.outputs.status == 'publish'
+        run: npm run worker:build
+
+      - name: Commit and push the issue
+        id: push
+        if: steps.report.outputs.status == 'publish' && env.DRY_RUN != 'true' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          base="$(git rev-parse HEAD)"
+          node scripts/ai-news-ci-stage.mjs --date "$AI_NEWS_DATE"
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m "feat(ai-news): publish $AI_NEWS_DATE brief"
+          auth="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          echo "::add-mask::$auth"
+          remote() { git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth" "$@"; }
+          # main may have moved while the gates ran; the deploy job re-runs them.
+          remote fetch origin main
+          git rebase origin/main
+          remote push origin HEAD:main
+          echo "base=$base" >> "$GITHUB_OUTPUT"
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Decide whether to deploy
+        id: decide
+        if: always()
+        env:
+          PUSH_OUTCOME: ${{ steps.push.outcome }}
+          ON_MAIN: ${{ github.ref == 'refs/heads/main' }}
+        run: |
+          deploy=false
+          ref=""
+          if [ "$DRY_RUN" != 'true' ] && [ "$ON_MAIN" = 'true' ] && [ "$PUSH_OUTCOME" != 'failure' ]; then
+            # Only the committed tree of origin/main counts: the working tree
+            # may hold today's unpublished files after a failed gate.
+            git fetch --quiet origin main
+            tip="$(git rev-parse origin/main)"
+            if [ "$PUSH_OUTCOME" = 'success' ]; then
+              deploy=true
+              ref="$tip"
+            else
+              # Self-heal: an issue that is on main but answers 404 on the site
+              # was committed without a finished deploy. Deploy it now.
+              latest="$(git ls-tree --name-only origin/main src/content/docs/da/ai/nyheder/ \
+                | sed -nE 's#.*/([0-9]{4}-[0-9]{2}-[0-9]{2})\.mdx$#\1#p' | sort | tail -n 1)"
+              if [ -n "$latest" ]; then
+                code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 20 "https://smartbolig.net/da/ai/nyheder/$latest/" || true)"
+                if [ "$code" = '404' ]; then
+                  echo "The issue for $latest is on main but not live; deploying."
+                  deploy=true
+                  ref="$tip"
+                fi
+              fi
+            fi
+          fi
+          echo "deploy=$deploy" >> "$GITHUB_OUTPUT"
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+  deploy:
+    needs: publish
+    if: ${{ always() && needs.publish.outputs.deploy == 'true' }}
+    permissions:
+      contents: read
+      actions: read
+    uses: ./.github/workflows/deploy.yml
+    with:
+      ref: ${{ needs.publish.outputs.ref }}
+      quality_base: ${{ needs.publish.outputs.base }}
+      publish: true
+    secrets: inherit
+
+  watch:
+    needs: [publish, deploy]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6
+        with:
+          ref: main
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: '24'
+
+      - name: Measure days since the newest issue
+        id: age
+        run: node scripts/ai-news-staleness.mjs >> "$GITHUB_OUTPUT"
+
+      # The only notification: one issue when publishing has been stalled for
+      # several days, closed again when it resumes.
+      - name: Open or close the stalled-publishing issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STALE: ${{ steps.age.outputs.stale }}
+          DAYS: ${{ steps.age.outputs.days }}
+          LATEST: ${{ steps.age.outputs.latest }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/workflows/ai-news.yml
+          # Opening is left to the later daily run or a manual run, so the
+          # early run cannot open the issue and the later one close it again
+          # on the same day. Closing is allowed in every run.
+          MAY_OPEN: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '37 11 * * *' }}
+        run: |
+          gh label create ai-news-stalled --repo "$GITHUB_REPOSITORY" --color B60205 \
+            --description 'AI News has not published for several days' --force
+          open="$(gh issue list --repo "$GITHUB_REPOSITORY" --label ai-news-stalled --state open --json number --jq '.[0].number // ""')"
+          if [ "$STALE" = 'true' ] && [ -z "$open" ] && [ "$MAY_OPEN" = 'true' ]; then
+            gh issue create --repo "$GITHUB_REPOSITORY" --label ai-news-stalled \
+              --title "AI News has not published for $DAYS days" \
+              --body "The newest issue is from $LATEST. Each run's summary says why it published nothing: $RUN_URL. Troubleshooting: docs/nyhedsflow.md."
+          elif [ "$STALE" != 'true' ] && [ -n "$open" ]; then
+            gh issue close "$open" --repo "$GITHUB_REPOSITORY" --comment "Publishing resumed with the issue for $LATEST."
+          fi

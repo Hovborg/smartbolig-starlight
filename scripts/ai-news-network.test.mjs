@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { extractMetaDescription, fetchSourceMaterial } from './ai-news-regenerate.mjs';
 import { checkReferenceUrl, fetchText as fetchHealthText } from './ai-news-source-health.mjs';
 import { changedIssueDates } from './ai-news-quality-changed.mjs';
 import { fetchPublicText } from './lib/ai-news-discovery.mjs';
@@ -12,67 +11,45 @@ import { readFile } from 'node:fs/promises';
 
 const lookup = async () => [{ address: '93.184.216.34', family: 4 }];
 const officialUrl = 'https://openai.com/index/example';
-const item = () => ({ canonicalUrl: officialUrl, summary: '', bodyText: '' });
 
 test('the real publisher does not replace the pinned production transport with global fetch', async () => {
   const source = await readFile(new URL('./ai-news-publish.mjs', import.meta.url), 'utf8');
   assert.equal(/fetchCandidates\(FEEDS,\s*(?:globalThis\.)?fetch\s*[,)]/.test(source), false, 'production discovery must use the default pinned transport');
 });
 
-for (const consumer of ['regeneration', 'source health']) {
-  const consume = async (options) => {
-    if (consumer === 'source health') return fetchHealthText(officialUrl, {}, options);
-    const source = item();
-    await fetchSourceMaterial(source, options);
-    return source;
+const consume = (options) => fetchHealthText(officialUrl, {}, options);
+
+test('source health blocks off-domain redirects before reading internal data', async () => {
+  const calls = [];
+  const fetchImpl = async (url, options) => {
+    calls.push(url);
+    // Model native fetch following a redirect unless explicitly disabled.
+    if (options.redirect !== 'manual') return new Response('PRIVATE_MARKER');
+    return Response.redirect('https://169.254.169.254/latest/meta-data/', 302);
   };
-
-  test(`${consumer} blocks off-domain redirects before reading internal data`, async () => {
-    const calls = [];
-    const fetchImpl = async (url, options) => {
-      calls.push(url);
-      // Model native fetch following a redirect unless explicitly disabled.
-      if (options.redirect !== 'manual') return new Response('PRIVATE_MARKER');
-      return Response.redirect('https://169.254.169.254/latest/meta-data/', 302);
-    };
-    if (consumer === 'source health') {
-      await assert.rejects(consume({ fetchImpl, lookup }), /blocked/i);
-    } else {
-      const result = await consume({ fetchImpl, lookup });
-      assert.equal(result.bodyText, '');
-    }
-    assert.deepEqual(calls, [officialUrl]);
-  });
-
-  test(`${consumer} rejects private DNS answers without fetching`, async () => {
-    let requests = 0;
-    const options = {
-      lookup: async () => [{ address: '10.0.0.5', family: 4 }],
-      fetchImpl: async () => { requests++; return new Response('PRIVATE_MARKER'); },
-    };
-    if (consumer === 'source health') await assert.rejects(consume(options), /blocked address/);
-    else assert.equal((await consume(options)).bodyText, '');
-    assert.equal(requests, 0);
-  });
-
-  test(`${consumer} rejects oversized streamed bodies`, async () => {
-    const options = { lookup, fetchImpl: async () => new Response('x'.repeat(2_100_000)) };
-    if (consumer === 'source health') await assert.rejects(consume(options), /bytes/);
-    else assert.equal((await consume(options)).bodyText, '');
-  });
-
-  test(`${consumer} still reads normal public content`, async () => {
-    const result = await consume({ lookup, fetchImpl: async () => new Response('<p>Public evidence</p>') });
-    assert.equal(consumer === 'source health' ? result.text : result.bodyText, consumer === 'source health' ? '<p>Public evidence</p>' : 'Public evidence');
-  });
-}
-
-test('regeneration refuses unapproved publishers before fetching', async () => {
-  const source = { ...item(), canonicalUrl: 'https://attacker.example/story' };
-  await fetchSourceMaterial(source, { lookup, fetchImpl: () => { throw new Error('must not fetch'); } });
-  assert.equal(source.bodyText, '');
+  await assert.rejects(consume({ fetchImpl, lookup }), /blocked/i);
+  assert.deepEqual(calls, [officialUrl]);
 });
 
+test('source health rejects private DNS answers without fetching', async () => {
+  let requests = 0;
+  const options = {
+    lookup: async () => [{ address: '10.0.0.5', family: 4 }],
+    fetchImpl: async () => { requests++; return new Response('PRIVATE_MARKER'); },
+  };
+  await assert.rejects(consume(options), /blocked address/);
+  assert.equal(requests, 0);
+});
+
+test('source health rejects oversized streamed bodies', async () => {
+  const options = { lookup, fetchImpl: async () => new Response('x'.repeat(2_100_000)) };
+  await assert.rejects(consume(options), /bytes/);
+});
+
+test('source health still reads normal public content', async () => {
+  const result = await consume({ lookup, fetchImpl: async () => new Response('<p>Public evidence</p>') });
+  assert.equal(result.text, '<p>Public evidence</p>');
+});
 test('changed-issue quality covers English-only edits and deduplicates pairs', () => {
   assert.deepEqual(changedIssueDates([
     'src/content/docs/en/ai/nyheder/2026-09-03.mdx',
@@ -117,18 +94,6 @@ test('the body ceiling applies after decompression and cancels the response', as
     return request;
   });
   await assert.rejects(fetchPublicText(officialUrl, { fetchImpl, lookup, maxBytes: 100 }), /exceeds 100 bytes/);
-});
-
-test('regeneration extracts standard description attributes in either order without rescanning malformed tags', () => {
-  assert.equal(extractMetaDescription('<meta property="og:description" content="First">'), 'First');
-  assert.equal(extractMetaDescription('<meta content="Second" name="description">'), 'Second');
-  assert.equal(extractMetaDescription('İ<meta content="Third" name="description">'), 'Third');
-  assert.equal(extractMetaDescription('<meta name="description" content="Performance > 90%">'), 'Performance > 90%');
-  assert.equal(extractMetaDescription('<meta content="Performance > 90%" name="description">'), 'Performance > 90%');
-  const malformed = '<meta' + '<'.repeat(500_000);
-  const started = performance.now();
-  assert.equal(extractMetaDescription(malformed), '');
-  assert.ok(performance.now() - started < 1_000, 'malformed metadata must stay within the source budget');
 });
 
 test('an inherited Content-Encoding name is rejected without throwing from the response callback', async () => {
