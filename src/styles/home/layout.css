@@ -124,5 +124,5 @@ body:has(.home-portal) .main-pane { width: 100%; }
 }
 
 @media (forced-colors: active) {
-  .home-scene, .home-card, .home-fieldguide, .home-closing, .home-btn { border: 1px solid CanvasText; }
+  .home-scene, .home-fieldguide, .home-closing, .home-btn { border: 1px solid CanvasText; }
 }

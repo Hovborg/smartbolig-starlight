@@ -14,7 +14,7 @@
 .home-motion-controls[hidden],
 .home-motion-controls [hidden] { display: none; }
 .home-motion-controls button {
-  min-height: 2.25rem;
+  min-height: 2.75rem;
   padding: 0.35rem 0.8rem;
   border: 1px solid var(--sb-line);
   border-radius: var(--sb-radius-pill);

@@ -44,12 +44,12 @@ const { copy } = Astro.props;
           <source
             type="image/avif"
             srcset="/images/hero/smart-home-editorial-640.avif 640w, /images/hero/smart-home-editorial-960.avif 960w, /images/hero/smart-home-editorial-1440.avif 1440w"
-            sizes="(max-width: 900px) calc(100vw - 2.5rem), 46vw"
+            sizes="(max-width: 32rem) 6.5rem, 8.5rem"
           />
           <source
             type="image/webp"
             srcset="/images/hero/smart-home-editorial-640.webp 640w, /images/hero/smart-home-editorial-960.webp 960w, /images/hero/smart-home-editorial-1440.webp 1440w"
-            sizes="(max-width: 900px) calc(100vw - 2.5rem), 46vw"
+            sizes="(max-width: 32rem) 6.5rem, 8.5rem"
           />
           <img
             src="/images/hero/smart-home-editorial-960.webp"
@@ -57,7 +57,6 @@ const { copy } = Astro.props;
             width="1440"
             height="810"
             loading="eager"
-            fetchpriority="high"
             decoding="async"
           />
         </picture>

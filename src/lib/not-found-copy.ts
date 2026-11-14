@@ -23,6 +23,7 @@ export interface NotFoundCopy {
   restartingLabel: string;
   cardHint: string;
   historyLabel: string;
+  historyAria: string;
   attrState: string;
   attrPath: string;
   attrDeviceClass: string;
@@ -62,6 +63,7 @@ export const notFoundCopy: Record<NotFoundLang, NotFoundCopy> = {
     restartingLabel: "restarting",
     cardHint: "Enhed: smartbolig.net · sidst set: aldrig",
     historyLabel: "Tilstand, sidste 24 timer",
+    historyAria: "Home Assistant-tilstandshistorik",
     attrState: "state",
     attrPath: "requested_path",
     attrDeviceClass: "device_class",
@@ -114,6 +116,7 @@ export const notFoundCopy: Record<NotFoundLang, NotFoundCopy> = {
     restartingLabel: "restarting",
     cardHint: "Device: smartbolig.net · last seen: never",
     historyLabel: "State, last 24 hours",
+    historyAria: "Home Assistant state history",
     attrState: "state",
     attrPath: "requested_path",
     attrDeviceClass: "device_class",

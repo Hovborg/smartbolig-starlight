@@ -20,11 +20,11 @@ const { t } = Astro.props;
     <CoreGlyph />
   </div>
   <p>{t.intro}</p>
-  <div class="smartbolig-ai__capability-grid" aria-label={t.capabilities}>
-    <span><i aria-hidden="true"></i><strong>Home Assistant</strong><small>Automations</small></span>
-    <span><i aria-hidden="true"></i><strong>ESPHome</strong><small>Firmware</small></span>
-    <span><i aria-hidden="true"></i><strong>Zigbee · Matter</strong><small>Devices</small></span>
-    <span><i aria-hidden="true"></i><strong>Homelab</strong><small>Infrastructure</small></span>
+  <div class="smartbolig-ai__capability-grid" role="group" aria-label={t.capabilities}>
+    <span><i aria-hidden="true"></i><strong>Home Assistant</strong><small>{t.capabilityAutomations}</small></span>
+    <span><i aria-hidden="true"></i><strong>ESPHome</strong><small>{t.capabilityFirmware}</small></span>
+    <span><i aria-hidden="true"></i><strong>Zigbee · Matter</strong><small>{t.capabilityDevices}</small></span>
+    <span><i aria-hidden="true"></i><strong>Homelab</strong><small>{t.capabilityInfrastructure}</small></span>
   </div>
 </div>
 

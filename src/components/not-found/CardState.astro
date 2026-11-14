@@ -19,7 +19,7 @@ const historySlots = Array.from({ length: 24 }, (_, i) => i >= 21);
 
 <div class="history">
   <p class="history-label" id="nf-history-label">{t.historyLabel}</p>
-  <div class="history-bar" role="img" aria-label="Home Assistant state history">
+  <div class="history-bar" role="img" aria-label={t.historyAria}>
     {historySlots.map((down) => <span class={down ? "down" : undefined}></span>)}
   </div>
 </div>
@@ -48,7 +48,7 @@ const historySlots = Array.from({ length: 24 }, (_, i) => i >= 21);
 
   .state-code {
     font-family: var(--sb-font-mono);
-    font-size: 0.78rem;
+    font-size: var(--sb-text-xs);
     font-weight: 700;
     letter-spacing: 0.12em;
     color: var(--sb-ink-muted);
@@ -65,7 +65,7 @@ const historySlots = Array.from({ length: 24 }, (_, i) => i >= 21);
     margin: 0 0 0.5rem;
     color: var(--sb-ink-muted);
     font-family: var(--sb-font-mono);
-    font-size: 0.68rem;
+    font-size: var(--sb-text-xs);
     letter-spacing: 0.14em;
     text-transform: uppercase;
   }

@@ -156,7 +156,7 @@ test("hero takes an explicit locale, owns the homepage h1 and keeps the responsi
   assert.match(hero, /width="1440"/);
   assert.match(hero, /height="810"/);
   assert.match(hero, /loading="eager"/);
-  assert.match(hero, /fetchpriority="high"/);
+  assert.doesNotMatch(hero, /fetchpriority/, "the thumbnail is not the LCP element");
   assert.match(hero, /decoding="async"/);
   const skipLink = await read("src/components/SkipLink.astro");
   assert.match(skipLink, /href=["']#_top["']/);

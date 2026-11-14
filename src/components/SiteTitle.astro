@@ -64,6 +64,11 @@ const label = Astro.currentLocale === "en" ? "SmartBolig.net, front page" : "Sma
       display: none;
     }
   }
+  @media (max-width: 22.5rem) {
+    .sb-logo__word {
+      display: none;
+    }
+  }
   @media (prefers-reduced-motion: reduce) {
     .sb-logo:hover .sb-logo__mark {
       transform: none;

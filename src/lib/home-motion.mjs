@@ -27,7 +27,6 @@ export function mountHomeMotion(win, doc, control) {
     if (!enabled || doc.hidden) reveals.forEach(element => element.classList.remove('home-reveal-play'));
     doc.documentElement.dataset.homeMotion = enabled && !doc.hidden ? 'on' : 'off';
     button.textContent = enabled ? control.dataset.pause : control.dataset.start;
-    button.setAttribute('aria-pressed', String(enabled));
     reset.hidden = preference === 'auto';
     status.textContent = preference === 'auto' ? control.dataset.system : control.dataset.manual;
     visible.forEach(reveal);
