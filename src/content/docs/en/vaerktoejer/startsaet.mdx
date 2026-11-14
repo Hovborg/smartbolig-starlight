@@ -1,0 +1,46 @@
+---
+title: Starter kit builder for a smart home
+description: Answer four short questions and get a starter kit for your smart home. See what to get, why each part is there, and what to do first.
+lastUpdated: 2026-11-14
+---
+
+import StarterKit from '../../../../components/tools/StarterKit.astro';
+
+Answer four short questions about what you want and what you have. You then get a starter kit: what to get, why each part is there, and what to do first.
+
+<StarterKit lang="en" />
+
+## How the kit is chosen
+
+A kit has three layers:
+
+1. **The brain** is Home Assistant, which gathers all the parts in one place. If you already have it, there is nothing to buy in that layer.
+2. **The connection** is what the parts talk to the brain through. Zigbee parts need a Zigbee coordinator, and Wi-Fi parts use your router. The coordinator is only included when the kit has Zigbee parts.
+3. **The parts for your goals** is one block for each goal you choose.
+
+The rules are the same for everyone:
+
+- **Tenant** gives only parts that can be taken along again: bulbs, plugs and battery sensors. No parts behind switches or in the panel.
+- **Owner** gives the same parts and a dimmer behind the switch when you choose light. It becomes part of the fixed installation, so an authorised electrician must fit it.
+- **The same sensor is listed in one place only.** If you choose both light and security, they share one sensor.
+- **The first steps follow the kit.** You get three to five steps, and the last one is an automation for the first goal you chose.
+
+## What is not included
+
+- **Prices.** They change, and the shop shows the current one. We do not write that a part is the cheapest or the best either.
+- **Parts without a buying recommendation.** We do not yet have a buying recommendation for the computer Home Assistant runs on, for a reader for the electricity meter or for ESP32 parts. The kit says so and links to the guide.
+- **Your bridge.** If you have a Zigbee bridge from, say, Hue or IKEA, we have not checked which of the parts it can control. The kit is therefore chosen for Home Assistant with a Zigbee coordinator.
+- **Alarm and cameras.** The Security block sends a message to your phone. It is not an alarm with a siren, and no monitoring centre is behind it.
+- **Your home.** The tool does not know your radiators, your lamps or your contract. Check that a part fits before you buy it.
+
+## Where the parts come from
+
+Every product in the kit is in the site's own guides, and the shop links are the same as there. They are ad links: we may receive a commission if you buy through them. [Read more about ad links](/en/juridisk/affiliate-disclosure/).
+
+The kit is chosen in your browser. We do not store your answers, and they are not sent anywhere.
+
+## Read on
+
+- [Start here](/en/start/): the whole route from installation to the first automation.
+- [Getting started with Home Assistant](/en/home-assistant/kom-godt-i-gang/): get the brain up and running.
+- [Product recommendations](/en/produkter/anbefalinger/): more parts once the starter kit works.

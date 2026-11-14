@@ -29,5 +29,10 @@ export default {
       translations: { en: "Battery life" },
       link: "/vaerktoejer/batterilevetid/",
     },
+    {
+      label: "Startsæt-bygger",
+      translations: { en: "Starter kit builder" },
+      link: "/vaerktoejer/startsaet/",
+    },
   ],
 };
