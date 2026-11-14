@@ -910,9 +910,10 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Valgt: kanalvælgeren regner kun på frekvenser. Zigbee-kanal n ligger på 2405 + 5 × (n − 11)
   MHz, Wi-Fi-kanal m på 2412 + 5 × (m − 1) MHz. En Wi-Fi-kanal regnes 22 MHz bred. Det er vores
   valg af den bredeste almindelige maske, ikke en kildeoplysning, og det står på siden.
-- Valgt: kanal 26 anbefales aldrig først. Begrundelse: Zigbee2MQTT's og ZHA's dokumentation
-  fraråder den, fordi nogle enheder ikke kan bruge den. Siden siger, at der ikke er en
-  officiel forklaring på hvorfor.
+- Valgt: kanal 26 anbefales aldrig først, og lige stillede kanaler vælges i rækkefølgen 15,
+  20, 25, 11. Begrundelse: ZHA's dokumentation foretrækker 15, 20 og 25 og siger, at ikke alle
+  enheder understøtter alle kanaler. Der er ingen officiel kilde til, hvorfor netop 26 volder
+  problemer, så siden påstår det ikke.
 - Valgt: frekvensstriben tegnes på serveren som inline SVG. Begrundelse: siden giver mening
   uden JavaScript, og der er intet at hente.
 - Valgt: batteriberegneren har ét forvalg (ESP32-chip, 10 µA i Deep-sleep), og det har et
