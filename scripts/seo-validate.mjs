@@ -263,6 +263,14 @@ async function main() {
     rejectText(issues, robotsPath, robots, 'User-agent: Googlebot', 'a Googlebot group (it would skip the * Disallow lines)');
     rejectText(issues, robotsPath, robots, 'User-agent: Bingbot', 'a Bingbot group (it would skip the * Disallow lines)');
     rejectText(issues, robotsPath, robots, 'Crawl-delay', 'Crawl-delay (Google ignores it)');
+    // A crawler with an Allow group of its own must repeat the Disallow lines.
+    for (const group of robots.split(/\n(?=User-agent: )/)) {
+      const name = group.match(/^User-agent: (.+)$/m)?.[1];
+      if (name === '*' || !/^Allow: \/$/m.test(group)) continue;
+      for (const rule of ['Disallow: /api/', 'Disallow: /pagefind/']) {
+        if (!group.includes(rule)) fail(issues, robotsPath, `the ${name} group must repeat "${rule}" (it ignores the * group)`);
+      }
+    }
   } else {
     fail(issues, robotsPath, 'missing robots.txt');
   }
