@@ -64,11 +64,9 @@ const latinFontUrls = ["--font-body", "--font-display"]
 
 <script type="application/ld+json" set:html={combinedSchemaJson} />
 
-<!-- Remember the visitor's current language so the root (/) geo-redirect in
-     functions/_middleware.js honours their choice on the next visit. This is a
-     strictly-functional preference cookie (no consent required). -->
-<script define:vars={{ lang }}>
-  try {
-    document.cookie = "preferred-lang=" + lang + ";path=/;max-age=31536000;SameSite=Lax";
-  } catch (e) {}
+<!-- Consent first: Google Analytics and AdSense are fetched only after a yes
+     in Google's consent message (src/lib/consent/, docs/samtykke.md). -->
+<script>
+  import { boot } from "../lib/consent/boot.mjs";
+  boot();
 </script>

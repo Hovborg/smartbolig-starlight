@@ -75,6 +75,14 @@ Sidst opdateret: 2026-11-14.
   og `http://` svarer alle 301 til samme sti på `https://smartbolig.net`; hoveddomænet og
   `/api/chat` er uændrede, og zonens anden regel (et andet projekts) er urørt. Beskrevet i
   `docs/seo.md`. Vej tilbage: slet reglen.
+- **Titler og interne links (B57):** ca. 70 titler rettet, menunavne i `config/sidebar/` rettet
+  med, `seoTitle` på oversigtssider og kontakt, interne links til 18 guides, årstal ud af
+  overskrifter, lister i stedet for rå diagramkode. Uafhængig gennemgang; fund rettet.
+  Dokumentation: `CONTENT-GUIDE.md` ("Titel og `seoTitle`") og `docs/seo.md`. Udgivet 2026-11-14
+  (#199, Worker-version 966fcabc). Kontrolleret på den levende side: `/da/automationer/` har
+  `<h1>` "Automationer" og samme søgetitel i `<title>`, `og:title` og `twitter:title`;
+  `/en/produkter/` ligeså ("Products"); hardwareguiden har sin gamle titel; fire af de nye
+  interne links svarer 200; menuen viser de rettede navne. Vej tilbage: Worker-version 35b19df2.
 
 ## I gang
 
@@ -110,20 +118,25 @@ Sidst opdateret: 2026-11-14.
   smart home i lejebolig. Gennemgået og rettet af en uafhængig model 2026-11-14 mod officielle
   kilder. Ikke afprøvet: automationerne er ikke kørt på et anlæg (skabelonerne i billige timer
   er regnet efter mod en uafhængig beregning), og netselskaber ud over de nævnte er ikke læst.
-- **CSP, kortlagt 2026-11-14 (til fase 5):** `script-src` har `'unsafe-inline'`, fordi siden har
-  8–12 inline-scripts pr. side (samtykke/gtag, sprogcookie, tema før første tegning, Starlights
-  søge- og sidemenuscripts og små Astro-moduler under 4 KB). `script-src-attr 'none'` er sat,
-  og der er ingen inline-handlere. Google dokumenterer kun nonce-baseret CSP for AdSense.
-  Plan: Workeren sætter en nonce pr. svar med HTMLRewriter (`run_worker_first` udvides), først
-  afprøvet som `Content-Security-Policy-Report-Only` på en preview. Mindre første skridt:
-  `vite.build.assetsInlineLimit: 0` og hashes for de få faste inline-scripts. Virker annoncerne
-  ikke med nonce, beholdes `'unsafe-inline'` på sider med annoncer, og det skrives i TIL-EJEREN.
-
-- **Titler og interne links (B57):** ca. 70 titler rettet, menunavne i `config/sidebar/` rettet med, `seoTitle` på oversigtssider og kontakt,
-  interne links til 18 guides, årstal ud af overskrifter, lister i stedet for rå diagramkode.
-  Dokumentation: `CONTENT-GUIDE.md` ("Titel og `seoTitle`") og `docs/seo.md`. Efter udgivelsen
-  kontrolleres på den levende side: `<title>`, `og:title` og `<h1>` på `/da/automationer/` og
-  `/en/produkter/`, og at tre af de nye interne links svarer 200. Resultatet skrives her.
+- **Samtykke først og strengere CSP (B56):** intet hentes fra Google Analytics eller AdSense før
+  et ja i Googles samtykkebesked; kommentarer hentes ved tryk; de juridiske sider passer med
+  koden. Bygningen laver en CSP uden `'unsafe-inline'` for scripts (4 hashes) og sender den som
+  Report-Only. Dokumentation: `docs/samtykke.md` og `docs/sikkerhed.md`.
+  Før udgivelsen (den levende side, headless Chrome, 2026-11-14): før noget svar hentede en
+  side `gtag.js`, `adsbygoogle.js`, Cloudflares måler, giscus og sendte et kald til Google
+  Analytics, og cookien `preferred-lang` blev sat.
+  **Fund 2026-11-14:** der er ingen udgivet samtykkebesked for siden i AdSense (Googles script
+  melder "inaktiv" på den levende side). Efter udgivelsen hentes derfor hverken Analytics
+  eller AdSense, hvor GDPR gælder (målt fra Danmark), før ejeren har udgivet beskeden
+  (TIL-EJEREN punkt 1). To uafhængige gennemgange; fund rettet (B56).
+  Efter udgivelsen kontrolleres på den levende side: hvilke værter en side henter fra før et
+  svar; hvilke cookies der sættes; at "Cookieindstillinger" er skjult, så længe beskeden ikke
+  er udgivet; og om konsollen viser overtrædelser af den strenge politik (også på en juridisk
+  side, hvor Cloudflare slører e-mailadressen). Forløbene ja og nej kan først ses, når beskeden
+  er udgivet. Resultatet skrives her.
+  Næste skridt: `ENFORCE_STRICT_CSP = true`, når den levende side er set uden overtrædelser
+  med annoncer. Ikke valgt: nonce pr. svar i Workeren; hashes klarer det uden at Workeren skal
+  stå foran hver side.
 
 ## Næste skridt
 
