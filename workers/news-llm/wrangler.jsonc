@@ -1,0 +1,48 @@
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "smartbolig-news-llm",
+  "main": "./src/index.js",
+  "compatibility_date": "2026-04-16",
+  "workers_dev": true,
+  "preview_urls": false,
+  "ai": {
+    "binding": "AI"
+  },
+  "ratelimits": [
+    {
+      "name": "CALL_LIMITER",
+      "namespace_id": "2026111301",
+      "simple": {
+        "limit": 15,
+        "period": 60
+      }
+    }
+  ],
+  // Daily neuron ledger (src/counter.js). One object handles one request at
+  // a time, so two calls cannot book the same room. The relay refuses calls
+  // when it cannot be reached.
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "BUDGET_COUNTER",
+        "class_name": "BudgetCounter"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["BudgetCounter"]
+    }
+  ],
+  "vars": {
+    // Neurons the relay may spend per UTC day. The account's free allowance
+    // is 10,000 and is shared with the site's chat. See src/budget.js.
+    "DAILY_NEURON_BUDGET": "8000",
+    // Only these models can be called, even with a valid secret.
+    "ALLOWED_MODELS": "@cf/deepseek-ai/deepseek-v4.1-flash-1017,@cf/google/gemma-4-26b-a4b-it,@cf/openai/gpt-oss-120b,@cf/nvidia/nemotron-3-120b-a12b"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

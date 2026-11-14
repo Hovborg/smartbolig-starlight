@@ -1,6 +1,10 @@
 import dns from "node:dns/promises";
 import { BlockList, isIP } from "node:net";
+import { extractArticleText } from "./ai-news-article-text.mjs";
+import { asciiLower, stripSections } from "./html-sections.mjs";
 import { pinnedHttpsRequest } from "./public-https.mjs";
+
+export { asciiLower };
 
 const ARTICLE_TEXT_LIMIT = 40_000;
 
@@ -13,12 +17,6 @@ const ARTICLE_BYTE_LIMIT = 1_500_000;
 const MAX_FEED_BLOCKS = 100;
 const MAX_ARTICLE_FETCHES_PER_FEED = 12;
 const MAX_REDIRECTS = 3;
-
-// HTML/XML tag names are ASCII. Unicode lowercasing can expand characters
-// (for example İ), shifting offsets used to slice the original input.
-export function asciiLower(value) {
-  return String(value).replace(/[A-Z]/g, (letter) => letter.toLowerCase());
-}
 
 // Loopback, private, link-local (incl. cloud metadata), CGNAT, multicast,
 // and reserved ranges — never fetched, in any redirect hop.
@@ -150,36 +148,6 @@ function decodeEntities(value = "") {
     .replace(/&apos;|&#39;/g, "'")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">");
-}
-
-// Removes <tagName ...>...</tagName> sections in a single pass. An unclosed
-// section swallows the remainder of the input (its content is never text).
-function stripSections(value, tagName) {
-  const parts = [];
-  const lower = asciiLower(value);
-  const open = `<${tagName}`;
-  const close = `</${tagName}`;
-  let index = 0;
-  while (index < value.length) {
-    const start = lower.indexOf(open, index);
-    if (start === -1) {
-      parts.push(value.slice(index));
-      break;
-    }
-    const boundary = lower[start + open.length];
-    if (boundary !== undefined && !/[\s>/]/.test(boundary)) {
-      parts.push(value.slice(index, start + open.length));
-      index = start + open.length;
-      continue;
-    }
-    parts.push(value.slice(index, start), " ");
-    const end = lower.indexOf(close, start + open.length);
-    if (end === -1) break;
-    const closeEnd = lower.indexOf(">", end);
-    if (closeEnd === -1) break;
-    index = closeEnd + 1;
-  }
-  return parts.join("");
 }
 
 export function stripHtml(value = "") {
@@ -349,10 +317,65 @@ export function parseFeed(xml, source) {
 }
 
 // Parses an HTML news listing (used for publishers without RSS, e.g.
-// www.anthropic.com/news): anchors to article slugs with an inline <time>
-// and a heading. Undated anchors are skipped — they cannot be date-windowed.
-// Anchor segments are located with a linear scan; only relative /news/ hrefs
-// are accepted, so every item stays on the listing's own host.
+// www.anthropic.com/news). Two layouts are understood:
+//  1. an anchor to /news/<slug> that itself holds a <time> and a title, and
+//  2. card/row containers (<article> or <li>) holding a <time> plus an anchor
+//     that wraps a heading (the layout in use since late 2026, where the date
+//     sits outside the link and the link may point outside /news/).
+// Undated entries are skipped: they cannot be date-windowed. All scans are
+// linear, and only relative same-host paths are accepted, so every item stays
+// on the listing's own host.
+const MAX_LISTING_BLOCKS = 400;
+const LISTING_PATH = /^\/[a-z0-9][a-z0-9/_.-]*$/i;
+
+function listingItem(source, base, seen, title, href, publishedRaw) {
+  // A displayed date has no timezone. Treat it as a calendar day in UTC,
+  // or CEST midnight becomes the previous day when serialized to ISO.
+  const published = new Date(/^[A-Za-z]+\s+\d{1,2},\s+\d{4}$/.test(publishedRaw)
+    ? `${publishedRaw} UTC` : publishedRaw);
+  const url = new URL(href, base).toString();
+  const canonicalUrl = canonicalizeUrl(url);
+  if (!title || !canonicalUrl || Number.isNaN(published.getTime()) || seen.has(canonicalUrl)) return null;
+  if (new URL(canonicalUrl).host !== base.host) return null;
+  seen.add(canonicalUrl);
+  return {
+    source,
+    sourceId: source.id,
+    sourceName: source.name,
+    primary: Boolean(source.primary ?? source.critical),
+    title,
+    url,
+    canonicalUrl,
+    summary: "",
+    published,
+    publishedRaw,
+    bodyText: "",
+  };
+}
+
+// Returns { href, title } for the first anchor in the block that wraps a heading.
+function headingAnchor(block) {
+  const lower = asciiLower(block);
+  let index = 0;
+  for (;;) {
+    const start = lower.indexOf("<a", index);
+    if (start === -1) return null;
+    const boundary = lower[start + 2];
+    if (boundary !== undefined && !/[\s>/]/.test(boundary)) {
+      index = start + 2;
+      continue;
+    }
+    const end = lower.indexOf("</a", start);
+    if (end === -1) return null;
+    index = end + 3;
+    const segment = block.slice(start, end);
+    const href = segment.match(/^<a\b[^>]*href="([^"#?]*)"/i)?.[1];
+    if (!href || !LISTING_PATH.test(href)) continue;
+    const title = readTag(segment, "h2") || readTag(segment, "h3") || readTag(segment, "h4");
+    if (title) return { href, title };
+  }
+}
+
 export function parseHtmlListing(html, source) {
   const base = new URL(source.url);
   const seen = new Set();
@@ -380,28 +403,35 @@ export function parseHtmlListing(html, source) {
       || readTag(segment, "h3")
       || readTag(segment, "h4")
       || readTagByClass(segment, "span", /(?:^|[\s_-])title(?:$|[\s_-])/i);
-    const publishedRaw = readTag(segment, "time");
-    // A displayed date has no timezone. Treat it as a calendar day in UTC,
-    // or CEST midnight becomes the previous day when serialized to ISO.
-    const published = new Date(/^[A-Za-z]+\s+\d{1,2},\s+\d{4}$/.test(publishedRaw)
-      ? `${publishedRaw} UTC` : publishedRaw);
-    const url = new URL(href, base).toString();
-    const canonicalUrl = canonicalizeUrl(url);
-    if (!title || !canonicalUrl || Number.isNaN(published.getTime()) || seen.has(canonicalUrl)) continue;
-    seen.add(canonicalUrl);
-    items.push({
-      source,
-      sourceId: source.id,
-      sourceName: source.name,
-      primary: Boolean(source.primary ?? source.critical),
-      title,
-      url,
-      canonicalUrl,
-      summary: "",
-      published,
-      publishedRaw,
-      bodyText: "",
-    });
+    const item = listingItem(source, base, seen, title, href, readTag(segment, "time"));
+    if (item) items.push(item);
+  }
+
+  for (const tagName of ["article", "li"]) {
+    const open = `<${tagName}`;
+    const close = `</${tagName}`;
+    let position = 0;
+    let scanned = 0;
+    while (items.length < MAX_FEED_BLOCKS && scanned < MAX_LISTING_BLOCKS) {
+      const start = lower.indexOf(open, position);
+      if (start === -1) break;
+      const boundary = lower[start + open.length];
+      if (boundary !== undefined && !/[\s>/]/.test(boundary)) {
+        position = start + open.length;
+        continue;
+      }
+      const end = lower.indexOf(close, start + open.length);
+      if (end === -1) break;
+      position = end + close.length;
+      scanned += 1;
+      const block = text.slice(start, end);
+      const publishedRaw = readTag(block, "time");
+      if (!publishedRaw) continue;
+      const anchor = headingAnchor(block);
+      if (!anchor) continue;
+      const item = listingItem(source, base, seen, anchor.title, anchor.href, publishedRaw);
+      if (item) items.push(item);
+    }
   }
   return items;
 }
@@ -491,9 +521,9 @@ async function fetchText(fetchImpl, url, options) {
 }
 
 function articleEvidenceText(html, candidate, feed) {
-  const text = stripHtml(html);
   const feedUrl = new URL(feed.url);
   if (feedUrl.hostname === "github.com" && feedUrl.pathname.endsWith("/releases.atom")) {
+    const text = stripHtml(html);
     // GitHub release pages begin with thousands of characters of navigation.
     // Locate the Atom notes in the page; if markup changes, keep the feed's
     // own notes instead of giving the editor unrelated site chrome.
@@ -502,7 +532,7 @@ function articleEvidenceText(html, candidate, feed) {
     const start = anchor.length >= 40 ? text.indexOf(anchor) : -1;
     return (start >= 0 ? text.slice(start) : notes).slice(0, ARTICLE_TEXT_LIMIT);
   }
-  return text.slice(0, ARTICLE_TEXT_LIMIT);
+  return extractArticleText(html, stripHtml).slice(0, ARTICLE_TEXT_LIMIT);
 }
 
 export async function fetchCandidates(feeds, fetchImpl, options = {}) {

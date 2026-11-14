@@ -44,6 +44,25 @@ export function sourceSetFingerprint(items) {
   return sha256([...new Set(items.map((item) => item.sourceId || item.source?.id).filter(Boolean))].sort().join("\n"));
 }
 
+// Re-applies the package-level gates to the stories that survived the fact
+// check. Dropping a story must not let an issue through without a primary
+// source or with a source set that repeats a recent issue.
+export function finalizeEditorialPackage(items, history = []) {
+  if (!items.some((item) => item.primary || item.source?.primary)) {
+    return { status: "skip", reason: "No primary source survived the fact check." };
+  }
+  const setFingerprint = sourceSetFingerprint(items);
+  if (history.some((item) => item.sourceSetFingerprint === setFingerprint)) {
+    return { status: "skip", reason: "The fact-checked source set repeats a recent issue." };
+  }
+  return {
+    status: "publish",
+    items,
+    reasons: ["primary-source", "novel-story", "score-threshold", "fact-checked"],
+    sourceSetFingerprint: setFingerprint,
+  };
+}
+
 export function selectEditorialPackage(candidates, history = [], options = {}) {
   const config = { ...DEFAULTS, ...options };
   const recentUrls = new Set(history.map((item) => item.canonicalUrl).filter(Boolean));

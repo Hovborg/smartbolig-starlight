@@ -1,13 +1,21 @@
 #!/usr/bin/env node
+// Builds today's bilingual AI-news issue: fetch official sources, pick a
+// candidate pool, write and fact-check each story, render both locales.
+// A day without enough fact-checked stories is a successful run with
+// AI_NEWS_STATUS=skip. Flow and troubleshooting: docs/nyhedsflow.md.
 import { existsSync } from 'node:fs';
-import { mkdir, readdir, readFile, rename, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rename, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { FEEDS, HIGH_SIGNAL_KEYWORDS, OFFICIAL_SOURCE_URLS } from './ai-news-sources.mjs';
-import { canonicalizeUrl, fetchCandidates, parseFeed } from './lib/ai-news-discovery.mjs';
-import { selectEditorialPackage, storyFingerprint } from './lib/ai-news-editorial.mjs';
-import { generateReviewedIssueCopy } from './lib/ai-news-llm.mjs';
+import { FEEDS } from './ai-news-sources.mjs';
+import { fetchCandidates, parseFeed } from './lib/ai-news-discovery.mjs';
+import { finalizeEditorialPackage, selectEditorialPackage, storyFingerprint } from './lib/ai-news-editorial.mjs';
+import { listIssueDates, loadRecentHistory } from './lib/ai-news-history.mjs';
+import { renderIndex } from './lib/ai-news-index-page.mjs';
 import { issueFingerprint, renderIssue } from './lib/ai-news-render.mjs';
+import { dateWindow, recencyBoost, scoreCandidates, scoreItem } from './lib/ai-news-scoring.mjs';
+import { produceIssue } from './lib/news-llm/issue.mjs';
+import { createChat } from './lib/news-llm/provider.mjs';
 
 const rootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const docsDir = path.join(rootDir, 'src/content/docs');
@@ -48,7 +56,12 @@ if (!/^\d{4}-\d{2}-\d{2}$/.test(String(targetDate))) {
 }
 const lookbackDays = Number(args.get('--days') || 10);
 const minScore = Number(args.get('--min-score') || 14);
+// --max-items is the candidate pool. --stories of them are published; the
+// rest are reserves for stories the fact check drops.
 const maxItems = Number(args.get('--max-items') || 7);
+const targetStories = Math.min(Number(args.get('--stories') || 4), maxItems);
+// The automatic quality gate needs three sources; manual runs may go lower.
+const minStories = allowWeakSignal ? 1 : Math.max(1, Number(args.get('--min-stories') || (requireLlm ? 3 : 2)));
 const maxPerSource = Number(args.get('--max-per-source') || 1);
 const fixturePaths = String(args.get('--fixture') || '')
   .split(',')
@@ -65,84 +78,6 @@ async function writeResult(result) {
     await rename(temporaryPath, resultPath);
   }
   console.log(`AI_NEWS_STATUS=${result.status}${result.reason ? ` reason=${result.reason}` : ''}`);
-}
-
-function scoreItem(item) {
-  const haystack = `${item.source.name} ${item.title} ${item.summary}`.toLowerCase();
-  let score = item.source.priority;
-  const isReleaseFeed = ['openai-codex', 'claude-code', 'gemini-cli', 'openclaw'].includes(item.source.id);
-
-  for (const [keyword, weight] of HIGH_SIGNAL_KEYWORDS) {
-    if (haystack.includes(keyword)) score += weight;
-  }
-
-  if (/\bv?\d+\.\d+\.\d+\b/.test(item.title)) score += 1;
-  if (isReleaseFeed) score -= 4;
-  if (isReleaseFeed && !/\b(security|safety|pricing|deprecation|breaking|permission|privacy|usage|context|browser|model|agent|workflow|mcp|api)\b/i.test(haystack)) {
-    score -= 6;
-  }
-  if (/\bnightly\b/i.test(item.title)) score -= 8;
-  if (/\balpha\b/i.test(item.title)) score -= 4;
-  if (/\b(preview|beta|rc)\b/i.test(item.title)) score -= 3;
-  if (/\b(cherry-pick|patch version|dependency bump)\b/i.test(`${item.title} ${item.summary}`)) score -= 7;
-  if (/^release v?\d+\.\d+\.\d+/i.test(item.title)) score -= 4;
-  if (/^(v|rust-v)?\d+\.\d+\.\d+/i.test(item.title)) score -= 4;
-  if (/\b(academy|customer success|research with chatgpt|data analysis)\b/i.test(item.title)) score -= 5;
-
-  return score;
-}
-
-function dateWindow(dateString, days) {
-  // Cover `days` whole UTC days, ending on (and including) the target date.
-  const end = new Date(`${dateString}T23:59:59.999Z`);
-  const start = new Date(`${dateString}T00:00:00.000Z`);
-  start.setUTCDate(start.getUTCDate() - (days - 1));
-  return { start, end };
-}
-
-function yamlString(value) {
-  return `"${String(value).replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"`;
-}
-
-function renderIndex({ locale, entries }) {
-  const isDa = locale === 'da';
-  const latest = entries[0];
-  const title = isDa ? 'AI-nyheder' : 'AI News';
-  const description = isDa
-    ? 'Dagligt kildebaseret overblik over de vigtigste AI-nyheder fra OpenAI, Anthropic, Google, modeller, produkter, API-priser, privacy og AI-agent workflows.'
-    : 'Daily source-backed brief for the most important AI news from OpenAI, Anthropic, Google, models, products, API pricing, privacy, and AI-agent workflows.';
-
-  if (isDa) {
-    return `---
-title: ${yamlString(title)}
-description: ${yamlString(description)}
-lastUpdated: ${latest?.date || new Date().toISOString().slice(0, 10)}
-sidebar:
-  label: "AI-nyheder"
----
-
-import AiNewsFeed from "../../../../../components/AiNewsFeed.astro";
-
-AI-nyheder fra SmartBolig.net er korte, redaktionelle artikler om de vigtigste AI-nyheder: modeller, ChatGPT, Claude, Gemini, AI i browseren, apps, API-priser, privacy, sikkerhed og agent-workflows. Fokus er officielle kilder, praktisk betydning og egne formuleringer.
-
-<AiNewsFeed locale="da" />
-`;
-  }
-
-  return `---
-title: ${yamlString(title)}
-description: ${yamlString(description)}
-lastUpdated: ${latest?.date || new Date().toISOString().slice(0, 10)}
-sidebar:
-  label: "AI News"
----
-
-import AiNewsFeed from "../../../../../components/AiNewsFeed.astro";
-
-SmartBolig.net AI News is a set of short editorial articles about the most important AI news: models, ChatGPT, Claude, Gemini, AI in the browser, apps, API pricing, privacy, security, and agent workflows. The focus is official sources, practical impact, and original wording.
-
-<AiNewsFeed locale="en" />
-`;
 }
 
 async function fetchItems() {
@@ -172,95 +107,51 @@ async function fetchItems() {
     },
     shouldFetchArticle(candidate) {
       if (candidate.published < start || candidate.published > end) return false;
-      const daysOld = Math.max(0, (end.getTime() - candidate.published.getTime()) / 86_400_000);
-      return scoreItem(candidate) + Math.max(0, 8 - Math.floor(daysOld)) >= minScore;
+      return scoreItem(candidate) + recencyBoost(candidate.published, end) >= minScore;
     },
   });
   return { items, failedFeeds };
-}
-
-function scoreCandidates(items) {
-  const { start, end } = dateWindow(targetDate, lookbackDays);
-  const byUrl = new Map();
-
-  for (const item of items) {
-    if (item.published < start || item.published > end) continue;
-    const daysOld = Math.max(0, (end.getTime() - item.published.getTime()) / 86_400_000);
-    const recencyBoost = Math.max(0, 8 - Math.floor(daysOld));
-    const score = scoreItem(item) + recencyBoost;
-    const scored = { ...item, score };
-    const existing = byUrl.get(item.url);
-    if (!existing || existing.score < score) byUrl.set(item.url, scored);
-  }
-
-  const candidates = [...byUrl.values()].sort((a, b) => {
-    if (b.score !== a.score) return b.score - a.score;
-    return b.published - a.published;
-  });
-  const productSourceIds = new Set(['openai-news', 'google-ai', 'anthropic-news']);
-  return [
-    ...candidates.filter((item) => productSourceIds.has(item.source.id)),
-    ...candidates.filter((item) => !productSourceIds.has(item.source.id)),
-  ];
-}
-
-function parseYamlString(value) {
-  try {
-    return JSON.parse(value);
-  } catch {
-    return value.replace(/^['"]|['"]$/g, '');
-  }
-}
-
-async function loadRecentHistory(days = 14) {
-  if (!existsSync(daNewsDir)) return [];
-  const { start, end } = dateWindow(targetDate, days);
-  const names = await readdir(daNewsDir);
-  const history = [];
-
-  for (const name of names) {
-    const match = name.match(/^(\d{4}-\d{2}-\d{2})\.mdx$/);
-    if (!match || match[1] === targetDate) continue;
-    const date = new Date(`${match[1]}T12:00:00Z`);
-    if (date < start || date > end) continue;
-    const content = await readFile(path.join(daNewsDir, name), 'utf8');
-    const frontmatter = content.match(/^---\s*\n([\s\S]*?)\n---/)?.[1] || '';
-    const titleRaw = frontmatter.match(/^title:\s*(.+)$/m)?.[1] || '';
-    const title = parseYamlString(titleRaw);
-    const storyFingerprint = frontmatter.match(/^\s*storyFingerprint:\s*['"]?([a-f0-9]{64})/m)?.[1];
-    const sourceSetFingerprint = frontmatter.match(/^\s*sourceSetFingerprint:\s*['"]?([a-f0-9]{64})/m)?.[1];
-    const canonicalUrls = [...frontmatter.matchAll(/^\s*-\s*["']?(https?:\/\/[^\s"']+)/gm)]
-      .map((sourceMatch) => canonicalizeUrl(sourceMatch[1]))
-      .filter(Boolean);
-    for (const canonicalUrl of canonicalUrls.length > 0 ? canonicalUrls : ['']) {
-      history.push({ title, canonicalUrl, storyFingerprint, sourceSetFingerprint, date: match[1] });
-    }
-  }
-  return history;
-}
-
-async function listEntries() {
-  const names = existsSync(daNewsDir) ? await readdir(daNewsDir) : [];
-  return names
-    .filter((name) => /^\d{4}-\d{2}-\d{2}\.mdx$/.test(name))
-    .map((name) => ({ date: name.replace(/\.mdx$/, '') }))
-    .sort((a, b) => b.date.localeCompare(a.date));
 }
 
 async function writeIfChanged(filePath, content) {
   if (!force && existsSync(filePath) && filePath.endsWith(`${targetDate}.mdx`)) {
     return { path: filePath, changed: false, reason: 'exists' };
   }
-
-  let previous = '';
-  if (existsSync(filePath)) previous = await readFile(filePath, 'utf8');
+  const previous = existsSync(filePath) ? await readFile(filePath, 'utf8') : '';
   if (previous === content) return { path: filePath, changed: false, reason: 'unchanged' };
   await mkdir(path.dirname(filePath), { recursive: true });
   await writeFile(filePath, content, 'utf8');
   return { path: filePath, changed: true };
 }
 
+// Writes and fact-checks the copy. Returns the stories that passed, or a skip.
+async function editorialCopy(pool, history) {
+  if (!llmEnabled) return { status: 'publish', editorial: finalizeEditorialPackage(pool.slice(0, targetStories), history), copy: null };
+  let llm;
+  let issue;
+  try {
+    llm = createChat();
+    const recentSourceSets = history.map((item) => item.sourceSetFingerprint).filter(Boolean);
+    issue = await produceIssue({ date: targetDate, candidates: pool, target: targetStories, minimum: minStories, chat: llm.chat, recentSourceSets });
+  } catch (error) {
+    if (requireLlm) throw new Error(`Required LLM editorial copy was not produced: ${error.message}`);
+    console.warn(`LLM editorial copy unavailable (${error.message}); using template copy.`);
+    return { status: 'publish', editorial: finalizeEditorialPackage(pool.slice(0, targetStories), history), copy: null };
+  }
+  const stats = { calls: llm.stats.calls, neurons: Math.round(llm.stats.neurons), dropped: issue.dropped };
+  if (issue.status !== 'publish') return { status: 'skip', reason: issue.reason, stats };
+  console.log(`Fact check passed for ${issue.items.length} stories (${issue.dropped.length} dropped, ${stats.calls} model calls).`);
+  return { status: 'publish', editorial: finalizeEditorialPackage(issue.items, history), copy: issue.copy, ledeSource: issue.ledeSource, stats };
+}
+
 async function main() {
+  // A second run on the same day must not spend model calls on an issue that
+  // already exists.
+  if (writeFiles && !force && existsSync(path.join(daNewsDir, `${targetDate}.mdx`))) {
+    await writeResult({ status: 'skip', date: targetDate, reason: `The issue for ${targetDate} already exists.`, exists: true, files: [] });
+    return;
+  }
+
   const { items: rawItems, failedFeeds } = await fetchItems();
 
   // A day where every critical feed is down must fail loudly — exit 0 would be
@@ -272,72 +163,52 @@ async function main() {
     process.exit(1);
   }
 
-  const candidates = scoreCandidates(rawItems);
-  const history = await loadRecentHistory();
-  const editorial = selectEditorialPackage(candidates, history, {
+  const candidates = scoreCandidates(rawItems, { targetDate, lookbackDays });
+  const history = await loadRecentHistory({ newsDir: daNewsDir, targetDate });
+  const selection = selectEditorialPackage(candidates, history, {
     minScore,
     maxItems,
     maxPerSource,
     duplicateThreshold: 0.72,
     minEvidenceChars: fixturePaths.length > 0 ? 0 : 240,
   });
-  const selected = editorial.status === 'publish' ? editorial.items : [];
-  const weakSignal = selected.length < 2;
 
-  if (editorial.status !== 'publish') {
-    await writeResult({ status: 'skip', date: targetDate, reason: editorial.reason, files: [] });
-    process.exit(0);
+  if (selection.status !== 'publish') {
+    await writeResult({ status: 'skip', date: targetDate, reason: selection.reason, files: [] });
+    return;
   }
-
-  if (weakSignal && !allowWeakSignal) {
+  if (selection.items.length < minStories) {
     await writeResult({
       status: 'skip',
       date: targetDate,
-      reason: `Only ${selected.length} publishable item(s) passed; at least 2 are required.`,
+      reason: `Only ${selection.items.length} publishable item(s) passed; at least ${minStories} are required.`,
       files: [],
     });
-    process.exit(0);
+    return;
   }
 
-  // Unique editorial prose via headless Claude when enabled. Manual runs may
-  // fall back to the deterministic template; --require-llm fails closed.
-  // The orchestrator drafts, reviews independently, and allows at most two
-  // corrected candidates after explained rejections before failing closed.
-  let copy = null;
-  if (llmEnabled) {
-    try {
-      copy = await generateReviewedIssueCopy({ date: targetDate, items: selected });
-      console.log('LLM editorial copy accepted and independent semantic review passed.');
-    } catch (error) {
-      if (requireLlm) {
-        throw new Error(`Required LLM editorial copy was not accepted: ${error.message}`);
-      }
-      console.warn(`LLM editorial copy unavailable (${error.message}); using template copy.`);
-    }
+  const outcome = await editorialCopy(selection.items, history);
+  const editorial = outcome.editorial;
+  if (outcome.status !== 'publish' || editorial.status !== 'publish') {
+    await writeResult({ status: 'skip', date: targetDate, reason: outcome.reason || editorial.reason, files: [], ...outcome.stats });
+    return;
   }
+  const { copy } = outcome;
 
-  const daPath = path.join(daNewsDir, `${targetDate}.mdx`);
-  const enPath = path.join(enNewsDir, `${targetDate}.mdx`);
   const daArticle = renderIssue({ locale: 'da', date: targetDate, editorialPackage: editorial, copy });
   const enArticle = renderIssue({ locale: 'en', date: targetDate, editorialPackage: editorial, copy });
-
   if (!writeFiles) {
     console.log(daArticle);
     return;
   }
 
   const writes = [
-    await writeIfChanged(daPath, daArticle),
-    await writeIfChanged(enPath, enArticle),
+    await writeIfChanged(path.join(daNewsDir, `${targetDate}.mdx`), daArticle),
+    await writeIfChanged(path.join(enNewsDir, `${targetDate}.mdx`), enArticle),
   ];
-
-  const entries = await listEntries();
-  const nextEntries = entries.some((entry) => entry.date === targetDate)
-    ? entries
-    : [{ date: targetDate }, ...entries].sort((a, b) => b.date.localeCompare(a.date));
-
-  writes.push(await writeIfChanged(path.join(daNewsDir, 'index.mdx'), renderIndex({ locale: 'da', entries: nextEntries })));
-  writes.push(await writeIfChanged(path.join(enNewsDir, 'index.mdx'), renderIndex({ locale: 'en', entries: nextEntries })));
+  const latestDate = [targetDate, ...await listIssueDates(daNewsDir)].sort((a, b) => b.localeCompare(a))[0];
+  writes.push(await writeIfChanged(path.join(daNewsDir, 'index.mdx'), renderIndex({ locale: 'da', latestDate })));
+  writes.push(await writeIfChanged(path.join(enNewsDir, 'index.mdx'), renderIndex({ locale: 'en', latestDate })));
 
   for (const result of writes) {
     const rel = path.relative(rootDir, result.path);
@@ -349,6 +220,9 @@ async function main() {
     reason: 'Editorial package accepted.',
     copySource: copy ? 'llm' : 'template',
     semanticReview: copy?.semanticReview || 'not-run',
+    ledeSource: outcome.ledeSource || 'template',
+    stories: editorial.items.length,
+    ...outcome.stats,
     storyFingerprint: editorial.items[0] ? storyFingerprint(editorial.items[0]) : '',
     issueFingerprint: issueFingerprint({ date: targetDate, items: editorial.items, copy }),
     files: writes.filter((result) => result.changed).map((result) => path.relative(rootDir, result.path)),
