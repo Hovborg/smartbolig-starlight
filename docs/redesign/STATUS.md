@@ -129,11 +129,14 @@ Sidst opdateret: 2026-11-14.
   melder "inaktiv" på den levende side). Efter udgivelsen hentes derfor hverken Analytics
   eller AdSense, hvor GDPR gælder (målt fra Danmark), før ejeren har udgivet beskeden
   (TIL-EJEREN punkt 1). To uafhængige gennemgange; fund rettet (B56).
-  Efter udgivelsen kontrolleres på den levende side: hvilke værter en side henter fra før et
-  svar; hvilke cookies der sættes; at "Cookieindstillinger" er skjult, så længe beskeden ikke
-  er udgivet; og om konsollen viser overtrædelser af den strenge politik (også på en juridisk
-  side, hvor Cloudflare slører e-mailadressen). Forløbene ja og nej kan først ses, når beskeden
-  er udgivet. Resultatet skrives her.
+  **Udgivet 2026-11-14** (PR #198, `main` 4282e27) efter tre uafhængige gennemgange. Målt på
+  den levende side bagefter (headless Chrome fra Danmark: forsiden, en guide,
+  privatlivspolitikken, kontaktsiden og nyhedsoversigten): en side henter kun fra
+  `static.cloudflareinsights.com` og `fundingchoicesmessages.google.com`; eneste cookie er
+  Googles `FCCDCF`; Googles script melder "inaktiv" og viser ingen besked;
+  "Cookieindstillinger" er skjult; konsollen viser ingen overtrædelser af den strenge
+  politik, heller ikke på en juridisk side. Forløbene ja og nej kan først ses på den levende
+  side, når beskeden er udgivet.
   Næste skridt: `ENFORCE_STRICT_CSP = true`, når den levende side er set uden overtrædelser
   med annoncer. Ikke valgt: nonce pr. svar i Workeren; hashes klarer det uden at Workeren skal
   stå foran hver side.
@@ -143,6 +146,12 @@ Sidst opdateret: 2026-11-14.
   fund; fundene er rettet. Afprøvet i headless Chrome med efterlignet samtykke. Ikke set:
   hændelsen i Google Analytics og en rigtig annonce (kræver udgivet samtykkebesked og et
   annoncenummer; TIL-EJEREN punkt 1).
+- **Sidevagt og llms.txt (B58):** `.github/workflows/monitor.yml` henter tretten adresser på
+  den levende side to gange i døgnet og åbner en GitHub-sag med etiketten `monitor`, hvis en
+  kontrol fejler (`docs/overvaagning.md`). `llms.txt` laves af bygget, og bygget stopper, hvis
+  sitemappet får et område, som hverken er med eller valgt fra. Kørt lokalt mod den levende
+  side: alle 13 kontroller bestod. Efter udgivelsen: start workflowen én gang i Actions, og
+  se, at den ender grøn.
 
 ## Næste skridt
 
@@ -167,9 +176,24 @@ Sidst opdateret: 2026-11-14.
   - Søgefeltet og tidsknapperne er skjult, til scriptet kører; pladsen bør holdes fri.
   - Filer uden brug fra før redesignet (`ProductCard.astro`, `scripts/content-inventory.mjs`,
     `public/images/produkter/`, `logo-email.png`): tjek ekstern brug, før de slettes.
-  - Diagrammerne i guiderne (27 SVG-filer) er ikke set igennem. LD2410-oversigten har
-    overlappende tekst og dansk tekst på den engelske side; de andre skal ses som billede, og
-    fakta holdes op mod guidens tekst og kode.
+  - Diagrammerne i guiderne: alle 27 SVG-filer er tegnet om, set som billede (328 og 720 px,
+    mørk og lys baggrund) og holdt op mod guidens tekst og kode. Teksten er mindst 18 enheder i
+    en 640 enheder bred `viewBox` (ca. 9 px på en telefon; før 2,5-5 px), intet overlapper, og
+    hver fil har `<title>` og `<desc>` på sit sprog. Syv engelske guides, der viste et dansk
+    diagram, har fået et engelsk, og den engelske ESP32-startguide viser nu oversigten og
+    benoversigten (ni nye engelske filer, 36 i alt). Reglerne for nye diagrammer står i
+    `docs/billeder.md` under "Diagrammer". Tilbage:
+    - LD2410-ledningsdiagrammet viser OUT som "bruges ikke". Før var der en valgfri ledning fra
+      OUT til GPIO5, som guidens tabel og kode ikke bruger. Skal OUT bruges, vælges et frit ben,
+      og guide, kode og diagram ændres samlet.
+    - Den engelske LD2410-guide har ikke den danske guides tabel "ESP32 til LD2410C"; diagrammet
+      og koden er dens eneste kilde til ESP32-benene.
+    - Rettet i samme omgang: PIR-guiden, dens kode og diagram bruger nu GPIO13 (GPIO5 læses
+      ved opstart, og ESPHome advarer om det); Raspberry Pi-tabellen nævner 15 W til Pi 4 og
+      27 W til Pi 5 (Raspberry Pis dokumentation, "Recommended power supply", læst 2026-11-14);
+      vaskemaskine-guiden skriver 100-2000 W begge steder; overskriften "Wiring diagram" i tre
+      danske guider hedder "Ledningsdiagram".
+    - Ikke set på en rigtig telefon, i Safari eller i Firefox.
   - Indtryk: emoji i tabelceller, emnekortene for automationer og produkter ligner hinanden,
     det store Home Assistant-kort har få detaljer, nyhedsartikler mangler brødkrumme, og
     nyhedsoversigtens store kort gentager dato og overskrift.

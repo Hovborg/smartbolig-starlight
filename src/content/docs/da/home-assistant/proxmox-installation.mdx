@@ -14,7 +14,7 @@ import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/sta
 
 Proxmox er en fantastisk platform til at køre Home Assistant OS. Du får fuld VM-isolation, snapshots, backup og mulighed for at køre andre services på samme hardware.
 
-![Proxmox + Home Assistant arkitektur](../../../../assets/guides/proxmox-installation/architecture.svg)
+![Home Assistant OS som virtuel maskine på Proxmox VE, med USB-passthrough til Zigbee-donglen, disk på local-lvm og netværk gennem vmbr0](../../../../assets/guides/proxmox-installation/architecture.svg)
 
 ## 🤔 Hvorfor Proxmox?
 
@@ -25,7 +25,7 @@ Proxmox er en fantastisk platform til at køre Home Assistant OS. Du får fuld V
 | Hardware passthrough | ✅ USB, PCIe | ✅ Direkte | ⚠️ Begrænset |
 | Ressourceskalering | ✅ Nemt | ❌ Fast hardware | ✅ Ja |
 | Andre VMs/containers | ✅ Ubegrænset | ❌ Nej | ✅ Ja |
-| Add-ons support | ✅ Fuld | ✅ Fuld | ❌ Separat |
+| Apps (add-ons) | ✅ Fuld | ✅ Fuld | ❌ Separat |
 
 <Aside type="tip" title="Anbefalet til">
 - Dem der allerede har en Proxmox server

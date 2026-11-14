@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 566" role="img" lang="en" font-family="system-ui, sans-serif">
+  <title>Home Assistant, Mosquitto and Zigbee2MQTT as containers in Docker</title>
+  <desc>On a Linux server or NAS, Docker Engine runs three containers: Home Assistant (port 8123, network_mode: host), Mosquitto as the MQTT broker (port 1883) and Zigbee2MQTT (port 8080, Zigbee dongle on /dev/ttyACM0). Home Assistant and Zigbee2MQTT talk to each other through Mosquitto over MQTT. Mosquitto and Zigbee2MQTT are optional.</desc>
+  <defs><linearGradient id="eng" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#0369a1"/></linearGradient></defs>
+  <rect x="0" y="0" width="640" height="566" fill="#1a1a2e"/>
+  <text x="320" y="46" font-size="26" fill="#e2e8f0" text-anchor="middle" font-weight="700">Home Assistant in Docker</text>
+  <rect x="16" y="66" width="608" height="484" rx="14" fill="#1e293b" stroke="#475569" stroke-width="2.5"/>
+  <text x="36" y="97" font-size="18" fill="#a3b1c6">Linux server or NAS</text>
+  <rect x="36" y="112" width="568" height="44" rx="8" fill="url(#eng)"/>
+  <text x="320" y="141" font-size="20" fill="#ffffff" text-anchor="middle" font-weight="700">Docker Engine</text>
+  <rect x="36" y="176" width="568" height="96" rx="10" fill="#0e7490" stroke="#67e8f9" stroke-width="2"/>
+  <text x="56" y="216" font-size="22" fill="#ffffff" font-weight="700">Home Assistant</text>
+  <text x="56" y="246" font-size="18" fill="#ffffff">container</text>
+  <text x="586" y="216" font-size="18" fill="#ffffff" text-anchor="end" font-family="ui-monospace, Menlo, Consolas, monospace">port 8123</text>
+  <text x="586" y="246" font-size="18" fill="#ffffff" text-anchor="end" font-family="ui-monospace, Menlo, Consolas, monospace">network_mode: host</text>
+  <path d="M300 284L300 284" fill="none" stroke="#9ca3af" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M300 275L295.1 284L304.9 284Z" fill="#9ca3af"/>
+  <path d="M300 284L300 294" fill="none" stroke="#9ca3af" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M300 303L304.9 294L295.1 294Z" fill="#9ca3af"/>
+  <text x="316" y="295" font-size="18" fill="#e2e8f0">MQTT</text>
+  <rect x="36" y="306" width="568" height="96" rx="10" fill="#6d28d9" stroke="#c4b5fd" stroke-width="2"/>
+  <text x="56" y="346" font-size="22" fill="#ffffff" font-weight="700">Mosquitto</text>
+  <text x="56" y="376" font-size="18" fill="#ffffff">MQTT broker (optional)</text>
+  <text x="586" y="361" font-size="18" fill="#ffffff" text-anchor="end" font-family="ui-monospace, Menlo, Consolas, monospace">port 1883</text>
+  <path d="M300 414L300 414" fill="none" stroke="#9ca3af" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M300 405L295.1 414L304.9 414Z" fill="#9ca3af"/>
+  <path d="M300 414L300 424" fill="none" stroke="#9ca3af" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M300 433L304.9 424L295.1 424Z" fill="#9ca3af"/>
+  <text x="316" y="425" font-size="18" fill="#e2e8f0">MQTT</text>
+  <rect x="36" y="436" width="568" height="96" rx="10" fill="#b45309" stroke="#fbbf24" stroke-width="2"/>
+  <text x="56" y="476" font-size="22" fill="#ffffff" font-weight="700">Zigbee2MQTT</text>
+  <text x="56" y="506" font-size="18" fill="#ffffff">Zigbee over a USB dongle (optional)</text>
+  <text x="586" y="476" font-size="18" fill="#ffffff" text-anchor="end" font-family="ui-monospace, Menlo, Consolas, monospace">port 8080</text>
+  <text x="586" y="506" font-size="18" fill="#ffffff" text-anchor="end" font-family="ui-monospace, Menlo, Consolas, monospace">/dev/ttyACM0</text>
+</svg>

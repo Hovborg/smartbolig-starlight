@@ -1,114 +1,50 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350">
-  <defs>
-    <linearGradient id="inputNode" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#7c3aed;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="functionNode" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#f59e0b;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#d97706;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="switchNode" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#06b6d4;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0891b2;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="outputNode" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#059669;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="haNode" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#ef4444;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#dc2626;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  
-  <!-- Background (Node-RED style dark) -->
-  <rect width="800" height="350" fill="#1a1a2e"/>
-  
-  <!-- Grid pattern -->
-  <defs>
-    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
-      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#2d2d42" stroke-width="0.5"/>
-    </pattern>
-  </defs>
-  <rect width="800" height="350" fill="url(#grid)"/>
-  
-  <!-- Title -->
-  <text x="400" y="30" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="20" font-weight="bold">Node-RED Flow Eksempel</text>
-  
-  <!-- Node 1: HA Events (Input) -->
-  <rect x="40" y="120" width="130" height="40" rx="6" fill="url(#haNode)" stroke="#fca5a5" stroke-width="2"/>
-  <circle cx="170" cy="140" r="6" fill="#fca5a5"/>
-  <text x="105" y="145" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">events: state</text>
-  <text x="105" y="175" text-anchor="middle" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="9">motion sensor</text>
-  
-  <!-- Wire 1 -->
-  <path d="M 176 140 C 200 140, 210 140, 230 140" stroke="#94a3b8" stroke-width="2" fill="none"/>
-  
-  <!-- Node 2: Switch -->
-  <rect x="235" y="120" width="110" height="40" rx="6" fill="url(#switchNode)" stroke="#67e8f9" stroke-width="2"/>
-  <circle cx="235" cy="140" r="6" fill="#67e8f9"/>
-  <circle cx="345" cy="130" r="6" fill="#67e8f9"/>
-  <circle cx="345" cy="150" r="6" fill="#67e8f9"/>
-  <text x="290" y="145" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">switch</text>
-  <text x="290" y="175" text-anchor="middle" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="9">on/off check</text>
-  
-  <!-- Wire 2a (top path - ON) -->
-  <path d="M 351 130 C 380 130, 400 90, 430 90" stroke="#10b981" stroke-width="2" fill="none"/>
-  <text x="390" y="85" fill="#6ee7b7" font-family="system-ui, sans-serif" font-size="9">ON</text>
-  
-  <!-- Wire 2b (bottom path - OFF) -->
-  <path d="M 351 150 C 380 150, 400 200, 430 200" stroke="#ef4444" stroke-width="2" fill="none"/>
-  <text x="390" y="220" fill="#fca5a5" font-family="system-ui, sans-serif" font-size="9">OFF</text>
-  
-  <!-- Node 3a: Function (delay) -->
-  <rect x="435" y="70" width="120" height="40" rx="6" fill="url(#functionNode)" stroke="#fcd34d" stroke-width="2"/>
-  <circle cx="435" cy="90" r="6" fill="#fcd34d"/>
-  <circle cx="555" cy="90" r="6" fill="#fcd34d"/>
-  <text x="495" y="95" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">function</text>
-  <text x="495" y="125" text-anchor="middle" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="9">brightness: 80%</text>
-  
-  <!-- Node 3b: Delay -->
-  <rect x="435" y="180" width="120" height="40" rx="6" fill="url(#inputNode)" stroke="#a78bfa" stroke-width="2"/>
-  <circle cx="435" cy="200" r="6" fill="#a78bfa"/>
-  <circle cx="555" cy="200" r="6" fill="#a78bfa"/>
-  <text x="495" y="205" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">delay</text>
-  <text x="495" y="235" text-anchor="middle" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="9">5 minutes</text>
-  
-  <!-- Wire 3a -->
-  <path d="M 561 90 C 590 90, 600 90, 625 90" stroke="#94a3b8" stroke-width="2" fill="none"/>
-  
-  <!-- Wire 3b -->
-  <path d="M 561 200 C 590 200, 600 200, 625 200" stroke="#94a3b8" stroke-width="2" fill="none"/>
-  
-  <!-- Node 4a: Call Service (Turn ON) -->
-  <rect x="630" y="70" width="130" height="40" rx="6" fill="url(#outputNode)" stroke="#6ee7b7" stroke-width="2"/>
-  <circle cx="630" cy="90" r="6" fill="#6ee7b7"/>
-  <text x="695" y="95" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">call service</text>
-  <text x="695" y="125" text-anchor="middle" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="9">light.turn_on</text>
-  
-  <!-- Node 4b: Call Service (Turn OFF) -->
-  <rect x="630" y="180" width="130" height="40" rx="6" fill="url(#haNode)" stroke="#fca5a5" stroke-width="2"/>
-  <circle cx="630" cy="200" r="6" fill="#fca5a5"/>
-  <text x="695" y="205" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="11" font-weight="bold">call service</text>
-  <text x="695" y="235" text-anchor="middle" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="9">light.turn_off</text>
-  
-  <!-- Legend -->
-  <rect x="50" y="280" width="700" height="55" rx="8" fill="#0f172a" stroke="#334155" stroke-width="1"/>
-  <text x="400" y="300" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="12" font-weight="bold">Node Typer</text>
-  
-  <rect x="80" y="310" width="60" height="18" rx="4" fill="url(#haNode)"/>
-  <text x="150" y="323" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="10">HA Node</text>
-  
-  <rect x="220" y="310" width="60" height="18" rx="4" fill="url(#switchNode)"/>
-  <text x="290" y="323" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="10">Switch</text>
-  
-  <rect x="360" y="310" width="60" height="18" rx="4" fill="url(#functionNode)"/>
-  <text x="430" y="323" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="10">Function</text>
-  
-  <rect x="500" y="310" width="60" height="18" rx="4" fill="url(#inputNode)"/>
-  <text x="570" y="323" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="10">Delay</text>
-  
-  <rect x="640" y="310" width="60" height="18" rx="4" fill="url(#outputNode)"/>
-  <text x="710" y="323" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="10">Output</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 548" role="img" lang="da" font-family="system-ui, sans-serif">
+  <title>Eksempel på et Node-RED-flow, der tænder og slukker lys efter en bevægelsessensor</title>
+  <desc>Noden events: state lytter på en bevægelsessensor. En switch-node sender beskeden videre efter tilstanden. Ved on sætter en function-node lysstyrken til 80 %, og en action-node kalder light.turn_on. Ved off venter en delay-node 5 minutter, og en action-node kalder light.turn_off.</desc>
+  <rect x="0" y="0" width="640" height="548" fill="#1a1a2e"/>
+  <text x="320" y="46" font-size="26" fill="#e2e8f0" text-anchor="middle" font-weight="700">Eksempel på et Node-RED-flow</text>
+  <rect x="206" y="70" width="228" height="66" rx="8" fill="#7dd3fc" stroke="#0369a1" stroke-width="2"/>
+  <rect x="207" y="71" width="24" height="64" rx="7" fill="#0369a1" opacity="0.4"/>
+  <text x="332" y="97" font-size="18" fill="#0b1220" text-anchor="middle" font-weight="700">events: state</text>
+  <text x="332" y="122" font-size="18" fill="#0b1220" text-anchor="middle">bevægelsessensor</text>
+  <path d="M320 138L320 147" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M320 158L326.1 147L313.9 147Z" fill="#9ca3af"/>
+  <rect x="206" y="160" width="228" height="66" rx="8" fill="#fde68a" stroke="#a16207" stroke-width="2"/>
+  <rect x="207" y="161" width="24" height="64" rx="7" fill="#a16207" opacity="0.4"/>
+  <text x="332" y="187" font-size="18" fill="#0b1220" text-anchor="middle" font-weight="700">switch</text>
+  <text x="332" y="212" font-size="18" fill="#0b1220" text-anchor="middle">on eller off?</text>
+  <path d="M320 228V252M170 252H470" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M170 252L170 287" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M170 298L176.1 287L163.9 287Z" fill="#9ca3af"/>
+  <path d="M470 252L470 287" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M470 298L476.1 287L463.9 287Z" fill="#9ca3af"/>
+  <text x="184" y="284" font-size="18" fill="#4ade80" font-weight="700">on</text>
+  <text x="456" y="284" font-size="18" fill="#fca5a5" text-anchor="end" font-weight="700">off</text>
+  <rect x="56" y="300" width="228" height="66" rx="8" fill="#fdba74" stroke="#c2410c" stroke-width="2"/>
+  <rect x="57" y="301" width="24" height="64" rx="7" fill="#c2410c" opacity="0.4"/>
+  <text x="182" y="327" font-size="18" fill="#0b1220" text-anchor="middle" font-weight="700">function</text>
+  <text x="182" y="352" font-size="18" fill="#0b1220" text-anchor="middle">lysstyrke 80 %</text>
+  <rect x="356" y="300" width="228" height="66" rx="8" fill="#ddd6fe" stroke="#6d28d9" stroke-width="2"/>
+  <rect x="357" y="301" width="24" height="64" rx="7" fill="#6d28d9" opacity="0.4"/>
+  <text x="482" y="327" font-size="18" fill="#0b1220" text-anchor="middle" font-weight="700">delay</text>
+  <text x="482" y="352" font-size="18" fill="#0b1220" text-anchor="middle">5 minutter</text>
+  <path d="M170 368L170 377" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M170 388L176.1 377L163.9 377Z" fill="#9ca3af"/>
+  <path d="M470 368L470 377" fill="none" stroke="#9ca3af" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M470 388L476.1 377L463.9 377Z" fill="#9ca3af"/>
+  <rect x="56" y="390" width="228" height="66" rx="8" fill="#7dd3fc" stroke="#0369a1" stroke-width="2"/>
+  <rect x="57" y="391" width="24" height="64" rx="7" fill="#0369a1" opacity="0.4"/>
+  <text x="182" y="417" font-size="18" fill="#0b1220" text-anchor="middle" font-weight="700">action</text>
+  <text x="182" y="442" font-size="18" fill="#0b1220" text-anchor="middle" font-family="ui-monospace, Menlo, Consolas, monospace">light.turn_on</text>
+  <rect x="356" y="390" width="228" height="66" rx="8" fill="#7dd3fc" stroke="#0369a1" stroke-width="2"/>
+  <rect x="357" y="391" width="24" height="64" rx="7" fill="#0369a1" opacity="0.4"/>
+  <text x="482" y="417" font-size="18" fill="#0b1220" text-anchor="middle" font-weight="700">action</text>
+  <text x="482" y="442" font-size="18" fill="#0b1220" text-anchor="middle" font-family="ui-monospace, Menlo, Consolas, monospace">light.turn_off</text>
+  <rect x="24" y="480" width="592" height="50" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+  <rect x="89.6" y="494" width="22" height="22" rx="4" fill="#7dd3fc" stroke="#0369a1" stroke-width="1.5"/>
+  <text x="119.6" y="511.3" font-size="18" fill="#e2e8f0">Home Assistant-node</text>
+  <rect x="337.4" y="494" width="22" height="22" rx="4" fill="#fde68a" stroke="#a16207" stroke-width="1.5"/>
+  <rect x="363.4" y="494" width="22" height="22" rx="4" fill="#fdba74" stroke="#c2410c" stroke-width="1.5"/>
+  <rect x="389.4" y="494" width="22" height="22" rx="4" fill="#ddd6fe" stroke="#6d28d9" stroke-width="1.5"/>
+  <text x="419.4" y="511.3" font-size="18" fill="#e2e8f0">indbygget node</text>
 </svg>
