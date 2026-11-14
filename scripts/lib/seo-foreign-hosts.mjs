@@ -9,6 +9,9 @@ const FETCHED = { script: "src", iframe: "src", img: "src", video: "src", audio:
 const FETCHING_RELS = new Set(["stylesheet", "preconnect", "dns-prefetch", "preload", "modulepreload", "prefetch", "prerender", "icon", "apple-touch-icon", "mask-icon", "manifest"]);
 
 const TAG = /<(script|iframe|img|video|audio|source|embed|object|link)\b([^>]*)>/gi;
+// A code sample's copy button keeps the sample as text in `data-code`. A sample
+// such as <script src="https://..."> is text for the reader, not a tag on the page.
+const CODE_TEXT = /\sdata-code=(?:"[^"]*"|'[^']*')/gi;
 
 function attribute(attributes, name) {
   const match = attributes.match(new RegExp(`(?:^|\\s)${name}\\s*=\\s*(?:"([^"]*)"|'([^']*)'|([^\\s>]+))`, "i"));
@@ -34,7 +37,7 @@ const srcsetAddresses = (srcset) => (srcset ?? "").split(",").map((entry) => ent
 /** One message for each thing the page would fetch from another host. */
 export function foreignHosts(html, ownHost = OWN_HOST) {
   const messages = [];
-  for (const [, rawName, attributes] of html.matchAll(TAG)) {
+  for (const [, rawName, attributes] of html.replace(CODE_TEXT, "").matchAll(TAG)) {
     const name = rawName.toLowerCase();
     let addresses;
     if (name === "link") {

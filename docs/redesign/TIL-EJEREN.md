@@ -9,7 +9,8 @@ Sidst opdateret: 2026-11-14.
 1. **Udgiv samtykkebeskeden i Google AdSense (vigtigst).** Der er ingen udgivet besked for
    smartbolig.net (set 2026-11-14). Siden spørger med den besked, før noget hentes fra Google
    (`docs/samtykke.md`). **Indtil den er udgivet, hentes hverken Google Analytics eller
-   annoncer for nogen besøgende**: ingen tal i Analytics og ingen annonceindtægt. Det er gratis
+   annoncer for besøgende i EU/EØS, Storbritannien og Schweiz** (målt fra Danmark): ingen tal
+   i Analytics og ingen annonceindtægt. Det er gratis
    og tager omkring ti minutter:
    1. Åbn AdSense → "Privatliv og beskeder" → "Europæiske forordninger" → opret en besked.
    2. Vælg websitet smartbolig.net, sprog dansk og engelsk, og sæt linket til
@@ -22,11 +23,14 @@ Sidst opdateret: 2026-11-14.
       der kræves, er en juridisk vurdering.
    5. Tryk "Udgiv". Åbn derefter smartbolig.net i et privat vindue: beskeden skal komme, og
       "Cookieindstillinger" skal stå nederst på siden, når du har svaret.
+   6. Sig ja, tryk "Cookieindstillinger", og sig nej: siden skal indlæses igen uden annoncer.
+      Det kan først afprøves med en udgivet besked. Virker det ikke, så skriv det til Claude.
 
    Tjek samme sted:
-   - "Consent mode" er slået til for beskeden. Er den ikke det, virker siden stadig (svaret
-     læses fra TCF), men Google Analytics får kun et ja fra læsere, der også siger ja til
-     formål 1 og 8.
+   - "Consent mode" er slået til for beskeden (Googles anbefaling). Siden virker i begge
+     tilfælde: svaret læses fra TCF, og er "consent mode" slået til, skal begge sige ja.
+     Google Analytics tæller kun læsere, der siger ja til formål 1 og 8 ("Gem oplysninger på
+     en enhed" og "Mål indholdets effektivitet"); knappen "Giv samtykke" siger ja til alle.
    - Vælg, om læsere, der siger nej, må få "begrænsede annoncer" (uden cookies). Siden henter
      i dag ingen annoncer efter et nej.
    - Annoncer: automatiske annoncer er til eller fra efter dit valg, og annonceenhederne findes.

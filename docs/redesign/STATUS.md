@@ -127,7 +127,8 @@ Sidst opdateret: 2026-11-14.
   Analytics, og cookien `preferred-lang` blev sat.
   **Fund 2026-11-14:** der er ingen udgivet samtykkebesked for siden i AdSense (Googles script
   melder "inaktiv" på den levende side). Efter udgivelsen hentes derfor hverken Analytics
-  eller AdSense for nogen, før ejeren har udgivet beskeden (TIL-EJEREN punkt 1).
+  eller AdSense, hvor GDPR gælder (målt fra Danmark), før ejeren har udgivet beskeden
+  (TIL-EJEREN punkt 1). To uafhængige gennemgange; fund rettet (B56).
   Efter udgivelsen kontrolleres på den levende side: hvilke værter en side henter fra før et
   svar; hvilke cookies der sættes; at "Cookieindstillinger" er skjult, så længe beskeden ikke
   er udgivet; og om konsollen viser overtrædelser af den strenge politik (også på en juridisk

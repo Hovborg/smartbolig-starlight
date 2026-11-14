@@ -21,14 +21,22 @@ function signalPresent(win, doc) {
  * onAsked: Google asks the visitor here, so the answer can be changed (the
  * "cookie settings" control has something to open). May be called again.
  * onAnswer(decision): called with every answer, also when it changes later.
- * Nothing is called when no message is published in AdSense for the site.
+ * Neither is called when no message is published in AdSense for the site.
  */
 export function loadMessage({ win, doc, publisher, onAsked, onAnswer }) {
   const fc = (win.googlefc = win.googlefc || {});
   fc.callbackQueue = fc.callbackQueue || [];
 
-  const read = (tcData) => {
-    const decision = strictest(fromConsentMode(fc.getGoogleConsentModeValues?.(), fc.ConsentModePurposeStatusEnum), fromTcf(tcData));
+  // What the TCF listener said last. It is kept because Google runs the queue
+  // callbacks after the listener (seen on the live site), and a purpose needs
+  // a yes from both, whichever of the two speaks last.
+  let lastTcf = null;
+  const read = () => {
+    const tcf = fromTcf(lastTcf);
+    // Where the GDPR applies, the visitor's own answer is the TCF one. Consent
+    // mode alone is not a yes there.
+    if (lastTcf?.gdprApplies === true && !tcf) return;
+    const decision = strictest(fromConsentMode(fc.getGoogleConsentModeValues?.(), fc.ConsentModePurposeStatusEnum), tcf);
     if (decision) onAnswer(decision);
   };
 
@@ -40,18 +48,21 @@ export function loadMessage({ win, doc, publisher, onAsked, onAnswer }) {
     listening = true;
     win.__tcfapi("addEventListener", 2, (data, success) => {
       if (!success || !data) return;
-      if (data.gdprApplies === true) onAsked();
-      read(data);
-      if (data.eventStatus === "useractioncomplete") win.setTimeout(() => read(data), SETTLE_MS);
+      // Without a published message Google still calls, with gdprApplies true
+      // but no eventStatus (seen on the live site): then nobody was asked.
+      if (data.gdprApplies === true && typeof data.eventStatus === "string") onAsked();
+      lastTcf = data;
+      read();
+      if (data.eventStatus === "useractioncomplete") win.setTimeout(read, SETTLE_MS);
     });
   };
 
   fc.callbackQueue.push({ CONSENT_API_READY: listen });
-  fc.callbackQueue.push({ CONSENT_MODE_DATA_READY: () => read(null) });
+  fc.callbackQueue.push({ CONSENT_MODE_DATA_READY: read });
   fc.callbackQueue.push({
     CONSENT_DATA_READY: () => {
       listen();
-      read(null);
+      read();
     },
   });
 

@@ -44,7 +44,7 @@ export function loadComments(wrapper, { onReady, onError } = {}, win = window, d
     lang: wrapper.dataset.giscusLang ?? "da",
   });
 
-  const themes = new MutationObserver(sendTheme);
+  const themes = new win.MutationObserver(sendTheme);
   // The widget announces itself when ready; sync in case the theme changed while it loaded.
   const onMessage = (event) => {
     if (event.origin !== GISCUS_ORIGIN || !event.data || typeof event.data !== "object" || !("giscus" in event.data)) return;

@@ -8,8 +8,9 @@ intet svar, ja og nej. Set: før et svar hentes kun samtykkebeskeden; efter et j
 siden; kommentarerne hentes først ved tryk.
 Googles rigtige script er hentet alene på den levende side fra en dansk forbindelse
 (2026-11-14, headless Chrome og en almindelig browser): dets API svarer, det sætter cookien
-`FCCDCF`, og det melder, at **ingen besked er udgivet for smartbolig.net** (ingen dialog,
-intet TCF-svar, "consent mode" ikke sat op). Se "Ingen besked udgivet" nedenfor.
+`FCCDCF`, og det melder, at **ingen besked er udgivet for smartbolig.net** (ingen dialog;
+TCF-lytteren kaldes, men uden noget svar fra læseren; "consent mode" ikke sat op). Se "Ingen
+besked udgivet" nedenfor.
 Ikke kontrolleret: et rigtigt svar i Googles rigtige besked (kræver, at beskeden er udgivet),
 hvad Google svarer uden for EU/EØS, og indstillingerne i AdSense under "Privatliv og beskeder"
 (kræver ejerens login, se `docs/redesign/TIL-EJEREN.md`).
@@ -29,8 +30,9 @@ hvad Google svarer uden for EU/EØS, og indstillingerne i AdSense under "Privatl
   Google melder, at der ikke spørges, tæller det som et ja. De juridiske sider siger det.
   Ejeren kan lade beskeden vises i alle lande i AdSense.
 - **Ingen besked udgivet:** er der ingen udgivet besked i AdSense for siden, kommer der intet
-  svar, og så hentes hverken Analytics eller AdSense for nogen. Siden virker ellers som
-  normalt.
+  svar fra læseren, og så hentes hverken Analytics eller AdSense, hvor Google melder, at GDPR
+  gælder (målt fra Danmark; hvad Google melder i andre lande uden en udgivet besked, er ikke
+  målt). "Cookieindstillinger" er skjult. Siden virker ellers som normalt.
 - Kommentarerne under en guide (giscus, GitHub) hentes først, når læseren trykker "Vis
   kommentarer".
 - Cloudflare Web Analytics tæller sidevisninger uden cookies og uden samtykke. Den sættes på af
@@ -47,7 +49,9 @@ hvad Google svarer uden for EU/EØS, og indstillingerne i AdSense under "Privatl
    "consent mode" er slået til i AdSense) og TCF (`__tcfapi`): Google skal være godkendt som
    leverandør (nummer 755), og formålene følger Googles egen oversættelse. Svarer begge, kræver
    et formål ja fra begge (`strictest`), så et tilbagetrukket ja aldrig overstemmes af en
-   værdi, der ikke er fulgt med endnu.
+   værdi, der ikke er fulgt med endnu. Det seneste TCF-svar huskes, så rækkefølgen af Googles
+   kald er ligegyldig (på den levende side kaldes TCF-lytteren først). Hvor GDPR gælder, er
+   "consent mode" alene aldrig et ja: der skal være et TCF-svar fra læseren.
 5. TCF-lytteren kaldes igen, hver gang læseren svarer eller ændrer sit svar. Googles egne
    callbacks (`CONSENT_MODE_DATA_READY` og `CONSENT_DATA_READY`) er kun lovet én gang. Efter
    et svar læses værdierne igen et sekund senere.

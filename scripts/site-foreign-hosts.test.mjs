@@ -49,6 +49,12 @@ test("a resource hint or a style sheet from another host fails", () => {
   assert.match(foreignHosts('<link rel="preload" as="image" href="/a.webp" imagesrcset="https://cdn.example/a.webp 640w">').join("\n"), /cdn\.example/);
 });
 
+test("a code sample in a copy button is text, not a tag", () => {
+  const sample = `<button data-code="<script src='https://cdn.example/x.js'></script>">Copy</button>`;
+  assert.deepEqual(foreignHosts(sample), []);
+  assert.match(foreignHosts(`${sample}<script src="https://cdn.example/x.js"></script>`).join("\n"), /cdn\.example/, "the real tag beside it still counts");
+});
+
 test("only the attribute itself counts, and a subdomain is another host", () => {
   assert.deepEqual(foreignHosts('<script data-src="https://cdn.example/x.js" src="/x.js"></script>'), []);
   assert.deepEqual(foreignHosts('<img alt="" data-srcset="https://cdn.example/a.webp 1x" src="/a.webp">'), []);

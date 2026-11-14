@@ -34,7 +34,7 @@ const tcf = (purposes, { google = true, eventStatus = "useractioncomplete", gdpr
 const EVERY_PURPOSE = [1, 3, 4, 7, 8];
 
 /** A page with just enough of the browser for the consent code. */
-function page({ readyState = "complete", withTcf = true } = {}) {
+function page({ readyState = "complete", withTcf = true, tcfAtStart } = {}) {
   const scripts = [];
   const frames = [];
   const timers = [];
@@ -61,6 +61,8 @@ function page({ readyState = "complete", withTcf = true } = {}) {
     win.__tcfapi = (command, version, run) => {
       assert.deepEqual([command, version], ["addEventListener", 2]);
       tcfListeners.push(run);
+      // Google calls a new listener at once with what it knows (seen on the live site).
+      if (tcfAtStart) run(tcfAtStart, true);
     };
   }
   const fire = (key) => win.googlefc.callbackQueue.filter((entry) => entry[key]).forEach((entry) => entry[key]());
@@ -264,10 +266,54 @@ test("where no message is published in AdSense, nothing is fetched and nothing c
   assert.equal(scripts.length, 1, "only the consent message");
   assert.equal(controls[0].hidden, true);
 
+  // What Google's script really does on the live site without a message
+  // (read 2026-11-14): the listener is called at once, marked as a success,
+  // with gdprApplies true and no eventStatus.
+  const live = page({ tcfAtStart: { gdprApplies: true, cmpStatus: "loaded" } });
+  boot(live.win, live.doc);
+  live.ready(all(NOT_CONFIGURED));
+  assert.equal(live.scripts.length, 1, "only the consent message");
+  assert.equal(live.controls[0].hidden, true, "nobody was asked, so there is nothing to reopen");
+  // Consent mode alone is not a yes where the GDPR applies and TCF has no answer.
+  const modeOnly = page({ tcfAtStart: { gdprApplies: true, cmpStatus: "loaded" } });
+  boot(modeOnly.win, modeOnly.doc);
+  modeOnly.ready(all(GRANTED));
+  assert.equal(modeOnly.scripts.length, 1);
+
   const noTcf = page({ withTcf: false });
   boot(noTcf.win, noTcf.doc);
   noTcf.ready(all(NOT_CONFIGURED));
   assert.equal(noTcf.scripts.length, 1);
+});
+
+test("a purpose needs a yes from both, whichever of the two Google tells last", () => {
+  // Google's order on the live site: the TCF listener first, then the queue callbacks.
+  const tcfNo = page({ tcfAtStart: tcf([], { eventStatus: "tcloaded" }) });
+  boot(tcfNo.win, tcfNo.doc);
+  tcfNo.ready(all(GRANTED));
+  assert.equal(tcfNo.scripts.length, 1, "consent mode says yes last, the TCF no still counts");
+  assert.equal(tcfNo.win.reloads, 0);
+
+  const modeNo = page({ tcfAtStart: tcf(EVERY_PURPOSE, { eventStatus: "tcloaded" }) });
+  boot(modeNo.win, modeNo.doc);
+  modeNo.ready(all(DENIED));
+  assert.equal(modeNo.scripts.length, 1);
+  assert.equal(modeNo.win.reloads, 0, "the two disagreeing must not load the page again and again");
+
+  const bothYes = page({ tcfAtStart: tcf(EVERY_PURPOSE, { eventStatus: "tcloaded" }) });
+  boot(bothYes.win, bothYes.doc);
+  bothYes.ready(all(GRANTED));
+  assert.equal(bothYes.fetched("gtag/js"), 1);
+  assert.equal(bothYes.fetched("adsbygoogle"), 1);
+  assert.equal(bothYes.win.reloads, 0);
+
+  // The message is open and unanswered: nothing yet, whatever consent mode says.
+  const open = page({ tcfAtStart: tcf([], { eventStatus: "cmpuishown" }) });
+  boot(open.win, open.doc);
+  open.ready(all(GRANTED));
+  assert.equal(open.scripts.length, 1);
+  open.tcfEvent(tcf(EVERY_PURPOSE));
+  assert.equal(open.fetched("gtag/js"), 1);
 });
 
 test("the cookie settings control appears where Google asks the visitor", () => {

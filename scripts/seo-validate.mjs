@@ -425,7 +425,13 @@ async function main() {
   if (!existsSync(pictureGuide)) fail(issues, pictureGuide, 'missing generated HTML');
   else for (const message of checkGuidePicture(await readFile(pictureGuide, 'utf8'))) fail(issues, pictureGuide, message);
 
-  await validatePage(issues, path.join(distDir, '404.html'), {
+  // The 404 page is not in the sitemap, so the check of every sitemap page does not reach it.
+  const notFoundPage = path.join(distDir, '404.html');
+  if (existsSync(notFoundPage)) {
+    for (const message of foreignHosts(await readFile(notFoundPage, 'utf8'))) fail(issues, notFoundPage, message);
+  }
+
+  await validatePage(issues, notFoundPage, {
     required: [
       { needle: '<meta name="description" content="Siden blev ikke fundet. Find SmartBolig.net guides fra forsiden."', label: '404 meta description' },
       { needle: '<meta property="og:type" content="website"', label: '404 Open Graph type' },

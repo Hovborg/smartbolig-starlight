@@ -611,8 +611,9 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Efter den uafhængige gennemgang (2026-11-14):
   - Fund på den levende side: der er ingen udgivet samtykkebesked for smartbolig.net i AdSense.
     Googles script, hentet alene fra en dansk forbindelse, melder "inaktiv": ingen dialog,
-    intet TCF-svar, "consent mode" ikke sat op. Siden hentede altså Analytics og AdSense uden
-    at spørge nogen. Med denne ændring hentes ingen af dem for nogen, før beskeden er udgivet.
+    intet svar fra læseren i TCF, "consent mode" ikke sat op. Siden hentede altså Analytics og
+    AdSense uden at spørge nogen. Med denne ændring hentes ingen af dem, hvor GDPR gælder, før
+    beskeden er udgivet (målt fra Danmark).
   - Valg: udgiv alligevel. Siden overholder reglerne med det samme; prisen er ingen
     Analytics-tal og ingen annoncer, til beskeden er udgivet. AdSense kunne ikke åbnes herfra
     (kræver ejerens login), så det står øverst i TIL-EJEREN.
@@ -639,3 +640,17 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
     er dækket nu: rækkefølgen af `consent update` og scripts, hvert TCF-formål, mislykkede
     TCF-svar, genindlæsning når kun annoncer trækkes tilbage, Googles signalramme, alle filer i
     `config/head/`, hashens præcise tekst og at den strenge politik ikke slås til ved en fejl.
+- Efter anden uafhængige gennemgang (2026-11-14, af rettelserne; 1 blokerende fund, 2 andre):
+  - Uden en udgivet besked kalder Google alligevel TCF-lytteren med "GDPR gælder", men uden
+    svar. Knappen "Cookieindstillinger" blev derfor vist og åbnede ingenting. Nu vises den kun,
+    når Google faktisk har spurgt (hændelsen har en status).
+  - Googles kald kommer i rækkefølgen TCF-lytter, så "consent mode". Koden glemte TCF-svaret,
+    når "consent mode" kom sidst, så et ja i "consent mode" alene kunne hente scripts. Nu
+    huskes det seneste TCF-svar, et formål kræver ja i begge, og hvor GDPR gælder, er "consent
+    mode" alene aldrig et ja. Testene følger Googles rigtige rækkefølge.
+  - De juridiske sider lovede et spørgsmål og en knap, som ingen får, før beskeden er udgivet.
+    Ordlyden er nu sand i begge tilstande.
+  - Kontrollen mod fremmede værter dækker også 404-siden og springer kodeeksemplers
+    kopiér-knap over. Kommentarfeltet har fået rigtige tests (afsender, tidsgrænse, oprydning).
+  - Ikke afprøvet, før ejeren har udgivet beskeden: et rigtigt ja og et tilbagetrukket ja i
+    Googles rigtige besked, og om "consent mode" for statistik følger TCF-formål 1 og 8.

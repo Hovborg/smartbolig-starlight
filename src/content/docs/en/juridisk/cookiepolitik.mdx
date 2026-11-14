@@ -13,7 +13,8 @@ This page explains what SmartBolig.net stores in your browser, who does it, and 
 
 - Until you have answered the consent message, the site fetches neither Google Analytics nor Google AdSense.
 - If you say no, they are not fetched and set no cookies.
-- You can change your answer at any time with **Cookie settings** at the bottom of every page.
+- Once you have answered, you can change your answer at any time with **Cookie settings** at the bottom of the page.
+- If you are not asked although you are in a country where Google has to ask (for example because an ad blocker stops the message), neither Google Analytics nor Google AdSense is fetched.
 - Google shows the question only in countries where the rules require it (the EU/EEA, the United Kingdom and Switzerland). If you visit from another country, Google Analytics and Google AdSense may be fetched without a question.
 - The comments under the guides are fetched only when you press **Show comments**.
 
@@ -74,7 +75,7 @@ Names and lifetimes are Google's own information. The full, current list is at G
 ## Third parties
 
 ### Google (consent message, Analytics and AdSense)
-- **The consent message** is Google's own (AdSense, Privacy & messaging) and follows the IAB consent standard (TCF). It is fetched from `fundingchoicesmessages.google.com` on every page.
+- **The consent message** is Google's own (AdSense, Privacy & messaging) and follows the IAB consent standard (TCF). It is fetched from `fundingchoicesmessages.google.com` on every page, also before you have answered; otherwise it cannot ask.
 - **Google Analytics** measures which pages are read. Fetched only after a yes to statistics.
 - **Google AdSense** shows ads. Fetched only after a yes to advertising. Publisher ID: ca-pub-1259715054941263.
 - [How Google uses information from sites that use its services](https://policies.google.com/technologies/partner-sites)
