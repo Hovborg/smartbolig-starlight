@@ -322,13 +322,9 @@ test("Cloudflare bindings and bilingual privacy copy stay coupled to the assista
     "compatibility_date must stay within the runtime bundled by pinned Wrangler 4.81.1",
   );
   assert.equal(wrangler.ai.binding, "AI");
-  assert.deepEqual(wrangler.ai_search, [
-    {
-      binding: "SMARTBOLIG_SEARCH",
-      instance_name: "smartbolig-ai-search",
-      remote: true,
-    },
-  ]);
+  // The assistant searches the site's own index in the static files, not a paid search service.
+  assert.equal(wrangler.ai_search, undefined);
+  assert.equal(wrangler.assets.binding, "ASSETS");
   assert.deepEqual(wrangler.ratelimits, [
     {
       name: "CHAT_RATE_LIMITER",
@@ -339,11 +335,14 @@ test("Cloudflare bindings and bilingual privacy copy stay coupled to the assista
 
   for (const policy of [daPrivacy, enPrivacy]) {
     assert.match(policy, /Workers AI/);
-    assert.match(policy, /AI Search/);
+    // The assistant no longer uses Cloudflare AI Search; the policy must not say it does.
+    assert.doesNotMatch(policy, /AI Search/);
+    assert.match(policy, /egne offentlige sider|own public pages/);
     assert.match(policy, /sessionStorage/);
     assert.match(policy, /10/);
     assert.match(policy, /password|adgangskod/i);
   }
-  assert.match(readme, /AI Search er ikke assistentens eneste viden/);
+  assert.match(readme, /Sidens guides er ikke assistentens eneste viden/);
+  assert.doesNotMatch(readme, /AI Search/);
   assert.match(readme, /@cf\/google\/gemma-4-26b-a4b-it/);
 });

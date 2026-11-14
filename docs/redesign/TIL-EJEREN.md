@@ -22,7 +22,9 @@ Sidst opdateret: 2026-11-14.
 4. **Bedre nyhedstekster med Claude.** Workflowet kan bruge en Claude-nøgle i stedet for de
    gratis modeller. Ikke nødvendigt for drift.
 5. **Cloudflare AI Search** fakturerer fra 2026-12-01 ud over 1.000 forespørgsler pr. måned.
-   Assistenten flyttes derfor til et eget indeks (fase 4).
+   Assistenten bruger den ikke længere (den søger i sidens eget indeks). Instansen
+   `smartbolig-ai-search` findes stadig i din Cloudflare-konto. Den koster ikke noget, når
+   ingen spørger den, men den kan slettes: Cloudflare → AI → AI Search. Sletning kan ikke fortrydes.
 
 ## Kendte grænser
 

@@ -29,6 +29,9 @@ Sidst opdateret: 2026-11-14.
   reglerne afprøves af `scripts/site-dependabot.test.mjs`. Næste skridt her: opgradér
   Starlight til 0.42 i hånden (mobilmenu-knappen), så pakken igen får rettelser. Ikke set endnu: den første rigtige pull request fra Dependabot gennem
   auto-fletningen (se efter i ugen fra 2026-11-14, og ret da "Ikke kontrolleret endnu").
+- **Assistentens eget søgeindeks (B52, rettet efter uafhængig gennemgang):** bygges med siden, læses af Workeren fra `/_index/`;
+  `ai_search`-bindingen er fjernet. `functions/api/chat.js` er delt i `functions/lib/chat/`.
+  Dokumentation: `docs/assistent.md`.
 
 ## I gang
 
