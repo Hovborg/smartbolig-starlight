@@ -56,8 +56,11 @@
   --sb-page-max: 76rem;
 }
 
-:root[data-theme="dark"] {
-  --sb-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
-  --sb-shadow-md: 0 8px 20px -6px rgb(0 0 0 / 0.5), 0 2px 4px rgb(0 0 0 / 0.3);
-  --sb-shadow-lg: 0 28px 56px -20px rgb(0 0 0 / 0.7), 0 8px 16px -8px rgb(0 0 0 / 0.4);
+/* Not in print, like the dark colours (tokens/color.css). */
+@media not print {
+  :root[data-theme="dark"] {
+    --sb-shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --sb-shadow-md: 0 8px 20px -6px rgb(0 0 0 / 0.5), 0 2px 4px rgb(0 0 0 / 0.3);
+    --sb-shadow-lg: 0 28px 56px -20px rgb(0 0 0 / 0.7), 0 8px 16px -8px rgb(0 0 0 / 0.4);
+  }
 }

@@ -8,6 +8,9 @@
 :root {
   color-scheme: light;
 
+  /* Dimmed layer behind a dialog; dark in both themes. */
+  --sb-scrim: rgb(12 20 18 / 0.55);
+
   /* Surfaces */
   --sb-bg: #fbfcfa;
   --sb-bg-subtle: #f2f6f1;
@@ -43,36 +46,39 @@
   --sb-danger-vivid: #e8563f;
 }
 
-:root[data-theme="dark"] {
-  color-scheme: dark;
+/* Not in print: paper is white, so print always uses the light values above. */
+@media not print {
+  :root[data-theme="dark"] {
+    color-scheme: dark;
 
-  --sb-bg: #0c1412;
-  --sb-bg-subtle: #111b18;
-  --sb-surface: #16221e;
-  --sb-line: #22322c;
-  --sb-line-strong: #364b42;
+    --sb-bg: #0c1412;
+    --sb-bg-subtle: #111b18;
+    --sb-surface: #16221e;
+    --sb-line: #22322c;
+    --sb-line-strong: #364b42;
 
-  --sb-ink-strong: #f4f9f6;
-  --sb-ink: #e3ece7;
-  --sb-ink-muted: #b3c2ba;
-  --sb-ink-subtle: #91a39a;
+    --sb-ink-strong: #f4f9f6;
+    --sb-ink: #e3ece7;
+    --sb-ink-muted: #b3c2ba;
+    --sb-ink-subtle: #91a39a;
 
-  --sb-accent: #49d9a2;
-  --sb-accent-strong: #84ebc2;
-  --sb-accent-soft: #11342a;
-  --sb-accent-vivid: #2ee6a3;
-  --sb-on-accent: #05241a;
+    --sb-accent: #49d9a2;
+    --sb-accent-strong: #84ebc2;
+    --sb-accent-soft: #11342a;
+    --sb-accent-vivid: #2ee6a3;
+    --sb-on-accent: #05241a;
 
-  --sb-warm: #f7bd58;
-  --sb-warm-soft: #37280e;
-  --sb-warm-vivid: #f5a524;
-  --sb-sky: #86beff;
-  --sb-sky-soft: #10273e;
-  --sb-sky-vivid: #4ea3ff;
-  --sb-violet: #bca6f7;
-  --sb-violet-soft: #251c40;
-  --sb-violet-vivid: #9d7ff0;
-  --sb-danger: #ff9480;
-  --sb-danger-soft: #3c1b15;
-  --sb-danger-vivid: #ff6f57;
+    --sb-warm: #f7bd58;
+    --sb-warm-soft: #37280e;
+    --sb-warm-vivid: #f5a524;
+    --sb-sky: #86beff;
+    --sb-sky-soft: #10273e;
+    --sb-sky-vivid: #4ea3ff;
+    --sb-violet: #bca6f7;
+    --sb-violet-soft: #251c40;
+    --sb-violet-vivid: #9d7ff0;
+    --sb-danger: #ff9480;
+    --sb-danger-soft: #3c1b15;
+    --sb-danger-vivid: #ff6f57;
+  }
 }

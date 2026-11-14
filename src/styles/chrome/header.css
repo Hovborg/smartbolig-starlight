@@ -26,7 +26,7 @@
   @keyframes sb-header-line {
     to {
       border-bottom-color: var(--sb-line);
-      box-shadow: 0 6px 24px -18px rgb(15 28 23 / 0.5);
+      box-shadow: var(--sb-shadow-sm);
     }
   }
 }

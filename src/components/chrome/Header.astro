@@ -72,6 +72,10 @@ const otherLabel = locale === "da" ? "Read this page in English" : "Læs denne s
   .sb-header__nav a[aria-current="true"] {
     background: var(--sb-accent-soft);
     color: var(--sb-accent-strong);
+    /* Not colour alone: the current section is underlined too. */
+    text-decoration: underline;
+    text-decoration-thickness: 2px;
+    text-underline-offset: 0.3em;
   }
   .sb-header__tools {
     display: flex;
@@ -89,8 +93,8 @@ const otherLabel = locale === "da" ? "Read this page in English" : "Læs denne s
   }
   .sb-header__lang {
     display: grid;
-    width: 2.25rem;
-    height: 2.25rem;
+    width: 2.75rem;
+    height: 2.75rem;
     place-items: center;
     border-radius: var(--sb-radius-pill);
     color: var(--sb-ink-muted);
@@ -103,6 +107,26 @@ const otherLabel = locale === "da" ? "Read this page in English" : "Læs denne s
   .sb-header__lang:hover {
     background: var(--sb-bg-subtle);
     color: var(--sb-ink-strong);
+  }
+  /* Pages without a sidebar (the homepage) have no menu button. Below the
+     desktop width their section links sit in a second row that scrolls
+     sideways. The bar's height for this is set in styles/starlight/bridge.css. */
+  @media (max-width: 71.99rem) {
+    :global(html:not([data-has-sidebar])) .sb-header {
+      flex-wrap: wrap;
+      align-content: center;
+      row-gap: var(--sb-space-1);
+    }
+    :global(html:not([data-has-sidebar])) .sb-header__nav {
+      display: block;
+      order: 3;
+      flex: 1 0 100%;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    :global(html:not([data-has-sidebar])) .sb-header__nav a {
+      padding-block: 0.6rem;
+    }
   }
   @media (min-width: 72rem) {
     .sb-header__nav {

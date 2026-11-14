@@ -50,7 +50,7 @@
   --sl-color-hairline-light: var(--sb-line);
   --sl-color-hairline: var(--sb-line);
   --sl-color-hairline-shade: var(--sb-line);
-  --sl-color-backdrop-overlay: rgb(12 20 18 / 0.55);
+  --sl-color-backdrop-overlay: var(--sb-scrim);
 
   --sl-shadow-sm: var(--sb-shadow-sm);
   --sl-shadow-md: var(--sb-shadow-md);
@@ -76,5 +76,13 @@
     --sl-nav-height: 4.5rem;
     --sl-nav-pad-x: 1.5rem;
     --sl-content-pad-x: 2rem;
+  }
+}
+
+/* Pages without a sidebar show their section links in a second row of the
+   top bar below the desktop width (components/chrome/Header.astro). */
+@media (max-width: 71.99rem) {
+  :root:not([data-has-sidebar]) {
+    --sl-nav-height: 6.75rem;
   }
 }
