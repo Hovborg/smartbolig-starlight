@@ -47,12 +47,17 @@ Sidst opdateret: 2026-11-14.
     sprogtekst, ét billede til begge sprog. Set i fuld størrelse (16:9 og 1:1).
   - Forsidens tre nyheder hedder nu efter hovedhistorien og bruger nyhedsoversigtens udvalg
     (`selectIssues`); `selectLatestNews` er fjernet.
-  - Mangler på resten af siden: assistenten, topbjælke på telefon.
-- **Grene, der venter på at blive flettet ind i `redesign/v2`:**
-  - `content/new-guides-a` (`697fe46`): elmåler via HAN-port, valg af hardware, solceller og
-    batteri. Skal gennemgås af en uafhængig model før fletning.
-  - `content/new-guides-b` (`79c77e2`): billige timer, ferietilstand, smart home i lejebolig.
-    Skal gennemgås af en uafhængig model før fletning.
+  - Uafhængig gennemgang af hele grenen 2026-11-14: ingen blokerende fund, udgivelse anbefalet.
+    Fundene er rettet (B50): rundturens kontrast, tabeller som tastaturstop, tabt WebGL, én
+    dato pr. side, bannere til have og energi, fejl i `docs/designsystem.md` og
+    `docs/3d-hus.md`. `npm run site:test` er grøn (151 tests).
+  - Mangler på resten af siden: assistentens udseende.
+- **Grene, der venter på at blive flettet som egne bidder efter runde 2:**
+  - `content/new-guides-a` (`a9aeefd`): elmåler via HAN-port, valg af hardware, solceller og
+    batteri. Gennemgået og rettet af en uafhængig model 2026-11-14.
+  - `content/new-guides-b` (`d7c3728`): billige timer, ferietilstand, smart home i lejebolig.
+    Gennemgået og rettet af en uafhængig model 2026-11-14. Automationerne er ikke kørt på et
+    anlæg; skabelonerne er regnet efter.
 - **CSP, kortlagt 2026-11-14 (til fase 5):** `script-src` har `'unsafe-inline'`, fordi siden har
   8–12 inline-scripts pr. side (samtykke/gtag, sprogcookie, tema før første tegning, Starlights
   søge- og sidemenuscripts og små Astro-moduler under 4 KB). `script-src-attr 'none'` er sat,
@@ -78,5 +83,18 @@ Sidst opdateret: 2026-11-14.
 - 404-siden forhåndsindlæser ikke skrifterne.
 - `--sb-ink-subtle` på sidens baggrundsvask giver 4,48:1 i lyst tema (lige under 4,5:1).
 - Ikke set i en browser: tvungne farver, forsiden ved ca. 800 px, 3D-huset på en rigtig telefon.
+- Fra gennemgangen 2026-11-14, ikke rettet endnu:
+  - Tvungne farver: start/pause-ikonet og det valgte tidspunkt på husets skærm forsvinder.
+  - Uden 3D følger regelteksten kapitlerne, mens billedet bliver på aftenen.
+  - 3D-løkken har ingen grænse for billeder pr. sekund, mens bevægelse er slået til.
+  - Søgefeltet og tidsknapperne er skjult, til scriptet kører; pladsen bør holdes fri.
+  - Filer uden brug fra før redesignet (`ProductCard.astro`, `scripts/content-inventory.mjs`,
+    `public/images/produkter/`, `logo-email.png`, fire filer i `public/images/guides/`):
+    tjek ekstern brug, før de slettes.
+  - Indtryk: emoji i tabelceller, emnekortene for automationer og produkter ligner hinanden,
+    det store Home Assistant-kort har få detaljer, nyhedsartikler mangler brødkrumme, og
+    nyhedsoversigtens store kort gentager dato og overskrift.
+  - De danske navne i Home Assistant skrives forskelligt på tværs af guides ("Enheder og
+    tjenester" mod "Enheder & tjenester"). Rettes samlet i fase 3.
 
 Ting, der kræver ejeren, står i TIL-EJEREN.md.

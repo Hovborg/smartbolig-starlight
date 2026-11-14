@@ -62,7 +62,7 @@ export function createHouseStage(win, doc, root, { onUnavailable } = {}) {
     });
     if (!house) return still();
     shown = { ...wanted };
-    const size = () => house.resize(screen.clientWidth, screen.clientHeight, ratio());
+    const size = () => house?.resize(screen.clientWidth, screen.clientHeight, ratio());
     size();
     if (win.ResizeObserver) {
       const sizes = new win.ResizeObserver(size);
@@ -70,11 +70,23 @@ export function createHouseStage(win, doc, root, { onUnavailable } = {}) {
       undo.push(() => sizes.disconnect());
     }
     if (win.IntersectionObserver) {
-      const seen = new win.IntersectionObserver(([entry]) => house.setVisible(entry.isIntersecting));
+      const seen = new win.IntersectionObserver(([entry]) => house?.setVisible(entry.isIntersecting));
       seen.observe(screen);
       undo.push(() => seen.disconnect());
     }
-    const follow = new win.MutationObserver(() => house.setMotion(motionOn()));
+    // The browser can take the graphics context away (memory pressure, a GPU
+    // reset). The canvas would then cover the still picture with nothing.
+    listen(canvas, "webglcontextlost", (event) => {
+      event.preventDefault();
+      if (!house) return;
+      const lost = house;
+      house = null;
+      loading = Promise.resolve(null);
+      lost.dispose();
+      if (spotBox) spotBox.hidden = true;
+      still();
+    });
+    const follow = new win.MutationObserver(() => house?.setMotion(motionOn()));
     follow.observe(html, { attributes: true, attributeFilter: ["data-home-motion"] });
     undo.push(() => follow.disconnect());
     // Two frames later the first picture is on the canvas: fade it in.
@@ -112,7 +124,7 @@ export function createHouseStage(win, doc, root, { onUnavailable } = {}) {
     screen.dataset.dragging = "true";
   });
   listen(screen, "pointermove", (event) => {
-    if (!drag || event.pointerId !== drag.id) return;
+    if (!drag || !house || event.pointerId !== drag.id) return;
     house.rotate((drag.x - event.clientX) * 0.3, (event.clientY - drag.y) * 0.12);
     drag.x = event.clientX;
     drag.y = event.clientY;

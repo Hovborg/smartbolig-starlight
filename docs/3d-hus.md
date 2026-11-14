@@ -14,10 +14,10 @@ skal vises levende.
 | Sti | Indhold |
 |---|---|
 | `src/lib/house3d/index.mjs` | Indgangen: `mountHouse(canvas, options)`. Giver `null` uden WebGL |
-| `src/lib/house3d/engine.mjs` | Løkken: tegner kun, når noget ændrer sig. `setMode`, `setView`, `rotate`, `resize`, `dispose` |
-| `src/lib/house3d/stage.mjs` | Scene, lys, skygger og blanding mellem to tidspunkter |
+| `src/lib/house3d/engine.mjs` | Løkken og kameraets flyvning. Med bevægelse slået til tegnes hvert billede, mens huset er synligt; uden bevægelse kun, når noget ændrer sig. `setMode`, `setView`, `rotate`, `resize`, `dispose` |
+| `src/lib/house3d/stage.mjs` | Scene, kamera, lys, skygger og blanding mellem to tidspunkter |
 | `src/lib/house3d/modes.mjs` | **Tidspunkter** (sol, himmel, hvad der er tændt) og **kameraer** |
-| `src/lib/house3d/rig.mjs` | Kameraets bevægelse |
+| `src/lib/house3d/rig.mjs` | Samler modellen af delene i `parts/`: kanaler (hvad der kan tændes), vægge, bevægelige ting og markørernes punkter |
 | `src/lib/house3d/post.mjs` | Efterbehandling i høj kvalitet (kontaktskygger, glød) |
 | `src/lib/house3d/backdrop.mjs` | Disen bag huset i tidspunktets farve |
 | `src/lib/house3d/kit.mjs`, `textures.mjs`, `palette.mjs` | Byggeklodser, tegnede teksturer og farver |
@@ -34,7 +34,8 @@ skal vises levende.
 Åbn `src/lib/house3d/modes.mjs`. Hvert tidspunkt har `sun` (retning i grader, styrke, farve),
 `sky`, `env`, `haze` og `levels`. `levels` er tal mellem 0 og 1 for hver kanal, fx `living`
 (stuens lamper), `garden`, `tv`, `lock`, `ev` og `blinds.living`. Ret tallet, og se resultatet
-på forsiden. Kør `npm run house:posters`, hvis du har ændret aftenen: stillbilledet er aftenen.
+på forsiden. Kør `npm run house:posters` bagefter: der findes stillbilleder for alle fire
+tidspunkter (heroen viser aftenen).
 
 ## Tilføj et kapitel i rundturen
 
@@ -47,7 +48,7 @@ på forsiden. Kør `npm run house:posters`, hvis du har ændret aftenen: stillbi
 
 ## Tilføj en ting i huset
 
-Læg den i den fil under `parts/`, den hører til, eller i en ny fil, som `engine.mjs` henter.
+Læg den i den fil under `parts/`, den hører til, eller i en ny fil, som `rig.mjs` henter.
 Brug byggeklodserne i `kit.mjs` og farverne i `palette.mjs`. En ting, der skal kunne tændes,
 melder sig til en kanal; se lamperne i `parts/devices.mjs`.
 
@@ -117,7 +118,7 @@ et kamera på huset igen.
 
 | Det ser du | Årsag og løsning |
 |---|---|
-| Billedet bliver stående, ingen markører | WebGL mangler eller fejlede. Se konsollen: "3D house unavailable". Siden virker stadig |
+| Billedet bliver stående, ingen markører | WebGL mangler, fejlede eller blev taget fra siden af browseren (`webglcontextlost`). Se konsollen: "3D house unavailable". Siden virker stadig |
 | Et ryk, når modellen tager over | Stillbilledet er forældet. Kør `npm run house:posters` |
 | Et emnekort uden billede | Filen mangler i `public/images/home/`. Kør `npm run house:posters -- topic-<emne>` |
 | Kapitlet skifter ikke ved rul | Kapitlets `id` mangler i `views`, eller siden kører uden `IntersectionObserver` |
@@ -127,6 +128,8 @@ et kamera på huset igen.
 
 Fjern `<HomeStage>`, `<HomeTour>` og `<HomeHouseScript>` fra `HomeHero.astro` og billederne
 fra `HomeGoalNavigator.astro` og `HomeFeaturedGuides.astro`, slet
-`src/lib/house3d/`, `home-house*.mjs`, `stage.css`, `tour.css`, de to scripts og
-`public/images/home/`, og kør `npm uninstall three esbuild`. Ret testene i
+`src/lib/house3d/`, `home-house*.mjs`, `stage.css`, `tour.css`, `topics.css`, de to scripts og
+`public/images/home/`, og kør `npm uninstall three esbuild`. Guidernes hoved bruger også
+billeder af huset: fjern billedet i `src/components/guide/GuideHead.astro`, og slet
+`src/lib/guide-art.mjs` og `public/images/guide/`. Ret testene i
 `scripts/site-quality.test.mjs`, der nævner huset.

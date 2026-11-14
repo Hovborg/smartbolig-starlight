@@ -31,8 +31,5 @@ Sidst opdateret: 2026-11-14.
 
 ## Rester fra den gamle nyhedskørsel
 
-7. **Gamle filer på din maskine.** Den tidligere kørsel efterlod kørselsmapper, en launcher og
-   adgang til dit GitHub-login for kørslen. De gør ingen skade, og opgaven er slået fra.
-   Sig til, hvis de skal slettes.
-8. **Gammelt GitHub-token på Linux-værten.** Den ældre kørsel brugte en tokenfil. Tilbagekald
-   tokenet på GitHub (Settings → Developer settings → Personal access tokens), hvis det findes endnu.
+7. **Gamle filer fra den tidligere kørsel.** Den efterlod kørselsmapper og en launcher uden
+   for repoet. De bruges ikke længere, og opgaven er slået fra. Sig til, hvis de skal slettes.

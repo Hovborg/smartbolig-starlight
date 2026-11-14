@@ -35,12 +35,12 @@ export const PICTURES = [
   { name: "guide-automation", mode: "evening", focus: "light", camera: { az: 14, el: 34, dist: 17, target: [-2.5, 0.9, 0.2] }, ...GUIDE },
   { name: "guide-light", mode: "evening", focus: "light", camera: { az: -32, el: 26, dist: 12, target: [-3.2, 0.9, 0.4] }, ...GUIDE },
   { name: "guide-heat", mode: "morning", focus: "heat", camera: { az: -28, el: 32, dist: 17, target: [-3.4, 0.8, 0.4] }, ...GUIDE },
-  { name: "guide-energy", mode: "day", focus: "energy", camera: { az: 52, el: 25, dist: 17, target: [5.0, 1.3, 1.2] }, ...GUIDE },
+  { name: "guide-energy", mode: "day", focus: "energy", camera: { az: 40, el: 28, dist: 12.5, target: [4.4, 1.0, 1.8] }, ...GUIDE },
   { name: "guide-security", mode: "night", focus: "security", camera: { az: 22, el: 24, dist: 15, target: [1.3, 1.1, 1.2] }, ...GUIDE },
   { name: "guide-diy", mode: "day", scene: "bench", camera: { az: -24, el: 34, dist: 27, target: [1.6, 1.2, -1.2] }, ...GUIDE },
   { name: "guide-network", mode: "night", camera: { az: 0, el: 70, dist: 24, target: [0.9, 0.5, -0.6] }, ...GUIDE },
   { name: "guide-products", mode: "day", camera: { az: 24, el: 22, dist: 11, target: [0.2, 0.7, 2.6] }, ...GUIDE },
-  { name: "guide-garden", mode: "day", camera: { az: 20, el: 22, dist: 18, target: [-2.0, 0.3, 5.5] }, ...GUIDE },
+  { name: "guide-garden", mode: "day", camera: { az: 28, el: 26, dist: 12, target: [-2.0, 0.4, 3.6] }, ...GUIDE },
   { name: "guide-ai", mode: "night", camera: { az: -24, el: 28, dist: 25, target: [0.7, 1.0, 0.3] }, ...GUIDE },
 ];
 

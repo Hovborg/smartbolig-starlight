@@ -347,3 +347,22 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Mærket hedder "SmartBolig.net · AI", og datoen står som `2026-11-14`. `--lang` er fjernet.
 - Fravalgt: et engelsk sæt billeder. Det ville fordoble 320 filer og give nyhedsflowet et
   ekstra trin hver dag for en tekst, der i forvejen er ens.
+
+### B50. Rettelser efter den uafhængige gennemgang før udgivelsen af runde 2
+- Gennemgangen (uafhængig model, 2026-11-14) fandt ingen blokerende fejl. Disse er rettet:
+- Rundturen: kapitler, der ikke er i fokus, trådte tilbage med `opacity: 0.45`, så tekst og
+  links mistede kontrast. De træder nu tilbage i farve (`--sb-ink-muted`), og et kapitel med
+  tastaturfokus dæmpes aldrig.
+- Tabeller: alle 847 tabeller var stop for tastaturet og hed "Tabel". Nu er kun en tabel, der
+  er bredere end spalten, et stop og et navngivet område, og navnet er overskriften over den.
+  Det afgøres i browseren (`src/lib/table-scroll.mjs`), fordi bredden ikke kendes ved bygning.
+  Uden script ruller en bred tabel stadig med berøring og hjul.
+- 3D-huset: tager browseren grafikkonteksten (`webglcontextlost`), ryddes modellen væk, og
+  stillbilledet vises igen. Ikke fremprovokeret i en browser; koden følger samme vej som
+  "WebGL mangler", som er afprøvet.
+- Datoen for seneste opdatering stod både øverst og nederst. Den står nu kun øverst.
+  Engelske datoer skrives britisk (14 November 2026), som resten af den engelske tekst.
+- `/_astro/*` får et års cache: filnavnene har en hash af indholdet.
+- Punktet om et gammelt adgangstoken er taget ud af den offentlige ejerliste og gives til
+  ejeren direkte.
+- Udskudt med begrundelse står i STATUS.md under "Udskudt fra designgennemgangen".

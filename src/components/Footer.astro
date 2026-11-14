@@ -1,8 +1,8 @@
 ---
-// The end of every page: Starlight's page meta and next/previous links, then
+// The end of every page: Starlight's edit link and next/previous links (the
+// date a page was updated stands at its top, in guide/GuideHead.astro), then
 // the site footer (links in src/lib/site-footer.mjs) and the AI assistant.
 import EditLink from 'virtual:starlight/components/EditLink';
-import LastUpdated from 'virtual:starlight/components/LastUpdated';
 import Pagination from 'virtual:starlight/components/Pagination';
 import { siteFooter } from '../lib/site-footer.mjs';
 import SmartBoligAssistant from './SmartBoligAssistant.astro';
@@ -15,7 +15,6 @@ const year = new Date().getFullYear();
 <footer class="sl-flex">
   <div class="meta sl-flex">
     <EditLink />
-    <LastUpdated />
   </div>
   <Pagination />
 

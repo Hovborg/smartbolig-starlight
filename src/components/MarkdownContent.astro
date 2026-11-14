@@ -33,6 +33,12 @@ const heroImage = isAiNewsArticle ? entry?.data?.heroImage : null;
 <Default><slot /></Default>
 <Giscus />
 
+<script>
+  // Wide tables become named regions that can take keyboard focus.
+  import { watchTables } from "../lib/table-scroll.mjs";
+  watchTables();
+</script>
+
 <style>
   :global(.ai-news-hero) {
     margin: 0 0 var(--sb-space-5);

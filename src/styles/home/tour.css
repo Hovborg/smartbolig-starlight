@@ -106,8 +106,8 @@
     border-inline-start: 1px solid var(--sb-line);
     border-radius: 0;
     background: none;
-    transition: opacity var(--sb-dur-slow) var(--sb-ease);
   }
+  .home-chapter :is(time, h3, li) { transition: color var(--sb-dur-slow) var(--sb-ease); }
   .home-chapter::before {
     content: "";
     position: absolute;
@@ -121,8 +121,10 @@
     background: var(--sb-line-strong);
     transition: background-color var(--sb-dur) var(--sb-ease), box-shadow var(--sb-dur) var(--sb-ease);
   }
-  /* With the house running, the chapter in the middle of the window stands out. */
-  .home-day[data-house="on"] .home-chapter:not([data-active]) { opacity: 0.45; }
+  /* With the house running, the chapter in the middle of the window stands out.
+     The others step back in colour, never in opacity, so their text and links
+     keep their contrast; a chapter with keyboard focus inside is never dimmed. */
+  .home-day[data-house="on"] .home-chapter:not([data-active], :focus-within) :is(time, h3, li) { color: var(--sb-ink-muted); }
   .home-chapter[data-active]::before {
     background: var(--chapter-vivid);
     box-shadow: 0 0 0 5px color-mix(in srgb, var(--chapter-vivid) 25%, transparent);

@@ -108,6 +108,11 @@ const t = assistantCopy[lang];
     font: inherit;
   }
 
+  /* The open menu on phones fills the screen; the button would cover its last links. */
+  body[data-mobile-menu-expanded] .smartbolig-ai__launcher {
+    display: none;
+  }
+
   .smartbolig-ai__launcher:focus-visible,
   .smartbolig-ai button:focus-visible,
   .smartbolig-ai textarea:focus-visible,

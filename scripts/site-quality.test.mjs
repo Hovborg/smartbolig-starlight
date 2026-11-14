@@ -290,11 +290,15 @@ test("the sidebar opens on the section the reader is in", async () => {
   assert.match(await read("src/route-data.ts"), /scopeSidebar\(route\.sidebar, context\.url\.pathname\)/);
 });
 
-test("tables scroll sideways in a wrapper that can take keyboard focus", async () => {
+test("tables scroll sideways in a wrapper named after the heading above them", async () => {
   const { rehypeTableScroll } = await import("../config/markdown/table-scroll.mjs");
   const table = () => ({ type: "element", tagName: "table", properties: {}, children: [] });
+  const heading = (text) => ({ type: "element", tagName: "h2", properties: {}, children: [
+    { type: "element", tagName: "code", properties: {}, children: [{ type: "text", value: text }] },
+  ] });
   const tree = { type: "root", children: [
     table(),
+    heading("Zigbee range"),
     { type: "element", tagName: "blockquote", properties: {}, children: [table()] },
     { type: "element", tagName: "p", properties: {}, children: [{ type: "text", value: "tekst" }] },
   ] };
@@ -302,16 +306,41 @@ test("tables scroll sideways in a wrapper that can take keyboard focus", async (
   const wrapper = tree.children[0];
   assert.equal(wrapper.tagName, "div");
   assert.deepEqual(wrapper.properties.className, ["table-scroll"]);
-  assert.equal(wrapper.properties.tabIndex, 0);
-  assert.equal(wrapper.properties.ariaLabel, "Table");
+  assert.equal(wrapper.properties.dataLabel, "Table", "a table before the first heading only gets the word");
+  assert.deepEqual(Object.keys(wrapper.properties).sort(), ["className", "dataLabel"], "no tab stop or region is written into the HTML");
   assert.equal(wrapper.children[0].tagName, "table");
-  assert.equal(tree.children[1].children[0].properties.className[0], "table-scroll", "nested tables are wrapped too");
-  assert.equal(tree.children[2].tagName, "p");
-  const danish = { type: "root", children: [table()] };
+  const nested = tree.children[2].children[0];
+  assert.equal(nested.properties.className[0], "table-scroll", "nested tables are wrapped too");
+  assert.equal(nested.properties.dataLabel, "Table: Zigbee range");
+  assert.equal(tree.children[3].tagName, "p");
+  const danish = { type: "root", children: [heading("Priser"), table()] };
   rehypeTableScroll()(danish, { path: "C:\\repo\\src\\content\\docs\\da\\produkter\\index.mdx" });
-  assert.equal(danish.children[0].properties.ariaLabel, "Tabel");
+  assert.equal(danish.children[1].properties.dataLabel, "Tabel: Priser");
   assert.match(await read("astro.config.mjs"), /rehypePlugins: \[rehypePlainHeadings, rehypeTableScroll\]/);
   assert.match(await read("src/styles/content/blocks.css"), /\.table-scroll\s*\{[^}]*overflow-x:\s*auto/);
+});
+
+test("only a table wider than its column becomes a tab stop and a named region", async () => {
+  const { markTable } = await import("../src/lib/table-scroll.mjs");
+  const box = (scrollWidth, clientWidth) => {
+    const attributes = new Map();
+    return {
+      scrollWidth,
+      clientWidth,
+      dataset: { label: "Tabel: Priser" },
+      attributes,
+      setAttribute: (name, value) => attributes.set(name, value),
+      removeAttribute: (name) => attributes.delete(name),
+    };
+  };
+  const wide = box(900, 360);
+  assert.equal(markTable(wide), true);
+  assert.deepEqual(Object.fromEntries(wide.attributes), { tabindex: "0", role: "region", "aria-label": "Tabel: Priser" });
+  wide.scrollWidth = 360;
+  assert.equal(markTable(wide), false, "the same table on a wider screen");
+  assert.equal(wide.attributes.size, 0, "a table that fits adds no stop for the keyboard");
+  assert.equal(markTable(box(361, 360)), false, "a rounding pixel is not a scroll");
+  assert.match(await read("src/components/MarkdownContent.astro"), /import \{ watchTables \} from "\.\.\/lib\/table-scroll\.mjs";\s*watchTables\(\);/);
 });
 
 test("cards and tabs are shown without a leading emoji", async () => {
@@ -351,13 +380,21 @@ test("the 3D library loads on demand and the controls work without it", async ()
 });
 
 test("scenes that only exist as pictures stay out of the homepage's 3D bundle", async () => {
-  const [stills, index, engine, posters] = await Promise.all([
-    read("src/lib/house3d/stills.mjs"),
-    read("src/lib/house3d/index.mjs"),
-    read("src/lib/house3d/engine.mjs"),
-    read("scripts/house-posters.mjs"),
-  ]);
-  assert.doesNotMatch(index + engine, /from ["'][^"']*(workbench|stills)/, "the live house must not import the still-only scenes");
+  const [stills, posters] = await Promise.all([read("src/lib/house3d/stills.mjs"), read("scripts/house-posters.mjs")]);
+  // Everything the live house loads, followed import by import from its entry.
+  const dir = "src/lib/house3d/";
+  const loaded = new Set();
+  const follow = async (path) => {
+    if (loaded.has(path)) return;
+    loaded.add(path);
+    const source = await read(path);
+    for (const [, target] of source.matchAll(/(?:from|import)\s*\(?\s*["'](\.\.?\/[^"']+)["']/g)) {
+      await follow(new URL(target, `file:///${path}`).pathname.slice(1));
+    }
+  };
+  await follow(`${dir}index.mjs`);
+  assert.ok(loaded.has(`${dir}rig.mjs`) && loaded.has(`${dir}kit.mjs`) && loaded.has(`${dir}parts/shell.mjs`), "the walk reaches the model's parts and what they share");
+  for (const path of loaded) assert.doesNotMatch(path, /stills|workbench/, `the live house must not load ${path}`);
   const known = [...stills.matchAll(/^  (\w+)\(rig, colors\) \{/gm)].map((match) => match[1]);
   const used = [...posters.matchAll(/scene: "(\w+)"/g)].map((match) => match[1]);
   assert.ok(used.length > 0, "at least one picture uses a scene");

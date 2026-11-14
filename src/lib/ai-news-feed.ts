@@ -55,7 +55,7 @@ const getDate = (doc: IssueDocument) => {
 };
 
 export const formatDate = (date: Date, locale: NewsLocale) =>
-  new Intl.DateTimeFormat(locale === "da" ? "da-DK" : "en-US", {
+  new Intl.DateTimeFormat(locale === "da" ? "da-DK" : "en-GB", {
     day: "numeric",
     month: "long",
     year: "numeric",
@@ -87,7 +87,7 @@ const extractHeadlines = (body: unknown, issueHref: string, sources: string[]): 
 
 /** Articles grouped by calendar month, in the order they were given. */
 export function groupByMonth(issues: readonly NewsIssue[], locale: NewsLocale): NewsMonth[] {
-  const format = new Intl.DateTimeFormat(locale === "da" ? "da-DK" : "en-US", { month: "long", year: "numeric", timeZone: "UTC" });
+  const format = new Intl.DateTimeFormat(locale === "da" ? "da-DK" : "en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
   const months: NewsMonth[] = [];
   for (const issue of issues) {
     const label = format.format(issue.date);

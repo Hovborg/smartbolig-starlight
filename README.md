@@ -333,7 +333,7 @@ npm run house:posters
 ```
 
 Forsidens nyhedsliste bruger små WebP-thumbnails (`-thumb.webp`) ved siden af
-AI-nyhedernes hero-PNG'er. De genereres automatisk som første trin i
+AI-nyhedernes hero-JPG'er. De genereres automatisk som første trin i
 `npm run build`; kør dem manuelt med:
 
 ```bash

@@ -38,8 +38,8 @@ const sources = (format: string) =>
   {
     art && (
       <picture class="guide-head__art">
-        <source type="image/avif" srcset={sources("avif")} sizes="(min-width: 72rem) 50rem, 100vw" />
-        <source type="image/webp" srcset={sources("webp")} sizes="(min-width: 72rem) 50rem, 100vw" />
+        <source type="image/avif" srcset={sources("avif")} sizes="(min-width: 72rem) 50rem, (min-width: 50rem) calc(100vw - 21rem), calc(100vw - 2rem)" />
+        <source type="image/webp" srcset={sources("webp")} sizes="(min-width: 72rem) 50rem, (min-width: 50rem) calc(100vw - 21rem), calc(100vw - 2rem)" />
         <img
           src={`/images/guide/${art.name}-800.webp`}
           alt={art.alt}

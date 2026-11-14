@@ -36,7 +36,6 @@ body:has(.home-portal) .site-footer { margin-top: 0; }
   margin: clamp(4rem, 9vw, 7rem) auto;
 }
 .sl-markdown-content .home-portal > .home-section { margin-top: clamp(4rem, 9vw, 7rem); }
-/* The tour above ends in open space of its own. */
 /* Starlight spaces every element that follows another one in the content;
    an <img> after its <source> elements must not be pushed down by it. */
 .sl-markdown-content .home-portal picture > img { margin-top: 0; }

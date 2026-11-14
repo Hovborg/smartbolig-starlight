@@ -53,9 +53,10 @@ sidebar:
 English content here...
 ```
 
-### Sidebar (astro.config.mjs)
+### Sidebar (`config/sidebar/`)
 
-Tilføj til sidebar med **dansk sti** og **translation**:
+Sidemenuen har én fil pr. emne i `config/sidebar/` (fx `produkter.mjs`; Home Assistant har en
+mappe). Tilføj siden i emnets fil med **dansk sti** og **translation**:
 
 ```javascript
 {
@@ -143,4 +144,4 @@ Filer SKAL ligge på disse stier for at blive fundet. `slug` feltet i frontmatte
 
 ---
 
-*Sidst opdateret: Januar 2025*
+*Sidst opdateret: 2026-11-14 (afsnittet om sidemenuen). Resten gennemgås i fase 7.*
