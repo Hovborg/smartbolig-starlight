@@ -257,8 +257,10 @@ Det, der ikke er gjort. Det, kun ejeren kan gøre, står i [TIL-EJEREN.md](TIL-E
   automationer 4, ESP32 2, sikkerhed 1. Talt 2026-11-14 med et skript, der leder efter et
   billede i brødteksten. Reglerne for nye tegninger står i `docs/billeder.md` ("Diagrammer");
   en tegning skal holdes op mod guidens tekst og kode af en anden end den, der tegnede den.
-- **Guides, der mangler:** Nabu Casa (fjernadgang og stemme gennem Home Assistant Cloud),
-  Companion App på telefonen, og backup af Home Assistant til et sted uden for huset.
+- **Guide, der mangler:** Companion App på telefonen (installation, sensorer, placering).
+  `home-assistant/mobilnotifikationer` dækker kun beskedgrupper. De to andre emner fra den
+  gamle planfil er dækket: fjernadgang med Home Assistant Cloud står i `sikkerhed/fjernadgang`,
+  og backup til et sted uden for huset i `home-assistant/backup-sikkerhed`.
 - **Strukturerede produktdata:** produktsiderne har ikke `Product` i deres strukturerede data.
   Fravalgt for nu: uden pris, lagerstatus eller anmeldelser giver de ingen udvidet visning, og
   siden viser ingen priser (B65). Tages op igen, hvis registret får priser.
@@ -283,7 +285,7 @@ Det, der ikke er gjort. Det, kun ejeren kan gøre, står i [TIL-EJEREN.md](TIL-E
 3. Mål siden igen (Lighthouse, Core Web Vitals, sikkerhedshoveder) efter samme fremgangsmåde
    som før-målingen i `docs/measurements/2026-11-13-baseline/README.md`, og læg tallene ved
    siden af.
-4. Tegninger til de guides, der mangler en (se "Åbent"), og de tre manglende guides.
+4. Tegninger til de guides, der mangler en (se "Åbent"), og guiden om Companion App.
 5. Når ejeren har udgivet samtykkebeskeden: se forløbene ja og nej på den levende side, og
    slå den strenge CSP til.
 
