@@ -229,6 +229,12 @@ Sidst opdateret: 2026-11-14.
   batterilevetid (`/vaerktoejer/batterilevetid/`) på begge sprog, i den fælles ramme, med
   kilder på siderne. Forsidens værktøjssektion viser nu fire værktøjer. Set i headless Chrome i
   mørkt og lyst tema ved 320, 375 og 1440 px, med tastatur og uden JavaScript.
+- **Gamle adresser (Search Console 2026-11-14):** rapporten viste 24 adresser med 404. 19 blev
+  allerede sendt videre; tre fik en regel i `public/_redirects`, og resten af de danske sider
+  under de gamle engelske sektionsnavne og de gamle feed-adresser fik det samtidig (21 regler).
+  To er ladt være (`docs/seo.md`). Efter udgivelse skal disse vise 301 og den nye adresse:
+  `curl -sI https://smartbolig.net/da/legal/affiliate-disclosure/`, `/da/automations/`,
+  `/da/about/`, `/da/contact/`, `/da/security/`, `/da/index.xml` og `/en/index.xml`.
 
 ## Næste skridt
 

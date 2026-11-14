@@ -109,8 +109,38 @@ og filen må højst fylde 100 KB, ellers stopper bygget. Teksten testes i `scrip
 | En gammel adresse svarer 307 og derefter 200 | Linket mangler den afsluttende skråstreg. Ret linket, ikke omdirigeringen |
 | En gammel adresse får to hop (301 og så 301 eller 307) | To dynamiske regler rammer adressen, og Cloudflare valgte den anden. Gør reglerne adskilte, se ovenfor |
 
+## Search Console, set 2026-11-14
+
+Rapporten "Indeksering af sider" for `sc-domain:smartbolig.net` viste 257 indekserede sider og
+251 ikke indekserede:
+
+| Årsag i rapporten | Sider | Hvad det er |
+|---|---|---|
+| Alternativ side med korrekt kanonisk tag | 98 | Forventet: sider, der peger på en anden adresse som den rigtige |
+| Crawlet, endnu ikke indekseret | 86 | Google har hentet siden, men ikke taget den med. Kan ikke rettes med en indstilling |
+| Ikke fundet (fejl 404) | 24 | Gamle adresser. 19 sendes allerede videre med 301; Google har ikke hentet dem igen |
+| Side med omdirigering | 23 | Forventet: gamle adresser, der sendes videre |
+| Registreret, endnu ikke indekseret | 18 | Google kender adressen, men har ikke hentet den endnu |
+| Dublet uden kanonisk side valgt af brugeren | 2 | Ikke undersøgt |
+
+Af de 24 adresser svarede fem stadig 404 på den levende side samme dag (de 19 andre blev
+sendt videre til en side, der svarer 200). Tre af de fem har fået en regel i `_redirects`:
+`/da/legal/affiliate-disclosure/`, `/da/automations/` og `/da/index.xml`. To er ladt være:
+`/search?q={search_term_string}` er en skabelon fra et gammelt søgefelt i de strukturerede
+data (siden har ingen søgeadresse, og feltet er fjernet), og `/cdn-cgi/l/email-protection`
+tilhører Cloudflare.
+
+Samtidig har resten af de danske sider under de gamle engelske sektionsnavne fået samme regel
+som deres engelske tvillinger (`/da/legal/…`, `/da/about/`, `/da/contact/`, `/da/security/`) og
+feed-adresserne `/index.xml` og `/en/index.xml`; de svarede også 404, men stod ikke i rapporten.
+
+Samme dag er `sitemap-index.xml` sendt ind igen, og indeksering er anmodet for værktøjssiderne
+(`/da/vaerktoejer/` og de fire værktøjer på dansk, og `/en/vaerktoejer/`), som Google ikke
+kendte. Det gøres i feltet øverst i Search Console: skriv adressen, vent på svaret, og tryk
+"Anmod om indeksering". Google tager omkring ti adresser om dagen.
+
 ## Fjern en del
 
-- En omdirigering: slet linjen og den tilhørende linje i `scripts/site-redirects.test.mjs`.
+- En omdirigering: slet linjen og de tilhørende linjer i `scripts/site-redirects.test.mjs`.
 - Strukturerede data for én sidetype: fjern delen i `schema-graph.ts` og den kontrol i
   `seo-validate.mjs`, der kræver den.

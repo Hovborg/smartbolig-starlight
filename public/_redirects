@@ -142,6 +142,31 @@
 /da/products /da/produkter/ 301
 /da/products/ /da/produkter/ 301
 
+# Danish pages under the old English section names, and the old feed address.
+# Google still asked for some of them on 2026-11-14 (Search Console, "Ikke
+# fundet (fejl 404)"); the rest are the Danish twins of the English rules above.
+/da/legal /da/juridisk/ 301
+/da/legal/ /da/juridisk/ 301
+/da/legal/privacy-policy /da/juridisk/privatlivspolitik/ 301
+/da/legal/privacy-policy/ /da/juridisk/privatlivspolitik/ 301
+/da/legal/cookie-policy /da/juridisk/cookiepolitik/ 301
+/da/legal/cookie-policy/ /da/juridisk/cookiepolitik/ 301
+/da/legal/terms-of-use /da/juridisk/brugsvilkaar/ 301
+/da/legal/terms-of-use/ /da/juridisk/brugsvilkaar/ 301
+/da/legal/affiliate-disclosure /da/juridisk/affiliate-disclosure/ 301
+/da/legal/affiliate-disclosure/ /da/juridisk/affiliate-disclosure/ 301
+/da/automations /da/automationer/ 301
+/da/automations/ /da/automationer/ 301
+/da/about /da/om-os/ 301
+/da/about/ /da/om-os/ 301
+/da/contact /da/kontakt/ 301
+/da/contact/ /da/kontakt/ 301
+/da/security /da/sikkerhed/ 301
+/da/security/ /da/sikkerhed/ 301
+/index.xml /rss.xml 301
+/da/index.xml /rss.xml 301
+/en/index.xml /en/rss.xml 301
+
 # Dynamic rules must remain last. See the quota note above.
 /en/ai/news/:slug/ /en/ai/nyheder/:slug/ 301
 /en/ai/news/:slug /en/ai/nyheder/:slug/ 301
