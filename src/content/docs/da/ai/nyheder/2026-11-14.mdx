@@ -1,0 +1,113 @@
+---
+title: "AI-nyheder, 14. november 2026: OpenAI Codex 0.169.0"
+description: "Dagens AI-overblik har OpenAI Codex 0.169.0 som hovedhistorie og bygger på 4 officielle kilder."
+date: 2026-11-14
+lastUpdated: 2026-11-14
+heroImage:
+  src: "/images/ai-news/2026-11-14.jpg"
+  alt: "Redaktionel illustration om OpenAI Codex 0.169.0"
+  caption: "Redaktionel illustration om OpenAI Codex 0.169.0"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "OpenAI Codex 0.169.0"
+  storyFingerprint: "0138959740357f5fe42bd8c7c684e7417d0379dc382fdcf307a71a0a3785ab00"
+  issueFingerprint: "0b0cfbe1f06f69059da0d9926c928a0bee61d3b8a7127af322184d9e0dafddd9"
+  sourceSetFingerprint: "9554dd29ee37f398d574290cfd581d8d1fb2d8165325b10390f1ecc7926c1ef6"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openai/codex/releases/tag/rust-v0.169.0"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.325"
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.11.5-beta.2"
+    - "https://www.home-assistant.io/blog/2026/11/11/no-device-left-behind-home-assistant-connect-aux-2"
+sidebar:
+  label: "14. november 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="0b0cfbe1f06f69059da0d9926c928a0bee61d3b8a7127af322184d9e0dafddd9">Af SmartBolig.net Redaktionen · <time datetime="2026-11-14">14. november 2026</time> · 4 udvalgte kilder</p>
+
+<p class="ai-news-lede">Dagens brief indledes med Nabu Casas lancering af Home Assistant Connect AUX-2, en lille boks der streamer lyd, styrer RS-232-serielenheder, tilslutter en Z-Wave-adapter og fungerer som Bluetooth-hub, og som er tilgængelig over hele verden for $69 / €59. Desuden: OpenAI Codex 0.169.0 tilføjer sidechat-faner og opgavesøgning til det valgfrie terminalarbejdsområde, Claude Code v2.1.325 retter en sikkerhedsfejl i zstd-afkodning, og openclaw 2026.11.5-beta.2 holder store samtaler gennemsøgbare med sideopdelt historik.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. OpenAI Codex releases: 0.169.0
+
+**Hvad ændrede sig:** OpenAI Codex releases offentliggjorde opdateringen 13. nov. 2026. OpenAI Codex 0.169.0 tilføjer flere sidechat-faner til det valgfrie terminalarbejdsområde, lader brugere genåbne gemte lokale sidechats efter genstart af Codex og tilføjer søgning i ældre opgaver efter navn, promptforhåndsvisning eller arbejdsmappe. Det tilføjer også redigering af brugerdefinerede modeludbydere fra terminalen og Ctrl+S-gemning af en diagnostisk ZIP-fil lokalt i terminalrapporteditoren. Med den valgfrie Cloud-forbindelse på macOS og Linux kan brugere sende billeder, vælge en model og en ræsonneringsindsats og arkivere eller gendanne Cloud-samtaler fra terminalen.
+
+> Kort kildeuddrag: New Features The opt-in terminal workspace supports multiple side-chat tabs. Switch between them with the keyboard or mouse, and reopen…
+
+**Hvorfor det er relevant:** For brugere af Codex-terminalen tilføjer udgivelsen sidechat-faner, opgavesøgning, lokal gemning af diagnostiske ZIP-filer, selv når uploads er deaktiveret, og Cloud-handlinger på macOS og Linux. Kilden beskriver ikke konsekvenser for andre brugere.
+
+**Sådan verificerer du det:** Kontroller, at Codex viser version 0.169.0, og se derefter efter de flere sidechat-faner i det valgfrie terminalarbejdsområde, som udgivelsesnoterne beskriver.
+
+**Usikkerhed:** Teksten siger ikke, hvor bredt det valgfrie terminalarbejdsområde eller den valgfrie Cloud-forbindelse udrulles, om de er tilgængelige i alle regioner, eller hvad Cloud-forbindelsen koster.
+
+Kilde: [0.169.0](https://github.com/openai/codex/releases/tag/rust-v0.169.0)
+
+### 2. Claude Code releases: v2.1.325
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 13. nov. 2026. Claude Code v2.1.325 retter en sikkerhedsfejl i, hvordan zstd-komprimerede svar afkodes. Versionen tilføjer et tip i spinneren i VS Code og lignende integrerede terminaler om at køre en notebook-celle igen, når Claude har læst eller redigeret en Jupyter-notebook. Den tilføjer også en linje under den fejl, der vises, når organisationens politik blokerer en anmodning, med besked om at køre /rewind og ændre meddelelsen eller køre /clear.
+
+> Kort kildeuddrag: What's changed Fixed a security issue in how zstd-compressed responses are decoded Added a spinner tip in VS Code and…
+
+**Hvorfor det er relevant:** Rettelserne er til Claude Code-brugere, herunder personer, der arbejder i VS Code og lignende integrerede terminaler, og personer, hvis organisations politik blokerer en anmodning. Kilden angiver ikke yderligere konsekvenser for disse brugere.
+
+**Sådan verificerer du det:** Kontrollér, hvilken Claude Code-version du har installeret, og sammenlign den med v2.1.325, og læs derefter udgivelsesnoterne for den version, som blandt andet indeholder sikkerhedsrettelsen i zstd-afkodningen og /rewind- og /clear-tippet under politikblokeringsfejlen.
+
+**Usikkerhed:** Det medfølgende uddrag er afkortet, så det siger ikke, om v2.1.325 er rullet ud til alle brugere eller gradvist, på hvilke platforme eller planer, eller hvad de resterende, afskårne rettelser indeholder.
+
+Kilde: [v2.1.325](https://github.com/anthropics/claude-code/releases/tag/v2.1.325)
+
+### 3. OpenClaw releases: openclaw 2026.11.5-beta.2
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 12. nov. 2026. openclaw 2026.11.5-beta.2 holder store samtaler gennemsøgbare med sideopdelt historik i begge retninger, synlige historikgrænser og afgrænsede arkivlæsninger. macOS-appen bevarer gemte hemmeligheder og Gateway-godkendelse, hvis konfigurationsgemning fejler, eller Tailscale-eksponering deaktiveres. Afslutning af Talk på Android annullerer ikke længere arbejde, som Gateway allerede har accepteret. Google bruger Interactions API til Gemini Flash-modeller på det officielle endpoint og beholder tilsidesættelser for brugerdefinerede endpoints. Sikkerhedsrettelser afviser fejlbehæftede URI-identifikatorer med fast-uri 4.2.3 og afviser for store afgrænsede samlinger tidligt i Discord SDK.
+
+> Kort kildeuddrag: 2026.11.5-beta.2 Highlights Large conversations remain browsable with paged history in both directions, visible history boundaries, and bounded archive reads. &#40;…
+
+**Hvorfor det er relevant:** For openclaw-brugere forbliver store samtaler gennemsøgbare med sideopdelt historik, macOS-appen bevarer gemte hemmeligheder og Gateway-godkendelse, når konfigurationsgemning fejler, eller Tailscale-eksponering slås fra, og afslutning af Talk på Android annullerer ikke længere arbejde, som Gateway allerede har accepteret.
+
+**Sådan verificerer du det:** Kontroller, at den installerede build er 2026.11.5-beta.2, og læs derefter udgivelsesnoterne for de angivne issue-numre, fx #188450 for sideopdelt historik og #187734 for macOS-hemmeligheder.
+
+**Usikkerhed:** Den medfølgende tekst er afkortet og angiver ikke en udrulningsplan, understøttede regioner, priser eller om denne beta er stabil til almindelig brug. Den angiver heller ikke grænser for de afgrænsede arkivlæsninger eller Discord SDK-samlingskontrollerne.
+
+Kilde: [openclaw 2026.11.5-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.11.5-beta.2)
+
+### 4. Home Assistant Blog: No device left behind: Home Assistant Connect AUX-2
+
+**Hvad ændrede sig:** Home Assistant Blog offentliggjorde opdateringen 11. nov. 2026. Nabu Casa har lanceret Home Assistant Connect AUX-2, en lille boks der streamer lyd, styrer RS-232-serielenheder, tilslutter en Z-Wave-adapter og fungerer som Bluetooth-hub. Den understøtter Power over Ethernet, USB-strøm og Wi-Fi og er tilgængelig over hele verden for $69 / €59.
+
+> Kort kildeuddrag: Today Nabu Casa is launching the Home Assistant Connect AUX-2 , a small box that allows you to breathe new…
+
+**Hvorfor det er relevant:** Kilden skriver, at lydstreaming lader et gammelt hi-fi-anlæg spille synkront med moderne smart-højttalere, og at seriel styring kan bringe gammelt sol- eller klimaudstyr ind i en automatisering og sænke energiforbruget. Den skriver også, at man kan trække en enhed væk fra en proprietær cloud og tilbage under sin egen kontrol.
+
+**Sådan verificerer du det:** Tjek, om din gamle enhed har en optisk digital lydindgang og en seriel kontrolport, de to forbindelser som kilden nævner for at bringe lydudstyr ind i opsætningen.
+
+**Usikkerhed:** Teksten er afkortet. Den siger ikke, hvad den anden serielle port og Grove-stikket skal bruges til, hvilke enheder der understøttes, eller hvad opsætningen kræver.
+
+Kilde: [No device left behind: Home Assistant Connect AUX-2](https://www.home-assistant.io/blog/2026/11/11/no-device-left-behind-home-assistant-connect-aux-2)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| OpenAI Codex releases | [0.169.0](https://github.com/openai/codex/releases/tag/rust-v0.169.0) | 13. nov. 2026 |
+| Claude Code releases | [v2.1.325](https://github.com/anthropics/claude-code/releases/tag/v2.1.325) | 13. nov. 2026 |
+| OpenClaw releases | [openclaw 2026.11.5-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.11.5-beta.2) | 12. nov. 2026 |
+| Home Assistant Blog | [No device left behind: Home Assistant Connect AUX-2](https://www.home-assistant.io/blog/2026/11/11/no-device-left-behind-home-assistant-connect-aux-2) | 11. nov. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.

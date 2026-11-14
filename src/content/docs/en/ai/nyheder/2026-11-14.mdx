@@ -1,0 +1,113 @@
+---
+title: "AI News, 14 November 2026: OpenAI Codex 0.169.0"
+description: "Today's AI brief leads with OpenAI Codex 0.169.0 and draws on 4 official sources."
+date: 2026-11-14
+lastUpdated: 2026-11-14
+heroImage:
+  src: "/images/ai-news/2026-11-14.jpg"
+  alt: "Editorial illustration about OpenAI Codex 0.169.0"
+  caption: "Editorial illustration about OpenAI Codex 0.169.0"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "OpenAI Codex 0.169.0"
+  storyFingerprint: "0138959740357f5fe42bd8c7c684e7417d0379dc382fdcf307a71a0a3785ab00"
+  issueFingerprint: "0b0cfbe1f06f69059da0d9926c928a0bee61d3b8a7127af322184d9e0dafddd9"
+  sourceSetFingerprint: "9554dd29ee37f398d574290cfd581d8d1fb2d8165325b10390f1ecc7926c1ef6"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openai/codex/releases/tag/rust-v0.169.0"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.325"
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.11.5-beta.2"
+    - "https://www.home-assistant.io/blog/2026/11/11/no-device-left-behind-home-assistant-connect-aux-2"
+sidebar:
+  label: "14 November 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="0b0cfbe1f06f69059da0d9926c928a0bee61d3b8a7127af322184d9e0dafddd9">By SmartBolig.net Editorial · <time datetime="2026-11-14">14 November 2026</time> · 4 selected sources</p>
+
+<p class="ai-news-lede">Today's brief leads with Nabu Casa's launch of the Home Assistant Connect AUX-2, a small box that streams audio, controls RS-232 serial devices, connects a Z-Wave adapter and acts as a Bluetooth hub, available worldwide for $69 / €59. Also covered: OpenAI Codex 0.169.0 adds side-chat tabs and task search to its opt-in terminal workspace, Claude Code v2.1.325 fixes a zstd decoding security issue, and openclaw 2026.11.5-beta.2 keeps large conversations browsable with paged history.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. OpenAI Codex releases: 0.169.0
+
+**What changed:** OpenAI Codex releases published the update on 13 Nov 2026. OpenAI Codex 0.169.0 adds multiple side-chat tabs to the opt-in terminal workspace, lets users reopen saved local side chats after restarting Codex, and adds search for older tasks by name, prompt preview or working directory. It also adds custom model provider editing from the terminal and Ctrl+S saving of a diagnostic ZIP locally in the terminal report editor. With the opt-in Cloud connection on macOS and Linux, users can send images, choose a model and reasoning effort, and archive or restore Cloud conversations from the terminal.
+
+> Short source excerpt: New Features The opt-in terminal workspace supports multiple side-chat tabs. Switch between them with the keyboard or mouse, and reopen…
+
+**Why it matters:** For Codex terminal users, the release adds side-chat tabs, task search, local diagnostic ZIP saving even when uploads are disabled, and Cloud actions on macOS and Linux. The source does not describe consequences for other users.
+
+**How to verify it:** Check that Codex reports version 0.169.0, then look for the multiple side-chat tabs in the opt-in terminal workspace described in the release notes.
+
+**Uncertainty:** The text does not say how broadly the opt-in terminal workspace or the opt-in Cloud connection is rolled out, whether they are available in every region, or what the Cloud connection costs.
+
+Source: [0.169.0](https://github.com/openai/codex/releases/tag/rust-v0.169.0)
+
+### 2. Claude Code releases: v2.1.325
+
+**What changed:** Claude Code releases published the update on 13 Nov 2026. Claude Code v2.1.325 fixes a security issue in how zstd-compressed responses are decoded. It adds a spinner tip in VS Code and similar integrated terminals about re-running a notebook cell once Claude has read or edited a Jupyter notebook. It also adds a line under the error shown when an organization's policy blocks a request, saying to run /rewind and change the message, or run /clear.
+
+> Short source excerpt: What's changed Fixed a security issue in how zstd-compressed responses are decoded Added a spinner tip in VS Code and…
+
+**Why it matters:** The fixes are for Claude Code users, including people working in VS Code and similar integrated terminals and people whose organization's policy blocks a request. The source does not state any further consequence for these users.
+
+**How to verify it:** Check which Claude Code version you have installed and compare it with v2.1.325, then read the release notes for that version, which include the zstd decoding security fix and the /rewind and /clear hint under the policy-block error.
+
+**Uncertainty:** The provided text is truncated, so it does not say whether v2.1.325 is rolled out to all users or gradually, on which platforms or plans, or what the remaining, cut-off fixes contain.
+
+Source: [v2.1.325](https://github.com/anthropics/claude-code/releases/tag/v2.1.325)
+
+### 3. OpenClaw releases: openclaw 2026.11.5-beta.2
+
+**What changed:** OpenClaw releases published the update on 12 Nov 2026. openclaw 2026.11.5-beta.2 keeps large conversations browsable with paged history in both directions, visible history boundaries and bounded archive reads. The macOS app preserves saved secrets and Gateway authentication if configuration saves fail or Tailscale exposure is disabled. Ending Talk on Android no longer cancels work the Gateway has already accepted. Google uses the Interactions API for Gemini Flash models on the official endpoint and keeps custom endpoint overrides. Security fixes reject malformed URI identifiers using fast-uri 4.2.3 and reject oversized bounded collections early in the Discord SDK.
+
+> Short source excerpt: 2026.11.5-beta.2 Highlights Large conversations remain browsable with paged history in both directions, visible history boundaries, and bounded archive reads. &#40;…
+
+**Why it matters:** For openclaw users, large conversations remain browsable with paged history, the macOS app keeps saved secrets and Gateway authentication when configuration saves fail or Tailscale exposure is turned off, and ending Talk on Android no longer cancels work the Gateway has already accepted.
+
+**How to verify it:** Check that the installed build is 2026.11.5-beta.2, then read the release notes for the listed issue numbers, such as #188450 for paged history and #187734 for macOS secrets.
+
+**Uncertainty:** The provided text is truncated and does not state a rollout schedule, supported regions, pricing, or whether this beta is stable for general use. It also does not give limits for the bounded archive reads or the Discord SDK collection checks.
+
+Source: [openclaw 2026.11.5-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.11.5-beta.2)
+
+### 4. Home Assistant Blog: No device left behind: Home Assistant Connect AUX-2
+
+**What changed:** Home Assistant Blog published the update on 11 Nov 2026. Nabu Casa launched the Home Assistant Connect AUX-2, a small box that streams audio, controls RS-232 serial devices, connects a Z-Wave adapter and acts as a Bluetooth hub. It supports Power over Ethernet, USB power and Wi-Fi, and is available worldwide for $69 / €59.
+
+> Short source excerpt: Today Nabu Casa is launching the Home Assistant Connect AUX-2 , a small box that allows you to breathe new…
+
+**Why it matters:** The source says audio streaming lets an old hi-fi play in sync with modern smart speakers, and serial control can bring old solar or climate equipment into an automation setup to lower energy consumption. It also says you can pull a device off a proprietary cloud and back under your control.
+
+**How to verify it:** Check whether your old device has an optical digital audio input and a serial control port, the two connections the source names for bringing audio gear into the setup.
+
+**Uncertainty:** The text is truncated. It does not say what the second serial port and Grove connector are for, which devices are supported, or what the setup requires.
+
+Source: [No device left behind: Home Assistant Connect AUX-2](https://www.home-assistant.io/blog/2026/11/11/no-device-left-behind-home-assistant-connect-aux-2)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| OpenAI Codex releases | [0.169.0](https://github.com/openai/codex/releases/tag/rust-v0.169.0) | 13 Nov 2026 |
+| Claude Code releases | [v2.1.325](https://github.com/anthropics/claude-code/releases/tag/v2.1.325) | 13 Nov 2026 |
+| OpenClaw releases | [openclaw 2026.11.5-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.11.5-beta.2) | 12 Nov 2026 |
+| Home Assistant Blog | [No device left behind: Home Assistant Connect AUX-2](https://www.home-assistant.io/blog/2026/11/11/no-device-left-behind-home-assistant-connect-aux-2) | 11 Nov 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.
