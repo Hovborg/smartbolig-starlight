@@ -1,0 +1,87 @@
+---
+// Tool: what it costs to keep something switched on, per day, month and year.
+// Texts, examples and start values: src/lib/tools/power-copy.mjs.
+// Calculation: power-cost.mjs. The script below wires the page to it (power-ui.mjs).
+import ToolFrame from "./ToolFrame.astro";
+import { POWER_DEFAULTS, POWER_PRESETS, powerCopy } from "../../lib/tools/power-copy.mjs";
+import { formatNumber } from "../../lib/tools/format.mjs";
+
+interface Props {
+  lang?: "da" | "en";
+  id?: string;
+}
+
+const lang = Astro.props.lang ?? (Astro.currentLocale === "en" ? "en" : "da");
+const id = Astro.props.id ?? "stroemforbrug";
+const t = powerCopy[lang];
+---
+
+<ToolFrame id={id} title={t.title} lang={lang} data-tool="stroemforbrug">
+  <Fragment slot="form">
+    <div class="sb-tool-field">
+      <label class="sb-tool-field__label" for={`${id}-watts`}>{t.watts.label}</label>
+      <div class="sb-tool-input">
+        <input type="text" inputmode="decimal" autocomplete="off" id={`${id}-watts`} data-part="watts" value={String(POWER_DEFAULTS.watts)} aria-describedby={`${id}-watts-error ${id}-watts-hint`} />
+        <span class="sb-tool-input__unit" aria-hidden="true">W</span>
+      </div>
+      <p class="sb-tool-field__error" id={`${id}-watts-error`} data-part="watts-error" hidden>{t.watts.invalid}</p>
+      <p class="sb-tool-field__hint" id={`${id}-watts-hint`}>{t.watts.hint}</p>
+    </div>
+
+    <div class="sb-tool-field" role="group" aria-labelledby={`${id}-presets`}>
+      <p class="sb-tool-field__label" id={`${id}-presets`}>{t.presets.label}</p>
+      <ul class="sb-tool-chips" role="list">
+        {POWER_PRESETS.map((preset) => (
+          <li>
+            <button type="button" class="sb-tool-chip" aria-pressed="false" data-watts={preset.watts} data-hours={preset.hours}>
+              {t.presets[preset.id]}
+            </button>
+          </li>
+        ))}
+      </ul>
+      <p class="sb-tool-field__hint">{t.presets.hint}</p>
+    </div>
+
+    <div class="sb-tool-field">
+      <div class="sb-tool-range__head">
+        <label class="sb-tool-field__label" for={`${id}-hours`}>{t.hours.label}</label>
+        <output class="sb-tool-range__value" data-part="hours-value" for={`${id}-hours`}></output>
+      </div>
+      <input class="sb-tool-range" type="range" id={`${id}-hours`} data-part="hours" min="0" max="24" step="0.5" value={String(POWER_DEFAULTS.hoursPerDay)} />
+      <div class="sb-tool-range__scale" aria-hidden="true"><span>0</span><span>12</span><span>24</span></div>
+    </div>
+
+    <div class="sb-tool-field">
+      <label class="sb-tool-field__label" for={`${id}-price`}>{t.price.label}</label>
+      <div class="sb-tool-input">
+        <input type="text" inputmode="decimal" autocomplete="off" id={`${id}-price`} data-part="price" value={formatNumber(POWER_DEFAULTS.pricePerKwh, lang, 2)} aria-describedby={`${id}-price-error ${id}-price-hint`} />
+        <span class="sb-tool-input__unit" aria-hidden="true">{t.price.unit}</span>
+      </div>
+      <p class="sb-tool-field__error" id={`${id}-price-error`} data-part="price-error" hidden>{t.price.invalid}</p>
+      <p class="sb-tool-field__hint" id={`${id}-price-hint`}>
+        {t.price.hintBefore}<a href={`/${lang}/vaerktoejer/elpris/`}>{t.price.hintLink}</a>{t.price.hintAfter}
+      </p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="result">
+    <div class="sb-tool-figure">
+      <p class="sb-tool-figure__label">{t.result.year}</p>
+      <p class="sb-tool-figure__value" data-part="cost-year">–</p>
+    </div>
+    <dl class="sb-tool-stats">
+      <div><dt>{t.result.month}</dt><dd data-part="cost-month">–</dd></div>
+      <div><dt>{t.result.day}</dt><dd data-part="cost-day">–</dd></div>
+      <div><dt>{t.result.energy}</dt><dd data-part="kwh-year">–</dd></div>
+    </dl>
+    <p class="sb-tool-answer" data-part="meaning"></p>
+  </Fragment>
+
+  <p slot="note">{t.note}</p>
+</ToolFrame>
+
+<script>
+  import { startPowerTool } from "../../lib/tools/power-ui.mjs";
+
+  for (const root of document.querySelectorAll('[data-tool="stroemforbrug"]')) startPowerTool(root);
+</script>

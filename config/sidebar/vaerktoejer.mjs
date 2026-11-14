@@ -14,5 +14,10 @@ export default {
       translations: { en: "Electricity price now" },
       link: "/vaerktoejer/elpris/",
     },
+    {
+      label: "Hvad koster det at have tændt?",
+      translations: { en: "Cost of keeping it on" },
+      link: "/vaerktoejer/stroemforbrug/",
+    },
   ],
 };

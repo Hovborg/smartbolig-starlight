@@ -1,6 +1,6 @@
 // Tests for the shared parts of the tools section: number and time formats,
-// the texts and the pages. The electricity price tool has its own files:
-// site-tools-price.test.mjs and site-tools-api.test.mjs.
+// the "what does it cost" sum, the texts and the pages. The electricity price
+// tool has its own files: site-tools-price.test.mjs and site-tools-api.test.mjs.
 import assert from "node:assert/strict";
 import { readdir, readFile } from "node:fs/promises";
 import test from "node:test";
@@ -9,10 +9,13 @@ import toolsSidebar from "../config/sidebar/vaerktoejer.mjs";
 import { guideArt, guideSection } from "../src/lib/guide-art.mjs";
 import { CARD_COPY, TOOLS } from "../src/lib/tools/catalog.mjs";
 import * as format from "../src/lib/tools/format.mjs";
+import { POWER_DEFAULTS, POWER_PRESETS, powerCopy } from "../src/lib/tools/power-copy.mjs";
+import { costPerHour, powerCost, savingPerHourLess } from "../src/lib/tools/power-cost.mjs";
 import { priceCopy } from "../src/lib/tools/price-copy.mjs";
 
 const root = new URL("../", import.meta.url);
 const NBSP = "\u00a0";
+const near = (actual, expected) => assert.ok(Math.abs(actual - expected) < 1e-9, `${actual} is not ${expected}`);
 
 test("numbers, money and shares follow the language", () => {
   assert.equal(format.formatNumber(1234.5, "da"), "1.234,5");
@@ -54,6 +57,32 @@ test("a typed number may use a comma or a dot, and anything else is refused", ()
   assert.equal(format.fill("Start kl. {time} {day}. {unknown}", { time: "02:15", day: "i nat" }), "Start kl. 02:15 i nat. {unknown}");
 });
 
+test("power cost: watts, hours and price give kWh and kroner per day, month and year", () => {
+  const { kwh, cost } = powerCost({ watts: 100, hoursPerDay: 5, pricePerKwh: 2.5 });
+  near(kwh.day, 0.5);
+  near(kwh.month, 15.2);
+  near(kwh.year, 182.5);
+  near(cost.day, 1.25);
+  near(cost.month, 38);
+  near(cost.year, 456.25);
+  near(powerCost({ watts: 10, hoursPerDay: 24, pricePerKwh: 2 }).cost.year, 175.2);
+});
+
+test("power cost: bad input counts as nothing and a day has 24 hours", () => {
+  for (const input of [
+    { watts: Number.NaN, hoursPerDay: 5, pricePerKwh: 2.5 },
+    { watts: -100, hoursPerDay: 5, pricePerKwh: 2.5 },
+    { watts: 100, hoursPerDay: 0, pricePerKwh: 2.5 },
+    { watts: 100, hoursPerDay: 5, pricePerKwh: undefined },
+  ]) {
+    assert.equal(powerCost(input).cost.year, 0);
+  }
+  near(powerCost({ watts: 1000, hoursPerDay: 30, pricePerKwh: 1 }).kwh.day, 24);
+  near(costPerHour({ watts: 100, pricePerKwh: 2.5 }), 0.25);
+  near(savingPerHourLess({ watts: 100, hoursPerDay: 5, pricePerKwh: 2.5 }), 91.25);
+  assert.equal(savingPerHourLess({ watts: 100, hoursPerDay: 0.5, pricePerKwh: 2.5 }), 0);
+});
+
 // Every key path and every {placeholder}, so a text can not be missing or
 // lose a value in one language.
 function shape(value, path = "") {
@@ -62,9 +91,14 @@ function shape(value, path = "") {
 }
 
 test("the texts have the same keys and placeholders in Danish and English", () => {
-  for (const copy of [priceCopy, CARD_COPY, ...TOOLS.map(({ da, en }) => ({ da, en }))]) {
+  for (const copy of [priceCopy, powerCopy, CARD_COPY, ...TOOLS.map(({ da, en }) => ({ da, en }))]) {
     assert.deepEqual(shape(copy.en), shape(copy.da));
   }
+  for (const preset of POWER_PRESETS) {
+    assert.ok(powerCopy.da.presets[preset.id] && powerCopy.en.presets[preset.id], `preset ${preset.id} has no text`);
+    assert.ok(preset.watts > 0 && (preset.hours === undefined || preset.hours <= 24));
+  }
+  assert.equal(POWER_DEFAULTS.pricePerKwh, 2.5);
 });
 
 const pagesOf = async (lang) =>
