@@ -1,0 +1,195 @@
+---
+title: Home Assistant Companion App
+description: Install the Companion app on Android or iPhone, connect it at home and away, choose sensors and permissions, and send a first test notification.
+lastUpdated: 2026-11-14
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+The Companion app is Home Assistant's own app for Android and iPhone. It shows
+your dashboard, but it also turns the phone into a device in Home Assistant: the
+phone can send sensors and its location to the server and receive notifications.
+This guide takes you from installation to a first test message and explains what
+the app sends and what that means for battery and privacy.
+
+![The phone with the Companion app talks to the Home Assistant server on the local address at home and the external address away. Sensors and location go up to the server; notifications and the dashboard come down to the phone.](../../../../assets/guides/companion-app/overview-en.svg)
+
+## What you need
+
+- A Home Assistant server running version 0.104.0 or later.
+- Android 6 or later, or iOS 16.4 or later.
+- The server's address and a login for it.
+
+Get the app from [companion.home-assistant.io/download](https://companion.home-assistant.io/download).
+
+## Install and connect the app
+
+<Steps>
+1. **Open the app** and choose **Connect to my Home Assistant server** on the
+   welcome screen. This guide uses the English menu names from the official
+   documentation.
+
+2. **Pick the server.** The app searches your network. If it finds one, it
+   offers to connect. If it finds none, or you are not at home, choose
+   **Enter address manually** and type the address.
+
+3. **Log in** with your Home Assistant login. Do not use Trusted Networks for
+   the app, or it will only work on the trusted network.
+
+4. **Name the device.** The name appears in Home Assistant and is used for the
+   device's entities, so pick something recognisable, for example `My phone`.
+
+5. **Choose location.** **Share my location** lets automations know whether you
+   are home and is needed for the most secure connection. On Android you grant
+   **Allow all the time** and **Nearby devices**; on iPhone you choose
+   **Allow While Using the App** and then **Allow always**. **Do not share my
+   location** is also a valid choice.
+
+6. **Choose a connection security level** if the address is not encrypted, for
+   example a local IP address. **Most secure** uses the unencrypted address only
+   on your home network. **Less secure** uses it on any network and is not
+   recommended.
+
+7. **Allow notifications** when the app asks. On iPhone it also asks about
+   *critical notifications*, which sound even in silent mode.
+</Steps>
+
+At the end the app opens your dashboard.
+
+## Local and remote address
+
+At home the app can use the server's local address. Away from home it needs an
+external address, and that address must be encrypted (HTTPS): the app requires
+an encrypted connection outside the home. The recommended route is Home
+Assistant Cloud; a VPN is an alternative. Both are covered in
+[Secure remote access to Home Assistant](/en/sikkerhed/fjernadgang/).
+
+The app picks the address from the name of the Wi-Fi network it is on. Under
+**Settings → Companion app → [your server]** you find **Internal URL**, where
+you enter your home network's Wi-Fi names, and **Connection security level**.
+Both need the app to see the location: **Always** and **Precise** on iPhone,
+**Allow all the time** on Android. Without it, **Most secure** uses only the
+external HTTPS address.
+
+## What the app sends
+
+**Sensors.** On Android most are off by default. The exceptions are battery
+level, battery state and charger type, plus the sensors you granted permission
+to during setup. On iPhone not all sensors are on by default either. On Android
+they update every 15 minutes by default; on iPhone they update in the background
+at a rate iOS decides.
+
+**Device tracker.** After the first launch the app creates a `device_tracker`
+entity, typically named after the device ID. You find it on the Mobile App
+integration and can rename it. It has, among other things, latitude, longitude
+and GPS accuracy.
+
+**Zones.** On iPhone the app sets up geofences for all your zones itself and
+reports when you enter and leave. On Android you need to switch on the
+**Location Zone** sensor. Android allows at most 100 geofences, so only the
+first 100 zones are used.
+## Permissions and what they are used for
+
+| Permission | Used for |
+|---|---|
+| Location (Android: *Allow all the time*, iPhone: *Always*) | Device tracker, zones and choosing the address from the Wi-Fi network |
+| Nearby devices (Android) | Updates in the background |
+| Notifications | Messages from Home Assistant; critical messages on iPhone |
+| Motion (iPhone) | Activity and step counting |
+| Camera (iPhone) | Only the camera motion and camera stream sensors |
+| Activity recognition (Android) | Activity sensors and the step counter |
+| Phone (Android) | The phone state sensor |
+| Notification access (Android) | Notification sensors |
+
+You do not have to grant them all. Grant a permission when you switch on the
+sensor that needs it. Apple Health sensors are off until you turn them on.
+
+## Switch sensors on and off
+
+- **iPhone:** **Settings → Companion app → Sensors.** With several servers,
+  choose the server under **Servers** first.
+- **Android:** **Settings → Companion App → Manage Sensors**, then pick a
+  sensor. The frequency is under **Sensor Update Frequency**.
+
+To stop an iPhone sending any sensors to a server, set **Sensors Sent** to
+**None** under **Privacy** on that server.
+
+Under **Location Sent** you choose how much location the server gets:
+**Exact** sends GPS coordinates, **Zone Name Only** sends just the zone name or
+`not_home`, and **Never** (iPhone) or **Disabled** (Android) sends nothing. To
+stop tracking without removing the permission, you can disable the
+`device_tracker` entity in the entity registry.
+
+Battery: the Android **High Accuracy Mode** sensor uses GPS continuously and
+drains the battery faster. The notification sensor on Android can use a lot of
+battery without an allow list, and the Bluetooth beacon sensor can affect
+battery too. Switch on only what you use. According to the documentation the
+location goes from the phone to your server, directly or through Home Assistant
+Cloud, and not through other servers.
+
+## Send a test notification
+
+<Steps>
+1. Go to **Settings → Tools → Actions** (before Home Assistant 2026.2:
+   *Developer tools*).
+2. Pick an action that starts with `notify.mobile_app_`, followed by your
+   phone's ID. The ID is based on the device name, with spaces and special
+   characters replaced by underscores.
+3. Enter a message in YAML mode, and change the name to your own phone:
+
+   ```yaml
+   action: notify.mobile_app_my_phone
+   data:
+     message: "Hello World"
+   ```
+
+4. Run the action. The message should appear on the phone.
+</Steps>
+
+Notification groups for several phones are
+in [One message to several phones](/en/home-assistant/mobilnotifikationer/).
+
+## Troubleshooting
+
+**Sensors do not update.** On iPhone, location must be set to *Always*, and iOS
+limits updates in the background. For battery level or charging, you can make an
+automation in Shortcuts with the **Update Sensors** action. On Android a sensor
+only appears once it has received a state, so wait for a change and check that
+its permissions are granted.
+
+**Location is stuck.** Set location to *Allow all the time* (Android) or
+*Always* (iPhone). On Android also turn on GPS and allow precise location, and
+**Background location**, **Location zone** and **Single accurate location** must
+be switched on under **Manage Sensors**. The app must not be restricted by
+battery optimisation. If valid points are skipped because of low accuracy, raise
+the minimum accuracy a little. If your `person` entity is stuck, remove tracked
+devices that just stay at home or are no longer used.
+
+**Notifications do not arrive.** First try the test message above. If it
+arrives, your original message is probably malformed. Each app can receive at
+most 500 notifications a day, and the count resets at midnight UTC. Check that
+the phone allows notifications from Home Assistant; on Android that includes the
+channel you use.
+**The app cannot connect when you are away.** If Home Assistant Cloud is on
+without Remote UI, turn on Remote UI, or turn **Connect Via Cloud** off and enter
+an encrypted external address. See
+[Secure remote access](/en/sikkerhed/fjernadgang/).
+
+**Widgets and actions time out after you leave the app.** Turn off battery
+optimisation for the app and the manufacturer's power saving, and allow data in
+the background.
+
+## Official sources
+
+- [Getting started, Companion app](https://companion.home-assistant.io/docs/getting_started/)
+- [Connection security level](https://companion.home-assistant.io/docs/getting_started/connection-security-level)
+- [Sensors](https://companion.home-assistant.io/docs/core/sensors)
+- [Location](https://companion.home-assistant.io/docs/core/location)
+- [Basic notifications](https://companion.home-assistant.io/docs/notifications/notifications-basic)
+- [Troubleshooting: FAQs](https://companion.home-assistant.io/docs/troubleshooting/faqs)
+- [Troubleshooting: networking](https://companion.home-assistant.io/docs/troubleshooting/networking)
+- [Mobile App integration](https://www.home-assistant.io/integrations/mobile_app/)

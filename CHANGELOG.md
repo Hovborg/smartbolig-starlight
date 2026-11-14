@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- New guide "Home Assistant Companion-appen" / "Home Assistant Companion App" (`/home-assistant/companion-app/`, both languages): installing the app, local and remote address, what it sends (sensors, device tracker, zones), permissions, switching sensors on and off, a first test notification and troubleshooting, with one diagram per language (`src/assets/guides/companion-app/`). Every claim is taken from the Companion app documentation; it is linked from the sidebar, the Home Assistant overview and the mobile notifications guide.
+
 - The documentation was tried by three readers who had never seen the repository (add a guide, change a design value, debug a news run). What they tripped over is fixed: `AGENTS.md` and `README.md` now point to `CONTENT-GUIDE.md`, which has the limits for `description` (80 to 165 characters), a section on facts and sources, which sidebar file a Home Assistant guide goes in, and the four checks for a content-only change; `docs/designsystem.md` says what each corner radius step is used for and names the second copy of the brand colours (`scripts/lib/brand/palette.mjs`, `npm run brand:build`); `docs/nyhedsflow.md` has a recipe for debugging a run from a terminal and says that a failed `publish` job leaves the run green.
 - A stand-in news run that stays quiet now says why on the run's Summary page ("Slot: Not writing: run … already covered the early slot today"), not only in the log of the `slot` job.
 - The test of the news picture reads the brand colours from the palette instead of repeating them. `--sb-brand-a` follows the accent instead of repeating it, and `scripts/site-brand.test.mjs` now checks every colour the brand palette repeats.
