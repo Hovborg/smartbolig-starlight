@@ -1,7 +1,10 @@
 // Connects the 3D house (house3d/) to the homepage: loads it when the visitor
-// can use it, keeps its size, lets the visitor turn it, and places the
-// hotspots on the model. Until it has loaded, the page shows a still picture.
-const TURN_STEP = 35;
+// can use it, keeps its size and places the hotspots on the model. Until it
+// has loaded, the page shows a still picture. The house is drawn in a worker
+// where the browser can, so the page stays responsive while the model starts
+// and while it moves. Turning and the moment of loading: home-house-input.mjs.
+import { bindTurning, scheduleLoad } from "./home-house-input.mjs";
+import { drawingPlace } from "./house3d/probe.mjs";
 
 export function createHouseStage(win, doc, root, { onUnavailable } = {}) {
   const html = doc.documentElement;
@@ -20,6 +23,9 @@ export function createHouseStage(win, doc, root, { onUnavailable } = {}) {
   let house = null;
   let loading = null;
   let gone = false;
+  let live = false;
+  // True once the canvas has been handed to a worker; it cannot be taken back.
+  let handedOver = false;
   let wanted = { mode: "evening", view: "overview", focus: null };
   let shown = { ...wanted };
 
@@ -49,19 +55,70 @@ export function createHouseStage(win, doc, root, { onUnavailable } = {}) {
     onUnavailable?.();
   }
 
-  function start({ mountHouse }) {
-    if (gone) return null;
-    house = mountHouse(canvas, {
-      ...wanted,
+  function onFrame(points) {
+    // A worker that was stopped can still have a picture on its way.
+    if (!house) return;
+    placeSpots(points);
+    if (live || gone) return;
+    // The first finished picture is on the canvas: fade it in.
+    live = true;
+    screen.dataset.state = "live";
+    if (spotBox) spotBox.hidden = false;
+  }
+
+  // The browser can take the graphics context away (memory pressure, a GPU
+  // reset), and a worker can fail to draw. The canvas would then cover the
+  // still picture with nothing.
+  function lose() {
+    if (!house) return;
+    const lost = house;
+    house = null;
+    loading = Promise.resolve(null);
+    lost.dispose();
+    if (spotBox) spotBox.hidden = true;
+    still();
+  }
+
+  async function mount(options) {
+    // Asked first: a browser that cannot draw the house fetches none of it.
+    const place = drawingPlace(win, doc);
+    if (place === "none") return null;
+    if (place === "worker") {
+      const remote = await import("./house3d/remote.mjs");
+      // Removed while the file was fetched: the canvas stays with the page.
+      if (gone) return null;
+      const inWorker = remote.mountHouse(canvas, options);
+      handedOver = Boolean(inWorker);
+      if (inWorker) return inWorker;
+    }
+    // Browsers that cannot draw a canvas from a worker draw it on the page.
+    const onPage = await import("./house3d/index.mjs");
+    return gone ? null : onPage.mountHouse(canvas, options);
+  }
+
+  async function start() {
+    const first = { ...wanted };
+    const mounted = await mount({
+      ...first,
       time: 2.1,
       quality: fine ? "high" : "low",
       shadowSize: fine ? 2048 : 1024,
       background: win.getComputedStyle(screen).getPropertyValue("--sb-stage").trim() || undefined,
       motion: motionOn(),
-      onFrame: placeSpots,
+      onFrame,
+      onGone: lose,
     });
-    if (!house) return still();
-    shown = { ...wanted };
+    if (gone) {
+      mounted?.dispose();
+      return null;
+    }
+    if (!mounted) return still();
+    house = mounted;
+    // The visitor may have picked another time of day, or switched motion
+    // off, while the house loaded.
+    shown = first;
+    apply();
+    house.setMotion(motionOn());
     const size = () => house?.resize(screen.clientWidth, screen.clientHeight, ratio());
     size();
     if (win.ResizeObserver) {
@@ -74,85 +131,31 @@ export function createHouseStage(win, doc, root, { onUnavailable } = {}) {
       seen.observe(screen);
       undo.push(() => seen.disconnect());
     }
-    // The browser can take the graphics context away (memory pressure, a GPU
-    // reset). The canvas would then cover the still picture with nothing.
+    // Drawn on the page, the canvas itself reports a lost context; a worker
+    // reports it through onGone.
     listen(canvas, "webglcontextlost", (event) => {
       event.preventDefault();
-      if (!house) return;
-      const lost = house;
-      house = null;
-      loading = Promise.resolve(null);
-      lost.dispose();
-      if (spotBox) spotBox.hidden = true;
-      still();
+      lose();
     });
     const follow = new win.MutationObserver(() => house?.setMotion(motionOn()));
     follow.observe(html, { attributes: true, attributeFilter: ["data-home-motion"] });
     undo.push(() => follow.disconnect());
-    // Two frames later the first picture is on the canvas: fade it in.
-    win.requestAnimationFrame(() => win.requestAnimationFrame(() => {
-      if (gone) return;
-      screen.dataset.state = "live";
-      if (spotBox) spotBox.hidden = false;
-    }));
     return house;
   }
 
   function load() {
     if (loading || gone) return loading;
     screen.dataset.state = "loading";
-    loading = import("./house3d/index.mjs").then(start).catch((error) => {
+    loading = start().catch((error) => {
       console.warn("3D house failed to load:", error);
       return still();
     });
     return loading;
   }
 
-  // Turning: drag sideways on the house, or use the two buttons.
-  let drag = null;
-  const endDrag = () => {
-    if (!drag) return;
-    drag = null;
-    house?.setDragging(false);
-    delete screen.dataset.dragging;
-  };
-  listen(screen, "pointerdown", (event) => {
-    if (!house || event.button !== 0 || event.target.closest("a, button")) return;
-    drag = { id: event.pointerId, x: event.clientX, y: event.clientY };
-    screen.setPointerCapture?.(event.pointerId);
-    house.setDragging(true);
-    screen.dataset.dragging = "true";
-  });
-  listen(screen, "pointermove", (event) => {
-    if (!drag || !house || event.pointerId !== drag.id) return;
-    house.rotate((drag.x - event.clientX) * 0.3, (event.clientY - drag.y) * 0.12);
-    drag.x = event.clientX;
-    drag.y = event.clientY;
-  });
-  listen(screen, "pointerup", endDrag);
-  listen(screen, "pointercancel", endDrag);
-  for (const button of root.querySelectorAll("[data-house-rotate]")) {
-    listen(button, "click", async () => (await load())?.rotate(Number(button.dataset.houseRotate) * TURN_STEP));
-  }
+  bindTurning({ root, screen, listen, house: () => house, load });
   if (turn) turn.hidden = false;
-
-  // When to fetch the model: desktops when the page is idle; phones and
-  // data-saving visitors after their first touch, scroll or key press.
-  const saving = Boolean(win.navigator.connection?.saveData);
-  if (fine && !saving) {
-    const idle = () => (win.requestIdleCallback ? win.requestIdleCallback(load, { timeout: 3000 }) : win.setTimeout(load, 600));
-    if (doc.readyState === "complete") idle();
-    else listen(win, "load", idle, { once: true });
-  } else {
-    let timer = 0;
-    const poke = () => {
-      win.clearTimeout(timer);
-      if (!loading) timer = win.setTimeout(load, 350);
-    };
-    const target = saving ? screen : win;
-    for (const type of ["pointerdown", "keydown", "scroll"]) listen(target, type, poke, { passive: true });
-    undo.push(() => win.clearTimeout(timer));
-  }
+  undo.push(scheduleLoad({ win, doc, screen, fine, listen, load, started: () => Boolean(loading) }));
 
   return {
     load,
@@ -167,6 +170,9 @@ export function createHouseStage(win, doc, root, { onUnavailable } = {}) {
       undo.forEach((fn) => fn());
       house?.dispose();
       house = null;
+      loading = Promise.resolve(null);
+      // A canvas that went to a worker cannot draw again: leave a fresh one.
+      if (handedOver) canvas.replaceWith(canvas.cloneNode(false));
       delete screen.dataset.state;
       delete screen.dataset.dragging;
       if (spotBox) spotBox.hidden = true;

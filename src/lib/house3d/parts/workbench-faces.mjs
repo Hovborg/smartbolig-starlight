@@ -3,11 +3,10 @@
 // screen shows numbers and a curve only, so it reads the same in every
 // language.
 import { CanvasTexture, SRGBColorSpace } from "three";
+import { blankCanvas } from "../canvas.mjs";
 
 function drawn(width, height, draw) {
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
+  const canvas = blankCanvas(width, height);
   draw(canvas.getContext("2d"), width, height);
   const texture = new CanvasTexture(canvas);
   texture.colorSpace = SRGBColorSpace;

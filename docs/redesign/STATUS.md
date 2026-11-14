@@ -28,10 +28,20 @@ Sidst opdateret: 2026-11-14.
   repoet, og flettede grene slettes af repo-indstillingen. To uafhængige gennemgange;
   reglerne afprøves af `scripts/site-dependabot.test.mjs`. Næste skridt her: opgradér
   Starlight til 0.42 i hånden (mobilmenu-knappen), så pakken igen får rettelser. Ikke set endnu: den første rigtige pull request fra Dependabot gennem
-  auto-fletningen (se efter i ugen fra 2026-11-14, og ret da "Ikke kontrolleret endnu").
+  auto-fletningen (se punktet "Automatiske opdateringer set i drift" nedenfor).
 - **Assistentens eget søgeindeks (B52, rettet efter uafhængig gennemgang):** bygges med siden, læses af Workeren fra `/_index/`;
   `ai_search`-bindingen er fjernet. `functions/api/chat.js` er delt i `functions/lib/chat/`.
-  Dokumentation: `docs/assistent.md`.
+  Dokumentation: `docs/assistent.md`. Udgivet 2026-11-14 (PR #194, `main` 3bb4004). Live:
+  svar på dansk og engelsk med links til guides, `/_index/da/meta.json` har `noindex`.
+  Åbent: et svar tager ca. 45 sekunder, fordi modellen svarer i ét stykke. Næste skridt er
+  løbende visning af svaret (streaming) i assistentens nye udseende.
+- **Automatiske opdateringer set i drift 2026-11-14:** Dependabot åbnede otte pull requests
+  efter udgivelsen. Gruppen med små npm-opdateringer (PR #192) blev flettet af sig selv, efter
+  at `deploy`-kontrollen var grøn, og kontrollerne kørte derefter på `main`. Starlight 0.42.8
+  (PR #193) og de tre opdateringer af GitHub Actions blev stående åbne, som reglerne siger.
+- **3D-huset i en worker (B53):** rettet efter uafhængig gennemgang: siden spørger først,
+  hvor huset kan tegnes (`probe.mjs`), motoren bliver stående stoppet efter `dispose`, og
+  første billede venter højst 2,5 s på shaderne. Dokumentation: `docs/3d-hus.md`.
 
 ## I gang
 
