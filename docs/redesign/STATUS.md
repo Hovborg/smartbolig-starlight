@@ -207,6 +207,11 @@ Sidst opdateret: 2026-11-14.
   batterilevetid (`/vaerktoejer/batterilevetid/`) på begge sprog, i den fælles ramme, med
   kilder på siderne. Forsidens værktøjssektion viser nu fire værktøjer. Set i headless Chrome i
   mørkt og lyst tema ved 320, 375 og 1440 px, med tastatur og uden JavaScript.
+- **Startsæt-bygger (B65):** femte værktøj, `/vaerktoejer/startsaet/`, på begge sprog. Fire
+  spørgsmål giver et startsæt i tre lag og de første skridt, med købslinks fra registret (11
+  dele, 9 produkter) og ingen priser. Ikke udgivet endnu. Åbent: registret har ingen produkter
+  til computeren til Home Assistant, en aflæser til HAN-porten og ESP32-delene, så de tre
+  steder siger sættet "Ingen købsanbefaling endnu".
 
 ## Næste skridt
 

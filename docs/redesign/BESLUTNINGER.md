@@ -924,6 +924,39 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   selv 2026-11-14 kl. 11:43 UTC, seks minutter efter planen (11:37), og lykkedes. Planlagte
   kørsler virker altså i repoet. Reserven beholdes: GitHub lover stadig ikke, at hver kørsel
   starter, og den koster ingenting, når den almindelige kørsel er startet.
+## B65. Startsæt-bygger (2026-11-14)
+
+- Valgt: et tredje værktøj, `/vaerktoejer/startsaet/`, som ideen i B60 beskrev. Fire spørgsmål
+  (hvad vil du starte med, ejer eller lejer, hvad har du i forvejen, vil du bygge selv med
+  ESP32) giver et startsæt i tre lag (hjernen, forbindelsen, en blok pr. mål) og tre til fem
+  første skridt.
+- Valgt: produkter kun fra registret, købslinks kun gennem `<AffiliateLink>` bygget på
+  serveren, og ingen priser. Hvor registret intet produkt har (computeren til Home Assistant,
+  en aflæser til HAN-porten, ESP32-dele), står der "Ingen købsanbefaling endnu" og et link til
+  guiden. Begrundelse: et værktøj må ikke opfinde produkter, og priser skifter.
+- Valgt: alle dele og skridt står i siden fra start, og scriptet skifter kun `hidden`.
+  Begrundelse: et svar kan aldrig blive til et link eller til HTML, og uden JavaScript viser
+  siden stadig et helt sæt (lejerens, med alle mål).
+- Valgt: lejer er startsvaret, og et ukendt svar bliver til det forsigtige valg. En lejer får
+  aldrig en del af den faste installation; ejerens dimmer siger, at en autoriseret
+  elinstallatør skal montere den. En lejer med radiatortermostat får "skriv til din udlejer"
+  som første skridt.
+- Valgt: sættet er bygget til Home Assistant med en Zigbee-koordinator, også for en læser med
+  en bro fra Hue eller IKEA. Begrundelse: guiderne siger ikke, hvilke af delene en bro kan
+  styre; sættet siger det åbent.
+- Valgt: ZHA og Zigbee2MQTT nævnes begge, uden at sættet vælger. Begrundelse: `start.mdx` og
+  `zigbee-koordinatorer.mdx` anbefaler hver sin til en begynder.
+- Valgt: blokken Sikkerhed er besked på telefonen (dør- og bevægelsessensor), ikke sirene
+  eller kamera; sættet siger, at det ikke er en alarm.
+- Valgt: samme sensor står kun ét sted. Deler to mål en sensor, peger den anden blok på den
+  første.
+- OSS og data: ingen nye pakker og ingen data udefra. Intet gemmes, og intet sendes.
+- Kontrol: `npm run site:test` (15 tests i to nye filer; reglerne køres for alle 384
+  kombinationer af svar), `python scripts/content-audit.py`, `npm run build` og
+  `npm run seo:validate`; den byggede side i headless Chrome i begge temaer ved 320, 375, 390
+  og 1440 px, på begge sprog, med tastatur og uden JavaScript. Ikke set: en skærmlæser, og om
+  butikkernes adresser bag købslinkene virker.
+
 ## B66. Værktøjer: Zigbee-kanalvælger og batterilevetid (2026-11-14)
 
 - Valgt: to værktøjer mere i den fælles ramme (B61): en Zigbee-kanalvælger og en beregner af

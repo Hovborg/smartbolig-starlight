@@ -28,26 +28,34 @@ download-adressen først (se "Regler, der er valgt med vilje"). Rettelsen og fir
 gennemgangen efter udgivelsen har hver sin test; femten prøver med en rettelse taget ud viser, at
 testene fanger hver af dem. En uafhængig gennemgang af rettelsen fandt ingen fejl, der skulle
 rettes før udgivelse, og seks bemærkninger; fire er rettet, to står under "Kendt".
+Startsæt-byggeren: `npm run site:test`, `python scripts/content-audit.py`, `npm run build` og
+`npm run seo:validate` kørt på grenen. Den byggede side er set i headless Chrome i mørkt og lyst
+tema ved 320, 375, 390 og 1440 px, på begge sprog, med tastatur og med JavaScript slået fra.
+Alle 384 kombinationer af svar er sammenlignet med reglerne på den byggede side.
 Ikke kontrolleret: Energinets svar omkring midnat og på de to dage, hvor uret stilles;
 skærmlæsere på forsidens kort; Safari og Firefox.
+Heller ikke: at butikkernes adresser bag startsættets købslinks virker (`docs/indtjening.md`),
+og startsættet med en skærmlæser.
 
 ## Kort
 
-Sektionen `/vaerktoejer/` har små værktøjer, der regner for læseren. Der er fire:
+Sektionen `/vaerktoejer/` har små værktøjer, der regner eller vælger for læseren. Der er fem:
 
 - **Elprisen lige nu** (`/vaerktoejer/elpris/`): spotprisen i dag og i morgen, en graf time for
   time og de billigste timer i træk.
 - **Hvad koster det at have apparatet tændt?** (`/vaerktoejer/stroemforbrug/`): watt, timer pr. dag og
   elpris giver kroner pr. dag, måned og år.
-
 - **Zigbee-kanalvælger** (`/vaerktoejer/zigbee-kanal/`): læseren markerer Wi-Fi-kanal 1 til 13, og
   værktøjet tegner de 16 Zigbee-kanaler under dem, viser hvilke der overlapper og anbefaler én.
 - **Batterilevetid** (`/vaerktoejer/batterilevetid/`): kapacitet, strøm i søvn og vågen, vågen tid og
   opvågningsinterval giver gennemsnitsstrøm og levetid.
+- **Startsæt-bygger** (`/vaerktoejer/startsaet/`): fire spørgsmål giver et startsæt i tre lag
+  (hjernen, forbindelsen, delene til målene) og tre til fem første skridt. Se
+  "Startsæt-byggeren" længere nede.
 
-Hvert værktøj er tre dele: en Astro-komponent (felterne), et rent modul (regnestykket, med
-tests) og et UI-modul (kobler felterne til regnestykket). Alle værktøjer sidder i den samme
-ramme, `ToolFrame.astro`.
+Hvert værktøj er tre dele: en Astro-komponent (felterne), et rent modul (regnestykket eller
+reglerne, med tests) og et UI-modul (kobler felterne til det rene modul). Alle værktøjer sidder
+i den samme ramme, `ToolFrame.astro`.
 
 Elprisværktøjet henter priserne hos sidens egen Worker på `/api/elpris`. Workeren henter dem hos
 Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Energinet.
@@ -56,12 +64,12 @@ Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Ene
 
 | Sti | Indhold |
 |---|---|
-| `src/content/docs/da/vaerktoejer/`, `src/content/docs/en/vaerktoejer/` | Siderne: `index.mdx` (oversigt), `elpris.mdx`, `stroemforbrug.mdx`. Samme filnavne på begge sprog |
+| `src/content/docs/da/vaerktoejer/`, `src/content/docs/en/vaerktoejer/` | Siderne: `index.mdx` (oversigt), `elpris.mdx`, `stroemforbrug.mdx`, `startsaet.mdx`. Samme filnavne på begge sprog |
 | `config/sidebar/vaerktoejer.mjs` | Sidemenuen for sektionen |
 | `src/lib/primary-nav.ts` | Punktet "Værktøjer" i topbjælken |
 | `src/lib/tools/catalog.mjs` | Listen over værktøjer. Oversigtens kort tegnes af den (`ToolCards.astro`, `ToolIcon.astro`) |
-| `src/components/tools/ToolFrame.astro` | Rammen, alle værktøjer sidder i: titel, felter, resultat, mere, fodnote |
-| `src/styles/content/tools.css`, `src/styles/content/tools/` | Fælles udseende, klasser med `sb-tool-`: `frame`, `result`, `fields`, `segment`, `range`, `buttons`, `chart`, `table` |
+| `src/components/tools/ToolFrame.astro` | Rammen, alle værktøjer sidder i: titel, felter, resultat, mere, fodnote. `noscript` er teksten til et værktøj, der viser noget uden JavaScript |
+| `src/styles/content/tools.css`, `src/styles/content/tools/` | Fælles udseende, klasser med `sb-tool-`: `frame`, `result`, `fields`, `segment`, `range`, `buttons`, `chart`, `table`. Startsættets egne klasser (`sb-kit-`) står i `kit` (spørgsmål, tal, lag), `kit-parts` (delene), `kit-steps` (de første skridt) og `kit-states` (når en del kommer til, og siden uden JavaScript) |
 | `src/lib/tools/format.mjs` | Tal, kroner, øre og procent på dansk og engelsk, klokkeslæt i dansk tid, læsning af et indtastet tal |
 | `src/lib/tools/dom.mjs` | Små DOM-hjælpere: `part`, `setText`, `show`, `setInvalid`, `el`, `svgEl`, `bindRange` |
 | `src/lib/tools/price-data.mjs` | Henter priserne fra `/api/elpris` (værktøjet og forsiden), og retter enhedens ur, når det går forkert |
@@ -81,7 +89,13 @@ Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Ene
 | `src/components/tools/BatteryLife.astro` | Batteriværktøjets felter og svaret for startværdierne (så siden giver mening uden JavaScript) |
 | `src/lib/tools/battery-life.mjs`, `battery-view.mjs` | Regnestykket med grænser, og teksterne for et resultat (enhed, levetid, søvn eller vågen) |
 | `src/lib/tools/battery-copy.mjs`, `battery-ui.mjs` | Teksterne, startværdier og preset med kilde, og koblingen |
-| `scripts/site-tools.test.mjs`, `site-tools-price.test.mjs`, `site-tools-api.test.mjs`, `site-tools-zigbee.test.mjs`, `site-tools-battery.test.mjs`, `site-tools-ui.test.mjs` | Tests. Køres med `npm run site:test` |
+| `src/components/tools/StarterKit.astro` | Startsæt-byggeren: rammen, de tre tal og scriptet. Bygger siden af `StarterKitQuestions.astro` (spørgsmålene), `StarterKitParts.astro` (lagene og reklameoplysningen), `StarterKitItem.astro` (én del) og `StarterKitSteps.astro` (de første skridt) |
+| `src/lib/tools/starter-kit-items.mjs` | Kataloget: mål, dele, skridt, noter og hvad en blok ikke kan. Kun data |
+| `src/lib/tools/starter-kit.mjs` | Reglerne: `buildKit(svar)` giver id'er på dele, blokke, skridt og noter. Uden DOM |
+| `src/lib/tools/starter-kit-view.mjs` | Hvad et sæt betyder for siden: hvilke mærkede elementer vises, de tre tal, og starttilstanden. Uden DOM |
+| `src/lib/tools/starter-kit-copy.mjs`, `starter-kit-parts-copy.mjs` | Teksterne på dansk og engelsk. Delenes tekster står i den anden fil |
+| `src/lib/tools/starter-kit-ui.mjs` | Læser svarene og skifter `hidden` på de mærkede elementer |
+| `scripts/site-tools.test.mjs`, `site-tools-price.test.mjs`, `site-tools-api.test.mjs`, `site-tools-zigbee.test.mjs`, `site-tools-battery.test.mjs`, `site-tools-ui.test.mjs`, `site-tools-kit.test.mjs`, `site-tools-kit-page.test.mjs` | Tests. Køres med `npm run site:test` |
 
 ## Regler, der er valgt med vilje
 
@@ -174,6 +188,14 @@ Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Ene
 - **Grafen bygges med DOM-kald** (`svgEl` i `dom.mjs`), aldrig med HTML-strenge. Der er ingen
   inline event handlers og intet inline script; værktøjets kode ligger i egne filer under
   `/_astro/`.
+- **Startsættet opfinder ingen produkter.** En del med købslink er et id fra registret
+  (`src/data/products/`), og linket bygges på serveren af `<AffiliateLink>`. Har registret intet
+  produkt, står der "Ingen købsanbefaling endnu" og et link til guiden. Der står ingen priser.
+- **Startsættets script bygger ingenting.** Alle dele og skridt står i siden fra start, mærket
+  `data-kit`. Scriptet skifter kun `hidden`, så et svar aldrig kan blive til et link eller til
+  HTML.
+- **En lejer får aldrig en del af den faste installation.** En del med `fixed: true` vises kun
+  for en ejer, og dér står, at en autoriseret elinstallatør skal montere den.
 
 ## Sådan svarer `/api/elpris`
 
@@ -247,7 +269,8 @@ skriv kilden og licensen i `docs/oss.md`.
 
 ### Ret en tekst eller en standardværdi
 
-- **Tekst i et værktøj:** `price-copy.mjs`, `power-copy.mjs`, `zigbee-copy.mjs` eller `battery-copy.mjs`. Ret både `da` og `en`.
+- **Tekst i et værktøj:** `price-copy.mjs`, `power-copy.mjs`, `zigbee-copy.mjs`, `battery-copy.mjs` eller
+  `starter-kit-copy.mjs` (delenes tekster: `starter-kit-parts-copy.mjs`). Ret både `da` og `en`.
 - **Tekst under et værktøj:** MDX-siden i `src/content/docs/da/vaerktoejer/` og i `en/`.
 - **Kortene på oversigten:** `src/lib/tools/catalog.mjs`.
 - **Startværdier for strømforbrug** (100 W, 5 timer, 2,50 kr./kWh) og eksemplerne:
@@ -263,6 +286,55 @@ skriv kilden og licensen i `docs/oss.md`.
 - **Energinets adresser og deres rækkefølge:** `UPSTREAM_URLS` i `upstream.js`.
 
 Kør `npm run site:test` bagefter. Testene holder fast i flere af værdierne og skal rettes med.
+
+## Startsæt-byggeren
+
+Læseren svarer på fire spørgsmål: hvad vil du starte med (flere valg), ejer eller lejer, hvad
+har du i forvejen, og vil du bygge selv med ESP32. Svaret er et sæt i tre lag og tre til fem
+første skridt.
+
+### Sådan hænger det sammen
+
+1. `starter-kit-items.mjs` er kataloget. En del er enten et produkt fra registret (`product`
+   og `name`), et hul (`gap: true`: registret har intet produkt endnu) eller noget, der ikke
+   skal købes. `radio` siger, hvordan delen taler med Home Assistant, `fixed` at den hører til
+   den faste installation, og `guide` hvilken side læseren sendes videre til.
+2. `buildKit(svar)` i `starter-kit.mjs` vælger id'er fra kataloget:
+   - Hjernen er `brain-own`, når læseren har Home Assistant, ellers `brain-ha`.
+   - Hvert mål giver sine dele (`GOAL_PARTS`). Deler to mål en sensor, peger den anden blok på
+     den første (`...-shared`), så intet produkt står to gange.
+   - En lejer får ingen del med `fixed`.
+   - Forbindelsen følger delene: en koordinator kun, når sættet har Zigbee-dele.
+   - Skridtene: udlejer (kun en lejer med radiatortermostat), installér eller backup, Zigbee
+     (kun med koordinator), tilføj en del, og én automation til det første valgte mål.
+3. Komponenterne bygger alle dele og skridt på serveren og mærker dem `data-kit="item:<id>"`,
+   `block:`, `step:` eller `note:`. Det, startsvarene (`DEFAULT_ANSWERS`: lys, lejer, intet i
+   forvejen) ikke viser, får `hidden`.
+4. `starter-kit-ui.mjs` læser svarene, kalder `buildKit` og skifter `hidden`. De tre tal øverst
+   kommer fra `kitCounts` i `starter-kit-view.mjs`.
+5. Uden JavaScript skjuler `kit-states.css` spørgsmålene og viser sættet for `NOSCRIPT_ANSWERS` (alle
+   mål, lejer, intet i forvejen) ud fra `data-noscript` på hvert element.
+
+Kataloget har 21 dele: 11 med købslink (9 produkter fra registret, to af dem bruges i to
+blokke), 6 huller og 4, der ikke skal købes.
+
+### Tilføj eller skift en del
+
+1. Produktet skal stå i registret. Gør det ikke, så tilføj det først (`docs/indtjening.md`) og
+   brug det i en guide; registrets test kræver, at en guide bruger det.
+2. Skriv delen i `ITEMS` i `starter-kit-items.mjs`: `block`, `product`, `name` (som registret
+   staver modellen), `radio` og `guide`. Sæt `fixed: true`, hvis delen monteres i den faste
+   installation. Skal kun produktet skiftes, så ret `product` og `name`.
+3. Sæt id'et ind under sit mål i `GOAL_PARTS` i `starter-kit.mjs`.
+4. Skriv `role`, `why` og `guide` på begge sprog i `starter-kit-parts-copy.mjs`. En del uden
+   noget at købe får også `tag`.
+5. Kør `npm run site:test` og `npm run build`. Testene kører alle 384 kombinationer af svar.
+
+Et hul bliver til et produkt ved at erstatte `gap: true` med `product`, `name` og `radio`.
+Skriv aldrig en pris og aldrig "bedst" eller "billigst" om en del; en test stopper det.
+
+Et nyt mål er et navn i `GOALS`, en linje i `GOAL_PARTS`, et skridt `auto-<mål>` i `STEPS`, en
+linje i `LIMITS` og teksterne under `goals`, `blocks`, `limits` og `steps` på begge sprog.
 
 ## Når noget ser forkert ud
 
@@ -298,6 +370,13 @@ Kør `npm run site:test` bagefter. Testene holder fast i flere af værdierne og 
   1500 og 1,5. Skriv 1500.
 - **"Lige nu" viser et andet kvarter end uret på væggen.** Enhedens ur går mellem ti og
   femten minutter forkert; først over et kvarter bliver det rettet (se reglen ovenfor).
+- **Bygget stopper med "Unknown affiliate product".** En del i `starter-kit-items.mjs` peger på
+  et produkt, der ikke står i registret mere. Ret `product`, eller gør delen til et hul.
+- **Startsættet viser en forkert del.** Reglen står i `buildKit` i `starter-kit.mjs`. Skriv
+  først en test for svaret i `scripts/site-tools-kit.test.mjs`, og ret så reglen.
+- **Startsættets spørgsmål ændrer ikke sættet.** Scriptet kører ikke. Er JavaScript slået fra,
+  skal siden vise hele lejersættet uden spørgsmål; det kræver en browser, der kender
+  `@media (scripting: none)`.
 
 ## Rettet efter gennemgangen
 
@@ -389,6 +468,9 @@ Kortet gemmer intet og sender kun det, elprisværktøjet sender. Testene står i
   prisområdet, og at det første område er et gæt ud fra regionen (eller det omtrentlige sted),
   Cloudflare oplyser for forbindelsen, både i værktøjet og på forsidens kort. Et nyt værktøj,
   der sender eller gemmer mere, skal skrives ind dér.
+- Startsæt-byggeren sender og gemmer ingenting: svarene bliver i siden. Dens købslinks er
+  reklamelinks som i guiderne, med samme oplysning over sættet, og et tryk tælles som i guiderne
+  efter et ja til statistik (`docs/indtjening.md`). Svarene følger ikke med.
 - Kommentarer og annoncepladsen vises under et værktøj, men ikke på oversigten
   (`src/lib/article-page.mjs`).
 - `llms.txt` har værktøjerne som eget afsnit (`SECTIONS` i `scripts/lib/llms-txt.mjs`).
@@ -418,7 +500,7 @@ Hele sektionen:
    `src/lib/seo/breadcrumbs.ts`, i `src/lib/article-page.mjs` og i `SECTIONS` i
    `scripts/lib/llms-txt.mjs`. Fjern kontrollen `/api/elpris` i `scripts/monitor/checks.mjs`
    (og dens linjer i testen), og afsnit 2.4 i privatlivspolitikken på begge sprog.
-4. Slet de tre testfiler `scripts/site-tools*.test.mjs`.
+4. Slet testfilerne `scripts/site-tools*.test.mjs`.
 5. Har siderne været udgivet, så send adresserne videre i `public/_redirects` (`docs/seo.md`).
 6. Fjern rækken om Energinet i `docs/oss.md` og afsnittene om værktøjer i `CONTENT-GUIDE.md`,
    `README.md`, `AGENTS.md`, `docs/designsystem.md` og `docs/overvaagning.md`.
