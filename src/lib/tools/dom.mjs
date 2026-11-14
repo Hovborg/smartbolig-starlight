@@ -40,6 +40,18 @@ export function show(element, visible) {
 }
 
 /**
+ * Marks a field right or wrong and shows its error text. The text is named as
+ * the field's description only while the field is wrong; a description that
+ * is hidden is still read out, so it must not be named on a field that is fine.
+ */
+export function setInvalid(input, error, invalid) {
+  input.setAttribute("aria-invalid", String(invalid));
+  show(error, invalid);
+  const others = (input.getAttribute("aria-describedby") ?? "").split(/\s+/).filter((id) => id && id !== error.id);
+  input.setAttribute("aria-describedby", [...(invalid ? [error.id] : []), ...others].join(" "));
+}
+
+/**
  * Wires a slider: paints the track up to the thumb and calls `onInput` with
  * the number, now and on every move. `describe` gives the words a screen
  * reader says for a value ("3 timer").

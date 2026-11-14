@@ -91,7 +91,7 @@ const areas = ["DK1", "DK2"] as const;
     <div class="sb-tool-field">
       <label class="sb-tool-field__label" for={`${id}-addon`}>{t.settings.addOn}</label>
       <div class="sb-tool-input">
-        <input type="text" inputmode="decimal" autocomplete="off" id={`${id}-addon`} data-part="addon" value="0" aria-describedby={`${id}-addon-error ${id}-addon-hint`} />
+        <input type="text" inputmode="decimal" autocomplete="off" id={`${id}-addon`} data-part="addon" value="0" aria-describedby={`${id}-addon-hint`} />
         <span class="sb-tool-input__unit" aria-hidden="true">{t.chart.unit}</span>
       </div>
       <p class="sb-tool-field__error" id={`${id}-addon-error`} data-part="addon-error" hidden>{t.settings.invalid}</p>

@@ -3,32 +3,26 @@
 // controls and writes the result into the page. Nothing is stored in the
 // browser; scripts/site-tools.test.mjs keeps it that way.
 
-import { bindRange, part, setText, show } from "./dom.mjs";
-import { fill, formatNumber, formatTime, parseDecimal } from "./format.mjs";
+import { bindRange, part, setInvalid, setText, show } from "./dom.mjs";
+import { dayKey, fill, formatDay, formatNumber, formatTime, parseDecimal } from "./format.mjs";
 import { createPriceChart } from "./price-chart-ui.mjs";
 import { priceCopy } from "./price-copy.mjs";
+import { fetchPrices, REFRESH_SECONDS } from "./price-data.mjs";
 import { drawTable } from "./price-table-dom.mjs";
 import { priceView } from "./price-view.mjs";
 import { STEP_SECONDS } from "./price-window.mjs";
 
-const ENDPOINT = "/api/elpris";
-const REFRESH_SECONDS = 600;
 const MAX_ADD_ON = 1000;
-
-const isPrices = (data) =>
-  (data?.area === "DK1" || data?.area === "DK2") &&
-  Array.isArray(data.points) &&
-  data.points.length > 0 &&
-  data.points.every((point) => Array.isArray(point) && Number.isFinite(point[0]) && Number.isFinite(point[1]));
 
 export function startPriceTool(root) {
   const lang = root.dataset.lang === "en" ? "en" : "da";
   const copy = priceCopy[lang];
   const $ = (name) => part(root, name);
-  const clock = () => Date.now() / 1000;
+  const state = { data: null, loadedAt: 0, vat: true, addOn: 0, runHours: Number($("run").value), request: null, timer: null };
+  // The device clock, put right when it is far from the server's (price-data.mjs).
+  const clock = () => Date.now() / 1000 + (state.data?.clockOffset ?? 0);
   const chart = createPriceChart(root, { lang, copy, clock });
   const areaRadios = [...root.querySelectorAll('input[name$="-area"]')];
-  const state = { data: null, loadedAt: 0, vat: true, addOn: 0, runHours: Number($("run").value), request: null };
   const runText = (hours) => fill(hours === 1 ? copy.window.one : copy.window.other, { n: hours });
 
   function render() {
@@ -43,13 +37,18 @@ export function startPriceTool(root) {
       $("level").dataset.level = view.now.level;
       setText($("level-text"), copy.level[view.now.level]);
     }
-    view.stats.forEach((stat, index) => {
-      setText($(`stat-${index}`), stat.value);
-      setText($(`stat-${index}-at`), stat.at);
-    });
+    // Three figures about today. With no hours of today left they are emptied,
+    // so yesterday's figures never stand under "today".
+    for (let index = 0; index < 3; index += 1) {
+      setText($(`stat-${index}`), view.stats[index]?.value ?? "–");
+      setText($(`stat-${index}-at`), view.stats[index]?.at ?? "");
+    }
     setText($("window-text"), view.windowText);
     show($("pending"), view.pending);
-    setText($("fetched"), fill(copy.fetched, { time: formatTime(Date.parse(state.data.fetched) / 1000) }));
+    // An old copy, shown while Energinet is down, says which day it is from.
+    const fetched = Date.parse(state.data.fetched) / 1000;
+    const text = dayKey(fetched) === dayKey(now) ? copy.fetched : copy.fetchedDay;
+    setText($("fetched"), fill(text, { time: formatTime(fetched), day: formatDay(fetched, lang) }));
     chart.draw(view);
     drawTable($("table"), { view, area: state.data.area, now, lang, copy });
   }
@@ -61,11 +60,10 @@ export function startPriceTool(root) {
     // A quiet refresh of the prices already shown does not dim them.
     if (!state.data || state.data.area !== area) root.dataset.state = "loading";
     try {
-      const response = await fetch(area ? `${ENDPOINT}?area=${area}` : ENDPOINT, { signal: request.signal });
-      const data = response.ok ? await response.json() : null;
-      if (!isPrices(data)) throw new Error("no prices");
-      state.data = data;
+      const data = (state.data = await fetchPrices(area, request.signal));
       state.loadedAt = clock();
+      // The clock may have been put right: the next quarter is counted again.
+      atNextQuarter();
       for (const radio of areaRadios) radio.checked = radio.value === data.area;
       setText($("area-hint"), data.areaGuessed ? copy.area.guessed : copy.area.hint);
     } catch {
@@ -85,7 +83,8 @@ export function startPriceTool(root) {
     else render();
   }
   function atNextQuarter() {
-    setTimeout(() => {
+    clearTimeout(state.timer);
+    state.timer = setTimeout(() => {
       refresh();
       atNextQuarter();
     }, (STEP_SECONDS - (clock() % STEP_SECONDS) + 1) * 1000);
@@ -102,8 +101,7 @@ export function startPriceTool(root) {
     const text = event.target.value.trim();
     const value = text === "" ? 0 : parseDecimal(text);
     const valid = value >= 0 && value <= MAX_ADD_ON;
-    event.target.setAttribute("aria-invalid", String(!valid));
-    show($("addon-error"), !valid);
+    setInvalid(event.target, $("addon-error"), !valid);
     if (!valid) return;
     state.addOn = value;
     render();

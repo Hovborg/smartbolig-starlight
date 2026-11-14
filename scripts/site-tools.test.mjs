@@ -8,6 +8,7 @@ import { sidebar } from "../config/sidebar/index.mjs";
 import toolsSidebar from "../config/sidebar/vaerktoejer.mjs";
 import { guideArt, guideSection } from "../src/lib/guide-art.mjs";
 import { CARD_COPY, TOOLS } from "../src/lib/tools/catalog.mjs";
+import { setInvalid } from "../src/lib/tools/dom.mjs";
 import * as format from "../src/lib/tools/format.mjs";
 import { POWER_DEFAULTS, POWER_PRESETS, powerCopy } from "../src/lib/tools/power-copy.mjs";
 import { costPerHour, powerCost, savingPerHourLess } from "../src/lib/tools/power-cost.mjs";
@@ -31,6 +32,10 @@ test("numbers, money and shares follow the language", () => {
     [`456${NBSP}kr.`, `38,00${NBSP}kr.`, `1,25${NBSP}kr.`, `60${NBSP}øre`, `0,25${NBSP}øre`, `0${NBSP}kr.`],
   );
   assert.equal(format.formatMoney(0.025, "en"), `2.5${NBSP}øre`);
+  // Just under a krone is a krone, not "100 øre"; just under zero is zero, not "-0,0".
+  assert.deepEqual([0.994, 0.995, 0.999].map((kroner) => format.formatMoney(kroner, "da")), [`99${NBSP}øre`, `1,00${NBSP}kr.`, `1,00${NBSP}kr.`]);
+  assert.equal(format.formatOre(-0.04, "da"), `0,0${NBSP}øre/kWh`);
+  assert.equal(format.formatOre(-0.05, "da"), `-0,1${NBSP}øre/kWh`);
   assert.equal(format.formatPercent(0.31, "da"), `31${NBSP}%`);
   assert.equal(format.formatPercent(0.31, "en"), "31%");
 });
@@ -51,8 +56,16 @@ test("a typed number may use a comma or a dot, and anything else is refused", ()
   assert.equal(format.parseDecimal("2,50"), 2.5);
   assert.equal(format.parseDecimal(" 2.50 "), 2.5);
   assert.equal(format.parseDecimal("95"), 95);
+  assert.equal(format.parseDecimal("1 500"), 1500);
+  // Three digits after the sign are a decimal when the number cannot be a thousand.
+  assert.equal(format.parseDecimal("0,500"), 0.5);
+  assert.equal(format.parseDecimal("1234,567"), 1234.567);
   for (const text of ["", "abc", "1.000,5", "2,5,0", "1e3", "∞", null, undefined]) {
     assert.ok(Number.isNaN(format.parseDecimal(text)), `${text} should not be a number`);
+  }
+  // "1.500" is 1500 to a Dane and 1.5 to others: refused, never guessed.
+  for (const text of ["1.000", "1,500", "1.500", "100.000", "100,000", "12,345", "2.000", "-1.500"]) {
+    assert.ok(Number.isNaN(format.parseDecimal(text)), `${text} could be a thousand times wrong`);
   }
   assert.equal(format.fill("Start kl. {time} {day}. {unknown}", { time: "02:15", day: "i nat" }), "Start kl. 02:15 i nat. {unknown}");
 });
@@ -135,4 +148,26 @@ test("the tools store nothing, write no HTML from data and never call Energinet 
     assert.doesNotMatch(source, /\son[a-z]+=["{]/, `${file} has an inline event handler`);
     assert.doesNotMatch(source, /api\.energidataservice\.dk/, `${file} calls Energinet`);
   }
+});
+
+test("an error text is named as the field's description only while the field is wrong", () => {
+  const attributes = new Map([["aria-describedby", "watts-hint"]]);
+  const input = { getAttribute: (name) => attributes.get(name) ?? null, setAttribute: (name, value) => attributes.set(name, value) };
+  const error = { id: "watts-error", hidden: true };
+  setInvalid(input, error, true);
+  assert.deepEqual([attributes.get("aria-invalid"), attributes.get("aria-describedby"), error.hidden], ["true", "watts-error watts-hint", false]);
+  setInvalid(input, error, true);
+  assert.equal(attributes.get("aria-describedby"), "watts-error watts-hint", "not named twice");
+  setInvalid(input, error, false);
+  assert.deepEqual([attributes.get("aria-invalid"), attributes.get("aria-describedby"), error.hidden], ["false", "watts-hint", true]);
+});
+
+test("the fields do not name a hidden error text, and the frame has one class attribute", async () => {
+  for (const file of ["PowerCost.astro", "PowerPrice.astro"]) {
+    const markup = await readFile(new URL(`src/components/tools/${file}`, root), "utf8");
+    assert.doesNotMatch(markup, /aria-describedby=\{`[^`]*-error/, file);
+  }
+  const frame = await readFile(new URL("src/components/tools/ToolFrame.astro", root), "utf8");
+  assert.match(frame, /class: scope, \.\.\.attributes \} = Astro\.props/);
+  assert.equal((frame.match(/<section[^>]*\sclass(:list)?=/g) ?? []).length, 1);
 });

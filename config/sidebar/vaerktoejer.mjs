@@ -15,7 +15,7 @@ export default {
       link: "/vaerktoejer/elpris/",
     },
     {
-      label: "Hvad koster det at have tændt?",
+      label: "Hvad koster det at have apparatet tændt?",
       translations: { en: "Cost of keeping it on" },
       link: "/vaerktoejer/stroemforbrug/",
     },

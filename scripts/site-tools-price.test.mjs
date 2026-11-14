@@ -74,6 +74,12 @@ test("price level: thirds of the values shown, and equal prices are medium", () 
   assert.equal(level(3.5, values), "mid");
   assert.equal(level(6, values), "high");
   assert.equal(level(5, [5, 5, 5, 5]), "mid");
+  // Many hours at one price: the lowest price shown is low and the highest is high.
+  assert.deepEqual([1, 5].map((value) => level(value, [1, 1, 1, 5])), ["low", "high"]);
+  assert.deepEqual([1, 5].map((value) => level(value, [1, 5, 5, 5])), ["low", "high"]);
+  assert.deepEqual([1, 3, 5].map((value) => level(value, [1, 3, 3, 3, 5])), ["low", "mid", "high"]);
+  const zeroNight = [...Array(10).fill(0), ...Array.from({ length: 14 }, (_, index) => 40 + index)];
+  assert.deepEqual([0, 45, 53].map((value) => level(value, zeroNight)), ["low", "mid", "high"]);
   assert.equal(level(1, [1, 2]), "mid");
   assert.equal(level(Number.NaN, values), "mid");
 });
@@ -111,6 +117,16 @@ test("view: the sentence about the cheapest run, in both languages", () => {
   );
   assert.equal(view({ now: at(13, 20) }).windowText, `Det er billigst at starte nu. Gennemsnit ${formatOre(toOre((11 * 200 + 1000) / 12), "da")} frem til kl. 16:15.`);
   assert.equal(view({ now: at(22), runHours: 4 }).windowText, "Der er ikke priser til 4 timer i træk endnu.");
+  // Against a price of zero or below, a share would pass 100 %: the difference is given in øre.
+  // Starting now (09:00 to 13:00) is two hours at 800 and two at -300: 31.25 øre with VAT.
+  const negative = flat(T0, 24, (hour) => (hour >= 11 && hour < 15 ? -300 : 800));
+  assert.equal(
+    view({ points: negative, runHours: 4 }).windowText,
+    `Start kl. 11:00 i dag. Slut kl. 15:00. Gennemsnit ${formatOre(-37.5, "da")}. Det er ${formatOre(31.25 + 37.5, "da")} lavere end at starte nu.`,
+  );
+  const fromZero = flat(T0, 24, (hour) => (hour >= 11 && hour < 15 ? -300 : 0));
+  assert.equal(view({ points: fromZero, runHours: 4 }).windowText.includes("%"), false);
+  assert.match(view({ points: fromZero, runHours: 4, lang: "en", copy: priceCopy.en }).windowText, /That is 18.8\u00a0øre\/kWh lower than starting now\.$/);
   assert.equal(view({ runHours: 1 }).window.end - view({ runHours: 1 }).window.start, HOUR);
 });
 

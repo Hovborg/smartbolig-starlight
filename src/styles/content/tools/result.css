@@ -37,14 +37,6 @@
   letter-spacing: 0;
 }
 
-.sb-tool-figure--small .sb-tool-figure__value {
-  font-size: var(--sb-text-h3);
-}
-
-.sb-tool-figure--small .sb-tool-figure__unit {
-  font-size: var(--sb-text-sm);
-}
-
 /* --- Small stats: a term above its number ------------------------------ */
 .sb-tool-stats {
   display: grid;

@@ -8,30 +8,28 @@ export const POWER_DEFAULTS = { watts: 100, hoursPerDay: 5, pricePerKwh: 2.5 };
 
 /**
  * Example chips. They are typical figures, not measurements. `hours` is set
- * for the two that are on, or averaged over, the whole day.
+ * for the one that is on the whole day; the others keep the visitor's hours.
  */
 export const POWER_PRESETS = [
   { id: "standby", watts: 1 },
   { id: "router", watts: 10, hours: 24 },
-  { id: "fridge", watts: 40, hours: 24 },
   { id: "gaming", watts: 300 },
   { id: "dehumidifier", watts: 250 },
 ];
 
 export const powerCopy = {
   da: {
-    title: "Hvad koster det at have tændt?",
+    title: "Hvad koster det at have apparatet tændt?",
     watts: {
       label: "Effekt i watt",
       hint: "Står på apparatets mærkeplade. En smart stikkontakt med måler viser det faktiske tal.",
-      invalid: "Skriv et tal fra 0 til 100.000.",
+      invalid: "Skriv et tal fra 0 til 100000 uden punktum eller komma som tusindtegn, for eksempel 1500.",
     },
     presets: {
       label: "Typiske eksempler",
-      hint: "Eksemplerne er typiske tal, ikke målinger. Router og køleskab sætter også tiden til 24 timer.",
+      hint: "Eksemplerne er typiske tal, ikke målinger. Routeren sætter også tiden til 24 timer.",
       standby: "Standby-tv 1 W",
       router: "Router 10 W",
-      fridge: "Køleskab 40 W i snit",
       gaming: "Gaming-pc 300 W",
       dehumidifier: "Affugter 250 W",
     },
@@ -57,14 +55,13 @@ export const powerCopy = {
     watts: {
       label: "Power in watts",
       hint: "It is printed on the appliance's rating plate. A smart plug with a meter shows the real figure.",
-      invalid: "Type a number from 0 to 100,000.",
+      invalid: "Type a number from 0 to 100000 without a thousands separator, for example 1500.",
     },
     presets: {
       label: "Typical examples",
-      hint: "The examples are typical figures, not measurements. Router and fridge also set the time to 24 hours.",
+      hint: "The examples are typical figures, not measurements. The router also sets the time to 24 hours.",
       standby: "TV on standby 1 W",
       router: "Router 10 W",
-      fridge: "Fridge 40 W on average",
       gaming: "Gaming PC 300 W",
       dehumidifier: "Dehumidifier 250 W",
     },

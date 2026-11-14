@@ -735,6 +735,21 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
     er rettet, så den ikke lover andet), og fem produkter har to id'er, til de rigtige
     adresser er hentet i Partner-Ads.
 
+### B59. Tekst i guidernes tegninger er mindst 22 enheder
+- Baggrund: efter første omtegning var teksten 18 enheder i en 640 enheder bred `viewBox`,
+  ca. 9 px i telefonens tekstspalte på 328 px. Det er under de 11 px, resten af siden bruger
+  som mindste tekst.
+- Valg: mindst 22 enheder (ca. 11 px) i alle 36 filer. Lange linjer brydes, kasser bliver
+  højere, og dele, der stod side om side, stables, så tegningerne bliver højere i stedet for
+  bredere. Reglen står i `docs/billeder.md` under "Diagrammer".
+- Fravalgt: en særlig, smallere tegning til telefoner (to filer pr. sprog at holde ens) og
+  vandret rulning (læseren mister overblikket over en ledningsføring).
+- LD2410-tegningen viser benene i printets rækkefølge (TX, RX, OUT, GND, VCC; Hi-Links manual
+  til HLK-LD2410C, V1.00, læst 2026-11-14), så ingen ledning krydser. OUT har ingen ledning;
+  det står under tegningen, fordi guidens kode ikke bruger benet.
+- Efter den uafhængige gennemgang: den stiplede stump fra OUT er fjernet (den lignede en løs
+  ledning), "bruges ikke" er flyttet ud af ESP32-kassen, og den engelske Proxmox-tegning
+  skriver "USB passthrough" i to ord som guiden.
 ## B61. Værktøjer: egen sektion, elpris og strømforbrug (2026-11-14)
 
 - Valgt: en sektion `/vaerktoejer/` med sit eget punkt i topbjælken, og en fælles ramme
@@ -762,3 +777,62 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Kontrol: `npm run site:test` (28 tests for værktøjerne), bygget side i headless Chrome i
   begge temaer ved 320, 375 og 1440 px, og ét rigtigt kald til Energinet gennem endpointets
   kode. Ikke set: endpointet hos Cloudflare før udgivelsen.
+
+### B61, tilføjelse efter den uafhængige gennemgang (2026-11-14)
+
+- Valgt: et tal med ét tegn fulgt af præcis tre cifre ("1.500", "1,500") afvises i stedet for
+  at blive gættet. Begrundelse: gættet kan være tusind gange forkert, og siden læses af både
+  danskere og andre. Fravalgt: at læse efter sidens sprog; en dansker på den engelske side
+  ville få det forkerte tal uden at se det.
+- Valgt: samtidige kald styres af tidspunkter i Worker-instansens hukommelse, ikke af et delt
+  løfte. Begrundelse: Cloudflare kan afbryde det kald, der ejer løftet, og de andre ville
+  hænge. Et tidspunkt udløber af sig selv.
+- Valgt: gæt på prisområde efter længde- og breddegrad, når regionskoden er ukendt.
+  Begrundelse: Hovedstaden og Sjælland lægges efter planen sammen 1. januar 2027, og den nye
+  kode kendes ikke. Uden reserven ville alle på Sjælland få Vestdanmarks priser den dag,
+  Cloudflare skifter kode.
+- Valgt: enhedens ur rettes først, når det er over et kvarter fra serverens. Begrundelse:
+  browseren må gemme svaret i ti minutter, så en mindre forskel kan skyldes svarets alder.
+- Valgt: eksemplet "Køleskab 40 W i snit" er fjernet. Begrundelse: tallet havde ingen kilde og
+  er højt for et nyt køleskab.
+- Valgt: forsidens sektion (B63) udgives sammen med værktøjerne. Begrundelse: den viser de
+  samme tal gennem den samme kode, og rettelserne ovenfor gælder begge steder.
+
+### B61, tilføjelse efter den opfølgende gennemgang (2026-11-14)
+
+- Valgt: kaldet til Energinet gives til `waitUntil` og har en hård tidsgrænse på 8 sekunder,
+  som ikke afhænger af, at `fetch` reagerer på afbrydelsen. Begrundelse: forlader læseren siden,
+  skal svaret stadig gemmes til den næste, og et kald må aldrig hænge. Tidspunktet i
+  hukommelsen (se ovenfor) er stadig den sidste sikring.
+- Valgt: et svar, der slutter før det kvarter, vi er i, gemmes ikke. Begrundelse: det ville
+  erstatte en kopi, der stadig har prisen for nu, med en, der ikke kan vises.
+- Valgt: forsidens kort sammenligner prisen med dagens timer, mens værktøjet sammenligner med
+  alle kendte timer. Begrundelse: kortet tegner kun i dag, og "lav" ved siden af dagens
+  højeste søjle ville se forkert ud. Fravalgt: samme regel begge steder; i værktøjet er
+  morgendagen med i grafen, og dér er sammenligningen med begge dage den rigtige.
+- Valgt: pladsen til kortets tal holdes fra siden åbnes (`data-state="loading"`). Begrundelse:
+  ellers flytter resten af forsiden sig, når priserne kommer. Uden JavaScript tages pladsen
+  ikke, og teksten står der.
+- Kendt og ladt være: søjler for timer, der er gået, har lav kontrast, og første svar fra
+  browserens cache kan give et ur, der er op til ti minutter bagud (`docs/vaerktoejer.md`).
+
+## B63. Forsiden: værktøjer med elprisen lige nu (2026-11-14)
+
+- Valgt: en sektion på forsiden efter de tre etaper med et kort, der viser elprisen i dette
+  kvarter, dagens timer og de billigste tre timer i træk, og en række pr. værktøj.
+  Begrundelse: forsiden skal vise noget, der er sandt lige nu, og som læseren kan bruge med
+  det samme; værktøjerne er det, der adskiller siden fra en samling guides.
+- Valgt: samme regnestykker og samme hentning som elprisværktøjet (`price-view.mjs`,
+  `price-data.mjs`). Det samme ét sted: `isPrices` og kaldet til `/api/elpris` er flyttet ud
+  af `price-ui.mjs`.
+- Valgt: koden hentes først, når kortet er 600 px fra skærmen (IntersectionObserver og
+  dynamisk import), så forsidens første visning ikke bliver tungere.
+- Valgt: ingen tal i den byggede side og ingen opdigtede tal ved fejl. Kortet viser da en
+  tekst og et link til værktøjet.
+- Valgt: søjlerne står på nul, ikke på dagens laveste pris. En afkortet akse får små
+  forskelle til at se store ud.
+- Fravalgt: prisen i heroen. Heroen er husets; en pris dér ville konkurrere med 3D-huset og
+  flytte indhold, når tallet kommer.
+- Kontrol: `npm run site:test` (8 nye tests), bygget side i headless Chrome med et optaget
+  svar fra Energinet gennem endpointets egen kode: mørkt og lyst tema, 390, 768 og 1440 px,
+  dansk og engelsk, og med en fejl fra Energinet. Ikke set: kortet mod det levende endpoint.

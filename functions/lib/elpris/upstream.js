@@ -21,6 +21,8 @@ export const UPSTREAM_URL = `https://api.energidataservice.dk/dataset/DayAheadPr
 
 // Day-ahead prices are capped far below this; a larger number is a fault.
 const MAX_ABS_PRICE = 100_000;
+// 392 rows are about 40,000 characters. A much longer answer is not the prices.
+const MAX_BODY_CHARS = 500_000;
 
 /**
  * The rows of one area as [[epoch seconds, DKK per MWh with 2 decimals], ...].
@@ -43,15 +45,11 @@ export function shapePoints(records, area) {
   return points;
 }
 
-/**
- * { DK1: points, DK2: points } from one upstream call. An area with too few
- * good rows is left out. Throws when the call fails or times out; the caller
- * must never pass the error text on to a visitor.
- */
-export async function fetchPrices({ fetch: fetcher = fetch, timeoutMs = UPSTREAM_TIMEOUT_MS } = {}) {
+/** One upstream answer as { DK1: points, DK2: points }. */
+async function readAreas(fetcher, signal) {
   const response = await fetcher(UPSTREAM_URL, {
     headers: { accept: "application/json", "user-agent": "smartbolig.net elpris (+https://smartbolig.net)" },
-    signal: AbortSignal.timeout(timeoutMs),
+    signal,
   });
   if (!response.ok) {
     await response.body?.cancel();
@@ -59,11 +57,39 @@ export async function fetchPrices({ fetch: fetcher = fetch, timeoutMs = UPSTREAM
     error.name = `UpstreamStatus${response.status}`;
     throw error;
   }
-  const records = (await response.json())?.records;
+  const text = await response.text();
+  if (text.length > MAX_BODY_CHARS) throw Object.assign(new Error("upstream body"), { name: "UpstreamTooLarge" });
+  const records = JSON.parse(text)?.records;
   const areas = {};
   for (const area of AREAS) {
     const points = shapePoints(records, area);
     if (points.length >= MIN_POINTS) areas[area] = points;
   }
   return areas;
+}
+
+/**
+ * { DK1: points, DK2: points } from one upstream call. An area with too few
+ * good rows is left out. Throws when the call fails or times out; the caller
+ * must never pass the error text on to a visitor.
+ */
+export async function fetchPrices({ fetch: fetcher = fetch, timeoutMs = UPSTREAM_TIMEOUT_MS } = {}) {
+  const abort = new AbortController();
+  let timer;
+  // The call ends when the time is up, also when a fetch does not answer its signal.
+  const timeUp = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      const error = new DOMException("upstream timeout", "TimeoutError");
+      abort.abort(error);
+      reject(error);
+    }, timeoutMs);
+  });
+  const reading = readAreas(fetcher, abort.signal);
+  // When the time runs out first, no one waits for a later fault of the call itself.
+  reading.catch(() => {});
+  try {
+    return await Promise.race([reading, timeUp]);
+  } finally {
+    clearTimeout(timer);
+  }
 }

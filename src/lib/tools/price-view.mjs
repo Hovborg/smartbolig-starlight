@@ -37,9 +37,16 @@ export function windowText({ points, now, minutes, price, lang, copy }) {
   ];
   // Compared with starting now, when the known prices reach that far.
   const fromNow = current ? windowAverage(points, current[0], minutes) : null;
-  if (fromNow !== null && price(fromNow) > 0) {
-    const share = 1 - price(best.average) / price(fromNow);
-    if (share >= 0.005) parts.push(fill(copy.window.saving, { share: formatPercent(share, lang) }));
+  if (fromNow !== null) {
+    const [cheapest, startingNow] = [price(best.average), price(fromNow)];
+    // A share only says something between two prices above zero: against a
+    // negative price it passes 100 %. Otherwise the difference is given in øre.
+    if (cheapest > 0 && startingNow > 0) {
+      const share = 1 - cheapest / startingNow;
+      if (share >= 0.005) parts.push(fill(copy.window.saving, { share: formatPercent(share, lang) }));
+    } else if (startingNow - cheapest >= 0.05) {
+      parts.push(fill(copy.window.savingOre, { amount: formatOre(startingNow - cheapest, lang) }));
+    }
   }
   return { window: best, text: parts.join(" ") };
 }
@@ -61,14 +68,15 @@ function daysOf(hours, now, lang, copy) {
 /**
  * `points` are the quarters from /api/elpris, `now` is epoch seconds.
  * `vat` and `addOn` are the visitor's settings, `runHours` the length of the
- * run to find.
+ * run to find. The price level is compared with every known hour, or with
+ * today's hours only when `levelOver` is "today".
  */
-export function priceView({ points, area, now, vat = true, addOn = 0, runHours = 3, lang = "da", copy }) {
+export function priceView({ points, area, now, vat = true, addOn = 0, runHours = 3, lang = "da", copy, levelOver = "all" }) {
   const price = (raw) => toOre(raw, { vat, addOn });
   const hours = hourly(points).map((hour) => ({ start: hour.start, value: price(hour.value), ...hourSpan(hour.start) }));
   const days = daysOf(hours, now, lang, copy);
   const today = hours.filter((hour) => dayKey(hour.start) === dayKey(now));
-  const values = hours.map((hour) => hour.value);
+  const values = (levelOver === "today" ? today : hours).map((hour) => hour.value);
 
   const current = currentPoint(points, now);
   const nowValue = current ? price(current[1]) : null;
@@ -102,7 +110,7 @@ export function priceView({ points, area, now, vat = true, addOn = 0, runHours =
     days,
     window: run.window,
     windowText: run.text,
-    // Tomorrow's prices are published around 13:00; before that only today is known.
+    // Tomorrow's prices are published between 13:00 and 14:00; before that only today is known.
     pending: !days.some((day) => day.key > dayKey(now)),
     summary,
   };

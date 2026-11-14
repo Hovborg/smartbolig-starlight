@@ -21,7 +21,7 @@ const t = powerCopy[lang];
     <div class="sb-tool-field">
       <label class="sb-tool-field__label" for={`${id}-watts`}>{t.watts.label}</label>
       <div class="sb-tool-input">
-        <input type="text" inputmode="decimal" autocomplete="off" id={`${id}-watts`} data-part="watts" value={String(POWER_DEFAULTS.watts)} aria-describedby={`${id}-watts-error ${id}-watts-hint`} />
+        <input type="text" inputmode="decimal" autocomplete="off" id={`${id}-watts`} data-part="watts" value={String(POWER_DEFAULTS.watts)} aria-describedby={`${id}-watts-hint`} />
         <span class="sb-tool-input__unit" aria-hidden="true">W</span>
       </div>
       <p class="sb-tool-field__error" id={`${id}-watts-error`} data-part="watts-error" hidden>{t.watts.invalid}</p>
@@ -54,7 +54,7 @@ const t = powerCopy[lang];
     <div class="sb-tool-field">
       <label class="sb-tool-field__label" for={`${id}-price`}>{t.price.label}</label>
       <div class="sb-tool-input">
-        <input type="text" inputmode="decimal" autocomplete="off" id={`${id}-price`} data-part="price" value={formatNumber(POWER_DEFAULTS.pricePerKwh, lang, 2)} aria-describedby={`${id}-price-error ${id}-price-hint`} />
+        <input type="text" inputmode="decimal" autocomplete="off" id={`${id}-price`} data-part="price" value={formatNumber(POWER_DEFAULTS.pricePerKwh, lang, 2)} aria-describedby={`${id}-price-hint`} />
         <span class="sb-tool-input__unit" aria-hidden="true">{t.price.unit}</span>
       </div>
       <p class="sb-tool-field__error" id={`${id}-price-error`} data-part="price-error" hidden>{t.price.invalid}</p>
