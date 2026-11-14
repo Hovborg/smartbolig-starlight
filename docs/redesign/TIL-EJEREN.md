@@ -29,7 +29,12 @@ Sidst opdateret: 2026-11-14.
 6. **OpenAI-nyheder.** OpenAI's artikelsider svarer 403 til robotter. Kun korte resuméer kan
    hentes, og de er for tynde til faktatjekket. Det omgås ikke.
 
+7. **Store opdateringer flettes ikke af sig selv.** Små opdateringer af pakker kommer på
+   siden uden dig. En ny hovedversion af en pakke og opdateringer af GitHub Actions bliver
+   liggende som åbne pull requests, til nogen ser på dem. Siden virker uden dem. Fremgangsmåde:
+   `docs/opdateringer.md`.
+
 ## Rester fra den gamle nyhedskørsel
 
-7. **Gamle filer fra den tidligere kørsel.** Den efterlod kørselsmapper og en launcher uden
+8. **Gamle filer fra den tidligere kørsel.** Den efterlod kørselsmapper og en launcher uden
    for repoet. De bruges ikke længere, og opgaven er slået fra. Sig til, hvis de skal slettes.

@@ -1,29 +1,67 @@
 name: Dependabot auto-merge
 
-# Enables auto-merge for Dependabot minor/patch PRs. The PR still merges only
-# when the required checks (the "deploy" job) pass. Plain pull_request trigger:
-# no PR code is checked out here, and no pull_request_target is used.
+# Merges Dependabot's minor and patch updates of npm packages on their own,
+# once the pull request's "deploy" check (every gate in deploy.yml) has passed
+# on the same commit. Major updates and updates of GitHub Actions stay open
+# for a human. How it works and how to switch it off: docs/opdateringer.md.
+#
+# main has no branch protection, because the daily news workflow pushes to it.
+# GitHub's own auto-merge would therefore merge at once, so this job waits for
+# the check itself. Plain pull_request trigger: no code from the pull request
+# is checked out or run here.
 on: pull_request
 
 permissions: {}
+
+concurrency:
+  group: dependabot-automerge-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   automerge:
     if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'Hovborg/smartbolig-starlight'
     runs-on: ubuntu-latest
+    timeout-minutes: 50
     permissions:
       contents: write
       pull-requests: write
+      checks: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
     steps:
       - name: Read Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ github.token }}
 
-      - name: Enable auto-merge for minor and patch updates
-        if: steps.metadata.outputs.update-type == 'version-update:semver-minor' || steps.metadata.outputs.update-type == 'version-update:semver-patch'
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh pr merge --auto --squash "$PR_URL"
+      # The check named "deploy" is the job in deploy.yml that runs for this
+      # pull request. Anything but a clean pass leaves the pull request open.
+      - name: Wait for the deploy check on this commit
+        id: gate
+        if: >-
+          steps.metadata.outputs.package-ecosystem == 'npm_and_yarn' &&
+          (steps.metadata.outputs.update-type == 'version-update:semver-minor' ||
+           steps.metadata.outputs.update-type == 'version-update:semver-patch')
+        run: |
+          for attempt in $(seq 1 120); do
+            state="$(gh api "repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA/check-runs?check_name=deploy" --jq '
+              [.check_runs[] | select(.app.slug == "github-actions")]
+              | if length == 0 then "missing"
+                elif any(.status != "completed") then "running"
+                elif all(.conclusion == "success") then "passed"
+                else "failed" end' || echo "unknown")"
+            case "$state" in
+              passed) echo "passed=true" >> "$GITHUB_OUTPUT"; exit 0 ;;
+              failed) echo "::notice::The deploy check did not pass. The pull request stays open."; exit 0 ;;
+            esac
+            sleep 20
+          done
+          echo "::notice::The deploy check did not finish in 40 minutes. The pull request stays open."
+
+      # --match-head-commit: merge only the commit the check ran on.
+      - name: Merge
+        if: steps.gate.outputs.passed == 'true'
+        run: gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --squash --match-head-commit "$HEAD_SHA"

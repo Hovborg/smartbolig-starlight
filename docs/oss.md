@@ -35,6 +35,18 @@ kontrol, før de tages i brug (se nederst).
 | `@astrojs/mdx` | 7.0.8 | MIT | MDX-sider |
 | `@astrojs/sitemap` | 3.7.3 | MIT | Sitemap |
 
+## GitHub Actions
+
+Bruges i `.github/workflows/`. Hver er låst til en commit (ikke et versionsnavn), så
+indholdet ikke kan skiftes ud bagefter.
+
+| Action | Version | Licens | Bruges til |
+|---|---|---|---|
+| `actions/checkout` | v6 | MIT | Henter repoet |
+| `actions/setup-node` | v6 | MIT | Node.js |
+| `actions/setup-python` | v6 | MIT | Python til indholdskontrollen |
+| `dependabot/fetch-metadata` | v3.1.0 | MIT | Læser, hvor stor en opdatering Dependabot foreslår (se `docs/opdateringer.md`) |
+
 ## Kode, der hentes udefra i browseren
 
 Dette er ikke pakker i repoet, men scripts fra andre. De er nævnt her, fordi de

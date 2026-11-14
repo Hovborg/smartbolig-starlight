@@ -366,3 +366,21 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Punktet om et gammelt adgangstoken er taget ud af den offentlige ejerliste og gives til
   ejeren direkte.
 - Udskudt med begrundelse står i STATUS.md under "Udskudt fra designgennemgangen".
+
+### B51. Opdaterede pakker og automatiske opdateringer
+- Fund (2026-11-14): `npm audit` viste 4 fund (3 moderate, 1 lav) i Astro,
+  `postcss-selector-parser`, `smol-toml` og `fast-xml-parser`. Ingen var høje, så porten var
+  grøn, men de er lukket nu: Astro 7.2.8 til 7.4.7 med `@astrojs/markdown-remark` 7.3.0.
+- Undtagelse fra reglen om 14 dage gamle versioner: Astro 7.4.7 (9 dage) og
+  `fast-xml-parser` 5.12.0 (11 dage) lukker et sikkerhedsfund, og der findes ingen ældre
+  rettet version. Nogle pakker, Astro 7.4.7 selv kræver, er også yngre end 14 dage.
+- Automatiske opdateringer: Dependabot hver mandag med 14 dages ventetid. Små opdateringer
+  af npm-pakker flettes af et job, der selv venter på `deploy`-kontrollen.
+- Fravalgt: GitHubs egen auto-fletning. Den kræver grenbeskyttelse på `main`, og så kan
+  nyhedskørslen ikke længere pushe dagens udgave. Uden grenbeskyttelse fletter den straks,
+  før kontrollerne er kørt.
+- Fravalgt: at flette GitHub Actions og major-opdateringer automatisk. Actions kører med
+  adgang til Cloudflare-nøglen, og en ny hovedversion kan ændre opførsel, testene ikke fanger.
+- En flettet opdatering udgives ikke med det samme (en fletning foretaget af GitHubs
+  workflow-nøgle starter ingen ny kørsel). Den kommer med næste udgivelse, senest næste
+  nyhedskørsel, hvor alle kontroller kører igen. Det er godt nok for byggeværktøjer.
