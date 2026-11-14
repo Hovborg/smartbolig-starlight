@@ -103,8 +103,11 @@ uden commit og udgivelse.
 Kommandoerne køres i en klon af repoet. Andre steder: tilføj
 `--repo Hovborg/smartbolig-starlight`.
 
-1. Se dagens kørsler. `event` er `schedule` eller `workflow_dispatch` (manuel), og titlen
-   viser tidspunktet. Hedder en kørsel kun "AI News" (kørsler før 2026-11-14 kl. 12:36 UTC),
+1. Se dagens kørsler. `event` siger, hvem der startede kørslen: `schedule` er tidsplanen,
+   `workflow_dispatch` er en person (commit'et med udgaven er altid skrevet af
+   `github-actions[bot]`, så det viser det ikke). Hvem personen var:
+   `gh api repos/Hovborg/smartbolig-starlight/actions/runs/<kørsel> --jq .triggering_actor.login`.
+   Titlen viser tidspunktet. Hedder en kørsel kun "AI News" (kørsler før 2026-11-14 kl. 12:36 UTC),
    så brug `createdAt`: en planlagt kørsel starter fra få minutter til en halv time efter sit
    tidspunkt.
 
@@ -129,9 +132,11 @@ Kommandoerne køres i en klon af repoet. Andre steder: tilføj
 | Det ser du | Det betyder |
 |---|---|
 | `slot` grøn, `publish` sprunget over, "Not writing: run … already covered …" | En reserve, der holdt sig i ro, fordi den kørsel, den står for, startede. Normalt |
-| `publish` grøn, "Nothing published" og en af grundene i tabellen ovenfor | En dag uden udgave, eller udgaven fandtes. Normalt |
+| `publish` grøn, "Nothing published" og en grund: "already exists" (udgaven fandtes), "3 are required" (for få historier bestod), "No novel candidate" (ingen nye kilder) | En dag uden ny udgave. Normalt; se tabellen ovenfor |
 | `publish` grøn, "**Published** … fact-checked stories", `deploy` grøn | Dagens udgave er skrevet og udgivet |
-| `publish` grøn, "**Dry run: written, not published.**", `deploy` sprunget over | En prøvekørsel (`dry_run`). Intet er committet. En prøvekørsel fra før 2026-11-14 skriver "Published" som en rigtig; se på `deploy` |
+| `publish` grøn, "**Dry run: written, not published.**", `deploy` sprunget over | En prøvekørsel (`dry_run`). Intet er committet. En prøvekørsel fra før 2026-11-15 har ikke den linje: den kendes på `DRY_RUN: true` i loggens `env`-linjer og på, at `deploy` er sprunget over |
+| `slot` rød | Spørgsmålet til GitHub fejlede. Kørslen skriver alligevel; se resten af jobbene |
+| `watch` rød | Trinnet, der åbner eller lukker sagen `ai-news-stalled`, fejlede. Udgivelsen er ikke berørt; læs jobbets log |
 | `publish` rød (kørslen er stadig grøn), "**Failed.**" i rapporten | Et trin fejlede. Find trinnet i tabellen ovenfor |
 | Ingen kørsel for et tidspunkt | GitHub startede den ikke. Se nedenfor |
 

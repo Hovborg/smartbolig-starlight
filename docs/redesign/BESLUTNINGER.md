@@ -1041,5 +1041,10 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   (`--sb-brand-a`, som nu følger accentfarven), at en prøvekørsel af nyhederne skrev
   "Published" som en rigtig (den skriver nu "Dry run"), og at en kørsel uden tidspunkt i
   titlen skal placeres ud fra sit starttidspunkt.
+- Tredje runde (design og nyheder, nye opgaver): designlæseren fandt, at den nye tabel over
+  hjørnetrin var forkert (Starlights kort i en guides tekst bruger `-lg`, ikke `-md`), og at
+  den mørke sidefarve står fem steder mere, hvoraf to ikke blev holdt af en test. Tabellen er
+  rettet, og testen holder nu alle kopierne. Nyhedslæseren manglede, hvordan man ser, hvem
+  der startede en kørsel, og rækker for et rødt `slot`- og `watch`-job.
 - Indholdsguiden beskrev en `200`-regel for "pæne" engelske adresser. Den bruges ikke (gamle
   engelske adresser sendes videre med 301), og afsnittet er skrevet om.
