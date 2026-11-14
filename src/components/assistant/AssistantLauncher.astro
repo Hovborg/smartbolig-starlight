@@ -129,7 +129,9 @@ const { t } = Astro.props;
     }
   }
 
-  @media (max-width: 360px) {
+  /* On phones the button is the icon alone, so it covers as little of the page
+     as possible. Its name for assistive tech is the aria-label. */
+  @media (max-width: 640px) {
     .smartbolig-ai__launcher {
       min-width: 58px;
       padding: 0.42rem;

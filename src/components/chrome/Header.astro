@@ -123,6 +123,8 @@ const otherLabel = locale === "da" ? "Read this page in English" : "Læs denne s
       flex: 1 0 100%;
       overflow-x: auto;
       scrollbar-width: none;
+      /* The row fades out at the end to show that it scrolls. */
+      mask-image: linear-gradient(to right, #000 calc(100% - 2.5rem), transparent);
     }
     :global(html:not([data-has-sidebar])) .sb-header__nav a {
       padding-block: 0.6rem;
