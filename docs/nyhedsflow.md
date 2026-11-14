@@ -9,13 +9,22 @@ sprogsider, nyhedsoversigten, sitemap og RSS med dagens udgave. En prøvekørsel
 (`dry_run`) samme dag bestod også (4 historier, 10 kald, ca. 2.800 neurons).
 Relayets dagsspærre blev afprøvet 2026-11-13 mod den udrullede Worker (kald
 afvist med `daily_budget_exhausted`).
-Ikke kontrolleret endnu: en planlagt kørsel (de to første var startet manuelt)
-og tre dages drift i træk.
+Den første planlagte kørsel startede af sig selv 2026-11-14 kl. 11:43 UTC (seks minutter efter
+planen) og lykkedes; dagens udgave fandtes allerede, så den udgav ikke noget nyt.
+Ikke kontrolleret endnu: en planlagt kørsel, der selv udgiver en udgave, en reservekørsel, og
+tre dages drift i træk.
 
 ## Hvad sker der hver dag
 
 Workflowet `.github/workflows/ai-news.yml` kører kl. 04:37 og 11:37 UTC.
 Den anden kørsel stopper med det samme, hvis dagens udgave findes.
+
+Hver af de to har en reserve nogle timer senere (08:37 og 14:37 UTC), fordi GitHub kan
+springe en planlagt kørsel over. Jobbet `slot` (`scripts/ai-news-slot.mjs`) spørger GitHub,
+hvilke planlagte kørsler der er startet i dag. Er kørslen, reserven står for, startet, skriver
+reserven intet: en dag uden nok historier koster altså ikke et ekstra forsøg. Kan listen ikke
+læses, skriver kørslen; en mistet dag er værre end et ekstra forsøg. En manuel kørsel skriver
+altid. Kørslens titel viser, hvilken tidslinje der startede den ("AI News: 37 4 * * *").
 
 1. **Hent kilder.** `scripts/ai-news-sources.mjs` har listen over officielle kilder.
    Al hentning går gennem `fetchPublicText` (værtskontrol pr. hop, fastlåst adresse,
@@ -45,7 +54,8 @@ Den anden kørsel stopper med det samme, hvis dagens udgave findes.
    Et kald fra nyhedsworkflowet udgiver kun, når den kontrol har sagt ja.
 8. **Overvågning.** Jobbet `watch` åbner én GitHub-sag, når nyeste udgave er
    3 dage gammel, og lukker den igen, når der udgives. Sagen åbnes kun af den
-   sene kørsel (11:37 UTC) eller en manuel kørsel; lukning sker i alle kørsler.
+   sene kørsel (11:37 UTC), dens reserve (14:37 UTC) eller en manuel kørsel; lukning
+   sker i alle kørsler.
 
 En dag uden nok kontrollerede historier er en vellykket kørsel, der intet udgiver.
 Den blokerer ikke næste dag: der gemmes ingen tilstand mellem kørsler.
@@ -257,10 +267,13 @@ ikke kravene.
 
 - OpenAI's artikelsider svarer 403 til robotter. Kun korte feed-resuméer er
   tilgængelige, og de falder for kravet om 240 tegn. Det omgås ikke.
-- GitHub kan forsinke eller springe planlagte kørsler over. Derfor to tidspunkter.
+- GitHub kan forsinke eller springe planlagte kørsler over. Derfor to tidspunkter, hver
+  med en reserve nogle timer senere. Reserverne hjælper ikke, hvis GitHub slet ikke starter
+  planlagte kørsler i repoet; så skal workflowet startes udefra (`docs/redesign/TIL-EJEREN.md`, punkt 10).
 - Beskeden om, at udgivelsen er gået i stå, sendes af `watch`-jobbet i samme
-  workflow. Starter workflowet slet ikke, kommer der ingen besked. En uafhængig
-  vagt, der læser den udgivne side, er planlagt (fase 6 i `docs/redesign/PLAN.md`).
+  workflow. Starter workflowet slet ikke, kommer der ingen besked derfra. Sidevagten
+  (`docs/overvaagning.md`) læser den udgivne side uafhængigt og åbner en sag, når nyeste
+  udgave er over 84 timer gammel.
 - Efter udgivelsen kontrolleres kun, at siden svarer (404-selvhelingen). At begge
   sprog og begge oversigter viser udgaven, kontrolleres ikke automatisk endnu.
 
