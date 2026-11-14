@@ -34,7 +34,8 @@ Sidst opdateret: 2026-11-14.
    hovedversion af en pakke, et nyt midterste tal for `@astrojs/starlight`, `three`, `sharp`
    og `esbuild` (fx 0.41 til 0.42), og opdateringer af GitHub Actions. Siden virker uden dem.
    Den første, du vil se, er Starlight 0.42: den kræver en ændring af mobilmenuen først.
-   Fremgangsmåde: `docs/opdateringer.md`.
+   Så længe den ligger åben, får Starlight heller ingen små rettelser (sikkerhedsrettelser
+   kommer stadig). Fremgangsmåde: `docs/opdateringer.md`.
 
 ## Rester fra den gamle nyhedskørsel
 

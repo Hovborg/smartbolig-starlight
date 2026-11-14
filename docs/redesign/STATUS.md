@@ -25,7 +25,9 @@ Sidst opdateret: 2026-11-14.
 - **Afhængigheder og automatiske opdateringer (B51):** Astro 7.4.7, `npm audit` uden fund,
   Dependabot med 14 dages ventetid og auto-fletning af små npm-opdateringer
   (`docs/opdateringer.md`). Dependabots advarsler og sikkerhedsrettelser er slået til i
-  repoet. Ikke set endnu: den første rigtige pull request fra Dependabot gennem
+  repoet, og flettede grene slettes af repo-indstillingen. To uafhængige gennemgange;
+  reglerne afprøves af `scripts/site-dependabot.test.mjs`. Næste skridt her: opgradér
+  Starlight til 0.42 i hånden (mobilmenu-knappen), så pakken igen får rettelser. Ikke set endnu: den første rigtige pull request fra Dependabot gennem
   auto-fletningen (se efter i ugen fra 2026-11-14, og ret da "Ikke kontrolleret endnu").
 
 ## I gang

@@ -5,7 +5,11 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 5
+      # UTC. Well clear of the news runs (04:37 and 11:37 UTC), so an automatic
+      # merge does not land between a news push and its deploy.
+      time: "07:00"
+    # The updates that wait for a human stay open; leave room for the rest.
+    open-pull-requests-limit: 10
     cooldown:
       default-days: 14
     groups:
@@ -32,7 +36,11 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 5
+      # UTC. Well clear of the news runs (04:37 and 11:37 UTC), so an automatic
+      # merge does not land between a news push and its deploy.
+      time: "07:00"
+    # The updates that wait for a human stay open; leave room for the rest.
+    open-pull-requests-limit: 10
     cooldown:
       default-days: 14
     groups:

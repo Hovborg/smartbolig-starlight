@@ -403,5 +403,16 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   Accepteret risiko: også npm-pakker kører i job med Cloudflare-nøglen; for små
   opdateringer er værnet ventetiden, lockfilens integritetskontrol og `deploy`.
 - En flettet opdatering udgives ikke med det samme (en fletning foretaget af GitHubs
-  workflow-nøgle starter ingen udgivelse). Den kommer med næste udgivelse: næste ændring på
-  `main` eller næste nyhedskørsel, der udgiver en udgave. Alle kontroller kører igen først.
+  workflow-nøgle starter ingen udgivelse). Den kommer med næste udgivelse: næste push fra et
+  menneske til `main` eller næste nyhedskørsel, der udgiver en udgave. Alle kontroller kører
+  igen først.
+- Anden gennemgang (uafhængig model, 2026-11-14) fandt intet blokerende og fem ting, der er
+  rettet: (1) flettejobbet stolede på, hvad `fetch-metadata` svarede om økosystemet, og en
+  pull request, der opdaterer den Action, bestemmer selv svaret; nu læser jobbet grenens
+  navn og de ændrede filer fra GitHub. (2) En rettelse uden læsbart versionsnummer slap
+  forbi 0.0.x-reglen; nu tæller den som stor. (3) Fejlede sletningen af grenen, kørte
+  trinnet efter fletningen ikke; grenen slettes nu af repo-indstillingen. (4) En
+  kontrolkørsel kunne skubbe en ventende udgivelse ud af køen; den har nu sin egen kø i
+  `deploy.yml`, og Dependabot har et fast tidspunkt væk fra nyhedskørslerne. (5) En pakke
+  under version 1 får ingen rettelser, mens en nyere minor venter; det står nu i
+  `docs/opdateringer.md`. Reglerne afprøves af `scripts/site-dependabot.test.mjs`.

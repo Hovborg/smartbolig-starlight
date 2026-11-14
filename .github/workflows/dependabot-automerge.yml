@@ -3,8 +3,9 @@ name: Dependabot auto-merge
 # Merges Dependabot's small updates of npm packages on their own, once the
 # pull request's "deploy" check (every gate in deploy.yml) has passed on the
 # same commit. Small means a patch, or a minor of a package that has reached
-# version 1. Major updates, minor updates of 0.x packages (they may break)
-# and updates of GitHub Actions stay open for a human.
+# version 1. These stay open for a human: major updates, minor updates of 0.x
+# packages and patches of 0.0.x packages (they may break), and updates of
+# GitHub Actions.
 # How it works and how to switch it off: docs/opdateringer.md.
 #
 # main has no branch protection, because the daily news workflow pushes to it.
@@ -23,13 +24,15 @@ jobs:
   # The only third-party code in this workflow runs here, with a token that
   # can read the pull request and nothing else.
   metadata:
-    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'Hovborg/smartbolig-starlight'
+    if: >-
+      github.event.pull_request.user.login == 'dependabot[bot]'
+      && github.repository == 'Hovborg/smartbolig-starlight'
+      && github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:
       pull-requests: read
     outputs:
-      ecosystem: ${{ steps.metadata.outputs.package-ecosystem }}
       dependencies: ${{ steps.metadata.outputs.updated-dependencies-json }}
     steps:
       - name: Read Dependabot metadata
@@ -51,22 +54,35 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
       HEAD_SHA: ${{ github.event.pull_request.head.sha }}
-      ECOSYSTEM: ${{ needs.metadata.outputs.ecosystem }}
+      HEAD_REF: ${{ github.event.pull_request.head.ref }}
       DEPENDENCIES: ${{ needs.metadata.outputs.dependencies }}
     steps:
-      # Every package in the pull request must be a small update. A minor of a
-      # 0.x package counts as large: before version 1 a minor may break things
-      # (Starlight 0.42 removed markup this site styles). Anything that cannot
-      # be read counts as large.
+      # Three things must hold. The first two are read from GitHub, not from
+      # the action above: a pull request that updates that action also decides
+      # what it answers.
+      # 1. The branch is one of Dependabot's npm branches.
+      # 2. Only package.json and package-lock.json are changed.
+      # 3. Every package is a small update with a version that can be read. A
+      #    minor of a 0.x package and a patch of a 0.0.x package count as
+      #    large: before version 1 they may break things (Starlight 0.42
+      #    removed markup this site styles).
+      # Anything that cannot be read counts as large.
       - name: Decide whether this update may merge on its own
         id: policy
         run: |
+          npm_branch=false
+          case "$HEAD_REF" in dependabot/npm_and_yarn/*) npm_branch=true ;; esac
+          only_packages="$(gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/files?per_page=100" --jq '
+            length > 0 and all(.[]; .filename == "package.json" or .filename == "package-lock.json")
+          ' || echo false)"
           small="$(jq -r '
-            length > 0 and all(.[];
-              (.updateType == "version-update:semver-patch" and ((.newVersion // "") | test("^v?0\\.0\\.") | not))
-              or (.updateType == "version-update:semver-minor" and ((.newVersion // "") | test("^v?[1-9]"))))
+            type == "array" and length > 0 and all(.[];
+              ((.newVersion // "") | tostring) as $version
+              | ($version | test("^v?[0-9]+\\.[0-9]+\\.[0-9]"))
+              and ((.updateType == "version-update:semver-patch" and ($version | test("^v?0\\.0\\.") | not))
+                or (.updateType == "version-update:semver-minor" and ($version | test("^v?[1-9]")))))
           ' <<<"$DEPENDENCIES" || echo false)"
-          if [ "$ECOSYSTEM" != "npm_and_yarn" ] || [ "$small" != "true" ]; then
+          if [ "$npm_branch" != "true" ] || [ "$only_packages" != "true" ] || [ "$small" != "true" ]; then
             small=false
             echo "::notice::Not a small npm update. The pull request stays open for a human."
           fi
@@ -95,15 +111,19 @@ jobs:
 
       # Dependabot closes a pull request that a newer one replaces. Merge only
       # an open one, and only the commit the check ran on (--match-head-commit).
+      # The branch is removed by the repository setting "Automatically delete
+      # head branches": deleting it here could fail this step after the merge
+      # and skip the next one.
       - name: Merge
         id: merge
         if: steps.gate.outputs.passed == 'true'
         run: |
-          if [ "$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json state --jq .state)" != "OPEN" ]; then
+          state="$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json state --jq .state)"
+          if [ "$state" != "OPEN" ]; then
             echo "::notice::The pull request is no longer open. Nothing to merge."
             exit 0
           fi
-          gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --squash --delete-branch --match-head-commit "$HEAD_SHA"
+          gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --squash --match-head-commit "$HEAD_SHA"
           echo "merged=true" >> "$GITHUB_OUTPUT"
 
       # A merge made with the workflow token starts no push run. Without a
