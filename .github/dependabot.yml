@@ -9,7 +9,18 @@ updates:
     cooldown:
       default-days: 14
     groups:
+      # One pull request for the small updates. Packages below version 1 get a
+      # pull request each: their minor updates may break and are not merged
+      # automatically (dependabot-automerge.yml), and in the group they would
+      # hold every other update back. Add a new 0.x dependency here.
       npm-minor-patch:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "@astrojs/starlight"
+          - "esbuild"
+          - "sharp"
+          - "three"
         update-types:
           - "minor"
           - "patch"

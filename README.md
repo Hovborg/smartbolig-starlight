@@ -251,9 +251,11 @@ afhængighedsændring, der aldrig har bestået porten, bliver derfor ved med at
 være spærret, indtil en kørsel med den består.
 
 Pakkerne opdateres af sig selv: Dependabot åbner hver mandag en pull request med
-små opdateringer (minor og patch), og den flettes, når kontrollen `deploy` er grøn.
-En ny version tages først, når den er 14 dage gammel; sikkerhedsrettelser venter
-ikke. Store opdateringer og GitHub Actions flettes i hånden. Se
+små opdateringer (patch, og minor af pakker fra version 1), og den flettes, når
+kontrollen `deploy` er grøn. En ny version tages først, når den er 14 dage gammel;
+sikkerhedsrettelser venter ikke (Dependabots advarsler og sikkerhedsrettelser er
+slået til i repoet). Store opdateringer, minor af pakker under version 1 og
+GitHub Actions flettes i hånden. Se
 [`docs/opdateringer.md`](docs/opdateringer.md) (kontrolleret 2026-11-14).
 
 Der er ingen undtagelsesliste. Et højt fund løses ved at opdatere pakken.

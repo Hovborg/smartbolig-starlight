@@ -1,14 +1,16 @@
 name: Dependabot auto-merge
 
-# Merges Dependabot's minor and patch updates of npm packages on their own,
-# once the pull request's "deploy" check (every gate in deploy.yml) has passed
-# on the same commit. Major updates and updates of GitHub Actions stay open
-# for a human. How it works and how to switch it off: docs/opdateringer.md.
+# Merges Dependabot's small updates of npm packages on their own, once the
+# pull request's "deploy" check (every gate in deploy.yml) has passed on the
+# same commit. Small means a patch, or a minor of a package that has reached
+# version 1. Major updates, minor updates of 0.x packages (they may break)
+# and updates of GitHub Actions stay open for a human.
+# How it works and how to switch it off: docs/opdateringer.md.
 #
 # main has no branch protection, because the daily news workflow pushes to it.
-# GitHub's own auto-merge would therefore merge at once, so this job waits for
-# the check itself. Plain pull_request trigger: no code from the pull request
-# is checked out or run here.
+# GitHub's own auto-merge would therefore merge at once, so this workflow
+# waits for the check itself. Plain pull_request trigger: the run gets none of
+# the repository's secrets and checks out no code from the pull request.
 on: pull_request
 
 permissions: {}
@@ -18,18 +20,17 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  automerge:
+  # The only third-party code in this workflow runs here, with a token that
+  # can read the pull request and nothing else.
+  metadata:
     if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'Hovborg/smartbolig-starlight'
     runs-on: ubuntu-latest
-    timeout-minutes: 50
+    timeout-minutes: 5
     permissions:
-      contents: write
-      pull-requests: write
-      checks: read
-    env:
-      GH_TOKEN: ${{ github.token }}
-      PR_NUMBER: ${{ github.event.pull_request.number }}
-      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      pull-requests: read
+    outputs:
+      ecosystem: ${{ steps.metadata.outputs.package-ecosystem }}
+      dependencies: ${{ steps.metadata.outputs.updated-dependencies-json }}
     steps:
       - name: Read Dependabot metadata
         id: metadata
@@ -37,14 +38,45 @@ jobs:
         with:
           github-token: ${{ github.token }}
 
+  automerge:
+    needs: metadata
+    runs-on: ubuntu-latest
+    timeout-minutes: 50
+    permissions:
+      contents: write
+      pull-requests: write
+      checks: read
+      actions: write # start the gates on main after the merge
+    env:
+      GH_TOKEN: ${{ github.token }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      ECOSYSTEM: ${{ needs.metadata.outputs.ecosystem }}
+      DEPENDENCIES: ${{ needs.metadata.outputs.dependencies }}
+    steps:
+      # Every package in the pull request must be a small update. A minor of a
+      # 0.x package counts as large: before version 1 a minor may break things
+      # (Starlight 0.42 removed markup this site styles). Anything that cannot
+      # be read counts as large.
+      - name: Decide whether this update may merge on its own
+        id: policy
+        run: |
+          small="$(jq -r '
+            length > 0 and all(.[];
+              (.updateType == "version-update:semver-patch" and ((.newVersion // "") | test("^v?0\\.0\\.") | not))
+              or (.updateType == "version-update:semver-minor" and ((.newVersion // "") | test("^v?[1-9]"))))
+          ' <<<"$DEPENDENCIES" || echo false)"
+          if [ "$ECOSYSTEM" != "npm_and_yarn" ] || [ "$small" != "true" ]; then
+            small=false
+            echo "::notice::Not a small npm update. The pull request stays open for a human."
+          fi
+          echo "small=$small" >> "$GITHUB_OUTPUT"
+
       # The check named "deploy" is the job in deploy.yml that runs for this
       # pull request. Anything but a clean pass leaves the pull request open.
       - name: Wait for the deploy check on this commit
         id: gate
-        if: >-
-          steps.metadata.outputs.package-ecosystem == 'npm_and_yarn' &&
-          (steps.metadata.outputs.update-type == 'version-update:semver-minor' ||
-           steps.metadata.outputs.update-type == 'version-update:semver-patch')
+        if: steps.policy.outputs.small == 'true'
         run: |
           for attempt in $(seq 1 120); do
             state="$(gh api "repos/$GITHUB_REPOSITORY/commits/$HEAD_SHA/check-runs?check_name=deploy" --jq '
@@ -61,7 +93,23 @@ jobs:
           done
           echo "::notice::The deploy check did not finish in 40 minutes. The pull request stays open."
 
-      # --match-head-commit: merge only the commit the check ran on.
+      # Dependabot closes a pull request that a newer one replaces. Merge only
+      # an open one, and only the commit the check ran on (--match-head-commit).
       - name: Merge
+        id: merge
         if: steps.gate.outputs.passed == 'true'
-        run: gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --squash --match-head-commit "$HEAD_SHA"
+        run: |
+          if [ "$(gh pr view "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --json state --jq .state)" != "OPEN" ]; then
+            echo "::notice::The pull request is no longer open. Nothing to merge."
+            exit 0
+          fi
+          gh pr merge "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --squash --delete-branch --match-head-commit "$HEAD_SHA"
+          echo "merged=true" >> "$GITHUB_OUTPUT"
+
+      # A merge made with the workflow token starts no push run. Without a
+      # green run of deploy.yml on main, the dependency audit would keep
+      # treating the lockfile as changed and gate every news deploy
+      # (security-audit.mjs). This run only validates: it publishes nothing.
+      - name: Run the gates on main so the audit base follows
+        if: steps.merge.outputs.merged == 'true'
+        run: gh workflow run deploy.yml --repo "$GITHUB_REPOSITORY" --ref main

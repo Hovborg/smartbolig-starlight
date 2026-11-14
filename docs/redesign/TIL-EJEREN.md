@@ -30,9 +30,11 @@ Sidst opdateret: 2026-11-14.
    hentes, og de er for tynde til faktatjekket. Det omgås ikke.
 
 7. **Store opdateringer flettes ikke af sig selv.** Små opdateringer af pakker kommer på
-   siden uden dig. En ny hovedversion af en pakke og opdateringer af GitHub Actions bliver
-   liggende som åbne pull requests, til nogen ser på dem. Siden virker uden dem. Fremgangsmåde:
-   `docs/opdateringer.md`.
+   siden uden dig. Disse bliver liggende som åbne pull requests, til nogen ser på dem: en ny
+   hovedversion af en pakke, et nyt midterste tal for `@astrojs/starlight`, `three`, `sharp`
+   og `esbuild` (fx 0.41 til 0.42), og opdateringer af GitHub Actions. Siden virker uden dem.
+   Den første, du vil se, er Starlight 0.42: den kræver en ændring af mobilmenuen først.
+   Fremgangsmåde: `docs/opdateringer.md`.
 
 ## Rester fra den gamle nyhedskørsel
 
