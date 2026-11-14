@@ -1,6 +1,6 @@
 ---
 title: Ferietilstand i Home Assistant
-description: Sænk varmen, simulér tilstedeværelse med lys, skærp beskeder fra dør, vandlækage og røg, og slå alt tilbage, når du kommer hjem. Ét kontaktpunkt.
+description: Saml ferien bag én omskifter. Sænk varmen, lad lyset simulere, at nogen er hjemme, og få skarpere beskeder fra dør, vandlækage og røg.
 lastUpdated: 2026-11-14
 sidebar:
   badge:
@@ -13,23 +13,26 @@ import { Aside, Badge, Steps, Tabs, TabItem } from '@astrojs/starlight/component
 <Badge text="Mellem" variant="note" /> <Badge text="45 min" variant="success" />
 
 Når du rejser væk, vil du ikke tænke på varme, lamper og beskeder enkeltvis. Her
-samler du det bag én kontakt, `input_boolean.ferietilstand`. Slår du den til,
+samler du det bag én omskifter, `input_boolean.ferietilstand`. Slår du den til,
 sænkes varmen, lyset simulerer, at nogen er hjemme, og beskederne bliver
 skarpere. Slår du den fra, rettes det hele tilbage, uanset om du gør det selv
 eller Home Assistant ser dig ankomme.
 
-Guiden er bygget af hjælpere, en tidsplan og fem automationer. Er automationer
-nye for dig, så begynd med
+Guiden er bygget af fire hjælpere og seks automationer. Er automationer nye for
+dig, så begynd med
 [din første automation](/da/home-assistant/foerste-automation/). Skal beskeden
 gå til flere telefoner, hjælper
 [Send én besked til flere telefoner](/da/home-assistant/mobilnotifikationer/).
 
 <Aside type="caution" title="Ikke en erstatning for dine alarmer">
 Lad dine røgalarmer og vandalarmer virke selvstændigt. Home Assistant giver en
-ekstra besked, når du er væk, men en besked kræver internet og en telefon, der
-modtager den. Vælg en feriestemperatur, der holder boligen frostsikker; slå
-aldrig varmen helt fra, og tjek din varmeinstallations vejledning for en
-nedre grænse.
+ekstra besked, når du er væk, men en besked kræver strøm, internet og en
+telefon, der modtager den.
+
+Slå ikke varmen helt fra. Energistyrelsen skriver, at du bør holde mindst 18 °C
+for at undgå skimmelsvamp, også når du ikke er hjemme. Se
+[Spar på varme og køling i hjemmet](https://sparenergi.dk/privat/spar-energi-i-hverdagen/spar-paa-varme-og-vand-i-hjemmet).
+Vil du lavere ned, så tjek først vejledningen til din varmeinstallation.
 </Aside>
 
 ## Det får du
@@ -45,8 +48,11 @@ nedre grænse.
 - Mindst én termostat som `climate`-entitet, for eksempel `climate.stue`.
 - En eller flere lamper, som Home Assistant kan tænde og slukke.
 - En dørsensor, en vandlækagesensor og en røgalarm, som Home Assistant kan læse.
-- Appen på telefonen, så du kan få beskeder.
+- Home Assistants app på telefonen, så du kan få beskeder.
 - En `person`-entitet for hver, der bor i hjemmet.
+
+Entitets-id'erne for termostat, lamper, sensorer, telefon og personer i
+eksemplerne er opdigtede. Udskift dem med dine egne.
 
 Binære sensorer bruger tilstandene `on` og `off`. For døre betyder `on` åben,
 for fugt betyder `on` våd, og for røg betyder `on`, at røg er fundet. Det er
@@ -68,21 +74,28 @@ beskrevet i dokumentationen til
 ## 1. Opret hjælperne
 
 <Steps>
-1. Gå til **Indstillinger → Enheder og tjenester → Hjælpere**.
-2. Opret en **Kontakt** kaldet `Ferietilstand` med id'et
-   `input_boolean.ferietilstand`.
-3. Opret to **Tal**-hjælpere: `Feriestemperatur` (`input_number.ferie_temp_ferie`)
-   og `Normal temperatur` (`input_number.ferie_temp_normal`). Sæt dine egne
-   grænser, trin og værdier.
-4. Opret en **Tidsplan** kaldet `Ferielys` (`schedule.ferielys`). Tegn de
-   tidsrum, hvor lyset skal være tændt, for eksempel aftenen hver dag.
+1. Gå til **Indstillinger → Enheder & tjenester → Hjælpere**, og vælg
+   **Opret hjælper**.
+2. Opret en **Omskifter** med navnet `Ferietilstand`.
+3. Opret to **Tal**-hjælpere med navnene `Feriestemperatur` og
+   `Normal temperatur`. Sæt dine egne grænser, trin og værdier.
+4. Opret en **Tidsplan** med navnet `Ferielys`. Tegn de tidsrum, hvor lyset
+   skal være tændt, for eksempel aftenen hver dag.
 </Steps>
 
+Navnene er valgt, så hjælperne normalt får de entitets-id'er, eksemplerne
+bruger: `input_boolean.ferietilstand`, `input_number.feriestemperatur`,
+`input_number.normal_temperatur` og `schedule.ferielys`. Åbn hver hjælper, og
+kontrollér entitets-id'et. Passer det ikke, så ret id'et dér eller i
+YAML-eksemplerne.
+
 En tidsplan er `on` i sine tidsrum og `off` udenfor. Den kan bruges som trigger
-og betingelse, og dens egenskab `next_event` viser næste skift. Se
+og betingelse, og dens egenskab `next_event` viser næste skift. Et tidsrum kan
+ikke gå hen over midnat; skal lyset være tændt til efter midnat, laver du to
+tidsrum, der støder op til hinanden. Se
 [dokumentationen til Schedule](https://www.home-assistant.io/integrations/schedule/).
-En tal-hjælper gendanner normalt sin sidste værdi efter en genstart, hvis du
-ikke har sat en startværdi i YAML; se
+En tal-hjælper gendanner sin sidste værdi efter en genstart, hvis du ikke har
+sat en startværdi i YAML; se
 [Input number](https://www.home-assistant.io/integrations/input_number/).
 
 ## 2. Varmen: til og fra
@@ -109,7 +122,7 @@ actions:
     target:
       entity_id: climate.stue
     data:
-      temperature: "{{ states('input_number.ferie_temp_ferie') | float }}"
+      temperature: "{{ states('input_number.feriestemperatur') | float }}"
 
 mode: single
 ```
@@ -127,7 +140,7 @@ actions:
     target:
       entity_id: climate.stue
     data:
-      temperature: "{{ states('input_number.ferie_temp_normal') | float }}"
+      temperature: "{{ states('input_number.normal_temperatur') | float }}"
   - if:
       - condition: state
         entity_id: schedule.ferielys
@@ -143,14 +156,16 @@ mode: single
 ```
 
 Lamperne slukkes kun, hvis tidsplanen ikke er i et tidsrum. Kommer du hjem
-midt i aftenen, styrer du selv lyset. Står kontakten til efter en genstart, men varmen ikke er sat, så slå kontakten
-fra og til igen. Triggeren reagerer på skiftet, ikke på tilstanden.
+midt i aftenen, styrer du selv lyset.
 
-## 3. Lyset: simuler tilstedeværelse
+Triggeren reagerer på skiftet, ikke på tilstanden. Står omskifteren til efter
+en genstart, uden at varmen er sat, så slå den fra og til igen.
 
-Automationen reagerer, når tidsplanen skifter, venter et tilfældigt antal
-sekunder og tænder eller slukker. En ventetid kan være en skabelon, og et helt
-tal betyder sekunder; se
+## 3. Lyset: simulér tilstedeværelse
+
+Automationen reagerer, når tidsplanen skifter, venter mellem 1 og 25 minutter
+og tænder eller slukker. En ventetid kan være en skabelon, og et helt tal
+betyder sekunder; se
 [Delay](https://www.home-assistant.io/building-blocks/delay/).
 
 ```yaml title="Automation: Ferielys"
@@ -173,6 +188,9 @@ conditions:
 
 actions:
   - delay: "{{ range(60, 1500) | random }}"
+  - condition: state
+    entity_id: input_boolean.ferietilstand
+    state: "on"
   - choose:
       - conditions:
           - condition: trigger
@@ -194,15 +212,22 @@ actions:
 mode: restart
 ```
 
+Betingelsen efter ventetiden tjekker ferietilstanden igen. Er du kommet hjem i
+mellemtiden, stopper kørslen, og lyset røres ikke; se
+[Condition](https://www.home-assistant.io/building-blocks/condition/).
+
+Lyset skifter kun, når tidsplanen skifter. Slår du ferietilstanden til midt i
+et tidsrum, tænder lyset først ved næste tidsrum.
+
 En ventende kørsel stoppes, hvis Home Assistant genstarter, og fortsætter ikke.
-Ligger genstarten midt i en aften, kan lyset derfor mangle at tænde eller
+Ligger genstarten midt i en ventetid, kan lyset derfor mangle at tænde eller
 slukke den dag. Tjek lyset, hvis du er væk i lang tid.
 
 ## 4. Beskeder: dør, vandlækage og røg
 
 Udskift `notify.mobile_app_din_telefon` med din egen enhed. Navnet på den
 udløsende entitet kan bruges i beskeden som `trigger.to_state.name`; se
-[skabeloner i automationer](https://www.home-assistant.io/docs/automation/templating/).
+[data fra triggeren](https://www.home-assistant.io/docs/automation/trigger-data/).
 
 ```yaml title="Automation: Dør åbnet under ferie"
 alias: "Ferie: dør åbnet"
@@ -226,10 +251,10 @@ actions:
 mode: queued
 ```
 
-Vandlækage og røg skal give besked hele året, men under ferie skal den ringe
-igennem. Companion-appen beskriver kritiske beskeder, og felterne er forskellige
-på de to platforme. Eksemplet viser Android; skift til fanen for iPhone, hvis
-du bruger den.
+Vandlækage og røg skal give besked hele året, men under ferie skal beskeden
+ringe igennem. Companion-appen beskriver kritiske beskeder, og felterne er
+forskellige på de to platforme. Eksemplet viser Android; skift til fanen for
+iPhone, hvis du bruger den.
 
 <Tabs>
   <TabItem label="Android">
@@ -271,7 +296,8 @@ mode: queued
   </TabItem>
   <TabItem label="iPhone">
 
-Erstat `data`-blokken under ferie med:
+Brug automationen fra Android-fanen, men erstat den inderste `data`-blok med
+`ttl`, `priority` og `channel` med:
 
 ```yaml
 data:
@@ -282,16 +308,24 @@ data:
   </TabItem>
 </Tabs>
 
-På Android gælder `ttl` og `priority` ifølge dokumentationen kun, når lokal
-push ikke bruges, og de tilsidesætter ikke Forstyr ikke. På iPhone omgår kritiske
-beskeder Forstyr ikke og lydløs. Se
+På Android afspiller `channel: alarm_stream` beskeden som en alarm, så
+telefonen ifølge dokumentationen ringer, også når den står på vibration eller
+lydløs. `ttl: 0` og `priority: high` får beskeden frem med det samme; de har
+kun betydning, når appen ikke bruger lokal push. Som udgangspunkt tilsidesætter
+Android-beskeder ikke Forstyr ikke; dokumentationen henviser til
+notifikationskanaler, hvis du vil ændre det.
+
+På iPhone vises kritiske beskeder øverst på låseskærmen og afspiller lyd, også
+når Forstyr ikke er slået til, eller telefonen er lydløs. Se
 [kritiske beskeder](https://companion.home-assistant.io/docs/notifications/critical-notifications/).
+Afprøv beskeden på din egen telefon med lyden slået fra, før du rejser.
 
 ## 5. Afslut automatisk, når nogen kommer hjem
 
-En `person`-entitet har tilstanden `home`, `not_home` eller et zonenavn. Du kan
-bruge et tilstandsskifte til `home` som trigger. Efter en genstart kan
-tilstanden kortvarigt komme fra en stationær tracker, så kontrollér det; se
+En `person`-entitet har tilstanden `home`, `not_home` eller navnet på en zone.
+Du kan bruge et tilstandsskifte til `home` som trigger. Efter en genstart
+bestemmes tilstanden ifølge dokumentationen af de stationære trackere, indtil
+en GPS-tracker sender en opdatering; se
 [dokumentationen til Person](https://www.home-assistant.io/integrations/person/).
 
 ```yaml title="Automation: Slå ferie fra ved ankomst"
@@ -317,8 +351,8 @@ actions:
 mode: single
 ```
 
-Slå ikke en gæst, en nabo eller en hjælper, som skal passe huset, ind som
-`person` her, ellers afslutter deres besøg ferietilstanden.
+Tag ikke en gæst, en nabo eller en hjælper, som skal passe huset, med som
+`person` her. Ellers afslutter deres besøg ferietilstanden.
 
 ## Test det
 
@@ -327,9 +361,11 @@ Slå ikke en gæst, en nabo eller en hjælper, som skal passe huset, ind som
    lampe tænder efter ventetiden.
 3. Åbn dørsensoren, og se, at beskeden kommer.
 4. Afprøv vandlækage og røg med enhedens egen testfunktion, hvis den sender en
-   ændring til Home Assistant. Ellers kan du i Udviklerværktøjer ændre
-   entitetens tilstand. Det ændrer kun, hvad Home Assistant tror, ikke enheden.
-5. Slå kontakten fra, og se, at varmen og lyset rettes tilbage.
+   ændring til Home Assistant. Ellers kan du under **Indstillinger → Værktøjer
+   → Tilstande** sætte entitetens tilstand til `on`. Før Home Assistant 2026.2
+   hed siden *Udviklerværktøjer*. Det ændrer kun, hvad Home Assistant viser,
+   ikke enheden, men automationen starter.
+5. Slå omskifteren fra, og se, at varmen og lyset rettes tilbage.
 6. Slå den til igen, og lad en person ankomme til zonen hjemme.
 
 Brug [Aktivitet og Spor](/da/home-assistant/aktivitet-og-spor/) til at se,
@@ -339,30 +375,33 @@ hvilke automationer der kørte.
 
 | Symptom | Mulig årsag | Hvad du gør |
 |---|---|---|
-| Varmen ændres ikke | Termostaten bruger andre felter | Se handlingens felter, og prøv den i Udviklerværktøjer |
-| Lyset tænder ikke | Tidsplanen er ikke i et tidsrum, eller kontakten er fra | Kontrollér `schedule.ferielys` og kontakten |
-| Ingen besked | Forkert notify-navn | Find din enhed under handlingerne i Udviklerværktøjer |
+| Varmen ændres ikke | Termostaten bruger andre felter | Prøv handlingen under **Indstillinger → Værktøjer → Handlinger**, og se dens felter |
+| Lyset tænder ikke | Tidsplanen er ikke skiftet, siden omskifteren blev slået til | Kontrollér `schedule.ferielys` og omskifteren |
+| Ingen besked | Forkert notify-navn | Find din telefon blandt handlingerne under **Indstillinger → Værktøjer → Handlinger** |
+| Beskeden ringer ikke igennem | Telefonens indstillinger dæmper den | Se afsnittet om din platform i dokumentationen til kritiske beskeder |
 | Ferien slås fra, når du er væk | En tracker melder `home` | Kontrollér personens trackere |
-| Dørbesked kommer hele året | Betingelsen mangler | Tjek, at kontakten er en betingelse |
+| Dørbesked kommer hele året | Betingelsen mangler | Tjek, at omskifteren er en betingelse |
 
 ## Sådan fortryder du det
 
 Slå `Ferietilstand` fra. Det kører tilbage-automationen og retter varme og lys.
-Vil du fjerne det hele, så slet de fem automationer, tidsplanen og de tre andre
-hjælpere. Dine termostater, lamper og sensorer er uændrede.
+Vil du fjerne det hele, så slet de seks automationer og de fire hjælpere. Dine
+termostater, lamper og sensorer er uændrede.
 
-YAML-eksemplerne er kontrolleret for syntaks, men ikke afprøvet på et levende
-anlæg. Afprøv dem trin for trin, før du rejser.
+YAML-eksemplerne er kontrolleret for syntaks, og skabelonerne til ventetiden og
+den tilfældige lampe er kørt i skabelonmotoren i Home Assistant 2026.11.1.
+Automationerne er ikke kørt på et anlæg. Afprøv dem trin for trin, før du
+rejser.
 
-## Officielle kilder
+## Kilder
 
-- [Binære sensorer](https://www.home-assistant.io/integrations/binary_sensor/)
-- [Schedule](https://www.home-assistant.io/integrations/schedule/)
-- [Input number](https://www.home-assistant.io/integrations/input_number/)
-- [Input boolean](https://www.home-assistant.io/integrations/input_boolean/)
-- [climate.set_temperature](https://www.home-assistant.io/actions/climate.set_temperature/)
-- [Delay](https://www.home-assistant.io/building-blocks/delay/)
-- [Skabeloner i automationer](https://www.home-assistant.io/docs/automation/templating/)
-- [Person](https://www.home-assistant.io/integrations/person/)
-- [Kritiske beskeder i Companion-appen](https://companion.home-assistant.io/docs/notifications/critical-notifications/)
-- [Automationstriggere](https://www.home-assistant.io/docs/automation/trigger/)
+- [Home Assistant: binære sensorer](https://www.home-assistant.io/integrations/binary_sensor/)
+- [Home Assistant: Schedule](https://www.home-assistant.io/integrations/schedule/)
+- [Home Assistant: Input number](https://www.home-assistant.io/integrations/input_number/)
+- [Home Assistant: climate.set_temperature](https://www.home-assistant.io/actions/climate.set_temperature/)
+- [Home Assistant: Delay](https://www.home-assistant.io/building-blocks/delay/) og [Condition](https://www.home-assistant.io/building-blocks/condition/)
+- [Home Assistant: data fra triggeren](https://www.home-assistant.io/docs/automation/trigger-data/)
+- [Home Assistant: Person](https://www.home-assistant.io/integrations/person/)
+- [Home Assistant: Værktøjer (Tools)](https://www.home-assistant.io/docs/tools/dev-tools/)
+- [Companion-appen: kritiske beskeder](https://companion.home-assistant.io/docs/notifications/critical-notifications/)
+- [Energistyrelsen: Spar på varme og køling i hjemmet](https://sparenergi.dk/privat/spar-energi-i-hverdagen/spar-paa-varme-og-vand-i-hjemmet)

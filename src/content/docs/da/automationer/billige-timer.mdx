@@ -1,6 +1,6 @@
 ---
 title: Kør forbruget i de billigste timer
-description: Start opvasker, vaskemaskine eller varmtvandsbeholder i det billigste sammenhængende tidsrum før din frist, styret af Home Assistants Nord Pool-priser.
+description: Lad Home Assistant finde det billigste sammenhængende tidsrum før din frist ud fra Nord Pool-priserne og starte opvasker eller vaskemaskine dér.
 lastUpdated: 2026-11-14
 sidebar:
   badge:
@@ -15,7 +15,7 @@ import { Aside, Badge, Steps } from '@astrojs/starlight/components';
 Elprisen skifter i løbet af døgnet, og mange apparater er ligeglade med, hvornår
 de kører, bare de er færdige til en bestemt tid. Her lader du Home Assistant
 finde det billigste **sammenhængende** tidsrum før din frist og starte
-apparatet dér. Du beholder selv kontrollen: én kontakt planlægger, og slår du
+apparatet dér. Du beholder selv kontrollen: én omskifter planlægger, og slår du
 den fra, sker der ikke noget.
 
 Guiden bruger Home Assistants egen
@@ -30,7 +30,7 @@ hjælpe.
 
 ## Det får du
 
-- En kontakt, du slår til, når apparatet er fyldt og klar.
+- En omskifter, du slår til, når apparatet er fyldt og klar.
 - En automation, der beregner den billigste start ud fra priserne og din frist.
 - En besked med starttidspunktet og forskellen i pris.
 - Mulighed for at annullere eller starte manuelt, når som helst.
@@ -38,63 +38,107 @@ hjælpe.
 ## Det skal du bruge
 
 - Nord Pool-integrationen sat op med dit prisområde.
-- Et apparat, du kan tænde og slukke fra Home Assistant, for eksempel via en
-  smart stikkontakt.
-- Et tal for apparatets forbrug pr. kørsel, hvis du vil se en besparelse.
+- Et apparat, du kan tænde fra Home Assistant, for eksempel via en smart
+  stikkontakt.
+- Et tal for apparatets forbrug pr. kørsel, hvis du vil se forskellen i kroner.
 
 <Aside type="caution" title="Ikke alle apparater kan startes med strøm">
 En stikkontakt, der afbryder og tilslutter strømmen, starter kun apparater, der
 selv går i gang, når strømmen kommer tilbage. Mange opvaskemaskiner og
-vaskemaskiner kræver et tryk på start; tjek vejledningen til din model. En
-varmtvandsbeholder eller en varmepumpe har ofte en indstilling eller en
-integration i stedet. Stikkontakten skal være beregnet til apparatets effekt,
-så sammenlign mærkningen på begge. Rør aldrig den faste installation for at få
-styring; det er arbejde for en autoriseret installatør.
+vaskemaskiner kræver et tryk på start; tjek vejledningen til din model.
+Stikkontakten skal være beregnet til apparatets effekt, så sammenlign mærkningen
+på begge.
+
+Apparater uden stikprop kan ikke styres på denne måde. Sikkerhedsstyrelsen
+skriver, at du kun selv må koble et elprodukt til eller fra, hvis det kan gøres
+med et stik i en stikkontakt. Alt andet er arbejde for en autoriseret
+virksomhed. Se
+[Hvilke elprodukter må du selv slutte til eller koble fra?](https://www.sik.dk/privat/gor-det-sikkert/el/brug-elprodukter-sikkert/hvilke-elprodukter-ma-du-selv-slutte-eller-koble)
+</Aside>
+
+<Aside type="caution" title="De billigste timer ligger ofte om natten">
+Planen vælger frit mellem nu og din frist. Sikkerhedsstyrelsen skriver om
+tørretumblere, at der ikke er regler mod at lade dem køre, mens du sover eller
+er ude, men at det kan være en god idé at lade være, især med en ældre maskine.
+Styrelsen råder til at følge brugsanvisningen og have røgalarmer, der virker. Se
+[Må jeg lade tørretumbleren være tændt, når jeg sover eller ikke er hjemme?](https://www.sik.dk/privat/goer-det-sikkert/el/brug-elprodukter-sikkert/maa-jeg-lade-toerretumbleren-vaere-taendt-naar-jeg-sover-eller-ikke-hjemme)
+
+Vil du ikke have, at apparatet kører, mens du sover, så slå planlægningen til
+om morgenen, og sæt fristen til om aftenen.
 </Aside>
 
 ## Sådan virker planen
 
 | Situation | Resultat |
 |---|---|
-| Du slår planlægning til | Automationen henter dagens og morgendagens priser |
-| Priserne dækker et tidsrum før fristen | Det billigste sammenhængende tidsrum vælges |
+| Du slår planlægning til | Automationen henter priserne for i dag og i morgen |
+| Der er priser til en hel kørsel før fristen | Det billigste sammenhængende tidsrum vælges |
 | Nu er billigst | Apparatet starter om cirka et minut |
-| Priserne for i morgen er ikke klar | Du får besked, og planen opgives |
-| Du slår kontakten fra før starten | Apparatet startes ikke |
+| Priserne for i morgen mangler | Planen vælger blandt de timer, der har en pris, og beskeden siger, hvor langt priserne rækker |
+| Der er ikke priser til en hel kørsel før fristen | Du får besked, og planlægningen slås fra |
+| Du slår omskifteren fra før starten | Apparatet startes ikke |
 
-Prisenheden er ikke vigtig for selve sammenligningen. Handlingen returnerer
-ifølge dokumentationen pris pr. MWh, og beskeden nedenfor deler med 1000 for at
-vise pr. kWh.
+Fristen er et klokkeslæt. Er klokkeslættet passeret i dag, gælder fristen i
+morgen.
+
+Handlingen returnerer ifølge dokumentationen priserne pr. MWh i den valuta,
+integrationen er sat op med. Beskeden deler med 1000 for at vise prisen pr. kWh.
+Dokumentationen oplyser, at integrationen kun viser den rene energipris; moms
+og andre tillæg er ikke med.
+
+Nord Pool oplyser, at priserne for næste døgn typisk offentliggøres kl. 12.45
+CET eller senere. Planlægger du tidligere på dagen, kender planen kun dagens
+priser.
 
 ## 1. Opret hjælperne
 
 <Steps>
-1. Gå til **Indstillinger → Enheder og tjenester → Hjælpere**.
-2. Opret en **Kontakt** med navnet `Opvask – kør billigt` og entitets-id'et
-   `input_boolean.billig_opvask`.
-3. Opret en **Dato og/eller tid**, kun med tid, kaldet `Opvask – færdig inden`
-   med id'et `input_datetime.billig_opvask_frist`. Sæt for eksempel 07:00.
-4. Opret en **Dato og/eller tid** med både dato og tid, kaldet
-   `Opvask – planlagt start` med id'et `input_datetime.billig_opvask_start`.
+1. Gå til **Indstillinger → Enheder & tjenester → Hjælpere**, og vælg
+   **Opret hjælper**.
+2. Opret en **Omskifter** med navnet `Billig opvask`.
+3. Opret en **Dato og/eller klokkeslæt** med navnet `Billig opvask frist`, og
+   vælg **Tid**. Sæt den bagefter til for eksempel 07:00.
+4. Opret en **Dato og/eller klokkeslæt** med navnet `Billig opvask start`, og
+   vælg **Dato og tid**.
 </Steps>
 
-Uden en fast startværdi gendanner hjælperne normalt deres sidste værdi efter en
+Navnene er valgt, så hjælperne normalt får de entitets-id'er, eksemplerne
+bruger: `input_boolean.billig_opvask`, `input_datetime.billig_opvask_frist` og
+`input_datetime.billig_opvask_start`. Åbn hver hjælper, og kontrollér
+entitets-id'et. Passer det ikke, så ret id'et dér eller i YAML-eksemplerne.
+
+Uden en fast startværdi gendanner hjælperne deres sidste værdi efter en
 genstart. Det er beskrevet for både
 [input_datetime](https://www.home-assistant.io/integrations/input_datetime/) og
 [input_boolean](https://www.home-assistant.io/integrations/input_boolean/).
 
-## 2. Find dit config entry-id
+## 2. Find dit config entry-id og dit prisområde
 
-Handlingen skal vide, hvilken Nord Pool-opsætning den skal bruge. Åbn
-Udviklerværktøjer, vælg action-fanen, find `nordpool.get_prices_for_date`, og
-skift til YAML-visning. Dokumentationen beskriver, at id'et kan aflæses dér.
-Kopiér det til `config_entry` herunder.
+Handlingen skal vide, hvilken Nord Pool-opsætning den skal bruge.
+
+<Steps>
+1. Gå til **Indstillinger → Værktøjer → Handlinger**. Før Home Assistant 2026.2
+   hed siden *Udviklerværktøjer*.
+2. Vælg handlingen `nordpool.get_prices_for_date`, og udfyld felterne med din
+   Nord Pool-opsætning og dags dato.
+3. Skift til **YAML-tilstand**. Nu står id'et efter `config_entry:`. Kopiér
+   det.
+4. Vælg **Udfør handling**. Under **Svar** ser du priserne med start, slut og
+   pris for hvert tidsrum.
+</Steps>
+
+Svaret er ordnet efter prisområde. Området valgte du, da du satte
+integrationen op. Danmark har to prisområder: DK1 er Jylland og Fyn, og DK2 er
+Sjælland og øerne, ifølge
+[Energinet](https://www.energinet.dk/media/51vd5zlp/energinet-2025-metodenotat-for-energinets-samfundsokonomiske-vurderinger-af-eltranmissionsprojekter.pdf).
 
 ## 3. Opret planlæggeren
 
-Opret en tom automation, vælg **Rediger i YAML**, og indsæt eksemplet. Skift
-`DK1` til den områdekode, din integration bruger, indsæt dit id, og skriv dit
-eget forbrug pr. kørsel.
+Gå til **Indstillinger → Automatiseringer & scener**, vælg
+**Opret automatisering** og derefter **Opret ny automatisering**. Vælg
+**Redigér i YAML** i menuen, og indsæt eksemplet. Ret tre ting: dit
+prisområde, dit config entry-id begge steder og programmets længde. Skriv også
+dit eget forbrug pr. kørsel, hvis du vil se forskellen i beskeden.
 
 ```yaml title="Automation: Planlæg billigste start"
 alias: "Opvask: planlæg billigste start"
@@ -106,9 +150,9 @@ triggers:
 
 actions:
   - variables:
-      omraade: "DK1"
-      varighed_minutter: 180
-      forbrug_kwh: 1.0   # ERSTAT med dit eget målte forbrug pr. kørsel
+      omraade: "DK1"           # DK1 eller DK2
+      varighed_minutter: 180   # programmets længde i minutter
+      forbrug_kwh: 1.0         # ERSTAT med dit eget målte forbrug pr. kørsel
 
   - action: nordpool.get_prices_for_date
     data:
@@ -126,40 +170,35 @@ actions:
 
   - variables:
       plan: |-
-        {%- set slots = (priser_i_dag[omraade] | default([])) + (priser_i_morgen[omraade] | default([])) %}
+        {%- set raa = (priser_i_dag[omraade] | default([])) + (priser_i_morgen[omraade] | default([])) %}
         {%- set dur = varighed_minutter * 60 %}
-        {%- set t_now = as_timestamp(now()) + 60 %}
+        {%- set t_nu = as_timestamp(now()) + 60 %}
         {%- set frist = today_at(states('input_datetime.billig_opvask_frist')) %}
         {%- set frist_ts = as_timestamp(frist if frist > now() else frist + timedelta(days=1)) %}
-        {%- macro snit(start) -%}
-          {%- set m = namespace(sum=0, daekket=0) -%}
-          {%- for p in slots -%}
-            {%- set fra = [as_timestamp(p.start), start] | max -%}
-            {%- set til = [as_timestamp(p.end), start + dur] | min -%}
-            {%- if til > fra -%}
-              {%- set m.sum = m.sum + p.price * (til - fra) -%}
-              {%- set m.daekket = m.daekket + (til - fra) -%}
-            {%- endif -%}
-          {%- endfor -%}
-          {{ (m.sum / m.daekket) if m.daekket >= dur - 1 else 'x' }}
-        {%- endmacro %}
-        {%- set nu_pris = snit(t_now) | trim %}
-        {%- set ns = namespace(start=none, bedst=none) %}
-        {%- if nu_pris != 'x' and t_now + dur <= frist_ts %}
-          {%- set ns.start = t_now %}
-          {%- set ns.bedst = nu_pris | float %}
-        {%- endif %}
-        {%- for p in slots %}
-          {%- set s = as_timestamp(p.start) %}
-          {%- if s > t_now and s + dur <= frist_ts %}
-            {%- set v = snit(s) | trim %}
-            {%- if v != 'x' and (ns.bedst is none or v | float < ns.bedst) %}
+        {%- set d = namespace(slots=[], kendt_til=0) %}
+        {%- for p in raa if p.price is number %}
+          {%- set e = as_timestamp(p.end) %}
+          {%- set d.slots = d.slots + [{'s': as_timestamp(p.start), 'e': e, 'pris': p.price}] %}
+          {%- set d.kendt_til = [d.kendt_til, e] | max %}
+        {%- endfor %}
+        {%- set ns = namespace(start=none, bedst=none, nu=none) %}
+        {%- for s in [t_nu] + (d.slots | map(attribute='s') | select('gt', t_nu) | list) if s + dur <= frist_ts %}
+          {%- set m = namespace(sum=0, daekket=0) %}
+          {%- for p in d.slots if p.e > s and p.s < s + dur %}
+            {%- set laengde = ([p.e, s + dur] | min) - ([p.s, s] | max) %}
+            {%- set m.sum = m.sum + p.pris * laengde %}
+            {%- set m.daekket = m.daekket + laengde %}
+          {%- endfor %}
+          {%- if m.daekket >= dur - 1 %}
+            {%- set snit = m.sum / m.daekket %}
+            {%- if s == t_nu %}{%- set ns.nu = snit %}{%- endif %}
+            {%- if ns.bedst is none or snit < ns.bedst %}
               {%- set ns.start = s %}
-              {%- set ns.bedst = v | float %}
+              {%- set ns.bedst = snit %}
             {%- endif %}
           {%- endif %}
         {%- endfor %}
-        {{- {'start': ns.start, 'bedst': ns.bedst, 'nu': (nu_pris | float) if nu_pris != 'x' else none} }}
+        {{- {'start': ns.start, 'bedst': ns.bedst, 'nu': ns.nu, 'kendt_til': d.kendt_til, 'frist': frist_ts} }}
 
   - choose:
       - conditions:
@@ -171,9 +210,9 @@ actions:
               notification_id: billig_opvask
               title: "Opvask: ingen plan"
               message: >-
-                Der var ikke priser nok til et sammenhængende tidsrum før
-                fristen. Priserne for i morgen er måske ikke offentliggjort
-                endnu, eller kørslen er for lang til tidsrummet.
+                Der er ikke priser til en hel kørsel før fristen. Fristen er
+                måske for tæt på, eller priserne for i morgen er ikke
+                offentliggjort endnu.
           - action: input_boolean.turn_off
             target:
               entity_id: input_boolean.billig_opvask
@@ -189,21 +228,33 @@ actions:
           title: "Opvask: planlagt"
           message: >-
             Start {{ plan.start | timestamp_custom('%d.%m. kl. %H:%M') }}.
-            Gennemsnitspris i tidsrummet: {{ (plan.bedst / 1000) | round(2) }}
-            pr. kWh
-            {% if plan.nu is not none %}mod {{ (plan.nu / 1000) | round(2) }}
-            pr. kWh ved start nu. Forskel for en kørsel på {{ forbrug_kwh }} kWh:
-            {{ ((plan.nu - plan.bedst) / 1000 * forbrug_kwh) | round(2) }}{% endif %}.
+            Gennemsnit i tidsrummet: {{ (plan.bedst / 1000) | round(2) }} pr. kWh.
+            {% if plan.nu is not none %}Ved start nu:
+            {{ (plan.nu / 1000) | round(2) }} pr. kWh. Forskel for en kørsel på
+            {{ forbrug_kwh }} kWh:
+            {{ ((plan.nu - plan.bedst) / 1000 * forbrug_kwh) | round(2) }}.{% endif %}
+            {% if plan.kendt_til < plan.frist %}Priserne er kun kendt til
+            {{ plan.kendt_til | timestamp_custom('%d.%m. kl. %H:%M') }}. Senere
+            timer er ikke med i planen.{% endif %}
 
 mode: single
 ```
 
-Skabelonen sammenligner tidsrum ud fra de tidsstempler, handlingen leverer, og
+Skabelonen prøver en start om et minut og en start ved hvert prisskift før
+fristen. For hver mulig start regner den gennemsnitsprisen for hele kørslen og
 vægter hver pris efter, hvor længe den gælder. Den virker derfor både med
-timepriser og med 15-minutters priser; Nord Pool-dokumentationen beskriver, at
-markedet er på vej til 15-minutters opløsning. Handlingen returnerer ifølge
-integrationens kildekode en tom liste for en dag uden priser, så skabelonen
-melder i så fald ingen plan i stedet for at fejle.
+timepriser og med kvarterspriser; Nord Pool-dokumentationen beskriver, at
+markedet går over til 15-minutters opløsning.
+
+Beregningen antager, at apparatet bruger lige meget strøm i hele kørslen. Det
+gør en opvaskemaskine ikke, så se resultatet som et godt bud og ikke som et
+facit.
+
+Handlingen returnerer ifølge integrationens kildekode en tom liste for en dag
+uden priser. Mangler morgendagens priser, planlægger skabelonen derfor kun i de
+timer, der har en pris, og beskeden siger, hvornår priserne slutter.
+Integrationen har også en diagnostisk sensor, der viser, om morgendagens priser
+er tilgængelige.
 
 ## 4. Opret starteren
 
@@ -230,34 +281,50 @@ actions:
 mode: single
 ```
 
+Udskift `switch.opvasker_stikkontakt` med din egen stikkontakt.
+
 En tidstrigger med en hjælper, der har både dato og tid, udløses én gang på det
 tidspunkt, ifølge dokumentationen til
-[tidstriggere](https://www.home-assistant.io/triggers/time/). Starteren er
-adskilt fra planlæggeren, så planen overlever en genstart af Home Assistant.
-Kører apparatet, til det selv er færdigt, behøver du ikke mere. Skal en
-varmekilde slukkes igen, kan du tilføje `delay` og `switch.turn_off`;
+[tidstriggere](https://www.home-assistant.io/triggers/time/). Triggeren følger
+hjælperen: sætter planlæggeren et nyt tidspunkt, flytter starten med. Et
+tidspunkt, der allerede er passeret, udløser ikke noget; begge dele fremgår af
+[triggerens kildekode](https://github.com/home-assistant/core/blob/dev/homeassistant/components/homeassistant/triggers/time.py).
+Var Home Assistant nede på starttidspunktet, starter apparatet derfor ikke af
+sig selv bagefter.
+
+Starteren er adskilt fra planlæggeren, og hjælperne gendanner deres værdier. En
+plan overlever derfor en genstart af Home Assistant, så længe starttidspunktet
+ikke er passeret. Kører apparatet, til det selv er færdigt, behøver du ikke
+mere. Skal stikkontakten slukkes igen efter kørslen, kan du tilføje `delay` og
+`switch.turn_off`;
 [dokumentationen til delay](https://www.home-assistant.io/building-blocks/delay/)
-oplyser, at en ventende automation stoppes ved genstart og ikke fortsætter.
+oplyser, at en ventende automation stoppes ved en genstart og ikke fortsætter.
 
 ## Test det
 
-1. Læg apparatet klar med strømmen afbrudt, og sæt fristen til et tidspunkt i
-   fremtiden.
-2. Slå `Opvask – kør billigt` til.
-3. Kontrollér under notifikationerne, at der er en plan med starttid og pris.
-4. Se, at `Opvask – planlagt start` har fået den samme tid.
-5. Slå kontakten fra og til igen, og se, at starttiden beregnes igen.
-6. Slå kontakten fra før starttiden, og kontrollér, at intet starter.
-7. Lad en plan løbe, og kontrollér, at stikkontakten tændes på tidspunktet.
+1. Sluk stikkontakten i Home Assistant, og gør apparatet klar, som vejledningen
+   til din model beskriver. Sæt fristen til et tidspunkt i fremtiden.
+2. Slå `Billig opvask` til.
+3. Kontrollér under notifikationerne i Home Assistant, at der er en plan med
+   starttid og pris.
+4. Se, at `Billig opvask start` har fået den samme tid.
+5. Slå omskifteren fra og til igen, og se, at starttiden beregnes igen.
+6. Slå omskifteren fra før starttiden, og kontrollér, at intet starter.
+7. Lad en plan løbe, mens du er hjemme, og kontrollér, at stikkontakten tændes
+   på tidspunktet, og at apparatet går i gang.
 
 Brug [Aktivitet og Spor](/da/home-assistant/aktivitet-og-spor/) til at se, hvad
 automationerne gjorde, og hvorfor.
 
 ## Se, om det sparer noget
 
-Beskeden viser forskellen pr. kWh og for den forbrugsværdi, du selv har skrevet
-ind. Det er spotprisen, der sammenlignes. Har dit netselskab tidsafhængige
-nettariffer, er de ikke med, og din reelle forskel kan være anderledes;
+Beskeden viser gennemsnitsprisen for den valgte start og for en start nu. Den
+viser også forskellen for det forbrug, du selv har skrevet ind. Tallene er
+Nord Pools rene elpris i integrationens valuta. Moms, afgifter og nettarif er
+ikke med.
+
+Har dit netselskab en nettarif, der skifter over døgnet, kan den billigste time
+på din regning være en anden end den, planen vælger.
 [Elpris-integration](/da/home-assistant/elpris-integration/) beskriver en
 integration med tariffer og afgifter. Mål forbruget med en energimåler, og gem
 dine egne tal over nogle uger, før du konkluderer noget.
@@ -266,31 +333,35 @@ dine egne tal over nogle uger, før du konkluderer noget.
 
 | Symptom | Mulig årsag | Hvad du gør |
 |---|---|---|
-| Ingen plan, besked om manglende priser | Priserne for i morgen er ikke hentet endnu | Slå kontakten til igen senere |
-| Fejl i handlingen | Forkert config entry-id eller områdekode | Hent id'et igen i Udviklerværktøjer |
-| Intet starter | Kontakten blev slået fra, eller Home Assistant var nede på starttidspunktet | Slå kontakten fra, og start apparatet manuelt |
-| Strømmen er tændt, men apparatet kører ikke | Modellen kræver et tryk på start | Brug apparatets egen integration eller et andet startsignal |
-| Starttiden ligger sent | Fristen er sat sent | Flyt fristen |
+| Besked om ingen plan | Fristen er for tæt på, eller priserne for i morgen er ikke offentliggjort | Flyt fristen, eller slå omskifteren til igen senere |
+| Ingen besked | Handlingen fejlede, for eksempel på grund af et forkert config entry-id eller en forkert områdekode | Kør handlingen under **Indstillinger → Værktøjer → Handlinger**, og læs fejlen |
+| Intet starter | Omskifteren blev slået fra, eller Home Assistant var nede på starttidspunktet | Start apparatet manuelt, eller planlæg igen |
+| Strømmen er tændt, men apparatet kører ikke | Modellen kræver et tryk på start | Stikkontakten kan ikke starte den model; se, om apparatet selv har udskudt start |
+| Starttiden ligger om natten | De billigste timer ligger dér | Planlæg om morgenen med en frist om aftenen |
 
 ## Sådan fortryder du det
 
-Slå kontakten fra, så stopper planen. Slet de to automationer og de tre
-hjælpere, hvis du vil fjerne alt. Stikkontakten og apparatet er uændrede og
+Slå omskifteren fra, så startes apparatet ikke. Slet de to automationer og de
+tre hjælpere, hvis du vil fjerne alt. Stikkontakten og apparatet er uændrede og
 virker som før.
 
-YAML-eksemplerne er kontrolleret for syntaks, og skabelonens logik er afprøvet
-med opdigtede prisdata uden for Home Assistant. Afprøv dem på dit eget anlæg
-med trinnene ovenfor, før du lader dem styre noget i hverdagen.
+Skabelonerne i planlæggeren er kørt i skabelonmotoren i Home Assistant
+2026.11.1 med opdigtede kvarterspriser, og resultatet er sammenlignet med en
+uafhængig beregning. Selve Nord Pool-kaldet og de to automationer er ikke kørt
+på et anlæg. Afprøv dem med trinnene ovenfor, før du lader dem styre noget i
+hverdagen.
 
-## Officielle kilder
+## Kilder
 
-- [Nord Pool-integrationen](https://www.home-assistant.io/integrations/nordpool/)
-- [Input datetime](https://www.home-assistant.io/integrations/input_datetime/)
-- [Input boolean](https://www.home-assistant.io/integrations/input_boolean/)
-- [Tidstrigger](https://www.home-assistant.io/triggers/time/)
-- [Delay](https://www.home-assistant.io/building-blocks/delay/)
-- [Dato- og tidsskabeloner](https://www.home-assistant.io/docs/templating/dates-and-times/)
-- [Skabelonfunktioner](https://www.home-assistant.io/template-functions/)
-- [Automationstilstande](https://www.home-assistant.io/docs/automation/modes/)
-- [Persistent notification](https://www.home-assistant.io/integrations/persistent_notification/)
-- [Nord Pool-integrationens kildekode (services.py)](https://github.com/home-assistant/core/blob/dev/homeassistant/components/nordpool/services.py)
+- [Home Assistant: Nord Pool-integrationen](https://www.home-assistant.io/integrations/nordpool/)
+- [Home Assistant-kildekode: Nord Pool-handlingerne (services.py)](https://github.com/home-assistant/core/blob/dev/homeassistant/components/nordpool/services.py)
+- [Home Assistant: tidstrigger](https://www.home-assistant.io/triggers/time/)
+- [Home Assistant-kildekode: tidstriggeren (time.py)](https://github.com/home-assistant/core/blob/dev/homeassistant/components/homeassistant/triggers/time.py)
+- [Home Assistant: Input datetime](https://www.home-assistant.io/integrations/input_datetime/) og [Input boolean](https://www.home-assistant.io/integrations/input_boolean/)
+- [Home Assistant: Delay](https://www.home-assistant.io/building-blocks/delay/)
+- [Home Assistant: Værktøjer (Tools)](https://www.home-assistant.io/docs/tools/dev-tools/)
+- [Home Assistant: skabelonfunktioner](https://www.home-assistant.io/template-functions/)
+- [Nord Pool: Day-ahead market](https://www.nordpoolgroup.com/en/the-power-market/Day-ahead-market/)
+- [Energinet: metodenotat 2025 om prisområderne DK1 og DK2 (PDF)](https://www.energinet.dk/media/51vd5zlp/energinet-2025-metodenotat-for-energinets-samfundsokonomiske-vurderinger-af-eltranmissionsprojekter.pdf)
+- [Sikkerhedsstyrelsen: Hvilke elprodukter må du selv slutte til eller koble fra?](https://www.sik.dk/privat/gor-det-sikkert/el/brug-elprodukter-sikkert/hvilke-elprodukter-ma-du-selv-slutte-eller-koble)
+- [Sikkerhedsstyrelsen: Må jeg lade tørretumbleren være tændt, når jeg sover eller ikke er hjemme?](https://www.sik.dk/privat/goer-det-sikkert/el/brug-elprodukter-sikkert/maa-jeg-lade-toerretumbleren-vaere-taendt-naar-jeg-sover-eller-ikke-hjemme)
