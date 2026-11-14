@@ -9,7 +9,7 @@
     border-radius: var(--sb-radius-pill);
     color: var(--sb-sky);
     background: var(--sb-sky-soft);
-    font-size: 0.52rem;
+    font-size: var(--sb-text-xs);
     font-weight: 690;
     letter-spacing: 0.02em;
     text-transform: none;
@@ -45,9 +45,9 @@
   .smartbolig-ai__sources > span {
     width: 100%;
     color: var(--ai-muted);
-    font-size: 0.58rem;
+    font-size: var(--sb-text-xs);
     font-weight: 700;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
     text-transform: uppercase;
   }
 
@@ -60,7 +60,7 @@
     border-radius: var(--sb-radius-pill);
     color: var(--sb-accent-strong);
     background: var(--sb-accent-soft);
-    font-size: 0.6rem;
+    font-size: var(--sb-text-xs);
     line-height: 1.2;
     text-decoration: none;
     text-overflow: ellipsis;
@@ -84,13 +84,11 @@
 
   .smartbolig-ai__diagnostics {
     display: flex;
+    flex-wrap: wrap;
     gap: 0.34rem;
     margin-top: 0.68rem;
     padding: 0.42rem 0.1rem 0.08rem;
-    overflow-x: auto;
     border-top: 1px solid var(--ai-line);
-    scrollbar-color: color-mix(in srgb, var(--sb-ink-subtle) 40%, transparent) transparent;
-    scrollbar-width: thin;
   }
 
   .smartbolig-ai__diagnostic {
@@ -108,16 +106,16 @@
 
   .smartbolig-ai__diagnostic small {
     color: var(--ai-dim);
-    font-size: 0.42rem;
+    font-size: var(--sb-text-xs);
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.04em;
   }
 
   .smartbolig-ai__diagnostic strong {
     color: var(--ai-text);
-    font-size: 0.5rem;
+    font-size: var(--sb-text-xs);
     font-weight: 720;
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
   }
 
   .smartbolig-ai__diagnostics[data-diagnostic-route="fallback"] .smartbolig-ai__diagnostic:nth-child(2) {

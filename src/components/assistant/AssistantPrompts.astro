@@ -57,9 +57,9 @@ const { t } = Astro.props;
     margin: 0.18rem 0 0;
     color: var(--ai-dim);
     font-family: var(--sb-font-mono);
-    font-size: 0.57rem;
+    font-size: var(--sb-text-xs);
     font-weight: 700;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
   }
 
@@ -72,6 +72,7 @@ const { t } = Astro.props;
     width: 100%;
     min-height: 82px;
     padding: 0.7rem 0.62rem;
+    overflow-wrap: anywhere;
     overflow: hidden;
     border: 1px solid var(--ai-line);
     border-radius: var(--sb-radius-md);
@@ -117,9 +118,9 @@ const { t } = Astro.props;
   .smartbolig-ai__prompt-copy small {
     color: var(--ai-signal);
     font-family: var(--sb-font-mono);
-    font-size: 0.47rem;
+    font-size: var(--sb-text-xs);
     font-weight: 700;
-    letter-spacing: 0.09em;
+    letter-spacing: 0.04em;
   }
 
   .smartbolig-ai__prompts button:hover .smartbolig-ai__prompt-copy small {
@@ -128,18 +129,28 @@ const { t } = Astro.props;
 
   .smartbolig-ai__prompt-copy strong {
     color: inherit;
-    font-size: 0.67rem;
+    font-size: var(--sb-text-sm);
     font-weight: 620;
     line-height: 1.35;
   }
 
   .smartbolig-ai__prompt-arrow {
     color: var(--ai-dim);
-    font-size: 0.72rem;
+    font-size: var(--sb-text-sm);
   }
 
   .smartbolig-ai__prompts button:hover .smartbolig-ai__prompt-arrow {
     color: var(--ai-signal-strong);
+  }
+
+  @media (max-width: 420px) {
+    .smartbolig-ai__prompts {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .smartbolig-ai__prompts button {
+      min-height: 64px;
+    }
   }
 
   @media (prefers-reduced-motion: no-preference) {

@@ -129,14 +129,14 @@ const { t } = Astro.props;
     max-width: 42ch;
     margin: 0;
     color: var(--ai-muted);
-    font-size: 0.76rem;
+    font-size: var(--sb-text-sm);
     line-height: 1.48;
   }
 
   .smartbolig-ai__capability-grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 0.38rem;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
     width: 100%;
     margin-top: 0.72rem;
   }
@@ -147,7 +147,7 @@ const { t } = Astro.props;
     justify-items: start;
     gap: 0.08rem;
     min-width: 0;
-    padding: 0.48rem 0.43rem 0.42rem;
+    padding: 0.5rem 0.6rem 0.46rem;
     overflow: hidden;
     border: 1px solid var(--ai-line);
     border-radius: var(--sb-radius-sm);
@@ -173,20 +173,21 @@ const { t } = Astro.props;
 
   .smartbolig-ai__capability-grid strong {
     color: var(--ai-text);
-    font-size: 0.52rem;
+    font-size: var(--sb-text-xs);
     font-weight: 680;
   }
 
   .smartbolig-ai__capability-grid small {
     color: var(--ai-dim);
     font-family: var(--sb-font-mono);
-    font-size: 0.43rem;
-    letter-spacing: 0.015em;
+    font-size: var(--sb-text-xs);
+    letter-spacing: 0.01em;
   }
 
+  /* The decorative orbit graphic gives its space to readable content on phones. */
   @media (max-width: 640px) {
-    .smartbolig-ai__capability-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
+    .smartbolig-ai__core-visual {
+      display: none;
     }
   }
 
