@@ -455,3 +455,22 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Kildekontrollen er uændret: kun `smartbolig.net`-adresser kan blive kilder, teksten
   afkortes, og en fejl eller en overskredet tidsgrænse giver et svar uden guideuddrag.
 - AI Search-instansen hos Cloudflare er ikke slettet (se TIL-EJEREN).
+
+### B54. Søgemaskinernes grundregler: omdirigeringer, robots.txt og strukturerede data
+- Baggrund: en gennemgang af den levende side 2026-11-14 fandt gamle adresser med 404,
+  `robots.txt`-grupper, der fik Googlebot og Bingbot til at springe `Disallow` over, og
+  ugyldige HowTo-data på 50 af 52 sider.
+- Valg: gamle adresser får faste 301-regler i `public/_redirects`, lagt før reglerne med `*`
+  (Cloudflare tæller alt efter den første `*`-regel mod en grænse på 100).
+- Valg: ingen egne grupper til Googlebot og Bingbot. En crawler med egen gruppe læser ikke
+  `*`-gruppen. De AI-søgemaskiner, der er tilladt ved navn, gentager de to `Disallow`-linjer.
+  Fravalgt: at gentage linjerne også for Googlebot; uden egen gruppe følger den `*` og kan
+  ikke komme ud af trit.
+- Valg: HowTo-data fjernes helt i stedet for at blive rettet. Google viser ikke HowTo-resultater
+  mere, og data uden synlig modpart på siden er imod Googles retningslinjer. FAQ-data bliver.
+- Valg: `og:type` følger artikeldata (`shouldRenderArticleSchema`), så de to aldrig siger
+  forskelligt. Forsiden har ingen brødkrumme-liste, fordi en liste kræver mindst to led.
+- Sikring: `npm run seo:validate` afviser hver af fejlene på de byggede sider, og
+  `scripts/site-redirects.test.mjs` låser reglerne, rækkefølgen og at målet findes.
+- Dokumentation: `docs/seo.md`.
+
