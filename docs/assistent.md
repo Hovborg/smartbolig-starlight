@@ -145,7 +145,8 @@ højst ét opslag pr. besked, og statussen `searching` meldes én gang.
    til noget, der søges efter: "Tak, det virkede ikke" og "Vis mig hvordan jeg sætter
    Zigbee2MQTT op, tak" er ikke afslutninger. "Ja" og "nej" er det heller ikke; de svarer på
    noget, assistenten spurgte om. "HA" med store bogstaver er Home Assistant og gør også
-   beskeden til noget, der søges efter ("Hej, jeg skal have hjælp med HA", "Er HA godt"); med
+   beskeden til noget, der søges efter ("Hej, jeg skal have hjælp med HA", "Er HA godt"),
+   undtagen når hele beskeden står med store bogstaver ("TAK HA DET GODT", "OK HA"); med
    små bogstaver er "ha" udsagnsordet i en hilsen ("Ha en god dag"). En afslutning går forud
    for et smart home-ord: "Ha en god dag" søges der ikke efter, selv om "ha" også er et
    smart home-ord.
@@ -408,8 +409,11 @@ Kendte grænser:
 - Et afslutningsord i en besked, der ellers kun har fyld, gør den til en afslutning, også når
   den var ment som et svar eller et spørgsmål uden spørgsmålstegn: "Det er fint" og "Giver
   det mening at prøve ha" (med små bogstaver) søges der ikke efter.
-- En tak, der nævner HA med store bogstaver ("Tak, HA virker nu"), søges og får sider om Home
-  Assistant.
+- En tak, der nævner HA med store bogstaver ("Tak, HA virker nu"), søges og får fem kilder:
+  to om Home Assistant og tre produktsider. Et grin med store bogstaver ("HA HA, tak") søges
+  også og får kilder.
+- En besked, der står helt med store bogstaver, læses som med små: "HEJ, HJÆLP MED HA" er en
+  afslutning og søges der ikke efter.
 - Et spørgsmål, der kun har fyldord ("ja tak", "Hvorfor?"), har ingen søgeord og finder intet.
 - Valgt fra: at søge en besked sammen med en tidligere besked. Se "Hvorfor en besked søges
   alene".

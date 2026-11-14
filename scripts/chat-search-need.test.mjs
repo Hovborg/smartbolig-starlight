@@ -252,13 +252,21 @@ test("HA in capitals is Home Assistant and no padding; in small letters it is th
     "Giver det mening at prøve HA",
     "Is HA good to try",
   ]);
-  all(isClosing, true, ["Ha en god dag", "Tak, ha det godt", "Tak og ha en god weekend", "TAK HA DET GODT", "Tak, ha' en god dag"]);
+  all(isClosing, true, ["Ha en god dag", "Tak, ha det godt", "Tak og ha en god weekend", "Tak, ha' en god dag"]);
+});
+
+test("in a message written all in capitals HA says nothing", () => {
+  all(isClosing, true, ["TAK HA DET GODT", "OK HA", "HEJ, HJÆLP MED HA"]);
+});
+
+test("the letters HA inside a word in capitals are no Home Assistant", () => {
+  all(isClosing, true, ["THANKS a lot", "THANKS, that was a big help"]);
 });
 
 test("a letter typed as a base letter and a combining mark reads like the letter", () => {
   const decomposed = (text) => text.normalize("NFD");
   assert.notEqual(decomposed("Forstået"), "Forstået");
-  all(isClosing, true, [decomposed("Forstået"), decomposed("Nå, så tak"), decomposed("Tak for hjælpen")]);
+  all(isClosing, true, [decomposed("Forstået"), decomposed("Nå, så tak"), decomposed("Nå, tak")]);
 });
 
 test("a word of a question, a problem or an answer neither closes a message nor pads a closing", () => {

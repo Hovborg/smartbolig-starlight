@@ -261,6 +261,8 @@ test("a first message the site has nothing about gets the nothing-found prompt, 
   await first.ask("Hvem vandt VM i fodbold?");
   assert.match(systemOf(first.modelInputs[0]), NOT_FOUND_PROMPT);
   assert.doesNotMatch(systemOf(first.modelInputs[0]), CONTINUED_PROMPT);
+  // A greeting that is not searched gets this prompt too, so it does not say that a search ran.
+  assert.doesNotMatch(systemOf(first.modelInputs[0]), /was searched/);
 
   const later = harness([hit(2)]);
   await later.converse(NO_KEYWORD, "Hvem vandt VM i fodbold?");

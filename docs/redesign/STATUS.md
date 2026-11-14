@@ -67,7 +67,7 @@ Sidst opdateret: 2026-11-14.
   fjerde gennemgangs 2.261 samtaler mod det byggede indeks: i alle viser den senere besked
   præcis de kilder, den viser som første besked. En femte gennemgang fandt ingen besked, der
   får et tidligere spørgsmåls sider (520 egne samtaler, også som strøm og i kæder); dens
-  mindre fund er rettet (»HA« med store bogstaver søges, ordlisterne sammenlignes med koden,
+  mindre fund er rettet (»HA« med store bogstaver søges, undtagen i en besked helt med store bogstaver, ordlisterne sammenlignes med koden,
   prompten til en opfølgning). 195 prøver med en fejl sat ind i koden fanges alle af
   testene. Pris, kendt: en opfølgning uden eget emne (»Kan du uddybe?«) får
   ingen nye sider og ingen kildelinks (356 af 524 danske og 340 af 485 engelske

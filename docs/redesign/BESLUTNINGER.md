@@ -1076,8 +1076,15 @@ Denne tilføjelse afløser reglerne om opfølgninger i de tre tilføjelser ovenf
   efter.
 - Valgt: »HA« med store bogstaver er Home Assistant og gør en besked uden spørgsmålstegn til
   noget, der søges efter. Før blev »Hej, jeg skal have hjælp med HA« læst som en hilsen, fordi
-  »ha« er fyld i »Ha en god dag«. Pris: »Tak, HA virker nu« søges og får sider om Home
-  Assistant.
+  »ha« er fyld i »Ha en god dag«. Pris: »Tak, HA virker nu« og et grin (»HA HA, tak«) søges
+  og får kilder. Undtagelse: i en besked, der står helt med store bogstaver, siger »HA«
+  intet, så »TAK HA DET GODT« stadig er en afslutning; det er »HEJ, HJÆLP MED HA« så også.
+- En kort uafhængig kontrol af netop disse rettelser fandt én fejl, i dokumentationen:
+  undtagelsen for store bogstaver stod ingen steder. Den står nu de tre steder, reglen er
+  beskrevet. Kontrollen sammenlignede den gamle og den nye `isClosing` på 4.696 beskeder fra
+  de tidligere gennemgange og 400.000 tilfældige: hver forskel er »HA« som helt ord i en
+  besked med blandede bogstaver eller et sammensat bogstav. Tre små huller i testene er
+  lukket (»HA« inde i et ord, ordlyden uden sider, et eksempel uden sammensat bogstav).
 - Valgt: prompten til en senere besked uden sider siger nu, at modellen skal lægge bred viden
   til, hvor samtalen ikke har svaret, og nævner et svar på noget, assistenten spurgte om.
   Begrundelse: læst ordret gav den gamle tekst intet nyt til »Den blinker stadig rødt«.
