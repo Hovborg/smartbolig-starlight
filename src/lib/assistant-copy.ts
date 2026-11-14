@@ -5,7 +5,6 @@ export const assistantRuntimeCopy = {
     working: 'Arbejder på dit svar …',
     // One line per stage the server reports while a streamed answer is on its way.
     stages: {
-      reading: 'Læser dit spørgsmål …',
       searching: 'Søger i guiderne …',
       writing: 'Skriver svar …',
       revising: 'Skriver svaret om …',
@@ -16,7 +15,6 @@ export const assistantRuntimeCopy = {
   en: {
     working: 'Working on your answer …',
     stages: {
-      reading: 'Reading your question …',
       searching: 'Searching the guides …',
       writing: 'Writing the answer …',
       revising: 'Rewriting the answer …',

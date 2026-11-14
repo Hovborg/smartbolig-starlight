@@ -5,7 +5,6 @@ import test from "node:test";
 import { readAssistantSource } from "./lib/assistant-source.mjs";
 import {
   FALLBACK_MODEL_TIMEOUT_MS,
-  MAX_MODEL_RUNS,
   PRIMARY_MODEL_TIMEOUT_MS,
   SEARCH_TIMEOUT_MS,
 } from "../functions/api/chat.js";
@@ -240,11 +239,11 @@ test("assistant handles loading, server failures, Escape and focus restoration",
   assert.ok(requestTimeoutMatch, "widget request timeout must stay explicit");
   const requestTimeoutMs = Number(requestTimeoutMatch[1].replaceAll("_", ""));
   const modelRunBudgetMs = PRIMARY_MODEL_TIMEOUT_MS + FALLBACK_MODEL_TIMEOUT_MS;
-  const maximumServerPathMs = modelRunBudgetMs * MAX_MODEL_RUNS + SEARCH_TIMEOUT_MS;
+  const maximumServerPathMs = modelRunBudgetMs + SEARCH_TIMEOUT_MS;
   assert.equal(requestTimeoutMs, 180_000);
   assert.ok(
     requestTimeoutMs >= maximumServerPathMs + 10_000,
-    "browser timeout must cover search, every allowed model run and network overhead",
+    "browser timeout must cover the search, the model run and network overhead",
   );
   assert.match(source, /requestId\s*!==\s*requestSequence/);
   assert.match(source, /abortController\s*===\s*requestController/);

@@ -27,7 +27,6 @@ import {
 } from "./answer.js";
 import { isModelStream, readModelStream } from "./model-stream.js";
 import { safeErrorName, withTimeout } from "./runtime.js";
-import { selectSearchToolCall } from "./search-tool.js";
 
 const RESPONSE_ERRORS = ["EmptyModelResponseError", "InvalidModelResponseError", "TruncatedModelResponseError"];
 
@@ -130,43 +129,39 @@ export function createModelRunner({ aiRunImpl, binding, latestUserContent, live,
     return runFallback(inputMessages, reason, primaryErrorName);
   };
 
-  return async function runModel(inputMessages, inputTools, fallbackMessages = inputMessages) {
-    // A step that may end in a tool call is not streamed: its output is not always an answer.
-    const streamed = Boolean(live) && !inputTools;
+  return async function runModel(inputMessages) {
     let primaryResult;
     try {
       primaryResult = await runInference(
         CHAT_MODEL,
         {
           messages: inputMessages,
-          ...(inputTools ? { tools: inputTools } : {}),
           max_completion_tokens: MAX_MODEL_TOKENS,
           reasoning_effort: "low",
           temperature: 0.1,
         },
         PRIMARY_MODEL_TIMEOUT_MS,
-        streamed,
+        Boolean(live),
       );
     } catch (error) {
       // No second model after a stopped request.
       if (live?.signal?.aborted) throw error;
-      return replaceWithFallback(fallbackMessages, "primary_error", safeErrorName(error));
+      return replaceWithFallback(inputMessages, "primary_error", safeErrorName(error));
     }
 
     const primaryAnswer = extractModelAnswer(primaryResult);
     if (isTruncatedModelResult(primaryResult, primaryAnswer)) {
-      return replaceWithFallback(fallbackMessages, truncatedReason(primaryResult, "primary"));
+      return replaceWithFallback(inputMessages, truncatedReason(primaryResult, "primary"));
     }
-    const isToolCall = Boolean(inputTools && selectSearchToolCall(primaryResult));
-    if (isAcceptableModelAnswer(primaryAnswer, latestUserContent) || isToolCall) {
-      if (live && !shown && !isToolCall) show(primaryAnswer);
+    if (isAcceptableModelAnswer(primaryAnswer, latestUserContent)) {
+      if (live && !shown) show(primaryAnswer);
       return {
         result: primaryResult,
         diagnostics: { model: CHAT_MODEL_DIAGNOSTIC, route: "primary" },
       };
     }
     return replaceWithFallback(
-      fallbackMessages,
+      inputMessages,
       primaryAnswer ? "invalid_primary_response" : emptyReason(primaryResult, "primary"),
     );
   };
