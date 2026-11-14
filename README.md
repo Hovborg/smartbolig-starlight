@@ -348,8 +348,9 @@ Sådan hænger det sammen:
   `src/styles/home/`; en test i `scripts/site-quality.test.mjs` afviser dem.
 - **Huset:** en three.js-model i `src/lib/house3d/` (se `docs/3d-hus.md`).
   `src/lib/home-house.mjs` ejer tilstanden (tidspunkt og kapitel), og
-  `src/lib/home-house-stage.mjs` henter modellen, når der er brug for den. Uden
-  JavaScript eller WebGL vises stillbilledet, og knapperne er skjult.
+  `src/lib/home-house-stage.mjs` henter modellen, når der er brug for den. Huset tegnes
+  i en worker, så siden ikke hakker, mens modellen starter. Uden JavaScript eller WebGL
+  (eller med WebGL i software) vises stillbilledet, og knapperne er skjult.
 - **Bevægelse:** `src/lib/home-motion.mjs` sætter `data-home-motion` på `<html>`.
   Siden følger enhedens indstilling; knappen øverst på husets skærm starter eller standser
   bevægelse, og valget gemmes lokalt under `smartbolig-motion-v1`. Scener uden for

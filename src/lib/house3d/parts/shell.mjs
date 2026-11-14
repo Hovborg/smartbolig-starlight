@@ -3,6 +3,7 @@
 //   living room  x -6..-1    z -1..2      kitchen  x -1..2     z -1..2
 //   bedroom      x -6..-2.5  z -4..-1     bath     x -2.5..-0.3  hall  x -0.3..2
 import { BufferAttribute, CanvasTexture, CircleGeometry, Color, Mesh, PlaneGeometry, Vector3 } from "three";
+import { blankCanvas } from "../canvas.mjs";
 import { box, glow, group, matte, overlay, setGlow, soft, surface } from "../kit.mjs";
 import { surfaceMaps } from "../textures.mjs";
 
@@ -16,8 +17,7 @@ const PLOT = { x: 0.1, z: 0.6, r: 11.8 };
 
 /** White in the middle, black at the rim: the ground fades into the page. */
 function fadeMap() {
-  const canvas = document.createElement("canvas");
-  canvas.width = canvas.height = 256;
+  const canvas = blankCanvas(256);
   const ctx = canvas.getContext("2d");
   const gradient = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
   gradient.addColorStop(0, "#fff");
