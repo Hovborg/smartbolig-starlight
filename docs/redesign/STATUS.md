@@ -79,7 +79,15 @@ Sidst opdateret: 2026-11-14.
   stadig grænsen (2 af 20 danske, 6 af 24 engelske) og kan få en kilde; tiden til første ord
   (ca. 19 s, modellens tænketid) er ikke ændret og står på listen til ejeren. Muligt næste
   skridt, ikke bygget: lade modellen skrive søgeteksten til en opfølgning (ét modelkald mere).
-  Tal og grænser: `docs/assistent.md`, "Målt med samtaler".
+  Tal og grænser: `docs/assistent.md`, "Målt med samtaler". Udgivet 2026-11-14 (PR #209,
+  `main` 22fface, Worker `fd3bd2e3`). Set på den levende side med én samtale på tre beskeder:
+  "Hvordan får jeg lyset til at tænde ved bevægelse?" viser fire kilder fra siden, første ord
+  efter 20 s og hele svaret efter 36 s (før: 33 s uden tekst og ingen kilder); "Kan du
+  uddybe?" viser ingen kilder og svarer ud fra samtalen, første ord efter 32 s; "Tak for det"
+  viser ingen kilder og er færdig efter 12 s. Opfølgningen blev sendt med en forkortet udgave
+  af det første svar som historik. Vinduet på forsiden (telefonbredde, skjult Chrome): fire
+  kildelinks vises straks, teksten kommer løbende fra ca. 27 s, og vinduet er klar igen efter
+  42 s. Ikke set: en opfølgning skrevet i vinduet.
 - **Automatiske opdateringer set i drift 2026-11-14:** Dependabot åbnede otte pull requests
   efter udgivelsen. Gruppen med små npm-opdateringer (PR #192) blev flettet af sig selv, efter
   at `deploy`-kontrollen var grøn, og kontrollerne kørte derefter på `main`. Starlight 0.42.8
@@ -283,6 +291,7 @@ flytter kun Workeren og de statiske filer; `main` er uændret, så den næste ud
 
 | Udgivelse | Pull request | Worker-version |
 |---|---|---|
+| Assistenten søger først, hver besked alene | #209 | `fd3bd2e3-b4c5-4b4b-9bd6-11f719ada749` |
 | Startsæt-bygger | #212 | `202ffebc-da12-4db7-8b7d-865293a6cfd2` |
 | Gamle adresser sendes videre | #211 | `4eaa513f-7377-4e9c-97c4-6ac39cac9278` |
 | Zigbee-kanalvælger og batterilevetid | #207 | `bd23498c-04ac-40d5-82b0-72b8a8d03689` |
@@ -313,8 +322,9 @@ Det, der ikke er gjort. Det, kun ejeren kan gøre, står i [TIL-EJEREN.md](TIL-E
 - **Den strenge CSP:** sendes kun som rapport. Den slås til, når samtykkebeskeden er udgivet
   (TIL-EJEREN punkt 1) og den levende side er set uden overtrædelser med annoncer
   (`docs/sikkerhed.md`, "Den strenge politik").
-- **Assistentens tid til første ord:** ca. 19 s (modellens tænketid). Står på listen til
-  ejeren, fordi en hurtigere model koster.
+- **Assistentens tid til første ord:** ca. 20 s for et spørgsmål og 32 s for en opfølgning
+  (modellens tænketid; opfølgningen er målt én gang). Står på listen til ejeren, fordi en
+  hurtigere model koster.
 - **`allowScripts` i `package.json`** nævner `sharp@0.34.5`, mens låsefilen har en nyere
   version. npm 11 viser ingen brug af linjen ved installation; den er ladt stå.
 - **Fire pull requests fra Dependabot står åbne med vilje:** #189, #190 og #191 (ny hovedversion
