@@ -37,7 +37,7 @@ export const batteryCopy = {
       invalid: "Skriv et tal fra 0 til 86400 uden tusindtegn, for eksempel 5.",
       tooLong: "Den kan ikke være vågen længere end tiden mellem opvågninger.",
     },
-    interval: { label: "Opvågning hver, i minutter", unit: "min.", hint: "Tiden fra en opvågning til den næste.", invalid: "Skriv et tal fra 0,1 til 10080 uden tusindtegn, for eksempel 30." },
+    interval: { label: "Tid mellem opvågninger i minutter", unit: "min.", hint: "Tiden fra en opvågning til den næste.", invalid: "Skriv et tal fra 0,1 til 10080 uden tusindtegn, for eksempel 30." },
     usable: { label: "Brugbar del af kapaciteten i procent", unit: "%", hint: "Enheden stopper ofte, før batteriet er helt tomt.", invalid: "Skriv et tal fra 1 til 100." },
     presets: {
       label: "Tal fra et datablad",
@@ -81,7 +81,7 @@ export const batteryCopy = {
       invalid: "Type a number from 0 to 86400 without a thousands separator, for example 5.",
       tooLong: "It cannot be awake longer than the time between wake-ups.",
     },
-    interval: { label: "Wake up every, in minutes", unit: "min.", hint: "The time from one wake-up to the next.", invalid: "Type a number from 0.1 to 10080 without a thousands separator, for example 30." },
+    interval: { label: "Time between wake-ups in minutes", unit: "min.", hint: "The time from one wake-up to the next.", invalid: "Type a number from 0.1 to 10080 without a thousands separator, for example 30." },
     usable: { label: "Usable share of the capacity in percent", unit: "%", hint: "The device often stops before the battery is completely empty.", invalid: "Type a number from 1 to 100." },
     presets: {
       label: "Figures from a datasheet",
