@@ -1,134 +1,36 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500">
-  <defs>
-    <linearGradient id="screenGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#1a1a2e"/>
-      <stop offset="100%" style="stop-color:#16213e"/>
-    </linearGradient>
-    <linearGradient id="displayGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" style="stop-color:#0f3460"/>
-      <stop offset="100%" style="stop-color:#1a1a2e"/>
-    </linearGradient>
-  </defs>
-  
-  <!-- Background -->
-  <rect width="800" height="500" fill="#0f0f1a"/>
-  
-  <!-- Title -->
-  <text x="400" y="35" text-anchor="middle" fill="#ffffff" font-family="system-ui, sans-serif" font-size="20" font-weight="bold">Shelly Wall Display - Oversigt</text>
-  
-  <!-- Wall Display Device -->
-  <g transform="translate(80, 70)">
-    <!-- Device frame -->
-    <rect x="0" y="0" width="200" height="200" rx="15" fill="#2d2d2d" stroke="#444" stroke-width="2"/>
-    
-    <!-- Screen -->
-    <rect x="15" y="15" width="170" height="170" rx="8" fill="url(#screenGrad)"/>
-    
-    <!-- Dashboard preview on screen -->
-    <rect x="25" y="25" width="150" height="30" rx="4" fill="#3b82f6" opacity="0.8"/>
-    <text x="100" y="45" text-anchor="middle" fill="#fff" font-size="12" font-family="system-ui">🏠 Dashboard</text>
-    
-    <!-- Temperature display -->
-    <rect x="25" y="65" width="70" height="50" rx="4" fill="#1e293b"/>
-    <text x="60" y="85" text-anchor="middle" fill="#22c55e" font-size="11" font-family="system-ui">🌡️ Temp</text>
-    <text x="60" y="105" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold" font-family="system-ui">22°C</text>
-    
-    <!-- Humidity display -->
-    <rect x="105" y="65" width="70" height="50" rx="4" fill="#1e293b"/>
-    <text x="140" y="85" text-anchor="middle" fill="#3b82f6" font-size="11" font-family="system-ui">💧 Fugt</text>
-    <text x="140" y="105" text-anchor="middle" fill="#fff" font-size="14" font-weight="bold" font-family="system-ui">50%</text>
-    
-    <!-- Buttons -->
-    <rect x="25" y="125" width="70" height="50" rx="4" fill="#22c55e" opacity="0.8"/>
-    <text x="60" y="155" text-anchor="middle" fill="#fff" font-size="11" font-family="system-ui">💡 Stue</text>
-    
-    <rect x="105" y="125" width="70" height="50" rx="4" fill="#64748b"/>
-    <text x="140" y="155" text-anchor="middle" fill="#fff" font-size="11" font-family="system-ui">💡 Køkken</text>
-    
-    <!-- Label -->
-    <text x="100" y="230" text-anchor="middle" fill="#94a3b8" font-size="12" font-family="system-ui">Shelly Wall Display</text>
-    <text x="100" y="245" text-anchor="middle" fill="#64748b" font-size="10" font-family="system-ui">4" Touchscreen</text>
-  </g>
-  
-  <!-- Features boxes -->
-  <!-- Sensors -->
-  <g transform="translate(320, 80)">
-    <rect x="0" y="0" width="180" height="90" rx="8" fill="#1e293b" stroke="#22c55e" stroke-width="2"/>
-    <text x="90" y="25" text-anchor="middle" fill="#22c55e" font-size="13" font-weight="bold" font-family="system-ui">📊 Indbyggede Sensorer</text>
-    <text x="15" y="48" fill="#94a3b8" font-size="11" font-family="system-ui">• Temperatur</text>
-    <text x="15" y="65" fill="#94a3b8" font-size="11" font-family="system-ui">• Luftfugtighed</text>
-    <text x="15" y="82" fill="#94a3b8" font-size="11" font-family="system-ui">• Lysstyrke (LUX)</text>
-  </g>
-  
-  <!-- Relay -->
-  <g transform="translate(520, 80)">
-    <rect x="0" y="0" width="180" height="90" rx="8" fill="#1e293b" stroke="#f59e0b" stroke-width="2"/>
-    <text x="90" y="25" text-anchor="middle" fill="#f59e0b" font-size="13" font-weight="bold" font-family="system-ui">⚡ 5A Relæ</text>
-    <text x="15" y="48" fill="#94a3b8" font-size="11" font-family="system-ui">• Styr lys direkte</text>
-    <text x="15" y="65" fill="#94a3b8" font-size="11" font-family="system-ui">• Op til 1150W</text>
-    <text x="15" y="82" fill="#94a3b8" font-size="11" font-family="system-ui">• Lokal eller via HA</text>
-  </g>
-  
-  <!-- HA Dashboard -->
-  <g transform="translate(320, 190)">
-    <rect x="0" y="0" width="180" height="90" rx="8" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
-    <text x="90" y="25" text-anchor="middle" fill="#3b82f6" font-size="13" font-weight="bold" font-family="system-ui">📱 HA Dashboard</text>
-    <text x="15" y="48" fill="#94a3b8" font-size="11" font-family="system-ui">• Vis dashboards på skærm</text>
-    <text x="15" y="65" fill="#94a3b8" font-size="11" font-family="system-ui">• Kiosk mode support</text>
-    <text x="15" y="82" fill="#94a3b8" font-size="11" font-family="system-ui">• Touch kontrol</text>
-  </g>
-  
-  <!-- Thermostat -->
-  <g transform="translate(520, 190)">
-    <rect x="0" y="0" width="180" height="90" rx="8" fill="#1e293b" stroke="#ef4444" stroke-width="2"/>
-    <text x="90" y="25" text-anchor="middle" fill="#ef4444" font-size="13" font-weight="bold" font-family="system-ui">🌡️ Termostat</text>
-    <text x="15" y="48" fill="#94a3b8" font-size="11" font-family="system-ui">• Indbygget klimastyring</text>
-    <text x="15" y="65" fill="#94a3b8" font-size="11" font-family="system-ui">• Schedule support</text>
-    <text x="15" y="82" fill="#94a3b8" font-size="11" font-family="system-ui">• Kombiner m/ radiator</text>
-  </g>
-  
-  <!-- Connection arrows -->
-  <defs>
-    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-      <polygon points="0 0, 10 3.5, 0 7" fill="#64748b"/>
-    </marker>
-  </defs>
-  
-  <!-- Arrow from display to features -->
-  <path d="M 280 170 L 310 125" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
-  <path d="M 280 170 L 310 235" stroke="#64748b" stroke-width="2" fill="none" marker-end="url(#arrowhead)"/>
-  
-  <!-- Home Assistant connection -->
-  <g transform="translate(100, 320)">
-    <rect x="0" y="0" width="600" height="80" rx="10" fill="#1e293b" stroke="#3b82f6" stroke-width="2"/>
-    
-    <!-- HA Logo placeholder -->
-    <circle cx="50" cy="40" r="25" fill="#3b82f6"/>
-    <text x="50" y="47" text-anchor="middle" fill="#fff" font-size="20" font-family="system-ui">🏠</text>
-    
-    <text x="100" y="35" fill="#fff" font-size="14" font-weight="bold" font-family="system-ui">Home Assistant Integration</text>
-    <text x="100" y="55" fill="#94a3b8" font-size="11" font-family="system-ui">Auto-discovery via Shelly integration • Alle sensorer tilgængelige • Real-time opdateringer</text>
-    <text x="100" y="72" fill="#64748b" font-size="10" font-family="system-ui">climate.shelly_wall_display • sensor.temperature • sensor.humidity • switch.relay</text>
-  </g>
-  
-  <!-- WiFi indicator -->
-  <g transform="translate(620, 320)">
-    <text x="40" y="25" text-anchor="middle" fill="#22c55e" font-size="24" font-family="system-ui">📶</text>
-    <text x="40" y="50" text-anchor="middle" fill="#94a3b8" font-size="10" font-family="system-ui">WiFi 2.4GHz</text>
-  </g>
-  
-  <!-- Bottom info -->
-  <g transform="translate(100, 420)">
-    <rect x="0" y="0" width="290" height="60" rx="8" fill="#0f172a" stroke="#22c55e" stroke-width="1"/>
-    <text x="145" y="22" text-anchor="middle" fill="#22c55e" font-size="11" font-weight="bold" font-family="system-ui">✓ Fordele</text>
-    <text x="10" y="40" fill="#94a3b8" font-size="10" font-family="system-ui">• Native HA dashboard support</text>
-    <text x="10" y="54" fill="#94a3b8" font-size="10" font-family="system-ui">• Alt-i-én løsning (skærm + sensorer + relæ)</text>
-  </g>
-  
-  <g transform="translate(410, 420)">
-    <rect x="0" y="0" width="290" height="60" rx="8" fill="#0f172a" stroke="#f59e0b" stroke-width="1"/>
-    <text x="145" y="22" text-anchor="middle" fill="#f59e0b" font-size="11" font-weight="bold" font-family="system-ui">⚠️ Krav</text>
-    <text x="10" y="40" fill="#94a3b8" font-size="10" font-family="system-ui">• Kræver neutral leder (N)</text>
-    <text x="10" y="54" fill="#94a3b8" font-size="10" font-family="system-ui">• Dyb indmuringsdåse anbefales</text>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 586" role="img" lang="da" font-family="system-ui, sans-serif">
+  <title>Det kan Shelly Wall Display</title>
+  <desc>Shelly Wall Display er en 4 tommer touchskærm med indbyggede sensorer for temperatur, fugt og lysstyrke, et 5 A relæ, Home Assistant-dashboard på skærmen og termostat. Home Assistant finder den selv gennem Shelly-integrationen over WiFi 2,4 GHz. Den kræver fase, neutral (N) og jord, og en dyb indmuringsdåse anbefales.</desc>
+  <rect x="0" y="0" width="640" height="586" fill="#1a1a2e"/>
+  <text x="320" y="46" font-size="26" fill="#e2e8f0" text-anchor="middle" font-weight="700">Shelly Wall Display: det kan den</text>
+  <rect x="24" y="76" width="220" height="220" rx="20" fill="#374151" stroke="#6b7280" stroke-width="2"/>
+  <rect x="40" y="92" width="188" height="188" rx="8" fill="#0b1220"/>
+  <rect x="50" y="102" width="80" height="52" rx="6" fill="#1e293b"/>
+  <text x="90" y="135" font-size="20" fill="#ffffff" text-anchor="middle" font-weight="700">22 °C</text>
+  <rect x="138" y="102" width="80" height="52" rx="6" fill="#1e293b"/>
+  <text x="178" y="135" font-size="20" fill="#ffffff" text-anchor="middle" font-weight="700">50 %</text>
+  <rect x="50" y="164" width="168" height="48" rx="6" fill="#15803d"/>
+  <text x="134" y="194.3" font-size="18" fill="#ffffff" text-anchor="middle" font-weight="700">Stue</text>
+  <rect x="50" y="222" width="168" height="48" rx="6" fill="#475569"/>
+  <text x="134" y="252.3" font-size="18" fill="#ffffff" text-anchor="middle" font-weight="700">Køkken</text>
+  <text x="134" y="324" font-size="18" fill="#a3b1c6" text-anchor="middle">4″ touchskærm</text>
+  <rect x="264" y="76" width="352" height="62" rx="8" fill="#0f172a" stroke="#22c55e" stroke-width="2"/>
+  <text x="280" y="102" font-size="18" fill="#4ade80" font-weight="700">Indbyggede sensorer</text>
+  <text x="280" y="126" font-size="18" fill="#e2e8f0">temperatur, fugt og lysstyrke</text>
+  <rect x="264" y="146" width="352" height="62" rx="8" fill="#0f172a" stroke="#f59e0b" stroke-width="2"/>
+  <text x="280" y="172" font-size="18" fill="#fbbf24" font-weight="700">5 A relæ</text>
+  <text x="280" y="196" font-size="18" fill="#e2e8f0">tænder og slukker lys direkte</text>
+  <rect x="264" y="216" width="352" height="62" rx="8" fill="#0f172a" stroke="#3b82f6" stroke-width="2"/>
+  <text x="280" y="242" font-size="18" fill="#60a5fa" font-weight="700">Dashboard på skærmen</text>
+  <text x="280" y="266" font-size="18" fill="#e2e8f0">viser Home Assistant direkte</text>
+  <rect x="264" y="286" width="352" height="62" rx="8" fill="#0f172a" stroke="#ef4444" stroke-width="2"/>
+  <text x="280" y="312" font-size="18" fill="#fca5a5" font-weight="700">Termostat</text>
+  <text x="280" y="336" font-size="18" fill="#e2e8f0">indbygget klimastyring</text>
+  <rect x="24" y="372" width="592" height="78" rx="10" fill="#172554" stroke="#3b82f6" stroke-width="2"/>
+  <text x="320" y="404" font-size="20" fill="#ffffff" text-anchor="middle" font-weight="700">Home Assistant finder skærmen selv</text>
+  <text x="320" y="432" font-size="18" fill="#bfdbfe" text-anchor="middle">via Shelly-integrationen · WiFi 2,4 GHz</text>
+  <rect x="24" y="468" width="592" height="100" rx="10" fill="#0f172a" stroke="#f59e0b" stroke-width="2"/>
+  <text x="320" y="498" font-size="18" fill="#fbbf24" text-anchor="middle" font-weight="700">Kræver</text>
+  <text x="320" y="524" font-size="18" fill="#e2e8f0" text-anchor="middle">fase, neutral (N) og jord i dåsen</text>
+  <text x="320" y="550" font-size="18" fill="#e2e8f0" text-anchor="middle">en dyb indmuringsdåse anbefales</text>
 </svg>

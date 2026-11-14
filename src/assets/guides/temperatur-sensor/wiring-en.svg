@@ -1,86 +1,63 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 400">
-  <defs>
-    <linearGradient id="esp32Grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1e3a5f;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#0f172a;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="dhtGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#1e40af;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#1e3a8a;stop-opacity:1" />
-    </linearGradient>
-  </defs>
-  
-  <!-- Background -->
-  <rect width="700" height="400" fill="#1a1a2e"/>
-  
-  <!-- Title -->
-  <text x="350" y="30" text-anchor="middle" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="20" font-weight="bold">DHT22 → ESP32 Wiring Diagram</text>
-  
-  <!-- ESP32 Board -->
-  <rect x="400" y="80" width="250" height="280" rx="8" fill="url(#esp32Grad)" stroke="#3b82f6" stroke-width="2"/>
-  <text x="525" y="110" text-anchor="middle" fill="#60a5fa" font-family="system-ui, sans-serif" font-size="16" font-weight="bold">ESP32</text>
-  
-  <!-- ESP32 Pins (left side) -->
-  <rect x="400" y="140" width="60" height="20" rx="3" fill="#ef4444"/>
-  <text x="430" y="154" text-anchor="middle" fill="white" font-family="monospace" font-size="10" font-weight="bold">3V3</text>
-  
-  <rect x="400" y="180" width="60" height="20" rx="3" fill="#22c55e"/>
-  <text x="430" y="194" text-anchor="middle" fill="white" font-family="monospace" font-size="10" font-weight="bold">GPIO4</text>
-  
-  <rect x="400" y="220" width="60" height="20" rx="3" fill="#171717"/>
-  <text x="430" y="234" text-anchor="middle" fill="white" font-family="monospace" font-size="10" font-weight="bold">GND</text>
-  
-  <!-- USB indicator -->
-  <rect x="490" y="330" width="70" height="25" rx="4" fill="#374151" stroke="#6b7280" stroke-width="1"/>
-  <text x="525" y="347" text-anchor="middle" fill="#9ca3af" font-family="system-ui, sans-serif" font-size="9">USB-C</text>
-  
-  <!-- DHT22 Sensor -->
-  <rect x="50" y="120" width="120" height="180" rx="8" fill="url(#dhtGrad)" stroke="#60a5fa" stroke-width="2"/>
-  <text x="110" y="150" text-anchor="middle" fill="white" font-family="system-ui, sans-serif" font-size="14" font-weight="bold">DHT22</text>
-  
-  <!-- DHT22 grid pattern -->
-  <rect x="70" y="165" width="80" height="60" rx="4" fill="#1e3a8a" stroke="#3b82f6" stroke-width="1"/>
-  <line x1="85" y1="165" x2="85" y2="225" stroke="#60a5fa" stroke-width="1" opacity="0.5"/>
-  <line x1="110" y1="165" x2="110" y2="225" stroke="#60a5fa" stroke-width="1" opacity="0.5"/>
-  <line x1="135" y1="165" x2="135" y2="225" stroke="#60a5fa" stroke-width="1" opacity="0.5"/>
-  
-  <!-- DHT22 Pins -->
-  <rect x="60" y="240" width="30" height="20" rx="3" fill="#ef4444"/>
-  <text x="75" y="254" text-anchor="middle" fill="white" font-family="monospace" font-size="8" font-weight="bold">VCC</text>
-  
-  <rect x="95" y="240" width="30" height="20" rx="3" fill="#22c55e"/>
-  <text x="110" y="254" text-anchor="middle" fill="white" font-family="monospace" font-size="8" font-weight="bold">DATA</text>
-  
-  <rect x="130" y="240" width="30" height="20" rx="3" fill="#171717"/>
-  <text x="145" y="254" text-anchor="middle" fill="white" font-family="monospace" font-size="8" font-weight="bold">GND</text>
-  
-  <!-- Wires -->
-  <!-- VCC (Red) -->
-  <path d="M 75 260 L 75 290 L 380 290 L 380 150 L 400 150" stroke="#ef4444" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <circle cx="75" cy="260" r="4" fill="#ef4444"/>
-  <circle cx="400" cy="150" r="4" fill="#ef4444"/>
-  
-  <!-- DATA (Green) -->
-  <path d="M 110 260 L 110 310 L 370 310 L 370 190 L 400 190" stroke="#22c55e" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <circle cx="110" cy="260" r="4" fill="#22c55e"/>
-  <circle cx="400" cy="190" r="4" fill="#22c55e"/>
-  
-  <!-- GND (Black/Gray) -->
-  <path d="M 145 260 L 145 330 L 360 330 L 360 230 L 400 230" stroke="#6b7280" stroke-width="3" fill="none" stroke-linecap="round"/>
-  <circle cx="145" cy="260" r="4" fill="#6b7280"/>
-  <circle cx="400" cy="230" r="4" fill="#6b7280"/>
-  
-  <!-- Legend -->
-  <rect x="50" y="355" width="600" height="35" rx="6" fill="#0f172a" stroke="#334155" stroke-width="1"/>
-  
-  <line x1="80" y1="372" x2="110" y2="372" stroke="#ef4444" stroke-width="3"/>
-  <text x="120" y="377" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="11">VCC → 3V3</text>
-  
-  <line x1="220" y1="372" x2="250" y2="372" stroke="#22c55e" stroke-width="3"/>
-  <text x="260" y="377" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="11">DATA → GPIO4</text>
-  
-  <line x1="380" y1="372" x2="410" y2="372" stroke="#6b7280" stroke-width="3"/>
-  <text x="420" y="377" fill="#e2e8f0" font-family="system-ui, sans-serif" font-size="11">GND → GND</text>
-  
-  <text x="560" y="377" fill="#94a3b8" font-family="system-ui, sans-serif" font-size="10">Pull-up: 10kΩ (optional)</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 476" role="img" lang="en" font-family="system-ui, sans-serif">
+  <title>DHT22 sensor wired to an ESP32 with three wires</title>
+  <desc>VCC goes to 3V3 (3.3 V), DATA to GPIO4 and GND to GND. A bare 4-pin DHT22 needs a 4.7 kΩ pull-up resistor between DATA and 3V3.</desc>
+  <defs><linearGradient id="sensor" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e40af"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient><linearGradient id="esp" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1e3a5f"/><stop offset="1" stop-color="#0f172a"/></linearGradient></defs>
+  <rect x="0" y="0" width="640" height="476" fill="#1a1a2e"/>
+  <text x="320" y="46" font-size="26" fill="#e2e8f0" text-anchor="middle" font-weight="700">DHT22 to ESP32: wiring</text>
+  <rect x="24" y="76" width="226" height="256" rx="10" fill="url(#sensor)" stroke="#60a5fa" stroke-width="2.5"/>
+  <text x="96" y="114" font-size="24" fill="#ffffff" text-anchor="middle" font-weight="700">DHT22</text>
+  <rect x="46" y="146" width="100" height="132" rx="8" fill="#1e3a8a" stroke="#60a5fa" stroke-width="1.5"/>
+  <rect x="60" y="160" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="60" y="182" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="60" y="204" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="60" y="226" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="60" y="248" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="80" y="160" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="80" y="182" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="80" y="204" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="80" y="226" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="80" y="248" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="100" y="160" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="100" y="182" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="100" y="204" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="100" y="226" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="100" y="248" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="120" y="160" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="120" y="182" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="120" y="204" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="120" y="226" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="120" y="248" width="12" height="12" rx="3" fill="#0f172a"/>
+  <rect x="154" y="159" width="92" height="34" rx="6" fill="#dc2626"/>
+  <text x="200" y="182.3" font-size="18" fill="#ffffff" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">VCC</text>
+  <rect x="154" y="211" width="92" height="34" rx="6" fill="#facc15"/>
+  <text x="200" y="234.3" font-size="18" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">DATA</text>
+  <rect x="154" y="263" width="92" height="34" rx="6" fill="#111827" stroke="#9ca3af" stroke-width="1.5"/>
+  <text x="200" y="286.3" font-size="18" fill="#ffffff" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">GND</text>
+  <rect x="390" y="76" width="226" height="256" rx="10" fill="url(#esp)" stroke="#3b82f6" stroke-width="2.5"/>
+  <text x="503" y="114" font-size="24" fill="#60a5fa" text-anchor="middle" font-weight="700">ESP32</text>
+  <rect x="394" y="159" width="92" height="34" rx="6" fill="#dc2626"/>
+  <text x="440" y="182.3" font-size="18" fill="#ffffff" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">3V3</text>
+  <rect x="394" y="211" width="92" height="34" rx="6" fill="#facc15"/>
+  <text x="440" y="234.3" font-size="18" fill="#0b1220" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">GPIO4</text>
+  <rect x="394" y="263" width="92" height="34" rx="6" fill="#111827" stroke="#9ca3af" stroke-width="1.5"/>
+  <text x="440" y="286.3" font-size="18" fill="#ffffff" text-anchor="middle" font-weight="700" font-family="ui-monospace, Menlo, Consolas, monospace">GND</text>
+  <rect x="530" y="288" width="70" height="32" rx="5" fill="#374151" stroke="#6b7280" stroke-width="1.5"/>
+  <text x="565" y="310.3" font-size="18" fill="#d1d5db" text-anchor="middle">USB</text>
+  <path d="M250 176L390 176" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="250" cy="176" r="5" fill="#ef4444"/>
+  <circle cx="390" cy="176" r="5" fill="#ef4444"/>
+  <path d="M250 228L390 228" fill="none" stroke="#facc15" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="250" cy="228" r="5" fill="#facc15"/>
+  <circle cx="390" cy="228" r="5" fill="#facc15"/>
+  <path d="M250 280L390 280" fill="none" stroke="#9ca3af" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="250" cy="280" r="5" fill="#9ca3af"/>
+  <circle cx="390" cy="280" r="5" fill="#9ca3af"/>
+  <rect x="24" y="352" width="592" height="50" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+  <path d="M92.6 377L122.6 377" fill="none" stroke="#ef4444" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="130.6" y="383.3" font-size="18" fill="#e2e8f0">VCC → 3V3</text>
+  <path d="M244.8 377L274.8 377" fill="none" stroke="#facc15" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="282.8" y="383.3" font-size="18" fill="#e2e8f0">DATA → GPIO4</text>
+  <path d="M425.2 377L455.2 377" fill="none" stroke="#9ca3af" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="463.2" y="383.3" font-size="18" fill="#e2e8f0">GND → GND</text>
+  <text x="320" y="444" font-size="18" fill="#a3b1c6" text-anchor="middle">Bare 4-pin DHT22: 4.7 kΩ between DATA and 3V3.</text>
 </svg>

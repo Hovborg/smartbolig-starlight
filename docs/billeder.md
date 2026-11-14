@@ -4,9 +4,10 @@ Sidst opdateret: 2026-11-14.
 Kontrolleret ved: `npm run site:test`, `npm run build` og `npm run seo:validate` kørt på grenen.
 Tekstspaltens bredde og den fil, browseren henter, er målt i headless Chrome på den byggede
 Zigbee2MQTT-guide ved 22 vinduesbredder. LD2410-diagrammet er set som billede på den byggede side.
-Ikke kontrolleret: en rigtig telefon, Safari og Firefox. De øvrige diagrammer (SVG) er ikke set
-igennem for overlappende tekst, sprog og fakta; det står som åbent punkt i
-`docs/redesign/STATUS.md`.
+Diagrammerne (undtagen `ld2410-mmwave/wiring*.svg`) er set som billede i headless Chrome i 328 og
+720 px bredde på mørk og lys baggrund; tekststørrelse, overlap og plads er målt samme sted.
+Ikke kontrolleret: en rigtig telefon, Safari og Firefox. Det, der er tilbage for diagrammerne,
+står i `docs/redesign/STATUS.md`.
 
 ## Kort
 
@@ -65,6 +66,36 @@ Testen "the width the browser is told is the text column's at every window width
 op mod den målte spalte og fejler, hvis browseren får en bredde at vide, der er mindre end
 spalten (uskarpt billede) eller mere end 32 px større (for stor fil). Efter en layoutændring
 måles spalten igen, og tabellen i testen opdateres.
+
+## Diagrammer
+
+Et diagram er en SVG-fil i guidens mappe under `src/assets/guides/`. Reglerne gælder nye
+diagrammer og rettelser i de gamle.
+
+- **Fakta først.** Hvert ben, hver spænding, port og protokol, hvert produktnavn og tal står ens
+  i diagrammet og i guidens tekst og kode. Er de uenige, afgør en primær kilde (producentens
+  datablad eller dokumentationen for Home Assistant eller ESPHome). Kan det ikke afgøres, rettes
+  der ikke på gæt; det skrives op til ejeren.
+- **Læsbart på en telefon.** `viewBox` er 640 enheder bred, og ingen tekst er under 18 enheder.
+  Så er teksten ca. 9 px i en spalte på 328 px (vindue på 360 px). Hellere færre ting i
+  diagrammet end mindre tekst.
+- **Intet oven på tekst.** Ingen tekst overlapper anden tekst, rager ud af sin kasse eller ud af
+  `viewBox`, og ingen ledning krydser en etiket eller et ben. Giv en tekst i en kasse mindst 8 %
+  luft; andre systemer har bredere skrifter.
+- **Egen baggrund.** Diagrammet har sit eget mørke panel (`#1a1a2e`), så det kan læses i både
+  mørkt og lyst tema. Tekst på et farvet felt er hvid på mørk farve eller mørk på lys farve.
+- **Ét sprog pr. fil.** Den danske fil hedder fx `wiring.svg`, den engelske `wiring-en.svg`, og
+  hver guide peger på filen på sit eget sprog. Dansk skrives med æ, ø og å.
+- **Tilgængelighed.** SVG-filen har `role="img"`, `lang`, en `<title>` og en `<desc>` på sit eget
+  sprog. Alt-teksten i MDX-filen siger, hvad diagrammet viser (hvilket ben går hvor), ikke kun
+  "diagram".
+- **Teknik.** Kun `viewBox` (ingen `width` og `height`), `font-family="system-ui, sans-serif"`,
+  ingen eksterne skrifter, scripts, rasterbilleder eller links til andre værter, og ingen emoji
+  (de ser forskellige ud fra system til system).
+- **Se det som billede.** Åbn filen i en browser i 328 og 720 px bredde på mørk og lys baggrund,
+  før den lægges ind. Tegn selv; kopiér ikke andres diagrammer.
+
+`ld2410-mmwave/wiring*.svg` er ældre og følger ikke størrelsesreglen endnu.
 
 ## Når noget ser forkert ud
 

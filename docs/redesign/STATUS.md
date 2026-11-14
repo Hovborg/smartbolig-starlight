@@ -138,9 +138,21 @@ Sidst opdateret: 2026-11-14.
   - Søgefeltet og tidsknapperne er skjult, til scriptet kører; pladsen bør holdes fri.
   - Filer uden brug fra før redesignet (`ProductCard.astro`, `scripts/content-inventory.mjs`,
     `public/images/produkter/`, `logo-email.png`): tjek ekstern brug, før de slettes.
-  - Diagrammerne i guiderne (27 SVG-filer) er ikke set igennem. LD2410-oversigten har
-    overlappende tekst og dansk tekst på den engelske side; de andre skal ses som billede, og
-    fakta holdes op mod guidens tekst og kode.
+  - Diagrammerne i guiderne: 25 af de 27 SVG-filer er tegnet om, set som billede (328 og 720 px,
+    mørk og lys baggrund) og holdt op mod guidens tekst og kode. Teksten er mindst 18 enheder i
+    en 640 enheder bred `viewBox` (ca. 9 px på en telefon; før 2,5-5 px), intet overlapper, hver
+    fil har `<title>` og `<desc>` på sit sprog, og syv engelske guides har fået et engelsk
+    diagram. Reglerne for nye diagrammer står i `docs/billeder.md` under "Diagrammer". Tilbage:
+    - `ld2410-mmwave/wiring*.svg` er ikke rørt: teksten er ca. 3 px på en telefon, og filerne
+      har ingen `<title>`.
+    - Den engelske ESP32-startguide viser hverken oversigten eller benoversigten; de findes kun
+      på dansk.
+    - PIR-guiden bruger GPIO5, som er et strapping-ben (læses ved opstart). Det virker, men et
+      frit ben som GPIO13 er et renere valg; guide, kode og diagram skal i så fald ændres samlet.
+    - Raspberry Pi-guidens tabel nævner kun en 15 W strømforsyning, selvom guiden også dækker
+      Pi 5. Ikke kontrolleret mod Raspberry Pis egne oplysninger; diagrammet nævner ingen watt.
+    - Vaskemaskine-guiden skriver 500-2000 W i teksten og 100-2000 W i tabellen.
+    - Ikke set på en rigtig telefon, i Safari eller i Firefox.
   - Indtryk: emoji i tabelceller, emnekortene for automationer og produkter ligner hinanden,
     det store Home Assistant-kort har få detaljer, nyhedsartikler mangler brødkrumme, og
     nyhedsoversigtens store kort gentager dato og overskrift.
