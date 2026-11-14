@@ -152,6 +152,41 @@ den eneste vej er at rette `scripts/lib/news-llm/models.mjs` og relayets
 tilladelsesliste og så udrulle relayet. Miljøvariablerne `AI_NEWS_WRITER_MODELS`
 og `AI_NEWS_REVIEWER_MODELS` bruges kun ved lokale kørsler; workflowet sætter dem ikke.
 
+## Overskriftsbilleder
+
+Hver udgave har fire JPEG-varianter (`public/images/ai-news/<dato>.jpg`, `-16x9`, `-4x3`,
+`-1x1`) og en WebP-miniature (`-thumb.webp`). `scripts/ai-news-render-image.mjs` tegner dem
+ud fra den danske artikels `news.imageHeadline` (ellers titlen) og kilderne i frontmatter;
+workflowet kalder det og `ai-news-thumbs.mjs` for den nye udgave.
+
+Udseendet følger sitets mørke tema: grafitbaggrund (`--sb-bg`), et blødt grønt skær i det
+ene hjørne, et næsten usynligt prikgitter, husmærket med "SmartBolig.net · AI-nyheder"
+(`--lang en` giver "AI News" og engelsk dato), overskriften i Bricolage Grotesque bold
+(højst tre linjer; skrives mindre, og afkortes med "…" hvis den stadig er for lang),
+datoen i accentgrøn, kilderne som neutrale omridsede piller og til højre et abstrakt
+vektormotiv (netværk, signalbuer eller skjold efter emne) i accentfarven. Farverne står kun
+i `scripts/lib/brand/palette.mjs`.
+
+Al tekst er outlinede stier fra sitets egne skrifter (Bricolage Grotesque og Figtree fra
+`@fontsource-variable`, via `scripts/lib/brand/text.mjs`). Billedet er derfor ens på Ubuntu
+i CI og på Windows og afhænger ikke af installerede skrifter; SVG'en indeholder ingen
+`<text>`-elementer. Koden ligger i `scripts/lib/news-image/` (`headline.mjs`: tilpasning og
+ombrydning, `motif.mjs`: motiverne, `compose.mjs`: sammensætningen).
+
+Gentegn alle udgaver (kun billederne ændres, ikke artiklerne):
+
+```bash
+for f in src/content/docs/da/ai/nyheder/2026-*.mdx; do
+  node scripts/ai-news-render-image.mjs --date "$(basename "$f" .mdx)" --force
+done
+node scripts/ai-news-thumbs.mjs --force
+```
+
+Ny udgave, 2026-11-14: alle 64 udgaver (320 filer) er gentegnet med den nye skabelon;
+`public/images/ai-news` gik fra 30,0 til 11,5 MB. Kontrolleret ved at åbne JPEG'erne i fuld
+størrelse og skaleret til 300 px bredde (dansk æ/ø/å, lang og ubrudt overskrift, alle fire
+formater), og med `npm run ai-news:test`, `npm run site:test` og `npm run build`.
+
 ## Relayet
 
 `workers/news-llm/` er en lille Cloudflare Worker med én rute. Den kræver en
