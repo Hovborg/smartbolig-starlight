@@ -1,0 +1,35 @@
+---
+title: Electricity price right now and the cheapest hours
+description: See the Danish spot price for electricity hour by hour today and tomorrow, west and east of the Great Belt, and find the cheapest hours in a row.
+lastUpdated: 2026-11-14
+---
+
+import PowerPrice from '../../../../components/tools/PowerPrice.astro';
+
+Here you see the spot price for electricity in Denmark right now and hour by hour for the rest of the day. Choose how many hours your appliance needs to run, and the tool finds the cheapest hours in a row.
+
+<PowerPrice lang="en" />
+
+## How the numbers are calculated
+
+- The prices are spot prices for each quarter of an hour. We convert them from Danish kroner per MWh to øre/kWh. 100 øre is 1 krone.
+- The chart shows the average for each hour. The price right now and the cheapest hours in a row are calculated on the quarters.
+- With VAT, we add 25% on top of the spot price and your add-on.
+- Low, medium and high compare the price right now with the hours in the chart. The cheapest third is low, and the most expensive third is high.
+
+## What is not included
+
+The spot price is only part of what you pay for electricity. Electricity tax, grid tariff, subscription and your electricity company's surcharge come on top. The grid tariff also changes through the day, so the cheapest hour on your bill can be a different one from the cheapest hour in the chart.
+
+We do not state the rates here, because they depend on your grid company and they change. Type your own add-on in the field if you want a price that is closer to your bill.
+
+## Where the prices come from
+
+The prices are Energinet's day-ahead prices from [Energi Data Service](https://www.energidataservice.dk/tso-electricity/DayAheadPrices), published under the CC BY 4.0 licence. SmartBolig.net fetches the prices and keeps a copy that is renewed after ten minutes. Your browser therefore does not call Energinet. Tomorrow's prices normally arrive around 13:00 Danish time.
+
+Denmark has two price areas. DK1 is west of the Great Belt, and DK2 is east of the Great Belt. The first time, the tool guesses your area from the region your internet connection appears to come from. The guess is not stored, and you can always change it.
+
+## Use the prices in your smart home
+
+- [Electricity price integration](/en/home-assistant/elpris-integration/): get the prices with your tariffs into Home Assistant.
+- [Run appliances in the cheapest hours](/en/automationer/billige-timer/): let an automation start the appliance when electricity is cheapest.

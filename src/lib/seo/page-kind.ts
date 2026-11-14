@@ -17,7 +17,7 @@ export function getPageKind(pathname: string) {
     isAboutPage: /^\/(?:da|en)\/om-os\/?$/.test(pathname),
     isLegalPage: /^\/(?:da|en)\/(?:juridisk|kontakt|om-os)(?:\/|$)/.test(pathname),
     isSectionIndex:
-      /^\/(?:da|en)\/(?:ai|automationer|esp32|home-assistant|juridisk|produkter|sikkerhed)\/?$/.test(pathname) ||
+      /^\/(?:da|en)\/(?:ai|automationer|esp32|home-assistant|juridisk|produkter|sikkerhed|vaerktoejer)\/?$/.test(pathname) ||
       /^\/(?:da|en)\/ai\/ai-cli\/?$/.test(pathname),
   };
 }

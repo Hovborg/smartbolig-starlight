@@ -1,0 +1,137 @@
+---
+// Tool: the electricity price right now and the cheapest hours in a row.
+// Texts: src/lib/tools/price-copy.mjs. Calculations: price-window.mjs and
+// price-view.mjs. The script below wires the page to them (price-ui.mjs).
+// Data comes from the site's own /api/elpris, never straight from Energinet.
+import PriceChart from "./PriceChart.astro";
+import ToolFrame from "./ToolFrame.astro";
+import { priceCopy } from "../../lib/tools/price-copy.mjs";
+
+interface Props {
+  lang?: "da" | "en";
+  id?: string;
+}
+
+const lang = Astro.props.lang ?? (Astro.currentLocale === "en" ? "en" : "da");
+const id = Astro.props.id ?? "elpris";
+const t = priceCopy[lang];
+const areas = ["DK1", "DK2"] as const;
+---
+
+<ToolFrame id={id} title={t.title} lang={lang} data-tool="elpris" data-state="loading">
+  <fieldset class="sb-tool-field" slot="form">
+    <legend class="sb-tool-field__label">{t.area.legend}</legend>
+    <div class="sb-tool-segment">
+      {areas.map((area) => (
+        <label>
+          <input type="radio" name={`${id}-area`} value={area} />
+          <span>{t.area[area]}<small>{t.area[`${area}Sub`]}</small></span>
+        </label>
+      ))}
+    </div>
+    <p class="sb-tool-field__hint" data-part="area-hint">{t.area.hint}</p>
+  </fieldset>
+
+  <Fragment slot="result">
+    <div class="sb-price-now" data-when="ready">
+      <div class="sb-tool-figure">
+        <p class="sb-tool-figure__label">{t.now.label} <span class="sb-price-now__period" data-part="now-period">{t.now.loading}</span></p>
+        <p class="sb-tool-figure__value">
+          <span data-part="now-value">–</span>
+          <span class="sb-tool-figure__unit">{t.chart.unit}</span>
+        </p>
+      </div>
+      <p class="sb-price-now__level" data-part="level-row" hidden>
+        <span class="sb-tool-level" data-part="level" data-level="mid">
+          <svg viewBox="0 0 18 18" aria-hidden="true" focusable="false">
+            <path class="sb-tool-level__low" d="M9 14.5 3.5 7h3.6V3.5h3.8V7h3.6z"></path>
+            <path class="sb-tool-level__mid" d="M3.5 5.9h11v2.2h-11zM3.5 9.9h11v2.2h-11z"></path>
+            <path class="sb-tool-level__high" d="M9 3.5 14.5 11h-3.6v3.5H7.1V11H3.5z"></path>
+          </svg>
+          <span data-part="level-text"></span>
+        </span>
+        <span>{t.now.compared}</span>
+      </p>
+      <dl class="sb-tool-stats">
+        {[t.stats.min, t.stats.max, t.stats.mean].map((label, index) => (
+          <div>
+            <dt>{label}</dt>
+            <dd><span data-part={`stat-${index}`}>–</span> <small data-part={`stat-${index}-at`}></small></dd>
+          </div>
+        ))}
+      </dl>
+    </div>
+    <div class="sb-tool-message" data-when="error">
+      <p data-part="error-text"></p>
+      <button type="button" class="sb-tool-button sb-tool-button--secondary" data-part="retry">{t.error.retry}</button>
+    </div>
+  </Fragment>
+
+  <PriceChart id={id} lang={lang} />
+
+  <div class="sb-tool-field">
+    <div class="sb-tool-range__head">
+      <label class="sb-tool-field__label" for={`${id}-run`}>{t.window.label}</label>
+      <output class="sb-tool-range__value" data-part="run-value" for={`${id}-run`}></output>
+    </div>
+    <input class="sb-tool-range" type="range" id={`${id}-run`} data-part="run" min="1" max="8" step="1" value="3" />
+    <div class="sb-tool-range__scale" aria-hidden="true"><span>1</span><span>8</span></div>
+    <p class="sb-tool-answer" data-part="window-text" aria-live="polite"></p>
+    <p class="sb-tool-aside" data-part="pending" hidden>{t.window.pending}</p>
+  </div>
+
+  <div class="sb-tool-fields">
+    <fieldset class="sb-tool-field">
+      <legend class="sb-tool-field__label">{t.settings.vat}</legend>
+      <div class="sb-tool-segment">
+        <label><input type="radio" name={`${id}-vat`} value="on" checked /><span>{t.settings.vatOn}</span></label>
+        <label><input type="radio" name={`${id}-vat`} value="off" /><span>{t.settings.vatOff}</span></label>
+      </div>
+    </fieldset>
+    <div class="sb-tool-field">
+      <label class="sb-tool-field__label" for={`${id}-addon`}>{t.settings.addOn}</label>
+      <div class="sb-tool-input">
+        <input type="text" inputmode="decimal" autocomplete="off" id={`${id}-addon`} data-part="addon" value="0" aria-describedby={`${id}-addon-error ${id}-addon-hint`} />
+        <span class="sb-tool-input__unit" aria-hidden="true">{t.chart.unit}</span>
+      </div>
+      <p class="sb-tool-field__error" id={`${id}-addon-error`} data-part="addon-error" hidden>{t.settings.invalid}</p>
+      <p class="sb-tool-field__hint" id={`${id}-addon-hint`}>{t.settings.addOnHint}</p>
+    </div>
+  </div>
+
+  <Fragment slot="note">
+    <p>{t.credit}</p>
+    <p data-part="fetched"></p>
+  </Fragment>
+</ToolFrame>
+
+<script>
+  import { startPriceTool } from "../../lib/tools/price-ui.mjs";
+
+  for (const root of document.querySelectorAll('[data-tool="elpris"]')) startPriceTool(root);
+</script>
+
+<style>
+  .sb-price-now {
+    display: grid;
+    gap: var(--sb-space-4);
+  }
+
+  .sb-price-now__period {
+    color: var(--sb-ink-subtle);
+    font-weight: 500;
+  }
+
+  .sb-price-now__period::before {
+    content: "· ";
+  }
+
+  .sb-price-now__level {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sb-space-2) var(--sb-space-3);
+    margin: 0;
+    color: var(--sb-ink-muted);
+  }
+</style>
