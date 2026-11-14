@@ -85,24 +85,31 @@ test("a question without a smart home word is searched first, and its sources co
   );
 });
 
-test("an answer to a question the site has nothing about arrives after an empty source list", async () => {
-  const searches = [];
-  const { handler, calls } = createStreamHarness(() => completion("Hej! Hvad vil du gerne bygge?"), {
-    siteSearch: () => async (query) => {
-      searches.push(query);
-      return [{ ...SEARCH_HIT, score: 6.85 }];
-    },
+// A question the site has nothing about is searched and finds too little; a
+// greeting is not searched for at all. The stream is the same for both.
+for (const [question, searched] of [
+  ["Hvem vandt VM i fodbold?", ["Hvem vandt VM i fodbold?"]],
+  ["Hej", []],
+]) {
+  test(`an answer to "${question}" arrives after an empty source list`, async () => {
+    const searches = [];
+    const { handler, calls } = createStreamHarness(() => completion("Hej! Hvad vil du gerne bygge?"), {
+      siteSearch: () => async (query) => {
+        searches.push(query);
+        return [{ ...SEARCH_HIT, score: 6.85 }];
+      },
+    });
+
+    const events = await readEvents(await handler({ request: chatRequest(question), env: chatEnv() }));
+
+    assert.equal(eventNames(events), "status sources status delta done message");
+    assert.deepEqual(events[1].data, { sources: [] });
+    assert.equal(deltaText(events), "Hej! Hvad vil du gerne bygge?");
+    assert.equal(events.at(-2).data.sourceMode, "general");
+    assert.equal(calls.length, 1);
+    assert.deepEqual(searches, searched);
   });
-
-  const events = await readEvents(await handler({ request: chatRequest("Hej"), env: chatEnv() }));
-
-  assert.equal(eventNames(events), "status sources status delta done message");
-  assert.deepEqual(events[1].data, { sources: [] });
-  assert.equal(deltaText(events), "Hej! Hvad vil du gerne bygge?");
-  assert.equal(events.at(-2).data.sourceMode, "general");
-  assert.equal(calls.length, 1);
-  assert.deepEqual(searches, ["Hej"]);
-});
+}
 
 test("a refusal is the same JSON response with or without a stream request", async () => {
   const cases = [
