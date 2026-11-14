@@ -260,6 +260,10 @@ npm run worker:build
 npx wrangler deploy --dry-run
 ```
 
+`npm run seo:validate` kontrollerer de byggede sider: sitemap, `robots.txt`,
+strukturerede data og sociale felter. Reglerne, og hvordan du tilføjer en
+omdirigering, står i [`docs/seo.md`](docs/seo.md) (kontrolleret 2026-11-14).
+
 Afhængighedskontrollen (`scripts/security-audit.mjs`) kører den fulde `npm audit`
 inklusiv udviklingsværktøjer. Den har to tilstande (kontrolleret 2026-11-13):
 

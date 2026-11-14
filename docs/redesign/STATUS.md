@@ -42,6 +42,17 @@ Sidst opdateret: 2026-11-14.
 - **3D-huset i en worker (B53):** rettet efter uafhængig gennemgang: siden spørger først,
   hvor huset kan tegnes (`probe.mjs`), motoren bliver stående stoppet efter `dispose`, og
   første billede venter højst 2,5 s på shaderne. Dokumentation: `docs/3d-hus.md`.
+  Udgivet 2026-11-14 (PR #195, `main` e0c6f9a, Worker-version 680d5226). Set på den levende
+  forside i headless Chrome: med grafikkort er huset levende og tegnes i en worker; uden
+  grafikkort står stillbilledet, og three.js hentes ikke. Ikke set: Safari og Firefox på en
+  rigtig enhed (TIL-EJEREN punkt 9). Vej tilbage: Worker-version db439722.
+- **Søgemaskinernes grundregler (B54):** omdirigeringer for gamle adresser, `robots.txt` uden
+  grupper til Googlebot og Bingbot og med Anthropics træningscrawler spærret, ingen HowTo-data,
+  `og:type` efter sidens slags, forside uden brødkrumme-liste. Uafhængig gennemgang; fund
+  rettet. Dokumentation: `docs/seo.md`. Efter udgivelsen kontrolleres med `curl`: `/kontakt`,
+  `/sitemap.xml`, `/index.html`, `/produkter/shelly`, `/da/products/shelly/`,
+  `/en/products/shelly/`, `robots.txt` og `og:type` på en guide og en oversigt. Resultatet
+  skrives her.
 
 ## I gang
 

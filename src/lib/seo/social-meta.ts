@@ -1,5 +1,5 @@
 import type { AiNewsAssets } from "./ai-news";
-import { getLocaleCodes, type PageKind } from "./page-kind";
+import { getLocaleCodes, type PageKind, shouldRenderArticleSchema } from "./page-kind";
 import { getSocialImageAlt } from "./page-text";
 import type { PageEntry } from "./site";
 
@@ -44,6 +44,20 @@ function addLink(head: HeadEntry[], attrs: Record<string, string>) {
 }
 
 /**
+ * Starlight lists an Astro and a Starlight generator tag. One is enough, so
+ * only the first is kept.
+ */
+function keepFirstGenerator(head: HeadEntry[]) {
+  let seen = false;
+  for (let index = 0; index < head.length; index += 1) {
+    const item = head[index];
+    if (item.tag !== "meta" || item.attrs?.name !== "generator") continue;
+    if (seen) head.splice(index--, 1);
+    seen = true;
+  }
+}
+
+/**
  * Mutates Starlight's head list with Open Graph, Twitter and article meta.
  * Starlight already emits the full hreflang set (da / en / x-default), so no
  * x-default is added here: a duplicate x-default is malformed and can make
@@ -54,10 +68,12 @@ export function applySocialMeta(input: SocialMetaInput) {
   const { openGraphLocale, alternateOpenGraphLocale } = getLocaleCodes(kind.lang);
   const socialImageAlt = getSocialImageAlt(kind.lang);
 
+  keepFirstGenerator(head);
+
   if (entry?.data || kind.isNotFoundPage) {
     upsertMeta(head, "name", "description", description);
     upsertMeta(head, "property", "og:description", description);
-    upsertMeta(head, "property", "og:type", kind.isHomePage || kind.isStartPage || kind.isAiNewsIndex || kind.isNotFoundPage ? "website" : "article");
+    upsertMeta(head, "property", "og:type", shouldRenderArticleSchema(kind, Boolean(entry?.data)) ? "article" : "website");
     upsertMeta(head, "property", "og:locale", openGraphLocale);
     upsertMeta(head, "property", "og:locale:alternate", alternateOpenGraphLocale);
     upsertMeta(head, "property", "og:image:alt", socialImageAlt);

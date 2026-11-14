@@ -35,8 +35,8 @@ const formatPart = (lang: Lang, part: string) =>
   labels[lang]?.[part] || part.replace(/-/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 
 /**
- * BreadcrumbList for navigation. The homepage keeps its single "Forside"/"Home"
- * item because seo-validate.mjs requires the home label to be present.
+ * BreadcrumbList for navigation, or null on the homepage: a list needs at least
+ * two items, and a one-item list is invalid structured data.
  */
 export function buildBreadcrumbSchema(
   pathname: string,
@@ -46,6 +46,7 @@ export function buildBreadcrumbSchema(
 ) {
   const pathParts = pathname.split("/").filter(Boolean);
   const parts = pathParts[0] === "da" || pathParts[0] === "en" ? pathParts.slice(1) : pathParts;
+  if (parts.length === 0) return null;
   const itemListElement = [
     {
       "@type": "ListItem",

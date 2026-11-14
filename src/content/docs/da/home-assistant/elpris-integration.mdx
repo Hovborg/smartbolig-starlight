@@ -6,7 +6,6 @@ sidebar:
 ---
 
 import { Steps, Aside, Card, CardGrid, LinkCard, Tabs, TabItem } from '@astrojs/starlight/components';
-import HowTo from '../../../../components/HowTo.astro';
 import FAQ from '../../../../components/FAQ.astro';
 
 
@@ -45,37 +44,6 @@ Før du starter, skal du have:
 </Aside>
 
 ## Installation af Energi Data Service
-
-<HowTo
-  name="Installer Energi Data Service"
-  totalTime="PT10M"
-  steps={[
-    {
-      name: "Åbn Marketplace",
-      text: "Gå til Indstillinger → Markedsplads (Marketplace). Kører du en version før 2026.11, finder du HACS i sidemenuen."
-    },
-    {
-      name: "Søg efter integrationen",
-      text: "Søg efter 'Energi Data Service'. Findes den ikke i kataloget, kan du tilføje den med Tilføj fra link (Add from link) og 'MTrab/energidataservice'. I HACS før 2026.11: Integrationer → + Udforsk og download repositories."
-    },
-    {
-      name: "Installer integrationen",
-      text: "Klik på Energi Data Service → Installér (i HACS: Download) → vælg seneste version og bekræft."
-    },
-    {
-      name: "Genstart Home Assistant",
-      text: "Genstart Home Assistant, hvis du bliver bedt om det eller integrationen ikke dukker op: Indstillinger → System → Genstart Home Assistant."
-    },
-    {
-      name: "Tilføj integrationen",
-      text: "Gå til Indstillinger → Enheder og tjenester → Tilføj integration → søg efter 'Energi Data Service'."
-    },
-    {
-      name: "Konfigurer integrationen",
-      text: "Giv den et unikt navn (f.eks. 'Elpriser'), vælg Danmark som land, vælg dit prisområde (DK1/DK2), vælg pris pr. kWh, aktiver automatiske tariffer og vælg dit netselskab (det er ikke nødvendigvis det selskab, du køber strøm af)."
-    }
-  ]}
-/>
 
 ### Konfigurationsindstillinger
 
