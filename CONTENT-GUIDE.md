@@ -111,8 +111,31 @@ src/content/docs/
       (`<TabItem label>`). De fjernes alligevel ved bygningen, så skriv dem ikke.
 - [ ] Billedet øverst kommer af sig selv ud fra stien (`src/lib/guide-art.mjs`). Har guiden sit
       eget billede, så sæt det i de første linjer; så bruges det i stedet.
+- [ ] Billeder i teksten ligger i `src/assets/guides/` og skrives relativt til MDX-filen (se
+      "Billeder i en guide" nedenfor), aldrig som `/images/...`.
 - [ ] (Valgfrit) Tilføj URL rewrite i `public/_redirects` for pæn engelsk URL
 - [ ] Test build: `npm run build`
+
+---
+
+## Billeder i en guide
+
+Billeder, som guiden viser i teksten, lægges i `src/assets/guides/` (samme undermapper som guiden,
+fx `src/assets/guides/smart-doorbell/wiring.svg`) og skrives med en sti relativt til MDX-filen. Så
+laver bygningen selv små WebP-filer med `width` og `height`; du skal ikke konvertere noget. Alle
+guidefiler ligger fire mapper under `src/`, så stien starter med `../../../../assets/`:
+
+```md
+![DHT22 koblet til ESP32](../../../../assets/guides/smart-doorbell/wiring.svg)
+```
+
+- Det første billede i teksten hentes med det samme og med høj prioritet, men kun hvis guiden åbner
+  med det (ellers viser sidehovedet sit eget billede, og teksten holder sig til lazy loading).
+- Kilden må gerne være op til 1600 px bred; kom ikke større filer ind. Fotolignende billeder gemmes
+  som WebP eller JPEG, skærmbilleder og tegninger som PNG eller SVG.
+- Kun billeder med en fast offentlig adresse bliver i `public/images/`: `home/`, `guide/`
+  (sidehovedets billeder), `produkter/`, nyhedsbillederne (`ai-news*`) og `og-image.png`.
+  `npm run site:test` fejler, hvis en MDX-fil peger på andre `/images/...`-stier.
 
 ---
 
