@@ -1,83 +1,109 @@
 ---
 title: Cookie Policy for SmartBolig.net
-description: Cookie policy for SmartBolig.net - information about cookies and tracking on our website.
+description: Which cookies and similar technologies SmartBolig.net uses, who sets them, how long they last, and how to change your answer.
 ---
 
-**Last updated:** July 2026
+**Last updated:** 14 November 2026
 
-This cookie policy explains how SmartBolig.net uses cookies and similar technologies.
+This page explains what SmartBolig.net stores in your browser, who does it, and how you say yes or no.
+
+---
+
+## In short
+
+- Until you have answered the consent message, the site fetches neither Google Analytics nor Google AdSense.
+- If you say no, they are not fetched and set no cookies.
+- Once you have answered, you can change your answer at any time with **Cookie settings** at the bottom of the page.
+- If you have not been asked although you are in a country where Google has to ask (for example because an ad blocker stops the message), neither Google Analytics nor Google AdSense is fetched.
+- Google shows the question only in countries where the rules require it (the EU/EEA, the United Kingdom and Switzerland). If you visit from another country, Google Analytics and Google AdSense may be fetched without a question.
+- The comments under the guides are fetched only when you press **Show comments**.
 
 ---
 
 ## What are cookies?
 
-Cookies are small text files stored on your device when you visit a website. They are used to remember your preferences and improve your experience.
+A cookie is a small text file that a website stores in your browser. The rules also cover similar technologies, such as the browser's local storage. This page covers both.
 
 ---
 
-## Types of cookies we use
+## What the site stores without asking
 
-### Necessary cookies
-These cookies are essential for the website to function correctly, and they cannot be disabled.
+These are needed for the site to work, or to remember a choice you made yourself. They are not used for statistics or advertising.
 
-| Cookie | Purpose | Expires |
-|--------|---------|---------|
-| CookieConsent | Remembers your cookie choice | 1 year |
-| preferred-lang | Remembers your language choice | 1 year |
+| Name | Who | Purpose | Lifetime |
+|------|-----|---------|----------|
+| `FCCDCF` | Google's consent message | Remembers your answer to the consent message. Set when the message is fetched, also before you have answered | 13 months |
+| `starlight-theme` (local storage) | SmartBolig.net | Remembers whether you chose the light or dark theme | Until you delete it |
+| `smartbolig-motion-v1` (local storage) | SmartBolig.net | Remembers whether you switched off motion on the homepage | Until you delete it |
+| The conversation with SmartBolig AI (session storage) | SmartBolig.net | So the conversation survives a reload | Until you close the tab or press **New conversation** |
+| `sl-sidebar-state` (session storage) | SmartBolig.net | Remembers which menu sections you have opened | Until you close the tab |
 
-### Analytical cookies
-Used to understand how visitors use the website.
+The consent message may also set the cookie `FCNEC` (365 days). Google itself lists that cookie under analytics, so it is not in the table of what is necessary.
 
-| Cookie | Provider | Purpose | Expires |
-|--------|----------|---------|---------|
-| _ga | Google Analytics | Distinguishes users | 2 years |
-| _ga_* | Google Analytics | Session tracking | 2 years |
+Cloudflare, which delivers the site, may set the cookie `__cf_bm` (expires after 30 minutes of inactivity) or `cf_clearance` if a visit has to be checked as a possible bot. Apart from the consent message's cookie, the site sets no cookies on an ordinary visit.
 
-### Marketing cookies
-Used to show relevant ads.
+If you visited the site before 14 November 2026, your browser may still hold the cookie `preferred-lang` (your choice of language). The site no longer uses it, and it expires by itself within a year.
 
-| Cookie | Provider | Purpose |
-|--------|----------|---------|
-| IDE | Google | Ad delivery |
-| DSID | Google | Ad personalization |
-| ez_* | Ezoic | Ad optimization |
+The site also uses **Cloudflare Web Analytics** to count page views and measure load time. Cloudflare states that the service uses no cookies or local storage and does not track individual visitors.
+
+---
+
+## Statistics: only if you say yes
+
+| Cookie | Who | Purpose | Lifetime |
+|--------|-----|---------|----------|
+| `_ga` | Google Analytics | Tells visitors apart | 2 years |
+| `_ga_<id>` | Google Analytics | Keeps track of the single visit | 2 years |
+
+---
+
+## Advertising: only if you say yes
+
+| Cookie | Set on | Purpose | Lifetime |
+|--------|--------|---------|----------|
+| `__gads`, `__gpi` | smartbolig.net | Showing ads and protection against abuse | 13 months |
+| `__eoi` | smartbolig.net | Protection against abuse | 6 months |
+| `IDE`, `id` | doubleclick.net | Showing and measuring ads | 13 months |
+| `DSID` | doubleclick.net | Showing ads across devices | 2 weeks |
+| `test_cookie` | doubleclick.net | Checks whether the browser allows cookies | 15 minutes |
+| `NID` | google.com | Remembers settings and tailors ads | 6 months |
+
+Names and lifetimes are Google's own information. The full, current list is at Google: [Cookies used for advertising](https://business.safety.google/adscookies/). Which of them you get depends on the ads Google shows.
 
 ---
 
 ## Third parties
 
-We use the following third-party services:
-
-### Google consent management
-- **Purpose:** Consent management (Consent Mode v2 via Google's certified CMP)
-- **Privacy policy:** [google.com/policies/privacy](https://policies.google.com/privacy)
-
-### Google Analytics
-- **Purpose:** Traffic analysis
-- **Privacy policy:** [google.com/policies/privacy](https://policies.google.com/privacy)
-
-### Google AdSense
-- **Purpose:** Ad delivery
-- **Publisher ID:** ca-pub-1259715054941263
-- **Privacy policy:** [google.com/policies/privacy](https://policies.google.com/privacy)
-
-### Ezoic
-- **Purpose:** Ad optimization
-- **Privacy policy:** [ezoic.com/privacy](https://www.ezoic.com/privacy-policy/)
+### Google (consent message, Analytics and AdSense)
+- **The consent message** is Google's own (AdSense, Privacy & messaging) and follows the IAB consent standard (TCF). It is fetched from `fundingchoicesmessages.google.com` on every page, also before you have answered; otherwise it cannot ask.
+- **Google Analytics** measures which pages are read and which ad links are pressed (product and shop). Fetched only after a yes to statistics.
+- **Google AdSense** shows ads. Fetched only after a yes to advertising. Publisher ID: ca-pub-1259715054941263.
+- [How Google uses information from sites that use its services](https://policies.google.com/technologies/partner-sites)
 
 ### Cloudflare
-- **Purpose:** Security and CDN
-- **Privacy policy:** [cloudflare.com/privacypolicy](https://www.cloudflare.com/privacypolicy/)
+- Delivers the site, protects it against abuse and runs SmartBolig AI.
+- [Cloudflare's cookies](https://developers.cloudflare.com/fundamentals/reference/policies-compliances/cloudflare-cookies/) and [Cloudflare Web Analytics](https://www.cloudflare.com/web-analytics/)
+
+### Giscus and GitHub (comments)
+- Fetched from `giscus.app`, only when you press **Show comments**.
+- Giscus states that the service uses no cookies. If you sign in with GitHub to write a comment, an encrypted sign-in token is stored in the browser's local storage.
+- [Giscus' privacy policy](https://github.com/giscus/giscus/blob/main/PRIVACY-POLICY.md)
+
+### Partner-Ads (advertising links)
+- When you press an advertising link, you are sent through Partner-Ads to the shop, so the shop can see that the visit came from SmartBolig.net. That happens at Partner-Ads and the shop. SmartBolig.net sets no cookie for it.
+- [Partner-Ads' personal data policy](https://www.partner-ads.com/dk/persondatapolitik.php) (in Danish)
 
 ---
 
-## Managing your cookies
+## How to change your answer
 
-### Via our cookie banner
-Click the cookie icon in the bottom-left corner to change your preferences.
+### On the site
+Press **Cookie settings** at the bottom of any page. The consent message opens again, and you can say yes or no to each purpose. If you withdraw a yes, the page is loaded again without the scripts you said no to.
 
-### Via your browser
-You can delete or block cookies in your browser settings:
+The button appears once Google has asked you. If you were not asked, there is no answer to change; use the browser's settings below instead.
+
+### In your browser
+You can delete or block cookies in the browser's settings. That also removes cookies that are already set:
 - [Chrome](https://support.google.com/chrome/answer/95647)
 - [Firefox](https://support.mozilla.org/en-US/kb/clear-cookies-and-site-data-firefox)
 - [Safari](https://support.apple.com/guide/safari/manage-cookies-sfri11471/mac)
@@ -85,30 +111,19 @@ You can delete or block cookies in your browser settings:
 
 ---
 
-## Consent
-
-The first time you visit SmartBolig.net, a cookie banner appears where you can:
-- **Accept all:** Allows all cookies
-- **Necessary only:** Allows only essential cookies
-- **Customize:** Choose which categories to allow
-
-Your consent is stored for 12 months.
-
----
-
 ## Changes to this policy
 
-We may update this cookie policy. The latest version is always available on this page.
+We update this page when we change what is fetched or stored. The newest version is always here.
 
 ---
 
 ## Contact
 
-Questions about cookies can be directed to:
+Questions about cookies can be sent to:
 
 **SmartBolig.net**  
 Email: kontakt@smartbolig.net
 
 ---
 
-See also our [privacy policy](/en/juridisk/privatlivspolitik/) for more information about data processing.
+See also our [privacy policy](/en/juridisk/privatlivspolitik/) for more on how we process personal data.

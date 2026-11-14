@@ -1,76 +1,67 @@
 ---
 // Giscus comments component for SmartBolig.net
 // Only shows on article pages, not on index/splash pages
+import { isArticlePage } from "../lib/article-page.mjs";
 
 const pathname = Astro.url.pathname;
 const locale = Astro.currentLocale || (pathname.startsWith('/en/') ? 'en' : 'da');
-const isSplashPage = pathname.match(/^\/(da|en)\/?$/);
-const isLegalPage = pathname.includes('/juridisk/');
-const isIndexPage = pathname.endsWith('/index') || pathname.match(/\/(home-assistant|esp32|produkter|automationer|sikkerhed|ai|ai-cli|nyheder)\/?$/);
-const isUtilityPage = pathname.includes('/404') || pathname.includes('/kontakt') || pathname.includes('/om-os');
-const title = locale === 'en' ? 'Comments' : 'Kommentarer';
+const copy = {
+  da: {
+    title: "Kommentarer",
+    show: "Vis kommentarer",
+    note: "Kommentarerne hentes fra giscus.app og GitHub, når du trykker.",
+    loading: "Henter kommentarerne …",
+    failed: "Kommentarerne kunne ikke hentes. Prøv igen.",
+  },
+  en: {
+    title: "Comments",
+    show: "Show comments",
+    note: "The comments are fetched from giscus.app and GitHub when you press the button.",
+    loading: "Fetching the comments …",
+    failed: "The comments could not be fetched. Try again.",
+  },
+}[locale === "en" ? "en" : "da"];
 
-// Don't show comments on splash, legal, section index, or utility pages.
-const showComments = !isSplashPage && !isLegalPage && !isIndexPage && !isUtilityPage;
+// Comments only under a guide or a news article.
+const showComments = isArticlePage(pathname);
 ---
 
 {showComments && (
-  <div class="giscus-wrapper" data-giscus-lang={locale} data-pagefind-ignore>
+  <div class="giscus-wrapper" data-giscus-lang={locale} data-giscus-loading={copy.loading} data-giscus-failed={copy.failed} data-pagefind-ignore>
     <hr class="giscus-divider" />
-    <h2 class="giscus-title">{title}</h2>
+    <h2 class="giscus-title" tabindex="-1">{copy.title}</h2>
+    <div class="giscus-ask" data-giscus-ask>
+      <button type="button" data-giscus-show>{copy.show}</button>
+      <p role="status" data-giscus-note>{copy.note}</p>
+    </div>
   </div>
 )}
 
 <script>
-  // The widget takes a theme name, so the client script is added here, after the
-  // site theme (data-theme on <html>, set before paint) is known, and the theme is
-  // pushed to the iframe with giscus' documented setConfig message on every change.
+  // Nothing is fetched from giscus.app until the visitor asks (src/lib/comments.mjs).
+  import { loadComments } from "../lib/comments.mjs";
+
   const wrapper = document.querySelector<HTMLElement>(".giscus-wrapper");
-  const GISCUS_ORIGIN = "https://giscus.app";
-
-  const currentTheme = () => (document.documentElement.dataset.theme === "dark" ? "dark" : "light");
-
-  // The widget starts with the theme it was loaded with; a message is only
-  // needed when the site theme differs from what the widget last got. Nothing
-  // is sent (or counted as sent) before the widget has announced itself.
-  let widgetReady = false;
-  let sentTheme = currentTheme();
-  const sendTheme = () => {
-    const theme = currentTheme();
-    const frame = document.querySelector<HTMLIFrameElement>("iframe.giscus-frame");
-    if (!widgetReady || theme === sentTheme || !frame?.contentWindow) return;
-    frame.contentWindow.postMessage({ giscus: { setConfig: { theme } } }, GISCUS_ORIGIN);
-    sentTheme = theme;
-  };
-
-  if (wrapper) {
-    const client = document.createElement("script");
-    client.src = `${GISCUS_ORIGIN}/client.js`;
-    client.async = true;
-    client.crossOrigin = "anonymous";
-    client.dataset.repo = "Hovborg/smartbolig-starlight";
-    client.dataset.repoId = "R_kgDOQuqhoQ";
-    client.dataset.category = "Comments";
-    client.dataset.categoryId = "DIC_kwDOQuqhoc4C0naS";
-    client.dataset.mapping = "pathname";
-    client.dataset.strict = "1";
-    client.dataset.reactionsEnabled = "1";
-    client.dataset.emitMetadata = "0";
-    client.dataset.inputPosition = "bottom";
-    client.dataset.theme = currentTheme();
-    client.dataset.lang = wrapper.dataset.giscusLang ?? "da";
-    wrapper.append(client);
-
-    new MutationObserver(sendTheme).observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-theme"],
-    });
-    // The widget announces itself when ready; sync in case the theme changed while it loaded.
-    window.addEventListener("message", (event) => {
-      if (event.origin === GISCUS_ORIGIN && event.data && typeof event.data === "object" && "giscus" in event.data) {
-        widgetReady = true;
-        sendTheme();
-      }
+  const ask = wrapper?.querySelector<HTMLElement>("[data-giscus-ask]");
+  const button = ask?.querySelector<HTMLButtonElement>("[data-giscus-show]");
+  const note = ask?.querySelector<HTMLElement>("[data-giscus-note]");
+  if (wrapper && ask && button && note) {
+    const tell = (text = "") => (note.textContent = text);
+    // The button stays in place while the widget is fetched, so keyboard focus is not lost.
+    const shown = () => {
+      const hadFocus = ask.contains(document.activeElement);
+      ask.remove();
+      if (hadFocus) wrapper.querySelector<HTMLElement>(".giscus-title")?.focus();
+    };
+    const failed = () => {
+      button.setAttribute("aria-disabled", "false");
+      tell(wrapper.dataset.giscusFailed);
+    };
+    button.addEventListener("click", () => {
+      if (button.getAttribute("aria-disabled") === "true") return;
+      button.setAttribute("aria-disabled", "true");
+      tell(wrapper.dataset.giscusLoading);
+      loadComments(wrapper, { onReady: shown, onError: failed });
     });
   }
 </script>
@@ -94,6 +85,44 @@ const showComments = !isSplashPage && !isLegalPage && !isIndexPage && !isUtility
     font-weight: 600;
     margin-bottom: var(--sb-space-4);
     color: var(--sb-ink-strong);
+  }
+
+  .giscus-ask {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--sb-space-3) var(--sb-space-4);
+  }
+
+  .giscus-ask button {
+    padding: var(--sb-space-2) var(--sb-space-4);
+    border: 1px solid var(--sb-line-strong);
+    border-radius: var(--sb-radius-pill);
+    background: var(--sb-surface);
+    color: var(--sb-ink-strong);
+    font: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .giscus-ask button:hover {
+    border-color: var(--sb-accent);
+    color: var(--sb-accent);
+  }
+
+  .giscus-ask button[aria-disabled="true"] {
+    opacity: 0.6;
+    cursor: progress;
+  }
+
+  .giscus-title:focus {
+    outline: none;
+  }
+
+  .giscus-ask p {
+    margin: 0;
+    color: var(--sb-ink-muted);
+    font-size: var(--sb-text-sm);
   }
 
   /* Make Giscus iframe full width */

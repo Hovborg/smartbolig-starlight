@@ -13,6 +13,8 @@ import { Steps, Aside, Tabs, TabItem, Card, CardGrid, Badge } from '@astrojs/sta
 
 ESP32 is a microcontroller - a small computer that can measure things, control things, and talk to your WiFi. Together with ESPHome, it becomes easy to build your own smart home devices.
 
+![ESPHome flashes your YAML file to the ESP32, which sends its readings to Home Assistant over WiFi](../../../../assets/guides/kom-godt-i-gang-esp32/overview-en.svg)
+
 ## 📋 Prerequisites
 
 Before you start, you need:
@@ -41,6 +43,10 @@ ESPHome is software that runs on your ESP32. You describe what it should do in a
 <Aside type="tip">
 Start with a **WROOM-32 DevKit**. It's wide enough to see what you're doing, and all our guides use it.
 </Aside>
+
+### ESP32 Pinout Overview
+
+![Overview of the pins on an ESP32 DevKit: power pins, free GPIO, input-only pins, pins that are read at boot, and pins that are taken](../../../../assets/guides/kom-godt-i-gang-esp32/pinout-en.svg)
 
 ## ⚙️ Install ESPHome Add-on
 

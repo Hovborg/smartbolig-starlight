@@ -20,11 +20,11 @@ E-mail: kontakt@smartbolig.net
 ## 2. Hvilke oplysninger indsamler vi?
 
 ### 2.1 Oplysninger du giver os
-- E-mailadresse (hvis du tilmelder dig nyhedsbrev)
-- Kommentarer eller beskeder du sender
+- E-mailadresse og indholdet af din besked, hvis du skriver til os
+- Kommentarer, du skriver under en guide (de gemmes hos GitHub, se afsnit 5)
 
 ### 2.2 Automatisk indsamlede oplysninger
-- IP-adresse (anonymiseres i Google Analytics; Cloudflare og annoncepartnere behandler den fulde IP-adresse som led i drift og sikkerhed)
+- IP-adresse (Cloudflare modtager den ved hvert besøg som led i drift og sikkerhed; Google modtager den, når din browser henter samtykkebeskeden, og efter dit ja også Analytics og annoncer)
 - Browsertype og version
 - Operativsystem
 - Besøgte sider og tidspunkt
@@ -68,33 +68,37 @@ Vi indsamler data for at:
 
 ## 4. Cookies og tracking
 
-Vi bruger cookies til:
-- **Nødvendige cookies:** Sikrer at websitet fungerer korrekt
-- **Analytiske cookies:** Google Analytics til trafikanalyse
-- **Marketingcookies:** Til at vise relevante annoncer via Google AdSense og Ezoic
+Googles samtykkebesked spørger, om du vil tillade statistik og annoncer. Før du har svaret, henter siden hverken Google Analytics eller Google AdSense. Det gælder også, hvis du er i et land, hvor Google skal spørge, men beskeden ikke bliver vist for dig. Siger du nej, bliver de ikke hentet.
 
-Du kan administrere dine cookiepræferencer via vores cookiebanner eller på vores [cookiepolitik](/da/juridisk/cookiepolitik/).
+Google viser kun spørgsmålet i lande, hvor reglerne kræver det (EU/EØS, Storbritannien og Schweiz). Besøger du siden fra et andet land, kan Google Analytics og Google AdSense blive hentet uden spørgsmål.
+
+- **Nødvendigt:** Dit svar på samtykkebeskeden og dine egne valg af tema og bevægelse
+- **Statistik (kun med dit ja):** Google Analytics. Her kan vi også se, hvor mange gange hvert reklamelink er trykket på (produkt og butik)
+- **Annoncer (kun med dit ja):** Google AdSense
+
+Har du svaret, kan du ændre svaret med **Cookieindstillinger** nederst på siden. Alle cookies og deres levetid står i vores [cookiepolitik](/da/juridisk/cookiepolitik/).
 
 ---
 
 ## 5. Deling af data
 
 Vi bruger følgende tjenester til analyse, annoncering og drift:
-- **Google Analytics** - Trafikanalyse
-- **Google AdSense** - Annoncering
-- **Ezoic** - Annoncering og optimering
-- **Cloudflare** - Hosting, sikkerhed, CDN og Workers AI
+- **Google Analytics** - Trafikanalyse (kun med dit samtykke)
+- **Google AdSense** - Annoncering (kun med dit samtykke)
+- **Googles samtykkebesked** - Viser spørgsmålet om cookies og husker dit svar
+- **Cloudflare** - Hosting, sikkerhed, CDN, Workers AI og Cloudflare Web Analytics, som tæller sidevisninger uden cookies
+- **Partner-Ads** - Registrerer klik på reklamelinks og eventuelle køb (se afsnit 11)
 
-Behandlingen hos disse leverandører er reguleret af databehandleraftaler, og overførsler til USA sker på grundlag af EU-US Data Privacy Framework eller EU's standardkontraktbestemmelser.
+Google er selv dataansvarlig for Google AdSense og for samtykkebeskeden; dér gælder Googles vilkår for dataansvarlige og [Googles privatlivspolitik](https://policies.google.com/privacy). For Google Analytics er Google vores databehandler efter Googles databehandlervilkår, og for Cloudflare gælder Cloudflares databehandleraftale. Overførsler til USA sker på grundlag af EU-US Data Privacy Framework eller EU's standardkontraktbestemmelser.
 
 Cloudflare oplyser i sin [Workers AI-dataanvendelse](https://developers.cloudflare.com/workers-ai/platform/data-usage/),
 at kundens input og output ikke bruges til at træne de tilgængelige AI-modeller
 eller forbedre Cloudflare- eller tredjepartstjenester uden udtrykkeligt samtykke.
 Cloudflares aktuelle vilkår og privatlivspolitik gælder for deres behandling.
 
-På artikelsider indlæses desuden kommentarfunktionen **Giscus**, som bruger
-**GitHub Discussions**. Din browser kontakter `giscus.app`, når funktionen
-indlæses. Login og kommentarer håndteres via GitHub. Læs
+Under guiderne kan du åbne kommentarfunktionen **Giscus**, som bruger
+**GitHub Discussions**. Din browser kontakter først `giscus.app`, når du
+trykker **Vis kommentarer**. Login og kommentarer håndteres via GitHub. Læs
 [Giscus' privatlivspolitik](https://github.com/giscus/giscus/blob/main/PRIVACY-POLICY.md)
 og [GitHubs privatlivspolitik](https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement)
 før du logger ind eller skriver en kommentar.
@@ -126,7 +130,7 @@ Vi beskytter dine data med:
 
 ## 8. Opbevaring af data
 
-Vi opbevarer data, så længe det er nødvendigt for formålet, eller som lovgivningen kræver. Anonymiserede analysedata i Google Analytics opbevares i op til 14 måneder.
+Vi opbevarer data, så længe det er nødvendigt for formålet, eller som lovgivningen kræver. Analysedata i Google Analytics opbevares i op til 14 måneder.
 
 SmartBolig.net skriver ikke chatspørgsmål eller AI-svar til sin egen database
 eller sine applikationslogs. Den lokale browserkopi følger fanesessionen som
@@ -166,6 +170,8 @@ SmartBolig.net deltager i affiliate-programmer, hvilket betyder, at vi kan modta
 - Batteribyen.dk
 
 Den aktuelle partnerliste står altid i vores [affiliate disclosure](/da/juridisk/affiliate-disclosure/).
+
+Aftalerne administreres gennem **Partner-Ads**. Når du trykker på et reklamelink, sendes du gennem Partner-Ads til butikken, og Partner-Ads registrerer klikket og et eventuelt køb, så provisionen kan beregnes. Se [Partner-Ads' persondatapolitik](https://www.partner-ads.com/dk/persondatapolitik.php).
 
 ### Vores forpligtelse
 - Vi anbefaler kun produkter, vi selv ville bruge

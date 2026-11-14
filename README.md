@@ -203,7 +203,8 @@ Sitets konfiguration ligger i `config/`, og `astro.config.mjs` er kun en tynd in
 - `config/site.mjs`: site-URL, titel, sprog og øvrige skalare Starlight-indstillinger.
 - `config/fonts.mjs`: de to selvhostede skrifter.
 - `config/sidebar/`: sidebaren, én fil pr. hovedsektion (Home Assistant er delt i undermapper).
-- `config/head/`: `<head>`-tags, én fil pr. område (ikoner og temafarve, social meta, samtykke, analytics, RSS, annoncer).
+- `config/head/`: `<head>`-tags, én fil pr. område (ikoner og temafarve, social meta, RSS). Google Analytics og AdSense står ikke her: de hentes først efter læserens ja (`src/lib/consent/`, se [`docs/samtykke.md`](docs/samtykke.md), kontrolleret 2026-11-14).
+- `config/vite.mjs`: små scripts bliver til filer, så sidens sikkerhedspolitik kan klare sig uden `'unsafe-inline'` (se [`docs/sikkerhed.md`](docs/sikkerhed.md), kontrolleret 2026-11-14).
 - `config/components.mjs`: Starlight-komponentoverrides.
 - `config/markdown/`: små Markdown-plugins (overskrifter, kort og faner uden emoji; tabeller i en rulleramme; guidernes billeder i tekstspaltens bredde, og åbningsbilledet først).
 - `config/images.mjs`: guidernes billeder laves i flere bredder. Se [`docs/billeder.md`](docs/billeder.md) (kontrolleret 2026-11-14).
@@ -266,7 +267,11 @@ npx wrangler deploy --dry-run
 
 `npm run seo:validate` kontrollerer de byggede sider: sitemap, `robots.txt`,
 strukturerede data og sociale felter. Reglerne, og hvordan du tilføjer en
-omdirigering, står i [`docs/seo.md`](docs/seo.md) (kontrolleret 2026-11-14).
+omdirigering, står i [`docs/seo.md`](docs/seo.md) (kontrolleret 2026-11-14). `npm run build`
+skriver også `dist/llms.txt` ud fra de byggede sider (`scripts/write-llms-txt.mjs`). Den levende side
+tjekkes to gange i døgnet af `.github/workflows/monitor.yml`; en fejl åbner en GitHub-sag med
+etiketten `monitor` ([`docs/overvaagning.md`](docs/overvaagning.md)). Kør kontrollerne selv med
+`node scripts/monitor/run.mjs`.
 
 Afhængighedskontrollen (`scripts/security-audit.mjs`) kører den fulde `npm audit`
 inklusiv udviklingsværktøjer. Den har to tilstande (kontrolleret 2026-11-13):
@@ -398,7 +403,9 @@ Aktuelle guideforløb omfatter blandt andet:
 ## Vedligeholdelse af reklamelinks
 
 `src/lib/affiliate.ts` er den fælles partnerliste og deeplink-generator for
-`AffiliateLink.astro` og `ProductCard.astro`. Brug kun godkendte aftaler og den
+`AffiliateLink.astro` og `ProductCard.astro`. Hvert produktlink ligger i registret
+`src/data/products/` og nævnes i guiderne med `product="id"`; se
+[`docs/indtjening.md`](docs/indtjening.md). Brug kun godkendte aftaler og den
 produktlink-bannerkode, der er vist på Partner-Ads-kontoen. De aktive aftaler er
 Proshop, Specialkamera, RobotterOnline, WATTOO og Batteribyen. Links valideres mod
 den valgte butiks domæne, så en forkert kombination stopper bygget.

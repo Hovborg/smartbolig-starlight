@@ -171,6 +171,26 @@ fejler, hvis stien ikke rammer en fil.
 
 ---
 
+## Produktlinks (reklamelinks)
+
+Et købslink i en guide nævner kun produktet. Butikken og butikkens adresse står ét sted: i registret
+`src/data/products/` (én fil pr. gruppe, fx `shelly.mjs`, `zigbee.mjs`).
+
+1. Læg produktet i registret, i den fil hvor det hører hjemme:
+   `"sonoff-zigbee-dongle-e": { name: "Sonoff Zigbee 3.0 USB Dongle Plus-E", store: "proshop", url: "https://www.proshop.dk/..." },`
+   Id'et er små bogstaver med bindestreg og bygget af produktets navn (ikke butikkens nummer).
+   Url'en er produktets egen side hos butikken. En kategoriside hedder fx `proshop-shelly` og ligger i `shops.mjs`.
+2. Skriv i guiden: `<AffiliateLink product="sonoff-zigbee-dongle-e" text="Køb" />`. `text`, `price` og `class` er valgfri.
+   Der skal ikke stå `store` eller `url` i guiden.
+3. Kør `npm run site:test`.
+
+Et forkert link rettes ét sted: `url` i registret. Kun godkendte butikker kan bruges
+(`affiliateMerchants` i `src/lib/affiliate.ts`); en anden butik eller en adresse uden for butikkens
+domæne stopper testen og bygget. Et id, der ikke findes, stopper også bygget. Butikkernes sider
+tjekkes ikke automatisk. Se `docs/indtjening.md`.
+
+---
+
 ## Værktøjssider
 
 Siderne under `vaerktoejer/` er bygget om et værktøj, ikke om en tekst. De følger de samme regler
