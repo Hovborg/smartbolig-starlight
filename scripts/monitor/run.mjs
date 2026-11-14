@@ -11,7 +11,8 @@ import { renderReport } from "./report.mjs";
 import { runChecks } from "./runner.mjs";
 
 const { values } = parseArgs({ options: { base: { type: "string" }, report: { type: "string" } } });
-const base = (values.base ?? process.env.MONITOR_BASE_URL ?? SITE).replace(/\/+$/, "");
+// An empty value (a scheduled run passes one) means the live site.
+const base = (values.base || process.env.MONITOR_BASE_URL || SITE).replace(/\/+$/, "");
 const { GITHUB_SERVER_URL: server, GITHUB_REPOSITORY: repository, GITHUB_RUN_ID: runId } = process.env;
 const runUrl = server && repository && runId ? `${server}/${repository}/actions/runs/${runId}` : undefined;
 const now = new Date();

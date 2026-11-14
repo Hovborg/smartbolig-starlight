@@ -901,6 +901,29 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   svar fra Energinet gennem endpointets egen kode: mørkt og lyst tema, 390, 768 og 1440 px,
   dansk og engelsk, og med en fejl fra Energinet. Ikke set: kortet mod det levende endpoint.
 
+### B64. Tidsplanerne tåler, at GitHub springer en kørsel over
+- Baggrund: 2026-11-14 var der endnu ikke startet én planlagt kørsel i repoet, hverken af
+  nyhederne eller sidevagten. GitHub lover ikke, at en planlagt kørsel starter.
+- Valg, nyheder: hver af de to daglige kørsler får en reserve nogle timer senere (08:37 og 14:37 UTC; 08:37 holder 90 minutters afstand til Dependabot mandag kl. 07:00). Et lille job
+  (`slot`) spørger GitHub, hvilke planlagte kørsler der er startet i dag; reserven skriver
+  kun, hvis den kørsel, den står for, ikke er startet. Reglen ligger i
+  `scripts/ai-news-slot.mjs` og er testet uden netværk.
+- Hvorfor ikke bare fire forsøg: en dag uden nok kontrollerede historier ville bruge
+  modelkald fire gange i stedet for to. Kvalitetskravene er uændrede.
+- Kan listen over kørsler ikke læses, skriver kørslen. En mistet dag er værre end et ekstra
+  forsøg, og dagsspærren i relayet (8.000 neurons) holder stadig prisen på nul.
+- Valg, sidevagt: tre kørsler i døgnet i stedet for to, og en manuel kørsel kan pege på en
+  anden adresse (`base`), så alarmen kan ses virke uden at ødelægge noget.
+- Valg, repo: `SECURITY.md` med privat indberetning, den tomme wiki slået fra, og en test
+  (`scripts/site-workflows.test.mjs`), der kræver, at hver handling i hver workflow er låst
+  til et commit, og at intet job får rettigheder, det ikke selv har nævnt.
+- Fravalgt: en udenforstående tjeneste til at starte workflowet. Den kræver et GitHub-token,
+  som ejeren skal oprette; det står på ejerens liste (punkt 10) og tages kun i brug, hvis
+  planlagte kørsler bliver ved med at udeblive.
+- Set samme dag, efter at dette var skrevet: den første planlagte nyhedskørsel startede af sig
+  selv 2026-11-14 kl. 11:43 UTC, seks minutter efter planen (11:37), og lykkedes. Planlagte
+  kørsler virker altså i repoet. Reserven beholdes: GitHub lover stadig ikke, at hver kørsel
+  starter, og den koster ingenting, når den almindelige kørsel er startet.
 ## B66. Værktøjer: Zigbee-kanalvælger og batterilevetid (2026-11-14)
 
 - Valgt: to værktøjer mere i den fælles ramme (B61): en Zigbee-kanalvælger og en beregner af

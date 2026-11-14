@@ -18,7 +18,7 @@ test("the news workflow grants nothing by default and pins every action", () => 
   const uses = [...workflow.matchAll(/uses: (\S+)/g)].map((match) => match[1]);
   assert.ok(uses.length >= 4);
   for (const target of uses) assert.match(target, /^(\.\/\.github\/workflows\/deploy\.yml|[\w-]+\/[\w-]+@[0-9a-f]{40})$/);
-  assert.equal((workflow.match(/persist-credentials: false/g) || []).length, 2);
+  assert.equal((workflow.match(/persist-credentials: false/g) || []).length, 3);
 });
 
 test("the model key is only visible to the writing step", () => {
@@ -73,11 +73,12 @@ test("self-heal reads the committed tree of origin/main and never deploys a loca
 });
 
 test("the stalled-publishing issue is opened only by the later schedule or a manual run", () => {
-  assert.ok(workflow.includes("MAY_OPEN: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '37 11 * * *' }}"));
+  assert.ok(workflow.includes("MAY_OPEN: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '37 11 * * *' || github.event.schedule == '37 14 * * *' }}"));
   assert.ok(workflow.includes("[ \"$STALE\" = 'true' ] && [ -z \"$open\" ] && [ \"$MAY_OPEN\" = 'true' ]"));
   // Closing carries no schedule condition.
   assert.ok(workflow.includes("elif [ \"$STALE\" != 'true' ] && [ -n \"$open\" ]; then"));
   assert.match(workflow, /- cron: '37 11 \* \* \*'/);
+  assert.match(workflow, /- cron: '37 14 \* \* \*'/);
 });
 
 test("the lead image thumbnail is rendered for the issue date only", () => {
@@ -86,7 +87,10 @@ test("the lead image thumbnail is rendered for the issue date only", () => {
 });
 
 test("a failed day does not fail the workflow, and only the watch job notifies", () => {
-  assert.match(workflow, /publish:\s*\n\s+runs-on: ubuntu-latest\s*\n\s+timeout-minutes: \d+\s*\n(?:\s+#[^\n]*\n)+\s+continue-on-error: true/);
+  assert.match(workflow, /publish:\s*\n\s+needs: slot\s*\n\s+runs-on: ubuntu-latest\s*\n\s+timeout-minutes: \d+\s*\n(?:\s+#[^\n]*\n)+\s+continue-on-error: true/);
+  // A skipped publish job deploys nothing, and the watch job still runs.
+  assert.ok(workflow.includes("if: ${{ always() && needs.publish.outputs.deploy == 'true' }}"));
+  assert.match(workflow, /watch:\s*\n\s+needs: \[publish, deploy\]\s*\n\s+if: \$\{\{ always\(\) \}\}/);
   assert.equal((workflow.match(/issues: write/g) || []).length, 1);
   assert.ok(workflow.indexOf("issues: write") > workflow.indexOf("\n  watch:"));
   assert.match(workflow, /uses: \.\/\.github\/workflows\/deploy\.yml\s*\n\s+with:\s*\n\s+ref: \$\{\{ needs\.publish\.outputs\.ref \}\}/);
