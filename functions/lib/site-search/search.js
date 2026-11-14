@@ -9,6 +9,15 @@ export const INDEX_ROOT = "/_index";
 // a newer index instead of misreading it. The builder reads it from here.
 export const INDEX_VERSION = 1;
 export const MAX_SITE_RESULTS = 5;
+// The best score from which a result is about the question. Measured against
+// the built index on 2026-11-14 for questions without a smart home word:
+// on-topic ones scored 13.33 or more ("Hvordan kommer jeg i gang?" 13.33, "Min
+// pære blinker, hvad gør jeg?" 21.7, "Hvordan får jeg lyset til at tænde ved
+// bevægelse?" 31.61), off-topic ones 9.42 or less ("Hvem vandt VM i fodbold i
+// 2022?" 9.42, "Hej" 6.85, "Skriv et digt om efteråret" 5.42). Below it the
+// assistant answers without the site's pages. The build holds the line with
+// the question lists in scripts/lib/site-index/probes.mjs.
+export const USEFUL_SCORE = 12;
 const CANDIDATES = 12;
 const PER_PAGE = 2;
 // A question reads at most 1 + MAX_QUERY_TERMS + MAX_CHUNK_FILES files (19),

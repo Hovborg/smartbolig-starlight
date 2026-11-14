@@ -243,7 +243,7 @@ test("chat response exposes only allowlisted bounded public diagnostics", async 
   assert.doesNotMatch(JSON.stringify(untrustedBody), /script|provider-secret-route/i);
 });
 
-test("Workers AI agent keeps broad expertise and exposes the site search as an optional tool", async () => {
+test("Workers AI agent keeps broad expertise and writes the answer from the site search result", async () => {
   assert.equal(CHAT_MODEL, "@cf/google/gemma-4-26b-a4b-it");
   const modelCalls = [];
   let searchedFor;
@@ -251,26 +251,6 @@ test("Workers AI agent keeps broad expertise and exposes the site search as an o
     aiRunImpl: async (binding, model, input, options) => {
       assert.equal(binding.name, "fake-ai-binding");
       modelCalls.push({ model, input, options });
-      if (modelCalls.length === 1) {
-        return {
-          id: "chatcmpl-tool",
-          choices: [{
-            message: {
-              content: null,
-              tool_calls: [
-                {
-                  id: "call-search-1",
-                  type: "function",
-                  function: {
-                    name: "search_smartbolig",
-                    arguments: JSON.stringify({ query: "ESPHome Bluetooth proxy" }),
-                  },
-                },
-              ],
-            },
-          }],
-        };
-      }
       return {
         id: "chatcmpl-answer",
         choices: [{
@@ -297,7 +277,7 @@ test("Workers AI agent keeps broad expertise and exposes the site search as an o
     model: "gemma-4-26b-a4b-it",
     route: "primary",
   });
-  assert.equal(modelCalls.length, 2);
+  assert.equal(modelCalls.length, 1);
   assert.ok(modelCalls.every((call) => call.model === CHAT_MODEL));
   assert.equal(MAX_MODEL_TOKENS, 2_400);
   assert.equal(FALLBACK_MAX_MODEL_TOKENS, 1_600);
@@ -308,7 +288,7 @@ test("Workers AI agent keeps broad expertise and exposes the site search as an o
   assert.ok(modelCalls.every((call) => call.input.reasoning_effort === "low"));
   assert.ok(modelCalls.every((call) => call.input.temperature === 0.1));
   assert.ok(modelCalls.every((call) => call.options.signal instanceof AbortSignal));
-  assert.equal(searchedFor, "ESPHome Bluetooth proxy");
+  assert.equal(searchedFor, "Find en relevant guide på hjemmesiden.");
   assert.equal(modelCalls[0].input.messages[0].role, "system");
   assert.match(modelCalls[0].input.messages[0].content, /knowledge is broad and is not limited to\s+SmartBolig\.net/i);
   for (const topic of ["Home Assistant", "ESPHome", "sensors", "Zigbee", "Matter", "MQTT", "Docker", "Proxmox"]) {
@@ -325,18 +305,14 @@ test("Workers AI agent keeps broad expertise and exposes the site search as an o
   assert.match(modelCalls[0].input.messages[0].content, /Home Assistant or ESPHome/i);
   assert.match(modelCalls[0].input.messages[0].content, /not present in reviewed official evidence.*unverified/i);
   assert.match(modelCalls[0].input.messages[0].content, /finish with a complete sentence and close every code block/i);
-  assert.match(modelCalls[0].input.messages[0].content, /Always\s+call it once before answering a substantive question/i);
-  assert.match(modelCalls[0].input.messages[0].content, /supplement, never the boundary of your knowledge/i);
-  assert.equal(modelCalls[0].input.tools[0].type, "function");
-  assert.equal(modelCalls[0].input.tools[0].function.name, "search_smartbolig");
-  assert.equal(modelCalls[1].input.tools, undefined);
-  assert.equal(modelCalls[1].input.tool_choice, undefined);
-  assert.match(modelCalls[1].input.messages[0].content, /reference data has already been supplied/i);
-  assert.match(modelCalls[1].input.messages[0].content, /do not call, describe, imitate, or expose search_smartbolig/i);
-  assert.doesNotMatch(modelCalls[1].input.messages[0].content, /You have an optional tool named search_smartbolig/i);
-  assert.equal(modelCalls[1].input.messages.at(-1).role, "user");
-  assert.match(modelCalls[1].input.messages.at(-1).content, /SmartBolig guide/);
-  assert.match(modelCalls[1].input.messages.at(-1).content, /untrusted SmartBolig reference data/i);
+  assert.equal(modelCalls[0].input.tools, undefined);
+  assert.equal(modelCalls[0].input.tool_choice, undefined);
+  assert.match(modelCalls[0].input.messages[0].content, /reference data has already been supplied/i);
+  assert.match(modelCalls[0].input.messages[0].content, /do not call, describe, imitate, or expose search_smartbolig/i);
+  assert.doesNotMatch(modelCalls[0].input.messages[0].content, /optional tool/i);
+  assert.equal(modelCalls[0].input.messages.at(-1).role, "user");
+  assert.match(modelCalls[0].input.messages.at(-1).content, /SmartBolig guide/);
+  assert.match(modelCalls[0].input.messages.at(-1).content, /untrusted SmartBolig reference data/i);
 });
 
 test("Workers AI agent falls back to a fast bounded model when the primary provider fails", async () => {
@@ -582,13 +558,13 @@ test("Workers AI agent fails closed when the fallback also reaches its token lim
   ]);
 });
 
-test("fallback before optional search receives the search-unavailable prompt", async () => {
+test("fallback after a search that found nothing keeps the nothing-found prompt and no reference data", async () => {
   const modelCalls = [];
   const runner = createWorkersAgent({
     aiRunImpl: async (_binding, model, input) => {
       modelCalls.push({ model, input });
       if (model === CHAT_MODEL) throw new Error("primary unavailable");
-      return { response: "Et direkte svar uden et søgeværktøj." };
+      return { response: "Et direkte svar uden et søgeresultat." };
     },
   });
 
@@ -596,62 +572,17 @@ test("fallback before optional search receives the search-unavailable prompt", a
     env: createEnv(),
     locale: "da",
     messages: validBody("Find en relevant guide på hjemmesiden.").messages,
-    searchSmartbolig: async () => ({ results: [{ text: "Skal ikke kaldes." }] }),
+    searchSmartbolig: async () => ({ results: [], weak: true }),
   });
 
-  assert.equal(result.answer, "Et direkte svar uden et søgeværktøj.");
+  assert.equal(result.answer, "Et direkte svar uden et søgeresultat.");
   assert.deepEqual(modelCalls.map((call) => call.model), [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
-  assert.equal(modelCalls[0].input.tools[0].function.name, "search_smartbolig");
-  assert.equal(modelCalls[1].input.tools, undefined);
-  assert.match(modelCalls[1].input.messages[0].content, /search is currently unavailable/i);
-  assert.doesNotMatch(modelCalls[1].input.messages[0].content, /optional tool named search_smartbolig/i);
-  assert.doesNotMatch(modelCalls[1].input.messages[0].content, /reference data has already been supplied/i);
-});
-
-test("fallback after a dynamic search receives only the preloaded final prompt", async () => {
-  const modelCalls = [];
-  let primaryCalls = 0;
-  const runner = createWorkersAgent({
-    aiRunImpl: async (_binding, model, input) => {
-      modelCalls.push({ model, input });
-      if (model === CHAT_MODEL) {
-        primaryCalls += 1;
-        if (primaryCalls === 1) {
-          return {
-            choices: [{
-              message: {
-                content: null,
-                tool_calls: [{
-                  id: "call-search-final",
-                  type: "function",
-                  function: {
-                    name: "search_smartbolig",
-                    arguments: JSON.stringify({ query: "relevant guide" }),
-                  },
-                }],
-              },
-            }],
-          };
-        }
-        throw new Error("second primary unavailable");
-      }
-      return { response: "Et direkte fallback-svar med den hentede reference." };
-    },
-  });
-
-  const result = await runner({
-    env: createEnv(),
-    locale: "da",
-    messages: validBody("Find en relevant guide på hjemmesiden.").messages,
-    searchSmartbolig: async () => ({ results: [{ text: "Hentet SmartBolig-guide." }] }),
-  });
-
-  assert.equal(result.answer, "Et direkte fallback-svar med den hentede reference.");
-  assert.deepEqual(modelCalls.map((call) => call.model), [CHAT_MODEL, CHAT_MODEL, CHAT_FALLBACK_MODEL]);
-  assert.equal(modelCalls[2].input.tools, undefined);
-  assert.match(modelCalls[2].input.messages[0].content, /reference data has already been supplied/i);
-  assert.doesNotMatch(modelCalls[2].input.messages[0].content, /optional tool named search_smartbolig/i);
-  assert.match(modelCalls[2].input.messages.at(-1).content, /Hentet SmartBolig-guide/);
+  for (const call of modelCalls) {
+    assert.equal(call.input.tools, undefined);
+    assert.match(call.input.messages[0].content, /no relevant SmartBolig page was found/i);
+    assert.doesNotMatch(call.input.messages[0].content, /reference data has already been supplied/i);
+    assert.doesNotMatch(call.input.messages.at(-1).content, /smartbolig_reference_data/);
+  }
 });
 
 test("fallback after a forced domain search receives only the preloaded final prompt", async () => {
@@ -680,11 +611,11 @@ test("fallback after a forced domain search receives only the preloaded final pr
   assert.deepEqual(modelCalls.map((call) => call.model), [CHAT_MODEL, CHAT_FALLBACK_MODEL]);
   assert.ok(modelCalls.every((call) => call.input.tools === undefined));
   assert.ok(modelCalls.every((call) => /reference data has already been supplied/i.test(call.input.messages[0].content)));
-  assert.ok(modelCalls.every((call) => !/optional tool named search_smartbolig/i.test(call.input.messages[0].content)));
+  assert.ok(modelCalls.every((call) => !/optional tool/i.test(call.input.messages[0].content)));
   assert.match(modelCalls[1].input.messages.at(-1).content, /Brug automationens trace/);
 });
 
-test("Workers AI agent falls back when the primary model returns neither text nor a valid tool call", async () => {
+test("Workers AI agent falls back when the primary model returns no text", async () => {
   const models = [];
   const fallbackEvents = [];
   const runner = createWorkersAgent({
@@ -1465,7 +1396,7 @@ test("domain questions preload SmartBolig context while keeping the broad model 
   assert.equal(modelCalls[0].tool_choice, undefined);
   assert.match(modelCalls[0].messages[0].content, /reference data has already been supplied/i);
   assert.match(modelCalls[0].messages[0].content, /answer the visitor directly/i);
-  assert.doesNotMatch(modelCalls[0].messages[0].content, /You have an optional tool named search_smartbolig/i);
+  assert.doesNotMatch(modelCalls[0].messages[0].content, /optional tool/i);
   assert.equal(modelCalls[0].messages.at(-1).role, "user");
   assert.match(modelCalls[0].messages.at(-1).content, /automationens trace/);
   assert.match(modelCalls[0].messages.at(-1).content, /Hvordan fejlsøger jeg/);
@@ -1564,7 +1495,7 @@ test("Workers AI agent answers in one bounded model call when the site search is
   assert.equal(calls[0].input.reasoning_effort, "low");
 });
 
-test("Workers AI agent ignores malformed or over-privileged search tool arguments", async () => {
+test("a tool call in the model's output is never executed and never starts a second model run", async () => {
   let searches = 0;
   let modelCalls = 0;
   const runner = createWorkersAgent({
@@ -1576,15 +1507,9 @@ test("Workers AI agent ignores malformed or over-privileged search tool argument
             content: "Et sikkert generelt svar.",
             tool_calls: [
               {
-                id: "call-malformed",
+                id: "call-imitated",
                 type: "function",
-                function: {
-                  name: "search_smartbolig",
-                  arguments: JSON.stringify({
-                    query: "Home Assistant",
-                    url: "https://evil.example/",
-                  }),
-                },
+                function: { name: "search_smartbolig", arguments: JSON.stringify({ query: "Home Assistant" }) },
               },
             ],
           },
@@ -1599,27 +1524,20 @@ test("Workers AI agent ignores malformed or over-privileged search tool argument
     messages: validBody("Find en relevant artikel.").messages,
     searchSmartbolig: async () => {
       searches += 1;
-      return { results: [] };
+      return { results: [], weak: true };
     },
   });
 
   assert.equal(result.answer, "Et sikkert generelt svar.");
   assert.equal(modelCalls, 1);
-  assert.equal(searches, 0);
+  assert.equal(searches, 1, "only the search before the model run");
 });
 
 test("legacy Workers AI response shape remains compatible during platform transition", async () => {
   const runner = createWorkersAgent({
     aiRunImpl: async () => ({
       response: "Et svar fra det ældre bindingformat.",
-      tool_calls: [
-        {
-          name: "ignored_unknown_tool",
-          arguments: {
-            query: "Home Assistant",
-          },
-        },
-      ],
+      tool_calls: [{ name: "ignored_unknown_tool", arguments: { query: "Home Assistant" } }],
     }),
   });
 
@@ -1627,20 +1545,18 @@ test("legacy Workers AI response shape remains compatible during platform transi
     env: createEnv(),
     locale: "da",
     messages: validBody("Find en relevant artikel.").messages,
-    searchSmartbolig: async () => {
-      throw new Error("unknown tool must not execute");
-    },
+    searchSmartbolig: async () => ({ results: [], weak: true }),
   });
 
   assert.equal(result.answer, "Et svar fra det ældre bindingformat.");
 });
 
-test("the site search tool returns bounded context and only canonical deduplicated citations", async () => {
+test("the site search returns bounded context and only canonical deduplicated citations", async () => {
   let searchInput;
   const handler = createHandler(
     async ({ searchSmartbolig }) => {
       assert.equal(typeof searchSmartbolig, "function");
-      const result = await searchSmartbolig("Zigbee sensor guide");
+      const result = await searchSmartbolig("Zigbee sensor guide", { always: true });
       assert.equal(result.results.length, 4);
       assert.ok(result.results.every((item) => item.text.length <= 2400));
       assert.ok(result.results[0].text.startsWith("Bevægelsessensorer\nAAA"), "the section heading leads the text");
@@ -1705,7 +1621,7 @@ test("the site search reads the index from the Worker's static files and answers
     },
   });
   const handler = createHandler(async ({ searchSmartbolig, locale }) => {
-    const result = await searchSmartbolig(locale === "da" ? "sikkerhedskopi hver nat" : "snapshot");
+    const result = await searchSmartbolig(locale === "da" ? "sikkerhedskopi hver nat" : "snapshot", { always: true });
     return { answer: `Fundet: ${result.results.map((item) => item.sourceUrl).join(", ")}` };
   });
 

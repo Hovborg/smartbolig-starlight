@@ -1,7 +1,12 @@
 # Assistenten: søgning i sidens egne guides og svar, mens de skrives
 
+Sidst opdateret: 2026-11-14 (søg først, hver gang; modellen får intet værktøj).
 Sidst kontrolleret: 2026-11-14.
-Kontrolleret ved: `npm run site:test` (indeksets og chattens tests; strømmen er prøvet med en
+Kontrolleret ved (søg først-ændringen): `npm run site:test` (482 tests, alle bestået), og
+prøvelisterne for pointgrænsen kørt mod det byggede indeks i `dist/_index/` med et lille skript
+uden byggeri (tallene står under "Hvornår et opslag bruges"). Ikke kontrolleret: et rigtigt
+svar gennem Workers AI og tiden til første ord på den levende side efter udgivelse.
+Kontrolleret ved (strømmen og indekset): `npm run site:test` (indeksets og chattens tests; strømmen er prøvet med en
 efterlignet model), `npm run build` (indekset bygges, og de faste prøvespørgsmål består),
 ca. 40 spørgsmål mod det byggede indeks med `--ask` og en uafhængig gennemgang, hvis fund er
 rettet (tomme uddrag, ental/flertal, faneblade, svage kilder). Widgeten er prøvet i headless
@@ -21,12 +26,20 @@ side efter udgivelse; kommandoen står under "Kontrollér strømmen efter udgive
 
 ## Kort
 
-Når en læser spørger assistenten om smart home, slår Workeren først op i et indeks over
-sidens egne sider og giver de bedste afsnit til modellen sammen med spørgsmålet. Svaret får
-links til de sider, afsnittene kom fra.
+Når en læser spørger assistenten om noget, slår Workeren først op i et indeks over sidens
+egne sider, hver gang. Er det bedste afsnit om spørgsmålet (se "Hvornår et opslag bruges"),
+får modellen de bedste afsnit sammen med spørgsmålet, og svaret får links til de sider,
+afsnittene kom fra. Ellers svarer modellen uden sidens tekst og uden links. Modellen får
+aldrig et værktøj og vælger ikke selv, om der skal søges.
 
 Læseren ser med det samme, hvad der sker ("Søger i guiderne …"), får kilderne, så snart
 opslaget er færdigt, og læser svaret, mens modellen skriver det. Se "Svaret som strøm".
+
+Opslaget er lokalt (nogle få små JSON-filer, millisekunder, ingen pris), så det kan gøres
+ved hvert spørgsmål. Før 2026-11-14 afgjorde modellen selv, om der skulle søges, når
+spørgsmålet ikke havde et smart home-ord. Målt på den levende side med "Hvordan får jeg lyset
+til at tænde ved bevægelse?" gav det 33 sekunder med "Læser dit spørgsmål …", hele svaret på
+én gang og ingen kildelinks, selv om siden har flere guides om netop det.
 
 Indekset er sidens egen tekst som små JSON-filer. Det bygges sammen med siden og ligger som
 statiske filer under `/_index/`. Der bruges ingen betalt søgetjeneste og ingen database.
@@ -40,11 +53,13 @@ statiske filer under `/_index/`. Der bruges ingen betalt søgetjeneste og ingen 
 | `scripts/lib/site-index/chunks.mjs` | Afsnit → stykker på højst 1.500 tegn. Tekst, der står ordret på tre sider eller flere, udelades. |
 | `scripts/lib/site-index/compounds.mjs` | Deler sammensatte ord i de to kendte ord, de består af. |
 | `scripts/lib/site-index/build.mjs` | For hvert ord: hvilke stykker det vægter i (BM25). Deler filerne op. |
-| `scripts/lib/site-index/probes.mjs` | De faste prøvespørgsmål: siden i `page` skal være blandt de tre bedste svar. |
+| `scripts/lib/site-index/probes.mjs` | De faste prøvespørgsmål: siden i `page` skal være blandt de tre bedste svar. Desuden to lister uden smart home-ord (`OFF_TOPIC`, `ON_TOPIC`), der holder pointgrænsen. |
 | `functions/lib/site-search/tokens.js` | Tekst → søgeord (små bogstaver, uden fyldord, bøjningsendelser skåret af). Bruges både ved bygning og ved søgning. |
-| `functions/lib/site-search/search.js` | Søgningen i Workeren: læser kun de filer, spørgsmålet har brug for. |
+| `functions/lib/site-search/search.js` | Søgningen i Workeren: læser kun de filer, spørgsmålet har brug for. Har også `USEFUL_SCORE`, pointgrænsen. |
 | `functions/lib/site-search/assets.js` | Henter indeksfilerne fra Workerens statiske filer (`env.ASSETS`). |
-| `functions/lib/chat/turn.js` | Kalder søgningen med en tidsgrænse; fejler den, svarer assistenten uden guideuddrag. |
+| `functions/lib/chat/search-need.js` | Hvad der søges efter (seneste spørgsmål, så spørgsmålet før) og om spørgsmålet har et smart home-ord. |
+| `functions/lib/chat/turn.js` | Kalder søgningen med en tidsgrænse og gemmer kun kilder fra et resultat, der bruges. Fejler søgningen, svarer assistenten uden guideuddrag. |
+| `functions/lib/chat/agent.js` | Søger først, vælger prompt efter resultatet og kører ét modeltrin. |
 | `functions/lib/chat/sources.js` | Slipper kun `smartbolig.net`-adresser igennem som kilder og afkorter teksten. |
 | `scripts/site-index.test.mjs` | Tests for alt ovenfor. |
 
@@ -99,6 +114,65 @@ Det kan søgningen ikke:
 Modellen får kun uddragene som baggrund og svarer også ud fra egen viden og de
 kontrollerede officielle kilder.
 
+## Hvornår et opslag bruges
+
+Søgningen kører ved hvert spørgsmål. Søgeteksten er det seneste spørgsmål, en linjeskift og
+så spørgsmålet før det, afkortet til `MAX_SEARCH_QUERY_CHARS` (400). Det seneste kommer først,
+fordi kun de første 10 ord i en søgning tæller (`MAX_QUERY_TERMS` i `tokens.js`). Det er for
+opfølgninger som "Hvad koster den?", der kun giver mening med spørgsmålet før.
+
+Resultatet bruges, når et af to gælder (`turn.js`):
+
+- det seneste spørgsmål har et smart home-ord (`shouldRequireSmartboligSearch`), uanset
+  point, eller
+- det bedste svar har mindst `USEFUL_SCORE` point (12, i `site-search/search.js`). Et svar
+  uden et tal som point tæller som under grænsen.
+
+Bruges resultatet, får modellen afsnittene, og siderne bliver kilder. Ellers får modellen
+ingen afsnit, der registreres ingen kilder (`sourceMode` er `general`), og systemprompten
+siger, at der ikke blev fundet en relevant side, at modellen skal svare ud fra bred viden og
+aldrig opfinde en SmartBolig-kilde. Kan indekset slet ikke læses, eller fejler eller
+timer søgningen ud uden et smart home-ord, får modellen i stedet prompten om, at søgningen
+ikke er tilgængelig. Fejler den med et smart home-ord, får modellen som før et tomt resultat
+med `unavailable`.
+
+Grænsen er målt 2026-11-14 mod det byggede indeks, for spørgsmål uden smart home-ord:
+
+| Spørgsmål | Bedste point |
+|---|---|
+| "Hvordan kommer jeg i gang?" | 13,33 |
+| "Min pære blinker, hvad gør jeg?" | 21,7 |
+| "Hvordan får jeg lyset til at tænde ved bevægelse?" | 31,61 |
+| "Hvad koster det at have en router tændt hele året?" | 104,72 |
+| "Hvem vandt VM i fodbold i 2022?" | 9,42 |
+| "Hvordan bager jeg et rugbrød?" | 5,82 |
+| "Skriv et digt om efteråret" | 5,42 |
+| "tak for hjælpen" | 7,03 |
+| "Hej" | 6,85 |
+| "Hvad er hovedstaden i Frankrig?" | intet svar |
+| Engelsk: "Which plug can measure power?" | 28,6 |
+| Engelsk: "What is the capital of France?" | 4,47 |
+| Engelsk: "How do I bake bread?" | 7,35 |
+
+Alle spørgsmål, der handler om siden, ligger på 13,33 eller derover, og alle, der ikke gør,
+på 9,42 eller derunder. Grænsen 12 ligger mellem dem. Der er ikke meget luft: nogle engelske
+spørgsmål ligger tæt på ("Who won the 2022 World Cup?" 13,23 og "Write a poem about autumn"
+11,65) og står derfor ikke i prøvelisterne. Giver de to en kilde, når nogen spørger, er det
+sådan, grænsen virker, ikke en fejl i koden.
+
+Bygget vogter grænsen: `scripts/lib/site-index/probes.mjs` har `OFF_TOPIC` (bedste point bør
+være under grænsen) og `ON_TOPIC` (mindst grænsen), pr. sprog, og `scripts/site-index.mjs`
+stiller dem efter siderne. Et spørgsmål, der falder forkert, giver en advarsel på kørslen i
+GitHub Actions med en linje som `da: "Hej" scores 13.2, which should be below 12.` Bygget
+stopper ikke: point flytter sig lidt, hver gang der kommer en ny side (nyhederne kommer af sig
+selv hver dag), og et spørgsmål på den forkerte side af grænsen giver kun et svar med eller
+uden en kilde. Siden skal ikke stå stille af den grund. Ved en advarsel: mål igen med `--ask`,
+og flyt så grænsen eller ret listen. Spørgsmålene i listerne må ikke have et smart home-ord;
+det tjekker `scripts/site-index.test.mjs`, som også prøver selve grænsen mod et fast indeks.
+
+Kendt: søgningen får også spørgsmålet før det seneste. Et "tak for hjælpen" efter et
+spørgsmål om siden kan derfor få de samme kilder vist igen.
+
 ## Fejlsøg en søgning
 
 1. Byg siden: `npm run build`.
@@ -115,6 +189,12 @@ kontrollerede officielle kilder.
 Bygget stopper med `search probe(s) failed`, når et prøvespørgsmål ikke længere finder sin
 side. Meddelelsen nævner spørgsmålet, den ventede side og hvad der blev fundet i stedet.
 Er siden flyttet eller slettet, så ret `probes.mjs`. Ellers er teksten eller rangeringen ændret.
+Det samme stop kommer, når et spørgsmål i `OFF_TOPIC` eller `ON_TOPIC` får point på den
+forkerte side af `USEFUL_SCORE`; meddelelsen nævner spørgsmålet og dets point.
+
+Svarer assistenten uden links, selv om der er en guide om emnet, så spørg indekset med
+`--ask` og se de bedste point. Er de under 12, bruges resultatet ikke (medmindre spørgsmålet
+har et smart home-ord): ret sidens tekst, så den bruger spørgerens ord.
 
 På den levende side: svarer assistenten uden links til guides, så se Workerens log efter
 `SmartBolig site search unavailable` (`npx wrangler tail`). Den skrives, når en indeksfil
@@ -128,20 +208,23 @@ Et spørgsmål går gennem de samme trin, uanset om svaret hentes som JSON eller
    binding), spørger `CHAT_RATE_LIMITER` én gang og validerer samtalen.
 2. `turn.js` vælger de officielle evidenspakker og gør opslaget i indekset klar (tidsgrænse
    5 sekunder).
-3. `agent.js` vælger rute efter den seneste besked (se tabellen).
-4. `model-runs.js` kører hvert modeltrin: Gemma først. Qwen overtager, hvis Gemma fejler,
+3. `agent.js` søger (status `searching`), afgør af resultatet hvilken prompt modellen får
+   (se tabellen) og skriver svaret (status `writing`).
+4. `model-runs.js` kører modeltrinnet: Gemma først. Qwen overtager, hvis Gemma fejler,
    bliver afskåret eller ikke består kontrollen i `answer.js`.
 5. `turn.js` samler svar, kilder, kildegrad og telemetri til den krop, læseren får.
 
-| Den seneste besked | Opslag | Modelkald | Hvad strømmes |
+| Opslaget | Afsnit til modellen | Kilder | Prompt |
 |---|---|---|---|
-| Indeholder et smart home-ord ("Hvilken Zigbee-koordinator skal jeg bruge til Zigbee2MQTT?") | 1 | 1, uden søgeværktøj | Svaret |
-| Uden smart home-ord, og modellen beder om et opslag | 1 | 2: først med søgeværktøj, så uden | Kun det andet kald: svaret |
-| Uden smart home-ord, og modellen svarer selv ("Hej") | 0 | 1, med søgeværktøj | Intet: svaret kommer i ét stykke |
+| Smart home-ord i spørgsmålet, eller bedste point mindst 12 | Ja | Ja | Referencedata er givet |
+| Intet smart home-ord, og bedste point under 12 eller intet svar | Nej | Kun officielle | Der blev ikke fundet en relevant side |
+| Søgningen fejlede eller timede ud, intet smart home-ord | Nej | Kun officielle | Søgningen er ikke tilgængelig |
+| Intet indeks (`searchSmartbolig` mangler) | Nej | Kun officielle | Søgningen er ikke tilgængelig |
 
-Antallet af opslag og modelkald er det samme som før strømmen. Rækkefølgen holdes fast af
-`scripts/chat-stream.test.mjs` med en efterlignet model. Et trin, der kan ende i et
-værktøjskald, strømmes ikke: det, modellen skriver dér, er ikke altid et svar.
+Der er altid ét opslag (undtagen uden indeks) og ét modelkald, der strømmes, når kaldet bad om
+en strøm. Rækkefølgen holdes fast af `scripts/chat-search-first.test.mjs` og
+`scripts/chat-stream.test.mjs` med en efterlignet model. Modellen får aldrig `tools`. En
+model kan stadig finde på at skrive værktøjets navn; filteret i `answer.js` afviser det.
 
 ## Svaret som strøm
 
@@ -151,8 +234,8 @@ statuskode, også når det bad om en strøm.
 
 | Hændelse | Data | Betydning |
 |---|---|---|
-| `status` | `{"stage": …}` | Hvad der sker nu: `reading` (modellen læser spørgsmålet og afgør, om der skal søges), `searching`, `writing` eller `revising`. |
-| `sources` | `{"sources": [{"title", "url"}]}` | Én gang, når opslaget er færdigt, og altid før første tekst. Listen er tom, når der ikke blev søgt, og ingen officiel kilde er valgt. |
+| `status` | `{"stage": …}` | Hvad der sker nu: `searching`, `writing` eller `revising`. (Før den første hændelse når frem, viser widgeten "Læser dit spørgsmål …"; `reading` sendes ikke længere.) |
+| `sources` | `{"sources": [{"title", "url"}]}` | Én gang, når opslaget er færdigt, og altid før første tekst. Listen er tom, når opslaget ikke blev brugt, og ingen officiel kilde er valgt. |
 | `delta` | `{"text": "…"}` | Et stykke af svaret. |
 | `done` | Samme krop som JSON-svaret | Det kontrollerede svar. Kun `done` er et svar. |
 | `error` | `{"code", "error": {"da", "en"}}` | Samme krop som et fejlet JSON-svar. |
@@ -166,8 +249,8 @@ Regler for tekst, læseren allerede har set:
 - En anden model skriver aldrig videre på den. Fejler Gemma, før der er vist tekst, overtager
   Qwen som hidtil. Fejler Gemma, efter at der er vist tekst (fejl, tidsfrist på 55 sekunder,
   en fejl sendt inde i strømmen), trækkes udkastet tilbage med `status` `revising`, og Qwen
-  skriver et nyt. Fejler Qwen, slutter strømmen med `error`. Der er højst to modelkald pr.
-  svartrin, som uden strøm.
+  skriver et nyt. Fejler Qwen, slutter strømmen med `error`. Der er ét modeltrin pr. svar
+  (Gemma, og Qwen hvis Gemma fejler), som uden strøm.
 - Et færdigt udkast, der ikke består en kontrol (afskåret, forkert YAML-form, interne navne,
   for langt), trækkes tilbage på samme måde. Består Qwens udkast heller ikke, slutter strømmen
   med `error`. Kontrollerne er de samme som for JSON-svaret.
@@ -294,8 +377,8 @@ Tiden fra første linje til første `delta` er ventetiden på første ord.
      begynde. `diagnostics.durationMs` i `done` er hele kaldets tid målt i Workeren.
    - `status` med `revising`: første udkast blev kasseret; loglinjen `fallback_started` siger
      hvorfor.
-   - `status` med `reading` først: beskeden havde intet smart home-ord, så modellen afgør
-     selv, om der skal søges. Søger den, koster det et modelkald mere.
+   - Ingen `sources`, selv om siden har en guide om emnet: opslaget var under 12 point og
+     blev ikke brugt. Se "Hvornår et opslag bruges" og spørg indekset med `--ask`.
    - `error`: se loglinjerne for kaldets nummer.
 4. Sammenlign med JSON-svaret: samme kommando uden `accept`-linjen. Er JSON-svaret lige så
    længe undervejs, ligger tiden i modellen og ikke i strømmen.
@@ -314,6 +397,9 @@ Tiden fra første linje til første `delta` er ventetiden på første ord.
 | Vægten af overskrift og titel, ordfilernes størrelse | toppen af `scripts/lib/site-index/build.mjs` |
 | Korte forled, der må deles ("el", "dør") | `shortHeads` i `scripts/lib/site-index/compounds.mjs` |
 | Antal pr. side, loft for filer, grænsen for svage svar | toppen af `functions/lib/site-search/search.js` |
+| Pointgrænsen for, om et opslag bruges (`USEFUL_SCORE`), og dens prøvelister | `search.js` og `OFF_TOPIC`/`ON_TOPIC` i `scripts/lib/site-index/probes.mjs`; mål igen med `--ask` |
+| Ordene, der tvinger opslaget, og hvad der søges efter | `functions/lib/chat/search-need.js` |
+| Teksten, modellen får om opslaget | `SEARCH_INSTRUCTIONS` i `functions/lib/chat/prompt.js` |
 | Antal svar til modellen | `MAX_SEARCH_RESULTS` i `functions/lib/chat/limits.js` |
 | Dele af siden, der ikke skal med | `SKIPPED` og `isHidden` i `scripts/lib/site-index/extract.mjs`, eller `data-pagefind-ignore` på elementet |
 

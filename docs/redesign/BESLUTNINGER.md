@@ -880,6 +880,34 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Fravalgt: at vise et afskåret udkast med en bemærkning. Et halvt svar om elinstallation
   eller YAML er værre end ti sekunders ventetid på reservemodellen.
 
+### B62, tilføjelse efter udgivelsen (2026-11-14)
+- Fundet: målt på den levende side med »Hvordan får jeg lyset til at tænde ved bevægelse?«
+  (intet smart home-ord) valgte modellen selv, om der skulle søges. Læseren så »Læser dit
+  spørgsmål …« i 33 sekunder, fik hele svaret på én gang og ingen kildelinks, selv om siden
+  har flere guides om netop det. Et spørgsmål med et ord som »Zigbee« viste kilder efter
+  0,14 sekunder og strømmede teksten.
+- Valgt: søg i sidens eget indeks ved hvert spørgsmål, og lad modellen aldrig få et værktøj.
+  Opslaget er lokalt (få små filer, millisekunder, ingen pris). Resultatet bruges, når
+  spørgsmålet har et smart home-ord, eller når det bedste svar har mindst 12 point
+  (`USEFUL_SCORE`). Ellers svarer modellen uden sidens tekst og uden kilder.
+- Grænsen er målt mod det byggede indeks: spørgsmål om siden fik 13,33 eller mere, spørgsmål
+  om andet 9,42 eller mindre. Bygget vogter den med to lister og giver en advarsel på
+  kørslen, når et spørgsmål flytter over grænsen.
+- Fravalgt: at lade bygget stoppe på de to lister. Point flytter sig med hver ny side, og
+  nyhederne udgives af sig selv hver dag. Et stop ville lade hele siden stå stille for en
+  fejl, der kun giver et svar med eller uden en kilde. Grænsen selv er holdt af en test mod
+  et fast indeks.
+- Søgningen får det seneste spørgsmål og så spørgsmålet før, fordi en opfølgning som »Hvad
+  koster den?« kun giver mening med det. Det seneste står først, da kun de første 10 ord tæller.
+- Værktøjsruten er fjernet helt (`SEARCH_TOOLS`, `MAX_MODEL_RUNS`, trinnet `reading`):
+  ét modelkald, der altid kan strømmes.
+- Fravalgt: at lade modellen vælge med et værktøj. Det gav 33 sekunder uden tekst, ingen
+  kilder og to modelkald, og valget var ikke til at forudsige.
+- Fravalgt: kun en ordliste, som i dag tvinger opslaget. Den misser almindelige spørgsmål som
+  »lys ved bevægelse« og skulle følge hver ny side.
+- Kendt grænse: nogle engelske spørgsmål om andet ligger tæt på grænsen (»Who won the 2022
+  World Cup?« 13,23), så de får en irrelevant kilde. De står ikke i prøvelisterne.
+
 ## B63. Forsiden: værktøjer med elprisen lige nu (2026-11-14)
 
 - Valgt: en sektion på forsiden efter de tre etaper med et kort, der viser elprisen i dette

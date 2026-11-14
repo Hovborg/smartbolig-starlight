@@ -1,11 +1,10 @@
-// The Workers AI agent: decides when the site is searched and which prompt each
-// model step gets. The model steps themselves live in model-runs.js.
+// The Workers AI agent: the site is searched first, every time, then one model
+// run writes the answer. The model gets no tools. The run itself is model-runs.js.
 
-import { MAX_MODEL_RUNS, MAX_SEARCH_QUERY_CHARS } from "./limits.js";
 import { extractModelAnswer } from "./answer.js";
 import { createModelRunner } from "./model-runs.js";
 import { buildSystemPrompt, withOfficialReference, withSmartboligReference } from "./prompt.js";
-import { SEARCH_TOOLS, selectSearchToolCall, shouldRequireSmartboligSearch } from "./search-tool.js";
+import { searchQuery, shouldRequireSmartboligSearch } from "./search-need.js";
 import { requestedHomeAssistantYamlShape } from "./yaml-request.js";
 
 export function createWorkersAgent(dependencies = {}) {
@@ -14,8 +13,8 @@ export function createWorkersAgent(dependencies = {}) {
     ((binding, model, input, options) => binding.run(model, input, options));
 
   // `live` is set for a streamed request: live.stage(name) reports what happens
-  // now ("reading", "searching", "writing", "revising"), live.text(chunk) gets
-  // the answer while it is written and live.signal aborts when the visitor leaves.
+  // now ("searching", "writing", "revising"), live.text(chunk) gets the answer
+  // while it is written and live.signal aborts when the visitor leaves.
   return async function runWorkersAgent({
     env,
     messages,
@@ -28,23 +27,6 @@ export function createWorkersAgent(dependencies = {}) {
     const latestUserContent = [...messages]
       .reverse()
       .find((message) => message.role === "user")?.content || "";
-    const requestedYamlShape = requestedHomeAssistantYamlShape(latestUserContent);
-    const createModelMessages = (hasSearchTool, hasPreloadedSearch = false) => [
-      {
-        role: "system",
-        content: buildSystemPrompt(
-          locale,
-          hasSearchTool,
-          hasPreloadedSearch,
-          requestedYamlShape,
-        ),
-      },
-      ...messages,
-    ];
-    const modelMessages = createModelMessages(Boolean(searchSmartbolig));
-    const searchUnavailableMessages = createModelMessages(false);
-    const preloadedModelMessages = createModelMessages(false, true);
-    const tools = searchSmartbolig ? SEARCH_TOOLS : undefined;
     const runModel = createModelRunner({
       aiRunImpl,
       binding: env.AI,
@@ -53,44 +35,35 @@ export function createWorkersAgent(dependencies = {}) {
       onModelFallback,
     });
 
-    // The last step of every route: the model writes the answer from the search result.
-    const answerFromSearch = (toolResult) => {
-      live?.stage("writing");
-      return runModel(
-        withOfficialReference(withSmartboligReference(preloadedModelMessages, toolResult), officialEvidence),
-      );
-    };
-    const finish = (execution) => {
-      const answer = extractModelAnswer(execution.result);
-      if (!answer) throw new Error("EmptyModelResponse");
-      return { answer, diagnostics: execution.diagnostics };
-    };
-
-    if (searchSmartbolig && shouldRequireSmartboligSearch(messages)) {
+    // "supplied": the search result goes to the model. "nothing": the search ran
+    // and found nothing about this question. "unavailable": there is no result.
+    let searchState = "unavailable";
+    let supplied = null;
+    if (searchSmartbolig) {
       live?.stage("searching");
-      const query = messages.at(-1).content.slice(0, MAX_SEARCH_QUERY_CHARS);
-      return finish(await answerFromSearch(await searchSmartbolig(query)));
+      const always = shouldRequireSmartboligSearch(messages);
+      const found = await searchSmartbolig(searchQuery(messages), { always });
+      if (found.weak) {
+        searchState = "nothing";
+      } else if (!found.unavailable || always) {
+        // A search that failed is still reported to the model when a smart home word asked for it.
+        searchState = "supplied";
+        supplied = found;
+      }
     }
 
-    // Without a smart home word the model decides whether a search helps.
-    let modelRuns = 1;
-    live?.stage(tools ? "reading" : "writing");
-    let execution = await runModel(
-      withOfficialReference(modelMessages, officialEvidence),
-      tools,
-      withOfficialReference(searchUnavailableMessages, officialEvidence),
+    live?.stage("writing");
+    const system = {
+      role: "system",
+      content: buildSystemPrompt(locale, searchState, requestedHomeAssistantYamlShape(latestUserContent)),
+    };
+    const modelMessages = [system, ...messages];
+    const execution = await runModel(
+      withOfficialReference(supplied ? withSmartboligReference(modelMessages, supplied) : modelMessages, officialEvidence),
     );
-    const selectedTool = searchSmartbolig ? selectSearchToolCall(execution.result) : null;
 
-    if (selectedTool) {
-      live?.stage("searching");
-      const toolResult = await searchSmartbolig(selectedTool.query);
-      modelRuns += 1;
-      if (modelRuns > MAX_MODEL_RUNS) throw new Error("ModelRunLimitExceeded");
-
-      execution = await answerFromSearch(toolResult);
-    }
-
-    return finish(execution);
+    const answer = extractModelAnswer(execution.result);
+    if (!answer) throw new Error("EmptyModelResponse");
+    return { answer, diagnostics: execution.diagnostics };
   };
 }

@@ -42,8 +42,19 @@ Sidst opdateret: 2026-11-14.
   alle af testene. Dokumentation: `docs/assistent.md`. Kendt i vinduet og ikke rettet: på en
   telefon på 375×760 px er samtalefeltet ca. 209 px højt; ved 320 px står overskriftens tekst
   under nulstil-knappen; statusteksten kan stå to gange et øjeblik; "Kopiér kode" vises også
-  på en kodeblok, der endnu skrives. Kan først ses på den levende side: et rigtigt svar gennem
-  Workerens egen binding, og om Cloudflare sender strømmen videre uden at samle den.
+  på en kodeblok, der endnu skrives. Udgivet 2026-11-14 (PR #206, `main` 9caab95, Worker
+  `234155f6`). Set på den levende side: status efter 0,10 s, kilder efter 0,14 s, første ord
+  efter ca. 19 s og hele svaret efter ca. 31 s for et spørgsmål om Zigbee; teksten strømmer.
+  Vej tilbage: `npx wrangler rollback e7f0c884-ed6a-4ec8-880c-e76a412809bd -m "<besked>" -y`.
+- **Assistenten søger først, hver gang (B62, tilføjelse):** fundet på den levende side, at et
+  spørgsmål uden et smart home-ord ("Hvordan får jeg lyset til at tænde ved bevægelse?") gav
+  33 s uden tekst, hele svaret på én gang og ingen kilder. Nu søges sidens indeks ved hvert
+  spørgsmål, resultatet bruges, når spørgsmålet har et smart home-ord eller bedste svar har
+  mindst 12 point (`USEFUL_SCORE`), og modellen får aldrig et værktøj: ét modelkald, der altid
+  strømmer. Bygget advarer (stopper ikke), når et spørgsmål i prøvelisterne flytter over
+  grænsen. Ti prøver med en rettelse taget ud fanges alle af testene. Kendt: nogle engelske
+  spørgsmål om andet ligger tæt på grænsen og kan få en kilde; tiden til første ord (ca. 19 s,
+  modellens tænketid) er ikke ændret og står på listen til ejeren.
 - **Automatiske opdateringer set i drift 2026-11-14:** Dependabot åbnede otte pull requests
   efter udgivelsen. Gruppen med små npm-opdateringer (PR #192) blev flettet af sig selv, efter
   at `deploy`-kontrollen var grøn, og kontrollerne kørte derefter på `main`. Starlight 0.42.8

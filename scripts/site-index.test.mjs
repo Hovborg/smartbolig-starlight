@@ -3,14 +3,15 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createSiteSearch, INDEX_ROOT } from "../functions/lib/site-search/search.js";
+import { shouldRequireSmartboligSearch } from "../functions/lib/chat/search-need.js";
+import { createSiteSearch, INDEX_ROOT, USEFUL_SCORE } from "../functions/lib/site-search/search.js";
 import { queryTerms, shardOf, stem, terms } from "../functions/lib/site-search/tokens.js";
 import { buildIndex } from "./lib/site-index/build.mjs";
 import { chunksOf, chunksOfSite, pieces } from "./lib/site-index/chunks.mjs";
 import { splitCompound } from "./lib/site-index/compounds.mjs";
 import { decodeEntities, extractPage, sectionsOf } from "./lib/site-index/extract.mjs";
-import { PROBES } from "./lib/site-index/probes.mjs";
-import { runProbes } from "./site-index.mjs";
+import { OFF_TOPIC, ON_TOPIC, PROBES } from "./lib/site-index/probes.mjs";
+import { runProbes, runScoreProbes } from "./site-index.mjs";
 
 const page = (url, title, sections, description = "") => ({ url, title, description, sections });
 const section = (id, heading, text) => ({ id, heading, text });
@@ -363,6 +364,41 @@ test("the fixed questions cover both languages and point at pages of that langua
     for (const probe of PROBES[locale]) {
       assert.match(probe.page, new RegExp(`^/${locale}/.+/$`));
       assert.ok(queryTerms(probe.query, locale).length > 0);
+    }
+  }
+});
+
+/** A one-chunk index in which the word "zigbee" scores exactly `score`; none when it is null. */
+function indexScoring(score) {
+  return new Map([
+    ["meta.json", JSON.stringify({ v: 1, shards: 1, chunks: 1, chunksPerFile: 8 })],
+    ["t/0.json", JSON.stringify(score === null ? {} : { [stem("zigbee")]: [0, Math.round(score * 100)] })],
+    ["c/0.json", JSON.stringify([{ u: "/da/a/zigbee/", t: "Zigbee", h: "", x: "Zigbee er en protokol." }])],
+  ]);
+}
+
+test("the build holds the score line: off-topic questions stay below it, on-topic ones reach it", async () => {
+  const questions = { offTopic: ["zigbee"], onTopic: [] };
+  const onTopic = { offTopic: [], onTopic: ["zigbee"] };
+
+  assert.equal(USEFUL_SCORE, 12);
+  assert.deepEqual(await runScoreProbes(indexScoring(11.99), "da", questions), []);
+  assert.deepEqual(await runScoreProbes(indexScoring(null), "da", questions), []);
+  assert.deepEqual(await runScoreProbes(indexScoring(12), "da", questions), [{ query: "zigbee", score: 12, rule: "below" }]);
+
+  assert.deepEqual(await runScoreProbes(indexScoring(12), "da", onTopic), []);
+  assert.deepEqual(await runScoreProbes(indexScoring(11.99), "da", onTopic), [{ query: "zigbee", score: 11.99, rule: "at least" }]);
+  assert.deepEqual(await runScoreProbes(indexScoring(null), "da", onTopic), [{ query: "zigbee", score: 0, rule: "at least" }]);
+});
+
+test("the score questions cover both languages and are questions the site search is not forced for", () => {
+  for (const locale of ["da", "en"]) {
+    assert.ok(OFF_TOPIC[locale].length >= 4);
+    assert.ok(ON_TOPIC[locale].length >= 3);
+    for (const query of [...OFF_TOPIC[locale], ...ON_TOPIC[locale]]) {
+      assert.ok(queryTerms(query, locale).length > 0, query);
+      // A smart home word forces the search whatever it scores, so it would measure nothing.
+      assert.equal(shouldRequireSmartboligSearch([{ role: "user", content: query }]), false, query);
     }
   }
 });

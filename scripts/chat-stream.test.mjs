@@ -17,7 +17,6 @@ import {
   eventNames,
   modelStream,
   readEvents,
-  searchCall,
 } from "./lib/chat-stream-fakes.mjs";
 
 const ANSWER_PARTS = ["En **netværkskoordinator** ", "er det sikre valg ", "til Zigbee2MQTT."];
@@ -67,32 +66,33 @@ test("the done event is exactly the JSON response for the same question", async 
   assert.equal(plain.calls[0].stream, false);
 });
 
-test("the sources are sent before the first text when the model asks for the search itself", async () => {
-  const { handler, calls, searches } = createStreamHarness((call) =>
-    call.tools ? searchCall("pris på zigbee koordinator") : modelStream(ANSWER_PARTS),
-  );
+test("a question without a smart home word is searched first, and its sources come before the text", async () => {
+  const { handler, calls, searches } = createStreamHarness(() => modelStream(ANSWER_PARTS));
 
   const events = await readEvents(await handler({ request: chatRequest(PLAIN_QUESTION), env: chatEnv() }));
 
-  assert.equal(eventNames(events), "status status sources status delta delta delta done message");
+  assert.equal(eventNames(events), "status sources status delta delta delta done message");
   assert.deepEqual(
     events.filter(({ event }) => event === "status").map(({ data }) => data.stage),
-    ["reading", "searching", "writing"],
+    ["searching", "writing"],
   );
-  assert.deepEqual(events[2].data, { sources: [SEARCH_SOURCE] });
-  assert.deepEqual(searches, ["pris på zigbee koordinator"]);
-  // The step that may end in a tool call is not streamed; the answer step is.
+  assert.deepEqual(events[1].data, { sources: [SEARCH_SOURCE] });
+  assert.deepEqual(searches, [PLAIN_QUESTION]);
+  // One model call, streamed, and no tool offered to it.
   assert.deepEqual(
     calls.map(({ stream, tools }) => ({ stream, tools })),
-    [
-      { stream: false, tools: true },
-      { stream: true, tools: false },
-    ],
+    [{ stream: true, tools: false }],
   );
 });
 
-test("an answer the model gives without searching arrives as one piece after an empty source list", async () => {
-  const { handler, calls, searches } = createStreamHarness(() => completion("Hej! Hvad vil du gerne bygge?"));
+test("an answer to a question the site has nothing about arrives after an empty source list", async () => {
+  const searches = [];
+  const { handler, calls } = createStreamHarness(() => completion("Hej! Hvad vil du gerne bygge?"), {
+    siteSearch: () => async (query) => {
+      searches.push(query);
+      return [{ ...SEARCH_HIT, score: 6.85 }];
+    },
+  });
 
   const events = await readEvents(await handler({ request: chatRequest("Hej"), env: chatEnv() }));
 
@@ -101,7 +101,7 @@ test("an answer the model gives without searching arrives as one piece after an 
   assert.equal(deltaText(events), "Hej! Hvad vil du gerne bygge?");
   assert.equal(events.at(-2).data.sourceMode, "general");
   assert.equal(calls.length, 1);
-  assert.deepEqual(searches, []);
+  assert.deepEqual(searches, ["Hej"]);
 });
 
 test("a refusal is the same JSON response with or without a stream request", async () => {
@@ -205,7 +205,7 @@ test("a failed generation ends the stream with the localized error and no answer
 test("an agent that reports nothing still gets its sources out before the answer", async () => {
   const handler = createChatHandler({
     agentRunner: async ({ searchSmartbolig }) => {
-      await searchSmartbolig("zigbee");
+      await searchSmartbolig("zigbee", { always: true });
       return { answer: "Et svar uden mellemtrin." };
     },
     createRequestId: () => "req-stream-2",
