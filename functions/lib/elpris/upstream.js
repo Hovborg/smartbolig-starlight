@@ -87,19 +87,19 @@ async function readOne(url, fetcher, signal) {
 /**
  * The first address that answers with prices. When none does, the fault of
  * the first address is the one thrown: it is the address that should work.
+ * `seen.fault` holds it from the moment it is known.
  */
-async function readAreas(fetcher, signal) {
-  let fault;
+async function readAreas(fetcher, signal, seen) {
   for (const url of UPSTREAM_URLS) {
     try {
       return await readOne(url, fetcher, signal);
     } catch (error) {
-      fault ??= error;
+      seen.fault ??= error;
       // When the time is up there is none left for the reserve.
       if (signal.aborted) break;
     }
   }
-  throw fault;
+  throw seen.fault;
 }
 
 /**
@@ -109,16 +109,18 @@ async function readAreas(fetcher, signal) {
  */
 export async function fetchPrices({ fetch: fetcher = fetch, timeoutMs = UPSTREAM_TIMEOUT_MS } = {}) {
   const abort = new AbortController();
+  const seen = {};
   let timer;
   // The call ends when the time is up, also when a fetch does not answer its signal.
   const timeUp = new Promise((_, reject) => {
     timer = setTimeout(() => {
       const error = new DOMException("upstream timeout", "TimeoutError");
       abort.abort(error);
-      reject(error);
+      // If the time ran out on the reserve, the first address's fault is the one to tell.
+      reject(seen.fault ?? error);
     }, timeoutMs);
   });
-  const reading = readAreas(fetcher, abort.signal);
+  const reading = readAreas(fetcher, abort.signal, seen);
   // When the time runs out first, no one waits for a later fault of the call itself.
   reading.catch(() => {});
   try {

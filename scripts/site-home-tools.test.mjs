@@ -161,7 +161,7 @@ test("the tool and the homepage card both use the corrected clock", async () => 
     const code = await read(file);
     assert.match(code, /\+ \(state\.data\?\.clockOffset \?\? 0\)/, file);
     // The answer may have put the clock right, so the wait for the next quarter starts again.
-    assert.match(code, /state\.loadedAt = clock\(\);\n\s*\/\/[^\n]*\n\s*atNextQuarter\(\);/, file);
+    assert.match(code, /state\.loadedAt = clock\(\);\r?\n\s*\/\/[^\r\n]*\r?\n\s*atNextQuarter\(\);/, file);
   }
 });
 

@@ -470,4 +470,15 @@ test("when both addresses fail, the fault of the first is the one in the log, an
   assert.equal((await slow.call("/api/elpris?area=DK1")).status, 502);
   assert.equal(slow.logs[0][1].error, "TimeoutError");
   assert.equal(slow.reserves.length, 0);
+
+  // When the time runs out on the reserve, the log still names what the first address said.
+  const hanging = (number, { signal }) => new Promise((resolve, reject) => signal.addEventListener("abort", () => reject(signal.reason)));
+  const late = setup(() => new Response("", { status: 429 }), { reserve: hanging });
+  assert.equal((await late.call("/api/elpris?area=DK1")).status, 502);
+  assert.deepEqual(late.logs, [["SmartBolig elpris upstream failed", { error: "UpstreamStatus429" }]]);
+  assert.equal(late.reserves.length, 1);
+  // Also when the reserve does not answer its signal at all.
+  const deaf = setup(() => new Response("", { status: 429 }), { reserve: () => new Promise(() => {}) });
+  assert.equal((await deaf.call("/api/elpris?area=DK1")).status, 502);
+  assert.equal(deaf.logs[0][1].error, "UpstreamStatus429");
 });

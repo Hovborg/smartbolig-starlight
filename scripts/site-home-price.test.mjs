@@ -6,7 +6,7 @@ import test from "node:test";
 import { startHomePrice } from "../src/lib/home-price.mjs";
 import { formatNumber } from "../src/lib/tools/format.mjs";
 import { priceCopy } from "../src/lib/tools/price-copy.mjs";
-import { FETCH_TIMEOUT_MS, REFRESH_SECONDS } from "../src/lib/tools/price-data.mjs";
+import { fetchPrices, FETCH_TIMEOUT_MS, REFRESH_SECONDS } from "../src/lib/tools/price-data.mjs";
 import { toOre } from "../src/lib/tools/price-window.mjs";
 
 const HOUR = 3600;
@@ -199,6 +199,37 @@ test("an endpoint that never answers does not leave the card empty: when the tim
     assert.equal(card.parts.value.textContent, "–");
   } finally {
     card.stop();
+  }
+});
+
+test("the caller can stop a call for prices, before it is made and while it waits", async () => {
+  const before = globalThis.fetch;
+  const signals = [];
+  // Like fetch: refuses a signal that has stopped, and ends when it stops.
+  globalThis.fetch = (_url, { signal }) =>
+    new Promise((_resolve, reject) => {
+      signals.push(signal);
+      const refuse = () => reject(new DOMException("stopped", "AbortError"));
+      if (signal.aborted) refuse();
+      else signal.addEventListener("abort", refuse);
+    });
+  try {
+    // Each is checked at once: the time limit would stop the call too, twelve seconds later.
+    const stopped = new AbortController();
+    stopped.abort();
+    const refused = fetchPrices("DK1", stopped.signal);
+    assert.equal(signals[0].aborted, true, "a call that was stopped before it began is stopped on the way out");
+    await assert.rejects(refused, { name: "AbortError" });
+
+    const waiting = new AbortController();
+    const call = fetchPrices("DK2", waiting.signal);
+    await settle();
+    assert.equal(signals[1].aborted, false);
+    waiting.abort();
+    assert.equal(signals[1].aborted, true);
+    await assert.rejects(call, { name: "AbortError" });
+  } finally {
+    globalThis.fetch = before;
   }
 });
 
