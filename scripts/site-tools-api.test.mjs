@@ -28,6 +28,9 @@ function fakeCache(clock) {
   };
 }
 
+// Lets everything that is waiting run, as a short wait does in the Worker.
+const tick = () => new Promise((resolve) => setImmediate(resolve));
+
 /** `reply(callNumber)` is what the fake upstream answers. */
 function setup(reply = () => ok(day()), { cache: withCache = true } = {}) {
   let time = (T0 + 9 * 3600) * 1000; // 09:00 Danish time
@@ -44,6 +47,7 @@ function setup(reply = () => ok(day()), { cache: withCache = true } = {}) {
     now: clock,
     logger: { error: (...entry) => logs.push(entry) },
     timeoutMs: 40,
+    sleep: tick,
   });
   const waiting = [];
   async function call(path = "/api/elpris", { method = "GET", cf } = {}) {
@@ -89,6 +93,17 @@ test("without a named area it is guessed from where Cloudflare places the visito
     [{ country: "DK" }, "DK1"],
     [{ country: "SE", regionCode: "84" }, "DK1"],
     [undefined, "DK1"],
+    // A region code that is not one of the five (the two eastern regions are
+    // to be merged in 2027): the map decides. Cloudflare gives the numbers as text.
+    [{ country: "DK", regionCode: "86", longitude: "12.56830", latitude: "55.67590" }, "DK2"], // København
+    [{ country: "DK", regionCode: "86", longitude: "14.70", latitude: "55.10" }, "DK2"], // Rønne
+    [{ country: "DK", regionCode: "86", longitude: "11.14", latitude: "55.33" }, "DK2"], // Korsør
+    [{ country: "DK", regionCode: "86", longitude: "10.79", latitude: "55.31" }, "DK1"], // Nyborg
+    [{ country: "DK", longitude: "11.52", latitude: "56.71" }, "DK1"], // Anholt
+    [{ country: "DK", regionCode: "86", longitude: "x" }, "DK1"],
+    // A known western region wins over the map.
+    [{ country: "DK", regionCode: "82", longitude: "11.52", latitude: "55.0" }, "DK1"],
+    [{ country: "SE", longitude: "12.99", latitude: "55.60" }, "DK1"],
   ]) {
     const response = await call("/api/elpris", { cf });
     const body = await response.json();
@@ -115,6 +130,9 @@ test("a wrong area is refused, and so is every method but GET and HEAD", async (
   assert.equal(calls.length, 0);
   const head = await call("/api/elpris?area=DK1", { method: "HEAD" });
   assert.deepEqual([head.status, await head.text()], [200, ""]);
+  // A HEAD request never gets a body, also when the answer is an error.
+  const wrong = await call("/api/elpris?area=DK3", { method: "HEAD" });
+  assert.deepEqual([wrong.status, await wrong.text()], [400, ""]);
 });
 
 test("one upstream call serves both areas for ten minutes, whatever else is in the query", async () => {
@@ -137,8 +155,10 @@ test("when the source fails, the copy is served, and the source gets a minute of
   const response = await call("/api/elpris?area=DK1");
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("cache-control"), "public, max-age=60");
-  assert.deepEqual(await response.json(), first);
-  assert.deepEqual(logs, [["SmartBolig elpris upstream failed", { area: "DK1", error: "UpstreamStatus500" }]]);
+  // The old copy says that it is old.
+  assert.deepEqual(await response.json(), { ...first, stale: true });
+  // The log has the name of the fault only: not the visitor's area.
+  assert.deepEqual(logs, [["SmartBolig elpris upstream failed", { error: "UpstreamStatus500" }]]);
   await call("/api/elpris?area=DK2");
   assert.equal(calls.length, 2);
   advance(61);
@@ -154,7 +174,8 @@ test("without a usable copy the answer is a plain 502 that says nothing about th
   assert.equal(response.status, 502);
   assert.equal(response.headers.get("cache-control"), "no-store");
   assert.equal(await response.text(), '{"error":"upstream"}');
-  assert.deepEqual(failing.logs[0][1], { area: "DK1", error: "Error" });
+  assert.deepEqual(failing.logs[0][1], { error: "Error" });
+  assert.deepEqual([(await failing.call("/api/elpris?area=DK1", { method: "HEAD" })).status, failing.calls.length], [502, 1]);
 
   // A copy whose prices have all passed is not shown as if it were today's.
   const old = setup((number) => (number === 1 ? ok(day()) : new Response("", { status: 503 })));
@@ -167,6 +188,11 @@ test("without a usable copy the answer is a plain 502 that says nothing about th
   assert.equal(slow.logs[0][1].error, "TimeoutError");
 
   assert.equal((await setup(() => new Response("<html>not json</html>")).call()).status, 502);
+
+  // An answer far longer than two days of prices is not read as prices.
+  const huge = setup(() => new Response(JSON.stringify({ records: day(), padding: "x".repeat(600_000) })));
+  assert.equal((await huge.call("/api/elpris?area=DK1")).status, 502);
+  assert.equal(huge.logs[0][1].error, "UpstreamTooLarge");
 });
 
 test("rows that are not right are dropped, and an area with too few rows fails", async () => {
@@ -192,10 +218,66 @@ test("rows that are not right are dropped, and an area with too few rows fails",
   assert.equal(logs.at(-1)[1].error, "UpstreamAreaMissing");
 });
 
-test("the endpoint also answers where there is no Cache API, and is exported for Pages", async () => {
-  const { call, calls } = setup(undefined, { cache: false });
+test("where there is no Cache API the isolate's own memory keeps the copy and the minute of peace", async () => {
+  const { call, calls, advance } = setup(undefined, { cache: false });
   assert.equal((await call("/api/elpris?area=DK1")).status, 200);
+  assert.equal((await call("/api/elpris?area=DK2")).status, 200);
+  assert.equal(calls.length, 1);
+  advance(601);
   assert.equal((await call("/api/elpris?area=DK1")).status, 200);
   assert.equal(calls.length, 2);
   assert.equal(typeof onRequest, "function");
+
+  const failing = setup(() => new Response("", { status: 429 }), { cache: false });
+  for (let index = 0; index < 5; index += 1) assert.equal((await failing.call("/api/elpris?area=DK1")).status, 502);
+  assert.equal(failing.calls.length, 1, "one call, then a minute of peace");
+  failing.advance(61);
+  await failing.call("/api/elpris?area=DK1");
+  assert.equal(failing.calls.length, 2);
+});
+
+// An upstream that answers only when the test says so, to hold requests in the air.
+function held() {
+  const releases = [];
+  const reply = () => new Promise((resolve) => releases.push(() => resolve(ok(day()))));
+  return { reply, release: () => releases.splice(0).forEach((release) => release()) };
+}
+
+test("requests that arrive together cost one call to Energinet", async () => {
+  // With an old copy: the first request asks, the others show the old copy at once.
+  const upstream = held();
+  let hold = false;
+  const warm = setup((number) => (hold ? upstream.reply() : ok(day())));
+  await warm.call("/api/elpris?area=DK1");
+  warm.advance(700);
+  hold = true;
+  const together = Array.from({ length: 20 }, (_, index) => warm.call(`/api/elpris?area=${index % 2 ? "DK2" : "DK1"}`));
+  await tick();
+  upstream.release();
+  const answers = await Promise.all(together);
+  assert.deepEqual([...new Set(answers.map((response) => response.status))], [200]);
+  assert.equal(warm.calls.length, 2, "one call for the first copy and one for all twenty");
+  assert.equal(warm.logs.length, 0);
+  assert.equal(answers.filter((response) => response.headers.get("cache-control") === "public, max-age=60").length, 19, "nineteen got the old copy");
+
+  // With nothing to show: the others wait a moment for the first one's answer.
+  const cold = held();
+  const empty = setup(cold.reply);
+  const waiting = Array.from({ length: 10 }, () => empty.call("/api/elpris?area=DK2"));
+  await tick();
+  cold.release();
+  const got = await Promise.all(waiting);
+  assert.deepEqual(got.map((response) => response.status), Array(10).fill(200));
+  assert.equal(empty.calls.length, 1);
+  assert.equal((await got[9].json()).area, "DK2");
+});
+
+test("a request does not wait for ever for a call that never ends", async () => {
+  const stuck = setup(() => new Promise(() => {}));
+  // The first request never gets an answer in this test; it is left hanging on purpose.
+  stuck.call("/api/elpris?area=DK1").catch(() => {});
+  await tick();
+  const second = await stuck.call("/api/elpris?area=DK1");
+  assert.equal(second.status, 502);
+  assert.equal(stuck.calls.length, 1);
 });

@@ -21,7 +21,9 @@ function formatter(kind, lang, options) {
 
 /** "1.234,5" in Danish, "1,234.5" in English. */
 export function formatNumber(value, lang = "da", digits = 1) {
-  return formatter("number", lang, { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(value);
+  // A small negative number must not be shown as "-0,0".
+  const shown = Math.abs(value) < 0.5 / 10 ** digits ? 0 : value;
+  return formatter("number", lang, { minimumFractionDigits: digits, maximumFractionDigits: digits }).format(shown);
 }
 
 /** "123,4 øre/kWh". The unit is Danish money, so it is the same in English. */
@@ -47,7 +49,8 @@ export function formatKroner(value, lang = "da", digits = 0) {
  */
 export function formatMoney(kroner, lang = "da") {
   if (kroner >= 100 || kroner <= 0) return formatKroner(kroner, lang, 0);
-  if (kroner >= 1) return formatKroner(kroner, lang, 2);
+  // From 0.995 the øre round to 100, and that is a krone.
+  if (kroner >= 0.995) return formatKroner(kroner, lang, 2);
   const ore = kroner * 100;
   return `${formatNumber(ore, lang, ore >= 10 ? 0 : ore >= 1 ? 1 : 2)}\u00a0øre`;
 }
@@ -88,11 +91,15 @@ export function formatDay(epochSeconds, lang = "da") {
 
 /**
  * Reads a number a visitor typed. Danes write "2,50" and others "2.50"; both
- * are accepted. Anything that is not a plain number gives NaN.
+ * are accepted. "1.500" and "1,500" are refused: one sign followed by exactly
+ * three digits is a thousand to some and a decimal to others, and a guess
+ * could be a thousand times wrong. Anything that is not a plain number gives NaN.
  */
 export function parseDecimal(text) {
-  const cleaned = String(text ?? "").trim().replace(/\s/g, "").replace(",", ".");
-  return /^-?\d+(\.\d+)?$/.test(cleaned) ? Number(cleaned) : Number.NaN;
+  const cleaned = String(text ?? "").trim().replace(/\s/g, "");
+  if (/^-?[1-9]\d{0,2}[.,]\d{3}$/.test(cleaned)) return Number.NaN;
+  const plain = cleaned.replace(",", ".");
+  return /^-?\d+(\.\d+)?$/.test(plain) ? Number(plain) : Number.NaN;
 }
 
 /** Puts values into a sentence: fill("Start kl. {time}.", { time: "02:15" }). */

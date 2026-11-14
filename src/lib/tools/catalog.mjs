@@ -22,7 +22,7 @@ export const TOOLS = [
     slug: "stroemforbrug",
     icon: "power",
     da: {
-      title: "Hvad koster det at have tændt?",
+      title: "Hvad koster det at have apparatet tændt?",
       text: "Skriv watt og timer pr. dag. Så ser du prisen pr. dag, måned og år.",
     },
     en: {

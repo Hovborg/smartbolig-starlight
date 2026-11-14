@@ -1,7 +1,7 @@
 // Wires the "what does it cost to keep it on" tool (PowerCost.astro) to its
 // calculation. Everything happens in the browser; nothing is fetched or stored.
 
-import { bindRange, part, setText, show } from "./dom.mjs";
+import { bindRange, part, setInvalid, setText } from "./dom.mjs";
 import { fill, formatMoney, formatNumber, parseDecimal } from "./format.mjs";
 import { powerCopy } from "./power-copy.mjs";
 import { costPerHour, powerCost, savingPerHourLess } from "./power-cost.mjs";
@@ -22,8 +22,7 @@ export function startPowerTool(root) {
     const input = $(name);
     const value = parseDecimal(input.value);
     const valid = value >= 0 && value <= max;
-    input.setAttribute("aria-invalid", String(!valid));
-    show($(`${name}-error`), !valid);
+    setInvalid(input, $(`${name}-error`), !valid);
     return valid ? value : null;
   }
 
@@ -48,15 +47,23 @@ export function startPowerTool(root) {
     setText($("meaning"), sentences.join(" "));
   }
 
+  // The hours the visitor chose. An example that sets 24 hours does not
+  // change them, so the next example gets the visitor's hours back.
+  let ownHours = Number($("hours").value);
+  let fromExample = false;
+  function setHours(hours) {
+    $("hours").value = String(hours);
+    fromExample = true;
+    // Lets the slider repaint its track and say its new value.
+    $("hours").dispatchEvent(new Event("input"));
+    fromExample = false;
+  }
+
   const press = (chosen) => chips.forEach((chip) => chip.setAttribute("aria-pressed", String(chip === chosen)));
   for (const chip of chips) {
     chip.addEventListener("click", () => {
       $("watts").value = chip.dataset.watts;
-      if (chip.dataset.hours) {
-        $("hours").value = chip.dataset.hours;
-        // Lets the slider repaint its track and say its new value.
-        $("hours").dispatchEvent(new Event("input"));
-      }
+      setHours(chip.dataset.hours ?? ownHours);
       press(chip);
       render();
     });
@@ -70,6 +77,7 @@ export function startPowerTool(root) {
   bindRange($("hours"), {
     describe: hoursText,
     onInput: (hours) => {
+      if (!fromExample) ownHours = hours;
       setText($("hours-value"), hoursText(hours));
       render();
     },

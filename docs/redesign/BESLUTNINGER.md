@@ -763,6 +763,26 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   begge temaer ved 320, 375 og 1440 px, og ét rigtigt kald til Energinet gennem endpointets
   kode. Ikke set: endpointet hos Cloudflare før udgivelsen.
 
+### B61, tilføjelse efter den uafhængige gennemgang (2026-11-14)
+
+- Valgt: et tal med ét tegn fulgt af præcis tre cifre ("1.500", "1,500") afvises i stedet for
+  at blive gættet. Begrundelse: gættet kan være tusind gange forkert, og siden læses af både
+  danskere og andre. Fravalgt: at læse efter sidens sprog; en dansker på den engelske side
+  ville få det forkerte tal uden at se det.
+- Valgt: samtidige kald styres af tidspunkter i Worker-instansens hukommelse, ikke af et delt
+  løfte. Begrundelse: Cloudflare kan afbryde det kald, der ejer løftet, og de andre ville
+  hænge. Et tidspunkt udløber af sig selv.
+- Valgt: gæt på prisområde efter længde- og breddegrad, når regionskoden er ukendt.
+  Begrundelse: Hovedstaden og Sjælland lægges efter planen sammen 1. januar 2027, og den nye
+  kode kendes ikke. Uden reserven ville alle på Sjælland få Vestdanmarks priser den dag,
+  Cloudflare skifter kode.
+- Valgt: enhedens ur rettes først, når det er over et kvarter fra serverens. Begrundelse:
+  browseren må gemme svaret i ti minutter, så en mindre forskel kan skyldes svarets alder.
+- Valgt: eksemplet "Køleskab 40 W i snit" er fjernet. Begrundelse: tallet havde ingen kilde og
+  er højt for et nyt køleskab.
+- Valgt: forsidens sektion (B63) udgives sammen med værktøjerne. Begrundelse: den viser de
+  samme tal gennem den samme kode, og rettelserne ovenfor gælder begge steder.
+
 ## B63. Forsiden: værktøjer med elprisen lige nu (2026-11-14)
 
 - Valgt: en sektion på forsiden efter de tre etaper med et kort, der viser elprisen i dette

@@ -21,6 +21,8 @@ export const UPSTREAM_URL = `https://api.energidataservice.dk/dataset/DayAheadPr
 
 // Day-ahead prices are capped far below this; a larger number is a fault.
 const MAX_ABS_PRICE = 100_000;
+// 392 rows are about 40,000 characters. A much longer answer is not the prices.
+const MAX_BODY_CHARS = 500_000;
 
 /**
  * The rows of one area as [[epoch seconds, DKK per MWh with 2 decimals], ...].
@@ -59,7 +61,9 @@ export async function fetchPrices({ fetch: fetcher = fetch, timeoutMs = UPSTREAM
     error.name = `UpstreamStatus${response.status}`;
     throw error;
   }
-  const records = (await response.json())?.records;
+  const text = await response.text();
+  if (text.length > MAX_BODY_CHARS) throw Object.assign(new Error("upstream body"), { name: "UpstreamTooLarge" });
+  const records = JSON.parse(text)?.records;
   const areas = {};
   for (const area of AREAS) {
     const points = shapePoints(records, area);

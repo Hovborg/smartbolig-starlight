@@ -200,7 +200,8 @@ for filnavne, titel og sidemenu som en guide, og derudover:
   (`<PowerPrice lang="da" />`), og først derefter forklaringen.
 - Forklaringen har altid: hvordan tallet er regnet, hvad der ikke er med, hvor data kommer fra
   (med link og licens), og links til de guides, der bruger tallet.
-- Skriv ingen satser for afgift og nettarif. De skifter og afhænger af netselskabet.
+- Skriv ingen satser for afgift og nettarif. De skifter. Nettarif og elselskabets tillæg afhænger
+  af selskabet; elafgiften er ens for alle. Skriv ikke, at elafgiften afhænger af netselskabet.
 - Tekster inde i værktøjet står ikke i MDX-filen, men i `src/lib/tools/*-copy.mjs` på begge sprog.
 - Sæt `lastUpdated` i frontmatter, og tilføj værktøjet i `src/lib/tools/catalog.mjs`, så det får
   et kort på oversigten.

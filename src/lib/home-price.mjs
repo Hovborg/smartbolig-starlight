@@ -14,11 +14,13 @@ import { STEP_SECONDS } from "./tools/price-window.mjs";
 const RUN_HOURS = 3;
 
 /** Starts the card. Returns a function that stops its timer and its request. */
-export function startHomePrice(root, { clock = () => Date.now() / 1000 } = {}) {
+export function startHomePrice(root, { clock: deviceClock = () => Date.now() / 1000 } = {}) {
   const lang = root.dataset.lang === "en" ? "en" : "da";
   const copy = priceCopy[lang];
   const $ = (name) => part(root, name);
   const state = { data: null, loadedAt: 0, request: null, timer: null };
+  // The device clock, put right when it is far from the server's (price-data.mjs).
+  const clock = () => deviceClock() + (state.data?.clockOffset ?? 0);
 
   function render() {
     const now = clock();

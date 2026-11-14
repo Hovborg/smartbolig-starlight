@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { TOOLS } from "../src/lib/tools/catalog.mjs";
-import { isPrices } from "../src/lib/tools/price-data.mjs";
+import { clockOffset, isPrices } from "../src/lib/tools/price-data.mjs";
 import { SPARK, sparkBars, sparkTicks } from "../src/lib/tools/price-spark.mjs";
 
 const read = (file) => readFile(new URL(`../${file}`, import.meta.url), "utf8");
@@ -95,5 +95,23 @@ test("the homepage copy has the tools block in both languages with links that ex
     assert.equal(tools.price.link.href, `/${locale}/vaerktoejer/elpris/`);
     for (const word of ["{min}", "{minAt}", "{max}", "{maxAt}"]) assert.ok(tools.price.sparkLabel.includes(word), `${locale}: ${word}`);
     assert.match(tools.price.note, /Energinet, CC BY 4\.0/, "the source is credited where the numbers are shown");
+  }
+});
+
+test("a device clock far from the server's is put right, and a small difference is left alone", () => {
+  const device = Date.UTC(2026, 10, 14, 8, 30);
+  const header = (minutes) => new Date(device + minutes * 60_000).toUTCString();
+  // An hour slow or fast: corrected by what the Date header says.
+  assert.equal(clockOffset(header(60), device), 3600);
+  assert.equal(clockOffset(header(-60), device), -3600);
+  // A browser may hand back an answer up to ten minutes old: that says nothing about the clock.
+  assert.equal(clockOffset(header(-10), device), 0);
+  assert.equal(clockOffset(header(14), device), 0);
+  for (const missing of [null, undefined, "", "not a date"]) assert.equal(clockOffset(missing, device), 0);
+});
+
+test("the tool and the homepage card both use the corrected clock", async () => {
+  for (const file of ["src/lib/tools/price-ui.mjs", "src/lib/home-price.mjs"]) {
+    assert.match(await read(file), /\+ \(state\.data\?\.clockOffset \?\? 0\)/, file);
   }
 });

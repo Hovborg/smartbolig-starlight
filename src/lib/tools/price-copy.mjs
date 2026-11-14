@@ -50,9 +50,10 @@ export const priceCopy = {
       end: "Slut kl. {time}.",
       average: "Gennemsnit {price}.",
       saving: "Det er {share} lavere end at starte nu.",
+      savingOre: "Det er {amount} lavere end at starte nu.",
       startNow: "Det er billigst at starte nu. Gennemsnit {price} frem til kl. {time}.",
       none: "Der er ikke priser til {hours} i træk endnu.",
-      pending: "Priserne for i morgen er ikke ude endnu. De kommer omkring kl. 13.",
+      pending: "Priserne for i morgen er ikke ude endnu. De kommer mellem kl. 13 og 14.",
     },
     days: { today: "i dag", tonight: "i nat", evening: "i aften", tomorrow: "i morgen" },
     settings: {
@@ -61,11 +62,12 @@ export const priceCopy = {
       vatOff: "Uden moms",
       addOn: "Tillæg i øre/kWh (afgift og nettarif)",
       addOnHint:
-        "Elafgift, nettarif og abonnement er forskellige fra netselskab til netselskab. De er ikke med, medmindre du skriver dem her. Skriv beløbet uden moms.",
+        "Nettarif og elselskabets tillæg er forskellige fra selskab til selskab; elafgiften er ens for alle. De er ikke med, medmindre du skriver dem her. Skriv beløbet uden moms. Abonnement er et fast beløb pr. måned og kan ikke skrives her.",
       invalid: "Skriv et tal fra 0 til 1000, for eksempel 95 eller 95,5.",
     },
     error: { text: "Vi kunne ikke hente priserne lige nu.", retry: "Prøv igen" },
     fetched: "Priserne er hentet kl. {time}.",
+    fetchedDay: "Priserne er hentet {day} kl. {time}.",
     credit:
       "Kilde: Energinet (www.energidataservice.dk), CC BY 4.0. Priserne er omregnet til øre/kWh, og grafen viser gennemsnittet pr. time.",
   },
@@ -116,9 +118,10 @@ export const priceCopy = {
       end: "End at {time}.",
       average: "Average {price}.",
       saving: "That is {share} lower than starting now.",
+      savingOre: "That is {amount} lower than starting now.",
       startNow: "Starting now is cheapest. Average {price} until {time}.",
       none: "There are not yet prices for {hours} in a row.",
-      pending: "Tomorrow's prices are not out yet. They arrive around 13:00 Danish time.",
+      pending: "Tomorrow's prices are not out yet. They arrive between 13:00 and 14:00 Danish time.",
     },
     days: { today: "today", tonight: "tonight", evening: "this evening", tomorrow: "tomorrow" },
     settings: {
@@ -127,11 +130,12 @@ export const priceCopy = {
       vatOff: "Without VAT",
       addOn: "Add-on in øre/kWh (tax and grid tariff)",
       addOnHint:
-        "Electricity tax, grid tariff and subscription differ from one grid company to the next. They are not included unless you type them here. Type the amount without VAT.",
+        "The grid tariff and your electricity company's surcharge differ from company to company; the electricity tax is the same for everyone. They are not included unless you type them here. Type the amount without VAT. A subscription is a fixed amount per month and cannot be typed here.",
       invalid: "Type a number from 0 to 1000, for example 95 or 95.5.",
     },
     error: { text: "We could not fetch the prices right now.", retry: "Try again" },
     fetched: "The prices were fetched at {time} Danish time.",
+    fetchedDay: "The prices were fetched on {day} at {time} Danish time.",
     credit:
       "Source: Energinet (www.energidataservice.dk), CC BY 4.0. The prices are converted to øre/kWh, and the chart shows the average per hour.",
   },

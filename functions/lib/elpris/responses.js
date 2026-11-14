@@ -32,12 +32,14 @@ export function pricesResponse(prices, { guessed, stale = false, method = "GET" 
     fetched: prices.fetched,
     stepMinutes: 15,
     points: prices.points,
+    // Only on an old copy served while Energinet cannot be reached.
+    ...(stale ? { stale: true } : {}),
   };
   // An old copy is asked for again soon, so new prices show up when the source is back.
   const maxAge = stale ? 60 : FRESH_SECONDS;
   return json(body, 200, { "cache-control": `${guessed ? "private" : "public"}, max-age=${maxAge}` }, method);
 }
 
-export function errorResponse(code, status, headers = {}) {
-  return json({ error: code }, status, { "cache-control": "no-store", ...headers });
+export function errorResponse(code, status, headers = {}, method = "GET") {
+  return json({ error: code }, status, { "cache-control": "no-store", ...headers }, method);
 }

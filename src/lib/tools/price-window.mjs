@@ -89,6 +89,9 @@ export function cheapestWindow(points, fromEpoch, minutes) {
 /**
  * Where a value lies among the values shown: "low" in the cheapest third,
  * "high" in the dearest third, otherwise "mid". Equal prices are all "mid".
+ * Many hours at the same price (a night at zero) can cover both dividing
+ * lines; such a plateau is "low" when it is the lowest price shown and "high"
+ * when it is the highest.
  */
 export function level(value, values) {
   const sorted = values.filter(Number.isFinite).sort((a, b) => a - b);
@@ -99,7 +102,11 @@ export function level(value, values) {
     const above = Math.min(below + 1, sorted.length - 1);
     return sorted[below] + (sorted[above] - sorted[below]) * (position - below);
   };
-  if (value < at(1 / 3)) return "low";
-  if (value > at(2 / 3)) return "high";
+  const [min, max] = [sorted[0], sorted.at(-1)];
+  if (min === max) return "mid";
+  const [low, high] = [at(1 / 3), at(2 / 3)];
+  if (low === high && value === low) return value === min ? "low" : value === max ? "high" : "mid";
+  if (value <= low) return "low";
+  if (value >= high) return "high";
   return "mid";
 }

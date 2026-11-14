@@ -18,17 +18,19 @@ interface Props {
   id: string;
   title: string;
   lang: "da" | "en";
+  /** Astro passes the scope class of the tool that uses the frame. */
+  class?: string;
   [attribute: `data-${string}`]: string | undefined;
 }
 
-const { id, title, lang, ...attributes } = Astro.props;
+const { id, title, lang, class: scope, ...attributes } = Astro.props;
 const noscript = {
   da: "Værktøjet bruger JavaScript, som er slået fra i din browser. Forklaringen under værktøjet kan læses uden.",
   en: "The tool uses JavaScript, which is switched off in your browser. The explanation below the tool can be read without it.",
 }[lang];
 ---
 
-<section class="sb-tool not-content" id={id} aria-labelledby={`${id}-title`} data-lang={lang} {...attributes}>
+<section class:list={["sb-tool", "not-content", scope]} id={id} aria-labelledby={`${id}-title`} data-lang={lang} {...attributes}>
   <h2 class="sb-tool__title" id={`${id}-title`}>{title}</h2>
   <noscript><p class="sb-tool__noscript">{noscript}</p></noscript>
   <div class="sb-tool__body">

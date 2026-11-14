@@ -27,7 +27,7 @@ const t = priceCopy[lang].chart;
   <p class="sb-tool-chart__hint" data-part="scroll-hint" hidden>{t.scroll}</p>
   <details class="sb-tool-details">
     <summary>{t.table}</summary>
-    <div class="sb-tool-table-wrap" tabindex="0"><table class="sb-tool-table" data-part="table"></table></div>
+    <div class="sb-tool-table-wrap" tabindex="0" role="region" aria-label={t.heading}><table class="sb-tool-table" data-part="table"></table></div>
   </details>
 </section>
 

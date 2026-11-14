@@ -6,6 +6,8 @@ Kontrolleret ved: `npm run site:test`, `npm run build`, `npm run seo:validate`,
 i headless Chrome i mørkt og lyst tema ved 320, 375 og 1440 px, med et optaget svar fra
 Energinet og med en fejl fra Energinet; kontrast og trykflader er målt, og tastaturet er prøvet.
 Endpointets kode er kørt én gang mod det rigtige Energinet: ét kald gav begge prisområder.
+En uafhængig gennemgang samme dag fandt, at et tal med tusindtegn blev læst tusind gange for
+lavt, og seks mindre fejl; de er rettet og har hver sin test (se "Rettet efter gennemgangen").
 Ikke kontrolleret: endpointet på Cloudflare. Workerens cache, gættet på prisområde ud fra
 `request.cf` og Energinets grænse set fra Cloudflares adresser kan kun ses på den levende side.
 
@@ -15,7 +17,7 @@ Sektionen `/vaerktoejer/` har små værktøjer, der regner for læseren. Der er 
 
 - **Elprisen lige nu** (`/vaerktoejer/elpris/`): spotprisen i dag og i morgen, en graf time for
   time og de billigste timer i træk.
-- **Hvad koster det at have tændt?** (`/vaerktoejer/stroemforbrug/`): watt, timer pr. dag og
+- **Hvad koster det at have apparatet tændt?** (`/vaerktoejer/stroemforbrug/`): watt, timer pr. dag og
   elpris giver kroner pr. dag, måned og år.
 
 Hvert værktøj er tre dele: en Astro-komponent (felterne), et rent modul (regnestykket, med
@@ -36,14 +38,15 @@ Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Ene
 | `src/components/tools/ToolFrame.astro` | Rammen, alle værktøjer sidder i: titel, felter, resultat, mere, fodnote |
 | `src/styles/content/tools.css`, `src/styles/content/tools/` | Fælles udseende, klasser med `sb-tool-`: `frame`, `result`, `fields`, `segment`, `range`, `buttons`, `chart`, `table` |
 | `src/lib/tools/format.mjs` | Tal, kroner, øre og procent på dansk og engelsk, klokkeslæt i dansk tid, læsning af et indtastet tal |
-| `src/lib/tools/dom.mjs` | Små DOM-hjælpere: `part`, `setText`, `show`, `el`, `svgEl`, `bindRange` |
+| `src/lib/tools/dom.mjs` | Små DOM-hjælpere: `part`, `setText`, `show`, `setInvalid`, `el`, `svgEl`, `bindRange` |
+| `src/lib/tools/price-data.mjs` | Henter priserne fra `/api/elpris` (værktøjet og forsiden), og retter enhedens ur, når det går forkert |
 | `src/components/tools/PowerPrice.astro`, `PriceChart.astro` | Elprisværktøjets felter og den tomme graf |
 | `src/lib/tools/price-copy.mjs` | Elprisværktøjets tekster på dansk og engelsk |
 | `src/lib/tools/price-window.mjs` | Regnestykket: øre/kWh, timegennemsnit, billigste timer i træk, lav/middel/høj |
 | `src/lib/tools/price-view.mjs`, `price-chart.mjs` | Hvad der skal stå på siden, og grafens mål. Uden DOM |
 | `src/lib/tools/price-ui.mjs`, `price-chart-ui.mjs`, `price-chart-dom.mjs`, `price-table-dom.mjs` | Henter priserne, kobler felterne og tegner graf og tabel |
 | `functions/api/elpris.js` | Indgangen til `/api/elpris` |
-| `functions/lib/elpris/` | `area.js` (prisområde), `upstream.js` (kaldet til Energinet og kontrol af rækkerne), `cache.js` (kopien i Workerens cache), `responses.js` (svar og fejl), `handler.js` (forløbet) |
+| `functions/lib/elpris/` | `area.js` (prisområde), `upstream.js` (kaldet til Energinet og kontrol af rækkerne), `cache.js` (kopien i Workerens cache), `memory.js` (hvad én Worker-instans husker mellem kald), `responses.js` (svar og fejl), `handler.js` (forløbet) |
 | `src/components/tools/PowerCost.astro` | Strømforbrugsværktøjets felter |
 | `src/lib/tools/power-cost.mjs`, `power-copy.mjs`, `power-ui.mjs` | Regnestykket, teksterne med eksempler og startværdier, og koblingen |
 | `scripts/site-tools.test.mjs`, `site-tools-price.test.mjs`, `site-tools-api.test.mjs` | Tests. Køres med `npm run site:test` |
@@ -60,13 +63,33 @@ Energinet og gemmer en kopi i ti minutter. Læserens browser spørger aldrig Ene
   minuttet (målt 2026-11-14: det andet kald fik 429). Kopien af hvert område gemmes hver for sig.
 - **En kopi er frisk i ti minutter.** Fejler Energinet, vises den gamle kopi, så længe den
   indeholder prisen for det kvarter, vi er i, og Workeren venter 60 sekunder med at prøve igen.
+  Et svar med en gammel kopi har `"stale": true`, og værktøjet skriver da, hvilken dag
+  priserne er hentet.
+- **Kald, der kommer samtidig, koster ét kald til Energinet.** Hver Worker-instans husker,
+  hvornår den sidst spurgte, og det sidste gode svar (`memory.js`). Mens ét kald er på vej,
+  får de andre den gamle kopi; er der ingen, venter de op til tre sekunder på svaret. Der deles
+  aldrig et løfte (promise) mellem to kald: Cloudflare kan afbryde det kald, der ejer det, og
+  så ville de andre vente for evigt. Derfor er "et kald er på vej" et tidspunkt, der udløber
+  af sig selv, ikke et flag.
 - **Fejlsvar er faste ord.** `{"error":"upstream"}` med 502. Energinets egen fejltekst sendes
-  aldrig videre til læseren. I loggen står kun fejlens navn.
+  aldrig videre til læseren. I loggen står kun fejlens navn, ikke læserens prisområde.
 - **Prisområdet gættes, men huskes ikke.** Uden `?area=` gætter Workeren ud fra den region,
   Cloudflare placerer forbindelsen i (`request.cf`). Et gættet svar er `private`, så kun
-  læserens egen browser må gemme det.
-- **Siderne nævner ingen satser for afgift og nettarif.** De skifter og er forskellige fra
-  netselskab til netselskab. Læseren skriver selv sit tillæg. Momsen (25 %) er den eneste sats.
+  læserens egen browser må gemme det. Hovedstaden og Sjælland bliver efter planen én region
+  1. januar 2027, og dens kode kendes ikke endnu. En dansk forbindelse med en anden regionskode
+  end de fem kendte placeres derfor efter længde- og breddegrad: øst for 11° er DK2, undtagen
+  nord for 56,3° (Anholt og Læsø).
+- **Siderne nævner ingen satser for afgift og nettarif.** Satserne skifter. Nettarif og
+  elselskabets tillæg er forskellige fra selskab til selskab; elafgiften er ens for alle.
+  Abonnement er et fast beløb pr. måned og hører ikke til i et tillæg pr. kWh. Læseren skriver
+  selv sit tillæg. Momsen (25 %) er den eneste sats.
+- **Et tal, der kan betyde to ting, afvises.** "1.500" er 1500 for en dansker og 1,5 for
+  andre. `parseDecimal` gætter ikke: ét tegn fulgt af præcis tre cifre giver en fejltekst, der
+  beder om tallet uden tusindtegn. "0,500" og "1234,567" kan kun være decimaltal og læses.
+- **Uret rettes, når det går forkert.** "Lige nu" afhænger af enhedens ur. Er det mere end et
+  kvarter fra tiden i svarets `Date`-header, lægges forskellen til (`clockOffset` i
+  `price-data.mjs`). En mindre forskel rettes ikke: browseren må gemme svaret i ti minutter, og
+  så er headeren lige så gammel.
 - **Grafen bygges med DOM-kald** (`svgEl` i `dom.mjs`), aldrig med HTML-strenge. Der er ingen
   inline event handlers og intet inline script; værktøjets kode ligger i egne filer under
   `/_astro/`.
@@ -165,21 +188,52 @@ Kør `npm run site:test` bagefter. Testene holder fast i flere af værdierne og 
   `TimeoutError` (intet svar inden for 8 sekunder) eller `UpstreamAreaMissing` (for få rækker
   for området). Bliver 429 ved, deler siden Cloudflares udgående adresse med andre, der kalder
   Energinet. Så bør priserne hentes på et fast tidspunkt i stedet (se "Ikke bygget").
-- **Der er ingen priser for i morgen.** De offentliggøres omkring kl. 13 dansk tid. Før det
-  viser værktøjet kun i dag og skriver, at morgendagens priser ikke er ude endnu. Efter kl. 13
-  kan der gå op til ti minutter, før kopien er fornyet.
+- **Der er ingen priser for i morgen.** De kommer mellem kl. 13 og 14 dansk tid (Energinets
+  egen beskrivelse af datasættet; 2026-11-13 kom de kl. 13:28). Før det viser værktøjet kun i
+  dag og skriver, at morgendagens priser ikke er ude endnu. Bagefter kan der gå op til ti
+  minutter, før kopien er fornyet.
 - **Værktøjet gætter på det forkerte prisområde.** Gættet bygger på Cloudflares region for
-  forbindelsen: Hovedstaden og Sjælland giver DK2, alt andet DK1. Mobilnet og VPN bliver ofte
-  placeret i København. Læseren skifter selv område øverst i værktøjet. Lokalt (uden
-  Cloudflare) er gættet altid DK1.
+  forbindelsen: Hovedstaden og Sjælland giver DK2, de tre andre regioner DK1, og en ukendt
+  regionskode afgøres af længde- og breddegrad. Mobilnet og VPN bliver ofte placeret i
+  København. Læseren skifter selv område øverst i værktøjet. Lokalt (uden Cloudflare) er
+  gættet altid DK1.
 - **Prisen passer ikke med elregningen.** Værktøjet viser spotprisen med moms. Afgift,
   nettarif, abonnement og elselskabets tillæg er ikke med, medmindre læseren skriver et tillæg.
   Tallet "Lige nu" er kvarterets pris; grafen viser gennemsnittet pr. time.
 - **`npm run build` stopper på et prøvespørgsmål.** En værktøjsside har skubbet en guide ud af
   de tre bedste svar i assistentens søgning (`docs/assistent.md`). Ret teksten på
   værktøjssiden; lad prøvespørgsmålet være.
-- **Feltet viser en fejl ved et tal.** Felterne tager tal med komma eller punktum. Tusindtals-
-  tegn og bogstaver afvises.
+- **Feltet viser en fejl ved et tal.** Felterne tager tal med komma eller punktum som
+  decimaltegn. Bogstaver afvises, og det gør "1.500" og "1,500" også, fordi de kan være både
+  1500 og 1,5. Skriv 1500.
+- **"Lige nu" viser et andet kvarter end uret på væggen.** Enhedens ur går mellem ti og
+  femten minutter forkert; først over et kvarter bliver det rettet (se reglen ovenfor).
+
+## Rettet efter gennemgangen
+
+En uafhængig gennemgang 2026-11-14 fandt disse fejl. Hver har en test, der fejler, hvis den
+kommer igen:
+
+| Fejl | Rettet i | Test |
+|---|---|---|
+| "1.500" watt blev læst som 1,5 watt | `format.mjs` (`parseDecimal`) | `site-tools.test.mjs` |
+| "169 % lavere end at starte nu" ved negative priser | `price-view.mjs`: forskellen i øre/kWh, når en af priserne er nul eller negativ | `site-tools-price.test.mjs` |
+| Dagens laveste pris stod som "Middel pris", når mange timer havde samme pris | `price-window.mjs` (`level`) | `site-tools-price.test.mjs` |
+| Tyve samtidige kald gav tyve kald til Energinet; uden Cache API var der ingen pause efter en fejl | `memory.js`, `handler.js` | `site-tools-api.test.mjs` |
+| Teksten sagde, at elafgiften afhænger af netselskabet | `price-copy.mjs`, begge sider | læst |
+| Gættet på prisområde hang på to regionskoder, der forsvinder i 2027 | `area.js` | `site-tools-api.test.mjs` |
+| Et ur, der går en time forkert, gav en forkert pris "lige nu" | `price-data.mjs` (`clockOffset`) | `site-home-tools.test.mjs` |
+
+Mindre ting rettet samtidig: HEAD får aldrig en krop, heller ikke ved fejl; loggen nævner ikke
+prisområdet; et svar over 500.000 tegn fra Energinet afvises; "100 øre" vises som "1,00 kr.",
+og "-0,0" som "0,0"; fejlteksten læses kun op, når feltet er forkert; eksemplet "Gaming-pc"
+arver ikke routerens 24 timer; eksemplet med køleskab er fjernet, fordi tallet ikke havde en
+kilde.
+
+Kendt og ikke rettet: på de to dage om året, hvor uret stilles, står timen 02 to gange (eller
+mangler) uden forklaring; en time, hvor Energinet mangler nogle kvarterer, vises som
+gennemsnittet af de kvarterer, der er; grafens tekst til skærmlæsere siger ikke, hvilken dag
+den laveste time ligger på, når to dage vises.
 
 ## Forsiden
 
@@ -200,7 +254,7 @@ Kortet gemmer intet og sender kun det, elprisværktøjet sender. Testene står i
 
 ## Overvågning og privatliv
 
-- Sidevagten (`docs/overvaagning.md`) spørger `/api/elpris?area=DK1` to gange i døgnet og
+- Sidevagten (`docs/overvaagning.md`) spørger `/api/elpris?area=DK1` ved hver kørsel og
   åbner en sag, hvis svaret ikke er 200 med mindst 24 priser.
 - Privatlivspolitikken (afsnit 2.4, begge sprog) siger, hvad værktøjerne sender: kun
   prisområdet. Et nyt værktøj, der sender eller gemmer mere, skal skrives ind dér.
@@ -234,5 +288,14 @@ Hele sektionen:
 4. Slet de tre testfiler `scripts/site-tools*.test.mjs`.
 5. Har siderne været udgivet, så send adresserne videre i `public/_redirects` (`docs/seo.md`).
 6. Fjern rækken om Energinet i `docs/oss.md` og afsnittene om værktøjer i `CONTENT-GUIDE.md`,
-   `README.md`, `AGENTS.md` og `docs/designsystem.md`.
-7. Kør `npm run site:test` og `npm run build`.
+   `README.md`, `AGENTS.md`, `docs/designsystem.md` og `docs/overvaagning.md`.
+7. Fjern kontrollen "/api/elpris has prices for DK1" og `MIN_PRICE_POINTS` i
+   `scripts/monitor/checks.mjs`, `priceList` i `scripts/monitor/parse.mjs`, og ret antallet af
+   kontroller i `scripts/site-monitor.test.mjs`.
+8. Fjern `["vaerktoejer", "Værktøjer"]` fra `SECTIONS` i `scripts/lib/llms-txt.mjs` og den
+   linje i `scripts/site-llms-txt.test.mjs`, der siger, at værktøjer er et kendt område.
+9. Fjern forsidens sektion: `src/components/home/HomeTools.astro`, `src/lib/home-price.mjs`,
+   `src/styles/home/tools.css`, `scripts/site-home-tools.test.mjs`, blokken `tools` i
+   `src/lib/home-copy/` (typen og begge sprog) og de to linjer i `HomePortal.astro` og
+   `HomeStyles.astro`.
+10. Kør `npm run site:test` og `npm run build`.

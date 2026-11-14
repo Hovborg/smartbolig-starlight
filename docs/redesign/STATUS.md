@@ -163,8 +163,16 @@ Sidst opdateret: 2026-11-14.
   Begge dele kræver ny opsætning af tegningerne.
 - **Værktøjer (B61):** ny sektion `/vaerktoejer/` på begge sprog med to værktøjer: elprisen
   lige nu med de billigste timer (Energinet, CC BY 4.0, gennem sidens eget `/api/elpris`) og
-  "Hvad koster det at have tændt?". Fælles ramme, så et nyt værktøj er få filer
+  "Hvad koster det at have apparatet tændt?". Fælles ramme, så et nyt værktøj er få filer
   (`docs/vaerktoejer.md`). Sidevagten har fået kontrol nr. 14 (`/api/elpris`).
+  Forsiden har fået en værktøjssektion med elprisen lige nu (B63); den udgives sammen med
+  værktøjerne. Den uafhængige gennemgang fandt én blokerende fejl (flere samtidige kald til
+  Energinet ved kold start) og en række mindre; alle er rettet og står i
+  `docs/vaerktoejer.md` under "Rettet efter gennemgangen". Afprøvet 2026-11-14: 382 tests,
+  bygget side og en rigtig browser (tal med tusindtegn afvises, eksempler, enhedens ur en
+  time forkert, forsidens kort). Kan først ses på den levende side: Cloudflares cache pr.
+  datacenter, gæt på prisområde ud fra den besøgendes sted, og om Energinet begrænser kald
+  fra Cloudflares adresser.
 
 ## Næste skridt
 
