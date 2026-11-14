@@ -276,6 +276,9 @@ Det, der ikke er gjort. Det, kun ejeren kan gøre, står i [TIL-EJEREN.md](TIL-E
   ejeren, fordi en hurtigere model koster.
 - **`allowScripts` i `package.json`** nævner `sharp@0.34.5`, mens låsefilen har en nyere
   version. npm 11 viser ingen brug af linjen ved installation; den er ladt stå.
+- **Fire pull requests fra Dependabot står åbne med vilje:** #189, #190 og #191 (ny hovedversion
+  af tre GitHub Actions) og #193 (Starlight 0.42, som fjerner den mobilmenu-knap, sidens
+  stylesheet og assistentknap bygger på). De flettes ikke af sig selv (`docs/opdateringer.md`).
 - **Ikke set køre endnu:** en planlagt sidevagtskørsel, en reservekørsel for nyhederne, og at
   en grøn sidevagtskørsel selv lukker en åben sag.
 
