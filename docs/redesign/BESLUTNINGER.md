@@ -54,7 +54,7 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - #147: kladde fra 2026-08-19 med konflikt. Lukkes som forældet.
 
 ### B10. Open source vælges efter licens, vægt og vedligehold
-- Se `docs/open-source.md` for version og licens for hvert projekt.
+- Se `docs/oss.md` for version og licens for hvert projekt.
 - Fravalgt: GSAP (licens), transformers.js og Monaco i browseren (vægt), kopiering fra Home
   Assistants dokumentation (CC BY-NC-SA) og `home-assistant/brands` (ingen licens).
 
@@ -994,3 +994,26 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   procenterne for søvn og vågen giver tilsammen 100.
 - Fravalgt: ren størst afstand. Den ser ud som den mest præcise regel, men den modsagde de kilder,
   siden viser, og den gav kanaler, ingen af kilderne nævner.
+
+## B67. Oprydning: to gamle planfiler og en død omdirigeringsfil er fjernet (2026-11-14)
+
+- Valgt: `FORBEDRINGER.md` og `AI_CLI_EXPANSION_RESEARCH.md` i roden er slettet. Begrundelse:
+  begge var planer fra før redesignet. Det, der var gjort, står i `CHANGELOG.md`; det, der
+  ikke er gjort, er flyttet til `docs/redesign/STATUS.md` ("Åbent") og
+  `docs/redesign/TIL-EJEREN.md`. To lister over det samme bliver uenige.
+- Valgt: `functions/_middleware.js` er slettet. Begrundelse: Workeren kører kun for `/api/*`
+  (`run_worker_first` i `wrangler.jsonc`), så filens omdirigeringer blev aldrig kørt. De
+  samme adresser står i `public/_redirects`, som Cloudflare anvender før Workeren. Nu står en
+  omdirigering ét sted. `scripts/site-redirects.test.mjs` fejler, hvis en fil under
+  `functions/` igen sender en omdirigering.
+- Valgt: det, der ligger uden for repoet, men som siden afhænger af (domæne, DNS, Cloudflares
+  indstillinger, Search Console, Bing, IndexNow, konti), har sit eget dokument,
+  `docs/drift.md`. Begrundelse: det stod spredt i statusfilen og i samtaler, og den næste, der
+  skal ændre en indstilling, skal kunne se, hvad der er sat, og hvordan det blev kontrolleret.
+- Valgt: listen over faste adresser, som hver udgivelse melder til IndexNow, har fået
+  sektionerne automationer, sikkerhed og værktøjer med (begge sprog). Ændrede guides meldes
+  stadig ud fra udgivelsens egne ændringer.
+- Fravalgt: at beholde planfilerne med en note om, at de er forældede. En forældet fil i roden
+  bliver læst først.
+- Kontrolleret: `npm run site:test` (testen for omdirigeringer), og efter udgivelsen et udvalg
+  af gamle adresser på den levende side (`/en/legal/`, `/produkter/shelly`, `/index.html`, `/`).

@@ -307,6 +307,10 @@ tjekkes tre gange i døgnet af `.github/workflows/monitor.yml`; en fejl åbner e
 etiketten `monitor` ([`docs/overvaagning.md`](docs/overvaagning.md)). Kør kontrollerne selv med
 `node scripts/monitor/run.mjs`.
 
+Det, siden afhænger af uden for repoet (domæne og DNS, Cloudflares indstillinger, Search
+Console, Bing Webmaster Tools, IndexNow og konti), står i [`docs/drift.md`](docs/drift.md)
+(kontrolleret 2026-11-14).
+
 Afhængighedskontrollen (`scripts/security-audit.mjs`) kører den fulde `npm audit`
 inklusiv udviklingsværktøjer. Den har to tilstande (kontrolleret 2026-11-13):
 
