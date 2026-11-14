@@ -43,7 +43,6 @@ kører på siden, og fordi CSP'en i `public/_headers` skal tillade dem.
 | Giscus (MIT, giscus.app) | Kommentarer via GitHub Discussions | Når kommentarfeltet vises |
 | Google AdSense | Annoncer | Efter samtykke |
 | Google Analytics 4 | Besøgsmåling | Efter samtykke |
-| Cloudflare Web Analytics | Besøgsmåling uden cookies | Altid |
 
 ## Skrifterne
 
