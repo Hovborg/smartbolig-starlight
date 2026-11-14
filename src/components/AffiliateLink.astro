@@ -39,68 +39,74 @@ const displayText = text || `${lang === 'en' ? 'Buy at' : 'Køb hos'} ${config.n
 </a>
 
 <style>
+  /* Starlight colours every link in page content. The first selector outranks
+     that rule; the second covers use outside page content. Each merchant sets
+     a text colour and a soft background from the same hue. */
+  .affiliate-link {
+    --affiliate-ink: var(--sb-accent-strong);
+    --affiliate-bg: var(--sb-accent-soft);
+  }
+
+  .affiliate-proshop {
+    --affiliate-ink: var(--sb-sky);
+    --affiliate-bg: var(--sb-sky-soft);
+  }
+
+  .affiliate-specialkamera {
+    --affiliate-ink: var(--sb-warm);
+    --affiliate-bg: var(--sb-warm-soft);
+  }
+
+  :global(.sl-markdown-content) .affiliate-link,
   .affiliate-link {
     display: inline-flex;
     flex-wrap: wrap;
     max-width: 100%;
     align-items: center;
-    gap: var(--sb-space-2);
-    padding: var(--sb-space-2) var(--sb-space-4);
-    background: var(--sb-accent);
-    color: var(--sb-on-accent);
-    text-decoration: none;
-    border-radius: var(--sb-radius-sm);
-    font-weight: 500;
+    gap: var(--sb-space-1) var(--sb-space-2);
+    padding: var(--sb-space-2) var(--sb-space-3);
+    border: 1px solid color-mix(in srgb, var(--affiliate-ink) 28%, transparent);
+    border-radius: var(--sb-radius-md);
+    background: var(--affiliate-bg);
+    color: var(--affiliate-ink);
     font-size: var(--sb-text-sm);
-    box-shadow: var(--sb-shadow-sm);
+    font-weight: 650;
+    line-height: 1.35;
+    text-decoration: none;
   }
 
   .affiliate-link:hover {
-    background: var(--sb-accent-strong);
-    box-shadow: var(--sb-shadow-md);
+    border-color: var(--affiliate-ink);
+    box-shadow: var(--sb-shadow-sm);
   }
 
   .affiliate-link:focus-visible {
-    outline: 2px solid var(--sb-accent);
+    outline: 3px solid var(--sb-accent);
     outline-offset: 2px;
   }
 
-  .affiliate-proshop,
-  .affiliate-proshop:hover {
-    background: var(--sb-sky);
-  }
-
-  .affiliate-specialkamera,
-  .affiliate-specialkamera:hover {
-    background: var(--sb-warm);
-  }
-
   .affiliate-icon {
-    font-size: var(--sb-text-lg);
+    font-size: var(--sb-text-base);
   }
 
   .affiliate-label {
+    color: var(--sb-ink-muted);
     font-size: var(--sb-text-xs);
-    font-weight: 400;
+    font-weight: 500;
   }
 
   .affiliate-price {
-    background: color-mix(in srgb, var(--sb-on-accent) 20%, transparent);
-    padding: 0.2rem var(--sb-space-2);
+    padding: 0.1rem var(--sb-space-2);
     border-radius: var(--sb-radius-sm);
-    font-size: var(--sb-text-sm);
+    background: var(--sb-surface);
+    color: var(--sb-ink-strong);
   }
 
   @media (prefers-reduced-motion: no-preference) {
     .affiliate-link {
       transition:
-        background-color var(--sb-dur) var(--sb-ease),
-        box-shadow var(--sb-dur) var(--sb-ease),
-        transform var(--sb-dur) var(--sb-ease);
-    }
-
-    .affiliate-link:hover {
-      transform: translateY(-1px);
+        border-color var(--sb-dur) var(--sb-ease),
+        box-shadow var(--sb-dur) var(--sb-ease);
     }
   }
 </style>

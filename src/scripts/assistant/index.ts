@@ -16,6 +16,11 @@ function setupAssistant(root: Element) {
   if (!(root instanceof HTMLElement) || root.dataset.chatReady === "true") return;
   root.dataset.chatReady = "true";
 
+  // The footer renders the widget inside Starlight's main pane, which is its
+  // own stacking context. There the fixed table of contents covers the widget
+  // on wide screens, so it moves to the end of <body>.
+  if (root.parentElement !== document.body) document.body.append(root);
+
   const ctx = createContext(root);
   if (!ctx) return;
 
