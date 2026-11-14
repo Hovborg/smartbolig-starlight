@@ -555,3 +555,24 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   - Fravalgt nu: at gå alle diagrammer igennem for overlappende tekst, sprog og fakta. Det er
     en opgave for sig (åbent punkt i STATUS).
 
+
+### B57. Kort overskrift og egen søgetitel på oversigtssider
+- Baggrund: oversigtssiderne hed "Automationer", "Produkter" og "Sikkerhed". Det er gode
+  overskrifter, men i et søgeresultat siger "Automationer | SmartBolig.net" ikke,
+  hvad siden indeholder. En længere `title` løste det, men blev også overskrift, sidste led i
+  brødkrummen og navn i strukturerede data ("Automationer til Home Assistant: opskrifter" som
+  H1).
+- Valg: et valgfrit felt `seoTitle` (10 til 60 tegn) i sidens frontmatter. Det bruges i
+  `<title>`, `og:title` og `twitter:title`. `title` er fortsat overskrift, sidste led i
+  brødkrummen og navn i strukturerede data. Menunavne er ikke `title`: de er faste tekster i
+  `config/sidebar/`. Sider uden feltet er uændrede.
+- Fravalgt: Starlights `head`-felt med et `title`-tag pr. side. Det virker, men forfatteren skal
+  selv skrive " | SmartBolig.net", og sociale kort følger ikke med.
+- Brugt på fire oversigtssider (AI, automationer, produkter, sikkerhed) og kontaktsiden, hver
+  på begge sprog (ti filer). Guides bruger `title` alene.
+- Samme gren: ca. 70 titler rettet (sigt på højst 45 tegn, fordi " | SmartBolig.net" lægges til
+  `<title>`; op til 60 er tilladt; dansk stavemåde på danske sider), interne links
+  til 18 guides, som få sider pegede på, årstal ud af overskrifter, og rå diagramkode på otte
+  produktsider erstattet af lister.
+- Sikring: `npm run seo:validate` kræver på alle sider, at `<title>` er `og:title` og `twitter:title`
+  med sidenavnet efter, og på `/da/automationer/` søgetitel, kort overskrift og kort brødkrumme.

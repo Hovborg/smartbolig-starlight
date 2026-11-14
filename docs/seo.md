@@ -17,7 +17,7 @@ er set på den levende side efter udgivelsen, står i `docs/redesign/STATUS.md`.
 | `src/lib/seo/page-kind.ts` | Hvilken slags side en adresse er (forside, guide, nyhed, juridisk ...) |
 | `src/lib/seo/schema-graph.ts` | Samler sidens strukturerede data (JSON-LD) af delene i `schema-*.ts` og `breadcrumbs.ts` |
 | `src/lib/seo/social-meta.ts` | `og:`- og `twitter:`-felterne, herunder `og:type` |
-| `src/lib/seo/dates.ts`, `page-text.ts`, `site.ts` | Datoer, titel og beskrivelse, sidens faste adresser |
+| `src/lib/seo/dates.ts`, `page-text.ts`, `site.ts` | Datoer, titel, søgetitel (`seoTitle`) og beskrivelse, sidens faste adresser |
 | `src/components/Head.astro` | Sætter det hele i sidens `<head>` |
 | `src/components/SiteTitle.astro` | Logoets link (`/da/` og `/en/` med skråstreg) |
 | `src/pages/rss.xml.js` | RSS-feedet med nyheder |
@@ -47,6 +47,10 @@ ikke rettes i hånden.
 - **`og:type` er `article` kun på guides og nyhedsudgaver**, altså de sider, der også har
   artikeldata. Forside, oversigter, juridiske sider, kontakt, om os og 404 er `website`.
 - **Brødkrumme-data kræver mindst to led.** Forsiden har derfor ingen.
+- **En oversigtsside har kort overskrift og en længere søgetitel.** `title` ("Automationer") er
+  overskrift, sidste led i brødkrummen og navn i strukturerede data; menunavne står i
+  `config/sidebar/`. `seoTitle` ("Automationer til Home Assistant: opskrifter") står i `<title>`, `og:title` og `twitter:title`. Sider uden `seoTitle`
+  bruger `title` alle steder. Reglerne for forfattere står i `CONTENT-GUIDE.md`.
 - **Faste regler står før regler med `*` eller `:navn` i `_redirects`.** Cloudflare tæller alle
   regler efter den første af dem mod en grænse på 100 (brugt: 8).
 - **En produktadresse uden afsluttende skråstreg får ét hop.** Reglerne med `:slug` sender

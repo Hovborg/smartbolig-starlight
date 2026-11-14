@@ -4,7 +4,7 @@ export default {
   translations: { en: "Automations" },
   items: [
     {
-      label: "Oversigt & Idéer",
+      label: "Oversigt og idéer",
       translations: { en: "Overview & Ideas" },
       link: "/automationer/",
     },
@@ -34,7 +34,7 @@ export default {
       link: "/home-assistant/foerste-automation/",
     },
     {
-      label: "Vaskemaskine notifikation",
+      label: "Besked fra vaskemaskinen",
       translations: { en: "Washing Machine Notification" },
       link: "/home-assistant/vaskemaskine-notification/",
     },
