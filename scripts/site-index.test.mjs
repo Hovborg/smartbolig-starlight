@@ -106,6 +106,16 @@ test("everyday filler gives no terms, and words the site has pages about stay", 
   assert.deepEqual(queryTerms("lys og nej", "da"), ["lys"]);
 });
 
+test("each filler word of a chat gives no term on its own", () => {
+  const FILLER = {
+    da: "hvilket hvornår hej altså gerne ja lidt nej ok okay super tak venligst",
+    en: "am could did he hello hey hi him his its just me ok okay our please she tell thank thanks them these those too very who would yes",
+  };
+  for (const [locale, words] of Object.entries(FILLER)) {
+    for (const word of words.split(" ")) assert.deepEqual(queryTerms(word, locale), [], `${locale}: ${word}`);
+  }
+});
+
 test("a term always lands in the same file, inside the range", () => {
   for (const term of ["zigbee", "bevægels", "æøå", ""]) {
     const shard = shardOf(term, 64);
@@ -330,6 +340,22 @@ test("no words, unknown words and filler words give no results and read no term 
   assert.deepEqual(await search("og eller men", "da"), []);
   assert.equal(read.length, 0);
   assert.deepEqual(await search("kvantecomputer", "da"), []);
+});
+
+test("the search reports how many of a question's terms no page uses, and the report changes no result", async () => {
+  const { search } = indexOf(PAGES);
+  const report = {};
+
+  const found = await search("zigbee kvantecomputer", "da", 5, report);
+  assert.deepEqual(report, { terms: 2, unknownTerms: 1 });
+  assert.deepEqual(found, await search("zigbee kvantecomputer", "da", 5));
+
+  await search("kvantecomputer hovedstaden", "da", 5, report);
+  assert.deepEqual(report, { terms: 2, unknownTerms: 2 });
+  await search("zigbee", "da", 5, report);
+  assert.deepEqual(report, { terms: 1, unknownTerms: 0 });
+  await search("og eller men", "da", 5, report);
+  assert.deepEqual(report, { terms: 0, unknownTerms: 0 });
 });
 
 test("a damaged index is refused or skipped, never trusted", async () => {

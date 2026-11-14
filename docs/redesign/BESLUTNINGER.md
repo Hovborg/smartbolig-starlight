@@ -907,7 +907,7 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   tomt opslag gav modellen »referencedata er givet« og `{"results":[]}`; nu giver fejl
   »søgningen er ikke tilgængelig« og et tomt resultat »intet fundet«, uden referenceblok.
   (3) Hverdagssnak nåede pointgrænsen, mest på engelsk (»Tell me a joke« 16,14, »ja tak« 14,43):
-  fyldord er tilføjet (4 af 20 danske og 9 af 20 engelske hverdagsspørgsmål lå på 12 eller
+  fyldord er tilføjet (4 af 20 danske og 10 af 24 engelske hverdagsspørgsmål lå på 12 eller
   mere; efter 2 og 6). (4) Enkeltordsspørgsmål som »Hvad er en hub?« (6,45) nåede ikke grænsen:
   utvetydige smart home-ord er føjet til ordlisten. (5) Rester af værktøjsruten (`reading`).
   Fem ændringer af koden overlevede de tests, gennemgangen prøvede; fire har nu en test (alle tidligere
@@ -925,6 +925,50 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   »lys ved bevægelse« og skulle følge hver ny side.
 - Kendt grænse: nogle engelske spørgsmål om andet ligger tæt på grænsen (»Who won the 2022
   World Cup?« 13,23), så de får en irrelevant kilde. De står ikke i prøvelisterne.
+
+### B62, tilføjelse efter den anden gennemgang af søg først (2026-11-14)
+
+- Fundet af gennemgangen, blokerende: en opfølgning uden et ord, der peger tilbage (»Kan du
+  uddybe?«, »Hvorfor?«, »Forklar nærmere«, »Vis mig et eksempel«), blev kun søgt alene og fik
+  ingen sider. Målt med 20 opfølgninger efter fem danske og fire engelske åbningsspørgsmål
+  fik 35 af 100 danske og 29 af 80 engelske samtaler en side fra åbningens emne.
+- Valgt: en besked er også en opfølgning, når den spørger om noget (et spørgsmålstegn eller en
+  åbning som »hvad«, »kan«, »forklar«, »vis«), og opslaget alene ikke mødte et søgeord, som
+  ingen side bruger. Begrundelse: »Kan du uddybe?« består kun af ord, siden kender, og siger
+  intet om et nyt emne. »Hvad er hovedstaden i Frankrig?« har to ord, ingen side bruger, og er
+  et emneskift. Søgningen tæller de ukendte ord og giver tallet videre (`report.unknownTerms`).
+- Valgt: et spørgsmål med et ord, der kun kan stå for en ting, samtalen har nævnt (»den«,
+  »dem«, »dens«, »them«, »which one«, »Does it …?«), søges sammen med spørgsmålet før først.
+  Begrundelse: »Virker den med Zigbee?« alene finder sider om Zigbee, ikke om tingen. Når
+  opslaget sammen med spørgsmålet før ikke grænsen, søges spørgsmålet alene.
+- Valgt: »den«, »det« og »de« foran et tillægsord er kendeord og peger ikke tilbage (»den
+  bedste lås«). Reglen kender det på, at næste ord ender på -e eller er »mest« eller »mindst«.
+  Begrundelse: uden undtagelsen gav »Hvad er den bedste smart lås?« det gamle emnes sider i 5
+  af 5 samtaler. Prisen: »Kan den styre varmen?« læses også som kendeord; beskeden spørger
+  stadig og fanges af reglen ovenfor.
+- Valgt: »Does it …?« tæller kun i begyndelsen af beskeden, og »they«, »these«, »those«,
+  »denne« og »disse« står ikke for en ting. Begrundelse: »How does it work with solar panels?«
+  gav det gamle emne i 4 af 4, og »Do they make a smart lock?« handler ikke om noget nævnt.
+- Valgt: en tak eller et farvel uden spørgsmålstegn søges der ikke efter. Begrundelse:
+  »Perfekt, tak skal du have« fik kilder, fordi »have« også er havens ord, og »Tak for det«
+  peger tilbage med »det«.
+- Valgt: flere former af smart home-ordene (»hubberne«, »gatewayen«, »kameraer«, »elpriserne«),
+  »Ok Nabu«, »Nabu Casa« og »wake word«, og fire undtagelser for hverdagsbrug (»ha'«, »not
+  matter«, »this thread«, »social security«). Begrundelse: »ok« er fyldord, så »Ok Nabu« gav
+  ingen søgeord; »It doesn't matter« tvang et opslag.
+- Målt efter ændringen: 83 af 100 danske og 73 af 80 engelske opfølgninger får en side fra
+  åbningens emne. Takker og bekræftelser: 10 af 80 og 12 af 64 (alle uden et takkeord).
+  Spørgsmål om andet: 15 af 50 og 21 af 40. Nye smart home-emner: 5 af 25 og 2 af 20.
+- Kendte grænser, ikke rettet: en bekræftelse uden tak (»Det lyder godt«, »That helps«) og et
+  spørgsmål om andet med »det«, »it« eller »this« i (»Hvad er det for et vejr i dag?«) får det
+  gamle emnes kilder. Et engelsk spørgsmål om andet, hvor siden bruger alle ordene (»Who won
+  the 2022 World Cup?«), tæller som opfølgning. En opfølgning, der når grænsen alene (»Hvor
+  lang tid tager det?«), får sine egne sider. Smart home-ord med en hverdagsbetydning (»hue«,
+  »pære«, »IKEA«) tvinger stadig opslaget.
+- Fravalgt: at lade enhver besked efter et emne arve emnet. Det giver kilder til »Super« og
+  til ethvert emneskift. Fravalgt: at lade modellen afgøre det; det var fejlen i første udgave.
+- Kontrolleret: `npm run site:test`; 45 fejl sat ind i koden én ad gangen, og testene fejler
+  på dem alle (den ene først efter et nyt eksempel i testen); målingen ovenfor.
 
 ## B63. Forsiden: værktøjer med elprisen lige nu (2026-11-14)
 

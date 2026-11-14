@@ -31,10 +31,16 @@ const SMART_HOME_WORDS = [
 ];
 const SMART_HOME_PATTERN = new RegExp(wholeWords(SMART_HOME_WORDS), "iu");
 
+// Before an adjective "den", "det" and "de" are the article ("den bedste lås",
+// "det danske mesterskab", "de mest solgte"), and an adjective there ends in
+// -e. That use points back at nothing. The rule also leaves out a real
+// follow-up like "Kan den styre varmen?"; the other rules still catch it.
+const NOT_THE_ARTICLE = `(?!\\s+(?:\\p{L}*e|mest|mindst)${END})`;
+
 // A word that points back at something said before ("Hvad koster den?"), or an
 // opening that continues it ("Og uden hub?", "What about the price?").
 const POINTING_WORDS = [
-  "den", "det", "de", "dem", "denne", "dette", "disse", "dens", "dets", "deres",
+  `(?:den|det|de)${NOT_THE_ARTICLE}`, "dem", "denne", "dette", "disse", "dens", "dets", "deres",
   "it", "its", "that", "this", "these", "those", "they", "them", "their",
 ];
 const POINTS_BACK_PATTERN = new RegExp(
@@ -45,13 +51,10 @@ const POINTS_BACK_PATTERN = new RegExp(
 // Words that stand for a thing already named, in the places where they can
 // mean little else.
 // - "den" is never an empty subject the way "det" is ("Er det muligt ...?").
-//   Before an adjective it is the article ("den bedste lås", "den mest solgte"),
-//   and an adjective after "den" ends in -e, so that use is left out. So is a
-//   real follow-up like "Kan den styre varmen?"; it is searched alone first.
 // - "Does it ...?" at the start asks about a thing. "Is it possible ...?" and
 //   "How does it work with ...?" often do not.
 const STANDS_FOR_A_THING_PATTERN = new RegExp(
-  `${START}den(?!\\s+(?:\\p{L}*e|mest|mindst)${END})${END}` +
+  `${START}den${NOT_THE_ARTICLE}${END}` +
     `|${wholeWords(["dem", "dens", "deres", "them", "their", "its", "(?:this|that|which)\\s+one"])}` +
     `|^\\s*(?:does|doesn['’]t|can|can['’]t|will|won['’]t|could|should|would|did)\\s+it${END}`,
   "iu",

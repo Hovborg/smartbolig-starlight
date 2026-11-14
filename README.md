@@ -58,8 +58,9 @@ specialdesignet Astro-widget:
   under `/_index/`; der bruges ingen betalt søgetjeneste (se
   [`docs/assistent.md`](docs/assistent.md), kontrolleret 2026-11-14). Hvert
   spørgsmål får et afgrænset opslag med det seneste spørgsmål alene, før
-  modellen kaldes; kun et svagt spørgsmål, der peger tilbage (»Hvad koster
-  den?«), søges igen sammen med spørgsmålet før. Resultatet gives til
+  modellen kaldes. En opfølgning, der intet finder alene (»Kan du uddybe?«),
+  søges igen sammen med spørgsmålet før; et spørgsmål om »den« søges sammen
+  med spørgsmålet før først; en tak søges der ikke efter. Resultatet gives til
   den brede model som ubetroet reference-data, når spørgsmålet har et
   smart-home/homelab-ord og opslaget fandt noget, eller det bedste svar har
   mindst 12 point; ellers svarer modellen uden sidens tekst og uden kilder. Modellen får aldrig et
@@ -251,7 +252,7 @@ Guidesidernes top, sidemenu og sidefod er beskrevet i `docs/designsystem.md` und
 | `request.js` | begrænset læsning af kroppen og validering af samtalen |
 | `sources.js` | kanoniske SmartBolig-URL'er, titler og søgeresultater |
 | `prompt.js` | systemprompten og referencedata til den seneste besked |
-| `search-need.js` | om spørgsmålet har et smart home-ord, om det er en opfølgning, og søgeteksten til en opfølgning (seneste spørgsmål, så spørgsmålet før) |
+| `search-need.js` | ordene, der afgør opslaget (smart home-ord, ord der peger tilbage eller står for en ting, tak, åbninger der spørger), og søgeteksten for to beskeder sammen (seneste spørgsmål, så spørgsmålet før) |
 | `yaml-request.js` | hvilken YAML-form og automation-`mode` brugeren har bedt om |
 | `yaml-checks.js` | kontrol af YAML i svaret mod den ønskede form |
 | `answer.js` | udtræk af modelsvar og accept af svar |

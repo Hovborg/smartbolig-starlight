@@ -49,17 +49,23 @@ Sidst opdateret: 2026-11-14.
 - **Assistenten søger først, hver gang (B62, tilføjelse):** fundet på den levende side, at et
   spørgsmål uden et smart home-ord ("Hvordan får jeg lyset til at tænde ved bevægelse?") gav
   33 s uden tekst, hele svaret på én gang og ingen kilder. Nu søges sidens indeks ved hvert
-  spørgsmål med det seneste spørgsmål alene; kun et svagt spørgsmål, der peger tilbage (»Hvad
-  koster den?«), søges én gang til sammen med spørgsmålet før. Resultatet bruges, når
+  spørgsmål med det seneste spørgsmål alene; en opfølgning, der intet finder alene (»Kan du
+  uddybe?«, »Hvad koster det?«), søges én gang til sammen med spørgsmålet før, et spørgsmål om
+  »den« søges sammen med spørgsmålet før først, og en tak søges der ikke efter. Resultatet bruges, når
   spørgsmålet har et smart home-ord og opslaget fandt noget, eller bedste svar har mindst 12
   point (`USEFUL_SCORE`), og modellen får aldrig et værktøj: ét modelkald, der altid strømmer.
   Et fejlet opslag meldes til modellen som »ikke tilgængeligt«, et tomt som »intet fundet«.
   Bygget advarer (stopper ikke), når et spørgsmål i prøvelisterne flytter over grænsen. En
   uafhængig gennemgang fandt én blokerende fejl (et emneskift gav sider om det gamle emne) og
-  fire mindre; alle er rettet. 18 af 19 prøver med en rettelse taget ud fanges af testene; den
-  sidste ændrer ikke, hvad assistenten gør. Kendt: nogle hverdagsspørgsmål når stadig grænsen
-  (2 af 20 danske, 6 af 20 engelske) og kan få en kilde; tiden til første ord (ca. 19 s,
-  modellens tænketid) er ikke ændret og står på listen til ejeren.
+  fire mindre; alle er rettet. En anden gennemgang fandt én blokerende fejl mere: en opfølgning
+  uden »den« eller »det« (»Kan du uddybe?«, »Hvorfor?«) fik ingen sider. Målt med samtaler mod
+  det byggede indeks får en opfølgning nu det første spørgsmåls sider i 83 af 100 danske
+  samtaler (før 35) og 73 af 80 engelske (før 29). 45 prøver med en fejl sat ind i koden
+  fanges alle af testene. Kendt: en bekræftelse uden tak (»Det lyder godt«) og et spørgsmål om
+  andet med »det« eller »it« i kan få det gamle emnes kilder; nogle hverdagsspørgsmål når
+  stadig grænsen (2 af 20 danske, 6 af 24 engelske) og kan få en kilde; tiden til første ord
+  (ca. 19 s, modellens tænketid) er ikke ændret og står på listen til ejeren. Tal og grænser:
+  `docs/assistent.md`, "Målt med samtaler".
 - **Automatiske opdateringer set i drift 2026-11-14:** Dependabot åbnede otte pull requests
   efter udgivelsen. Gruppen med små npm-opdateringer (PR #192) blev flettet af sig selv, efter
   at `deploy`-kontrollen var grøn, og kontrollerne kørte derefter på `main`. Starlight 0.42.8
