@@ -1,0 +1,371 @@
+---
+title: Run appliances in the cheapest hours
+description: Let Home Assistant find the cheapest continuous window before your deadline from Nord Pool prices and start your dishwasher or washing machine then.
+lastUpdated: 2026-11-14
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Aside, Badge, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Advanced" variant="caution" /> <Badge text="40 min" variant="success" />
+
+The electricity price changes through the day, and many appliances do not care
+when they run as long as they are done by a certain time. Here you let Home
+Assistant find the cheapest **continuous** window before your deadline and start
+the appliance then. You stay in control: one toggle plans, and if you turn it
+off, nothing happens.
+
+The guide uses Home Assistant's own
+[Nord Pool integration](https://www.home-assistant.io/integrations/nordpool/).
+How to install a price integration with Danish tariffs is covered in
+[Electricity price integration](/en/home-assistant/elpris-integration/) and is
+not repeated here. Other appliances that can follow the price are covered in
+[EV pre-heating](/en/home-assistant/elbil-opvarmning/) and
+[Washing machine notification](/en/home-assistant/vaskemaskine-notification/).
+For measuring consumption, see [Energy management](/en/produkter/energistyring/).
+
+## What you get
+
+- A toggle you turn on when the appliance is loaded and ready.
+- An automation that calculates the cheapest start from the prices and your deadline.
+- A message with the start time and the price difference.
+- The option to cancel or start manually at any time.
+
+## What you need
+
+- The Nord Pool integration set up with your price area.
+- An appliance you can switch on from Home Assistant, for example through a
+  smart plug.
+- A figure for the appliance's consumption per run if you want to see the
+  difference in money.
+
+<Aside type="caution" title="Not every appliance can be started by power">
+A plug that cuts and restores power only starts appliances that begin by
+themselves when power returns. Many dishwashers and washing machines need a
+press on start; check the manual for your model. The plug must be rated for the
+appliance's power, so compare the markings on both.
+
+Appliances without a plug cannot be controlled this way. The Danish Safety
+Technology Authority (Sikkerhedsstyrelsen) writes that you may only connect or
+disconnect an electrical product yourself if it can be done with a plug in a
+socket. Everything else is work for an authorised company. See
+[Which electrical products may you connect or disconnect yourself?](https://www.sik.dk/privat/gor-det-sikkert/el/brug-elprodukter-sikkert/hvilke-elprodukter-ma-du-selv-slutte-eller-koble)
+(in Danish).
+</Aside>
+
+<Aside type="caution" title="The cheapest hours are often at night">
+The plan chooses freely between now and your deadline. Sikkerhedsstyrelsen
+writes about tumble dryers that no rule forbids running them while you sleep or
+are out, but that it can be a good idea not to, especially with an older
+machine. The authority advises following the manual and having working smoke
+alarms. See
+[May I leave the tumble dryer on when I sleep or am not at home?](https://www.sik.dk/privat/goer-det-sikkert/el/brug-elprodukter-sikkert/maa-jeg-lade-toerretumbleren-vaere-taendt-naar-jeg-sover-eller-ikke-hjemme)
+(in Danish).
+
+If you do not want the appliance to run while you sleep, turn planning on in
+the morning and set the deadline to the evening.
+</Aside>
+
+## How the plan works
+
+| Situation | Result |
+|---|---|
+| You turn planning on | The automation fetches the prices for today and tomorrow |
+| There are prices for a whole run before the deadline | The cheapest continuous window is chosen |
+| Starting now is cheapest | The appliance starts in about a minute |
+| Tomorrow's prices are missing | The plan chooses among the hours that have a price, and the message says how far the prices reach |
+| There are no prices for a whole run before the deadline | You get a message, and planning is turned off |
+| You turn the toggle off before the start | The appliance is not started |
+
+The deadline is a time of day. If that time has passed today, the deadline is
+tomorrow.
+
+According to the documentation, the action returns prices per MWh in the
+currency the integration is set up with. The message divides by 1000 to show
+the price per kWh. The documentation states that the integration only shows
+the base energy price; VAT and other additional costs are not included.
+
+Nord Pool states that prices for the next day are typically announced at 12:45
+CET or later. If you plan earlier in the day, the plan only knows today's
+prices.
+
+## 1. Create the helpers
+
+<Steps>
+1. Go to **Settings → Devices & services → Helpers**, and select
+   **Create helper**.
+2. Create a **Toggle** named `Billig opvask`.
+3. Create a **Date and/or time** helper named `Billig opvask frist`, and choose
+   **Time**. Afterwards, set it to 07:00, for example.
+4. Create a **Date and/or time** helper named `Billig opvask start`, and choose
+   **Date and time**.
+</Steps>
+
+The names are chosen so the helpers normally get the entity IDs used in the
+examples: `input_boolean.billig_opvask`, `input_datetime.billig_opvask_frist`
+and `input_datetime.billig_opvask_start`. Open each helper and check the entity
+ID. If it does not match, change the ID there or in the YAML examples.
+
+Without a fixed initial value, the helpers restore their last value after a
+restart. This is described for both
+[input_datetime](https://www.home-assistant.io/integrations/input_datetime/) and
+[input_boolean](https://www.home-assistant.io/integrations/input_boolean/).
+
+## 2. Find your config entry ID and your price area
+
+The action needs to know which Nord Pool setup to use.
+
+<Steps>
+1. Go to **Settings → Tools → Actions**. Before Home Assistant 2026.2 the page
+   was called *Developer tools*.
+2. Choose the action `nordpool.get_prices_for_date`, and fill in the fields
+   with your Nord Pool setup and today's date.
+3. Switch to **YAML mode**. The ID now follows `config_entry:`. Copy it.
+4. Select **Perform action**. Under **Response** you see the prices with a
+   start, an end and a price for each period.
+</Steps>
+
+The response is grouped by price area. You chose the area when you set up the
+integration. Denmark has two price areas: DK1 is Jutland and Funen, and DK2 is
+Zealand and the islands, according to
+[Energinet](https://www.energinet.dk/media/51vd5zlp/energinet-2025-metodenotat-for-energinets-samfundsokonomiske-vurderinger-af-eltranmissionsprojekter.pdf)
+(PDF in Danish).
+
+## 3. Create the planner
+
+Go to **Settings → Automations & scenes**, select **Create automation** and
+then **Create new automation**. Choose **Edit in YAML** in the menu, and paste
+the example. Change three things: your price area, your config entry ID in
+both places, and the length of the programme. Also enter your own consumption
+per run if you want to see the difference in the message.
+
+```yaml title="Automation: Plan the cheapest start"
+alias: "Dishwasher: plan the cheapest start"
+description: "Finds the cheapest continuous window before the deadline"
+triggers:
+  - trigger: state
+    entity_id: input_boolean.billig_opvask
+    to: "on"
+
+actions:
+  - variables:
+      omraade: "DK1"           # DK1 or DK2
+      varighed_minutter: 180   # length of the programme in minutes
+      forbrug_kwh: 1.0         # REPLACE with your own measured consumption per run
+
+  - action: nordpool.get_prices_for_date
+    data:
+      config_entry: "YOUR_CONFIG_ENTRY_ID"
+      date: "{{ now().date() }}"
+      areas: "{{ omraade }}"
+    response_variable: priser_i_dag
+
+  - action: nordpool.get_prices_for_date
+    data:
+      config_entry: "YOUR_CONFIG_ENTRY_ID"
+      date: "{{ now().date() + timedelta(days=1) }}"
+      areas: "{{ omraade }}"
+    response_variable: priser_i_morgen
+
+  - variables:
+      plan: |-
+        {%- set raa = (priser_i_dag[omraade] | default([])) + (priser_i_morgen[omraade] | default([])) %}
+        {%- set dur = varighed_minutter * 60 %}
+        {%- set t_nu = as_timestamp(now()) + 60 %}
+        {%- set frist = today_at(states('input_datetime.billig_opvask_frist')) %}
+        {%- set frist_ts = as_timestamp(frist if frist > now() else frist + timedelta(days=1)) %}
+        {%- set d = namespace(slots=[], kendt_til=0) %}
+        {%- for p in raa if p.price is number %}
+          {%- set e = as_timestamp(p.end) %}
+          {%- set d.slots = d.slots + [{'s': as_timestamp(p.start), 'e': e, 'pris': p.price}] %}
+          {%- set d.kendt_til = [d.kendt_til, e] | max %}
+        {%- endfor %}
+        {%- set ns = namespace(start=none, bedst=none, nu=none) %}
+        {%- for s in [t_nu] + (d.slots | map(attribute='s') | select('gt', t_nu) | list) if s + dur <= frist_ts %}
+          {%- set m = namespace(sum=0, daekket=0) %}
+          {%- for p in d.slots if p.e > s and p.s < s + dur %}
+            {%- set laengde = ([p.e, s + dur] | min) - ([p.s, s] | max) %}
+            {%- set m.sum = m.sum + p.pris * laengde %}
+            {%- set m.daekket = m.daekket + laengde %}
+          {%- endfor %}
+          {%- if m.daekket >= dur - 1 %}
+            {%- set snit = m.sum / m.daekket %}
+            {%- if s == t_nu %}{%- set ns.nu = snit %}{%- endif %}
+            {%- if ns.bedst is none or snit < ns.bedst %}
+              {%- set ns.start = s %}
+              {%- set ns.bedst = snit %}
+            {%- endif %}
+          {%- endif %}
+        {%- endfor %}
+        {{- {'start': ns.start, 'bedst': ns.bedst, 'nu': ns.nu, 'kendt_til': d.kendt_til, 'frist': frist_ts} }}
+
+  - choose:
+      - conditions:
+          - condition: template
+            value_template: "{{ plan.start is none }}"
+        sequence:
+          - action: persistent_notification.create
+            data:
+              notification_id: billig_opvask
+              title: "Dishwasher: no plan"
+              message: >-
+                There are no prices for a whole run before the deadline. The
+                deadline may be too close, or tomorrow's prices may not be
+                published yet.
+          - action: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.billig_opvask
+    default:
+      - action: input_datetime.set_datetime
+        target:
+          entity_id: input_datetime.billig_opvask_start
+        data:
+          timestamp: "{{ plan.start }}"
+      - action: persistent_notification.create
+        data:
+          notification_id: billig_opvask
+          title: "Dishwasher: planned"
+          message: >-
+            Start {{ plan.start | timestamp_custom('%d %b at %H:%M') }}.
+            Average in the window: {{ (plan.bedst / 1000) | round(2) }} per kWh.
+            {% if plan.nu is not none %}If started now:
+            {{ (plan.nu / 1000) | round(2) }} per kWh. Difference for a run of
+            {{ forbrug_kwh }} kWh:
+            {{ ((plan.nu - plan.bedst) / 1000 * forbrug_kwh) | round(2) }}.{% endif %}
+            {% if plan.kendt_til < plan.frist %}Prices are only known until
+            {{ plan.kendt_til | timestamp_custom('%d %b at %H:%M') }}. Later
+            hours are not part of the plan.{% endif %}
+
+mode: single
+```
+
+The template tries a start in one minute and a start at every price change
+before the deadline. For each possible start it calculates the average price
+for the whole run and weights each price by how long it applies. It therefore
+works with both hourly and 15-minute prices; the Nord Pool documentation
+describes the market moving to 15-minute resolution.
+
+The calculation assumes that the appliance uses the same amount of power for
+the whole run. A dishwasher does not, so treat the result as a good estimate
+and not as an exact answer.
+
+According to the integration's source code, the action returns an empty list
+for a day without prices. If tomorrow's prices are missing, the template
+therefore only plans within the hours that have a price, and the message says
+when the prices end. The integration also has a diagnostic sensor that shows
+whether tomorrow's prices are available.
+
+## 4. Create the starter
+
+```yaml title="Automation: Start at the planned time"
+alias: "Dishwasher: start at the planned time"
+description: "Starts the appliance if the plan is still switched on"
+triggers:
+  - trigger: time
+    at: input_datetime.billig_opvask_start
+
+conditions:
+  - condition: state
+    entity_id: input_boolean.billig_opvask
+    state: "on"
+
+actions:
+  - action: switch.turn_on
+    target:
+      entity_id: switch.opvasker_stikkontakt
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.billig_opvask
+
+mode: single
+```
+
+Replace `switch.opvasker_stikkontakt` with your own plug.
+
+According to the documentation for
+[time triggers](https://www.home-assistant.io/triggers/time/), a trigger using a
+helper with both date and time fires once at that moment. The trigger follows
+the helper: when the planner sets a new time, the start moves with it. A time
+that has already passed does not fire anything; both points can be seen in the
+[trigger's source code](https://github.com/home-assistant/core/blob/dev/homeassistant/components/homeassistant/triggers/time.py).
+If Home Assistant was down at the start time, the appliance therefore does not
+start by itself afterwards.
+
+The starter is separate from the planner, and the helpers restore their
+values. A plan therefore survives a Home Assistant restart as long as the start
+time has not passed. If the appliance runs until it finishes by itself, you
+need nothing more. If the plug must be switched off again after the run, you
+can add `delay` and `switch.turn_off`; the
+[delay documentation](https://www.home-assistant.io/building-blocks/delay/)
+says that a waiting automation is stopped by a restart and does not resume.
+
+## Test it
+
+1. Switch the plug off in Home Assistant, and prepare the appliance as the
+   manual for your model describes. Set the deadline to a time in the future.
+2. Turn `Billig opvask` on.
+3. Check the notifications in Home Assistant for a plan with a start time and
+   price.
+4. See that `Billig opvask start` has the same time.
+5. Turn the toggle off and on again, and see that the start time is
+   recalculated.
+6. Turn the toggle off before the start time, and check that nothing starts.
+7. Let a plan run while you are at home, and check that the plug switches on at
+   the time and that the appliance starts.
+
+Use [Activity and Traces](/en/home-assistant/aktivitet-og-spor/) to see what the
+automations did and why.
+
+## See whether it saves anything
+
+The message shows the average price for the chosen start and for a start now.
+It also shows the difference for the consumption you entered yourself. The
+figures are Nord Pool's base energy price in the integration's currency. VAT,
+taxes and grid tariffs are not included.
+
+If your grid company has a grid tariff that changes through the day, the
+cheapest hour on your bill can be a different one from the hour the plan
+chooses. [Electricity price integration](/en/home-assistant/elpris-integration/)
+describes an integration that includes tariffs and taxes. Measure consumption
+with an energy meter, and keep your own figures over a few weeks before
+concluding anything.
+
+## Troubleshooting
+
+| Symptom | Possible cause | What to do |
+|---|---|---|
+| Message about no plan | The deadline is too close, or tomorrow's prices are not published | Move the deadline, or turn the toggle on again later |
+| No message | The action failed, for example because of a wrong config entry ID or area code | Run the action under **Settings → Tools → Actions**, and read the error |
+| Nothing starts | The toggle was turned off, or Home Assistant was down at the start time | Start the appliance manually, or plan again |
+| Power is on but the appliance does not run | The model needs a press on start | The plug cannot start that model; see whether the appliance has its own delayed start |
+| The start time is at night | The cheapest hours are there | Plan in the morning with a deadline in the evening |
+
+## How to undo it
+
+Turn the toggle off, and the appliance is not started. Delete the two
+automations and the three helpers if you want to remove everything. The plug
+and the appliance are unchanged and work as before.
+
+The templates in the planner were run in the template engine of Home Assistant
+2026.11.1 with made-up 15-minute prices, and the result was compared with an
+independent calculation. The Nord Pool call itself and the two automations
+have not been run on a live system. Try them using the steps above before you
+let them control anything day to day.
+
+## Sources
+
+- [Home Assistant: Nord Pool integration](https://www.home-assistant.io/integrations/nordpool/)
+- [Home Assistant source code: Nord Pool actions (services.py)](https://github.com/home-assistant/core/blob/dev/homeassistant/components/nordpool/services.py)
+- [Home Assistant: time trigger](https://www.home-assistant.io/triggers/time/)
+- [Home Assistant source code: time trigger (time.py)](https://github.com/home-assistant/core/blob/dev/homeassistant/components/homeassistant/triggers/time.py)
+- [Home Assistant: Input datetime](https://www.home-assistant.io/integrations/input_datetime/) and [Input boolean](https://www.home-assistant.io/integrations/input_boolean/)
+- [Home Assistant: Delay](https://www.home-assistant.io/building-blocks/delay/)
+- [Home Assistant: Tools](https://www.home-assistant.io/docs/tools/dev-tools/)
+- [Home Assistant: template functions](https://www.home-assistant.io/template-functions/)
+- [Nord Pool: Day-ahead market](https://www.nordpoolgroup.com/en/the-power-market/Day-ahead-market/)
+- [Energinet: 2025 method note on the price areas DK1 and DK2 (PDF, in Danish)](https://www.energinet.dk/media/51vd5zlp/energinet-2025-metodenotat-for-energinets-samfundsokonomiske-vurderinger-af-eltranmissionsprojekter.pdf)
+- [Sikkerhedsstyrelsen: which electrical products you may connect yourself (in Danish)](https://www.sik.dk/privat/gor-det-sikkert/el/brug-elprodukter-sikkert/hvilke-elprodukter-ma-du-selv-slutte-eller-koble)
+- [Sikkerhedsstyrelsen: leaving the tumble dryer on when asleep or away (in Danish)](https://www.sik.dk/privat/goer-det-sikkert/el/brug-elprodukter-sikkert/maa-jeg-lade-toerretumbleren-vaere-taendt-naar-jeg-sover-eller-ikke-hjemme)

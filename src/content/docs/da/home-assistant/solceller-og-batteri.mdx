@@ -1,0 +1,275 @@
+---
+title: Solceller og hjemmebatteri i Home Assistant
+description: Få solceller, elnet og batteri ind i Home Assistants Energi-dashboard, vis solprognosen, og flyt forbrug til timer med overskud med en enkel automation.
+lastUpdated: 2026-11-14
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+Har du solceller eller et hjemmebatteri, ved du sjældent, hvor meget du selv
+bruger, hvor meget der går til nettet, og hvornår batteriet arbejder. Denne
+guide får produktion, net og batteri ind i Home Assistant. Bagefter bruger du
+tallene i en enkel automation, der flytter forbrug til timer med overskud.
+
+Du får et Energi-dashboard med produktion, net og batteri, en solprognose og en
+automation til én belastning, som må tænde og slukke uden dig. Du skal bruge
+energisensorer fra din inverter eller en måler. Energi skal allerede virke med
+elnettet; se [Energy Dashboard](/da/home-assistant/energy-dashboard/) og, hvis
+du læser live fra måleren, [elmåleren via HAN-porten](/da/home-assistant/elmaaler-han-port/).
+
+## Vælg, hvordan data kommer ind
+
+Home Assistants [side om solceller](https://www.home-assistant.io/docs/energy/solar-panels/)
+nævner to veje til produktionsdata: en integration, der læser inverterens API,
+og CT-klemmer, der måler strømmen i en ledning. Siden peger på Shelly EM som
+færdig løsning og på ESPHome til selvbyg. [Batterisiden](https://www.home-assistant.io/docs/energy/battery/)
+nævner tilsvarende en integration (eksemplet er Tesla Powerwall) eller
+CT-klemmer.
+
+| Kilde | Passer til | Det skal du vedligeholde |
+|---|---|---|
+| Integration til din inverter eller dit batteri | Producenten har en integration | Integrationens status og login |
+| Shelly EM eller en anden måler med CT-klemmer | Inverteren har ingen brugbar integration | Måleren, placeringen og dens firmware |
+| ESPHome med CT-sensor | Du vil bygge selv | Konfiguration og kalibrering |
+
+<Aside type="caution" title="Arbejde i eltavlen kræver autorisation">
+CT-klemmer og målere til dem monteres i eltavlen. Home Assistant skriver, at
+det kræver, at tavlen åbnes, og at det nogle steder kan kræve en autoriseret
+fagperson. I Danmark må du ifølge Sikkerhedsstyrelsen ikke selv udføre elarbejde
+i måler- eller gruppetavlen. Lad en autoriseret elinstallatørvirksomhed montere
+måler og klemmer. Tilslutning af selve solcelleanlægget i tavlen kræver også
+autorisation. Opsætningen i Home Assistant må du gerne selv lave.
+</Aside>
+
+## Trin for trin
+
+<Steps>
+1. **Find sensorerne**
+
+   Brug **Indstillinger → Værktøjer → Tilstande** (engelsk: Settings → Tools →
+   States) til at finde sensorerne fra din integration. Du skal bruge en
+   energisensor i kWh eller Wh til hver af disse: forbrug fra nettet, eksport
+   til nettet, solproduktion, energi ind i batteriet og energi ud af batteriet.
+   Kravene til sensorerne står i Home Assistants
+   [spørgsmål og svar om Energy](https://www.home-assistant.io/docs/energy/faq/).
+
+2. **Tilføj elnettet først**
+
+   Gå til **Indstillinger → Betjeningspaneler → Energi** (engelsk: Settings →
+   Dashboards → Energy). Under **Elnet** vælger du **Tilføj forbindelse til
+   elnettet** (Add grid connection) og vælger sensorerne for forbrug og
+   eksport. Se [Energy Dashboard](/da/home-assistant/energy-dashboard/).
+
+3. **Tilføj solceller**
+
+   Under **Solceller** vælger du **Tilføj solenergiproduktion** (Add solar
+   production). Vælg inverterens samlede produktionstæller. Brug ikke eksporten
+   til nettet som produktion; så mangler den strøm, du selv har brugt.
+
+4. **Tilføj batteri**
+
+   Under **Lagring på hjemmebatteri** vælger du **Tilføj batterisystem** (Add
+   battery system). Vælg én sensor for energi ind i batteriet og én for energi
+   ud. Ladetilstand i procent er nyttig til drift, men erstatter ikke de to
+   energisensorer. Kontrollér retningen: Når batteriet lader, skal tælleren for
+   energi ind stige.
+
+5. **Slå solprognosen til**
+
+   Tilføj integrationen [Forecast.Solar](https://www.home-assistant.io/integrations/forecast_solar/)
+   under **Indstillinger → Enheder & tjenester → Tilføj integration**. Du
+   angiver hældning (0 er vandret, 90 er lodret), retning (0 er nord, 90 er øst,
+   180 er syd, 270 er vest) og anlæggets samlede effekt i watt-peak. Gå
+   derefter til Energi. Under **Solceller** åbner du din solproduktion, slår
+   **Prognose for solenergiproduktion** til, vælger Forecast.Solar og gemmer.
+
+6. **Opret en overskudssensor**
+
+   Gå til **Indstillinger → Enheder & tjenester → Hjælpere → Opret hjælper**
+   (engelsk: Settings → Devices & services → Helpers → Create helper), og vælg
+   typen Threshold. Navnet og felterne kan være oversat i din grænseflade.
+   Vælg en sensor, der viser den effekt, du sender til nettet, som et positivt
+   tal. Udfyld kun øvre grænse (Upper limit) og hysterese (Hysteresis). Så
+   tænder hjælperen, når værdien er over grænse plus hysterese, og slukker, når
+   den er under grænse minus hysterese. Se
+   [Threshold-integrationen](https://www.home-assistant.io/integrations/threshold/).
+
+   Vælg tallene ud fra belastningen. Når belastningen tænder, falder eksporten
+   med belastningens effekt. Tændgrænsen skal derfor ligge over belastningens
+   effekt, og slukgrænsen skal ligge lige over nul. Ellers tænder og slukker
+   belastningen i ring.
+
+   Eksempel til en belastning på cirka 2000 W: øvre grænse 1300 og hysterese
+   1100. Hjælperen tænder over 2400 W eksport og slukker under 200 W. Grænserne
+   står i sensorens egen enhed. Viser sensoren kW, skal grænserne også stå i
+   kW. Har du et batteri, afgør inverterens indstillinger, om overskuddet går
+   til batteriet eller til nettet først. Se, hvornår der faktisk kommer eksport,
+   før du vælger grænser.
+
+   Hjælperen kalder vi her `binary_sensor.solcelle_overskud`.
+
+7. **Opret automationen**
+
+   Gå til **Indstillinger → Automatiseringer & scener**, vælg **Opret
+   automatisering** og derefter **Opret ny automatisering**. Åbn menuen med de
+   tre prikker, og vælg **Redigér i YAML** (Edit in YAML). Indsæt eksemplet
+   nedenfor, og erstat entitets-id'erne med dine egne.
+</Steps>
+
+### Automation: kør en belastning på overskud
+
+<Aside type="caution" title="Belastningen skal være lovligt tilsluttet">
+Et smartstik, som du sætter i en stikkontakt, må du selv tage i brug.
+Kontrollér i producentens data, at det er beregnet til apparatets effekt. Er
+belastningen fast tilsluttet uden stikprop, må du ifølge Sikkerhedsstyrelsen
+ikke selv tilslutte eller frakoble den. Lad en autoriseret
+elinstallatørvirksomhed montere styringen.
+</Aside>
+
+Eksemplet bruger tilstandstriggere med `for:`, så en sky, der går forbi, ikke
+tænder og slukker belastningen hele tiden. Vælg en belastning, som tåler at
+blive afbrudt, for eksempel en varmtvandsbeholder med egen termostat.
+
+```yaml title="Automation: Belastning følger solcelleoverskud"
+alias: "Belastning følger solcelleoverskud"
+description: "Tænder en belastning ved stabilt overskud og slukker den igen"
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.solcelle_overskud
+    to: "on"
+    for: "00:05:00"
+    id: surplus_on
+
+  - trigger: state
+    entity_id: binary_sensor.solcelle_overskud
+    to: "off"
+    for: "00:05:00"
+    id: surplus_off
+
+  - trigger: state
+    entity_id: binary_sensor.solcelle_overskud
+    to:
+      - "unavailable"
+      - "unknown"
+    for: "00:10:00"
+    id: sensor_lost
+
+conditions: []
+
+actions:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: surplus_on
+        sequence:
+          - action: switch.turn_on
+            target:
+              entity_id: switch.varmtvandsbeholder
+
+      - conditions:
+          - condition: trigger
+            id:
+              - surplus_off
+              - sensor_lost
+        sequence:
+          - action: switch.turn_off
+            target:
+              entity_id: switch.varmtvandsbeholder
+
+mode: restart
+```
+
+Sådan virker den:
+
+- De to første triggere tænder og slukker, når hjælperen har været `on` eller
+  `off` i fem minutter.
+- Den tredje trigger slukker belastningen, hvis hjælperen har været
+  `unavailable` eller `unknown` i ti minutter. Threshold-hjælperen bliver
+  `unknown`, når kildesensoren er `unavailable`, `unknown` eller ikke giver et
+  tal.
+- Triggeren fanger ikke en sensor, der hænger på et gammelt tal. Det er endnu
+  en grund til at vælge en belastning, der tåler at stå tændt.
+- Home Assistant oplyser, at `for:`-timeren nulstilles, når Home Assistant
+  genstarter, eller automationer genindlæses.
+- Slukker du belastningen manuelt, tænder automationen den først igen, næste
+  gang hjælperen skifter til `on`.
+
+Vil du kun tænde, når batteriet er rimeligt fyldt, så tilføj en betingelse til
+den første gren. Ifølge Home Assistant består en
+[numeric_state-betingelse](https://www.home-assistant.io/conditions/numeric_state/)
+ikke, hvis sensoren er `unavailable` eller `unknown`:
+
+```yaml
+          - condition: numeric_state
+            entity_id: sensor.batteri_ladetilstand
+            above: 80
+```
+
+Vil du flytte forbrug efter pris i stedet, så se
+[elpris-integrationen](/da/home-assistant/elpris-integration/) og
+[elbil-opvarmning](/da/home-assistant/elbil-opvarmning/). Et overblik over
+måleformerne finder du under [energistyring](/da/produkter/energistyring/).
+
+## Test det
+
+1. I Energi skal elnet, solceller og batteri vise tal. Home Assistant skriver
+   selv, at der kan gå op til 2 timer, før nye data vises. Sammenlign dagens
+   produktion med inverterens egen visning; store afvigelser peger på forkert
+   sensor eller enhed.
+2. Følg eksportsensoren under **Indstillinger → Værktøjer → Tilstande** på en
+   solrig dag. Tænd en kendt belastning, for eksempel en elkedel. Eksporten
+   skal falde med omtrent belastningens effekt.
+3. Åbn automationen, og vælg **Sporing** (Traces). Kontrollér, at den kørte den
+   rigtige gren; se [Aktivitet og Spor](/da/home-assistant/aktivitet-og-spor/).
+   **Kør handlinger** starter automationen uden trigger, så ingen af grenene
+   kører. Test med et rigtigt skift.
+4. Kontrollér, at belastningen faktisk tændte og slukkede, ikke kun at
+   tilstanden skiftede i Home Assistant.
+5. Sammenlign prognosen med den faktiske produktion i et par dage.
+   Forecast.Solar oplyser selv, at prognosen er et skøn.
+
+## Når det ikke virker
+
+| Symptom | Mulig årsag | Næste skridt |
+|---|---|---|
+| Sensoren kan ikke vælges i Energi | Forkert enhed, `device_class` eller `state_class` | Se [Energy Dashboard](/da/home-assistant/energy-dashboard/) |
+| Produktion eller forbrug tælles dobbelt | Samme energi er valgt både som total og som delsum | Fjern den ene |
+| Batteriet giver forkerte tal | Én sensor dækker både opladning og afladning | Brug to energisensorer, én for ind og én for ud |
+| Prognosen er tom | Forecast.Solar er ikke valgt under Solceller | Slå prognosen til i trin 5 |
+| Belastningen tænder og slukker hele tiden | Tændgrænsen ligger under belastningens effekt, eller hysteresen er for lille | Sæt grænserne som i trin 6, eller forlæng `for:` |
+| Belastningen står tændt efter en genstart | `for:`-timeren blev nulstillet, og hjælperen har ikke skiftet siden | Sluk manuelt, eller tilføj en [trigger for Home Assistant-start](https://www.home-assistant.io/triggers/homeassistant/) |
+
+## Fortryd
+
+Slå automationen fra, og tænd eller sluk belastningen manuelt. Slet
+Threshold-hjælperen under **Hjælpere**, og fjern solceller eller batteri under
+**Indstillinger → Betjeningspaneler → Energi**. Det ændrer ikke på sensorernes
+historik.
+
+<CardGrid>
+  <Card title="Mål først" icon="approve-check">
+    Valider alle tællere i [Energy Dashboard](/da/home-assistant/energy-dashboard/), før du automatiserer.
+  </Card>
+  <Card title="Spor fejl" icon="document">
+    Brug [Aktivitet og Spor](/da/home-assistant/aktivitet-og-spor/), når en automation opfører sig mærkeligt.
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+Kilder gennemgået 14. november 2026. Automationen er kontrolleret mod Home
+Assistants dokumentation, men er ikke kørt på et anlæg. Din inverter og dit
+batteri har egne sensornavne og fortegn; kontrollér dem i din egen
+installation.
+
+- [Home Assistant: Energy](https://www.home-assistant.io/docs/energy/), [solceller](https://www.home-assistant.io/docs/energy/solar-panels/), [batteri](https://www.home-assistant.io/docs/energy/battery/) og [spørgsmål og svar](https://www.home-assistant.io/docs/energy/faq/)
+- [Home Assistant: Forecast.Solar](https://www.home-assistant.io/integrations/forecast_solar/)
+- [Home Assistant: Threshold](https://www.home-assistant.io/integrations/threshold/) og [integrationens kildekode](https://github.com/home-assistant/core/blob/dev/homeassistant/components/threshold/binary_sensor.py)
+- [Home Assistant: state-trigger](https://www.home-assistant.io/triggers/state/) og [trigger for Home Assistant-start](https://www.home-assistant.io/triggers/homeassistant/)
+- [Home Assistant: numeric_state-betingelse](https://www.home-assistant.io/conditions/numeric_state/), [trigger-betingelse](https://www.home-assistant.io/conditions/trigger/) og [choose](https://www.home-assistant.io/building-blocks/choose/)
+- [Sikkerhedsstyrelsen: elarbejde, du må lave uden autorisation](https://www.sik.dk/privat/goer-det-sikkert/el/goer-det-selv/hvilket-elarbejde-maa-du-lave-uden-autorisation) og folderen [Gør det elsikkert](https://www.sik.dk/sites/default/files/2018-10/gordetelsikkert_2.pdf)
+- [Sikkerhedsstyrelsen: det kræver autorisation at tilslutte solcelleanlæg](https://www.sik.dk/erhverv/elinstallationer-og-elanlaeg/vejledninger/elinstallationer/solcelleinstallationer/det-kraever-autorisation-tilslutte-solcelleanlaeg)

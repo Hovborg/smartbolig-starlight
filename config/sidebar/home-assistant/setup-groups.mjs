@@ -7,6 +7,11 @@ export default [
     collapsed: false,
     items: [
       {
+        label: "Hardware-valg",
+        translations: { en: "Choosing Hardware" },
+        link: "/home-assistant/hardware-valg/",
+      },
+      {
         label: "Raspberry Pi",
         link: "/home-assistant/raspberry-pi-installation/",
       },
@@ -65,6 +70,16 @@ export default [
       {
         label: "Energy Dashboard",
         link: "/home-assistant/energy-dashboard/",
+      },
+      {
+        label: "Elmåler via HAN-port",
+        translations: { en: "Meter via HAN Port" },
+        link: "/home-assistant/elmaaler-han-port/",
+      },
+      {
+        label: "Solceller og batteri",
+        translations: { en: "Solar and Battery" },
+        link: "/home-assistant/solceller-og-batteri/",
       },
       {
         label: "Mobilnotifikationer",

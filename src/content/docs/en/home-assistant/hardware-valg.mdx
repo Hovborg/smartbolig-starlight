@@ -1,0 +1,214 @@
+---
+title: Which hardware should Home Assistant run on
+description: Choose between Home Assistant Green, a Raspberry Pi, a mini PC and a virtual machine by need. With storage, backup and signs that it is time to move.
+lastUpdated: 2026-11-14
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+Home Assistant runs on many kinds of hardware. The right choice depends more on
+what you want to maintain than on how fast the machine is. This guide helps you
+pick hardware, plan storage and backup, and know when to move. The installation
+itself has its own guides, linked below.
+
+You end up with a choice you can justify and a backup that can rebuild your
+home on new hardware. You need to know which devices you want to control and
+who looks after the backup. Prices change, so look those up at the retailer.
+
+## Choose by need
+
+| Your need | A suitable starting point | You maintain |
+|---|---|---|
+| A finished box with nothing to assemble | Home Assistant Green | Updates and backup |
+| You already own a Yellow | Home Assistant Yellow (no longer produced) | Compute Module, storage, updates, backup |
+| You have a Raspberry Pi 4 or 5 | Raspberry Pi with HAOS | Power supply, microSD card, backup |
+| You want an ordinary PC with an internal drive | Mini PC (x86-64) | Hardware, UEFI settings, backup |
+| You already have a server | HAOS in a virtual machine, or Home Assistant Container | The host server, backup of the VM, USB devices for the VM |
+
+Home Assistant's [installation overview](https://www.home-assistant.io/installation/)
+recommends Home Assistant Operating System (HAOS) as the installation type.
+According to the page, Container suits you if you are comfortable with the
+command line, containers or virtualization. Container does not include apps.
+Apps were called add-ons until
+[version 2026.2](https://www.home-assistant.io/blog/2026/02/04/release-20262/).
+
+## The five options
+
+**Home Assistant Green.** According to the installation overview it comes with
+HAOS already installed. The [product page](https://www.home-assistant.io/green/)
+lists a quad-core Arm Cortex-A55 processor, 4 GB RAM, 32 GB eMMC storage, two
+USB 2.0 ports and gigabit Ethernet. Idle power draw is stated as about 1.7 W.
+Zigbee and Thread are not built in. The product page points to the Home
+Assistant Connect ZBT-2 accessory, which plugs into a USB port, and says in a
+footnote that Thread support is under development. Green is the simplest choice
+if you do not want to think about hardware.
+
+**Home Assistant Yellow.** A carrier board for the Raspberry Pi Compute Module 4
+with a built-in Zigbee radio and an M.2 slot for an NVMe SSD. Home Assistant
+[announced in October 2025](https://www.home-assistant.io/blog/2025/10/15/yellow-end-of-life/)
+that Yellow is no longer being produced. The
+[product page](https://www.home-assistant.io/yellow/) says it still receives
+software updates and that the kit does not include the Compute Module itself.
+Keep it if you have one. Choose something else if you are buying new.
+
+**Raspberry Pi.** The
+[official guide](https://www.home-assistant.io/installation/raspberrypi/)
+recommends a Raspberry Pi 4 or 5 with at least 2 GB RAM and a microSD card of
+at least 32 GB, ideally A2 rated. Use a power supply that suits the model; the
+guide says a computer's USB port does not supply enough power. Ethernet is
+required during installation. Afterwards you can use Wi-Fi, but the guide
+recommends a wired connection as more reliable. Follow the
+[Raspberry Pi installation](/en/home-assistant/raspberry-pi-installation/).
+
+**Mini PC.** HAOS can be installed on a generic
+[x86-64 machine](https://www.home-assistant.io/installation/generic-x86-64/).
+The machine must be 64-bit and boot in UEFI mode with Secure Boot disabled. The
+boot drive must have 512-byte logical sectors (512n or 512e). HAOS cannot boot
+from a drive that is 4Kn only. An internal SATA, M.2 or eMMC drive is typical.
+External USB storage is not recommended. The installation erases the whole
+drive.
+
+**Virtual machine on an existing server.** Home Assistant's
+[Linux page](https://www.home-assistant.io/installation/linux/) has ready-made
+HAOS images for VirtualBox, KVM and VMware Workstation, and instructions for
+Unraid. The virtual machine needs at least 2 GB RAM and 2 vCPUs. See the
+[Proxmox installation](/en/home-assistant/proxmox-installation/) for Proxmox or
+the [Docker installation](/en/home-assistant/docker-installation/) for
+Container.
+
+<Aside type="caution" title="Container is not HAOS">
+Container does not include apps, and you update the container yourself. Home
+Assistant writes that some integrations, such as Thread and Z-Wave, are
+controlled by apps and therefore have no out-of-the-box support on Container.
+Choose Container deliberately, not just because you already have Docker.
+</Aside>
+
+## Storage and backup
+
+The storage choice matters as much as the machine:
+
+- On a Raspberry Pi the official guide names a microSD card of at least 32 GB,
+  ideally A2. A card can fail, so the backup must live somewhere other than the
+  card.
+- On a mini PC internal storage is typical. External USB storage is not
+  recommended.
+- In a virtual machine the storage lives on the host. Back up both the VM and
+  Home Assistant.
+
+Go to **Settings → System → Backups** and choose **Set up backups**. If you pick
+**Recommended**, Home Assistant takes a daily backup of everything except media,
+the share folder and the local apps folder, and keeps the last three. You can
+also choose the schedule and retention yourself. See the official
+[backup guide](https://www.home-assistant.io/common-tasks/general/backups/).
+
+Backups are encrypted by default. Choose **Download emergency kit** and keep the
+file somewhere other than the device itself. The file contains the encryption
+key, and without it you cannot restore. Home Assistant recommends a copy on
+another system, ideally off site. Home Assistant Cloud stores one backup of at
+most 5 GB. Also read our guide on
+[backup and security](/en/home-assistant/backup-sikkerhed/).
+
+## Step by step
+
+<Steps>
+1. **Write down your need**
+
+   How many devices are involved? Which radios do you need (Zigbee, Thread,
+   Z-Wave)? Do you need apps? Then choose HAOS, not Container.
+
+2. **Pick hardware from the table**
+
+   If you have a Raspberry Pi 4 or 5 lying around, start there. If you do not
+   want to think about hardware, choose Green. If you have a server, choose a
+   virtual machine.
+
+3. **Install by the right guide**
+
+   Use the links above. This guide does not repeat the installation.
+
+4. **Turn backup on before adding devices**
+
+   Set up automatic backup, save the emergency kit, and copy a backup to
+   another system.
+
+5. **Write down where things are**
+
+   Note the hardware, IP address, where the backup and key are kept, and who
+   can restore.
+</Steps>
+
+## Test it
+
+1. Restart the device. Home Assistant should come back up without you doing
+   anything.
+2. Open **Settings → System → Backups**. You should see an automatic backup and
+   be able to download it.
+3. Open **Settings → System → Storage** and see how much space is left.
+4. Check that the emergency kit file is kept somewhere other than the device.
+
+Only a restore proves that a backup works. Try one on a quiet day, before you
+need it.
+
+## When to move
+
+- You are running out of storage.
+- You need apps and you are running Container.
+- The machine is unstable, or the power supply keeps causing faults.
+
+When you move, follow Home Assistant's instructions for
+[restoring a backup](https://www.home-assistant.io/common-tasks/general/backups/)
+while setting up the new system. The new system needs internet access. Its
+storage must be larger than the old system's used disk space plus at least
+2 GB, and at least 2 GB must be free once the backup has been uploaded. You
+find the used disk space on the old system under **Settings → System →
+Repairs**, the three-dot menu, **System information**. The field is called Disk
+used and sits under Home Assistant Supervisor.
+
+On the welcome screen choose **Upload backup**, or fetch the backup from Home
+Assistant Cloud. Select what to restore, enter the encryption key, and choose
+**Restore backup**. If you change Zigbee radio at the same time, the Zigbee
+network must be migrated separately.
+
+## When something goes wrong
+
+| Symptom | Possible cause | Next step |
+|---|---|---|
+| The mini PC will not boot from the drive | Not UEFI, Secure Boot is on, or the drive is 4Kn | Fix the UEFI settings, or use a drive with 512-byte logical sectors |
+| The Pi is unstable | The power supply may be too weak | Use a power supply that suits the model, and never a computer's USB port |
+| No apps in the menu | You are running Container | Choose HAOS if you need apps |
+| The restore rejects the backup | Too little storage or the wrong encryption key | Use larger storage, and enter the key from the emergency kit |
+| Zigbee is missing after the move | The new system has a different Zigbee radio | Migrate the Zigbee network separately |
+
+## Undo
+
+Switch the old system off, but do not erase it until the new one has run stably
+for a few days. Do not run them at the same time: two systems with the same
+setup run the same automations twice. If you want to go back, switch the new
+system off and start the old one again.
+
+<CardGrid>
+  <Card title="Get started" icon="rocket">
+    See [Getting Started](/en/home-assistant/kom-godt-i-gang/) for the full overview.
+  </Card>
+  <Card title="Safe updates" icon="setting">
+    Read [safe updates](/en/home-assistant/sikre-opdateringer-2026/) before you update.
+  </Card>
+</CardGrid>
+
+## Official sources
+
+Sources reviewed on 14 November 2026. Products and prices change; check them
+with the manufacturer.
+
+- [Home Assistant: installation](https://www.home-assistant.io/installation/)
+- [Home Assistant Green](https://www.home-assistant.io/green/) and [Yellow](https://www.home-assistant.io/yellow/)
+- [Home Assistant: Yellow is no longer produced (blog post, 15 October 2025)](https://www.home-assistant.io/blog/2025/10/15/yellow-end-of-life/)
+- [Home Assistant: Raspberry Pi](https://www.home-assistant.io/installation/raspberrypi/)
+- [Home Assistant: generic x86-64](https://www.home-assistant.io/installation/generic-x86-64/)
+- [Home Assistant: Linux and virtual machines](https://www.home-assistant.io/installation/linux/)
+- [Home Assistant: backups](https://www.home-assistant.io/common-tasks/general/backups/)
+- [Home Assistant 2026.2: add-ons are now called apps](https://www.home-assistant.io/blog/2026/02/04/release-20262/)

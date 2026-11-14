@@ -1,0 +1,409 @@
+---
+title: Vacation mode in Home Assistant
+description: Put vacation behind one toggle. Lower the heating, let lights simulate that someone is home, and get sharper alerts from doors, leaks and smoke.
+lastUpdated: 2026-11-14
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Aside, Badge, Steps, Tabs, TabItem } from '@astrojs/starlight/components';
+
+<Badge text="Intermediate" variant="note" /> <Badge text="45 min" variant="success" />
+
+When you go away, you do not want to think about heating, lamps and alerts one
+by one. Here you gather them behind one toggle, `input_boolean.ferietilstand`.
+Turn it on, and the heating is lowered, the lights simulate that someone is
+home, and the alerts become sharper. Turn it off, and everything is put back,
+whether you do it yourself or Home Assistant sees you arrive.
+
+The guide is built from four helpers and six automations. If automations are
+new to you, begin with
+[your first automation](/en/home-assistant/foerste-automation/). If the message
+should reach several phones, see
+[Send one message to several phones](/en/home-assistant/mobilnotifikationer/).
+
+<Aside type="caution" title="Not a replacement for your alarms">
+Let your smoke alarms and water alarms work on their own. Home Assistant gives
+an extra message while you are away, but a message needs power, internet and a
+phone that receives it.
+
+Do not turn the heating off completely. The Danish Energy Agency
+(Energistyrelsen) writes that you should keep at least 18 °C to avoid mould,
+also when you are not at home. See
+[Spar på varme og køling i hjemmet](https://sparenergi.dk/privat/spar-energi-i-hverdagen/spar-paa-varme-og-vand-i-hjemmet)
+(in Danish). If you want to go lower, check the manual for your heating system
+first.
+</Aside>
+
+## What you get
+
+- The heating goes to a vacation temperature and back to normal when the mode is turned off.
+- Lights that switch on and off with some random offset inside a time window.
+- A message when a door opens while vacation mode is on.
+- A stronger alert for water leaks and smoke while you are away.
+- Automatic end of the mode when a person gets home.
+
+## What you need
+
+- At least one thermostat as a `climate` entity, for example `climate.stue`.
+- One or more lamps Home Assistant can switch on and off.
+- A door sensor, a water leak sensor and a smoke alarm Home Assistant can read.
+- The Home Assistant app on your phone, so you can receive messages.
+- A `person` entity for each resident.
+
+The entity IDs for the thermostat, lamps, sensors, phone and persons in the
+examples are made up. Replace them with your own.
+
+Binary sensors use the states `on` and `off`. For doors, `on` means open; for
+moisture, `on` means wet; and for smoke, `on` means smoke detected. This is
+described in the documentation for
+[binary sensors](https://www.home-assistant.io/integrations/binary_sensor/).
+
+## How vacation mode behaves
+
+| Situation | Result |
+|---|---|
+| Vacation mode is turned on | Heating is set to the vacation temperature |
+| The lighting schedule starts | One lamp switches on after a random delay |
+| The lighting schedule ends | The lamps switch off after a random delay |
+| A door opens during vacation | You get a message |
+| Water leak or smoke | You get a message; a strong one during vacation |
+| A person gets home | Vacation mode is turned off |
+| Vacation mode is turned off | Heating is restored; lamps switch off if the schedule has ended |
+
+## 1. Create the helpers
+
+<Steps>
+1. Go to **Settings → Devices & services → Helpers**, and select
+   **Create helper**.
+2. Create a **Toggle** named `Ferietilstand`.
+3. Create two **Number** helpers named `Feriestemperatur` and
+   `Normal temperatur`. Set your own limits, step and values.
+4. Create a **Schedule** named `Ferielys`. Draw the time blocks when lights
+   should be on, for example the evening every day.
+</Steps>
+
+The names are chosen so the helpers normally get the entity IDs used in the
+examples: `input_boolean.ferietilstand`, `input_number.feriestemperatur`,
+`input_number.normal_temperatur` and `schedule.ferielys`. Open each helper and
+check the entity ID. If it does not match, change the ID there or in the YAML
+examples.
+
+A schedule is `on` inside its time blocks and `off` outside them. It can be
+used as a trigger and a condition, and its `next_event` attribute shows the next
+change. A time block cannot cross midnight; if the lights should stay on past
+midnight, create two blocks that touch each other. See the
+[Schedule documentation](https://www.home-assistant.io/integrations/schedule/).
+A number helper restores its last value after a restart if you have not set an
+initial value in YAML; see
+[Input number](https://www.home-assistant.io/integrations/input_number/).
+
+## 2. Heating: on and off
+
+The action `climate.set_temperature` sets the target; `hvac_mode` can be left
+out so the thermostat keeps its mode. Which features a thermostat has depends on
+the model, so try the action on your own thermostat first. See
+[climate.set_temperature](https://www.home-assistant.io/actions/climate.set_temperature/).
+If your thermostat has a low/high range instead of a single target, the action
+uses the fields `target_temp_low` and `target_temp_high`.
+
+Create two automations.
+
+```yaml title="Automation: Vacation on, heating down"
+alias: "Vacation: heating down"
+description: "Sets the heating to the vacation temperature"
+triggers:
+  - trigger: state
+    entity_id: input_boolean.ferietilstand
+    to: "on"
+
+actions:
+  - action: climate.set_temperature
+    target:
+      entity_id: climate.stue
+    data:
+      temperature: "{{ states('input_number.feriestemperatur') | float }}"
+
+mode: single
+```
+
+```yaml title="Automation: Vacation off, everything back"
+alias: "Vacation: everything back"
+description: "Restores heating and switches off leftover lights when vacation mode ends"
+triggers:
+  - trigger: state
+    entity_id: input_boolean.ferietilstand
+    to: "off"
+
+actions:
+  - action: climate.set_temperature
+    target:
+      entity_id: climate.stue
+    data:
+      temperature: "{{ states('input_number.normal_temperatur') | float }}"
+  - if:
+      - condition: state
+        entity_id: schedule.ferielys
+        state: "off"
+    then:
+      - action: light.turn_off
+        target:
+          entity_id:
+            - light.stue
+            - light.koekken
+
+mode: single
+```
+
+The lamps are only switched off if the schedule is not inside a time block. If
+you get home in the middle of the evening, you control the lights yourself.
+
+The trigger reacts to the change, not to the state. If the toggle is on after a
+restart but the heating is not set, turn the toggle off and on again.
+
+## 3. Lights: simulate presence
+
+The automation reacts when the schedule changes, waits between 1 and 25
+minutes, and switches on or off. A delay can be a template, and a whole number
+means seconds; see [Delay](https://www.home-assistant.io/building-blocks/delay/).
+
+```yaml title="Automation: Vacation lights"
+alias: "Vacation: lights as if someone is home"
+description: "Switches lamps on and off during the schedule's time blocks"
+triggers:
+  - trigger: state
+    entity_id: schedule.ferielys
+    to: "on"
+    id: lys_til
+  - trigger: state
+    entity_id: schedule.ferielys
+    to: "off"
+    id: lys_fra
+
+conditions:
+  - condition: state
+    entity_id: input_boolean.ferietilstand
+    state: "on"
+
+actions:
+  - delay: "{{ range(60, 1500) | random }}"
+  - condition: state
+    entity_id: input_boolean.ferietilstand
+    state: "on"
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: lys_til
+        sequence:
+          - action: light.turn_on
+            target:
+              entity_id: "{{ ['light.stue', 'light.koekken'] | random }}"
+      - conditions:
+          - condition: trigger
+            id: lys_fra
+        sequence:
+          - action: light.turn_off
+            target:
+              entity_id:
+                - light.stue
+                - light.koekken
+
+mode: restart
+```
+
+The condition after the delay checks vacation mode again. If you have come home
+in the meantime, the run stops and the lights are left alone; see
+[Condition](https://www.home-assistant.io/building-blocks/condition/).
+
+The lights only change when the schedule changes. If you turn vacation mode on
+in the middle of a time block, the lights first switch on at the next block.
+
+A waiting run is stopped if Home Assistant restarts, and does not resume. If a
+restart falls in the middle of a delay, the light may therefore miss turning on
+or off that day. Check the lights if you are away for a long time.
+
+## 4. Alerts: door, water leak and smoke
+
+Replace `notify.mobile_app_din_telefon` with your own device. The name of the
+triggering entity can be used in the message as `trigger.to_state.name`; see
+[trigger data](https://www.home-assistant.io/docs/automation/trigger-data/).
+
+```yaml title="Automation: Door opened during vacation"
+alias: "Vacation: door opened"
+description: "Sends a message if a door opens during vacation mode"
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.hoveddoer
+    to: "on"
+
+conditions:
+  - condition: state
+    entity_id: input_boolean.ferietilstand
+    state: "on"
+
+actions:
+  - action: notify.mobile_app_din_telefon
+    data:
+      title: "Vacation: door opened"
+      message: "{{ trigger.to_state.name }} has been opened."
+
+mode: queued
+```
+
+Water leaks and smoke should alert all year round, but during vacation the
+alert should ring through. The Companion app documents critical notifications,
+and the fields differ between the two platforms. The example shows Android;
+switch to the iPhone tab if you use that.
+
+<Tabs>
+  <TabItem label="Android">
+
+```yaml title="Automation: Leak and smoke"
+alias: "Leak and smoke"
+description: "Message always; strong when vacation mode is on"
+triggers:
+  - trigger: state
+    entity_id:
+      - binary_sensor.vandlaekage_koekken
+      - binary_sensor.roegalarm_gang
+    to: "on"
+
+actions:
+  - choose:
+      - conditions:
+          - condition: state
+            entity_id: input_boolean.ferietilstand
+            state: "on"
+        sequence:
+          - action: notify.mobile_app_din_telefon
+            data:
+              title: "Alarm: {{ trigger.to_state.name }}"
+              message: "You are on vacation, and {{ trigger.to_state.name }} has triggered."
+              data:
+                ttl: 0
+                priority: high
+                channel: alarm_stream
+    default:
+      - action: notify.mobile_app_din_telefon
+        data:
+          title: "Alarm: {{ trigger.to_state.name }}"
+          message: "{{ trigger.to_state.name }} has triggered."
+
+mode: queued
+```
+
+  </TabItem>
+  <TabItem label="iPhone">
+
+Use the automation from the Android tab, but replace the innermost `data` block
+with `ttl`, `priority` and `channel` with:
+
+```yaml
+data:
+  push:
+    interruption-level: critical
+```
+
+  </TabItem>
+</Tabs>
+
+On Android, `channel: alarm_stream` plays the message as an alarm, so according
+to the documentation the phone rings even when it is on vibrate or silent.
+`ttl: 0` and `priority: high` make the message appear immediately; they only
+matter when the app does not use local push. By default, Android notifications
+do not override Do Not Disturb; the documentation points to notification
+channels if you want to change that.
+
+On iPhone, critical notifications appear at the top of the lock screen and play
+a sound even when Do Not Disturb is on or the phone is muted. See
+[critical notifications](https://companion.home-assistant.io/docs/notifications/critical-notifications/).
+Try the message on your own phone with the sound off before you leave.
+
+## 5. End automatically when someone gets home
+
+A `person` entity has the state `home`, `not_home` or the name of a zone. A
+state change to `home` can be used as a trigger. According to the
+documentation, after a restart the state is determined by the stationary
+trackers until a GPS tracker sends an update; see the
+[Person documentation](https://www.home-assistant.io/integrations/person/).
+
+```yaml title="Automation: Turn vacation off on arrival"
+alias: "Vacation: someone gets home"
+description: "Turns vacation mode off when a person arrives"
+triggers:
+  - trigger: state
+    entity_id:
+      - person.anna
+      - person.bo
+    to: "home"
+
+conditions:
+  - condition: state
+    entity_id: input_boolean.ferietilstand
+    state: "on"
+
+actions:
+  - action: input_boolean.turn_off
+    target:
+      entity_id: input_boolean.ferietilstand
+
+mode: single
+```
+
+Do not include a guest, a neighbour or a house sitter as a `person` here.
+Otherwise their visit ends vacation mode.
+
+## Test it
+
+1. Turn `Ferietilstand` on, and see that the thermostat's target becomes the
+   vacation temperature.
+2. Add a time block to the schedule that starts in a few minutes, and see that
+   a lamp switches on after the delay.
+3. Open the door sensor, and see that the message arrives.
+4. Try water leak and smoke with the device's own test function if it sends a
+   change to Home Assistant. Otherwise you can set the entity's state to `on`
+   under **Settings → Tools → States**. Before Home Assistant 2026.2 the page
+   was called *Developer tools*. That only changes what Home Assistant shows,
+   not the device, but the automation starts.
+5. Turn the toggle off, and see that heating and lights are restored.
+6. Turn it on again, and let a person arrive in the home zone.
+
+Use [Activity and Traces](/en/home-assistant/aktivitet-og-spor/) to see which
+automations ran.
+
+## Troubleshooting
+
+| Symptom | Possible cause | What to do |
+|---|---|---|
+| The heating does not change | The thermostat uses other fields | Try the action under **Settings → Tools → Actions**, and look at its fields |
+| The lights do not switch on | The schedule has not changed since the toggle was turned on | Check `schedule.ferielys` and the toggle |
+| No message | Wrong notify name | Find your phone among the actions under **Settings → Tools → Actions** |
+| The message does not ring through | The phone's settings silence it | See the section for your platform in the critical notifications documentation |
+| Vacation mode ends while you are away | A tracker reports `home` | Check the person's trackers |
+| Door alerts arrive all year | The condition is missing | Check that the toggle is a condition |
+
+## How to undo it
+
+Turn `Ferietilstand` off. That runs the restore automation and puts heating and
+lights back. To remove everything, delete the six automations and the four
+helpers. Your thermostats, lamps and sensors are unchanged.
+
+The YAML examples are checked for syntax, and the templates for the delay and
+the random lamp were run in the template engine of Home Assistant 2026.11.1.
+The automations have not been run on a live system. Try them step by step
+before you leave.
+
+## Sources
+
+- [Home Assistant: binary sensors](https://www.home-assistant.io/integrations/binary_sensor/)
+- [Home Assistant: Schedule](https://www.home-assistant.io/integrations/schedule/)
+- [Home Assistant: Input number](https://www.home-assistant.io/integrations/input_number/)
+- [Home Assistant: climate.set_temperature](https://www.home-assistant.io/actions/climate.set_temperature/)
+- [Home Assistant: Delay](https://www.home-assistant.io/building-blocks/delay/) and [Condition](https://www.home-assistant.io/building-blocks/condition/)
+- [Home Assistant: trigger data](https://www.home-assistant.io/docs/automation/trigger-data/)
+- [Home Assistant: Person](https://www.home-assistant.io/integrations/person/)
+- [Home Assistant: Tools](https://www.home-assistant.io/docs/tools/dev-tools/)
+- [Companion app: critical notifications](https://companion.home-assistant.io/docs/notifications/critical-notifications/)
+- [Energistyrelsen: saving on heating and cooling at home (in Danish)](https://sparenergi.dk/privat/spar-energi-i-hverdagen/spar-paa-varme-og-vand-i-hjemmet)

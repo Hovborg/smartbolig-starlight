@@ -1,0 +1,266 @@
+---
+title: Smart home i lejebolig uden boring
+description: Byg et smart home i en lejebolig med smarte stikkontakter, pærer og batterisensorer. Se, hvad du selv må, og hvornår du skal spørge udlejeren.
+lastUpdated: 2026-11-14
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Aside, Badge, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+<Badge text="Begynder" variant="success" /> <Badge text="Uden værktøj" variant="note" />
+
+I en lejebolig må du ikke bare bore, skifte eller bygge om. Heldigvis kræver et
+godt smart home det sjældent. Med enheder, der sættes i en stikkontakt, skrues
+i en fatning eller placeres på en hylde, kan du få styring, sensorer og
+automationer, som du kan pakke ned, den dag du flytter.
+
+Her får du overblikket: hvad du kan gøre, hvad du skal lade være med, og hvordan
+du gør flytningen let. Guiden anbefaler hverken mærker eller butikker; den
+beskriver typer af enheder og protokoller og peger videre til sidens
+detaljerede guides.
+
+## Det får du
+
+- Et smart home, der kun består af enheder, du selv kan tage med.
+- Styring af lys og apparater, sensorer og varme.
+- Klar viden om grænsen til den faste installation.
+- En plan for at flytte det hele uden at starte forfra.
+
+## Det skal du bruge
+
+- En Home Assistant-installation, du kan flytte med, for eksempel på en lille
+  computer. Se [Kom godt i gang](/da/home-assistant/kom-godt-i-gang/).
+- Din lejekontrakt, så du ved, hvad der gælder for ændringer og
+  istandsættelse.
+- En plan for, hvordan enhederne snakker sammen: Zigbee, Wi-Fi eller
+  Matter over Thread.
+
+## Hvad du må, og hvad du skal lade være med
+
+Reglerne om elarbejde hører under Sikkerhedsstyrelsen, som siden januar 2026 er
+en del af Erhvervsstyrelsen. Vejledningen på sik.dk er et fælles udgangspunkt,
+ikke en afgørelse om din bolig.
+
+| Du kan | Du skal lade være med |
+|---|---|
+| Sætte en smart stikkontakt i en eksisterende stikkontakt | At sætte en ny afbryder eller stikkontakt op, hvor der ikke har siddet en før |
+| Skrue smarte pærer i en eksisterende fatning | At arbejde i måler, tavle eller faste ledninger |
+| Placere batterisensorer og trådløse knapper | At tilslutte eller frakoble noget, der ikke har et stik, for eksempel fast tilsluttede hårde hvidevarer |
+| Tilslutte apparater, der har en stikprop | At montere moduler bag afbrydere eller i lampeudtag |
+
+Sikkerhedsstyrelsen skriver, at en privatperson eller virksomhed uden
+autorisation aldrig må arbejde på de faste elinstallationer, og at det også
+gælder hårde hvidevarer. Man må kun koble et elprodukt til eller fra, hvis det
+kan gøres med et stik i eller ud af en stikkontakt. Ellers er det arbejde for en
+autoriseret virksomhed. Se
+[Hvilke elprodukter må du selv slutte til eller koble fra?](https://www.sik.dk/privat/gor-det-sikkert/el/brug-elprodukter-sikkert/hvilke-elprodukter-ma-du-selv-slutte-eller-koble).
+
+Samme myndighed skriver, at det ikke er tilladt at sætte en ny afbryder eller
+stikkontakt op i den faste installation, hvis der ikke har siddet en på samme
+sted før. Du må aldrig selv etablere en stikkontakt. Se
+[Sådan skifter du en stikkontakt](https://www.sik.dk/privat/goer-det-sikkert/el/goer-det-selv/saadan-skifter-du-stikkontakt).
+
+Hvad enhver må udføre selv, står i
+[bekendtgørelse nr. 560 af 30. maj 2017](https://www.retsinformation.dk/eli/lta/2017/560).
+På elområdet nævner den blandt andet udskiftning af afbrydere og stikkontakter
+for højst 250 V på bestemte betingelser og opsætning og nedtagning af lamper.
+Sikkerhedsstyrelsen skriver i vejledningen om at skifte en stikkontakt, at
+betingelsen er, at du ved, hvordan du gør det rigtigt. I en lejebolig har
+ejeren ansvaret for de faste elinstallationer, så spørg udlejeren, før du
+skifter noget. Se
+[Hvilket elarbejde må du lave uden en autorisation?](https://www.sik.dk/privat/goer-det-sikkert/el/goer-det-selv/hvilket-elarbejde-maa-du-lave-uden-autorisation).
+
+<Aside type="caution" title="Moduler bag afbrydere">
+Et smart relæ, der monteres bag en afbryder eller i et lampeudtag, bliver en
+del af den faste installation. Den slags moduler er ikke nævnt i
+bekendtgørelsens liste over arbejde, enhver må udføre, og de sider på sik.dk,
+vi har læst, omtaler dem ikke. Lad derfor en autoriseret elinstallatør montere
+dem.
+
+Sikkerhedsstyrelsen skriver, at ejeren har ansvaret for de faste
+elinstallationer, også når boligen er lejet ud. Få derfor udlejerens skriftlige
+ja først. Se
+[Dit ansvar som ejer af lejeboliger](https://www.sik.dk/privat/goer-det-sikkert/el/el-lejeboliger/dit-ansvar-ejer-lejeboliger).
+Brug ellers en smart stikkontakt eller en pære.
+</Aside>
+
+### Lejeloven: spørg udlejeren skriftligt
+
+Det følgende gengiver, hvad loven siger. Det er ikke juridisk rådgivning, og vi
+kan ikke afgøre, hvad der gælder i dit lejemål.
+
+Lejeloven gælder for leje af hus eller rum, men ikke for almene boliger (§ 1).
+Loven siger:
+
+- **§ 141:** Lejeren må ikke uden udlejerens samtykke foretage ændringer af det
+  lejede eller anbringe andre indretninger eller genstande end dem, der er
+  nævnt i §§ 142-145.
+- **§ 142, stk. 1:** Lejeren har ret til at foretage sædvanlige installationer i
+  det lejede, medmindre udlejeren kan godtgøre, at ejendommens el- og
+  afløbskapacitet ikke er tilstrækkelig til installationen. Lejeren skal give
+  udlejeren meddelelse, inden installationen foretages.
+- **§ 142, stk. 3:** Lejeren er erstatningsansvarlig for skade, der er forårsaget
+  af de installationer, lejeren har foretaget. Udlejeren kan kræve, at lejeren
+  stiller sikkerhed for erstatningsansvaret.
+- **§ 147:** Tvister om lejerens rettigheder og forpligtelser efter kapitlet
+  afgøres af huslejenævnet.
+
+Loven definerer ikke, hvad en »sædvanlig installation« er. Skriv derfor til din
+udlejer, før du sætter noget op, der sidder fast i boligen eller ændrer den,
+for eksempel en radiatortermostat eller noget, der skal skrues i væggen.
+Beskriv, hvad du vil montere, og gem svaret. Lejekontrakten og husordenen kan
+have egne regler.
+
+Teksten er fra
+[lov om leje](https://www.retsinformation.dk/eli/lta/2022/341) (lov nr. 341 af
+22. marts 2022) med de ændringslove, Retsinformation viste 14. november 2026.
+Tjek altid den gældende tekst.
+
+Bor du i en almen bolig, gælder
+[lov om leje af almene boliger](https://www.retsinformation.dk/eli/lta/2019/928)
+i stedet. Dens § 35 har samme ordlyd om sædvanlige installationer. Spørg din
+boligorganisation.
+
+Reglerne om autorisation gælder ved siden af lejeloven. Retten til en
+installation ændrer ikke på, hvem der må udføre elarbejdet.
+
+Vil du montere en radiatortermostat, så skift kun termostathovedet, ikke
+ventilen, og lad rørene være. Sikkerhedsstyrelsens side om vvs-arbejde nævner
+ikke radiatortermostater. Den skriver, at du gerne må udskifte en radiator, men
+at der ved fjernvarme kan være lokale bestemmelser. Spørg derfor udlejeren, og
+ved fjernvarme også forsyningsselskabet, hvis du er i tvivl. Se
+[Hvilket vvs-arbejde må du lave uden en autorisation?](https://www.sik.dk/privat/goer-det-sikkert/gas-vand-og-afloeb/hvilket-vvs-arbejde-maa-du-lave-uden-autorisation).
+
+## Sådan gør du
+
+<Steps>
+1. Læs kontrakten, og skriv til udlejeren, før du ændrer noget, der sidder
+   fast i boligen.
+2. Vælg en protokol til sensorer og knapper. Se afsnittet nedenfor.
+3. Start med lys og stikkontakter, der kan sættes i og tages ud igen.
+4. Tilføj batterisensorer for temperatur, åbning og bevægelse.
+5. Tilføj radiatortermostater i de rum, hvor du vil styre varmen, når
+   udlejeren har sagt ja.
+6. Notér enhedernes opsætning, og tag en backup.
+</Steps>
+
+### Stikkontakter
+
+En smart stikkontakt sidder mellem væggen og apparatet. Den kan tænde og
+slukke, og nogle kan måle forbruget. Vælg en, der er beregnet til apparatets
+effekt, og sammenlign mærkningen på stikkontakten og apparatet. Brug den ikke
+til apparater, der er fast tilsluttet. Se
+[Energistyring](/da/produkter/energistyring/) om at måle forbrug.
+
+### Pærer
+
+Smarte pærer skrues i den eksisterende fatning. Slukker du på afbryderen på
+væggen, mister pæren strømmen og kan ikke længere styres. Med en trådløs knap
+kan du styre lyset uden at røre afbryderen. Se
+[Smart belysning](/da/produkter/smart-belysning/).
+
+### Sensorer og knapper
+
+Batterisensorer kan stå på en hylde eller sidde med klæbestrimler. Tjek
+kontrakten for krav om afleveringstilstand, før du klæber noget fast. Se
+[Zigbee-sensorer](/da/produkter/zigbee-sensorer/).
+
+### Radiatortermostater
+
+En smart radiatortermostat erstatter det manuelle termostathoved og styrer
+ventilens åbning. Se [Smart termostater](/da/produkter/smart-termostater/). Gem
+det gamle hoved, så du kan sætte det tilbage, når du flytter.
+
+## Vælg protokol
+
+| Protokol | Kort om den | Læs mere |
+|---|---|---|
+| Zigbee | Eget radionet med en koordinator; mesh | [Zigbee-koordinatorer](/da/produkter/zigbee-koordinatorer/) |
+| Wi-Fi | Ingen ekstra hub; afhænger af dit netværk | [Wi-Fi-enheder](/da/produkter/wifi-enheder/) |
+| Matter over Thread | Åben standard; kræver en Thread-grænserouter | [Matter og Thread](/da/home-assistant/thread-matter/) |
+
+Til Zigbee kan du bruge enten
+[Zigbee2MQTT](/da/home-assistant/zigbee2mqtt/) eller
+[ZHA](/da/home-assistant/zha-enhedshaandtering/). Home Assistants
+ZHA-dokumentation skriver, at en Zigbee-enhed kun kan være forbundet til én
+koordinator. Har den været brugt i et andet Zigbee-system, skal den nulstilles
+til fabriksindstillinger, før den kan tilføjes.
+
+Matter-enheder parres med en QR-kode eller en talkode. Home Assistant anbefaler
+at tage et billede af koden, fordi du skal bruge den igen, hvis enheden
+nulstilles. Matter-enheder på Wi-Fi og Thread-grænseroutere skal være på samme
+LAN/VLAN som Home Assistant.
+
+## Sådan tager du det hele med
+
+<CardGrid>
+  <Card title="Tag koordinatoren med" icon="rocket">
+    Zigbee-enhederne er forbundet til din koordinator. Tag både den og
+    Home Assistant-computeren med.
+  </Card>
+  <Card title="Tag en backup" icon="open-book">
+    Se [Backup og sikkerhed](/da/home-assistant/backup-sikkerhed/). ZHA tager
+    automatisk backup af sit Zigbee-netværk.
+  </Card>
+  <Card title="Giv Wi-Fi-enheder det nye netværk" icon="setting">
+    Får du nyt netværksnavn eller ny adgangskode, skal Wi-Fi-enhederne sættes
+    op på det nye netværk. Hvordan det gøres, afhænger af enheden; læs
+    producentens vejledning.
+  </Card>
+  <Card title="Gem Matter-koderne" icon="document">
+    Du skal bruge QR-koden eller talkoden igen, hvis en Matter-enhed
+    nulstilles.
+  </Card>
+</CardGrid>
+
+Skifter du til en ny Zigbee-radio, beskriver ZHA-dokumentationen en migrering,
+hvor enhederne normalt melder sig igen inden for en time. Se
+[ZHA-dokumentationen](https://www.home-assistant.io/integrations/zha/).
+Gem termostathovederne og de oprindelige pærer fra boligen, så du kan sætte
+dem tilbage.
+
+Se i lejekontrakten, hvordan boligen skal afleveres, når du flytter. Fjern
+klæbestrimler forsigtigt, og sæt de gamle pærer og termostathoveder tilbage.
+
+## Test det
+
+1. Tænd og sluk en smart stikkontakt fra Home Assistant, og kontrollér, at
+   apparatet følger med.
+2. Åbn en dør med en sensor, og se, at tilstanden skifter i Home Assistant.
+3. Skift temperaturmål på en radiatortermostat, og se, at ventilen reagerer.
+4. Tag Home Assistant-computeren og koordinatoren af strøm, sæt dem til igen,
+   og se, at enhederne kommer tilbage.
+5. Tag en backup, og kontrollér, at du kan finde den.
+
+## Fejlfinding
+
+| Symptom | Mulig årsag | Hvad du gør |
+|---|---|---|
+| Pære kan ikke styres | Afbryderen på væggen er slukket | Lad afbryderen stå tændt; brug en trådløs knap |
+| Enhed kan ikke tilføjes | Den hører til et andet system | Nulstil den efter producentens vejledning |
+| Wi-Fi-enhed er væk efter flytning | Nyt netværksnavn eller ny adgangskode | Sæt den op på det nye netværk |
+| Thread-enhed svarer ikke | Ingen grænserouter i nærheden | Se [Matter og Thread](/da/home-assistant/thread-matter/) |
+| Termostat passer ikke på ventilen | Forkert adapter | Se producentens liste over ventiler |
+
+## Sådan fortryder du det
+
+Fjern enhederne i omvendt rækkefølge: termostater, sensorer, pærer og
+stikkontakter. Sæt de oprindelige dele tilbage, og slet enhederne i Home
+Assistant, så de ikke står som utilgængelige. Har du hverken boret eller ændret
+noget, er boligen som før.
+
+## Kilder
+
+- [Sikkerhedsstyrelsen: Hvilke elprodukter må du selv slutte til eller koble fra?](https://www.sik.dk/privat/gor-det-sikkert/el/brug-elprodukter-sikkert/hvilke-elprodukter-ma-du-selv-slutte-eller-koble)
+- [Sikkerhedsstyrelsen: Sådan skifter du en stikkontakt](https://www.sik.dk/privat/goer-det-sikkert/el/goer-det-selv/saadan-skifter-du-stikkontakt)
+- [Sikkerhedsstyrelsen: Hvilket elarbejde må du lave uden en autorisation?](https://www.sik.dk/privat/goer-det-sikkert/el/goer-det-selv/hvilket-elarbejde-maa-du-lave-uden-autorisation)
+- [Sikkerhedsstyrelsen: Dit ansvar som ejer af lejeboliger](https://www.sik.dk/privat/goer-det-sikkert/el/el-lejeboliger/dit-ansvar-ejer-lejeboliger)
+- [Sikkerhedsstyrelsen: Hvilket vvs-arbejde må du lave uden en autorisation?](https://www.sik.dk/privat/goer-det-sikkert/gas-vand-og-afloeb/hvilket-vvs-arbejde-maa-du-lave-uden-autorisation)
+- [Bekendtgørelse nr. 560 af 30. maj 2017 om simple arbejder, som enhver må udføre](https://www.retsinformation.dk/eli/lta/2017/560)
+- [Lov om leje (lov nr. 341 af 22. marts 2022)](https://www.retsinformation.dk/eli/lta/2022/341)
+- [Lov om leje af almene boliger (lovbekendtgørelse nr. 928 af 4. september 2019)](https://www.retsinformation.dk/eli/lta/2019/928)
+- [Home Assistant: ZHA](https://www.home-assistant.io/integrations/zha/)
+- [Home Assistant: Matter](https://www.home-assistant.io/integrations/matter/)

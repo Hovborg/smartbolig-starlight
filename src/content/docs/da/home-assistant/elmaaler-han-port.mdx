@@ -1,0 +1,291 @@
+---
+title: Elmåleren i Home Assistant via HAN-porten
+description: Læs elforbruget live fra elmålerens HAN-port. Få porten åbnet, få nøglerne fra netselskabet, og vis tallene i Home Assistants Energi-dashboard.
+lastUpdated: 2026-11-14
+sidebar:
+  badge:
+    text: Guide
+    variant: note
+---
+
+import { Aside, Card, CardGrid, Steps } from '@astrojs/starlight/components';
+
+Elmålerens egen port sender tal løbende, så du kan se, hvad en kogeplade eller en
+varmepumpe trækker, mens det sker. Denne guide fører dig fra målerens port til
+Energi-dashboardet i Home Assistant.
+
+Du får et live-tal for effekt og en tæller for energi, som Energi-dashboardet kan
+bruge. Du skal bruge en elmåler, hvor porten kan åbnes, en læser, som Home
+Assistant kan tale med, og tålmodighed med netselskabet. Home Assistant skal
+allerede køre; se [Kom godt i gang](/da/home-assistant/kom-godt-i-gang/), hvis ikke.
+
+## Hvad er HAN-porten
+
+Porten har flere navne. Green Power Denmarks
+[branchestandard](https://greenpowerdenmark.dk/files/media/document/Branchestandard-for-fjernaflaeste-elmaaleres-eksterne-port.pdf)
+nævner H1-port, P1-port (hollandsk) og HAN-port (norsk) som navne for den samme
+kundegrænseflade og bruger selv H1. Radius, Flow Elnet og TREFOR skriver
+HAN-port, så det gør vi også.
+
+[Målerbekendtgørelsens § 7](https://www.retsinformation.dk/eli/lta/2023/477)
+giver dig ret til efter åbne standarder at tilkoble eksterne enheder til den
+fjernaflæste elmåler og løbende udtage forbrugsrelevante data. Overførslen skal
+være sikret med kryptering eller lignende. Tilkoblingen skal kunne foretages af
+lægmand uden at bryde plomber. Energistyrelsen skriver i sin
+[fortolkning af § 7](https://ens.dk/media/447/download), at netvirksomheden skal
+udlevere de nøgler, der passer til softwaren i måleren. Den fysiske udformning
+og den konkrete standard vælger netselskabet selv. Derfor kan din måler afvige
+fra eksemplerne her.
+
+Branchestandarden fra februar 2023 beskriver, hvordan porten bør fungere på
+målere, der købes fremover. Porten sender kun data ud, mindst hvert 10. sekund.
+Den er deaktiveret fra start, netselskabet åbner den efter anmodning, og første
+aktivering må ikke koste kunden noget. Standarden gælder ikke nødvendigvis den
+måler, du har i dag; læs netselskabets egne vilkår. Den siger også, at tallene
+er af statistisk karakter og ikke er faktureringsværdier.
+
+<Aside type="caution" title="Bryd aldrig en plombe">
+Du må selv sætte en læser i HAN-porten. Du må ikke bryde plomber, og du må
+ifølge Sikkerhedsstyrelsen ikke selv udføre elarbejde i måler- eller
+gruppetavlen. Følg netselskabets og leverandørens vejledning. Er du i tvivl om,
+hvilket dæksel du må tage af, så spørg netselskabet først. Arbejde i tavlen
+hører til hos en autoriseret elinstallatørvirksomhed.
+</Aside>
+
+## Det skriver fire netselskaber
+
+Fremgangsmåden er forskellig fra selskab til selskab. Sådan stod der på fire
+netselskabers egne sider den 14. november 2026:
+
+| Netselskab | Sådan får du adgang |
+|---|---|
+| [Radius Elnet](https://radiuselnet.dk/din-tilslutning/bestil-krypteringsnoegle/) | Måleren er fra Kamstrup. HAN-porten sidder under et dæksel, og du køber selv et HAN-modul, der passer til måleren. Du bestiller en eller to krypteringsnøgler og får dem på mail. |
+| [Cerius](https://cerius.dk/din-tilslutning/bestil-krypteringsnoegle/) | Du bestiller portåbning og eventuel krypteringsnøgle på én gang. Cerius skriver, at det normalt er gennemført på 30 minutter og sker uden beregning. |
+| [Flow Elnet](https://flow-elnet.dk/hent-data-fra-din-maaler) | På nyere målere er porten lukket fra fabrikken. Flow Elnet åbner den eller sender en kode på mail inden for 1-2 uger. På Kamstrup 382M, 382L og 351 C er porten allerede åben. |
+| [TREFOR El-net](https://www.trefor.dk/kunde/elmaaler/) | Husholdningsmålere kan udskiftes til en nyere model med HAN-port. Du betaler et gebyr efter selskabets prisliste. |
+
+Andre netselskaber har egne regler, og dem har vi ikke læst. Find dit eget
+netselskabs side, før du køber noget. Målere, der var i drift før 3. december
+2013, må efter målerbekendtgørelsens § 12 blive siddende, selv om de ikke
+opfylder kravene til porten.
+
+## Vælg en læser
+
+| Løsning | Passer til | Det skal du vedligeholde |
+|---|---|---|
+| Færdig læser med Home Assistant-integration | Du vil have det enkelt | Producentens firmware og understøttelse |
+| ESP32 med ESPHome og en adapter, der passer til måleren | Du vil bygge og styre alt selv | Konfigurationsfil, nøgle og ESPHome-opdateringer |
+| Home Assistants DSMR-integration | Hollandske, belgiske, luxembourgske og svenske DSMR-målere | Ikke dokumenteret for danske målere |
+
+Home Assistants [DSMR-integration](https://www.home-assistant.io/integrations/dsmr/)
+nævner ikke Danmark, og den skriver, at svenske målere med HAN-port ikke er
+understøttet. Kontrollér derfor en færdig læsers egen dokumentation for din
+målertype og dit netselskab, før du køber den. Vi kan ikke vide, hvilke læsere
+der virker hos dig.
+
+Selvbyg følger ESPHomes komponent
+[DLMS Meter](https://esphome.io/components/sensor/dlms_meter/). Den lytter kun og
+sender intet til måleren. ESPHome viser særlige opsætninger til blandt andet
+Kamstrup Omnipower og Landis+Gyr E450. ESPHome anbefaler kraftigt en ESP32, fordi
+en ESP8266 ikke egner sig til store pakker. Du skal også bruge en adapter mellem
+måler og ESP, for eksempel et M-Bus til UART-modul. Hvilken adapter der passer,
+afhænger af målerens stik; spørg leverandøren, om den passer til din målertype.
+
+## Trin for trin
+
+<Steps>
+1. **Find din målertype og dit netselskab**
+
+   Netselskabet driver elnettet og har ansvaret for elmåleren hos dig. Det er
+   ikke det samme som elleverandøren, som du køber strømmen af. Målerens type og nummer står på
+   selve måleren. Find netselskabets side om adgang til måledata.
+
+2. **Bed om åbning og nøgler**
+
+   Brug netselskabets formular. Radius' formular spørger blandt andet efter
+   aftagenummer og målernummer. Spørg leverandøren af dit modul, hvilken
+   nøgletype du skal bestille; Radius skelner mellem én nøgle og to nøgler til
+   DLMS/COSEM-protokollen. Priser og frister er forskellige fra selskab til
+   selskab.
+
+3. **Sæt læseren til**
+
+   Montér modulet efter leverandørens vejledning. Radius skriver, at du oftest
+   selv kan tilslutte et HAN-modul direkte i måleren. Bryd ingen plomber. Til
+   ESPHome forbinder du adapterens dataudgang med en UART-indgang på din ESP32.
+
+4. **Konfigurér læseren**
+
+   ESPHome oplyser ingen baudrate eller pin til danske målere. Den skriver kun,
+   at UART-indstillingerne afhænger af din måler. Tag dem fra adapterens
+   vejledning. Gem nøglen i ESPHomes `secrets.yaml`, aldrig i et offentligt
+   repository.
+
+5. **Tilføj enheden i Home Assistant**
+
+   Gå til **Indstillinger → Enheder & tjenester**. En opdaget ESPHome-enhed kan
+   sættes op med det samme. Ellers vælger du **Tilføj integration → ESPHome** og
+   indtaster værtsnavn eller IP-adresse. Se
+   [ESPHome-integrationen](https://www.home-assistant.io/integrations/esphome/).
+
+6. **Kontrollér tallene mod målerens display**
+
+   Sammenlign energitælleren i Home Assistant med kWh-tallet på målerens
+   display. Afviger de med en fast faktor, for eksempel 100 eller 1000, passer
+   enheden ikke. Ret den, før du går videre; se afsnittet om enheder nedenfor.
+
+7. **Føj måleren til Energi**
+
+   Gå til **Indstillinger → Betjeningspaneler → Energi** (engelsk: Settings →
+   Dashboards → Energy). Under **Elnet** vælger du **Tilføj forbindelse til
+   elnettet** (Add grid connection). Vælg energisensoren for forbrug fra nettet
+   og, hvis du har solceller, energisensoren for eksport. Vælg tælleren i kWh
+   eller Wh her, ikke effektsensoren. Resten står i
+   [Energy Dashboard](/da/home-assistant/energy-dashboard/).
+</Steps>
+
+### Eksempel til ESPHome
+
+Eksemplet følger ESPHomes egne eksempler. Alt med store bogstaver skal du
+erstatte. Pin og baudrate kommer fra adapterens vejledning, og nøglerne kommer
+fra netselskabet.
+
+```yaml
+uart:
+  id: uart_dlms_bus
+  rx_pin: GPIOXX
+  baud_rate: BAUDRATE_FRA_ADAPTERENS_VEJLEDNING
+
+dlms_meter:
+  id: dlms_meter_hub
+  uart_id: uart_dlms_bus
+  decryption_key: !secret han_decryption_key
+  # auth_key: !secret han_auth_key   # kun hvis din måler kræver den
+
+sensor:
+  - platform: dlms_meter
+    dlms_meter_id: dlms_meter_hub
+    obis_code: "1.0.1.8.0.255"
+    name: "Energi fra nettet"
+    unit_of_measurement: "kWh"
+    accuracy_decimals: 3
+    device_class: energy
+    state_class: total_increasing
+
+  - platform: dlms_meter
+    dlms_meter_id: dlms_meter_hub
+    obis_code: "1.0.2.8.0.255"
+    name: "Energi til nettet"
+    unit_of_measurement: "kWh"
+    accuracy_decimals: 3
+    device_class: energy
+    state_class: total_increasing
+
+  - platform: dlms_meter
+    dlms_meter_id: dlms_meter_hub
+    obis_code: "1.0.1.7.0.255"
+    name: "Effekt fra nettet"
+    unit_of_measurement: "W"
+    device_class: power
+    state_class: measurement
+
+  - platform: dlms_meter
+    dlms_meter_id: dlms_meter_hub
+    obis_code: "1.0.2.7.0.255"
+    name: "Effekt til nettet"
+    unit_of_measurement: "W"
+    device_class: power
+    state_class: measurement
+```
+
+OBIS-koderne er dem, ESPHome selv viser: `1.0.1.8.0.255` er energi taget fra
+nettet, `1.0.2.8.0.255` er energi sendt til nettet, `1.0.1.7.0.255` er effekt
+fra nettet, og `1.0.2.7.0.255` er effekt til nettet. Branchestandardens tabel
+har de samme fire størrelser (1.8.0, 2.8.0, 1.7.0 og 2.7.0). De to sensorer
+"til nettet" er kun relevante, hvis du har solceller.
+
+Din måler sender ikke nødvendigvis alle koder. ESPHomes side viser, hvordan du
+midlertidigt sætter logniveauet til `VERBOSE`. Så skriver komponenten de
+OBIS-koder og værdier, den kan læse, i loggen. Sæt logniveauet tilbage bagefter.
+ESPHome skriver, at et højt logniveau kan påvirke ydelsen og bruge mere
+hukommelse.
+
+Har du en Kamstrup Omnipower, viser ESPHome en særlig opsætning med et ekstra
+`custom_patterns`-afsnit. Kopiér den fra ESPHomes side. ESPHome har to
+nøglefelter, `decryption_key` og `auth_key`. Har du fået to nøgler, så spørg
+netselskabet eller leverandøren, hvilken der er hvilken.
+
+### Enheder: kontrollér, før du stoler på tallet
+
+ESPHome skriver, at `unit_of_measurement` kun er en etiket og ikke regner noget
+om. ESPHomes eksempel bruger kWh for energi. Komponentens tidligere faste nøgler
+brugte W for effekt og Wh for energi. Branchestandarden angiver kW og kWh. Du
+kan derfor ikke vide på forhånd, hvilken enhed din måler sender.
+
+Sammenlign med målerens display. Passer tallet ikke, så ret
+`unit_of_measurement`, eller tilføj et
+[`multiply`-filter](https://esphome.io/components/sensor/) på sensoren, til
+tallet svarer til displayet.
+
+ESPHome har udfaset de tidligere faste nøgler som `voltage_l1` og indstillingen
+`provider`. De fjernes i ESPHome 2026.11.0. Brug `obis_code`.
+
+## Test det
+
+1. Åbn den nye enhed i Home Assistant. Effekten skal ændre sig løbende, og ingen
+   sensor må stå som `unavailable`. Branchestandarden nævner mindst hvert
+   10. sekund for nye målere; din måler kan sende i en anden takt.
+2. Tænd en kendt belastning, for eksempel en elkedel. Effekten skal stige med
+   omtrent det, der står på kedlens mærkeplade, og falde igen, når du slukker.
+3. Notér tælleren i Home Assistant og på målerens display på samme tidspunkt.
+   Vent en time eller et døgn, og sammenlign ændringen. Små forskelle er
+   normale, fordi portens tal er af statistisk karakter.
+4. Kontrollér under **Indstillinger → Værktøjer → Statistikker** (engelsk:
+   Settings → Tools → Statistics), at energisensoren ikke har fejl. Home
+   Assistant skriver selv, at der kan gå op til 2 timer, før nye data vises i
+   Energi.
+
+## Når der ikke kommer data
+
+| Symptom | Mulig årsag | Næste skridt |
+|---|---|---|
+| Intet i loggen | Porten er stadig lukket, eller modulet er ikke aktiveret | Spørg netselskabet, om åbningen er udført |
+| Pakker kommer, men værdier mangler | Forkert nøgle, manglende `auth_key` eller manglende `custom_patterns` til din målertype | Kontrollér nøgletypen, og sammenlign med ESPHomes opsætning til din måler |
+| Utydelige eller tomme tal | Forkert baudrate, paritet eller pin | Ret UART efter adapterens vejledning |
+| Store pakker går tabt | ESP8266 eller for lille buffer | Brug en ESP32; ESPHomes UART-side nævner `rx_buffer_size` til store datamængder |
+| Tallet er 100 eller 1000 gange for stort eller småt | Enheden på sensoren passer ikke til det, måleren sender | Ret `unit_of_measurement`, eller brug et `multiply`-filter |
+| Sensoren kan ikke vælges i Energi | `device_class`, `state_class` eller enhed mangler | Sæt dem som i eksemplet, og vent på statistik |
+| Dataene forsvandt pludseligt | Porten kan være deaktiveret, for eksempel ved kundeskifte | Bed netselskabet om at åbne porten igen |
+
+Er forbruget dobbelt eller negativt i Energi, så se
+[fejlfinding i Energy Dashboard](/da/home-assistant/energy-dashboard/).
+
+## Fortryd
+
+Fjern forbindelsen til elnettet under **Indstillinger → Betjeningspaneler →
+Energi**, slet ESPHome-enheden under **Enheder & tjenester**, og tag læseren ud
+af porten. Historikken i Home Assistant er uændret. Skal porten lukkes, beder du
+netselskabet om at deaktivere den. Har en nøgle ligget i en fil, som andre har
+haft adgang til, så bed netselskabet om en ny.
+
+<CardGrid>
+  <Card title="Næste skridt" icon="rocket">
+    Valider tallene i [Energy Dashboard](/da/home-assistant/energy-dashboard/) og tilføj [elpriser](/da/home-assistant/elpris-integration/).
+  </Card>
+  <Card title="Overblik over måling" icon="setting">
+    Sammenlign med andre måleformer i [energistyring](/da/produkter/energistyring/).
+  </Card>
+</CardGrid>
+
+## Officielle kilder
+
+Kilder gennemgået 14. november 2026. Netselskabers vilkår, priser og frister
+ændrer sig; tjek dem hos dit eget selskab.
+
+- [Retsinformation: bekendtgørelse nr. 477 af 10. maj 2023 om fjernaflæste elmålere](https://www.retsinformation.dk/eli/lta/2023/477)
+- [Energistyrelsen: vejledende fortolkning af målerbekendtgørelsens § 7](https://ens.dk/media/447/download)
+- [Green Power Denmark: branchestandard for elmåleres eksterne port](https://greenpowerdenmark.dk/files/media/document/Branchestandard-for-fjernaflaeste-elmaaleres-eksterne-port.pdf)
+- [Sikkerhedsstyrelsen: elarbejde, du må lave uden autorisation](https://www.sik.dk/privat/goer-det-sikkert/el/goer-det-selv/hvilket-elarbejde-maa-du-lave-uden-autorisation) og folderen [Gør det elsikkert](https://www.sik.dk/sites/default/files/2018-10/gordetelsikkert_2.pdf)
+- [Radius Elnet](https://radiuselnet.dk/din-tilslutning/bestil-krypteringsnoegle/), [Cerius](https://cerius.dk/din-tilslutning/bestil-krypteringsnoegle/), [Flow Elnet](https://flow-elnet.dk/hent-data-fra-din-maaler) og [TREFOR El-net](https://www.trefor.dk/kunde/elmaaler/)
+- [ESPHome: DLMS Meter](https://esphome.io/components/sensor/dlms_meter/), [UART](https://esphome.io/components/uart/), [Sensor](https://esphome.io/components/sensor/) og [komponentens kildekode](https://github.com/esphome/esphome/blob/dev/esphome/components/dlms_meter/sensor.py)
+- [Home Assistant: ESPHome](https://www.home-assistant.io/integrations/esphome/), [DSMR](https://www.home-assistant.io/integrations/dsmr/), [Energy: elnet](https://www.home-assistant.io/docs/energy/electricity-grid/) og [Energy: spørgsmål og svar](https://www.home-assistant.io/docs/energy/faq/)

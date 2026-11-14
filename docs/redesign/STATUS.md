@@ -52,12 +52,11 @@ Sidst opdateret: 2026-11-14.
     dato pr. side, bannere til have og energi, fejl i `docs/designsystem.md` og
     `docs/3d-hus.md`. `npm run site:test` er grøn (151 tests).
   - Mangler på resten af siden: assistentens udseende.
-- **Grene, der venter på at blive flettet som egne bidder efter runde 2:**
-  - `content/new-guides-a` (`a9aeefd`): elmåler via HAN-port, valg af hardware, solceller og
-    batteri. Gennemgået og rettet af en uafhængig model 2026-11-14.
-  - `content/new-guides-b` (`d7c3728`): billige timer, ferietilstand, smart home i lejebolig.
-    Gennemgået og rettet af en uafhængig model 2026-11-14. Automationerne er ikke kørt på et
-    anlæg; skabelonerne er regnet efter.
+- **Seks nye guides** (grenen `content/new-guides`, samlet af `content/new-guides-a` og `-b`):
+  elmåler via HAN-port, valg af hardware, solceller og batteri, billige timer, ferietilstand,
+  smart home i lejebolig. Gennemgået og rettet af en uafhængig model 2026-11-14 mod officielle
+  kilder. Ikke afprøvet: automationerne er ikke kørt på et anlæg (skabelonerne i billige timer
+  er regnet efter mod en uafhængig beregning), og netselskaber ud over de nævnte er ikke læst.
 - **CSP, kortlagt 2026-11-14 (til fase 5):** `script-src` har `'unsafe-inline'`, fordi siden har
   8–12 inline-scripts pr. side (samtykke/gtag, sprogcookie, tema før første tegning, Starlights
   søge- og sidemenuscripts og små Astro-moduler under 4 KB). `script-src-attr 'none'` er sat,

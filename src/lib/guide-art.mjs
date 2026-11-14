@@ -33,8 +33,8 @@ export const GUIDE_ARTS = {
     en: "3D model of the house at night with door lock and camera highlighted",
   },
   diy: {
-    da: "3D-model af huset, hvor en hjemmebygget sensor er forbundet til hubben",
-    en: "3D model of the house with a home-built sensor linked to the hub",
+    da: "Et ESP32-udviklingskort på et breadboard med sensor, lysdiode og ledninger, og en telefon der viser målingen",
+    en: "An ESP32 development board on a breadboard with a sensor, an LED and jumper wires, and a phone showing the reading",
   },
   network: {
     da: "Huset set ovenfra om natten med forbindelserne mellem enhederne og hubben",
