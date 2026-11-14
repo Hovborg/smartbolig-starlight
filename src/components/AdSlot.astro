@@ -1,0 +1,53 @@
+---
+// One fixed AdSense place. Renders nothing until the place has an ad unit
+// number in src/data/ad-slots.mjs, and stays hidden until the visitor has
+// said yes to ads (src/lib/ad-slots.mjs). docs/indtjening.md.
+import { AD_SLOTS } from "../data/ad-slots.mjs";
+import { ADS_PUBLISHER } from "../lib/consent/ids.mjs";
+
+interface Props {
+  place: keyof typeof AD_SLOTS;
+}
+
+const unit = AD_SLOTS[Astro.props.place];
+const label = Astro.url.pathname.startsWith("/en/") ? "Advertisement" : "Annonce";
+---
+
+{unit && (
+  <aside class="ad-slot" hidden data-ad-slot-place={Astro.props.place} aria-label={label} data-pagefind-ignore>
+    <p class="ad-slot-label">{label}</p>
+    <ins
+      class="adsbygoogle"
+      data-ad-client={`ca-${ADS_PUBLISHER}`}
+      data-ad-slot={unit}
+      data-ad-format="auto"
+      data-full-width-responsive="true"
+    ></ins>
+  </aside>
+)}
+
+<style>
+  .ad-slot {
+    margin-block: var(--sb-space-6);
+    /* Room for the ad before it arrives, so the comments below do not jump. */
+    min-height: 280px;
+  }
+
+  /* Hidden until a yes to ads, and again if AdSense has no ad for the place. */
+  .ad-slot[hidden],
+  .ad-slot:has(ins[data-ad-status="unfilled"]) {
+    display: none;
+  }
+
+  .ad-slot-label {
+    margin: 0 0 var(--sb-space-2);
+    color: var(--sb-ink-subtle);
+    font-size: var(--sb-text-xs);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .ad-slot :global(ins.adsbygoogle) {
+    display: block;
+  }
+</style>

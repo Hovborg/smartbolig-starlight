@@ -40,13 +40,16 @@ function page({ readyState = "complete", withTcf = true, tcfAtStart } = {}) {
   const timers = [];
   const tcfListeners = [];
   const controls = [{ hidden: true, clicks: [], addEventListener(type, run) { this.clicks.push(run); } }];
+  const adPlaces = [{ hidden: true }];
+  const pressListeners = {};
   const element = (tag) => ({ tag, style: {}, dataset: {} });
   const doc = {
     readyState,
     head: { append: (node) => scripts.push(node) },
     body: { append: (node) => frames.push(node) },
     createElement: element,
-    querySelectorAll: (selector) => (selector === "[data-cookie-settings]" ? controls : []),
+    querySelectorAll: (selector) => ({ "[data-cookie-settings]": controls, "[data-ad-slot-place]": adPlaces })[selector] ?? [],
+    addEventListener: (type, run) => (pressListeners[type] = run),
   };
   const win = {
     frames: {},
@@ -80,8 +83,30 @@ function page({ readyState = "complete", withTcf = true, tcfAtStart } = {}) {
   const runTimers = () => timers.splice(0).forEach((run) => run());
   const fetched = (part) => scripts.filter((script) => script.src.includes(part)).length;
   const sent = (command) => [...win.dataLayer].map((entry) => [...entry]).filter((entry) => entry[0] === command);
-  return { win, doc, scripts, frames, controls, tcfListeners, fire, setValues, ready, tcfEvent, runTimers, fetched, sent };
+  return { win, doc, scripts, frames, controls, adPlaces, pressListeners, tcfListeners, fire, setValues, ready, tcfEvent, runTimers, fetched, sent };
 }
+
+test("the shop-link report and the ad places wait for their own yes", () => {
+  const none = page({ withTcf: false });
+  boot(none.win, none.doc);
+  none.ready(all(DENIED));
+  assert.deepEqual(Object.keys(none.pressListeners), []);
+  assert.equal(none.adPlaces[0].hidden, true);
+
+  const statistics = page({ withTcf: false });
+  boot(statistics.win, statistics.doc);
+  statistics.ready(values(DENIED, DENIED, DENIED, GRANTED));
+  assert.deepEqual(Object.keys(statistics.pressListeners).sort(), ["auxclick", "click"]);
+  assert.equal(statistics.adPlaces[0].hidden, true);
+  assert.equal(statistics.win.adsbygoogle, undefined);
+
+  const ads = page({ withTcf: false });
+  boot(ads.win, ads.doc);
+  ads.ready(values(GRANTED, GRANTED, GRANTED, DENIED));
+  assert.deepEqual(Object.keys(ads.pressListeners), []);
+  assert.equal(ads.adPlaces[0].hidden, false);
+  assert.equal(ads.win.adsbygoogle.length, 1);
+});
 
 test("an answer from Google's consent mode becomes yes or no for each purpose", () => {
   assert.deepEqual(fromConsentMode(all(GRANTED), STATUS), each(true));

@@ -1,12 +1,18 @@
-# Indtjening: reklamelinks til butikker
+# Indtjening: reklamelinks, klikmåling og annoncepladser
 
 Sidst opdateret: 2026-11-14.
 Kontrolleret ved: `npm run site:test`, `python scripts/content-audit.py`, `npm run build` og
 `npm run seo:validate` kørt på grenen. Før og efter flytningen til registret blev alle
 reklamelinks på de byggede sider sammenlignet (side, adresse og linktekst): 163 links på 21
 sider, ingen forskel.
+Klikmålingen og annoncepladsen: `npm run site:test` (falsk side, ingen netværk), og en bygget
+side i headless Chrome med et ja i en efterlignet samtykkebesked: et tryk på et reklamelink
+lagde `affiliate_click` med produkt og butik i `dataLayer`, og en annonceplads med et
+prøvenummer blev vist og bedt fyldt. Uden nummer står der ingen annonceplads i den byggede side.
 Ikke kontrolleret: at butikkernes adresser stadig virker. Butikkerne svarer automatiske
 forespørgsler med 429, så ingen test henter dem. Se "Når noget ser forkert ud".
+Heller ikke: at hændelsen kan ses i Google Analytics, og at en rigtig annonce fylder pladsen.
+Begge dele kræver, at samtykkebeskeden er udgivet (`docs/redesign/TIL-EJEREN.md`, punkt 1).
 
 ## Hvor tingene ligger
 
@@ -20,6 +26,12 @@ forespørgsler med 429, så ingen test henter dem. Se "Når noget ser forkert ud
 | `src/components/ProductCard.astro` | Produktkort med samme `product`-felt. Bruges ikke i nogen guide endnu |
 | `scripts/site-affiliate.test.mjs` | Tester sporingslinket og butiksreglerne |
 | `scripts/site-affiliate-products.test.mjs` | Tester registret og at guiderne kun bruger produkter derfra |
+| `src/lib/affiliate-clicks.mjs` | Klikmålingen: et tryk på et reklamelink sendes til Google Analytics som `affiliate_click` |
+| `src/data/ad-slots.mjs` | De faste annoncepladser og deres nummer fra AdSense. Tomt nummer = pladsen er slukket |
+| `src/components/AdSlot.astro` | Annoncepladsen i siden. Står i `MarkdownContent.astro`, under teksten og over kommentarerne |
+| `src/lib/ad-slots.mjs` | Viser pladserne og beder AdSense fylde dem, efter et ja til annoncer |
+| `src/lib/article-page.mjs` | Reglen for, hvad der er en guide eller en nyhed (kommentarer og annonceplads vises kun dér) |
+| `scripts/site-affiliate-clicks.test.mjs`, `scripts/site-ad-slots.test.mjs` | Testene for de to dele |
 
 En guide nævner kun produktets id. Butikken og adressen står ét sted: i registret.
 
@@ -44,6 +56,47 @@ og tilføj en række i testen i `scripts/site-affiliate.test.mjs`.
 **Fjern et produkt**: fjern linket i guiden og linjen i registret. Testen fejler, hvis registret
 har et produkt, ingen guide bruger.
 
+## Klikmåling
+
+Når læseren har sagt ja til statistik, sender et tryk på et reklamelink hændelsen
+`affiliate_click` til Google Analytics med to felter: `product` (id'et fra registret) og
+`store` (butikken). Venstre og midterste museknap tæller. Før et ja, eller efter et nej, sendes
+intet: lytteren sættes først op af `src/lib/consent/boot.mjs`, når Analytics er hentet.
+
+For at se produkt og butik i rapporterne skal ejeren oprette to tilpassede dimensioner i
+Google Analytics én gang (`docs/redesign/TIL-EJEREN.md`). Uden dem tælles hændelsen stadig.
+
+Partner-Ads tæller selv klik og salg. Klikmålingen her viser det, Partner-Ads ikke gør: hvilken
+guide og hvilket produkt læseren trykkede på.
+
+## Annoncepladser
+
+Siden har én fast plads, `guideEnd`: under teksten i en guide eller en nyhed, over
+kommentarerne. Den er slukket, indtil den får et nummer.
+
+**Tænd pladsen**
+
+1. Opret en annonceenhed i AdSense: Annoncer -> Efter annonceenhed -> Displayannonce, responsiv.
+2. Kopiér tallet efter `data-ad-slot=` i den kode, AdSense viser.
+3. Skriv tallet i `src/data/ad-slots.mjs`: `guideEnd: "1234567890",`.
+4. Kør `npm run site:test` og `npm run build`, og udgiv.
+
+Pladsen er skjult i siden og vises først, når læseren har sagt ja til annoncer. Har AdSense
+ingen annonce til pladsen, skjules den igen. Der er sat 280 px af i højden, så kommentarerne
+ikke hopper, når annoncen kommer.
+
+**Ny plads et andet sted**: tilføj et navn i `AD_SLOTS`, og sæt `<AdSlot place="navn" />` dér,
+hvor den skal stå. Hold den uden for forsiden og de juridiske sider.
+
+Automatiske annoncer (dem AdSense selv placerer) styres i AdSense, ikke her.
+
+## Ideer til mere indtjening (ikke bygget)
+
+1. **Startsæt-bygger.** Læseren vælger bolig og behov og får en indkøbsliste med reklamelinks
+   fra registret. Bygges som et værktøj (`docs/vaerktoejer.md`), når værktøjssektionen er ude.
+2. **Henvisning til elaftaler ved elprisværktøjet.** Kræver et godkendt program hos Partner-Ads
+   eller et elselskab. Står på ejerens liste; intet er bygget.
+
 ## Hvad testene stopper
 
 - Et id i en guide, der ikke findes i registret (bygget stopper også, med id'et i fejlen).
@@ -51,6 +104,8 @@ har et produkt, ingen guide bruger.
 - To produkter med samme adresse eller samme id.
 - En butik, der ikke er godkendt, eller en adresse uden for butikkens eget domæne eller uden https.
 - `url=` eller `store=` direkte på et `<AffiliateLink>` i en guide.
+- En annonceplads med `style=` eller et script i komponenten, eller et nummer, der ikke er tal.
+- Klikmåling eller annoncepladser, der startes andre steder end efter et ja i `boot.mjs`.
 
 ## Når noget ser forkert ud
 
@@ -66,6 +121,12 @@ til butikkens domæne, ikke at siden findes.
 
 ## Fjern det igen
 
+Klikmålingen: slet `src/lib/affiliate-clicks.mjs` og testen, og fjern `watchAffiliateClicks` i
+`src/lib/consent/boot.mjs`. Annoncepladsen: slet `src/components/AdSlot.astro`,
+`src/data/ad-slots.mjs`, `src/lib/ad-slots.mjs` og testen, og fjern `<AdSlot />` i
+`MarkdownContent.astro` og `showAdSlots` i `boot.mjs`. Ret privatlivspolitikken på begge sprog.
+
+Registret:
 Sæt `store` og `url` tilbage på hvert `<AffiliateLink>` i `src/content/docs/da/produkter/`,
 slet `src/data/products/`, `src/lib/affiliate-products.mjs` og
 `scripts/site-affiliate-products.test.mjs`, og gendan de to komponenter fra git. De gamle
