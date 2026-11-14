@@ -23,6 +23,21 @@ test("old top-level addresses redirect with 301 instead of answering 404", () =>
     "/produkter/": "/da/produkter/",
     "/da/products": "/da/produkter/",
     "/da/products/": "/da/produkter/",
+    "/da/legal": "/da/juridisk/",
+    "/da/legal/": "/da/juridisk/",
+    "/da/legal/privacy-policy": "/da/juridisk/privatlivspolitik/",
+    "/da/legal/privacy-policy/": "/da/juridisk/privatlivspolitik/",
+    "/da/legal/cookie-policy": "/da/juridisk/cookiepolitik/",
+    "/da/legal/cookie-policy/": "/da/juridisk/cookiepolitik/",
+    "/da/legal/terms-of-use": "/da/juridisk/brugsvilkaar/",
+    "/da/legal/terms-of-use/": "/da/juridisk/brugsvilkaar/",
+    "/da/legal/affiliate-disclosure": "/da/juridisk/affiliate-disclosure/",
+    "/da/legal/affiliate-disclosure/": "/da/juridisk/affiliate-disclosure/",
+    "/da/automations": "/da/automationer/",
+    "/da/automations/": "/da/automationer/",
+    "/index.xml": "/rss.xml",
+    "/da/index.xml": "/rss.xml",
+    "/en/index.xml": "/en/rss.xml",
     "/produkter/:slug": "/da/produkter/:slug/",
     "/da/products/:slug": "/da/produkter/:slug/",
     "/en/products/:slug": "/en/produkter/:slug/",
@@ -90,6 +105,14 @@ test("the English products splat comes after every specific English product rule
   const specific = rules.map(([source], index) => (source.startsWith("/en/products/") && index !== splat ? index : -1));
   assert.ok(splat > -1);
   assert.ok(Math.max(...specific) < splat);
+});
+
+test("the old feed address goes to a feed the build writes", () => {
+  for (const [source, target] of [["/index.xml", "/rss.xml"], ["/da/index.xml", "/rss.xml"], ["/en/index.xml", "/en/rss.xml"]]) {
+    assert.deepEqual(find(source)?.slice(1), [target, "301"], source);
+    const page = target === "/rss.xml" ? "src/pages/rss.xml" : "src/pages/en/rss.xml";
+    assert.ok(["", ".ts", ".js", ".mjs"].some((end) => existsSync(new URL(`${page}${end}`, root))), `${target} has no source in src/pages`);
+  }
 });
 
 test("every redirect target that is a page exists in the content", () => {
