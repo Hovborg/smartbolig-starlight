@@ -13,7 +13,7 @@ er set på den levende side efter udgivelsen, står i `docs/redesign/STATUS.md`.
 |---|---|
 | `public/robots.txt` | Hvem der må hente hvad. Skrevet i hånden |
 | `public/_redirects` | Gamle adresser, der sendes videre med 301 |
-| `public/llms.txt` | Kort beskrivelse af siden til AI-søgemaskiner. Skrevet i hånden |
+| `scripts/write-llms-txt.mjs`, `scripts/lib/llms-txt.mjs`, `scripts/lib/llms-pages.mjs` | Skriver `dist/llms.txt` til AI-søgemaskiner ved hvert byg (efter sitemappet er færdigt). Overskrift, resumé og politik står i `llms-txt.mjs`; siderne og deres titler og beskrivelser læses fra de byggede sider |
 | `src/lib/seo/page-kind.ts` | Hvilken slags side en adresse er (forside, guide, nyhed, juridisk ...) |
 | `src/lib/seo/schema-graph.ts` | Samler sidens strukturerede data (JSON-LD) af delene i `schema-*.ts` og `breadcrumbs.ts` |
 | `src/lib/seo/social-meta.ts` | `og:`- og `twitter:`-felterne, herunder `og:type` |
@@ -22,11 +22,17 @@ er set på den levende side efter udgivelsen, står i `docs/redesign/STATUS.md`.
 | `src/components/SiteTitle.astro` | Logoets link (`/da/` og `/en/` med skråstreg) |
 | `src/pages/rss.xml.js` | RSS-feedet med nyheder |
 | `scripts/finalize-build.mjs` | Sætter rigtige datoer (`lastmod`) i det sitemap, Starlight laver |
+| `scripts/lib/seo-llms-check.mjs` | Kontrollerer, at `llms.txt` findes, begynder rigtigt, og at hvert link er en side i sitemappet eller et kendt feed |
 | `scripts/seo-validate.mjs`, `scripts/lib/seo-head-checks.mjs` | Kontrollerer de byggede sider. Køres som `npm run seo:validate` |
 | `scripts/site-redirects.test.mjs`, `scripts/site-seo-checks.test.mjs` | Tests af omdirigeringerne og af kontrollerne selv |
 
-Sitemap (`/sitemap-index.xml`) og RSS (`/rss.xml`) laves af sig selv ved hvert byg. De skal
+Sitemap (`/sitemap-index.xml`), RSS (`/rss.xml`) og `llms.txt` laves af sig selv ved hvert byg. De skal
 ikke rettes i hånden.
+
+**Ændr et afsnit i `llms.txt`:** rækkefølgen og navnene står i `SECTIONS` i
+`scripts/lib/llms-txt.mjs`; et nyt område under `src/content/docs/da/` skal tilføjes dér, ellers
+bliver dets sider ikke med. Dagens AI-nyheder og de juridiske sider er udeladt med vilje (`locate()`),
+og filen må højst fylde 100 KB, ellers stopper bygget. Teksten testes i `scripts/site-llms-txt.test.mjs`.
 
 ## Regler, der er valgt med vilje
 

@@ -371,6 +371,6 @@ test("the build writes the index, and search engines are told the index files ar
   const { readFile } = await import("node:fs/promises");
   const read = (name) => readFile(new URL(`../${name}`, import.meta.url), "utf8");
   const build = JSON.parse(await read("package.json")).scripts.build;
-  assert.match(build, /astro build && node scripts\/finalize-build\.mjs && node scripts\/site-index\.mjs$/);
+  assert.match(build, /astro build && node scripts\/finalize-build\.mjs && node scripts\/write-llms-txt\.mjs && node scripts\/site-index\.mjs$/);
   assert.match(await read("public/_headers"), /^\/_index\/\*\n\s+X-Robots-Tag: noindex$/m);
 });
