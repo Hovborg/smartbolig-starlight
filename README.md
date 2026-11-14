@@ -202,7 +202,8 @@ Sitets konfiguration ligger i `config/`, og `astro.config.mjs` er kun en tynd in
 - `config/site.mjs`: site-URL, titel, sprog og øvrige skalare Starlight-indstillinger.
 - `config/fonts.mjs`: de to selvhostede skrifter.
 - `config/sidebar/`: sidebaren, én fil pr. hovedsektion (Home Assistant er delt i undermapper).
-- `config/head/`: `<head>`-tags, én fil pr. område (ikoner og temafarve, social meta, samtykke, analytics, RSS, annoncer).
+- `config/head/`: `<head>`-tags, én fil pr. område (ikoner og temafarve, social meta, RSS). Google Analytics og AdSense står ikke her: de hentes først efter læserens ja (`src/lib/consent/`, se [`docs/samtykke.md`](docs/samtykke.md), kontrolleret 2026-11-14).
+- `config/vite.mjs`: små scripts bliver til filer, så sidens sikkerhedspolitik kan klare sig uden `'unsafe-inline'` (se [`docs/sikkerhed.md`](docs/sikkerhed.md), kontrolleret 2026-11-14).
 - `config/components.mjs`: Starlight-komponentoverrides.
 - `config/markdown/`: små Markdown-plugins (overskrifter, kort og faner uden emoji; tabeller i en rulleramme).
 

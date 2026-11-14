@@ -6,16 +6,35 @@ Sidst opdateret: 2026-11-14.
 
 ## Kræver dit login
 
-1. **Google AdSense og Google Analytics** kunne ikke kontrolleres fra arbejdsmiljøet.
-   Indstillingerne skal tjekkes af dig (liste følger i fase 5).
+1. **Google AdSense, "Privatliv og beskeder".** Siden bruger nu samtykkebeskeden derfra til
+   at spørge, før noget hentes fra Google (`docs/samtykke.md`). Tjek i AdSense:
+   - Beskeden for EU/EØS er udgivet for smartbolig.net og har tre knapper: "Giv samtykke",
+     "Giv ikke samtykke" og "Administrer valgmuligheder". Uden nej-knappen er et ja ikke frivilligt.
+   - Sproget er dansk (og engelsk), og linket til privatlivspolitikken er
+     `https://smartbolig.net/da/juridisk/privatlivspolitik/`.
+   - "Consent mode" er slået til for beskeden. Er den ikke det, virker siden stadig (svaret
+     læses fra TCF), men Google Analytics får kun et ja fra læsere, der også siger ja til
+     formål 1 og 8.
+   - Vælg, om læsere, der siger nej, må få "begrænsede annoncer" (uden cookies). Siden henter
+     i dag ingen annoncer efter et nej.
+   - Annoncer: automatiske annoncer er til eller fra efter dit valg, og annonceenhederne findes.
+     Siden har endnu ingen faste annoncepladser i guiderne.
+   **Google Analytics:** tjek, at dataopbevaring står til 14 måneder (det står i
+   privatlivspolitikken), og at Google-signaler er slået fra, hvis du ikke vil have dem.
 2. **Partner-Ads.** Ikke logget ind. Flere Proshop-links åbner et forkert produkt (liste i
    `docs/redesign/guide-review/produkter.md`); de rigtige links skal hentes i Partner-Ads.
 
 ## Kræver din beslutning
 
-3. **Juridiske sider.** Gennemgangen fandt steder, hvor teksten ikke passer med det, siden gør
-   (bl.a. Ezoic nævnt uden at være i brug, nyhedsbrev nævnt uden tilmelding, samtykkebanner
-   beskrevet anderledes end Googles CMP). Listen står i `docs/redesign/guide-review/oevrige.md`.
+3. **Juridiske sider.** Cookiepolitik, privatlivspolitik, brugsvilkår og "Om os" er skrevet
+   om, så de passer med det, siden gør (Ezoic og nyhedsbrev er ude, samtykke først er
+   beskrevet). Tre ting kan kun du afgøre:
+   - Den dataansvarliges fulde navn, CVR-nummer (hvis du har et) og adresse mangler i
+     privatlivspolitikken. Uden dem opfylder den ikke oplysningspligten helt.
+   - Sætningen om overførsel til USA (EU-U.S. Data Privacy Framework og standardkontrakter) er
+     den almindelige for Google og Cloudflare, men er ikke set efter af en jurist.
+   - Partner-Ads: om deres vilkår kræver en bestemt ordlyd ved reklamelinks, er ikke læst bag
+     login. Siden skriver "reklamelink" ved hvert link.
 
 ## Koster penge, hvis du vil
 

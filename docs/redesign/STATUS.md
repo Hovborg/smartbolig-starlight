@@ -67,14 +67,19 @@ Sidst opdateret: 2026-11-14.
   smart home i lejebolig. Gennemgået og rettet af en uafhængig model 2026-11-14 mod officielle
   kilder. Ikke afprøvet: automationerne er ikke kørt på et anlæg (skabelonerne i billige timer
   er regnet efter mod en uafhængig beregning), og netselskaber ud over de nævnte er ikke læst.
-- **CSP, kortlagt 2026-11-14 (til fase 5):** `script-src` har `'unsafe-inline'`, fordi siden har
-  8–12 inline-scripts pr. side (samtykke/gtag, sprogcookie, tema før første tegning, Starlights
-  søge- og sidemenuscripts og små Astro-moduler under 4 KB). `script-src-attr 'none'` er sat,
-  og der er ingen inline-handlere. Google dokumenterer kun nonce-baseret CSP for AdSense.
-  Plan: Workeren sætter en nonce pr. svar med HTMLRewriter (`run_worker_first` udvides), først
-  afprøvet som `Content-Security-Policy-Report-Only` på en preview. Mindre første skridt:
-  `vite.build.assetsInlineLimit: 0` og hashes for de få faste inline-scripts. Virker annoncerne
-  ikke med nonce, beholdes `'unsafe-inline'` på sider med annoncer, og det skrives i TIL-EJEREN.
+- **Samtykke først og strengere CSP (B56):** intet hentes fra Google Analytics eller AdSense før
+  et ja i Googles samtykkebesked; kommentarer hentes ved tryk; de juridiske sider passer med
+  koden. Bygningen laver en CSP uden `'unsafe-inline'` for scripts (4 hashes) og sender den som
+  Report-Only. Dokumentation: `docs/samtykke.md` og `docs/sikkerhed.md`.
+  Før udgivelsen (den levende side, headless Chrome, 2026-11-14): før noget svar hentede en
+  side `gtag.js`, `adsbygoogle.js`, Cloudflares måler, giscus og sendte et kald til Google
+  Analytics, og cookien `preferred-lang` blev sat.
+  Efter udgivelsen kontrolleres på den levende side: hvilke værter en side henter fra før et
+  svar, efter et ja og efter et nej; hvilke cookies der sættes; om "Cookieindstillinger" vises;
+  og om konsollen viser overtrædelser af den strenge politik. Resultatet skrives her.
+  Næste skridt: `ENFORCE_STRICT_CSP = true`, når den levende side er set uden overtrædelser
+  med annoncer. Ikke valgt: nonce pr. svar i Workeren; hashes klarer det uden at Workeren skal
+  stå foran hver side.
 
 ## Næste skridt
 

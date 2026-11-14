@@ -455,3 +455,33 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Kildekontrollen er uændret: kun `smartbolig.net`-adresser kan blive kilder, teksten
   afkortes, og en fejl eller en overskredet tidsgrænse giver et svar uden guideuddrag.
 - AI Search-instansen hos Cloudflare er ikke slettet (se TIL-EJEREN).
+
+### B56. Samtykke først, og en CSP uden `'unsafe-inline'` for scripts
+- Baggrund (den levende side, headless Chrome, 2026-11-14): før læseren havde svaret, hentede
+  hver side `gtag.js`, `adsbygoogle.js` og giscus og sendte et kald til Google Analytics.
+  Samtykket styrede kun, hvad scripts måtte gemme ("advanced consent mode"). De juridiske sider
+  beskrev noget andet (bl.a. Ezoic og et nyhedsbrev, der ikke findes).
+- Valg: "basic consent mode". Googles samtykkebesked hentes for sig, og Analytics og AdSense
+  hentes først efter et ja (`src/lib/consent/`). Begrundelse: det er det, cookiereglerne
+  kræver, og det er det eneste, læseren kan efterprøve i sin egen browser.
+- Pris: Google Analytics tæller kun læsere, der siger ja, og modellerer ikke resten. Samlede
+  sidevisninger ses i Cloudflare Web Analytics, som ikke bruger cookies.
+- Valg: svaret læses fra beskedens samtykke-API, og fra TCF, hvis "consent mode" ikke er slået
+  til i AdSense. Så virker siden rigtigt, uanset hvordan AdSense står, og ejeren kan slå det
+  til senere uden kodeændring.
+- Valg: et tilbagetrukket ja genindlæser siden. Et script, der er hentet, kan ikke fjernes igen.
+- Valg: kommentarer (giscus) hentes ved tryk. De sender læserens IP til giscus og GitHub, og de
+  færreste læser dem.
+- Valg: Cloudflare Web Analytics beholdes uden samtykke og beskrives i cookiepolitikken. Den
+  sætter ingen cookies og gemmer ikke IP-adresser.
+- Fjernet: cookien `preferred-lang`, som Workeren satte, og som intet læste.
+- CSP: de små scripts, Astro skrev ind i siden, er nu filer (`config/vite.mjs`), og de fire
+  tilbageværende får en hash. Den strenge politik sendes som Report-Only, til den er set på den
+  levende side med annoncer; derefter slås den til med én konstant.
+- Fravalgt: nonce pr. svar sat af Workeren. Det kræver, at Workeren står foran hver side
+  (i dag kun `/api/*`), og det koster svartid og gratis kald. Hashes giver det samme for
+  scripts, der er ens på alle sider.
+- Fravalgt: egen samtykkebanner. Googles besked er certificeret til AdSense i EU/EØS; en egen
+  ville skulle certificeres eller betales for.
+- De juridiske sider er skrevet om på begge sprog, så de passer med koden. Det, kun ejeren kan
+  afgøre (navn og adresse på den dataansvarlige, jurist-tjek), står i TIL-EJEREN.
