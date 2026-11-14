@@ -1,0 +1,62 @@
+---
+title: Battery life
+description: Work out how long a battery lasts in a sensor that sleeps and wakes up. Type the capacity, the current asleep and awake, the awake time and the wake-up interval.
+lastUpdated: 2026-11-14
+---
+
+import BatteryLife from '../../../../components/tools/BatteryLife.astro';
+
+Type the battery capacity and how much current the device uses asleep and awake. You then see how long the battery lasts, and whether it is the sleep or the wake-ups that use the energy.
+
+<BatteryLife lang="en" />
+
+## How the number is calculated
+
+The tool first finds the average current over the whole time between two wake-ups:
+
+**(awake current × awake time + sleep current × sleep time) ÷ time between wake-ups**
+
+The sleep time is the time between wake-ups minus the awake time. The life is then the battery capacity times the usable share, divided by the average current. A month is counted as 30.4 days and a year as 365 days. Everything is calculated in your browser, and we do not store what you type.
+
+The usable share is your own estimate. 80 % is a start value, not a measured one.
+
+## What is not included
+
+- **Self-discharge.** A battery loses charge even when nothing draws on it.
+- **Temperature.** Cold and heat change how much the battery can give.
+- **Voltage cut-off.** The device stops when the voltage gets too low, often before the battery is empty. The usable share is there for that.
+- **Regulator losses.** The voltage regulator uses current itself and loses some of the energy.
+- **Time to connect.** If the device takes long to find Wi-Fi or a network, that time counts as awake time.
+
+## How to measure
+
+The numbers in the tool are only as good as your measurements.
+
+1. Put an ammeter in series with the battery, so the current goes through the meter.
+2. Measure asleep with the meter on the microamp range. Wait until the reading is steady.
+3. Measure the awake current as the average over the whole wake-up, from waking up until it sleeps again. The current swings a lot, so use a meter or a current profiler that can average.
+4. Measure how many seconds the wake-up lasts.
+
+A datasheet figure is for the chip. What your board uses asleep, you can only see by measuring it.
+
+## Figures from a datasheet
+
+The button in the tool fills in two figures for an ESP32 chip. They are taken from Espressif's ESP32 datasheet, version 5.3:
+
+- **10 µA in deep sleep.** The datasheet's feature list says the consumption in Deep-sleep mode is 10 µA.
+- **180 mA awake.** The datasheet's table of current in active mode shows 180 mA as the typical value when the chip transmits 802.11n (MCS7, +14 dBm). The measurement is taken at the radio port, with a 3.3 V supply at 25 °C and a 50 % transmit duty cycle. That is the radio alone; the rest of your circuit comes on top.
+
+The awake time and how often the device wakes up do not come from the datasheet. You set those yourself.
+
+## Read on
+
+- [Getting started with ESP32](/en/esp32/kom-godt-i-gang/)
+- [Advanced ESPHome](/en/esp32/esphome-avanceret/) has an example with `deep_sleep`.
+- [Monitor the health of your sensors](/en/automationer/sensorovervaagning/): get a message when a battery is nearly empty.
+- [Zigbee sensors](/en/produkter/zigbee-sensorer/) and [Zigbee channel picker](/en/vaerktoejer/zigbee-kanal/)
+
+## Sources
+
+Read on 14 November 2026. We wrote the text ourselves.
+
+- Espressif, [ESP32 Series Datasheet v5.3](https://documentation.espressif.com/esp32_datasheet_en.pdf): 10 µA in Deep-sleep and the table of current in active mode.

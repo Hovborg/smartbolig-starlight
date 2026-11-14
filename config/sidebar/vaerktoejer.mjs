@@ -24,5 +24,10 @@ export default {
       translations: { en: "Zigbee channel picker" },
       link: "/vaerktoejer/zigbee-kanal/",
     },
+    {
+      label: "Batterilevetid",
+      translations: { en: "Battery life" },
+      link: "/vaerktoejer/batterilevetid/",
+    },
   ],
 };

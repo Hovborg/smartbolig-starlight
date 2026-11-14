@@ -42,6 +42,18 @@ export const TOOLS = [
       text: "Mark the Wi-Fi channels you use. You see which Zigbee channels overlap and which one fits best.",
     },
   },
+  {
+    slug: "batterilevetid",
+    icon: "battery",
+    da: {
+      title: "Batterilevetid",
+      text: "Skriv batteriets kapacitet, strøm i søvn og vågen og hvor tit enheden vågner. Så ser du, hvor længe batteriet holder.",
+    },
+    en: {
+      title: "Battery life",
+      text: "Type the battery capacity, the current asleep and awake and how often the device wakes up. You see how long the battery lasts.",
+    },
+  },
 ];
 
 /** The words on every card that are not about one tool. */
