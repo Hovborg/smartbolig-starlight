@@ -9,7 +9,7 @@ export default {
       link: "/produkter/",
     },
     {
-      label: "Alle Anbefalinger",
+      label: "Alle anbefalinger",
       translations: { en: "All Recommendations" },
       link: "/produkter/anbefalinger/",
     },
@@ -20,27 +20,27 @@ export default {
     },
     // Hardware & Protokoller
     {
-      label: "Hardware & Protokoller",
+      label: "Hardware og protokoller",
       translations: { en: "Hardware & Protocols" },
       collapsed: false,
       items: [
         {
-          label: "Zigbee Koordinatorer",
+          label: "Zigbee-koordinatorer",
           translations: { en: "Zigbee Coordinators" },
           link: "/produkter/zigbee-koordinatorer/",
         },
         {
-          label: "Zigbee Sensorer",
+          label: "Zigbee-sensorer",
           translations: { en: "Zigbee Sensors" },
           link: "/produkter/zigbee-sensorer/",
         },
         {
-          label: "Shelly Produkter",
+          label: "Shelly-produkter",
           translations: { en: "Shelly Products" },
           link: "/produkter/shelly/",
         },
         {
-          label: "WiFi Enheder",
+          label: "Wi-Fi-enheder",
           translations: { en: "WiFi Devices" },
           link: "/produkter/wifi-enheder/",
         },
@@ -48,17 +48,17 @@ export default {
     },
     // Belysning & Indretning
     {
-      label: "Belysning & Indretning",
+      label: "Belysning og indretning",
       translations: { en: "Lighting & Decor" },
       collapsed: true,
       items: [
         {
-          label: "Smart Belysning",
+          label: "Smart belysning",
           translations: { en: "Smart Lighting" },
           link: "/produkter/smart-belysning/",
         },
         {
-          label: "Smart Gardiner",
+          label: "Smart gardiner",
           translations: { en: "Smart Blinds" },
           link: "/produkter/smart-gardiner/",
         },
@@ -66,12 +66,12 @@ export default {
     },
     // Klima & Energi
     {
-      label: "Klima & Energi",
+      label: "Klima og energi",
       translations: { en: "Climate & Energy" },
       collapsed: true,
       items: [
         {
-          label: "Smart Termostater",
+          label: "Smart termostater",
           translations: { en: "Smart Thermostats" },
           link: "/produkter/smart-termostater/",
         },
@@ -89,17 +89,17 @@ export default {
     },
     // Sikkerhed & Overvågning
     {
-      label: "Sikkerhed & Overvågning",
+      label: "Sikkerhed og overvågning",
       translations: { en: "Security & Monitoring" },
       collapsed: true,
       items: [
         {
-          label: "Smart Alarm",
+          label: "Smart alarm",
           translations: { en: "Smart Alarm" },
           link: "/produkter/smart-alarm/",
         },
         {
-          label: "Smart Sikkerhed",
+          label: "Smart sikkerhed",
           translations: { en: "Smart Security" },
           link: "/produkter/smart-sikkerhed/",
         },
@@ -122,7 +122,7 @@ export default {
       collapsed: true,
       items: [
         {
-          label: "Medier & Entertainment",
+          label: "Medier og underholdning",
           translations: { en: "Media & Entertainment" },
           link: "/produkter/medier-entertainment/",
         },
@@ -135,32 +135,32 @@ export default {
     },
     // Hjem & Have
     {
-      label: "Hjem & Have",
+      label: "Hjem og have",
       translations: { en: "Home & Garden" },
       collapsed: true,
       items: [
         {
-          label: "Smart Garage",
+          label: "Smart garage",
           translations: { en: "Smart Garage" },
           link: "/produkter/smart-garage/",
         },
         {
-          label: "Smart Have",
+          label: "Smart have",
           translations: { en: "Smart Garden" },
           link: "/produkter/smart-haven/",
         },
         {
-          label: "Smart Pool",
+          label: "Smart pool",
           translations: { en: "Smart Pool" },
           link: "/produkter/smart-pool/",
         },
         {
-          label: "Smart Rengøring",
+          label: "Smart rengøring",
           translations: { en: "Smart Cleaning" },
           link: "/produkter/smart-rengoering/",
         },
         {
-          label: "Smart Køkken",
+          label: "Smart køkken",
           translations: { en: "Smart Kitchen" },
           link: "/produkter/smart-koekken/",
         },
@@ -173,17 +173,17 @@ export default {
       collapsed: true,
       items: [
         {
-          label: "Smart Baby",
+          label: "Smart baby",
           translations: { en: "Smart Baby" },
           link: "/produkter/smart-baby/",
         },
         {
-          label: "Smart Kæledyr",
+          label: "Smart kæledyr",
           translations: { en: "Smart Pet" },
           link: "/produkter/smart-kaeledyr/",
         },
         {
-          label: "Smart Sundhed",
+          label: "Smart sundhed",
           translations: { en: "Smart Health" },
           link: "/produkter/smart-sundhed/",
         },

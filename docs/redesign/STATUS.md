@@ -63,9 +63,13 @@ Sidst opdateret: 2026-11-14.
 - **Guidernes billeder (B55):** billederne i guidernes tekst ligger i `src/assets/guides/` og
   laves som WebP i seks bredder; browseren får spaltens målte bredde at vide; tegninger fylder
   spalten; åbningsbilledet hentes først. Uafhængig gennemgang; fund rettet. Dokumentation:
-  `docs/billeder.md`. Efter udgivelsen kontrolleres på den levende side: `srcset`, `sizes` og
-  `fetchpriority` på Home Assistant-guidens åbningsbillede, at en billedfil svarer 200 som WebP,
-  LD2410-diagrammet på dansk og engelsk, og `/produkter/shelly` i ét hop. Resultatet skrives her.
+  `docs/billeder.md`. Udgivet 2026-11-14 (#197, Worker-version 35b19df2). Kontrolleret på den
+  levende side: Home Assistant-guidens åbningsbillede har de nye `sizes`,
+  `fetchpriority="high"`, `width` 1536 og `height` 1024 og seks WebP-bredder (640 til 1536 px),
+  og billedfilen svarer 200 som `image/webp` (141 KB i største bredde); LD2410-guiden viser
+  oversigten og ledningsdiagrammet på dansk og engelsk; `/produkter/shelly`,
+  `/produkter/zigbee-sensorer`, `/da/products/shelly` og `/en/products/shelly` tager ét hop
+  (301) til adressen med skråstreg, som svarer 200. Vej tilbage: Worker-version d6ff7144.
 - **`www` til hoveddomænet (2026-11-14):** en omdirigeringsregel hos Cloudflare, kun for værten
   `www.smartbolig.net`. Kontrolleret på den levende side: `/`, `/da/`, en guide med forespørgsel
   og `http://` svarer alle 301 til samme sti på `https://smartbolig.net`; hoveddomænet og
@@ -114,6 +118,12 @@ Sidst opdateret: 2026-11-14.
   afprøvet som `Content-Security-Policy-Report-Only` på en preview. Mindre første skridt:
   `vite.build.assetsInlineLimit: 0` og hashes for de få faste inline-scripts. Virker annoncerne
   ikke med nonce, beholdes `'unsafe-inline'` på sider med annoncer, og det skrives i TIL-EJEREN.
+
+- **Titler og interne links (B57):** ca. 70 titler rettet, menunavne i `config/sidebar/` rettet med, `seoTitle` på oversigtssider og kontakt,
+  interne links til 18 guides, årstal ud af overskrifter, lister i stedet for rå diagramkode.
+  Dokumentation: `CONTENT-GUIDE.md` ("Titel og `seoTitle`") og `docs/seo.md`. Efter udgivelsen
+  kontrolleres på den levende side: `<title>`, `og:title` og `<h1>` på `/da/automationer/` og
+  `/en/produkter/`, og at tre af de nye interne links svarer 200. Resultatet skrives her.
 
 ## Næste skridt
 
