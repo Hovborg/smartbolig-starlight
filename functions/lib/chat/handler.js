@@ -1,6 +1,7 @@
 // The chat request handler: method, origin, rate limit, validation, search and response.
 
 import { selectOfficialEvidence } from "../official-evidence.js";
+import { siteSearchFromAssets } from "../site-search/assets.js";
 import { createWorkersAgent } from "./agent.js";
 import {
   CHAT_FALLBACK_MODEL_DIAGNOSTIC,
@@ -14,7 +15,7 @@ import {
 import { readBoundedBody, validateChatBody } from "./request.js";
 import { ChatRequestError, jsonResponse } from "./responses.js";
 import { safeErrorName, withTimeout } from "./runtime.js";
-import { normalizeSearchChunks } from "./sources.js";
+import { normalizeSearchResults } from "./sources.js";
 
 function createPublicDiagnostics(candidate, durationMs, requestId) {
   const hasPrimaryRoute =
@@ -37,6 +38,8 @@ export function createChatHandler(dependencies = {}) {
   const createRequestId = dependencies.createRequestId || (() => crypto.randomUUID());
   const logger = dependencies.logger || console;
   const searchTimeoutMs = dependencies.searchTimeoutMs ?? SEARCH_TIMEOUT_MS;
+  // env → search(query, locale, limit), or undefined when there is no index to read.
+  const siteSearch = dependencies.siteSearch || ((env) => siteSearchFromAssets(env?.ASSETS));
   const now = dependencies.now || Date.now;
 
   return async function handleChat({ request, env }) {
@@ -101,27 +104,21 @@ export function createChatHandler(dependencies = {}) {
 
     const officialEvidence = selectOfficialEvidence(chat.messages.at(-1).content, chat.locale);
     const sourceMap = new Map(officialEvidence.sources.map((source) => [source.url, source]));
-    const searchSmartbolig = env.SMARTBOLIG_SEARCH?.search
+    const search = siteSearch(env);
+    const searchSmartbolig = search
       ? async (query) => {
           const safeQuery = typeof query === "string" ? query.trim().slice(0, MAX_SEARCH_QUERY_CHARS) : "";
           if (safeQuery.length < 2) return { results: [] };
 
           try {
-            const searchResult = await withTimeout(
-              () =>
-                env.SMARTBOLIG_SEARCH.search({
-                  query: safeQuery,
-                  ai_search_options: { retrieval: { max_num_results: MAX_SEARCH_RESULTS } },
-                }),
-              searchTimeoutMs,
-            );
-            const normalized = normalizeSearchChunks(searchResult?.chunks);
+            const found = await withTimeout(() => search(safeQuery, chat.locale, MAX_SEARCH_RESULTS), searchTimeoutMs);
+            const normalized = normalizeSearchResults(found);
             for (const source of normalized.sources) {
               if (!sourceMap.has(source.url)) sourceMap.set(source.url, source);
             }
             return { results: normalized.results };
           } catch (error) {
-            logger.error?.("SmartBolig AI Search unavailable", {
+            logger.error?.("SmartBolig site search unavailable", {
               requestId,
               error: safeErrorName(error),
             });

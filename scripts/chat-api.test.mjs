@@ -16,6 +16,7 @@ import {
   createChatHandler,
   createWorkersAgent,
 } from "../functions/api/chat.js";
+import { buildIndex } from "./lib/site-index/build.mjs";
 
 const endpoint = "https://smartbolig.net/api/chat";
 
@@ -44,9 +45,10 @@ function validBody(content = "Hvordan vælger jeg en god Zigbee-sensor?") {
 function createEnv(overrides = {}) {
   return {
     AI: { name: "fake-ai-binding" },
-    SMARTBOLIG_SEARCH: {
-      async search() {
-        return { chunks: [] };
+    // Static files without an index: a search would fail and degrade.
+    ASSETS: {
+      async fetch() {
+        return new Response("not found", { status: 404 });
       },
     },
     CHAT_RATE_LIMITER: {
@@ -58,11 +60,13 @@ function createEnv(overrides = {}) {
   };
 }
 
-function createHandler(agentRunner) {
+function createHandler(agentRunner, siteSearch) {
   return createChatHandler({
     agentRunner: agentRunner || (async () => ({ answer: "Et generelt ekspertsvar." })),
     createRequestId: () => "req-test-123",
     logger: { error() {} },
+    // A search function stands in for the index; without one the handler reads env.ASSETS.
+    ...(siteSearch ? { siteSearch: () => siteSearch } : {}),
   });
 }
 
@@ -157,7 +161,7 @@ test("chat endpoint rejects malformed conversations and client-controlled privil
   }
 });
 
-test("general-knowledge answers work without AI Search and return no-store metadata", async () => {
+test("general-knowledge answers work without a site index and return no-store metadata", async () => {
   let received;
   const handler = createHandler(async (input) => {
     received = input;
@@ -166,7 +170,7 @@ test("general-knowledge answers work without AI Search and return no-store metad
 
   const response = await handler({
     request: request(validBody("Hvad er ESPHome?")),
-    env: createEnv({ SMARTBOLIG_SEARCH: undefined }),
+    env: createEnv({ ASSETS: undefined }),
   });
   const body = await json(response);
 
@@ -200,7 +204,7 @@ test("chat response exposes only allowlisted bounded public diagnostics", async 
 
   const response = await handler({
     request: request(validBody("Hvad er ESPHome?")),
-    env: createEnv({ SMARTBOLIG_SEARCH: undefined }),
+    env: createEnv({ ASSETS: undefined }),
   });
   const body = await json(response);
 
@@ -226,7 +230,7 @@ test("chat response exposes only allowlisted bounded public diagnostics", async 
   });
   const untrustedResponse = await untrustedHandler({
     request: request(validBody("Hvad er ESPHome?")),
-    env: createEnv({ SMARTBOLIG_SEARCH: undefined }),
+    env: createEnv({ ASSETS: undefined }),
   });
   const untrustedBody = await json(untrustedResponse);
 
@@ -239,7 +243,7 @@ test("chat response exposes only allowlisted bounded public diagnostics", async 
   assert.doesNotMatch(JSON.stringify(untrustedBody), /script|provider-secret-route/i);
 });
 
-test("Workers AI agent keeps broad expertise and exposes AI Search as an optional tool", async () => {
+test("Workers AI agent keeps broad expertise and exposes the site search as an optional tool", async () => {
   assert.equal(CHAT_MODEL, "@cf/google/gemma-4-26b-a4b-it");
   const modelCalls = [];
   let searchedFor;
@@ -532,7 +536,7 @@ test("chat endpoint fails closed instead of slicing an oversized injected answer
 
   const response = await handler({
     request: request(validBody("Giv mig en meget lang homelab-guide.")),
-    env: createEnv({ SMARTBOLIG_SEARCH: undefined }),
+    env: createEnv({ ASSETS: undefined }),
   });
   const body = await json(response);
 
@@ -1370,7 +1374,7 @@ test("successful model fallback emits a safe request-correlated warning", async 
 
   const response = await handler({
     request: request(validBody("Hvad kan du hjælpe med?")),
-    env: createEnv({ SMARTBOLIG_SEARCH: undefined }),
+    env: createEnv({ ASSETS: undefined }),
   });
 
   assert.equal(response.status, 200);
@@ -1480,7 +1484,7 @@ test("automation questions return only server-controlled official evidence sourc
 
   const response = await handler({
     request: request(validBody("Skal min Home Assistant YAML-automation have et id for at gemme spor?")),
-    env: createEnv({ SMARTBOLIG_SEARCH: undefined }),
+    env: createEnv({ ASSETS: undefined }),
   });
   const body = await json(response);
 
@@ -1513,7 +1517,7 @@ test("compound official questions merge reviewed packages and deduplicate source
 
   const response = await handler({
     request: request(validBody("Hvordan beskytter jeg ESPHome API'et, og hvad gør safe mode ved en boot loop?")),
-    env: createEnv({ SMARTBOLIG_SEARCH: undefined }),
+    env: createEnv({ ASSETS: undefined }),
   });
   const body = await json(response);
 
@@ -1631,63 +1635,34 @@ test("legacy Workers AI response shape remains compatible during platform transi
   assert.equal(result.answer, "Et svar fra det ældre bindingformat.");
 });
 
-test("optional AI Search tool returns bounded context and only canonical deduplicated citations", async () => {
+test("the site search tool returns bounded context and only canonical deduplicated citations", async () => {
   let searchInput;
-  const handler = createHandler(async ({ searchSmartbolig }) => {
-    assert.equal(typeof searchSmartbolig, "function");
-    const result = await searchSmartbolig("Zigbee sensor guide");
-    assert.equal(result.results.length, 4);
-    assert.ok(result.results.every((item) => item.text.length <= 2400));
-    return { answer: "Brug en lokal Zigbee-sensor og kontrollér kompatibiliteten." };
-  });
-  const env = createEnv({
-    SMARTBOLIG_SEARCH: {
-      async search(input) {
-        searchInput = input;
-        return {
-          chunks: [
-            {
-              text: "A".repeat(3000),
-              score: 0.94,
-              item: {
-                key: "https://smartbolig.net/da/produkter/zigbee-sensorer/",
-                metadata: { title: "Zigbee-sensorer" },
-              },
-            },
-            {
-              text: "Andet uddrag",
-              score: 0.88,
-              item: { key: "https://smartbolig.net/da/produkter/zigbee-sensorer/" },
-            },
-            {
-              text: "Engelsk guide",
-              score: 0.81,
-              item: { key: "https://www.smartbolig.net/en/produkter/zigbee-sensorer/" },
-            },
-            {
-              text: "Udenlandsk kilde",
-              score: 0.79,
-              item: { key: "https://evil.example/injected" },
-            },
-            {
-              text: "Relativ SmartBolig-side",
-              score: 0.77,
-              item: { key: "/da/home-assistant/zigbee/" },
-            },
-          ],
-        };
-      },
+  const handler = createHandler(
+    async ({ searchSmartbolig }) => {
+      assert.equal(typeof searchSmartbolig, "function");
+      const result = await searchSmartbolig("Zigbee sensor guide");
+      assert.equal(result.results.length, 4);
+      assert.ok(result.results.every((item) => item.text.length <= 2400));
+      assert.ok(result.results[0].text.startsWith("Bevægelsessensorer\nAAA"), "the section heading leads the text");
+      return { answer: "Brug en lokal Zigbee-sensor og kontrollér kompatibiliteten." };
     },
-  });
+    async (query, locale, limit) => {
+      searchInput = { query, locale, limit };
+      return [
+        { url: "/da/produkter/zigbee-sensorer/#pir", title: "Zigbee-sensorer", heading: "Bevægelsessensorer", text: "A".repeat(3000), score: 0.94 },
+        { url: "https://smartbolig.net/da/produkter/zigbee-sensorer/", title: "", heading: "", text: "Andet uddrag", score: 0.88 },
+        { url: "https://www.smartbolig.net/en/produkter/zigbee-sensorer/", text: "Engelsk guide", score: 0.81 },
+        { url: "https://evil.example/injected", title: "Fremmed", text: "Udenlandsk kilde", score: 0.79 },
+        { url: "/da/home-assistant/zigbee/", text: "Relativ SmartBolig-side", score: 0.77 },
+      ];
+    },
+  );
 
-  const response = await handler({ request: request(validBody()), env });
+  const response = await handler({ request: request(validBody()), env: createEnv() });
   const body = await json(response);
 
   assert.equal(response.status, 200);
-  assert.deepEqual(searchInput, {
-    query: "Zigbee sensor guide",
-    ai_search_options: { retrieval: { max_num_results: 5 } },
-  });
+  assert.deepEqual(searchInput, { query: "Zigbee sensor guide", locale: "da", limit: 5 });
   assert.deepEqual(body.sources, [
     {
       title: "Zigbee-sensorer",
@@ -1706,26 +1681,76 @@ test("optional AI Search tool returns bounded context and only canonical dedupli
   assert.ok(body.sources.every((source) => new URL(source.url).hostname === "smartbolig.net"));
 });
 
-test("AI Search failure degrades to general knowledge instead of failing the chat", async () => {
+test("the site search reads the index from the Worker's static files and answers in the question's language", async () => {
+  const pages = (locale, word) => [
+    {
+      url: `/${locale}/home-assistant/backup/`,
+      title: "Backup",
+      description: "",
+      sections: [{ id: "plan", heading: "Plan", text: `${word} af Home Assistant hver nat.` }],
+    },
+  ];
+  const files = new Map();
+  for (const [locale, word] of [["da", "Sikkerhedskopi"], ["en", "Snapshot"]]) {
+    for (const [name, content] of buildIndex(pages(locale, word), locale, "2026-11-14")) files.set(`/_index/${locale}/${name}`, content);
+  }
+  const fetched = [];
+  const env = createEnv({
+    ASSETS: {
+      async fetch(assetRequest) {
+        const { pathname } = new URL(assetRequest.url);
+        fetched.push(pathname);
+        return files.has(pathname) ? new Response(files.get(pathname)) : new Response("not found", { status: 404 });
+      },
+    },
+  });
+  const handler = createHandler(async ({ searchSmartbolig, locale }) => {
+    const result = await searchSmartbolig(locale === "da" ? "sikkerhedskopi hver nat" : "snapshot");
+    return { answer: `Fundet: ${result.results.map((item) => item.sourceUrl).join(", ")}` };
+  });
+
+  const danish = await json(await handler({ request: request(validBody("Hvad er ESPHome?")), env }));
+  assert.equal(danish.answer, "Fundet: https://smartbolig.net/da/home-assistant/backup/");
+  assert.deepEqual(danish.sources, [{ title: "Backup", url: "https://smartbolig.net/da/home-assistant/backup/" }]);
+  assert.ok(fetched.length > 0 && fetched.every((pathname) => pathname.startsWith("/_index/da/")), fetched.join(", "));
+
+  const english = await json(
+    await handler({ request: request({ locale: "en", messages: [{ role: "user", content: "What is ESPHome?" }] }), env }),
+  );
+  assert.equal(english.answer, "Fundet: https://smartbolig.net/en/home-assistant/backup/");
+});
+
+test("a missing index degrades to general knowledge instead of failing the chat", async () => {
   const handler = createHandler(async ({ searchSmartbolig }) => {
     const result = await searchSmartbolig("Home Assistant backup");
     assert.deepEqual(result, { results: [], unavailable: true });
     return { answer: "Du kan stadig lave en sikker backup-plan." };
   });
-  const env = createEnv({
-    SMARTBOLIG_SEARCH: {
-      async search() {
-        throw new Error("internal binding detail");
-      },
-    },
-  });
 
-  const response = await handler({ request: request(validBody()), env });
+  // The static files of createEnv answer 404 for every index file.
+  const response = await handler({ request: request(validBody("Hvad er ESPHome?")), env: createEnv() });
   assert.equal(response.status, 200);
   assert.equal((await json(response)).sourceMode, "general");
 });
 
-test("AI Search timeout degrades without blocking the broad model", async () => {
+test("a site search failure degrades to general knowledge instead of failing the chat", async () => {
+  const handler = createHandler(
+    async ({ searchSmartbolig }) => {
+      const result = await searchSmartbolig("Home Assistant backup");
+      assert.deepEqual(result, { results: [], unavailable: true });
+      return { answer: "Du kan stadig lave en sikker backup-plan." };
+    },
+    async () => {
+      throw new Error("internal binding detail");
+    },
+  );
+
+  const response = await handler({ request: request(validBody("Hvad er ESPHome?")), env: createEnv() });
+  assert.equal(response.status, 200);
+  assert.equal((await json(response)).sourceMode, "general");
+});
+
+test("a site search timeout degrades without blocking the broad model", async () => {
   const handler = createChatHandler({
     agentRunner: async ({ searchSmartbolig }) => {
       const result = await searchSmartbolig("Home Assistant automation");
@@ -1735,18 +1760,13 @@ test("AI Search timeout degrades without blocking the broad model", async () => 
     createRequestId: () => "req-timeout",
     logger: { error() {} },
     searchTimeoutMs: 5,
+    siteSearch: () => () => new Promise(() => {}),
   });
   const startedAt = Date.now();
 
   const response = await handler({
     request: request(validBody("Hvordan fejlsøger jeg en Home Assistant-automation?")),
-    env: createEnv({
-      SMARTBOLIG_SEARCH: {
-        search() {
-          return new Promise(() => {});
-        },
-      },
-    }),
+    env: createEnv(),
   });
   const body = await json(response);
 

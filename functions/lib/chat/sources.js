@@ -1,4 +1,4 @@
-// SmartBolig source handling: canonical URLs, titles and search chunk normalization.
+// SmartBolig source handling: canonical URLs, titles and search result normalization.
 
 import { MAX_SEARCH_CHUNK_CHARS, MAX_SEARCH_RESULTS } from "./limits.js";
 
@@ -49,21 +49,28 @@ function safeTitle(metadata, url) {
   return titleFromUrl(url);
 }
 
-export function normalizeSearchChunks(chunks) {
-  if (!Array.isArray(chunks)) return { results: [], sources: [] };
+/**
+ * Results from the site's own index ([{ url, title, heading, text, score }]) as
+ * model context and source links. Only smartbolig.net addresses pass, the text
+ * is cut to a fixed size, and a page is listed once as a source.
+ */
+export function normalizeSearchResults(found) {
+  if (!Array.isArray(found)) return { results: [], sources: [] };
 
   const results = [];
   const sourceMap = new Map();
 
-  for (const chunk of chunks.slice(0, MAX_SEARCH_RESULTS)) {
-    const url = canonicalSmartboligUrl(chunk?.item?.key);
-    const text = typeof chunk?.text === "string" ? chunk.text.trim().slice(0, MAX_SEARCH_CHUNK_CHARS) : "";
-    if (!url || !text) continue;
+  for (const item of found.slice(0, MAX_SEARCH_RESULTS)) {
+    const url = canonicalSmartboligUrl(item?.url);
+    const body = typeof item?.text === "string" ? item.text.trim() : "";
+    if (!url || !body) continue;
 
-    const title = safeTitle(chunk?.item?.metadata, url);
+    const heading = typeof item.heading === "string" ? item.heading.trim().replace(/\s+/g, " ").slice(0, 160) : "";
+    const title = safeTitle(item, url);
     results.push({
-      text,
-      score: Number.isFinite(chunk?.score) ? chunk.score : null,
+      text: (heading ? `${heading}
+${body}` : body).slice(0, MAX_SEARCH_CHUNK_CHARS),
+      score: Number.isFinite(item.score) ? item.score : null,
       sourceTitle: title,
       sourceUrl: url,
     });

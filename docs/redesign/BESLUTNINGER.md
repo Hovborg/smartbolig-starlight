@@ -366,3 +366,24 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Punktet om et gammelt adgangstoken er taget ud af den offentlige ejerliste og gives til
   ejeren direkte.
 - Udskudt med begrundelse står i STATUS.md under "Udskudt fra designgennemgangen".
+
+### B52. Assistenten søger i sidens eget indeks
+- Baggrund: B8. Cloudflare AI Search fakturerer fra 2026-12-01 ud over 1.000 forespørgsler
+  pr. måned, og kravet er ingen udgifter.
+- Valg: et ordbaseret indeks (BM25) over de byggede sider, delt i små JSON-filer, som
+  Workeren læser fra sine egne statiske filer. Et spørgsmål læser højst 19 filer.
+- Hvorfor ikke vektorsøgning: den kræver enten en betalt tjeneste (Vectorize, AI Search)
+  eller et modelkald pr. spørgsmål til indlejring, og den skal genindekseres uden for bygget.
+  Det ordbaserede indeks koster intet, bygges med siden og kan fejlsøges med ét
+  kommandolinjekald. Modellen får uddragene som baggrund og har stadig egen viden.
+- Hvorfor ikke Pagefind (som sidens søgefelt bruger): Pagefinds indeks læses af dens egen
+  WebAssembly i browseren og er ikke lavet til at blive læst i en Worker.
+- Hvorfor små filer: en Worker på gratisplanen har 10 ms CPU pr. kald. Ét stort indeks
+  skulle parses ved hvert spørgsmål; de små filer er på højst ca. 24 KB.
+- Dansk: bøjningsendelser skæres af ("sensorerne" → "sensor"), og sammensatte ord deles ved
+  bygning ("bevægelseslys" → "bevægelse" + "lys"). Synonymer forstås ikke.
+- Sikring mod forringelse: faste prøvespørgsmål på begge sprog stilles efter hvert byg og
+  stopper det, hvis den rigtige side falder ud af de tre bedste svar.
+- Kildekontrollen er uændret: kun `smartbolig.net`-adresser kan blive kilder, teksten
+  afkortes, og en fejl eller en overskredet tidsgrænse giver et svar uden guideuddrag.
+- AI Search-instansen hos Cloudflare er ikke slettet (se TIL-EJEREN).

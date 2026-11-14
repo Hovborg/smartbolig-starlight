@@ -8,7 +8,7 @@
     "house:posters": "node scripts/house-posters.mjs",
     "brand:build": "node scripts/brand-assets.mjs",
     "images:news-thumbs": "node scripts/ai-news-thumbs.mjs",
-    "build": "node scripts/ai-news-thumbs.mjs && astro build && node scripts/finalize-build.mjs",
+    "build": "node scripts/ai-news-thumbs.mjs && astro build && node scripts/finalize-build.mjs && node scripts/site-index.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "ai-news:draft": "node scripts/ai-news-publish.mjs --write",

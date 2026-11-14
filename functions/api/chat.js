@@ -23,6 +23,6 @@ export { createWorkersAgent } from "../lib/chat/agent.js";
 export { createChatHandler } from "../lib/chat/handler.js";
 export { buildSystemPrompt } from "../lib/chat/prompt.js";
 export { validateChatBody } from "../lib/chat/request.js";
-export { normalizeSearchChunks } from "../lib/chat/sources.js";
+export { normalizeSearchResults } from "../lib/chat/sources.js";
 
 export const onRequest = createChatHandler();

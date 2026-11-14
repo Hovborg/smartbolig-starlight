@@ -52,13 +52,15 @@ specialdesignet Astro-widget:
   `@cf/qwen/qwen3-30b-a3b-fp8` med et kortere, separat budget. Qwen-fallbacken
   er valgt til flersproget instruktionsefterlevelse og tekniske svar frem for
   blot lavest mulig latenstid.
-- **SmartBolig som ekstra kilde:** Bindingen `SMARTBOLIG_SEARCH` peger på
-  `smartbolig-ai-search`. Faglige smart-home/homelab-spørgsmål får højst ét
-  afgrænset opslag, hvis bindingen er tilgængelig. Resultatet gives til den
-  brede model som ubetroet reference-data. Efter opslaget får både primær- og
-  fallbackmodel en særskilt slutprompt uden et tilgængeligt søgeværktøj, så
-  interne værktøjsnavne og retrieval-trin ikke bliver vist som kommandoer.
-  AI Search er ikke assistentens eneste viden.
+- **SmartBolig som ekstra kilde:** Workeren slår op i et indeks over sidens
+  egne sider. Indekset bygges sammen med siden og ligger som statiske filer
+  under `/_index/`; der bruges ingen betalt søgetjeneste (se
+  [`docs/assistent.md`](docs/assistent.md), kontrolleret 2026-11-14). Faglige
+  smart-home/homelab-spørgsmål får højst ét afgrænset opslag. Resultatet gives
+  til den brede model som ubetroet reference-data. Efter opslaget får både
+  primær- og fallbackmodel en særskilt slutprompt uden et tilgængeligt
+  søgeværktøj, så interne værktøjsnavne og retrieval-trin ikke bliver vist som
+  kommandoer. Sidens guides er ikke assistentens eneste viden.
 - **Kontrolleret officiel evidens:** Syv gennemgåede evidenspakker vælges
   deterministisk i Workeren: automationstrace, automationsmåder,
   template-tilstande og Home Assistant-sikkerhed samt ESPHome-sikkerhed,
@@ -223,6 +225,8 @@ Guidesidernes top, sidemenu og sidefod er beskrevet i `docs/designsystem.md` und
 | `runtime.js` | timeout med afbrydelse og sikre fejlnavne til log |
 | `agent.js` | Workers AI-agenten: primær model, reservemodel og søgeløkken |
 | `handler.js` | selve anmodningsforløbet: metode, oprindelse, rate limit, validering, søgning og svar |
+
+Søgningen i sidens egne guides ligger i `functions/lib/site-search/` (søgning i Workeren) og `scripts/lib/site-index/` (bygning af indekset). Opbygning, fejlsøgning og fjernelse: [`docs/assistent.md`](docs/assistent.md).
 
 Det officielle bevismateriale ligger fortsat i `functions/lib/official-evidence.js`.
 

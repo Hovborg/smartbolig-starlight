@@ -322,13 +322,9 @@ test("Cloudflare bindings and bilingual privacy copy stay coupled to the assista
     "compatibility_date must stay within the runtime bundled by pinned Wrangler 4.81.1",
   );
   assert.equal(wrangler.ai.binding, "AI");
-  assert.deepEqual(wrangler.ai_search, [
-    {
-      binding: "SMARTBOLIG_SEARCH",
-      instance_name: "smartbolig-ai-search",
-      remote: true,
-    },
-  ]);
+  // The assistant searches the site's own index in the static files, not a paid search service.
+  assert.equal(wrangler.ai_search, undefined);
+  assert.equal(wrangler.assets.binding, "ASSETS");
   assert.deepEqual(wrangler.ratelimits, [
     {
       name: "CHAT_RATE_LIMITER",
