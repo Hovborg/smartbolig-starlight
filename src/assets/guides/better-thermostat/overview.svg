@@ -1,43 +1,43 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 626" role="img" lang="da" font-family="system-ui, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 890" role="img" lang="da" font-family="system-ui, sans-serif">
   <title>Varmestyring med og uden Better Thermostat</title>
   <desc>Uden Better Thermostat måler radiatortermostaten (TRV) 24 °C ved radiatoren, selvom rummet kun er 21 °C, og lukker for varmen for tidligt. Med Better Thermostat måler en sensor i rummet 21 °C, og termostaten rettes efter den.</desc>
-  <rect x="0" y="0" width="640" height="626" fill="#1a1a2e"/>
-  <text x="320" y="46" font-size="26" fill="#e2e8f0" text-anchor="middle" font-weight="700">Med og uden Better Thermostat</text>
-  <rect x="24" y="70" width="592" height="260" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2.5"/>
-  <text x="320" y="108" font-size="22" fill="#f87171" text-anchor="middle" font-weight="700">Uden Better Thermostat</text>
-  <rect x="40" y="130" width="214" height="180" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
-  <text x="147" y="160" font-size="18" fill="#a3b1c6" text-anchor="middle">rummet</text>
-  <text x="147" y="192" font-size="26" fill="#ffffff" text-anchor="middle" font-weight="700">21 °C</text>
-  <rect x="56" y="252" width="76" height="44" rx="5" fill="#64748b"/>
-  <path d="M71.2 258L71.2 290" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M86.4 258L86.4 290" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M101.6 258L101.6 290" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M116.8 258L116.8 290" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="132" y="262" width="26" height="24" rx="5" fill="#ef4444"/>
-  <text x="110" y="240" font-size="18" fill="#fca5a5" text-anchor="middle" font-weight="700">TRV: 24 °C</text>
-  <text x="272" y="166" font-size="18" fill="#e2e8f0">TRV'en måler ved radiatoren:</text>
-  <text x="272" y="194" font-size="18" fill="#e2e8f0">24 °C, men rummet er kun 21 °C.</text>
-  <text x="272" y="222" font-size="18" fill="#e2e8f0">Den lukker for varmen for tidligt.</text>
-  <text x="272" y="272" font-size="18" fill="#fca5a5" font-weight="700">Rummet bliver for koldt</text>
-  <rect x="24" y="348" width="592" height="260" rx="10" fill="#1e293b" stroke="#22c55e" stroke-width="2.5"/>
-  <text x="320" y="386" font-size="22" fill="#4ade80" text-anchor="middle" font-weight="700">Med Better Thermostat</text>
-  <rect x="40" y="408" width="214" height="180" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
-  <text x="147" y="438" font-size="18" fill="#a3b1c6" text-anchor="middle">rummet</text>
-  <text x="147" y="470" font-size="26" fill="#ffffff" text-anchor="middle" font-weight="700">21 °C</text>
-  <rect x="56" y="530" width="76" height="44" rx="5" fill="#64748b"/>
-  <path d="M71.2 536L71.2 568" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M86.4 536L86.4 568" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M101.6 536L101.6 568" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M116.8 536L116.8 568" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <rect x="132" y="540" width="26" height="24" rx="5" fill="#22c55e"/>
-  <text x="110" y="518" font-size="18" fill="#4ade80" text-anchor="middle" font-weight="700">offset −3 °C</text>
-  <rect x="202" y="526" width="34" height="44" rx="6" fill="#2563eb" stroke="#60a5fa" stroke-width="1.5"/>
-  <circle cx="219" cy="540" r="5" fill="#ffffff"/>
-  <text x="214" y="514" font-size="18" fill="#60a5fa" text-anchor="middle">sensor</text>
-  <path d="M200 554L175 554" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M164 554L175 560L175 548Z" fill="#60a5fa"/>
-  <text x="272" y="444" font-size="18" fill="#e2e8f0">En sensor i rummet måler 21 °C.</text>
-  <text x="272" y="472" font-size="18" fill="#e2e8f0">Better Thermostat retter TRV'en</text>
-  <text x="272" y="500" font-size="18" fill="#e2e8f0">efter sensoren (kalibrering).</text>
-  <text x="272" y="550" font-size="18" fill="#4ade80" font-weight="700">Varmen passer til rummet</text>
+  <rect x="0" y="0" width="640" height="890" fill="#1a1a2e"/>
+  <text x="320" y="44" font-size="28" fill="#e2e8f0" text-anchor="middle" font-weight="700">Med og uden Better Thermostat</text>
+  <rect x="24" y="72" width="592" height="388" rx="10" fill="#1e293b" stroke="#ef4444" stroke-width="2.5"/>
+  <text x="320" y="112" font-size="24" fill="#f87171" text-anchor="middle" font-weight="700">Uden Better Thermostat</text>
+  <rect x="40" y="132" width="560" height="140" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+  <rect x="96" y="194" width="76" height="44" rx="5" fill="#64748b"/>
+  <path d="M111.2 200L111.2 232" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M126.4 200L126.4 232" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M141.6 200L141.6 232" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M156.8 200L156.8 232" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="172" y="198" width="26" height="24" rx="5" fill="#ef4444"/>
+  <text x="148" y="176" font-size="22" fill="#fca5a5" text-anchor="middle" font-weight="700">TRV: 24 °C</text>
+  <text x="470" y="188" font-size="22" fill="#a3b1c6" text-anchor="middle">rummet</text>
+  <text x="470" y="232" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700">21 °C</text>
+  <text x="48" y="312" font-size="22" fill="#e2e8f0">TRV'en måler ved radiatoren:</text>
+  <text x="48" y="342" font-size="22" fill="#e2e8f0">24 °C, men rummet er kun 21 °C.</text>
+  <text x="48" y="372" font-size="22" fill="#e2e8f0">Den lukker for varmen for tidligt.</text>
+  <text x="48" y="414" font-size="22" fill="#fca5a5" font-weight="700">Rummet bliver for koldt</text>
+  <rect x="24" y="478" width="592" height="388" rx="10" fill="#1e293b" stroke="#22c55e" stroke-width="2.5"/>
+  <text x="320" y="518" font-size="24" fill="#4ade80" text-anchor="middle" font-weight="700">Med Better Thermostat</text>
+  <rect x="40" y="538" width="560" height="140" rx="10" fill="#0f172a" stroke="#334155" stroke-width="1.5"/>
+  <rect x="96" y="600" width="76" height="44" rx="5" fill="#64748b"/>
+  <path d="M111.2 606L111.2 638" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M126.4 606L126.4 638" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M141.6 606L141.6 638" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M156.8 606L156.8 638" fill="none" stroke="#334155" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="172" y="604" width="26" height="24" rx="5" fill="#22c55e"/>
+  <text x="148" y="582" font-size="22" fill="#4ade80" text-anchor="middle" font-weight="700">offset −3 °C</text>
+  <text x="470" y="594" font-size="22" fill="#a3b1c6" text-anchor="middle">rummet</text>
+  <text x="470" y="638" font-size="30" fill="#ffffff" text-anchor="middle" font-weight="700">21 °C</text>
+  <rect x="292" y="598" width="34" height="44" rx="6" fill="#2563eb" stroke="#60a5fa" stroke-width="1.5"/>
+  <circle cx="309" cy="612" r="5" fill="#ffffff"/>
+  <text x="309" y="582" font-size="22" fill="#60a5fa" text-anchor="middle">sensor</text>
+  <path d="M286 620L223 620" fill="none" stroke="#60a5fa" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M212 620L223 614L223 626Z" fill="#60a5fa"/>
+  <text x="48" y="718" font-size="22" fill="#e2e8f0">En sensor i rummet måler 21 °C.</text>
+  <text x="48" y="748" font-size="22" fill="#e2e8f0">Better Thermostat retter TRV'en</text>
+  <text x="48" y="778" font-size="22" fill="#e2e8f0">efter sensoren (kalibrering).</text>
+  <text x="48" y="820" font-size="22" fill="#4ade80" font-weight="700">Varmen passer til rummet</text>
 </svg>

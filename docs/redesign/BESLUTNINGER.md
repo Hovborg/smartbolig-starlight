@@ -734,3 +734,19 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   - Ikke rettet: pladsen flytter kommentarerne ned, når den vises (teksten i dokumentationen
     er rettet, så den ikke lover andet), og fem produkter har to id'er, til de rigtige
     adresser er hentet i Partner-Ads.
+
+### B59. Tekst i guidernes tegninger er mindst 22 enheder
+- Baggrund: efter første omtegning var teksten 18 enheder i en 640 enheder bred `viewBox`,
+  ca. 9 px i telefonens tekstspalte på 328 px. Det er under de 11 px, resten af siden bruger
+  som mindste tekst.
+- Valg: mindst 22 enheder (ca. 11 px) i alle 36 filer. Lange linjer brydes, kasser bliver
+  højere, og dele, der stod side om side, stables, så tegningerne bliver højere i stedet for
+  bredere. Reglen står i `docs/billeder.md` under "Diagrammer".
+- Fravalgt: en særlig, smallere tegning til telefoner (to filer pr. sprog at holde ens) og
+  vandret rulning (læseren mister overblikket over en ledningsføring).
+- LD2410-tegningen viser benene i printets rækkefølge (TX, RX, OUT, GND, VCC; Hi-Links manual
+  til HLK-LD2410C, V1.00, læst 2026-11-14), så ingen ledning krydser. OUT har ingen ledning;
+  det står under tegningen, fordi guidens kode ikke bruger benet.
+- Efter den uafhængige gennemgang: den stiplede stump fra OUT er fjernet (den lignede en løs
+  ledning), "bruges ikke" er flyttet ud af ESP32-kassen, og den engelske Proxmox-tegning
+  skriver "USB passthrough" i to ord som guiden.
