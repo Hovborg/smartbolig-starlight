@@ -14,11 +14,12 @@ export function createTags({ win, doc, analyticsId, adsPublisher }) {
     win.dataLayer.push(arguments);
   };
 
-  const add = (src, crossOrigin) => {
+  const add = (src, { crossOrigin, onError } = {}) => {
     const script = doc.createElement("script");
     script.async = true;
     script.src = src;
     if (crossOrigin) script.crossOrigin = crossOrigin;
+    if (onError) script.addEventListener("error", onError, { once: true });
     doc.head.append(script);
   };
 
@@ -31,17 +32,21 @@ export function createTags({ win, doc, analyticsId, adsPublisher }) {
     update(decision) {
       win.gtag("consent", "update", asConsentMode(decision));
     },
+    /** Both return true the first time, when the script is put on the page. */
     loadAnalytics() {
-      if (loaded.analytics) return;
+      if (loaded.analytics) return false;
       loaded.analytics = true;
       win.gtag("js", new Date());
       win.gtag("config", analyticsId);
       add(`${ANALYTICS_URL}${analyticsId}`);
+      return true;
     },
-    loadAds() {
-      if (loaded.ads) return;
+    /** onError: the script could not be fetched (a blocker, no network). */
+    loadAds(onError) {
+      if (loaded.ads) return false;
       loaded.ads = true;
-      add(`${ADS_URL}${adsPublisher}`, "anonymous");
+      add(`${ADS_URL}${adsPublisher}`, { crossOrigin: "anonymous", onError });
+      return true;
     },
     loaded: () => ({ ...loaded }),
   };

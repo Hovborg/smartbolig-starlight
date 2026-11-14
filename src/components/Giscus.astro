@@ -1,13 +1,10 @@
 ---
 // Giscus comments component for SmartBolig.net
 // Only shows on article pages, not on index/splash pages
+import { isArticlePage } from "../lib/article-page.mjs";
 
 const pathname = Astro.url.pathname;
 const locale = Astro.currentLocale || (pathname.startsWith('/en/') ? 'en' : 'da');
-const isSplashPage = pathname.match(/^\/(da|en)\/?$/);
-const isLegalPage = pathname.includes('/juridisk/');
-const isIndexPage = pathname.endsWith('/index') || pathname.match(/\/(home-assistant|esp32|produkter|automationer|sikkerhed|ai|ai-cli|nyheder)\/?$/);
-const isUtilityPage = pathname.includes('/404') || pathname.includes('/kontakt') || pathname.includes('/om-os');
 const copy = {
   da: {
     title: "Kommentarer",
@@ -25,8 +22,8 @@ const copy = {
   },
 }[locale === "en" ? "en" : "da"];
 
-// Don't show comments on splash, legal, section index, or utility pages.
-const showComments = !isSplashPage && !isLegalPage && !isIndexPage && !isUtilityPage;
+// Comments only under a guide or a news article.
+const showComments = isArticlePage(pathname);
 ---
 
 {showComments && (

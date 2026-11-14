@@ -701,3 +701,36 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   - `llms.txt`: sider under et område ved navn `start` faldt stille ud; nu stopper bygget.
   - Valgt fra: at begrænse læsningen af et svar i bytes. Fristen på 15 sekunder sætter loftet,
     og kontrollerne henter kun sidens egne adresser.
+### B60. Indtjening: klik på reklamelinks tælles, og én fast annonceplads står klar
+- Baggrund: reklamelinkene lå i et register (115 produkter), men ingen kunne se, hvilke guider
+  og produkter læserne trykkede på; Partner-Ads viser kun klik og salg pr. butik. Siden havde
+  heller ingen fast annonceplads, kun AdSenses automatiske annoncer.
+- Valg, klik: efter et ja til statistik sender et tryk på et reklamelink hændelsen
+  `affiliate_click` (produkt og butik) til Google Analytics. Lytteren sættes først op i
+  `boot.mjs`, når Analytics er hentet; før et ja og efter et nej sendes intet.
+- Fravalgt, klik: en egen tæller i Workeren (uden samtykke). Den ville kræve lager, drift og en
+  juridisk vurdering af, om tælling uden samtykke er i orden. Analytics findes allerede og er
+  bag samtykket.
+- Valg, annonceplads: én plads under teksten i guides og nyheder, over kommentarerne
+  (`AdSlot.astro`). Den står ikke i den byggede side, før den har et nummer fra AdSense
+  (`src/data/ad-slots.mjs`), og den er skjult, til læseren har sagt ja til annoncer. Ingen
+  inline-style og intet script i komponenten, så den strenge CSP holder.
+- Fravalgt, annonceplads: pladser midt i teksten og på forsiden. De flytter indhold, mens
+  læseren læser, og forsiden skal være ren. Automatiske annoncer kan ejeren stadig slå til i
+  AdSense.
+- Samme regel ét sted: "er det en guide eller en nyhed" lå i `Giscus.astro` og bruges nu også
+  af annoncepladsen; den er flyttet til `src/lib/article-page.mjs`.
+- Ideer, ikke bygget: startsæt-bygger med reklamelinks fra registret (bygges som værktøj), og
+  henvisning til elaftaler ved elprisværktøjet (kræver et godkendt program; ejerens liste).
+- Kontrol: `npm run site:test`; bygget side i headless Chrome med efterlignet samtykke.
+  Ikke set: hændelsen i Google Analytics og en rigtig annonce i pladsen (kræver udgivet
+  samtykkebesked og et annoncenummer).
+- Uafhængig gennemgang før udgivelsen (ingen blokerende fund). Rettet:
+  - Etiketten er "Annoncer"/"Advertisements"; Googles regler tillader ikke "Annonce".
+  - Pladsen skjules igen, hvis AdSense-scriptet ikke kan hentes, og den er væk på print.
+  - Cookiepolitikken nævner klikmålingen på begge sprog.
+  - Testene ser nu en lytter, der sættes op to gange, det samme id to gange i én gruppefil og
+    en anden fil end `boot.mjs`, der importerer klikmålingen eller annoncepladserne.
+  - Ikke rettet: pladsen flytter kommentarerne ned, når den vises (teksten i dokumentationen
+    er rettet, så den ikke lover andet), og fem produkter har to id'er, til de rigtige
+    adresser er hentet i Partner-Ads.

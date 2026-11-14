@@ -33,8 +33,17 @@ Sidst opdateret: 2026-11-14.
      en enhed" og "Mål indholdets effektivitet"); knappen "Giv samtykke" siger ja til alle.
    - Vælg, om læsere, der siger nej, må få "begrænsede annoncer" (uden cookies). Siden henter
      i dag ingen annoncer efter et nej.
-   - Annoncer: automatiske annoncer er til eller fra efter dit valg, og annonceenhederne findes.
-     Siden har endnu ingen faste annoncepladser i guiderne.
+   - Annoncer: automatiske annoncer er til eller fra efter dit valg.
+   - Fast annonceplads: siden har én plads under hver guide og nyhed, men den er slukket, til
+     den får et nummer. Opret en annonceenhed (Annoncer → Efter annonceenhed → Displayannonce,
+     responsiv), og giv Claude tallet efter `data-ad-slot=`, eller skriv det selv i
+     `src/data/ad-slots.mjs` (`docs/indtjening.md`).
+   **Google Analytics, klik på reklamelinks:** opret to tilpassede dimensioner (Administrator
+   → Datavisning → Tilpassede definitioner → Opret tilpasset dimension, omfang "Hændelse") med
+   hændelsesparametrene `product` og `store`. Så viser rapporterne, hvilke produkter læserne
+   trykker på (hændelsen hedder `affiliate_click`). Gør det med det samme: dimensionerne
+   virker ikke bagud, så tryk før oprettelsen tælles uden produktnavn. Menunavnene er ikke
+   set i din konto.
    **Google Analytics:** tjek, at dataopbevaring står til 14 måneder (det står i
    privatlivspolitikken), og at Google-signaler er slået fra, hvis du ikke vil have dem.
 2. **Partner-Ads.** Ikke logget ind. Flere Proshop-links åbner et forkert produkt (liste i
