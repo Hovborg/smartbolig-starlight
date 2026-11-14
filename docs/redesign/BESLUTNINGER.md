@@ -106,3 +106,10 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   Prisen regnes fra de meldte tokens gange Cloudflares pris pr. model (`workers/news-llm/src/prices.js`).
 - Fravalgt: KV (ingen atomar læs-og-skriv) og en fast reserve pr. kald (for lav for store kald).
 - Durable Objects med SQLite-lager er med i Workers-planen; forbruget her er omkring 100 kald i døgnet.
+
+## 2026-11-14
+
+### B28. Værtskørslerne for nyheden er fjernet
+- Fjernet: Windows-opgaven, systemd-timeren og OpenClaw-jobbet med installationsscripts, fejlmelder, forældelsestjek i shell, PR-identitetshjælperen, hjælperen til offentlig kontrol efter udgivelse og deres tests.
+- Begrundelse: ét udgivelsesforløb (B5, B15). De tre seneste fejlklasser var alle værtsfejl. Ældre kørsler ved siden af workflowet kan udgive det samme to gange.
+- Bevaret: workflowtestene (ét flyttet til `scripts/ai-news-workflow.test.mjs`), `ai-news-staleness.mjs` og alle kontroller, som workflowet bruger.

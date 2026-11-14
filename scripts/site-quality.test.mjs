@@ -37,13 +37,6 @@ test("content audit understands Node-RED snippets and fails on real issues", asy
   assert.match(source, /return 1 if total else 0/);
 });
 
-test("daily news automation cannot overlay origin/main with a stale local site", async () => {
-  const source = await read("scripts/openclaw-ai-news-daily.sh");
-  assert.match(source, /git reset --hard origin\/main/);
-  assert.doesNotMatch(source, /SYNC_ITEMS=/);
-  assert.doesNotMatch(source, /rsync .*SITE_ROOT/);
-});
-
 test("homepages compose the portal orchestrator and avoid unsupported claims", async () => {
   for (const locale of ["da", "en"]) {
     const home = await read(`src/content/docs/${locale}/index.mdx`);

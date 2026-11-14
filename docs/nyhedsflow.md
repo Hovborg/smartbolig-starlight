@@ -189,3 +189,7 @@ ikke kravene.
 - OpenAI's artikelsider svarer 403 til robotter. Kun korte feed-resuméer er
   tilgængelige, og de falder for kravet om 240 tegn. Det omgås ikke.
 - GitHub kan forsinke eller springe planlagte kørsler over. Derfor to tidspunkter.
+
+## Historik
+
+Tidligere kørte nyheden som en Windows-opgave (`Shark Smartbolig AI News`) med ældre kørsler via systemd og OpenClaw. Alle tre er fjernet 2026-11-14, så der kun er én udgivelsesvej. Genopret dem ikke ved siden af workflowet.
