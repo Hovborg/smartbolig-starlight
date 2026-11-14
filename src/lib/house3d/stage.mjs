@@ -6,17 +6,10 @@ import {
 import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { createBackdrop, setBackdrop } from "./backdrop.mjs";
 import { createPost } from "./post.mjs";
+import { chipName, SOFTWARE } from "./probe.mjs";
 
 const CENTER = new Vector3(0.6, 0, 0.7);
 const RAD = Math.PI / 180;
-// Names of WebGL drawn by the processor instead of a graphics chip.
-const SOFTWARE = /swiftshader|llvmpipe|softpipe|software|basic render/i;
-
-/** The name of the graphics chip, or "" when the browser hides it. */
-function chipName(gl) {
-  const info = gl.getExtension("WEBGL_debug_renderer_info");
-  return info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : "";
-}
 
 /**
  * The colour to draw so the page colour comes out unchanged after tone
@@ -31,7 +24,8 @@ function beforeToneMapping(color) {
 /**
  * Throws when the browser has no WebGL; the caller keeps its still image.
  * A live house also needs a graphics chip: drawn in software it would use the
- * whole processor. Still pictures are drawn once and may take their time.
+ * whole processor. The page asks first (probe.mjs); this is the second lock.
+ * Still pictures are drawn once and may take their time.
  * `quality` "high" adds the finishing pass (post.mjs); "low" draws directly.
  */
 export function createStage(canvas, { still = false, shadowSize = 2048, quality = "high", background = "#090d11" } = {}) {
@@ -42,6 +36,7 @@ export function createStage(canvas, { still = false, shadowSize = 2048, quality 
   });
   if (!still && SOFTWARE.test(chipName(renderer.getContext()))) {
     renderer.dispose();
+    renderer.forceContextLoss();
     throw new Error("WebGL is drawn in software");
   }
   renderer.toneMapping = NeutralToneMapping;

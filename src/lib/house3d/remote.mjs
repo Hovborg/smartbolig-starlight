@@ -13,24 +13,23 @@ const startWorker = () => new Worker(new URL("./worker.mjs", import.meta.url), {
  * when the worker cannot draw, or loses its graphics context later.
  */
 export function mountHouse(canvas, { onFrame, onGone, ...options } = {}, createWorker = startWorker) {
+  // The worker cannot read the page's design tokens: the colours go with the message.
+  const colors = options.colors ?? (canvas.isConnected ? readSystemColors(canvas) : systemFallback);
   let worker;
-  let surface;
   try {
     worker = createWorker();
-    surface = canvas.transferControlToOffscreen();
+    worker.addEventListener("message", ({ data }) => {
+      if (data.type === "spots") return onFrame?.(data.spots);
+      if (data.type === "failed") console.warn("3D house unavailable:", data.reason);
+      if (data.type === "failed" || data.type === "lost") onGone?.();
+    });
+    worker.addEventListener("error", () => onGone?.());
+    const surface = canvas.transferControlToOffscreen();
+    worker.postMessage({ type: "mount", canvas: surface, options: { ...options, colors } }, [surface]);
   } catch {
     worker?.terminate();
     return null;
   }
-  worker.addEventListener("message", ({ data }) => {
-    if (data.type === "spots") return onFrame?.(data.spots);
-    if (data.type === "failed") console.warn("3D house unavailable:", data.reason);
-    if (data.type === "failed" || data.type === "lost") onGone?.();
-  });
-  worker.addEventListener("error", () => onGone?.());
-  // The worker cannot read the page's design tokens: the colours go with the message.
-  const colors = options.colors ?? (canvas.isConnected ? readSystemColors(canvas) : systemFallback);
-  worker.postMessage({ type: "mount", canvas: surface, options: { ...options, colors } }, [surface]);
 
   const house = { dispose: () => worker.terminate() };
   for (const name of CONTROLS) house[name] = (...args) => worker.postMessage({ type: "call", name, args });

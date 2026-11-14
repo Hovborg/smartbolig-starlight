@@ -11,6 +11,10 @@ import {
 
 const SETTLE_MS = 2600;
 const LOW_WALL = 0.17;
+// The longest the first picture waits for the shaders. A browser that never
+// answers must not leave the still picture standing for good.
+const COMPILE_LIMIT_MS = 2500;
+const pause = (ms) => new Promise((done) => { setTimeout(done, ms); });
 
 export function createEngine(canvas, options) {
   const { colors, still = false, onFrame } = options;
@@ -37,6 +41,7 @@ export function createEngine(canvas, options) {
   // The first frame waits for the shaders (compileStage). Stills draw at once.
   let compiling = null;
   let ready = still;
+  let disposed = false;
 
   const goals = { ...modes[mode].levels, ...linkLevels(focus) };
   const levels = { ...goals };
@@ -126,6 +131,7 @@ export function createEngine(canvas, options) {
   }
 
   function wake() {
+    if (disposed) return;
     activeUntil = performance.now() + SETTLE_MS;
     if (!raf && ready && !still) {
       last = performance.now();
@@ -134,10 +140,17 @@ export function createEngine(canvas, options) {
   }
 
   function resize(w, h, pixelRatio = Math.min(globalThis.devicePixelRatio || 1, 2)) {
+    if (disposed) return;
     width = Math.max(1, w);
     height = Math.max(1, h);
     sizeStage(stage, width, height, pixelRatio);
-    compiling ??= ready ? null : compileStage(stage).catch(() => {}).then(() => { ready = true; wake(); });
+    if (!ready && !compiling) {
+      const compiled = compileStage(stage).catch(() => {});
+      compiling = Promise.race([compiled, pause(COMPILE_LIMIT_MS)]).then(() => {
+        ready = true;
+        wake();
+      });
+    }
     wake();
   }
 
@@ -178,6 +191,7 @@ export function createEngine(canvas, options) {
       draw();
     },
     dispose() {
+      disposed = true;
       cancelAnimationFrame(raf);
       stage.post?.dispose();
       stage.renderer.dispose();

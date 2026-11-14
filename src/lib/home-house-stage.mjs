@@ -4,6 +4,7 @@
 // where the browser can, so the page stays responsive while the model starts
 // and while it moves. Turning and the moment of loading: home-house-input.mjs.
 import { bindTurning, scheduleLoad } from "./home-house-input.mjs";
+import { drawingPlace } from "./house3d/probe.mjs";
 
 export function createHouseStage(win, doc, root, { onUnavailable } = {}) {
   const html = doc.documentElement;
@@ -55,6 +56,8 @@ export function createHouseStage(win, doc, root, { onUnavailable } = {}) {
   }
 
   function onFrame(points) {
+    // A worker that was stopped can still have a picture on its way.
+    if (!house) return;
     placeSpots(points);
     if (live || gone) return;
     // The first finished picture is on the canvas: fade it in.
@@ -77,13 +80,20 @@ export function createHouseStage(win, doc, root, { onUnavailable } = {}) {
   }
 
   async function mount(options) {
-    if (typeof win.Worker === "function" && typeof canvas.transferControlToOffscreen === "function") {
-      const remote = (await import("./house3d/remote.mjs")).mountHouse(canvas, options);
-      handedOver = Boolean(remote);
-      if (remote) return remote;
+    // Asked first: a browser that cannot draw the house fetches none of it.
+    const place = drawingPlace(win, doc);
+    if (place === "none") return null;
+    if (place === "worker") {
+      const remote = await import("./house3d/remote.mjs");
+      // Removed while the file was fetched: the canvas stays with the page.
+      if (gone) return null;
+      const house = remote.mountHouse(canvas, options);
+      handedOver = Boolean(house);
+      if (house) return house;
     }
     // Browsers that cannot draw a canvas from a worker draw it on the page.
-    return (await import("./house3d/index.mjs")).mountHouse(canvas, options);
+    const onPage = await import("./house3d/index.mjs");
+    return gone ? null : onPage.mountHouse(canvas, options);
   }
 
   async function start() {
@@ -104,9 +114,11 @@ export function createHouseStage(win, doc, root, { onUnavailable } = {}) {
     }
     if (!mounted) return still();
     house = mounted;
-    // The visitor may have picked another time of day while the house loaded.
+    // The visitor may have picked another time of day, or switched motion
+    // off, while the house loaded.
     shown = first;
     apply();
+    house.setMotion(motionOn());
     const size = () => house?.resize(screen.clientWidth, screen.clientHeight, ratio());
     size();
     if (win.ResizeObserver) {

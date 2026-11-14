@@ -8,6 +8,7 @@ import { blankCanvas } from "../src/lib/house3d/canvas.mjs";
 import { systemFallback } from "../src/lib/house3d/palette.mjs";
 import { CONTROLS } from "../src/lib/house3d/protocol.mjs";
 import { mountHouse } from "../src/lib/house3d/remote.mjs";
+import { importGraph } from "./lib/import-graph.mjs";
 
 const read = (path) => readFile(new URL(`../${path}`, import.meta.url), "utf8");
 const DIR = "src/lib/house3d/";
@@ -25,21 +26,6 @@ class FakeWorker {
 function fakeCanvas() {
   const surface = { offscreen: true };
   return { surface, isConnected: false, handed: 0, transferControlToOffscreen() { this.handed += 1; return surface; } };
-}
-
-/** Every file reached from `entry` through relative imports. */
-async function graph(entry) {
-  const seen = new Map();
-  const follow = async (path) => {
-    if (seen.has(path)) return;
-    const source = await read(path);
-    seen.set(path, source);
-    for (const [, target] of source.matchAll(/(?:from|import)\s*\(?\s*["'](\.\.?\/[^"']+)["']/g)) {
-      await follow(new URL(target, `file:///${path}`).pathname.slice(1));
-    }
-  };
-  await follow(entry);
-  return seen;
 }
 
 test("the page hands the canvas to the worker together with the colours", () => {
@@ -113,6 +99,13 @@ test("a canvas that cannot be handed over stops the worker again", () => {
   assert.equal(worker.sent.length, 0);
 });
 
+test("a worker that refuses the mount message is stopped", () => {
+  const worker = new FakeWorker();
+  worker.postMessage = () => { throw new Error("could not be cloned"); };
+  assert.equal(mountHouse(fakeCanvas(), {}, () => worker), null);
+  assert.equal(worker.terminated, true);
+});
+
 test("disposing the house stops the worker", () => {
   const worker = new FakeWorker();
   const house = mountHouse(fakeCanvas(), {}, () => worker);
@@ -126,44 +119,78 @@ test("the worker only runs the controls the engine has", async () => {
     assert.match(engine, new RegExp(`^\\s+${name}(\\(|,$)`, "m"), `engine.mjs has no control named ${name}`);
   }
   assert.match(worker, /CONTROLS\.includes\(data\.name\)/, "a message must not be able to call anything else");
-  assert.match(worker, /type: "failed"/, "a house that cannot start must tell the page");
   assert.match(worker, /webglcontextlost/);
 });
 
-test("nothing the worker loads needs a document or a window", async () => {
-  const files = await graph(`${DIR}worker.mjs`);
-  assert.ok(files.has(`${DIR}engine.mjs`) && files.has(`${DIR}parts/shell.mjs`) && files.has(`${DIR}textures.mjs`));
-  for (const [path, source] of files) {
-    if (path === `${DIR}canvas.mjs`) continue;
-    // assert.ok keeps a failure short; doesNotMatch would print the whole file.
-    assert.ok(!/\b(document|window)\.\w/.test(source), `${path} would fail in a worker`);
+test("a worker that cannot draw tells the page, and ignores calls to a house it does not have", async () => {
+  const posted = [];
+  const listeners = {};
+  const before = globalThis.self;
+  const { error } = console;
+  globalThis.self = {
+    addEventListener: (type, handler) => { listeners[type] = handler; },
+    postMessage: (message) => posted.push(message),
+  };
+  console.error = () => {};
+  try {
+    await import("../src/lib/house3d/worker.mjs");
+    const send = (data) => listeners.message({ data });
+    send({ type: "call", name: "setMode", args: ["day"] });
+    assert.deepEqual(posted, [], "nothing is mounted yet");
+    // A canvas without WebGL: the same answer as a browser that has none.
+    send({ type: "mount", canvas: { addEventListener() {} }, options: { colors: systemFallback } });
+    assert.equal(posted.length, 1);
+    assert.equal(posted[0].type, "failed");
+    assert.equal(typeof posted[0].reason, "string");
+    send({ type: "call", name: "resize", args: [800, 600, 1] });
+    send({ type: "call", name: "dispose", args: [] });
+    send({ type: "unknown" });
+    assert.equal(posted.length, 1);
+  } finally {
+    console.error = error;
+    if (before === undefined) delete globalThis.self; else globalThis.self = before;
   }
-  // Read on the page and sent with the mount message instead (remote.mjs).
-  assert.doesNotMatch(files.get(`${DIR}engine.mjs`), /readSystemColors|getComputedStyle/);
+});
+
+test("nothing the worker loads needs a document or a window", async () => {
+  const files = await importGraph(`${DIR}worker.mjs`);
+  assert.ok(files.has(`${DIR}engine.mjs`) && files.has(`${DIR}parts/shell.mjs`) && files.has(`${DIR}textures.mjs`));
+  // Page-only code in a file the worker also loads; the worker never calls it.
+  const pageOnly = new Map([
+    [`${DIR}canvas.mjs`, "blankCanvas asks which of the two it is in"],
+    [`${DIR}palette.mjs`, "readSystemColors is called by the page"],
+    [`${DIR}probe.mjs`, "drawingPlace is called by the page, with the window as an argument"],
+  ]);
+  const page = /\b(document|window)\.\w|(?<![.\w])(getComputedStyle|matchMedia|requestIdleCallback)\(|(?<![.\w])(localStorage|sessionStorage)\b/;
+  for (const [path, source] of files) {
+    if (pageOnly.has(path)) continue;
+    // assert.ok keeps a failure short; doesNotMatch would print the whole file.
+    assert.ok(!page.test(source), `${path} would fail in a worker`);
+    assert.ok(!/readSystemColors|drawingPlace/.test(source), `${path} calls code that only runs on the page`);
+  }
+  assert.match("const size = getComputedStyle(element);", page);
+  assert.match("if (matchMedia('(pointer: coarse)').matches) {}", page);
+  assert.match("localStorage.getItem('x')", page);
+  assert.doesNotMatch("win.matchMedia('x'); win.sessionStorage?.getItem(KEY); doc.createElement('canvas')", page);
 });
 
 test("the page's side of the house never loads the 3D library", async () => {
-  const files = await graph(`${DIR}remote.mjs`);
-  assert.deepEqual([...files.keys()].sort(), [`${DIR}palette.mjs`, `${DIR}protocol.mjs`, `${DIR}remote.mjs`]);
+  const files = await importGraph(`${DIR}remote.mjs`, `${DIR}probe.mjs`);
+  assert.deepEqual([...files.keys()].sort(), [`${DIR}palette.mjs`, `${DIR}probe.mjs`, `${DIR}protocol.mjs`, `${DIR}remote.mjs`]);
   for (const [path, source] of files) assert.doesNotMatch(source, /from ["']three/, path);
   assert.match(files.get(`${DIR}remote.mjs`), /new Worker\(new URL\("\.\/worker\.mjs", import\.meta\.url\), \{ type: "module" \}\)/);
+  // The stage asks where the house can be drawn before it fetches any of it.
+  const stage = await read("src/lib/home-house-stage.mjs");
+  assert.match(stage, /^import \{ drawingPlace \} from "\.\/house3d\/probe\.mjs";$/m);
+  assert.ok(stage.indexOf("drawingPlace(win, doc)") < stage.indexOf('import("./house3d/remote.mjs")'));
+  assert.doesNotMatch(stage, /^import .*house3d\/(index|remote|engine)\.mjs/m, "the house itself is fetched on demand");
 });
 
 test("a live house needs a graphics chip, a still picture does not", async () => {
   const stage = await read(`${DIR}stage.mjs`);
   assert.match(stage, /failIfMajorPerformanceCaveat: !still/);
-  assert.match(stage, /if \(!still && SOFTWARE\.test\(/);
-  const software = new RegExp(stage.match(/const SOFTWARE = \/(.+)\/i;/)[1], "i");
-  for (const name of [
-    "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
-    "llvmpipe (LLVM 19.1.0, 256 bits)",
-    "ANGLE (Microsoft, Microsoft Basic Render Driver Direct3D11 vs_5_0 ps_5_0, D3D11)",
-    "Apple Software Renderer",
-  ]) assert.match(name, software, name);
-  for (const name of [
-    "ANGLE (NVIDIA, NVIDIA GeForce RTX 5090 (0x00002B85) Direct3D11 vs_5_0 ps_5_0, D3D11)",
-    "Apple M3", "Adreno (TM) 750", "Mali-G715", "ANGLE (Intel, Intel(R) Iris(R) Xe Graphics Direct3D11 vs_5_0 ps_5_0, D3D11)", "",
-  ]) assert.doesNotMatch(name, software, name);
+  assert.match(stage, /import \{ chipName, SOFTWARE \} from "\.\/probe\.mjs";/);
+  assert.match(stage, /if \(!still && SOFTWARE\.test\(chipName\(renderer\.getContext\(\)\)\)\) \{\n    renderer\.dispose\(\);\n    renderer\.forceContextLoss\(\);/);
 });
 
 test("a texture canvas is made without a document when there is none", () => {
