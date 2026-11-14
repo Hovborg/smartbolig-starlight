@@ -374,7 +374,8 @@ test("the 3D library loads on demand and the controls work without it", async ()
   // Both ways to draw the house (in a worker, or on the page) are fetched on demand.
   assert.match(stage, /await import\("\.\/house3d\/remote\.mjs"\)/, "three.js must stay out of the first page load");
   assert.match(stage, /await import\("\.\/house3d\/index\.mjs"\)/, "three.js must stay out of the first page load");
-  assert.doesNotMatch(stage, /^import .*house3d/m, "the stage must not import the house statically");
+  // probe.mjs only asks the browser where the house can be drawn; it loads nothing.
+  assert.doesNotMatch(stage, /^import .*house3d\/(?!probe\.mjs")/m, "the stage must not import the house statically");
   assert.doesNotMatch(stage + input + controller + script, /from ["']three/);
   assert.doesNotMatch(input, /house3d/, "the input helpers must not pull the house in");
   assert.match(input, /saveData/, "data-saving visitors must not get the model unasked");

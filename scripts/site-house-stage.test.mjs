@@ -89,7 +89,17 @@ test("the way of drawing can be chosen by hand for debugging", () => {
 
 test("a browser that cannot draw the house keeps the still picture and fetches nothing", async () => {
   const { house, workers, canvas, screen, turn, unavailable } = await stage({ worker: null, page: null });
-  assert.equal(await house.load(), undefined);
+  // A house that is fetched and then fails says so in the console; this one is never fetched.
+  const said = [];
+  const { warn, error } = console;
+  console.warn = (...parts) => said.push(parts.join(" "));
+  console.error = console.warn;
+  try {
+    assert.equal(await house.load(), undefined);
+  } finally {
+    Object.assign(console, { warn, error });
+  }
+  assert.deepEqual(said, []);
   assert.equal(screen.dataset.state, "still");
   assert.equal(workers.length, 0);
   assert.equal(canvas.handed, 0);
