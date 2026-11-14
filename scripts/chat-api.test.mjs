@@ -308,7 +308,7 @@ test("Workers AI agent keeps broad expertise and writes the answer from the site
   assert.equal(modelCalls[0].input.tools, undefined);
   assert.equal(modelCalls[0].input.tool_choice, undefined);
   assert.match(modelCalls[0].input.messages[0].content, /reference data has already been supplied/i);
-  assert.match(modelCalls[0].input.messages[0].content, /do not call, describe, imitate, or expose search_smartbolig/i);
+  assert.match(modelCalls[0].input.messages[0].content, /do not call, describe, imitate, or expose any search tool/i);
   assert.doesNotMatch(modelCalls[0].input.messages[0].content, /optional tool/i);
   assert.equal(modelCalls[0].input.messages.at(-1).role, "user");
   assert.match(modelCalls[0].input.messages.at(-1).content, /SmartBolig guide/);

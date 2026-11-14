@@ -4,7 +4,7 @@
 const SEARCH_INSTRUCTIONS = {
   supplied: `
 Relevant SmartBolig reference data has already been supplied below by the
-server. Do not call, describe, imitate, or expose search_smartbolig. Do not
+server. Do not call, describe, imitate, or expose any search tool. Do not
 narrate retrieval steps or render tool names, tool calls, or internal search
 syntax as prose or code. Answer the visitor directly using only relevant facts.`,
   nothing: `

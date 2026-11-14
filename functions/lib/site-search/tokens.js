@@ -2,20 +2,25 @@
 // and the search in the Worker (./search.js) share this file, so a question
 // is cut up the same way as the pages were.
 
-// Common function words, written for this site. "have" is left out on
-// purpose: it is also the Danish word for garden.
+// Common function words and everyday filler ("ja tak", "tell me", "thanks"),
+// written for this site. "have" is left out on purpose: it is also the Danish
+// word for garden. So are "no", "about", "us", "her" (and "here", which stems to
+// it) and "may": they appear in the titles of the site's pages.
 const STOPWORDS = {
   da: new Set(
     ("ad af alle alt anden at bare blev blive bliver både da de dem den denne der deres det dette dig din disse dog du efter eller en " +
       "end enten er et " +
-      "for fra få får gør ham han hans har havde hende hendes her hos hun hvad hvem hvilke hvilken hvis hvor hvordan hvorfor " +
-      "i igen ikke ind ingen jeg jer jo kan kun kunne lige man mange med meget men mere mest mig min mine mit mod ned noget nogle nu når " +
+      "for fra få får gør ham han hans har havde hende hendes her hos hun hvad hvem hvilke hvilken hvilket hvis hvor hvordan hvorfor hvornår " +
+      "hej i igen ikke ind ingen jeg jer jo kan kun kunne lige man mange med meget men mere mest mig min mine mit mod ned noget nogle nu når " +
       "og også om op os over " +
+      "altså gerne ja lidt nej ok okay super tak venligst " +
       "på samt selv sig sin sine sit skal skulle som så sådan til ud under var ved vi vil ville være været").split(" "),
   ),
   en: new Set(
     ("a an and any are as at be been but by can do does for from has have how i if in into is it more my not of on or should so " +
-      "some than that the their then there they this to was we were what when where which why will with you your also").split(" "),
+      "some than that the their then there they this to was we were what when where which why will with you your also " +
+      "am could did he hello hey hi him his its just me ok okay our please she tell thank thanks them these those " +
+      "too very who would yes").split(" "),
   ),
 };
 

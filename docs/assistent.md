@@ -1,11 +1,22 @@
 # Assistenten: søgning i sidens egne guides og svar, mens de skrives
 
-Sidst opdateret: 2026-11-14 (søg først, hver gang; modellen får intet værktøj).
+Sidst opdateret: 2026-11-14 (søg først, hver gang; modellen får intet værktøj; søgeteksten er
+det seneste spørgsmål alene, og kun et svagt opfølgningsspørgsmål søges igen sammen med
+spørgsmålet før).
 Sidst kontrolleret: 2026-11-14.
+Kontrolleret ved (rettelserne efter den uafhængige gennemgang): `npm run site:test` (alle
+bestået, tallet står i pull requesten), og hverdagsspørgsmål, prøvelister og de faste
+prøvespørgsmål kørt mod det byggede indeks i `dist/_index/` med et lille skript uden byggeri
+(tallene står under "Hvornår et opslag bruges"). 19 ændringer af koden er prøvet én ad gangen;
+testene fejler på 18 af dem, og den sidste giver samme resultat (et svagt opslag B, der
+alligevel ender som "intet"), så den kan ikke fanges. Én af de 19 (et fejlet opslag, der
+alligevel gav et opslag til) overlevede først og har fået sin egen test.
+Ikke verificeret: indekset i `dist/_index/` er bygget med de gamle fyldord. De nye fyldord er
+kun brugt på spørgsmålet, ikke på siderne, og det er en tilnærmelse. Et nyt `npm run build`
+kan flytte point lidt. Ikke kontrolleret: et rigtigt svar gennem Workers AI og tiden til
+første ord på den levende side efter udgivelse.
 Kontrolleret ved (søg først-ændringen): `npm run site:test` (482 tests, alle bestået), og
-prøvelisterne for pointgrænsen kørt mod det byggede indeks i `dist/_index/` med et lille skript
-uden byggeri (tallene står under "Hvornår et opslag bruges"). Ikke kontrolleret: et rigtigt
-svar gennem Workers AI og tiden til første ord på den levende side efter udgivelse.
+prøvelisterne for pointgrænsen kørt mod det byggede indeks med et lille skript uden byggeri.
 Kontrolleret ved (strømmen og indekset): `npm run site:test` (indeksets og chattens tests; strømmen er prøvet med en
 efterlignet model), `npm run build` (indekset bygges, og de faste prøvespørgsmål består),
 ca. 40 spørgsmål mod det byggede indeks med `--ask` og en uafhængig gennemgang, hvis fund er
@@ -57,9 +68,9 @@ statiske filer under `/_index/`. Der bruges ingen betalt søgetjeneste og ingen 
 | `functions/lib/site-search/tokens.js` | Tekst → søgeord (små bogstaver, uden fyldord, bøjningsendelser skåret af). Bruges både ved bygning og ved søgning. |
 | `functions/lib/site-search/search.js` | Søgningen i Workeren: læser kun de filer, spørgsmålet har brug for. Har også `USEFUL_SCORE`, pointgrænsen. |
 | `functions/lib/site-search/assets.js` | Henter indeksfilerne fra Workerens statiske filer (`env.ASSETS`). |
-| `functions/lib/chat/search-need.js` | Hvad der søges efter (seneste spørgsmål, så spørgsmålet før) og om spørgsmålet har et smart home-ord. |
+| `functions/lib/chat/search-need.js` | Om spørgsmålet har et smart home-ord, om det er en opfølgning, og søgeteksten til en opfølgning (seneste spørgsmål, så spørgsmålet før). |
 | `functions/lib/chat/turn.js` | Kalder søgningen med en tidsgrænse og gemmer kun kilder fra et resultat, der bruges. Fejler søgningen, svarer assistenten uden guideuddrag. |
-| `functions/lib/chat/agent.js` | Søger først, vælger prompt efter resultatet og kører ét modeltrin. |
+| `functions/lib/chat/agent.js` | Søger først (højst to opslag), vælger prompt efter resultatet og kører ét modeltrin. |
 | `functions/lib/chat/sources.js` | Slipper kun `smartbolig.net`-adresser igennem som kilder og afkorter teksten. |
 | `scripts/site-index.test.mjs` | Tests for alt ovenfor. |
 
@@ -116,49 +127,91 @@ kontrollerede officielle kilder.
 
 ## Hvornår et opslag bruges
 
-Søgningen kører ved hvert spørgsmål. Søgeteksten er det seneste spørgsmål, en linjeskift og
-så spørgsmålet før det, afkortet til `MAX_SEARCH_QUERY_CHARS` (400). Det seneste kommer først,
-fordi kun de første 10 ord i en søgning tæller (`MAX_QUERY_TERMS` i `tokens.js`). Det er for
-opfølgninger som "Hvad koster den?", der kun giver mening med spørgsmålet før.
+Søgningen kører ved hvert spørgsmål (`lookUpSite` i `agent.js`):
 
-Resultatet bruges, når et af to gælder (`turn.js`):
+1. **Opslag A:** det seneste spørgsmål alene. Har det et smart home-ord, bruges resultatet,
+   uanset point (`always`). Ellers bruges det, når det bedste svar har mindst `USEFUL_SCORE`
+   point (12, i `site-search/search.js`). Et svar uden et tal som point tæller som under
+   grænsen.
+2. **Opslag B**, kun når A er svagt (intet smart home-ord og under grænsen), det seneste
+   spørgsmål ligner en opfølgning, og der er en brugerbesked før det: det seneste spørgsmål,
+   et linjeskift og den ene brugerbesked før det, afkortet til `MAX_SEARCH_QUERY_CHARS` (400).
+   Det seneste kommer først, fordi kun de første 10 ord i en søgning tæller
+   (`MAX_QUERY_TERMS` i `tokens.js`). B bruges kun, når det selv er stærkt.
+3. Ellers bruges intet.
 
-- det seneste spørgsmål har et smart home-ord (`shouldRequireSmartboligSearch`), uanset
-  point, eller
-- det bedste svar har mindst `USEFUL_SCORE` point (12, i `site-search/search.js`). Et svar
-  uden et tal som point tæller som under grænsen.
+Et spørgsmål ligner en opfølgning (`isFollowUp`), når det har et ord, der peger tilbage, som
+helt ord og uanset store og små bogstaver: den, det, de, dem, denne, dette, disse, dens, dets,
+deres, it, its, that, this, these, those, they, them, their. Eller når det begynder med "og ",
+"and ", "hvad med", "hvad så med" eller "what about". Ordgrænserne er unicode-sikre, så "pæden"
+ikke tæller som "den".
 
-Bruges resultatet, får modellen afsnittene, og siderne bliver kilder. Ellers får modellen
-ingen afsnit, der registreres ingen kilder (`sourceMode` er `general`), og systemprompten
-siger, at der ikke blev fundet en relevant side, at modellen skal svare ud fra bred viden og
-aldrig opfinde en SmartBolig-kilde. Kan indekset slet ikke læses, eller fejler eller
-timer søgningen ud uden et smart home-ord, får modellen i stedet prompten om, at søgningen
-ikke er tilgængelig. Fejler den med et smart home-ord, får modellen som før et tomt resultat
-med `unavailable`.
+Det seneste spørgsmål søges altså aldrig sammen med et gammelt emne, med mindre det peger
+tilbage. "Hvilken robotstøvsuger er bedst?" og så "Hvad er MQTT?" gav før kun sider om
+robotstøvsugere, fordi begge spørgsmål blev søgt som ét. Nu søges "Hvad er MQTT?" alene. Der er
+højst to opslag, og statussen `searching` meldes én gang.
 
-Grænsen er målt 2026-11-14 mod det byggede indeks, for spørgsmål uden smart home-ord:
+Resultatet får modellen i tre tilstande (`agent.js`):
 
-| Spørgsmål | Bedste point |
-|---|---|
-| "Hvordan kommer jeg i gang?" | 13,33 |
-| "Min pære blinker, hvad gør jeg?" | 21,7 |
-| "Hvordan får jeg lyset til at tænde ved bevægelse?" | 31,61 |
-| "Hvad koster det at have en router tændt hele året?" | 104,72 |
-| "Hvem vandt VM i fodbold i 2022?" | 9,42 |
-| "Hvordan bager jeg et rugbrød?" | 5,82 |
-| "Skriv et digt om efteråret" | 5,42 |
-| "tak for hjælpen" | 7,03 |
-| "Hej" | 6,85 |
-| "Hvad er hovedstaden i Frankrig?" | intet svar |
-| Engelsk: "Which plug can measure power?" | 28,6 |
-| Engelsk: "What is the capital of France?" | 4,47 |
-| Engelsk: "How do I bake bread?" | 7,35 |
+- `supplied`: opslaget fandt afsnit, og de bruges. Modellen får dem, og siderne bliver kilder.
+- `nothing`: opslaget kørte, men fandt intet om spørgsmålet (A og eventuelt B var svage, eller
+  der var et smart home-ord og et tomt resultat). Ingen afsnit, ingen kilder (`sourceMode` er
+  `general`), og systemprompten siger, at der ikke blev fundet en relevant side, at modellen
+  skal svare ud fra bred viden og aldrig opfinde en SmartBolig-kilde.
+- `unavailable`: indekset kan ikke læses, eller søgningen fejlede eller timede ud. Det gælder
+  også med et smart home-ord. Ingen afsnit, og prompten siger, at søgningen ikke er
+  tilgængelig. Før fik modellen i det tilfælde "referencedata er givet" og `{"results":[]}`.
 
-Alle spørgsmål, der handler om siden, ligger på 13,33 eller derover, og alle, der ikke gør,
-på 9,42 eller derunder. Grænsen 12 ligger mellem dem. Der er ikke meget luft: nogle engelske
-spørgsmål ligger tæt på ("Who won the 2022 World Cup?" 13,23 og "Write a poem about autumn"
-11,65) og står derfor ikke i prøvelisterne. Giver de to en kilde, når nogen spørger, er det
-sådan, grænsen virker, ikke en fejl i koden.
+Grænsen er målt 2026-11-14 mod det byggede indeks, for spørgsmål uden smart home-ord. Pointene
+efter fyldordene er målt med de nye fyldord på spørgsmålet alene (se "Ikke verificeret" øverst):
+
+| Spørgsmål | Før | Efter |
+|---|---|---|
+| "Hvordan kommer jeg i gang?" | 13,33 | 13,33 |
+| "Hvordan lader jeg elbilen billigt?" (afløser "Min pære blinker …", der nu har et smart home-ord) | | 18,61 |
+| "Hvordan får jeg lyset til at tænde ved bevægelse?" | 31,61 | 31,61 |
+| "Hvad koster det at holde en computer tændt hele året?" (afløser "… en router …", samme grund) | | 54,49 |
+| "Hvem vandt VM i fodbold i 2022?" | 9,42 | 9,42 |
+| "Hvordan bager jeg et rugbrød?" | 5,82 | 5,82 |
+| "Skriv et digt om efteråret" | 5,42 | 5,42 |
+| "tak for hjælpen" | 7,03 | 6,75 |
+| "Fortæl en vittighed" | 6,27 | 6,27 |
+| "ja tak" | 14,43 | 0 |
+| "Hej" | 6,85 | 0 |
+| "Hvad er hovedstaden i Frankrig?" | intet svar | intet svar |
+| Engelsk: "Which plug can measure power?" | 28,6 | 28,6 |
+| Engelsk: "What is the best way to get started?" | 17,89 | 17,89 |
+| Engelsk: "My light keeps flickering, what do I do?" (afløser "My bulb …") | | 27,65 |
+| Engelsk: "What is the capital of France?" | 4,47 | 4,47 |
+| Engelsk: "How do I bake bread?" | 7,35 | 7,35 |
+| Engelsk: "Tell me a joke" | 16,14 | 0 |
+| Engelsk: "Thank you" | 6,84 | 0 |
+| Engelsk: "Who won the 2022 World Cup?" | 13,23 | 9,40 |
+
+Alle spørgsmål, der handler om siden, ligger på 13,33 eller derover, og alle, der ikke gør, på
+9,42 eller derunder. Grænsen 12 ligger mellem dem. Alle 11 danske og 7 engelske faste
+prøvespørgsmål (`PROBES`) står stadig blandt de tre bedste efter de nye fyldord.
+
+Hverdagsspørgsmål er målt med en liste på 20 danske og 20 engelske ("Tell me a joke", "ja
+tak", "Good morning", "What can you help me with?" og lignende), alle uden smart home-ord:
+
+| Sprog | Før | Efter fyldordene |
+|---|---|---|
+| Dansk | 4 af 20 på 12 point eller mere | 2 af 20 |
+| Engelsk | 9 af 20 på 12 point eller mere | 6 af 20 |
+
+De, der stadig når grænsen, har et ord, siden skriver om, eller et tal: "Hvilken film skal jeg se
+i aften?" (24,79, "film"), "Hvad er 17 gange 23?" (16,64), "What movie should I watch tonight?"
+(23,5), "Good morning" (15,26, "morning" findes i morgenrutiner), "Write a Python function that
+sorts a list" (15,62). De kan kun rettes med flere sider eller en anden grænse, ikke med fyldord.
+Giver de en kilde, når nogen spørger, er det sådan, grænsen virker, ikke en fejl i koden.
+
+Fyldordene er tilføjet i `tokens.js`: dansk bl.a. ja, nej, tak, hej, ok, okay, super, venligst,
+gerne, lidt, altså, hvornår, hvilket; engelsk bl.a. me, tell, who, please, thanks, thank, hello,
+hi, hey, ok, okay, yes, would, could, did, am, our, he, she, his, him, them, these, those, its,
+very, too, just. Ord, der står i sidernes titler, er ikke fyldord: "no", "about", "us", "her"
+(og "here", der bliver til "her") og "may". "have" er heller ikke fyldord (det er også havens
+ord). Er et spørgsmål nu kun fyldord ("ja tak"), har det ingen søgeord og giver intet svar.
 
 Bygget vogter grænsen: `scripts/lib/site-index/probes.mjs` har `OFF_TOPIC` (bedste point bør
 være under grænsen) og `ON_TOPIC` (mindst grænsen), pr. sprog, og `scripts/site-index.mjs`
@@ -169,9 +222,26 @@ selv hver dag), og et spørgsmål på den forkerte side af grænsen giver kun et
 uden en kilde. Siden skal ikke stå stille af den grund. Ved en advarsel: mål igen med `--ask`,
 og flyt så grænsen eller ret listen. Spørgsmålene i listerne må ikke have et smart home-ord;
 det tjekker `scripts/site-index.test.mjs`, som også prøver selve grænsen mod et fast indeks.
+Et spørgsmål i `OFF_TOPIC` må gerne bestå af fyldord alene.
 
-Kendt: søgningen får også spørgsmålet før det seneste. Et "tak for hjælpen" efter et
-spørgsmål om siden kan derfor få de samme kilder vist igen.
+Smart home-ordene (`SMART_HOME_WORDS` i `search-need.js`) er hele ord. Siden 2026-11-14 hører
+også hub, gateway, pære, bulb, termostat, thermostat, router, homekit, alexa, google home, hue,
+aqara, sonoff, tuya, ikea, zha, zigbee2mqtt, wled, vpn, raspberry pi, robotstøvsuger,
+stikkontakt, smart plug og røgalarm til (med flertal og bestemt form), fordi et enkeltordsspørgsmål
+som "Hvad er en hub?" kun fik 6,45 point. "hubris" og "pæretærte" tæller ikke.
+
+Kendte grænser:
+
+- En opfølgning uden et ord, der peger tilbage ("Og prisen?" regnes med, men "Kan jeg få en
+  billigere?" gør ikke), søges kun alene. Det samme gælder en opfølgning til en besked, der
+  ligger to brugerbeskeder tilbage. Hellere intet end et gammelt emne, der tager over.
+- "Hvad er det?" og andre korte spørgsmål med "det" regnes som opfølgninger, også når de ikke
+  er det. B bruges kun, når det selv er stærkt, så skaden er et ekstra opslag.
+- "hue" er også et almindeligt ord. Et spørgsmål om en hue får derfor altid et resultat, hvor
+  svagt det end er.
+- Et spørgsmål, der kun har fyldord, har ingen søgeord og får intet svar fra indekset.
+- Valgt fra: at sammenføje de to beskeder hver gang. Det gav kun sider om det gamle emne ved
+  emneskift ("Hvad er MQTT?" efter robotstøvsugere).
 
 ## Fejlsøg en søgning
 
@@ -189,8 +259,8 @@ spørgsmål om siden kan derfor få de samme kilder vist igen.
 Bygget stopper med `search probe(s) failed`, når et prøvespørgsmål ikke længere finder sin
 side. Meddelelsen nævner spørgsmålet, den ventede side og hvad der blev fundet i stedet.
 Er siden flyttet eller slettet, så ret `probes.mjs`. Ellers er teksten eller rangeringen ændret.
-Det samme stop kommer, når et spørgsmål i `OFF_TOPIC` eller `ON_TOPIC` får point på den
-forkerte side af `USEFUL_SCORE`; meddelelsen nævner spørgsmålet og dets point.
+Et spørgsmål i `OFF_TOPIC` eller `ON_TOPIC` med point på den forkerte side af `USEFUL_SCORE`
+stopper ikke bygget; det giver kun den advarsel, der står ovenfor.
 
 Svarer assistenten uden links, selv om der er en guide om emnet, så spørg indekset med
 `--ask` og se de bedste point. Er de under 12, bruges resultatet ikke (medmindre spørgsmålet
@@ -208,20 +278,21 @@ Et spørgsmål går gennem de samme trin, uanset om svaret hentes som JSON eller
    binding), spørger `CHAT_RATE_LIMITER` én gang og validerer samtalen.
 2. `turn.js` vælger de officielle evidenspakker og gør opslaget i indekset klar (tidsgrænse
    5 sekunder).
-3. `agent.js` søger (status `searching`), afgør af resultatet hvilken prompt modellen får
-   (se tabellen) og skriver svaret (status `writing`).
+3. `agent.js` søger (højst to opslag, status `searching` én gang), afgør af resultatet hvilken
+   prompt modellen får (se tabellen) og skriver svaret (status `writing`).
 4. `model-runs.js` kører modeltrinnet: Gemma først. Qwen overtager, hvis Gemma fejler,
    bliver afskåret eller ikke består kontrollen i `answer.js`.
 5. `turn.js` samler svar, kilder, kildegrad og telemetri til den krop, læseren får.
 
-| Opslaget | Afsnit til modellen | Kilder | Prompt |
-|---|---|---|---|
-| Smart home-ord i spørgsmålet, eller bedste point mindst 12 | Ja | Ja | Referencedata er givet |
-| Intet smart home-ord, og bedste point under 12 eller intet svar | Nej | Kun officielle | Der blev ikke fundet en relevant side |
-| Søgningen fejlede eller timede ud, intet smart home-ord | Nej | Kun officielle | Søgningen er ikke tilgængelig |
-| Intet indeks (`searchSmartbolig` mangler) | Nej | Kun officielle | Søgningen er ikke tilgængelig |
+| Opslaget | Tilstand | Afsnit til modellen | Kilder | Prompt |
+|---|---|---|---|---|
+| Resultat med afsnit, og smart home-ord eller bedste point mindst 12 (A, eller B for en opfølgning) | `supplied` | Ja | Ja | Referencedata er givet |
+| Smart home-ord og et tomt resultat | `nothing` | Nej | Kun officielle | Der blev ikke fundet en relevant side |
+| Intet smart home-ord, og bedste point under 12 eller intet svar (også B) | `nothing` | Nej | Kun officielle | Der blev ikke fundet en relevant side |
+| Søgningen fejlede eller timede ud, med eller uden smart home-ord | `unavailable` | Nej | Kun officielle | Søgningen er ikke tilgængelig |
+| Intet indeks (`searchSmartbolig` mangler) | `unavailable` | Nej | Kun officielle | Søgningen er ikke tilgængelig |
 
-Der er altid ét opslag (undtagen uden indeks) og ét modelkald, der strømmes, når kaldet bad om
+Der er altid mindst ét opslag (højst to, undtagen uden indeks) og ét modelkald, der strømmes, når kaldet bad om
 en strøm. Rækkefølgen holdes fast af `scripts/chat-search-first.test.mjs` og
 `scripts/chat-stream.test.mjs` med en efterlignet model. Modellen får aldrig `tools`. En
 model kan stadig finde på at skrive værktøjets navn; filteret i `answer.js` afviser det.
@@ -234,7 +305,7 @@ statuskode, også når det bad om en strøm.
 
 | Hændelse | Data | Betydning |
 |---|---|---|
-| `status` | `{"stage": …}` | Hvad der sker nu: `searching`, `writing` eller `revising`. (Før den første hændelse når frem, viser widgeten "Læser dit spørgsmål …"; `reading` sendes ikke længere.) |
+| `status` | `{"stage": …}` | Hvad der sker nu: `searching`, `writing` eller `revising`. (Før den første hændelse når frem, viser widgeten "Arbejder på dit svar …"; `reading` findes ikke mere, hverken på serveren eller i widgeten.) |
 | `sources` | `{"sources": [{"title", "url"}]}` | Én gang, når opslaget er færdigt, og altid før første tekst. Listen er tom, når opslaget ikke blev brugt, og ingen officiel kilde er valgt. |
 | `delta` | `{"text": "…"}` | Et stykke af svaret. |
 | `done` | Samme krop som JSON-svaret | Det kontrollerede svar. Kun `done` er et svar. |

@@ -57,10 +57,12 @@ specialdesignet Astro-widget:
   egne sider. Indekset bygges sammen med siden og ligger som statiske filer
   under `/_index/`; der bruges ingen betalt søgetjeneste (se
   [`docs/assistent.md`](docs/assistent.md), kontrolleret 2026-11-14). Hvert
-  spørgsmål får ét afgrænset opslag, før modellen kaldes. Resultatet gives til
+  spørgsmål får et afgrænset opslag med det seneste spørgsmål alene, før
+  modellen kaldes; kun et svagt spørgsmål, der peger tilbage (»Hvad koster
+  den?«), søges igen sammen med spørgsmålet før. Resultatet gives til
   den brede model som ubetroet reference-data, når spørgsmålet har et
-  smart-home/homelab-ord eller det bedste svar har mindst 12 point; ellers
-  svarer modellen uden sidens tekst og uden kilder. Modellen får aldrig et
+  smart-home/homelab-ord og opslaget fandt noget, eller det bedste svar har
+  mindst 12 point; ellers svarer modellen uden sidens tekst og uden kilder. Modellen får aldrig et
   værktøj, og både primær- og fallbackmodel får en prompt, der forbyder interne
   værktøjsnavne og retrieval-trin som kommandoer.
   Sidens guides er ikke assistentens eneste viden.
@@ -139,8 +141,8 @@ specialdesignet Astro-widget:
   **Fejlsøg/Debug**, **Byg/Build**, **Forklar/Explain** og
   **Sammenlign/Compare** — indsætter synlig, redigerbar tekst i promptfeltet;
   de ændrer ikke skjult systemprompt eller permissions. Under et kald viser
-  konsollen det trin, serveren har meldt (»Læser dit spørgsmål …«, »Søger i
-  guiderne …«, »Skriver svar …«), og den reelle forløbne ventetid i browseren.
+  konsollen det trin, serveren har meldt (»Søger i guiderne …«,
+  »Skriver svar …«), og den reelle forløbne ventetid i browseren.
   `WORKER · CONTEXT · MODEL`-linjen er en fast tekst, ikke et indblik i interne
   modeltrin. »Stop« står på »Send«-knappens plads, mens et svar er på vej, og
   overtager tastaturfokus fra feltet. Skærmlæsere får statusskift og det
@@ -249,7 +251,7 @@ Guidesidernes top, sidemenu og sidefod er beskrevet i `docs/designsystem.md` und
 | `request.js` | begrænset læsning af kroppen og validering af samtalen |
 | `sources.js` | kanoniske SmartBolig-URL'er, titler og søgeresultater |
 | `prompt.js` | systemprompten og referencedata til den seneste besked |
-| `search-need.js` | om spørgsmålet har et smart home-ord, og hvad der søges efter (seneste spørgsmål, så spørgsmålet før) |
+| `search-need.js` | om spørgsmålet har et smart home-ord, om det er en opfølgning, og søgeteksten til en opfølgning (seneste spørgsmål, så spørgsmålet før) |
 | `yaml-request.js` | hvilken YAML-form og automation-`mode` brugeren har bedt om |
 | `yaml-checks.js` | kontrol af YAML i svaret mod den ønskede form |
 | `answer.js` | udtræk af modelsvar og accept af svar |

@@ -897,8 +897,26 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   nyhederne udgives af sig selv hver dag. Et stop ville lade hele siden stå stille for en
   fejl, der kun giver et svar med eller uden en kilde. Grænsen selv er holdt af en test mod
   et fast indeks.
-- Søgningen får det seneste spørgsmål og så spørgsmålet før, fordi en opfølgning som »Hvad
-  koster den?« kun giver mening med det. Det seneste står først, da kun de første 10 ord tæller.
+- Søgningen får det seneste spørgsmål alene (opslag A). Kun når A er svagt, og spørgsmålet
+  peger tilbage (»den«, »det«, »it«, »og …«, »hvad med …«, »what about …«), søges det igen sammen
+  med den ene brugerbesked før det (opslag B, det seneste først, da kun de første 10 ord
+  tæller). B bruges kun, når det selv er stærkt. Højst to opslag, og `searching` meldes én gang.
+  Første udgave søgte altid de to beskeder som ét og kunne ikke skifte emne.
+- Fundet af den uafhængige gennemgang: (1) blokerende: »Hvilken robotstøvsuger er bedst?« og så
+  »Hvad er MQTT?« gav kun sider om robotstøvsugere. (2) Et smart home-ord med et fejlet eller
+  tomt opslag gav modellen »referencedata er givet« og `{"results":[]}`; nu giver fejl
+  »søgningen er ikke tilgængelig« og et tomt resultat »intet fundet«, uden referenceblok.
+  (3) Hverdagssnak nåede pointgrænsen, mest på engelsk (»Tell me a joke« 16,14, »ja tak« 14,43):
+  fyldord er tilføjet (4 af 20 danske og 9 af 20 engelske hverdagsspørgsmål lå på 12 eller
+  mere; efter 2 og 6). (4) Enkeltordsspørgsmål som »Hvad er en hub?« (6,45) nåede ikke grænsen:
+  utvetydige smart home-ord er føjet til ordlisten. (5) Rester af værktøjsruten (`reading`).
+  Fem ændringer af koden overlevede de tests, gennemgangen prøvede; fire har nu en test (alle tidligere
+  beskeder i søgeteksten, smart home-ordet fra en ældre besked, en besked på ét tegn og
+  `<`-undgåelsen i referenceblokken). Den femte, at bygget stopper i stedet for at advare, kræver et byggeri og er ikke prøvet.
+- Fravalgt: altid at sammenføje de to beskeder. Det forurenede søgningen ved emneskift, og et
+  »Tak« efter et emne fik det emnes kilder vist igen.
+- Fravalgt: at bruge flere beskeder end den ene før den seneste. Et emne to svar tilbage er
+  oftere støj end hjælp, og højst to opslag holder underforespørgslerne under Workerens grænse.
 - Værktøjsruten er fjernet helt (`SEARCH_TOOLS`, `MAX_MODEL_RUNS`, trinnet `reading`):
   ét modelkald, der altid kan strømmes.
 - Fravalgt: at lade modellen vælge med et værktøj. Det gav 33 sekunder uden tekst, ingen

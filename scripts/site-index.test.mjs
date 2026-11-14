@@ -3,7 +3,7 @@
 
 import assert from "node:assert/strict";
 import test from "node:test";
-import { shouldRequireSmartboligSearch } from "../functions/lib/chat/search-need.js";
+import { hasSmartHomeWord } from "../functions/lib/chat/search-need.js";
 import { createSiteSearch, INDEX_ROOT, USEFUL_SCORE } from "../functions/lib/site-search/search.js";
 import { queryTerms, shardOf, stem, terms } from "../functions/lib/site-search/tokens.js";
 import { buildIndex } from "./lib/site-index/build.mjs";
@@ -91,6 +91,19 @@ test("a question becomes distinct terms without filler words", () => {
   assert.deepEqual(queryTerms("zigbeesensor"), ["zigbeesensor"]);
   assert.deepEqual(queryTerms("", "da"), []);
   assert.equal(queryTerms(Array.from({ length: 40 }, (_, i) => `ord${i}`).join(" ")).length, 10);
+});
+
+test("everyday filler gives no terms, and words the site has pages about stay", () => {
+  assert.deepEqual(queryTerms("ja tak", "da"), []);
+  assert.deepEqual(queryTerms("Hej, tak. Ok super, gerne!", "da"), []);
+  assert.deepEqual(queryTerms("Tell me a joke", "en"), ["jok"]);
+  assert.deepEqual(queryTerms("Hello, thanks, yes please", "en"), []);
+  assert.deepEqual(queryTerms("Who would it be, he or she?", "en"), []);
+  // Titles of the site's pages hold these, so a question about them keeps them.
+  for (const word of ["no", "about", "us", "her", "may", "have"]) {
+    assert.equal(queryTerms(word, word === "have" ? "da" : "en").length, 1, word);
+  }
+  assert.deepEqual(queryTerms("lys og nej", "da"), ["lys"]);
 });
 
 test("a term always lands in the same file, inside the range", () => {
@@ -395,10 +408,11 @@ test("the score questions cover both languages and are questions the site search
   for (const locale of ["da", "en"]) {
     assert.ok(OFF_TOPIC[locale].length >= 4);
     assert.ok(ON_TOPIC[locale].length >= 3);
+    // An off-topic question may be all filler ("ja tak"): it then has no terms and scores 0.
+    for (const query of ON_TOPIC[locale]) assert.ok(queryTerms(query, locale).length > 0, query);
     for (const query of [...OFF_TOPIC[locale], ...ON_TOPIC[locale]]) {
-      assert.ok(queryTerms(query, locale).length > 0, query);
       // A smart home word forces the search whatever it scores, so it would measure nothing.
-      assert.equal(shouldRequireSmartboligSearch([{ role: "user", content: query }]), false, query);
+      assert.equal(hasSmartHomeWord(query), false, query);
     }
   }
 });

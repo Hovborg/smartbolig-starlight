@@ -4,8 +4,28 @@
 import { extractModelAnswer } from "./answer.js";
 import { createModelRunner } from "./model-runs.js";
 import { buildSystemPrompt, withOfficialReference, withSmartboligReference } from "./prompt.js";
-import { searchQuery, shouldRequireSmartboligSearch } from "./search-need.js";
+import { followUpQuery, hasSmartHomeWord, latestQuestion } from "./search-need.js";
 import { requestedHomeAssistantYamlShape } from "./yaml-request.js";
+
+// Searches the site for the latest question alone. Only when that finds nothing
+// and the question points back ("Hvad koster den?") is it searched once more
+// together with the user message before it. A change of topic is never mixed
+// with the old one. Returns the state the prompt tells the model and the result
+// to hand over: "supplied" (pages found), "nothing" (the search ran and found
+// nothing about this question) or "unavailable" (the search failed).
+async function lookUpSite(searchSmartbolig, messages) {
+  const latest = latestQuestion(messages);
+  const always = hasSmartHomeWord(latest);
+  let found = await searchSmartbolig(latest, { always });
+  if (!found.unavailable && found.weak) {
+    const joined = followUpQuery(messages);
+    const second = joined ? await searchSmartbolig(joined, { always: false }) : null;
+    if (second && !second.unavailable && !second.weak) found = second;
+  }
+  if (found.unavailable) return { searchState: "unavailable", supplied: null };
+  if (found.weak || !found.results?.length) return { searchState: "nothing", supplied: null };
+  return { searchState: "supplied", supplied: found };
+}
 
 export function createWorkersAgent(dependencies = {}) {
   const aiRunImpl =
@@ -24,9 +44,7 @@ export function createWorkersAgent(dependencies = {}) {
     onModelFallback,
     live,
   }) {
-    const latestUserContent = [...messages]
-      .reverse()
-      .find((message) => message.role === "user")?.content || "";
+    const latestUserContent = latestQuestion(messages);
     const runModel = createModelRunner({
       aiRunImpl,
       binding: env.AI,
@@ -35,21 +53,11 @@ export function createWorkersAgent(dependencies = {}) {
       onModelFallback,
     });
 
-    // "supplied": the search result goes to the model. "nothing": the search ran
-    // and found nothing about this question. "unavailable": there is no result.
     let searchState = "unavailable";
     let supplied = null;
     if (searchSmartbolig) {
       live?.stage("searching");
-      const always = shouldRequireSmartboligSearch(messages);
-      const found = await searchSmartbolig(searchQuery(messages), { always });
-      if (found.weak) {
-        searchState = "nothing";
-      } else if (!found.unavailable || always) {
-        // A search that failed is still reported to the model when a smart home word asked for it.
-        searchState = "supplied";
-        supplied = found;
-      }
+      ({ searchState, supplied } = await lookUpSite(searchSmartbolig, messages));
     }
 
     live?.stage("writing");

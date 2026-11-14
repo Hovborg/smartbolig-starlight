@@ -219,10 +219,8 @@ test("the widget streams with fetch, stays quiet while a draft changes and can b
   for (const copy of [
     "Søger i guiderne …",
     "Skriver svar …",
-    "Læser dit spørgsmål …",
     "Searching the guides …",
     "Writing the answer …",
-    "Reading your question …",
     "Svaret blev stoppet.",
     "The answer was stopped.",
   ]) {
