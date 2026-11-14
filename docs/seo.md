@@ -30,8 +30,9 @@ Sitemap (`/sitemap-index.xml`), RSS (`/rss.xml`) og `llms.txt` laves af sig selv
 ikke rettes i hånden.
 
 **Ændr et afsnit i `llms.txt`:** rækkefølgen og navnene står i `SECTIONS` i
-`scripts/lib/llms-txt.mjs`; et nyt område under `src/content/docs/da/` skal tilføjes dér, ellers
-bliver dets sider ikke med. Dagens AI-nyheder og de juridiske sider er udeladt med vilje (`locate()`),
+`scripts/lib/llms-txt.mjs`; et nyt område under `src/content/docs/da/` skal tilføjes dér (eller i
+`LEFT_OUT`, hvis det skal udelades), ellers stopper bygget og siger hvilket område. Dagens
+AI-nyheder og de juridiske sider er udeladt med vilje (`locate()`),
 og filen må højst fylde 100 KB, ellers stopper bygget. Teksten testes i `scripts/site-llms-txt.test.mjs`.
 
 ## Regler, der er valgt med vilje

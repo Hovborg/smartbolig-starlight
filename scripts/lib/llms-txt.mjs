@@ -17,6 +17,8 @@ export const SECTIONS = [
   ["sikkerhed", "Sikkerhed"],
   ["ai", "AI"],
 ];
+// Top-level folders that are left out on purpose.
+export const LEFT_OUT = ["juridisk"];
 
 // Links the file carries besides pages. The check after a build accepts these
 // next to the sitemap's pages.
@@ -55,7 +57,18 @@ export function locate(url) {
   if (SECTIONS.slice(1).some(([key]) => key === top)) return NEWS_ISSUE.test(pathname) ? null : { lang, section: top };
   // A single page directly under /da/ or /en/ (start, om-os, kontakt). The
   // legal pages and anything else unknown are left out.
-  return deeper.length === 0 && top !== "juridisk" ? { lang, section: "start" } : null;
+  return deeper.length === 0 && !LEFT_OUT.includes(top) ? { lang, section: "start" } : null;
+}
+
+/** Top-level areas with pages below them that the file neither lists nor leaves out on purpose. */
+export function unknownAreas(urls) {
+  const known = new Set([...SECTIONS.map(([key]) => key), ...LEFT_OUT]);
+  const unknown = new Set();
+  for (const url of urls) {
+    const [lang, top, ...deeper] = new URL(url).pathname.split("/").filter(Boolean);
+    if ((lang === "da" || lang === "en") && top && deeper.length > 0 && !known.has(top)) unknown.add(top);
+  }
+  return [...unknown].sort();
 }
 
 /** One line of text, cut at a word boundary to at most `limit` characters. */

@@ -4,7 +4,7 @@
 
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { locate } from "./llms-txt.mjs";
+import { locate, unknownAreas } from "./llms-txt.mjs";
 import { SITE_NAME_SUFFIX, decodeEntities } from "./seo-title-checks.mjs";
 
 const ORIGIN = "https://smartbolig.net/";
@@ -34,7 +34,13 @@ export async function sitemapUrls(distDir) {
 
 export async function readBuiltPages(distDir) {
   const pages = [];
-  for (const url of await sitemapUrls(distDir)) {
+  const urls = await sitemapUrls(distDir);
+  // A new area must be listed or left out on purpose; silently missing from llms.txt is neither.
+  const unknown = unknownAreas(urls);
+  if (unknown.length) {
+    throw new Error(`llms.txt: the sitemap has pages under ${unknown.map((area) => `/${area}/`).join(", ")}, which scripts/lib/llms-txt.mjs does not know. Add the area to SECTIONS, or to LEFT_OUT to leave it out.`);
+  }
+  for (const url of urls) {
     const place = locate(url);
     if (!place || !url.startsWith(ORIGIN)) continue;
     const relative = decodeURIComponent(new URL(url).pathname).replace(/^\/+|\/+$/g, "");

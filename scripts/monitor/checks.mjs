@@ -2,11 +2,15 @@
 // { ok, seen }. `seen` says what actually came back, in a few words; it never
 // holds a whole header or a page, so a report cannot leak anything.
 
-import { canonicalOf, countH1, firstLoc, locCount, newestPubDate } from "./parse.mjs";
+import { canonicalOf, countH1, firstLoc, itemCount, locCount, newestPubDate } from "./parse.mjs";
 
 export const SITE = "https://smartbolig.net";
 export const MIN_SITEMAP_PAGES = 300;
-export const MAX_FEED_AGE_HOURS = 48;
+// The daily news issue is dated at midnight UTC and comes out in the morning.
+// 60 h is two days in a row without one; a single quiet day opens no issue.
+// (/rss.xml is the guide feed; its dates follow the build, not the news.)
+export const NEWS_FEED = "/da/ai/nyheder/rss.xml";
+export const MAX_NEWS_AGE_HOURS = 60;
 const GUIDE = "/da/home-assistant/zigbee2mqtt/";
 
 // What public/_headers sends on every page. Only these are checked.
@@ -66,11 +70,15 @@ export function buildChecks({ get, base, now }) {
       const count = locCount(sitemap.body);
       return { ok: sitemap.status === 200 && count >= MIN_SITEMAP_PAGES, seen: `index ok, first sitemap ${status(sitemap)}, ${count} <loc>` };
     }),
-    check("/rss.xml has a fresh item", `200 and newest item at most ${MAX_FEED_AGE_HOURS} h old`, fetched("/rss.xml", undefined, (r) => {
+    check("/rss.xml lists the guides", "200 and at least one <item>", fetched("/rss.xml", undefined, (r) => {
+      const items = itemCount(r.body);
+      return { ok: r.status === 200 && items > 0, seen: `${status(r)}, ${items} <item>` };
+    })),
+    check("AI news is fresh", `${NEWS_FEED}: 200 and newest issue at most ${MAX_NEWS_AGE_HOURS} h old`, fetched(NEWS_FEED, undefined, (r) => {
       const newest = newestPubDate(r.body);
       if (!newest) return { ok: false, seen: `${status(r)}, no item with a date` };
       const hours = Math.round((now - newest) / 3_600_000);
-      return { ok: r.status === 200 && hours <= MAX_FEED_AGE_HOURS, seen: `${status(r)}, newest item ${newest.toISOString().slice(0, 10)}, ${hours} h old` };
+      return { ok: r.status === 200 && hours <= MAX_NEWS_AGE_HOURS, seen: `${status(r)}, newest issue ${newest.toISOString().slice(0, 10)}, ${hours} h old` };
     })),
     check("/llms.txt is served", '200 and starts with "# SmartBolig.net"', fetched("/llms.txt", undefined, (r) => {
       const starts = r.body.startsWith("# SmartBolig.net");

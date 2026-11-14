@@ -28,7 +28,8 @@ const healthy = () => ({
   "/robots.txt": { body: `User-agent: *\nSitemap: ${SITE}/sitemap-index.xml\n` },
   "/sitemap-index.xml": { body: `<sitemapindex><sitemap><loc>${BASE}/sitemap-0.xml</loc></sitemap></sitemapindex>` },
   "/sitemap-0.xml": { body: `<urlset>${locs(334)}</urlset>` },
-  "/rss.xml": { body: rss("Sat, 14 Nov 2026 00:00:00 GMT") },
+  "/rss.xml": { body: rss("Sat, 14 Nov 2026 08:05:46 GMT") },
+  "/da/ai/nyheder/rss.xml": { body: rss("Sat, 14 Nov 2026 00:00:00 GMT") },
   "/llms.txt": { body: "# SmartBolig.net\n" },
   "/api/chat": { status: 405 },
   "/ads.txt": { body: "google.com, pub-1, DIRECT\n" },
@@ -58,7 +59,7 @@ const failed = (results) => results.filter((result) => !result.ok);
 test("a healthy site passes every check", async () => {
   const { results, calls } = await run();
   assert.deepEqual(failed(results), []);
-  assert.equal(results.length, 12);
+  assert.equal(results.length, 13);
   assert.ok(calls.every((call) => call.options.headers["user-agent"] === USER_AGENT));
 });
 
@@ -69,7 +70,8 @@ const BREAKS = [
   ["Security headers on /da/", { "/da/": { body: html(), headers: withoutHsts } }, /strict-transport-security missing/],
   ["/robots.txt names the sitemap", { "/robots.txt": { body: "User-agent: *" } }, /sitemap line missing/],
   ["Sitemap lists enough pages", { "/sitemap-0.xml": { body: `<urlset>${locs(10)}</urlset>` } }, /10 <loc>/],
-  ["/rss.xml has a fresh item", { "/rss.xml": { body: rss("Wed, 11 Nov 2026 00:00:00 GMT") } }, /newest item 2026-11-11, 84 h old/],
+  ["/rss.xml lists the guides", { "/rss.xml": { body: "<rss><channel></channel></rss>" } }, /status 200, 0 <item>/],
+  ["AI news is fresh", { "/da/ai/nyheder/rss.xml": { body: rss("Wed, 11 Nov 2026 00:00:00 GMT") } }, /newest issue 2026-11-11, 84 h old/],
   ["/llms.txt is served", { "/llms.txt": { body: "<html>" } }, /starts differently/],
   ["/api/chat refuses GET", { "/api/chat": { status: 200, body: "{}" } }, /status 200/],
   ["/ads.txt is served", { "/ads.txt": { body: "  \n" } }, /0 characters/],
@@ -88,11 +90,13 @@ for (const [name, override, message] of BREAKS) {
   });
 }
 
-test("the RSS age check uses the given time: 47 h passes, 49 h fails", async () => {
+test("the news age check uses the given time: 59 h passes, 61 h fails, and the guide feed's age is not judged", async () => {
   const rssAt = (hours) => rss(new Date(NOW - hours * 3_600_000).toUTCString());
-  assert.deepEqual(failed((await run({ "/rss.xml": { body: rssAt(47) } })).results), []);
-  assert.equal(failed((await run({ "/rss.xml": { body: rssAt(49) } })).results).length, 1);
-  assert.match(failed((await run({ "/rss.xml": { body: "<rss></rss>" } })).results)[0].seen, /no item with a date/);
+  const news = (body) => ({ "/da/ai/nyheder/rss.xml": { body } });
+  assert.deepEqual(failed((await run(news(rssAt(59)))).results), []);
+  assert.equal(failed((await run(news(rssAt(61)))).results).length, 1);
+  assert.match(failed((await run(news("<rss></rss>"))).results)[0].seen, /no item with a date/);
+  assert.deepEqual(failed((await run({ "/rss.xml": { body: rssAt(900) } })).results), [], "a guide feed built long ago is fine");
 });
 
 test("a 5xx is retried once, a 404 is not, and a second failure is the answer", async () => {
@@ -122,12 +126,12 @@ test("a network error becomes a failing line, not a crash", async () => {
 test("the report has a table, names the failures and dumps no headers or bodies", async () => {
   const { results } = await run({ "/da/": { body: html(), headers: withoutHsts } });
   const report = renderReport(results, { base: BASE, at: NOW, runUrl: "https://github.com/o/r/actions/runs/1" });
-  assert.match(report, /^1 of 12 checks fail on https:\/\/smartbolig\.net\./);
+  assert.match(report, /^1 of 13 checks fail on https:\/\/smartbolig\.net\./);
   assert.match(report, /\| Result \| Check \| Expected \| Seen \|\n\|---\|/);
   assert.match(report, /\| \*\*FAIL\*\* \| Security headers on \/da\/ \|/);
   assert.match(report, /2026-11-14 12:00 UTC\. Run: https:\/\/github\.com\/o\/r\/actions\/runs\/1/);
   assert.doesNotMatch(report, /default-src|max-age|nosniff|user-agent|pub-1/i);
-  assert.equal(renderReport(results.map((r) => ({ ...r, ok: true })), { base: BASE, at: NOW }).split("\n")[0], "All 12 checks pass on https://smartbolig.net.");
+  assert.equal(renderReport(results.map((r) => ({ ...r, ok: true })), { base: BASE, at: NOW }).split("\n")[0], "All 13 checks pass on https://smartbolig.net.");
 });
 
 test("monitor.yml: issues write only, a schedule, concurrency, every action pinned to a SHA", () => {

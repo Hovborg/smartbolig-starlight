@@ -2,7 +2,7 @@
 
 Sidst opdateret: 2026-11-14.
 Kontrolleret ved: `node scripts/monitor/run.mjs` kørt mod `https://smartbolig.net`
-(alle 12 kontroller bestod) og `npm run site:test` (kontrollerne, genforsøget og rapporten
+(alle 13 kontroller bestod) og `npm run site:test` (kontrollerne, genforsøget og rapporten
 afprøves mod en falsk `fetch`; workflowens rettigheder og fastlåste handlinger læses af en test).
 Ikke kontrolleret: selve workflowen i GitHub Actions. Den har ikke kørt endnu. Start den én
 gang med "Run workflow" under fanen Actions, når den er på `main`, og se, at den ender grøn.
@@ -10,7 +10,7 @@ Opret-, kommentér- og luk-trinene for sagen er heller ikke set køre.
 
 ## Kort
 
-To gange i døgnet (06:23 og 18:23 UTC) henter `.github/workflows/monitor.yml` tolv adresser
+To gange i døgnet (06:23 og 18:23 UTC) henter `.github/workflows/monitor.yml` tretten adresser
 på den levende side og tjekker svarene. Hvis en kontrol fejler, åbner den en GitHub-sag med
 etiketten `monitor` (eller skriver en kommentar i den, der allerede er åben). Når alt igen
 består, skriver den en kommentar og lukker sagen. Sagen er alarmen; en planlagt kørsel
@@ -35,11 +35,11 @@ Kontrollerne sender kun GET og stiller ikke chatten et spørgsmål, så der brug
 **Tilføj en kontrol.** Tilføj et `check(navn, forventet, funktion)` i `buildChecks` i
 `scripts/monitor/checks.mjs`. Funktionen returnerer `{ ok, seen }`; `seen` er få ord om, hvad der
 kom tilbage, aldrig en hel header eller side. Læg en linje til den sunde side og en til den
-ødelagte i `scripts/site-monitor.test.mjs` (tallet 12 i testen tæller kontrollerne).
+ødelagte i `scripts/site-monitor.test.mjs` (tallet 13 i testen tæller kontrollerne).
 
 **Ændr tidspunkterne.** Ret de to `cron`-linjer i `monitor.yml` (UTC). Brug minutter som 23, ikke 00,
-for GitHubs planlægger er travlest ved hel time. Grænsen for nyhedsfeedets alder (48 timer) er
-`MAX_FEED_AGE_HOURS` i `checks.mjs`.
+for GitHubs planlægger er travlest ved hel time. Grænsen for nyhedernes alder (60 timer) er
+`MAX_NEWS_AGE_HOURS` i `checks.mjs`.
 
 **Prøv mod en anden adresse.** `node scripts/monitor/run.mjs --base https://eksempel.dk --report rapport.md`.
 Kontrollerne for `www` og kanonisk adresse peger altid på `https://smartbolig.net`.
@@ -56,9 +56,11 @@ den samme kontrol uden grund, så er den enten for stram (fx grænsen på 300 si
 når siden er blevet mindre) eller siden har ændret sig med vilje. Ret kontrollen i samme
 ændring som siden.
 
-**Nyhedsfeedet er for gammelt.** `/rss.xml` har nyheder og guides. Er nyeste punkt over 48 timer
-gammelt, er der ikke udgivet nyheder i to dage: se `docs/nyhedsflow.md` og sagen med etiketten
-`ai-news-stalled`.
+**"AI news is fresh" fejler.** Kontrollen læser nyhedernes eget feed (`/da/ai/nyheder/rss.xml`).
+Dagens nyheder er dateret ved midnat UTC. Er den nyeste over 60 timer gammel, er der ikke
+udkommet nyheder to dage i træk; én stille dag åbner ingen sag. Se `docs/nyhedsflow.md` og sagen
+med etiketten `ai-news-stalled`. `/rss.xml` er guidernes feed; dets datoer følger bygget og siger
+intet om nyhederne, så dér tjekkes kun, at feedet har punkter.
 
 **Ingen kørsler.** GitHub slår planlagte workflows fra efter 60 dage uden aktivitet i
 repoet. De daglige nyheder committer til `main` hver dag, så det sker ikke så længe de udkommer.

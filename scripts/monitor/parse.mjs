@@ -11,6 +11,7 @@ export function canonicalOf(html) {
 }
 
 export const locCount = (xml) => (xml.match(/<loc>/g) ?? []).length;
+export const itemCount = (xml) => (xml.match(/<item>/g) ?? []).length;
 export const firstLoc = (xml) => xml.match(/<loc>\s*([^<\s]+)\s*<\/loc>/)?.[1];
 
 /** The newest <pubDate> of an RSS feed as a Date, or undefined when it has none. */
