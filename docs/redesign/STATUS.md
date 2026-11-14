@@ -11,31 +11,35 @@ Sidst opdateret: 2026-11-14.
 - Før-målinger (Lighthouse, sikkerhedsheadere, sideopgørelse) taget 2026-11-13.
 - Research: open source-kandidater, danske søgeemner, indtjeningsmuligheder.
 - `scripts/content-inventory.mjs`: opgørelse over alle sider (billeder, titler, links).
-- **Fase 1, afhængigheder:** PR #171 flettet og udgivet 2026-11-13. Ingen høje eller kritiske
-  fund. Kontrollen sammenligner nu med seneste vellykkede udgivelse.
+- **Fase 1, afhængigheder:** PR #171 flettet og udgivet 2026-11-13.
 - **Vej tilbage afprøvet** på produktionssiden 2026-11-13 (`wrangler rollback` frem og tilbage).
-- **Relay til Workers AI** udrullet med nøgle, modelliste, loft pr. minut og dagsloft.
+- **Fase 1, nyhedsflow:** PR #172 flettet og udgivet 2026-11-14. Relayet er udrullet.
+  Første kørsel i GitHub Actions (`dry_run`, 2026-11-14 kl. 00:03 UTC) bestod: 4 historier
+  bestod faktatjekket, 0 kasseret, 10 modelkald, alle kontroller grønne, intet udgivet.
+- **Fase 3, gennemgang af guides:** PR #173–#177 flettet og udgivet 2026-11-13.
+  Logge og åbne punkter: `docs/redesign/guide-review/`.
 
 ## I gang
 
-- **Fase 2, brand:** grenen `redesign/brand-kit`. Alle brandfiler (favicon, ikoner, logoer, standard-delingsbillede) genereres af `npm run brand:build`; gamle brandmapper og ubrugte logoer er fjernet. Se `docs/designsystem.md`, afsnittet Logo og brandfiler.
-- **Fase 1, nyhedsflow:** grenen `feat/news-actions-v2`. Ny kæde pr. historie, workflow
-  `ai-news.yml`, `deploy.yml` kan kaldes, tests grønne lokalt (ai-news, site).
-  Uafhængigt gennemgået tre gange (sidste dom 2026-11-14: klar), PR #172.
-  Mangler: fletning, første kørsel i GitHub Actions (først `dry_run`).
-- **Fase 3, gennemgang af guides:** fire grene `content/review-*` (worktrees
-  `smartbolig-guides-*`). Produkter og øvrige mapper er rettet og under uafhængig gennemgang.
-  Home Assistant del A og B er i gang. Logge: `docs/redesign/guide-review/`.
+- **Fase 2, design:** grenen `redesign/theme` (worktree `smartbolig-theme`). Indeholder:
+  designværdier, egen topbjælke, forside med "et hus gennem et døgn", 404, nyhedsoversigt,
+  produktkort, FAQ, kommentarer, sidefod, AI-assistent (opdelt, læsbar tekst), ny brandpakke,
+  `docs/designsystem.md`, `docs/oss.md`. `main` er flettet ind.
+  Set i browser: 1440 og 375 px, lyst og mørkt (forside, guide, produktside, nyheder, 404, assistent).
+  Mangler: uafhængig gennemgang, alle kontroller, PR, udgivelse, kontrol af den levende side.
+- **Fase 1, oprydning:** grenen `chore/news-cleanup` fjerner Windows- og Linux-runnerne og deres
+  tests (17 filer). Under uafhængig gennemgang.
+- **Fase 1, rapport:** PR #179 viser forbrug pr. model og relayets dagstotal i kørslens rapport.
 
 ## Næste skridt
 
-1. Flet nyheds-PR'en. Kør workflowet med `dry_run`, derefter rigtigt. Skriv det målte forbrug
+1. Flet PR #179. Kør nyhedsworkflowet rigtigt (uden `dry_run`). Skriv det målte forbrug pr. model
    ind i `docs/nyhedsflow.md`.
-2. Slå den tidligere Windows-opgave fra. Fjern Windows- og Linux-runnerne og deres
-   tests i en opfølgende PR. Luk PR #170, #169, #147; afgør #166/#165.
-3. Flet guide-grenene én ad gangen efter gennemgang.
-4. Fase 2: designsystem på en ny gren fra `main` (opdel `astro.config.mjs`, fjern Galaxy-temaet,
-   lyst/mørkt tema, egne sider, illustrationer).
+2. Slå Windows-opgaven "Shark Smartbolig AI News" fra. Flet oprydnings-PR'en.
+   Luk PR #170, #169, #147; afgør #166/#165.
+3. Udgiv designet (denne gren) efter gennemgang. Mål Lighthouse igen og sammenlign med før-målingen.
+4. Fase 3: nye guides og illustrationer. Fase 4: smarte funktioner. Fase 5: SEO, CSP, indtjening.
+   Fase 6: Search Console, Bing, Cloudflare, overvågning. Fase 7: dokumentation og docs-test.
 5. Følg tre dages nyhedsdrift (kan ikke bekræftes samme dag).
 
 Ting, der kræver ejeren, står i TIL-EJEREN.md.
