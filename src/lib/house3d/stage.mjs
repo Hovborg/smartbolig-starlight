@@ -9,6 +9,14 @@ import { createPost } from "./post.mjs";
 
 const CENTER = new Vector3(0.6, 0, 0.7);
 const RAD = Math.PI / 180;
+// Names of WebGL drawn by the processor instead of a graphics chip.
+const SOFTWARE = /swiftshader|llvmpipe|softpipe|software|basic render/i;
+
+/** The name of the graphics chip, or "" when the browser hides it. */
+function chipName(gl) {
+  const info = gl.getExtension("WEBGL_debug_renderer_info");
+  return info ? String(gl.getParameter(info.UNMASKED_RENDERER_WEBGL)) : "";
+}
 
 /**
  * The colour to draw so the page colour comes out unchanged after tone
@@ -22,13 +30,20 @@ function beforeToneMapping(color) {
 
 /**
  * Throws when the browser has no WebGL; the caller keeps its still image.
+ * A live house also needs a graphics chip: drawn in software it would use the
+ * whole processor. Still pictures are drawn once and may take their time.
  * `quality` "high" adds the finishing pass (post.mjs); "low" draws directly.
  */
 export function createStage(canvas, { still = false, shadowSize = 2048, quality = "high", background = "#090d11" } = {}) {
   const high = quality === "high";
   const renderer = new WebGLRenderer({
     canvas, antialias: !high, alpha: false, powerPreference: "high-performance", preserveDrawingBuffer: still,
+    failIfMajorPerformanceCaveat: !still,
   });
+  if (!still && SOFTWARE.test(chipName(renderer.getContext()))) {
+    renderer.dispose();
+    throw new Error("WebGL is drawn in software");
+  }
   renderer.toneMapping = NeutralToneMapping;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = PCFShadowMap;
@@ -103,6 +118,22 @@ export function placeCamera(camera, view, aspect) {
   camera.position.copy(dir).multiplyScalar(view.dist * fit).add(target);
   camera.lookAt(target);
   return dir;
+}
+
+/**
+ * Compile the shaders before the first frame. Where the browser can
+ * (KHR_parallel_shader_compile) that happens beside the drawing, so nothing
+ * else on the graphics chip waits for it. The finishing pass draws the scene
+ * into its own target, which picks other shader variants than the screen
+ * does, so that target is set while the list of shaders is made.
+ */
+export function compileStage(stage) {
+  const { renderer, scene, camera, post } = stage;
+  const before = renderer.getRenderTarget();
+  if (post) renderer.setRenderTarget(post.readBuffer);
+  const done = renderer.compileAsync(scene, camera);
+  renderer.setRenderTarget(before);
+  return done;
 }
 
 export function drawStage(stage) {

@@ -3,7 +3,11 @@
 Sidst opdateret: 2026-11-14.
 Kontrolleret ved: forsiden åbnet i browser (1440, 820 og 390 px, mørkt og lyst tema, dansk og
 engelsk), WebGL slået fra, `npm run house:posters` kørt, `npm run site:test` grøn. Scenen
-`bench` er kontrolleret ved at se de to tegnede billeder.
+`bench` er kontrolleret ved at se de to tegnede billeder. Tegningen i en worker er målt og
+set i headless Chrome med grafikkort, med firedoblet CPU-belastning, i telefonstørrelse og
+med software-tegning (tallene står under "Kvalitet og hastighed").
+Ikke kontrolleret: Safari og Firefox på en rigtig enhed. Kan browseren ikke tegne fra en
+worker, tegnes huset på siden som før.
 
 Huset på forsiden er en three.js-model, bygget af egne dele. Der er ingen hentede modeller
 eller billeder i det. three.js (MIT, version låst i `package.json`) hentes først, når huset
@@ -13,7 +17,11 @@ skal vises levende.
 
 | Sti | Indhold |
 |---|---|
-| `src/lib/house3d/index.mjs` | Indgangen: `mountHouse(canvas, options)`. Giver `null` uden WebGL |
+| `src/lib/house3d/index.mjs` | Indgangen, når huset tegnes på siden: `mountHouse(canvas, options)`. Giver `null` uden WebGL |
+| `src/lib/house3d/remote.mjs` | Indgangen, når huset tegnes i en worker: samme `mountHouse`, men lærredet gives til workeren, og hvert kald sendes som en besked. Indeholder ikke three.js |
+| `src/lib/house3d/worker.mjs` | Workeren: bygger huset med `engine.mjs` og sender markørernes pladser tilbage for hvert billede |
+| `src/lib/house3d/protocol.mjs` | Beskederne mellem side og worker, og listen over de kald, siden må sende |
+| `src/lib/house3d/canvas.mjs` | Et tomt lærred til tegnede teksturer, på siden eller i en worker |
 | `src/lib/house3d/engine.mjs` | Løkken og kameraets flyvning. Med bevægelse slået til tegnes hvert billede, mens huset er synligt; uden bevægelse kun, når noget ændrer sig. `setMode`, `setView`, `rotate`, `resize`, `dispose` |
 | `src/lib/house3d/stage.mjs` | Scene, kamera, lys, skygger og blanding mellem to tidspunkter |
 | `src/lib/house3d/modes.mjs` | **Tidspunkter** (sol, himmel, hvad der er tændt) og **kameraer** |
@@ -25,7 +33,8 @@ skal vises levende.
 | `src/lib/house3d/stills.mjs` | Indgangen for stillbilleder: huset plus **scener**, der kun findes som billede |
 | `src/lib/house3d/parts/workbench.mjs`, `workbench-faces.mjs` | Scenen `bench`: ESP32-kort på et arbejdsbord (mål i centimeter) og dens tegnede flader |
 | `src/lib/home-house.mjs` | Forsidens tilstand: tidspunkt og kapitel |
-| `src/lib/home-house-stage.mjs` | Henter modellen, kobler lærred, markører, træk og knapper |
+| `src/lib/home-house-stage.mjs` | Henter modellen (worker først, ellers på siden), kobler lærred og markører, og går tilbage til stillbilledet, hvis tegningen falder ud |
+| `src/lib/home-house-input.mjs` | Træk og de to drejeknapper, og hvornår modellen hentes |
 | `src/components/home/HomeStage.astro`, `HomeTour.astro` | Skærmen og rundturen |
 | `scripts/house-render.mjs`, `house-posters.mjs` | Tegner stillbilleder i headless Chrome |
 
@@ -113,12 +122,50 @@ et kamera på huset igen.
 - Modellen tegner ikke, når den er uden for skærmen, eller når fanen er skjult.
 - Med bevægelse slået fra (enhedens indstilling eller knappen på skærmen) flyver kameraet
   ikke, og døgnet går ikke af sig selv.
+- Huset tegnes i en worker (`OffscreenCanvas`), så siden kan rulles og klikkes, mens modellen
+  bygges og tegnes. Første billede vises først, når alle shadere er oversat
+  (`compileStage` i `stage.mjs`), så der ikke kommer et halvfærdigt billede.
+- Tegner browseren WebGL i software (ingen grafikkort), bliver stillbilledet stående:
+  `stage.mjs` afviser en software-tegner.
+
+Målt 2026-11-14 i headless Chrome (forsiden, dansk, mørkt tema):
+
+| Måling | Før (på siden) | Nu (worker) |
+|---|---|---|
+| Sidens tråd blokeret, mens huset starter (computer med grafikkort) | 2.502 ms | 29-32 ms |
+| Sidens tråd i brug i hvile | 0,78 s pr. sekund | 0,15 s pr. sekund |
+| Software-tegning | huset startede og hakkede | stillbillede, 25 ms blokeret |
+
+På en telefon med firedoblet CPU-belastning er sidens tråd blokeret 547 ms under
+indlæsningen. Det er sidens egen opbygning og Google Analytics, ikke huset.
+
+### Sådan virker workeren
+
+1. `home-house-stage.mjs` henter `remote.mjs`, når browseren har `Worker` og
+   `transferControlToOffscreen`. Ellers, eller hvis workeren ikke kan startes, henter den
+   `index.mjs` og tegner på siden.
+2. `remote.mjs` starter `worker.mjs`, læser sidens farver og sender dem med lærredet.
+   Et lærred, der er givet til en worker, kan ikke tages tilbage.
+3. Hvert kald (`setMode`, `rotate`, `resize` ...) sendes som en besked. Workeren udfører kun
+   kald, der står i `CONTROLS` i `protocol.mjs`.
+4. Workeren sender markørernes pladser for hvert billede. Det første svar skifter skærmen fra
+   stillbillede til levende.
+5. Fejler workeren, eller tager browseren grafikken fra den, sender den `failed` eller `lost`,
+   og siden går tilbage til stillbilledet.
+
+Kode, der kører i workeren, må ikke bruge `document` eller `window`. Brug `blankCanvas` fra
+`canvas.mjs` til tegnede teksturer. En test i `scripts/site-house-worker.test.mjs` fejler,
+hvis en fil, workeren henter, bruger dem.
+
+Slå workeren fra: lad `mount` i `home-house-stage.mjs` altid hente `index.mjs`. Filerne
+`remote.mjs`, `worker.mjs` og `protocol.mjs` og testen kan så slettes.
 
 ## Fejlsøgning
 
 | Det ser du | Årsag og løsning |
 |---|---|
-| Billedet bliver stående, ingen markører | WebGL mangler, fejlede eller blev taget fra siden af browseren (`webglcontextlost`). Se konsollen: "3D house unavailable". Siden virker stadig |
+| Billedet bliver stående, ingen markører | WebGL mangler, tegnes i software, fejlede eller blev taget fra siden af browseren (`webglcontextlost`). Se konsollen: "3D house unavailable" med årsagen. Siden virker stadig |
+| Fejl i konsollen om `document is not defined` fra en worker | En fil under `house3d/` bruger `document`. Brug `blankCanvas` fra `canvas.mjs`, og kør `node --test scripts/site-house-worker.test.mjs` |
 | Et ryk, når modellen tager over | Stillbilledet er forældet. Kør `npm run house:posters` |
 | Et emnekort uden billede | Filen mangler i `public/images/home/`. Kør `npm run house:posters -- topic-<emne>` |
 | Kapitlet skifter ikke ved rul | Kapitlets `id` mangler i `views`, eller siden kører uden `IntersectionObserver` |

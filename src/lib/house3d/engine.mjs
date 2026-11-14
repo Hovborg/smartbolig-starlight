@@ -5,7 +5,9 @@ import { Vector3 } from "three";
 import { linkLevels, modes, views } from "./modes.mjs";
 import { animateLinks } from "./parts/links.mjs";
 import { createRig } from "./rig.mjs";
-import { applyLighting, blendLighting, createStage, drawStage, lightingOf, placeCamera, sizeStage } from "./stage.mjs";
+import {
+  applyLighting, blendLighting, compileStage, createStage, drawStage, lightingOf, placeCamera, sizeStage,
+} from "./stage.mjs";
 
 const SETTLE_MS = 2600;
 const LOW_WALL = 0.17;
@@ -32,6 +34,9 @@ export function createEngine(canvas, options) {
   let activeUntil = 0;
   let width = 1;
   let height = 1;
+  // The first frame waits for the shaders (compileStage). Stills draw at once.
+  let compiling = null;
+  let ready = still;
 
   const goals = { ...modes[mode].levels, ...linkLevels(focus) };
   const levels = { ...goals };
@@ -122,7 +127,7 @@ export function createEngine(canvas, options) {
 
   function wake() {
     activeUntil = performance.now() + SETTLE_MS;
-    if (!raf && !still) {
+    if (!raf && ready && !still) {
       last = performance.now();
       raf = requestAnimationFrame(frame);
     }
@@ -132,6 +137,7 @@ export function createEngine(canvas, options) {
     width = Math.max(1, w);
     height = Math.max(1, h);
     sizeStage(stage, width, height, pixelRatio);
+    compiling ??= ready ? null : compileStage(stage).catch(() => {}).then(() => { ready = true; wake(); });
     wake();
   }
 

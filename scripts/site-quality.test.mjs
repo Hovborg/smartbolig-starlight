@@ -364,14 +364,19 @@ test("cards and tabs are shown without a leading emoji", async () => {
 });
 
 test("the 3D library loads on demand and the controls work without it", async () => {
-  const [stage, controller, script] = await Promise.all([
+  const [stage, input, controller, script] = await Promise.all([
     read("src/lib/home-house-stage.mjs"),
+    read("src/lib/home-house-input.mjs"),
     read("src/lib/home-house.mjs"),
     read("src/components/home/HomeHouseScript.astro"),
   ]);
-  assert.match(stage, /import\("\.\/house3d\/index\.mjs"\)/, "three.js must stay out of the first page load");
-  assert.doesNotMatch(stage + controller + script, /from ["']three/);
-  assert.match(stage, /saveData/, "data-saving visitors must not get the model unasked");
+  // Both ways to draw the house (in a worker, or on the page) are fetched on demand.
+  assert.match(stage, /await import\("\.\/house3d\/remote\.mjs"\)/, "three.js must stay out of the first page load");
+  assert.match(stage, /await import\("\.\/house3d\/index\.mjs"\)/, "three.js must stay out of the first page load");
+  assert.doesNotMatch(stage, /^import .*house3d/m, "the stage must not import the house statically");
+  assert.doesNotMatch(stage + input + controller + script, /from ["']three/);
+  assert.doesNotMatch(input, /house3d/, "the input helpers must not pull the house in");
+  assert.match(input, /saveData/, "data-saving visitors must not get the model unasked");
   assert.match(controller, /homeMotion !== "on"/, "the day only passes by itself while motion is on");
   const markup = await read("src/components/home/HomeStage.astro");
   for (const hook of ["data-house-spots hidden", "data-house-turn hidden", "data-house-modes hidden"]) {
@@ -393,6 +398,7 @@ test("scenes that only exist as pictures stay out of the homepage's 3D bundle", 
     }
   };
   await follow(`${dir}index.mjs`);
+  await follow(`${dir}worker.mjs`);
   assert.ok(loaded.has(`${dir}rig.mjs`) && loaded.has(`${dir}kit.mjs`) && loaded.has(`${dir}parts/shell.mjs`), "the walk reaches the model's parts and what they share");
   for (const path of loaded) assert.doesNotMatch(path, /stills|workbench/, `the live house must not load ${path}`);
   const known = [...stills.matchAll(/^  (\w+)\(rig, colors\) \{/gm)].map((match) => match[1]);
