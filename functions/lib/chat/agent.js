@@ -1,5 +1,5 @@
-// The Workers AI agent: the site is searched first, every time, then one model
-// run writes the answer. The model gets no tools. The run itself is model-runs.js.
+// The Workers AI agent: the site is searched first (a closing such as "Tak"
+// aside), then one model run writes the answer. The model gets no tools. The run itself is model-runs.js.
 
 import { extractModelAnswer } from "./answer.js";
 import { createModelRunner } from "./model-runs.js";

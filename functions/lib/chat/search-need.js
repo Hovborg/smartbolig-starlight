@@ -39,20 +39,21 @@ const SMART_HOME_PATTERN = new RegExp(wholeWords(SMART_HOME_WORDS), "iu");
 // "Ja" and "nej" are not closings; they answer something the assistant asked.
 const CLOSING_WORDS = new Set([
   // Danish
-  "tak", "takker", "farvel", "hej", "hejsa", "goddag", "ok", "okay", "super", "fint", "godt", "god", "perfekt",
+  "tak", "takker", "farvel", "hej", "hejsa", "goddag", "godmorgen", "godaften", "godnat", "ok", "okay", "super", "fint", "godt", "god", "perfekt",
   "fedt", "dejligt", "fantastisk", "forstået", "mening",
   // English
   "thanks", "thank", "thx", "cheers", "bye", "goodbye", "alright", "fine", "great", "perfect", "nice", "cool",
-  "awesome", "understood", "sense", "good", "helps", "got", "hi", "hello", "hey",
+  "awesome", "understood", "sense", "good", "goodnight", "helps", "got", "hi", "hello", "hey",
 ]);
 const PADDING_WORDS = new Set([
   // Danish
   "for", "det", "den", "du", "dig", "skal", "have", "hjælpen", "hjælp", "svaret", "nu", "nå", "så", "lige", "bare",
   "meget", "mange", "tusind", "var", "er", "alt", "giver", "lyder", "igen", "med", "en", "stor", "at", "vide", "virker",
-  "dag", "aften", "weekend", "ha",
+  "dag", "morgen", "aften", "nat", "weekend", "ha",
   // English
   "you", "so", "much", "very", "a", "lot", "the", "help", "answer", "that", "that's", "it", "it's", "this", "was", "is",
-  "all", "now", "i", "see", "sounds", "makes", "day", "evening", "one", "again", "to", "know", "big", "works",
+  "all", "now", "i", "see", "sounds", "makes", "day", "morning", "afternoon", "evening", "night", "one", "again", "to", "know",
+  "big", "works",
 ]);
 // A word may hold an apostrophe ("that's"); one at its end is dropped ("ha'").
 const WORD_PATTERN = /[\p{L}\p{N}]+(?:'[\p{L}\p{N}]+)*/gu;

@@ -1,16 +1,15 @@
 # Assistenten: søgning i sidens egne guides og svar, mens de skrives
 
-Sidst opdateret: 2026-11-14 (søg først; modellen får intet værktøj; et spørgsmål søges alene,
-en opfølgning søges igen sammen med spørgsmålet før, et spørgsmål om "den" søges sammen med
-spørgsmålet før først, og en tak søges der ikke efter).
+Sidst opdateret: 2026-11-14 (søg først; modellen får intet værktøj; en besked søges alene
+først, en besked, der intet finder og kun har ord, siden kender, søges igen sammen med
+brugerbeskeden før, og en ren afslutning søges der ikke efter).
 Sidst kontrolleret: 2026-11-14.
-Kontrolleret ved (opfølgningsreglen efter den anden uafhængige gennemgang): `npm run site:test`
-(alle bestået, tallet står i pull requesten). Reglen er målt med 522 samtaler på to beskeder
-mod det byggede indeks i `dist/_index/` med et lille skript uden byggeri og med en efterlignet
-model (tallene står under "Målt med samtaler"). Indekset er bygget med de nye fyldord. 45
-ændringer af koden er prøvet én ad gangen, og testene fejler på dem alle. Én (ordet "dem" taget
-ud af listen) overlevede først, fordi testens eksempel også begyndte med "Hvad med"; eksemplet
-er skiftet.
+Kontrolleret ved (reglen efter den tredje uafhængige gennemgang): `npm run site:test` (alle
+bestået, tallet står i pull requesten). Reglen er målt med 1.281 samtaler på to beskeder (696
+danske, 585 engelske), som gennemgangen selv skrev, mod det byggede indeks i `dist/_index/`
+med et lille skript uden byggeri og med en efterlignet model (tallene står under "Målt med
+samtaler"). Gennemgangens 15 fejleksempler er kørt igen. 46 ændringer af koden er prøvet én
+ad gangen, og testene fejler på dem alle.
 Ikke kontrolleret før udgivelsen: et rigtigt svar gennem Workers AI på den levende side med
 den nye regel. Kommandoen står under "Kontrollér strømmen efter udgivelse".
 Kontrolleret ved (søg først-ændringen): `npm run site:test` (482 tests, alle bestået), og
@@ -36,7 +35,7 @@ side efter udgivelse; kommandoen står under "Kontrollér strømmen efter udgive
 ## Kort
 
 Når en læser spørger assistenten om noget, slår Workeren først op i et indeks over sidens
-egne sider, hver gang. Er det bedste afsnit om spørgsmålet (se "Hvornår et opslag bruges"),
+egne sider. Kun en ren afslutning ("Tak for det") søges der ikke efter. Er det bedste afsnit om spørgsmålet (se "Hvornår et opslag bruges"),
 får modellen de bedste afsnit sammen med spørgsmålet, og svaret får links til de sider,
 afsnittene kom fra. Ellers svarer modellen uden sidens tekst og uden links. Modellen får
 aldrig et værktøj og vælger ikke selv, om der skal søges.
@@ -66,9 +65,9 @@ statiske filer under `/_index/`. Der bruges ingen betalt søgetjeneste og ingen 
 | `functions/lib/site-search/tokens.js` | Tekst → søgeord (små bogstaver, uden fyldord, bøjningsendelser skåret af). Bruges både ved bygning og ved søgning. |
 | `functions/lib/site-search/search.js` | Søgningen i Workeren: læser kun de filer, spørgsmålet har brug for. Har også `USEFUL_SCORE`, pointgrænsen, og kan melde, hvor mange af spørgsmålets søgeord ingen side bruger (`report`). |
 | `functions/lib/site-search/assets.js` | Henter indeksfilerne fra Workerens statiske filer (`env.ASSETS`). |
-| `functions/lib/chat/search-need.js` | Ordene, der afgør opslaget: smart home-ord, ord der peger tilbage, ord der står for en ting, tak og farvel, og åbninger der spørger. Desuden søgeteksten for to beskeder sammen (seneste spørgsmål, så spørgsmålet før). |
+| `functions/lib/chat/search-need.js` | Ordene, der afgør opslaget: smart home-ord og afslutningsord (tak, farvel, hilsen, "fint"). Desuden reglen for, hvornår en besked læner sig op ad beskeden før, og søgeteksten for to beskeder sammen (seneste besked, så brugerbeskeden før). |
 | `functions/lib/chat/turn.js` | Kalder søgningen med en tidsgrænse og gemmer kun kilder fra et resultat, der bruges. Fejler søgningen, svarer assistenten uden guideuddrag. Et svagt opslag giver antallet af ukendte søgeord videre. |
-| `functions/lib/chat/agent.js` | Søger først (højst to opslag, ingen efter en tak), vælger prompt efter resultatet og kører ét modeltrin. |
+| `functions/lib/chat/agent.js` | Søger først (højst to opslag, intet efter en ren afslutning), vælger prompt efter resultatet og kører ét modeltrin. |
 | `functions/lib/chat/sources.js` | Slipper kun `smartbolig.net`-adresser igennem som kilder og afkorter teksten. |
 | `scripts/site-index.test.mjs` | Tests for indekset, søgeordene og søgningen. |
 | `scripts/chat-search-need.test.mjs` | Tests for ordene i `search-need.js`. |
@@ -87,12 +86,13 @@ statiske filer under `/_index/`. Der bruges ingen betalt søgetjeneste og ingen 
 Et spørgsmål læser højst 19 filer: `meta.json`, én ordfil pr. søgeord (højst 10) og højst 8
 stykkefiler. Grænsen holder to søgninger i ét chatkald under Workerens loft for delkald.
 
-Målt 2026-11-14 på 167 sider pr. sprog: ca. 2.300 stykker, 420 filer og 2,6 MB pr. sprog;
-den største ordfil er ca. 18 KB. Et spørgsmål med ti meget almindelige ord læser ca. 160 KB
-og bruger ca. 1,7 ms CPU (målt i Node på udviklingsmaskinen).
+Målt 2026-11-14 på 173 sider pr. sprog (bygningens sidste linjer): dansk 2.400 stykker, 429
+filer og 2,7 MB; engelsk 2.355 stykker, 424 filer og 2,4 MB. Den største ordfil er ca. 18 KB.
+Et spørgsmål med ti meget almindelige ord læste ca. 160 KB og brugte ca. 1,7 ms CPU, da det
+blev målt på 167 sider (i Node på udviklingsmaskinen).
 
-Et ord gemmes højst i sine 600 bedste stykker (`MAX_ENTRIES_PER_TERM`). Det rammer i dag fire
-danske og tre engelske ord, bl.a. "assistant" og "home".
+Et ord gemmes højst i sine 600 bedste stykker (`MAX_ENTRIES_PER_TERM`). Det rammer i dag fem
+danske og tre engelske ord, bl.a. "assistant", "home" og "smart".
 
 ## Sådan rangeres der
 
@@ -130,69 +130,66 @@ kontrollerede officielle kilder.
 Reglen står i `lookUpSite` i `agent.js`. Ordene, den bruger, står i `search-need.js`. Der er
 højst to opslag pr. besked, og statussen `searching` meldes én gang.
 
-1. **En tak eller et farvel søges der ikke efter** (`isThanks`). Beskeden har et af ordene
-   tak, takker, thanks, thank you, thx, farvel, bye, goodbye og intet spørgsmålstegn. "Tak for
-   det" og "Perfekt, tak skal du have" får derfor ingen kilder. "Tak, men hvad koster den?"
-   har et spørgsmålstegn og søges som et spørgsmål.
-2. **Et spørgsmål om en ting, kun samtalen har nævnt, søges sammen med spørgsmålet før
-   først** (`standsForAThing`): "Virker den med Home Assistant?", "Hvor køber jeg dem?",
-   "Does it work with Hue?", "Which one is cheapest?". Når det bedste svar grænsen, bruges
-   resultatet. Ellers søges spørgsmålet alene som i trin 3, og så stopper det.
-3. **Alle andre spørgsmål søges alene først.** Har spørgsmålet et smart home-ord, bruges
+1. **En ren afslutning søges der ikke efter** (`isClosing`). Det er en besked uden
+   spørgsmålstegn, der kun består af afslutningsord og fyld omkring dem: tak, farvel, en
+   hilsen eller et kort "fint". "Tak for det", "Ok super", "Det lyder godt", "Godt at vide",
+   "Thanks, that was a big help" og "Hej" får derfor ingen kilder. Ét andet ord gør beskeden
+   til noget, der søges efter: "Tak, det virkede ikke" og "Vis mig hvordan jeg sætter
+   Zigbee2MQTT op, tak" er ikke afslutninger. "Ja" og "nej" er det heller ikke; de svarer på
+   noget, assistenten spurgte om.
+2. **Alle andre beskeder søges alene først.** Har beskeden et smart home-ord, bruges
    resultatet, uanset point (`always`). Ellers bruges det, når det bedste svar har mindst
    `USEFUL_SCORE` point (12, i `site-search/search.js`). Et svar uden et tal som point tæller
    som under grænsen.
-4. **Fandt trin 3 intet brugbart, og er beskeden en opfølgning** (`isFollowUp`), **søges den
-   igen sammen med spørgsmålet før.** Resultatet bruges kun, når det selv når grænsen.
-5. Ellers bruges intet.
+3. **Fandt trin 2 intet brugbart, og har beskeden kun ord, siden kender** (`isFollowUp`),
+   **søges den igen sammen med brugerbeskeden før.** Resultatet bruges kun, når det selv når
+   grænsen.
+4. Ellers bruges intet.
 
-"Sammen med spørgsmålet før" (`joinedQuery`) er det seneste spørgsmål, et linjeskift og den
-ene brugerbesked før det, afkortet til `MAX_SEARCH_QUERY_CHARS` (400). Det seneste kommer
-først, fordi kun de første 10 ord i en søgning tæller (`MAX_QUERY_TERMS` i `tokens.js`). Ældre
-beskeder kommer aldrig med. Er der ingen besked før, springes trin 2 og 4 over.
+"Sammen med brugerbeskeden før" (`joinedQuery`) er den seneste besked, et linjeskift og den
+ene brugerbesked før den, afkortet til `MAX_SEARCH_QUERY_CHARS` (400). Den seneste kommer
+først, fordi kun de første 10 forskellige søgeord i en søgning tæller (`MAX_QUERY_TERMS` i
+`tokens.js`). Ældre beskeder kommer aldrig med. Er der ingen besked før, eller fylder den
+seneste besked selv de 400 tegn, springes trin 3 over.
 
-En besked er en opfølgning, når den ikke er en tak, og ét af to gælder:
+"Kun ord, siden kender" måles af opslaget i trin 2: det tæller, hvor mange af beskedens
+søgeord ingen side på sproget bruger (`report.unknownTerms` i `site-search/search.js`).
+Fyldord er ikke søgeord og tæller ikke med.
 
-- **Den peger tilbage** (`pointsBack`). Den har et af ordene den, det, de, dem, denne, dette,
-  disse, dens, dets, deres, it, its, that, this, these, those, they, them, their, eller den
-  begynder med "og ", "and ", "hvad med", "hvad så med" eller "what about".
-- **Den spørger om noget med ord, siden kender** (`asks`, og opslaget i trin 3 fandt ingen
-  ukendte søgeord): "Kan du uddybe?", "Hvorfor?", "Forklar nærmere", "Vis mig et eksempel".
-  En besked spørger, når den har et spørgsmålstegn eller begynder med et spørgeord, et
-  udsagnsord, der åbner et spørgsmål, eller en opfordring (hvad, hvordan, kan, er, forklar,
-  vis, "jeg vil", what, how, can, explain, show, please, "I need"; hele listen er
-  `ASKING_OPENINGS`). Et ukendt søgeord er et ord, ingen side på sproget bruger. "Hvad er
-  hovedstaden i Frankrig?" har to ("hovedstaden" og "Frankrig"), så den er et emneskift og
-  ikke en opfølgning.
+- Er tallet nul, bringer beskeden intet nyt emne med, og den søges sammen med beskeden før:
+  "Kan du uddybe?", "Hvorfor?", "Fortsæt", "Det virkede ikke", "Ja".
+- Er der mindst ét ukendt søgeord, er beskeden et emneskift. "Hvad er hovedstaden i
+  Frankrig?" har to ("hovedstaden" og "Frankrig").
 
-Ord, der står for en ting (`standsForAThing`), er færre end ord, der peger tilbage:
+Afslutningsordene (`CLOSING_WORDS`) er tak, takker, farvel, hej, hejsa, goddag, godmorgen,
+godaften, godnat, ok, okay, super, fint, godt, god, perfekt, fedt, dejligt, fantastisk,
+forstået og mening; på engelsk thanks, thank, thx, cheers, bye, goodbye, alright, fine, great,
+perfect, nice, cool, awesome, understood, sense, good, goodnight, helps, got, hi, hello og hey.
+Mindst ét af dem skal stå i beskeden. Fyldet omkring dem (`PADDING_WORDS`) er ord som for,
+det, den, du, skal, have, hjælpen, var, er, lyder, giver, nu, you, so, much, the, help, that,
+it, was, is, sounds og makes; hele listen står i filen. Ordene er hele ord, uanset store og
+små bogstaver, og begge slags apostrof læses ens ("That's" og "That’s").
 
-- den, dem, dens, deres, them, their, its, "this one", "that one" og "which one". "det" og
-  "de" er ikke med: "Er det muligt at styre varmen?" peger ikke på en ting.
-- En besked, der begynder med does, doesn't, can, can't, will, won't, could, should, would
-  eller did og derefter "it". "How does it work with solar panels?" og "Is it possible to
-  …?" tæller ikke.
-
-Foran et tillægsord er "den", "det" og "de" kendeord og peger ikke tilbage: "den bedste lås",
-"det danske mesterskab", "de mest solgte". Reglen kender det på, at det næste ord ender på -e
-eller er "mest" eller "mindst" (`NOT_THE_ARTICLE`).
-
-Alle ord er hele ord, uanset store og små bogstaver. Ordgrænserne er unicode-sikre, så "pæden"
-ikke tæller som "den".
-
-Der er to rækkefølger, fordi hver af dem fejler på sin slags spørgsmål:
+Reglen ser ikke på, hvilke ord beskeden ellers har ("den", "det", "hvorfor"). Grundene:
 
 - Søges et nyt spørgsmål sammen med det gamle, tager det gamle emne over. "Hvilken
   robotstøvsuger er bedst?" og så "Hvad er MQTT?" gav kun sider om robotstøvsugere. Derfor
-  søges et spørgsmål alene først.
-- Søges "Virker den med Zigbee?" alene, finder det sider om Zigbee og ikke om den ting, "den"
-  er. Derfor søges et spørgsmål om "den" sammen med spørgsmålet før først.
+  søges en besked altid alene først, og et brugbart resultat bruges.
+- En besked, der intet finder alene og intet nyt ord bringer, kan kun handle om det, der
+  blev talt om. Derfor søges den sammen med brugerbeskeden før.
+- To tidligere udgaver havde regler om bestemte ord (ord, der peger tilbage; "den" søgt
+  sammen med det gamle emne først; kendeord foran et tillægsord; et takkeord et sted i
+  beskeden). Hver regel tog rigtige spørgsmål med sig, og de er taget ud igen. Se B62 i
+  `docs/redesign/BESLUTNINGER.md`.
+
+Modellen får altid hele samtalen (højst 10 beskeder). Når et opslag giver intet eller andre
+sider end ventet, mangler svaret de friske uddrag og kildelinks, ikke det, der blev sagt før.
 
 Resultatet får modellen i tre tilstande (`agent.js`):
 
 - `supplied`: et opslag fandt afsnit, og de bruges. Modellen får dem, og siderne bliver kilder.
 - `nothing`: opslagene fandt intet om spørgsmålet (under grænsen, eller et smart home-ord og
-  et tomt resultat), eller beskeden var en tak. Ingen afsnit, ingen kilder (`sourceMode` er
+  et tomt resultat), eller beskeden var en ren afslutning. Ingen afsnit, ingen kilder (`sourceMode` er
   `general`), og systemprompten siger, at der ikke blev fundet en relevant side, at modellen
   skal svare ud fra bred viden og aldrig opfinde en SmartBolig-kilde.
 - `unavailable`: indekset kan ikke læses, eller et opslag fejlede eller timede ud. Det gælder
@@ -201,70 +198,86 @@ Resultatet får modellen i tre tilstande (`agent.js`):
 
 ### Målt med samtaler
 
-Målt 2026-11-14 mod det byggede indeks, med en efterlignet model. Hver samtale er et
-åbningsspørgsmål, som siden har en guide om (fem danske, fire engelske), et svar og én besked
-mere. Tallet er, hvor mange samtaler der fik en side fra åbningsspørgsmålets emne som kilde.
+Målt 2026-11-14 mod det byggede indeks (173 sider pr. sprog), med en efterlignet model. Hver
+samtale er et åbningsspørgsmål, som siden har en guide om (seks danske, fem engelske), et
+svar og én besked mere: 696 danske og 585 engelske samtaler. Beskederne er skrevet af den
+tredje uafhængige gennemgang, ikke af den, der skrev reglen. "Før" er reglen, den anden
+gennemgang så: kun en besked med et ord, der peger tilbage ("den", "det", "og …"), blev søgt
+en gang til. Tallet er, hvor mange samtaler der faldt som ønsket.
 
-| Anden besked | Dansk før | Dansk nu | Engelsk før | Engelsk nu | Ønsket |
+| Anden besked | Ønsket | Dansk før | Dansk nu | Engelsk før | Engelsk nu |
 |---|---|---|---|---|---|
-| 20 opfølgninger ("Hvad koster den?", "Kan du uddybe?", "Hvorfor?") | 35 af 100 | 83 af 100 | 29 af 80 | 73 af 80 | Alle |
-| 16 takker og bekræftelser ("Tak for det", "Det lyder godt") | | 10 af 80 | | 12 af 64 | Ingen |
-| 10 spørgsmål om andet ("Hvad er hovedstaden i Frankrig?") | | 15 af 50 | | 21 af 40 | Ingen |
-| 5 nye smart home-emner ("Hvad er MQTT?") | | 5 af 25 | | 2 af 20 | Få |
-| 7 nye emner med "den", "det", "these" i ("Hvad er den bedste smart lås?") | | 8 af 35 | | 3 af 28 | Få |
+| Opfølgning med "den", "det", "it" ("Hvad skal jeg bruge til det?") | Åbningens sider | 44 af 84 | 44 af 84 | 35 af 70 | 35 af 70 |
+| Opfølgning uden sådan et ord ("Kan du uddybe?", "Hvorfor?") | Åbningens sider | 9 af 84 | 57 af 84 | 6 af 80 | 66 af 80 |
+| Bar fortsættelse ("Fortsæt", "Mere", "Trin for trin") | Åbningens sider | 0 af 60 | 54 af 60 | 2 af 50 | 47 af 50 |
+| Flere sætninger, opfølgning ("Ja tak, vis mig et eksempel") | Åbningens sider | 13 af 42 | 24 af 42 | 7 af 35 | 17 af 35 |
+| "Kan den …?", "Does it …?" om tingen | Åbningens sider | 16 af 54 | 16 af 54 | 25 af 50 | 25 af 50 |
+| Tak og bekræftelser ("Tak for det", "Godt at vide") | Ingen kilder | 84 af 108 | 90 af 108 | 65 af 90 | 75 af 90 |
+| Spørgsmål om andet ("Hvad er hovedstaden i Australien?") | Ingen kilder | 66 af 96 | 60 af 96 | 55 af 80 | 40 af 80 |
+| Nyt emne med smart home-ord | Egne sider | 36 af 36 | 36 af 36 | 30 af 30 | 30 af 30 |
+| Nyt emne uden smart home-ord | Egne sider | 30 af 30 | 30 af 30 | 25 af 25 | 25 af 25 |
+| Nyt emne med "den", "det", "it" i ("Hvad er den bedste smart lås?") | Egne sider | 66 af 72 | 72 af 72 | 50 af 50 | 50 af 50 |
+| Flere sætninger, nyt emne | Egne sider | 30 af 30 | 30 af 30 | 25 af 25 | 25 af 25 |
 
-"Før" er reglen før denne ændring (kun ord, der peger tilbage, og altid alene først). De to
-sidste rækker kan ikke blive nul: et nyt emne kan have en side tilfælles med det gamle (en
-Zigbee-koordinator og Zigbee2MQTT).
+En første besked med et takkeord i ("Vis mig hvordan jeg sætter Zigbee2MQTT op, tak", "Help me
+choose a robot vacuum, thanks") får sine sider i alle 14 prøvede tilfælde.
 
-De opfølgninger, der stadig falder forkert:
+Af gennemgangens 15 fejleksempler falder 14 nu som ønsket. Det sidste, "Den blinkede bare
+rødt" efter et spørgsmål om Zigbee2MQTT, får intet: ingen dansk side bruger de to søgeord,
+beskeden bliver til.
 
-- "Hvor lang tid tager det?", "Kan du give mig en trin for trin-guide?", "How long does it
-  take?": spørgsmålet når selv grænsen alene og får derfor sine egne sider.
-- "Skal jeg bruge en hub?", "Do I need a hub?": smart home-ordet gør, at spørgsmålet bruges
-  alene.
-- "Er der andre muligheder?" (2 af 5), "How much does it cost?" (3 af 4): opslaget sammen med
-  spørgsmålet før finder andre sider end åbningens.
+Det, der stadig falder forkert:
 
-De andre beskeder, der stadig falder forkert:
+- **En opfølgning, der selv når grænsen, får sine egne sider** og ikke åbningens: "Virker den
+  uden internet?", "Hvor lang tid tager det at sætte op?", "Kan du skrive koden?", "Skriv
+  koden", "Does it work without internet?". Det er de 40 af 84 og 35 af 70 i første række og
+  det meste af rækken "Kan den …?".
+- **En opfølgning med et smart home-ord bruger sit eget resultat:** "Kan den bruge Zigbee?",
+  "Does it need a hub?".
+- **Et spørgsmål om andet, hvor siden bruger alle ordene, tæller som opfølgning** og får
+  åbningens sider: "Hvad er klokken?", "Hvad er 12 gange 12?", "Hvornår er det jul?",
+  "Hvordan bliver vejret i morgen?", "What time is it?", "What should I cook for dinner?".
+  Rækken er dårligere end før (60 mod 66 dansk, 40 mod 55 engelsk). Det er prisen for, at
+  "Hvorfor?" og "Fortsæt" får åbningens sider.
+- **Nogle spørgsmål om andet når selv grænsen** og får egne, irrelevante sider: "Kan du
+  anbefale en god bog?", "Er det sundt at drikke kaffe?", "Is it healthy to drink coffee?".
+- **En opfølgning med ét ord, siden ikke bruger, får intet:** "Den blinkede bare rødt", "Are
+  there any downsides?" (ingen engelsk side bruger "downsides").
+- **"Ja", "Nej", "Det vil jeg prøve", "Yes" og "No" er ikke afslutninger** og får åbningens
+  sider. De svarer på noget, assistenten spurgte om ("Vil du have et eksempel?", "Ja"). "I'll
+  try that" når selv grænsen og får egne sider.
+- **To opfølgninger i træk:** den anden søges kun sammen med den første opfølgning, ikke med
+  åbningen, og kan miste åbningens sider.
 
-- Bekræftelser uden tak, der peger tilbage: "Det lyder godt", "Super, det prøver jeg", "That
-  helps", "That sounds good", "Great, I will try that". De får det gamle emnes kilder.
-- Spørgsmål om andet med "det", "dette", "it", "this" eller "og" først: "Hvad er det for et
-  vejr i dag?", "Kan du oversætte dette til engelsk?", "Is it going to rain tomorrow?", "And
-  what is the capital of France?".
-- Engelske spørgsmål om andet, hvor siden bruger alle ordene: "Who won the 2022 World Cup?"
-  har ingen ukendte søgeord og tæller derfor som en opfølgning.
+Grænsen er målt 2026-11-14 for spørgsmål uden smart home-ord. "Før" er målt før de nye
+fyldord (167 sider), "Nu" mod indekset med 173 sider:
 
-Grænsen er målt 2026-11-14 mod det byggede indeks, for spørgsmål uden smart home-ord. "Efter"
-er målt mod et indeks, der er bygget med de nye fyldord:
-
-| Spørgsmål | Før | Efter |
+| Spørgsmål | Før | Nu |
 |---|---|---|
-| "Hvordan kommer jeg i gang?" | 13,33 | 13,33 |
-| "Hvordan lader jeg elbilen billigt?" (afløser "Min pære blinker …", der nu har et smart home-ord) | | 18,66 |
-| "Hvordan får jeg lyset til at tænde ved bevægelse?" | 31,61 | 31,66 |
-| "Hvad koster det at holde en computer tændt hele året?" (afløser "… en router …", samme grund) | | 54,46 |
+| "Hvordan kommer jeg i gang?" | 13,33 | 14,35 |
+| "Hvordan lader jeg elbilen billigt?" (afløser "Min pære blinker …", der nu har et smart home-ord) | | 18,64 |
+| "Hvordan får jeg lyset til at tænde ved bevægelse?" | 31,61 | 31,53 |
+| "Hvad koster det at holde en computer tændt hele året?" (afløser "… en router …", samme grund) | | 54,24 |
 | "Hvem vandt VM i fodbold i 2022?" | 9,42 | 9,44 |
-| "Hvordan bager jeg et rugbrød?" | 5,82 | 5,83 |
-| "Skriv et digt om efteråret" | 5,42 | 5,29 |
-| "tak for hjælpen" | 7,03 | 6,76 |
-| "Fortæl en vittighed" | 6,27 | 6,27 |
-| "ja tak" | 14,43 | 0 |
-| "Hej" | 6,85 | 0 |
+| "Hvordan bager jeg et rugbrød?" | 5,82 | 5,76 |
+| "Skriv et digt om efteråret" | 5,42 | 5,28 |
+| "tak for hjælpen" | 7,03 | søges ikke (afslutning) |
+| "Fortæl en vittighed" | 6,27 | 6,28 |
+| "ja tak" | 14,43 | ingen søgeord |
+| "Hej" | 6,85 | søges ikke (afslutning) |
 | "Hvad er hovedstaden i Frankrig?" | intet svar | intet svar |
-| Engelsk: "Which plug can measure power?" | 28,6 | 28,49 |
-| Engelsk: "What is the best way to get started?" | 17,89 | 17,86 |
-| Engelsk: "My light keeps flickering, what do I do?" (afløser "My bulb …") | | 27,68 |
+| Engelsk: "Which plug can measure power?" | 28,6 | 28,40 |
+| Engelsk: "What is the best way to get started?" | 17,89 | 17,84 |
+| Engelsk: "My light keeps flickering, what do I do?" (afløser "My bulb …") | | 27,63 |
 | Engelsk: "What is the capital of France?" | 4,47 | 4,46 |
-| Engelsk: "How do I bake bread?" | 7,35 | 7,35 |
-| Engelsk: "Tell me a joke" | 16,14 | 0 |
-| Engelsk: "Thank you" | 6,84 | 0 |
-| Engelsk: "Who won the 2022 World Cup?" | 13,23 | 9,41 |
+| Engelsk: "How do I bake bread?" | 7,35 | 7,36 |
+| Engelsk: "Tell me a joke" | 16,14 | intet svar |
+| Engelsk: "Thank you" | 6,84 | søges ikke (afslutning) |
+| Engelsk: "Who won the 2022 World Cup?" | 13,23 | 9,42 |
 
-Alle spørgsmål, der handler om siden, ligger på 13,33 eller derover, og alle, der ikke gør, på
+Alle spørgsmål, der handler om siden, ligger på 14,35 eller derover, og alle, der ikke gør, på
 9,44 eller derunder. Grænsen 12 ligger mellem dem. Alle 11 danske og 7 engelske faste
-prøvespørgsmål (`PROBES`) står stadig blandt de tre bedste efter de nye fyldord.
+prøvespørgsmål (`PROBES`) står stadig blandt de tre bedste.
 
 Hverdagsspørgsmål er målt med en liste på 20 danske og 24 engelske ("Tell me a joke", "ja
 tak", "Good morning", "What can you help me with?" og lignende), alle uden smart home-ord:
@@ -274,12 +287,13 @@ tak", "Good morning", "What can you help me with?" og lignende), alle uden smart
 | Dansk | 4 af 20 på 12 point eller mere | 2 af 20 |
 | Engelsk | 10 af 24 på 12 point eller mere | 6 af 24 |
 
-De, der stadig når grænsen, har et ord, siden skriver om, eller et tal: "Hvilken film skal jeg se
-i aften?" (24,77, "film"), "Hvad er 17 gange 23?" (16,56), "What movie should I watch tonight?"
-(23,54), "What is 17 times 23?" (16,59), "Good morning" (15,30, "morning" findes i
-morgenrutiner), "Write a cover letter for a carpenter job" (15,71), "Write a Python function
-that sorts a list" (15,60) og "Who is the president of the United States?" (13,18). De kan kun
-rettes med flere sider eller en anden grænse, ikke med fyldord.
+De, der stadig når grænsen (målt igen på 173 sider), har et ord, siden skriver om, eller et
+tal: "Hvilken film skal jeg se i aften?" (24,82, "film"), "Hvad er 17 gange 23?" (16,58), "What
+movie should I watch tonight?" (23,57), "What is 17 times 23?" (16,61), "Write a cover letter
+for a carpenter job" (15,73), "Write a Python function that sorts a list" (15,62) og "Who is
+the president of the United States?" (13,17). "Good morning" når også grænsen i indekset
+(15,31, "morning" findes i morgenrutiner), men assistenten søger ikke efter en hilsen. De
+andre kan kun rettes med flere sider eller en anden grænse, ikke med fyldord.
 Giver de en kilde, når nogen spørger, er det sådan, grænsen virker, ikke en fejl i koden.
 
 Fyldordene er tilføjet i `tokens.js`: dansk bl.a. ja, nej, tak, hej, ok, okay, super, venligst,
@@ -326,16 +340,17 @@ Kendte grænser:
   hub?").
 - En opfølgning til en besked, der ligger to brugerbeskeder tilbage, søges kun sammen med
   beskeden lige før. Hellere intet end et gammelt emne, der tager over.
-- "den" foran et udsagnsord, der ender på -e, læses som kendeord: "Kan den styre varmen?"
-  tæller ikke som et ord for en ting. Beskeden spørger stadig, så trin 4 fanger den, når
-  opslaget alene er svagt.
 - Smart home-ord med en hverdagsbetydning tvinger stadig opslaget: "hue" (også en hue på
   hovedet), "pære" (også frugten), "IKEA", "Alexa", "hub", "bulbs", "gateway", "matter" og
-  "thread" uden for de fire undtagelser, og "ha" uden apostrof ("Ha en god dag"). Et sådant
-  spørgsmål får altid et resultat, hvor svagt det end er.
-- En bekræftelse uden tak ("Det lyder godt") er ikke en tak. Peger den tilbage, får den det
-  gamle emnes kilder.
-- Et spørgsmål, der kun har fyldord, har ingen søgeord og får intet svar fra indekset.
+  "thread" uden for de fire undtagelser, og "ha" uden apostrof ("Hvad skal jeg ha med?"). Et
+  sådant spørgsmål bruger sit resultat, hvor svagt det end er; er resultatet tomt, bruges
+  intet.
+- En bekræftelse med et ord uden for listerne ("Det vil jeg prøve") er ikke en afslutning og
+  kan få det gamle emnes kilder.
+- Et afslutningsord i en besked, der ellers kun har fyld, gør den til en afslutning, også når
+  den var ment som et svar: "Det er fint" søges der ikke efter.
+- Et spørgsmål, der kun har fyldord ("ja tak"), har ingen søgeord og finder intet alene. Står
+  det efter et andet spørgsmål, søges det sammen med det.
 - Valgt fra: at sammenføje de to beskeder hver gang. Det gav kun sider om det gamle emne ved
   emneskift ("Hvad er MQTT?" efter robotstøvsugere).
 

@@ -928,6 +928,11 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 
 ### B62, tilføjelse efter den anden gennemgang af søg først (2026-11-14)
 
+Valgene her om »den« først, kendeord, ord der peger tilbage og tak er taget tilbage efter den
+tredje gennemgang; se næste tilføjelse. Tallene i denne tilføjelse er målt med 522 samtaler,
+som den, der skrev reglen, selv valgte. Det, der står om, hvad reglen fangede, gjaldt den
+udgave og ikke den udgivne.
+
 - Fundet af gennemgangen, blokerende: en opfølgning uden et ord, der peger tilbage (»Kan du
   uddybe?«, »Hvorfor?«, »Forklar nærmere«, »Vis mig et eksempel«), blev kun søgt alene og fik
   ingen sider. Målt med 20 opfølgninger efter fem danske og fire engelske åbningsspørgsmål
@@ -969,6 +974,44 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   til ethvert emneskift. Fravalgt: at lade modellen afgøre det; det var fejlen i første udgave.
 - Kontrolleret: `npm run site:test`; 45 fejl sat ind i koden én ad gangen, og testene fejler
   på dem alle (den ene først efter et nyt eksempel i testen); målingen ovenfor.
+
+### B62, tilføjelse efter den tredje gennemgang af søg først (2026-11-14)
+
+- Fundet af gennemgangen, blokerende. Alle tre fejl var indført af ordreglerne i forrige
+  tilføjelse: (1) takkereglen slugte en anmodning med et takkeord og uden spørgsmålstegn
+  (»Vis mig hvordan jeg sætter Zigbee2MQTT op, tak« blev ikke søgt); (2) reglen om »den«
+  først tog over, også når beskeden selv nævnte sin ting (»Jeg har købt en Shelly Plug S.
+  Hvordan sætter jeg den op?« efter et spørgsmål om elbilen); (3) kendeordsreglen gjorde, at
+  »Det virkede ikke« intet fik.
+- Valgt: de tre ordregler er taget ud igen i stedet for at blive lappet en gang til. Tilbage
+  står én regel: en besked søges alene først, og et brugbart resultat bruges; finder den
+  intet, og bruger siden alle dens søgeord, søges den sammen med brugerbeskeden før.
+  Begrundelse: hver ordregel fangede sine egne eksempler og tog andre spørgsmål med sig, og
+  tre runder viste, at flere ord ikke retter det. Reglen ser nu kun på to ting, søgningen selv
+  måler: point og ukendte søgeord.
+- Valgt: ord, der peger tilbage (»den«, »det«, »og …«), afgør ikke længere noget. Målt (på
+  indekset før de seks nyeste sider) fik opfølgninger de samme sider med og uden dem, mens de
+  lod spørgsmål om andet med »det« i få det gamle emnes sider: 48 af 96 danske spørgsmål om
+  andet var uden kilder med ordene, 60 uden dem.
+- Valgt: en ren afslutning søges der ikke efter. Den kendes på, at beskeden ikke har et
+  spørgsmålstegn og kun består af afslutningsord (tak, farvel, hilsen, »fint«) og fyld omkring
+  dem. Begrundelse: et takkeord et sted i beskeden var for bredt; nu gør ét andet ord beskeden
+  til noget, der søges efter. »Ja« og »nej« er ikke afslutninger: de svarer på noget,
+  assistenten spurgte om, og skal have emnets sider.
+- Pris, kendt: et spørgsmål om andet, hvor siden bruger alle ordene (»Hvad er klokken?«,
+  »Hvad er 12 gange 12?«), tæller som opfølgning og får det gamle emnes kilder. Rækken er
+  dårligere end før (60 mod 66 af 96 danske uden kilder, 40 mod 55 af 80 engelske). Valgt
+  alligevel, fordi opfølgningerne er meget bedre (57 mod 9 af 84 danske, 66 mod 6 af 80
+  engelske; bare fortsættelser 54 mod 0 af 60 og 47 mod 2 af 50), og fordi en forkert kilde
+  ved et spørgsmål om andet koster mindre end et svar uden sider på »Hvorfor?«.
+- Pris, kendt: en opfølgning med ét ord, siden ikke bruger (»Den blinkede bare rødt«), søges
+  ikke sammen med beskeden før. Modellen har stadig hele samtalen.
+- Fravalgt: at beholde »den« først med flere undtagelser. Fravalgt: at lade ord, der peger
+  tilbage, tilsidesætte de ukendte søgeord; det gav kilder til spørgsmål om andet.
+- Kontrolleret: gennemgangens egne 1.281 samtaler (696 danske, 585 engelske) kørt mod det
+  byggede indeks med ny og gammel kode; dens 15 fejleksempler (14 falder nu som ønsket, »Den
+  blinkede bare rødt« får intet); 46 fejl sat ind i koden én ad gangen, og testene fejler på
+  dem alle; `npm run site:test`. Tal og grænser: `docs/assistent.md`, "Målt med samtaler".
 
 ## B63. Forsiden: værktøjer med elprisen lige nu (2026-11-14)
 
