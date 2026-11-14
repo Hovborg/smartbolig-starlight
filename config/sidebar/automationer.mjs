@@ -19,6 +19,16 @@ export default {
       link: "/automationer/sensorovervaagning/",
     },
     {
+      label: "Billige timer",
+      translations: { en: "Cheapest Hours" },
+      link: "/automationer/billige-timer/",
+    },
+    {
+      label: "Ferietilstand",
+      translations: { en: "Vacation Mode" },
+      link: "/automationer/ferietilstand/",
+    },
+    {
       label: "Din første automation",
       translations: { en: "Your First Automation" },
       link: "/home-assistant/foerste-automation/",

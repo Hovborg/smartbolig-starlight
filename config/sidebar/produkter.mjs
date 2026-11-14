@@ -13,6 +13,11 @@ export default {
       translations: { en: "All Recommendations" },
       link: "/produkter/anbefalinger/",
     },
+    {
+      label: "Smart home i lejebolig",
+      translations: { en: "Smart Home in a Rented Flat" },
+      link: "/produkter/smart-home-i-lejebolig/",
+    },
     // Hardware & Protokoller
     {
       label: "Hardware & Protokoller",
