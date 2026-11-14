@@ -16,7 +16,9 @@ export class ChatRequestError extends Error {
   }
 }
 
-function responseBodyFor(code) {
+// The body of every error, in both languages. A streamed request sends the
+// same body in its `error` event.
+export function responseBodyFor(code) {
   return {
     code,
     error: {

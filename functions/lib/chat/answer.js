@@ -59,10 +59,15 @@ export function isTruncatedModelResult(result, answer = "") {
   );
 }
 
+// The tool name and the reference-data tags belong to the prompt, never to an answer.
+export function leaksPromptInternals(answer) {
+  return /\bsearch_smartbolig\b|<\/?(?:smartbolig|official)_reference_data\b/iu.test(answer);
+}
+
 export function isAcceptableModelAnswer(answer, latestUserContent) {
   if (!answer) return false;
   if (answer.length > MAX_ANSWER_CHARS) return false;
-  if (/\bsearch_smartbolig\b|<\/?(?:smartbolig|official)_reference_data\b/iu.test(answer)) return false;
+  if (leaksPromptInternals(answer)) return false;
 
   const requestsFencedYaml = requestsFencedYamlOutput(latestUserContent);
   const requestedYamlShape = requestedHomeAssistantYamlShape(latestUserContent);

@@ -1,37 +1,15 @@
-// The chat request handler: method, origin, rate limit, validation, search and response.
+// The chat request handler: method, origin, rate limit and validation, then the
+// answer as JSON or, when the request asks for it, as an event stream.
 
-import { selectOfficialEvidence } from "../official-evidence.js";
 import { siteSearchFromAssets } from "../site-search/assets.js";
 import { createWorkersAgent } from "./agent.js";
-import {
-  CHAT_FALLBACK_MODEL_DIAGNOSTIC,
-  CHAT_MODEL_DIAGNOSTIC,
-  MAX_ANSWER_CHARS,
-  MAX_PUBLIC_DURATION_MS,
-  MAX_SEARCH_QUERY_CHARS,
-  MAX_SEARCH_RESULTS,
-  SEARCH_TIMEOUT_MS,
-} from "./limits.js";
+import { SEARCH_TIMEOUT_MS, STREAMING_ENABLED } from "./limits.js";
 import { readBoundedBody, validateChatBody } from "./request.js";
 import { ChatRequestError, jsonResponse } from "./responses.js";
-import { safeErrorName, withTimeout } from "./runtime.js";
-import { normalizeSearchResults } from "./sources.js";
-
-function createPublicDiagnostics(candidate, durationMs, requestId) {
-  const hasPrimaryRoute =
-    candidate?.model === CHAT_MODEL_DIAGNOSTIC && candidate?.route === "primary";
-  const hasFallbackRoute =
-    candidate?.model === CHAT_FALLBACK_MODEL_DIAGNOSTIC && candidate?.route === "fallback";
-  const hasKnownRoute = hasPrimaryRoute || hasFallbackRoute;
-  const numericDuration = Number.isFinite(durationMs) ? Math.round(durationMs) : 0;
-
-  return {
-    model: hasKnownRoute ? candidate.model : "unknown",
-    route: hasKnownRoute ? candidate.route : "unknown",
-    durationMs: Math.min(MAX_PUBLIC_DURATION_MS, Math.max(0, numericDuration)),
-    trace: typeof requestId === "string" ? requestId.slice(0, 64) : "",
-  };
-}
+import { safeErrorName } from "./runtime.js";
+import { wantsEventStream } from "./sse.js";
+import { streamTurn } from "./stream-response.js";
+import { createTurn } from "./turn.js";
 
 export function createChatHandler(dependencies = {}) {
   const agentRunner = dependencies.agentRunner || createWorkersAgent();
@@ -41,8 +19,10 @@ export function createChatHandler(dependencies = {}) {
   // env → search(query, locale, limit), or undefined when there is no index to read.
   const siteSearch = dependencies.siteSearch || ((env) => siteSearchFromAssets(env?.ASSETS));
   const now = dependencies.now || Date.now;
+  const streaming = dependencies.streaming ?? STREAMING_ENABLED;
 
-  return async function handleChat({ request, env }) {
+  return async function handleChat(context) {
+    const { request, env } = context;
     const requestId = createRequestId();
     const requestStartedAt = now();
 
@@ -102,79 +82,30 @@ export function createChatHandler(dependencies = {}) {
       return jsonResponse("invalid_request", 400, requestId);
     }
 
-    const officialEvidence = selectOfficialEvidence(chat.messages.at(-1).content, chat.locale);
-    const sourceMap = new Map(officialEvidence.sources.map((source) => [source.url, source]));
-    const search = siteSearch(env);
-    const searchSmartbolig = search
-      ? async (query) => {
-          const safeQuery = typeof query === "string" ? query.trim().slice(0, MAX_SEARCH_QUERY_CHARS) : "";
-          if (safeQuery.length < 2) return { results: [] };
+    const turn = createTurn({
+      agentRunner,
+      chat,
+      env,
+      logger,
+      now,
+      requestId,
+      requestStartedAt,
+      search: siteSearch(env),
+      searchTimeoutMs,
+    });
 
-          try {
-            const found = await withTimeout(() => search(safeQuery, chat.locale, MAX_SEARCH_RESULTS), searchTimeoutMs);
-            const normalized = normalizeSearchResults(found);
-            for (const source of normalized.sources) {
-              if (!sourceMap.has(source.url)) sourceMap.set(source.url, source);
-            }
-            return { results: normalized.results };
-          } catch (error) {
-            logger.error?.("SmartBolig site search unavailable", {
-              requestId,
-              error: safeErrorName(error),
-            });
-            return { results: [], unavailable: true };
-          }
-        }
-      : undefined;
+    // Every refusal above is a plain JSON response with its status code, also
+    // for a request that asked for a stream. Only an accepted question streams.
+    if (streaming && wantsEventStream(request)) {
+      const { response, finished } = streamTurn(turn, requestId);
+      context.waitUntil?.(finished);
+      return response;
+    }
 
     try {
-      const result = await agentRunner({
-        env,
-        locale: chat.locale,
-        messages: chat.messages,
-        searchSmartbolig,
-        officialEvidence,
-        onModelFallback: (details) => {
-          logger.warn?.("SmartBolig chat model fallback", {
-            requestId,
-            event: details.event,
-            reason: details.reason,
-            error: details.error,
-          });
-        },
-      });
-      const answer = typeof result?.answer === "string" ? result.answer.trim() : "";
-      if (!answer) throw new Error("EmptyAssistantAnswer");
-      if (answer.length > MAX_ANSWER_CHARS) throw new Error("OversizedAssistantAnswer");
-
-      const sources = [...sourceMap.values()];
-      const diagnostics = createPublicDiagnostics(
-        result?.diagnostics,
-        now() - requestStartedAt,
-        requestId,
-      );
-      return jsonResponse(
-        {
-          answer,
-          sources,
-          officialVerifiedAt: officialEvidence.verifiedAt,
-          sourceMode:
-            officialEvidence.evidenceIds.length > 0
-              ? "official"
-              : sources.length > 0
-                ? "mixed"
-                : "general",
-          requestId,
-          diagnostics,
-        },
-        200,
-        requestId,
-      );
+      return jsonResponse(await turn.run(), 200, requestId);
     } catch (error) {
-      logger.error?.("SmartBolig chat generation failed", {
-        requestId,
-        error: safeErrorName(error),
-      });
+      turn.reportFailure(error);
       return jsonResponse("assistant_unavailable", 502, requestId);
     }
   };

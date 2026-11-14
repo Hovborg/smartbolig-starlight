@@ -98,7 +98,9 @@ specialdesignet Astro-widget:
   logisk modelkald med højst ét sekundært forsøg. Et fagligt svar kan desuden
   bruge ét opslag i sidens indeks; en valgfri modelstyret søgesti er fortsat
   begrænset til højst to logiske modelkald. Tager opslaget over fem sekunder,
-  svarer assistenten ud fra bred modelviden.
+  svarer assistenten ud fra bred modelviden. Et svar som strøm tæller som ét
+  chatkald og gennemgår de samme kontroller af oprindelse, størrelse og
+  indhold; afvisninger kommer som almindelige JSON-fejl.
 - **Dataminimering:** Endpointet accepterer højst 10 skiftevis bruger/assistent-
   beskeder, 2.000 tegn pr. besked og 8.000 tegn i alt. Widgeten gemmer kun den
   aktuelle samtale i browserens `sessionStorage`. Hvert gemt og genudsendt
@@ -143,9 +145,10 @@ specialdesignet Astro-widget:
   sekunders netværksmargin. Et providerresultat med token-limit, en uafsluttet
   kodeblok eller et tydeligt hængende bindeord vises aldrig: primærsvaret går
   til fallback, og en afskåret fallback fejler lukket. Normale svar returneres
-  med det samme. En aktiv eller fejlet fallback logges med request-ID, trin,
-  årsagsklasse og fejlnavn, men aldrig med prompt, modelsvar eller providerens
-  fritekstfejl.
+  med det samme. I en strøm gælder de samme grænser pr. modelkald, og teksten
+  stoppes ved 12.000 tegn. En aktiv eller fejlet fallback logges med
+  request-ID, trin, årsagsklasse og fejlnavn, men aldrig med prompt, modelsvar
+  eller providerens fritekstfejl.
 
 Bindings og modelvalg ligger i `wrangler.jsonc`; der skal ikke ligge Cloudflare-
 tokens eller modelnøgler i kildekoden.
@@ -215,7 +218,7 @@ Guidesidernes top, sidemenu og sidefod er beskrevet i `docs/designsystem.md` und
 
 | Fil | Ansvar |
 |-----|--------|
-| `limits.js` | modelnavne, størrelsesgrænser og timeouts |
+| `limits.js` | modelnavne, størrelsesgrænser, timeouts og kontakten `STREAMING_ENABLED` |
 | `responses.js` | JSON-svar, fejlkoder og tekster, `ChatRequestError` |
 | `request.js` | begrænset læsning af kroppen og validering af samtalen |
 | `sources.js` | kanoniske SmartBolig-URL'er, titler og søgeresultater |
@@ -225,8 +228,15 @@ Guidesidernes top, sidemenu og sidefod er beskrevet i `docs/designsystem.md` und
 | `yaml-checks.js` | kontrol af YAML i svaret mod den ønskede form |
 | `answer.js` | udtræk af modelsvar og accept af svar |
 | `runtime.js` | timeout med afbrydelse og sikre fejlnavne til log |
-| `agent.js` | Workers AI-agenten: primær model, reservemodel og søgeløkken |
-| `handler.js` | selve anmodningsforløbet: metode, oprindelse, rate limit, validering, søgning og svar |
+| `agent.js` | Workers AI-agenten: hvornår der søges, og hvilken prompt hvert modeltrin får |
+| `model-runs.js` | ét modeltrin: primær model, derefter reservemodel; sender teksten videre, mens den skrives |
+| `model-stream.js` | læser Workers AI's strøm til samme form som et almindeligt modelsvar |
+| `sse-decoder.js` | afkoder Server-Sent Events fra bytes; bruges af både Workeren og browseren |
+| `turn.js` | ét spørgsmål: kilder, søgning med tidsgrænse, agentkørsel og det færdige svar |
+| `diagnostics.js` | de driftsoplysninger, en besøgende må se |
+| `sse.js` | et svar som Server-Sent Events og genkendelse af `Accept: text/event-stream` |
+| `stream-response.js` | leverer et svar som events: `status`, `sources`, `delta`, `done`, `error` |
+| `handler.js` | selve anmodningsforløbet: metode, oprindelse, rate limit og validering, derefter svar som JSON eller strøm |
 
 Søgningen i sidens egne guides ligger i `functions/lib/site-search/` (søgning i Workeren) og `scripts/lib/site-index/` (bygning af indekset). Opbygning, fejlsøgning og fjernelse: [`docs/assistent.md`](docs/assistent.md).
 
