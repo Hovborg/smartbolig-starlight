@@ -368,7 +368,7 @@ Forsiden er bygget af små komponenter under `src/components/home/`, samlet af
 `HomePortal.astro`. Teksterne står i `src/lib/home-copy/da.ts` og `en.ts`
 (typer i `types.ts`), og stilreglerne i `src/styles/home/`:
 
-1. Hero med søgefelt og et 3D-hus. Et stillbillede (AVIF/WebP) vises straks; den levende model hentes bagefter. Læseren vælger morgen, dag, aften eller nat, drejer huset og følger rundturen "Et døgn i et smart hjem" med fire kapitler (varme, energi, lys, sikkerhed), hvor kameraet flyver hen til det, teksten handler om
+1. Hero med søgefelt, knappen »Spørg AI« (åbner assistenten med markøren i feltet) og et 3D-hus. Et stillbillede (AVIF/WebP) vises straks; den levende model hentes bagefter. Læseren vælger morgen, dag, aften eller nat, drejer huset og følger rundturen "Et døgn i et smart hjem" med fire kapitler (varme, energi, lys, sikkerhed), hvor kameraet flyver hen til det, teksten handler om
 2. Emnevælger: begynderspor til `/start/` og fem emnekort med billeder tegnet af 3D-huset. Det første kort er stort, de fire andre står to og to
 3. Feltguide med en vandret etaperute på computer og lodret forløb på mobil
 4. Udvalgte guides med et morgenbillede af huset

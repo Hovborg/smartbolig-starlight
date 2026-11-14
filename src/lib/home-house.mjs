@@ -86,6 +86,15 @@ export function mountHomeHouse(win, doc, root) {
     });
   }
 
+  // "Ask AI" beside it opens the assistant, which says where focus goes back to.
+  const askAi = root.querySelector("[data-home-ask-ai]");
+  if (askAi && doc.querySelector("[data-smartbolig-ai]")) {
+    askAi.hidden = false;
+    listen(askAi, "click", () => {
+      doc.dispatchEvent(new win.CustomEvent("smartbolig-ai:open", { detail: { opener: askAi } }));
+    });
+  }
+
   if (pillBox) pillBox.hidden = false;
   root.dataset.house = "on";
   render();
@@ -94,6 +103,7 @@ export function mountHomeHouse(win, doc, root) {
     undo.forEach((fn) => fn());
     stage.dispose();
     if (ask) ask.hidden = true;
+    if (askAi) askAi.hidden = true;
     if (pillBox) pillBox.hidden = true;
     for (const chapter of chapters) chapter.removeAttribute("data-active");
     delete root.dataset.house;

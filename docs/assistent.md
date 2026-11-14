@@ -199,6 +199,10 @@ kontrolleres svaret og sendes som ét stykke.
   et nyt modelkald.
 - Kun et færdigt svar gemmes i `sessionStorage`.
 
+Forsidens knap »Spørg AI« ved siden af søgefeltet åbner assistenten med markøren i feltet.
+Den sender hændelsen `smartbolig-ai:open` på `document` (`src/lib/home-house.mjs`), som
+`src/scripts/assistant/panel.ts` lytter på. Fokus går tilbage til knappen, når assistenten lukkes.
+
 ### Slå strømmen fra
 
 Sæt `STREAMING_ENABLED` til `false` i `functions/lib/chat/limits.js`, og udgiv. Alle kald får

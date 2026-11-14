@@ -23,6 +23,8 @@ export interface HomeHeroCopy {
 export interface HomeSearchCopy {
   label: string;
   placeholder: string;
+  /** The button beside the search field that opens the assistant. */
+  askAi: string;
   suggestionsLabel: string;
   suggestions: HomeLink[];
 }
