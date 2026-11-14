@@ -1,10 +1,12 @@
 ---
-// Styles for the loading console and the error alert. Global: the client script creates these nodes.
+// Styles for the answer on its way (status line, loading console) and for the
+// error and stop notices. Global: the client script creates these nodes.
 ---
 
 <style is:global>
   .smartbolig-ai__typing {
     display: inline-flex;
+    grid-area: dots;
     gap: 0.28rem;
     justify-self: end;
     padding: 0.05rem 0;
@@ -20,14 +22,62 @@
   .smartbolig-ai__loading-console {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "stage stage"
+      "head head"
+      "signal signal"
+      "pipeline dots";
     gap: 0.42rem 0.8rem;
     min-width: 0;
     font-family: var(--sb-font-mono);
   }
 
+  /* What happens right now, in plain words. The mono lines under it are the console's own. */
+  .smartbolig-ai__loading-console .smartbolig-ai__loading-stage {
+    grid-area: stage;
+    color: var(--ai-text-strong);
+    font-family: var(--sb-font-body);
+    font-size: var(--sb-text-sm);
+    font-weight: 650;
+    line-height: 1.4;
+    white-space: normal;
+  }
+
+  /* The draft grows where the reader is looking. With scroll anchoring the
+     browser would hold on to the sources below it and push the text off the top. */
+  .smartbolig-ai__message--loading {
+    overflow-anchor: none;
+  }
+
+  /* An empty draft takes no room: the first words decide when it appears. */
+  .smartbolig-ai__rich-text[hidden] {
+    display: none;
+  }
+
+  /* While the answer is written the console is one quiet line under the text. */
+  .smartbolig-ai__message--loading[data-has-text] .smartbolig-ai__loading-console {
+    grid-template-areas:
+      "signal signal"
+      "stage head";
+    align-items: center;
+    margin-top: 0.75rem;
+  }
+
+  .smartbolig-ai__message--loading[data-has-text] .smartbolig-ai__loading-stage {
+    color: var(--ai-muted);
+    font-size: var(--sb-text-xs);
+    font-weight: 600;
+  }
+
+  .smartbolig-ai__message--loading[data-has-text] .smartbolig-ai__loading-head span,
+  .smartbolig-ai__message--loading[data-has-text] .smartbolig-ai__loading-console > small,
+  .smartbolig-ai__message--loading[data-has-text] .smartbolig-ai__typing {
+    display: none;
+  }
+
   .smartbolig-ai__loading-head {
     display: flex;
-    grid-column: 1 / -1;
+    grid-area: head;
     align-items: center;
     justify-content: space-between;
     gap: 0.7rem;
@@ -53,7 +103,7 @@
 
   .smartbolig-ai__loading-signal {
     position: relative;
-    grid-column: 1 / -1;
+    grid-area: signal;
     height: 2px;
     overflow: hidden;
     border-radius: var(--sb-radius-pill);
@@ -70,6 +120,7 @@
   }
 
   .smartbolig-ai__loading-console > small {
+    grid-area: pipeline;
     align-self: center;
     overflow: hidden;
     color: var(--ai-dim);
@@ -118,6 +169,22 @@
 
   .smartbolig-ai__error button:hover {
     background: color-mix(in srgb, var(--sb-danger) 12%, transparent);
+  }
+
+  /* The reader stopped the answer themselves: a note, not a warning. */
+  .smartbolig-ai__error--quiet {
+    border-color: var(--ai-line);
+    color: var(--ai-muted);
+    background: var(--ai-surface-soft);
+  }
+
+  .smartbolig-ai__error--quiet button {
+    border-color: var(--ai-line-strong);
+    color: var(--ai-text);
+  }
+
+  .smartbolig-ai__error--quiet button:hover {
+    background: var(--sb-accent-soft);
   }
 
   @media (prefers-reduced-motion: no-preference) {

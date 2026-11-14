@@ -845,6 +845,41 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   største sete, starter aflæsningen forfra. Begrundelse: et svar fra browserens cache er højst
   ti minutter gammelt, så en større ændring betyder, at enhedens ur er blevet stillet.
 
+### B62. Assistenten skriver svaret, mens læseren ser på
+- Baggrund: et svar tog 10-40 sekunder, og læseren så kun tre prikker. Modellerne bruger
+  det meste af tiden på at ræsonnere, før første ord.
+- Valg: `/api/chat` kan sende svaret som Server-Sent Events (`Accept: text/event-stream`):
+  hvad der sker nu, kilderne, teksten i stykker og til sidst det kontrollerede svar. Kun
+  selve svartrinnet strømmes. Alle kontroller er de samme som for JSON-svaret, og kun det
+  kontrollerede svar gemmes.
+- Vist tekst: en anden model skriver aldrig videre på den. Fejler hovedmodellen, eller består
+  udkastet ikke en kontrol, trækkes det tilbage (»Skriver svaret om …«), og reservemodellen
+  skriver et nyt. Først var en fejl efter vist tekst en fejl for læseren; efter den
+  uafhængige gennemgang får læseren i stedet reservemodellens svar, som uden strøm.
+- Interne navne fra prompten: slutningen af teksten holdes tilbage, så længe den kan være
+  begyndelsen på et sådant navn, så navnet heller ikke vises i dele.
+- En strøm, der lukker uden at modellen har sagt, den er færdig, er et halvt svar.
+- Formen på Workers AI's strøm er ikke dokumenteret. Den er læst for begge modeller
+  2026-11-14 gennem REST-API'et og lagt ind som test. En ukendt form har sin egen loglinje.
+- Fravalgt: at strømme det trin, der kan ende i et værktøjskald (det er ikke altid et svar),
+  og WebSocket (kræver mere kode og giver intet, Server-Sent Events ikke giver her).
+- Nødbremse: `STREAMING_ENABLED` i `functions/lib/chat/limits.js`; sat til `false` får alle
+  kald JSON-svaret som før. Det kræver en udgivelse.
+
+#### B62, tilføjelse efter den opfølgende gennemgang (2026-11-14)
+- Et udkast, der slutter, fordi tokengrænsen er nået, trækkes altid tilbage. Derfor vises
+  den tilbageholdte slutning heller ikke: den kan være første halvdel af et internt navn.
+- Afslutningsårsagen læses også, når den står ved siden af `response` (den ældre form), så
+  et afskåret udkast i den form ikke tæller som færdigt.
+- Et stykke er kun kendt, når det har svartekst, en afslutningsårsag, ræsonnering, en rolle
+  eller er den tomme hale med forbrug. Alt andet er en ukendt form og logges som
+  `unknown_primary_stream` eller `unknown_fallback_stream`, også når strømmen lukker uden
+  `[DONE]`. Før blev det logget som et afskåret svar, og fejlen ville ligne en langsom model.
+- Kontrollen af det færdige svar og tilbageholdelsen under strømmen sammenligner bogstaver
+  ens (kun ASCII foldes), så det ene ikke lader noget passere, som det andet afviser.
+- Fravalgt: at vise et afskåret udkast med en bemærkning. Et halvt svar om elinstallation
+  eller YAML er værre end ti sekunders ventetid på reservemodellen.
+
 ## B63. Forsiden: værktøjer med elprisen lige nu (2026-11-14)
 
 - Valgt: en sektion på forsiden efter de tre etaper med et kort, der viser elprisen i dette

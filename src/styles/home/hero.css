@@ -1,5 +1,6 @@
-/* Homepage hero: the headline and calls to action. The 3D house beside it is
-   in stage.css, the tour below it in tour.css. All three share .home-day. */
+/* Homepage hero: the headline and calls to action. The search row under them
+   is in ask.css, the 3D house beside it in stage.css, the tour below it in
+   tour.css. They share .home-day. */
 
 /* The colour of the time of day; home-house.mjs sets data-home-mode on <html>.
    Registered as a colour, so it fades instead of jumping. */
@@ -70,63 +71,6 @@
   margin-top: var(--sb-space-6);
 }
 
-/* The search field: a button that opens the site search. */
-.home-ask { margin-top: var(--sb-space-6); }
-.home-ask__bar {
-  display: flex;
-  align-items: center;
-  gap: var(--sb-space-3);
-  width: 100%;
-  max-width: 34rem;
-  min-height: 3.25rem;
-  padding: 0.6rem 1.1rem;
-  border: 1px solid var(--sb-line-strong);
-  border-radius: var(--sb-radius-pill);
-  background: var(--sb-surface);
-  color: var(--sb-ink-muted);
-  font: inherit;
-  font-size: var(--sb-text-sm);
-  text-align: start;
-  cursor: text;
-  transition: border-color var(--sb-dur) var(--sb-ease), box-shadow var(--sb-dur) var(--sb-ease);
-}
-.home-ask__bar[hidden] { display: none; }
-.home-ask__bar svg { flex: none; color: var(--sb-accent); }
-.home-ask__bar:is(:hover, :focus-visible) {
-  border-color: var(--sb-accent);
-  box-shadow: 0 0 0 4px color-mix(in srgb, var(--sb-accent-vivid) 18%, transparent);
-}
-.home-ask__bar:focus-visible { outline: 3px solid var(--sb-accent); outline-offset: 3px; }
-.home-ask__label {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-.home-ask__text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.home-ask__suggestions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--sb-space-2);
-  margin: var(--sb-space-3) 0 0;
-  color: var(--sb-ink-subtle);
-  font-size: var(--sb-text-xs);
-}
-.home-ask__suggestions span { margin-inline-end: var(--sb-space-1); }
-.home-hero .home-ask__suggestions a {
-  padding: 0.3rem 0.75rem;
-  border: 1px solid var(--sb-line);
-  border-radius: var(--sb-radius-pill);
-  background: var(--sb-bg-subtle);
-  color: var(--sb-ink);
-  font-weight: 600;
-  text-decoration: none;
-}
-.home-hero .home-ask__suggestions a:hover { border-color: var(--sb-accent); color: var(--sb-accent-strong); }
-
 @media (min-width: 64rem) {
   .home-day {
     --home-bleed: max(0px, min(12rem, (100vw - var(--home-width)) / 2 - 2rem));
@@ -143,7 +87,6 @@
     min-height: calc(100svh - var(--sl-nav-height));
     padding-block: var(--sb-space-6);
   }
-  .home-ask { width: 100%; }
 }
 @media (max-width: 32rem) {
   .home-hero__cta .home-btn { flex: 1 1 100%; }

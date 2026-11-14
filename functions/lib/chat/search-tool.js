@@ -6,6 +6,31 @@ import { hasOnlyKeys, isPlainObject } from "./request.js";
 const SMART_HOME_OR_HOMELAB_PATTERN =
   /\b(?:home assistant|ha|esphome|esp32|esp8266|sensor(?:er|s)?|zigbee|z-?wave|matter|thread|mqtt|bluetooth|wi-?fi|ethernet|vlan|dns|reverse[- ]proxy|docker|container(?:e|s)?|proxmox|virtualisering|virtualization|nas|backup|sikkerhed|security|automation|automatisering|smart[- ]?home|smartbolig|smart bolig|shelly|tasmota|truenas|opnsense|pfsense|homey|node-?red|frigate|kamera|camera|energi|energy|solcelle|elpris|homelab)\b/iu;
 
+// What the model is told about the tool. Only offered when the site index can be read.
+export const SEARCH_TOOLS = [
+  {
+    type: "function",
+    function: {
+      name: "search_smartbolig",
+      description:
+        "Search SmartBolig.net for a relevant first-party guide or site-specific fact. Use only when it improves the answer.",
+      parameters: {
+        type: "object",
+        properties: {
+          query: {
+            type: "string",
+            minLength: 2,
+            maxLength: MAX_SEARCH_QUERY_CHARS,
+            description: "A focused search query for SmartBolig.net",
+          },
+        },
+        required: ["query"],
+        additionalProperties: false,
+      },
+    },
+  },
+];
+
 export function selectSearchToolCall(result) {
   const chatCompletionCalls = result?.choices?.[0]?.message?.tool_calls;
   const toolCalls = Array.isArray(chatCompletionCalls) ? chatCompletionCalls : result?.tool_calls;

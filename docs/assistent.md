@@ -1,18 +1,32 @@
-# Assistentens søgning i sidens egne guides
+# Assistenten: søgning i sidens egne guides og svar, mens de skrives
 
 Sidst kontrolleret: 2026-11-14.
-Kontrolleret ved: `npm run site:test` (indeksets og chattens tests), `npm run build` (indekset
-bygges, og de faste prøvespørgsmål består), ca. 40 spørgsmål mod det byggede indeks med
-`--ask` og en uafhængig gennemgang, hvis fund er rettet (tomme uddrag, ental/flertal,
-faneblade, svage kilder).
-Ikke kontrolleret lokalt: et rigtigt svar fra modellen. Det kræver Cloudflares binding og ses
-på den levende side efter udgivelse.
+Kontrolleret ved: `npm run site:test` (indeksets og chattens tests; strømmen er prøvet med en
+efterlignet model), `npm run build` (indekset bygges, og de faste prøvespørgsmål består),
+ca. 40 spørgsmål mod det byggede indeks med `--ask` og en uafhængig gennemgang, hvis fund er
+rettet (tomme uddrag, ental/flertal, faneblade, svage kilder). Widgeten er prøvet i headless
+Chrome mod et efterlignet `/api/chat`: strøm, fejl før og efter første tekst, stop, omskrivning
+og svar uden strøm, i lyst og mørkt tema ved 320, 375 og 1440 px.
+Formen på Workers AI's strøm er læst for begge modeller 2026-11-14 gennem Cloudflares REST-API
+(ét kort spørgsmål til hver) og lagt ind som test. En anden uafhængig gennemgang af strømmen
+fandt to blokerende fejl og fire mindre; de er rettet (interne navne i dele, en strøm der bare
+lukker, stop før modelkaldet, blanke tegn som vist tekst, fejl efter vist tekst).
+En tredje gennemgang af rettelserne fandt ingen blokerende fejl og fire mindre; de er rettet
+(tilbageholdt tekst ved tokengrænsen, afslutningsårsag ved siden af `response`, en ukendt form
+der lukker uden `[DONE]`, store og små bogstaver ens i de to kontroller). Hver rettelse er
+prøvet ved at tage den ud igen: 13 ændringer, og testene fejler på dem alle.
+Ikke kontrolleret lokalt: et rigtigt svar gennem Workerens egen binding, hvor hurtigt strømmen
+kommer, og om `env.AI.run` stopper modellen, når kaldet afbrydes. Det skal ses på den levende
+side efter udgivelse; kommandoen står under "Kontrollér strømmen efter udgivelse".
 
 ## Kort
 
 Når en læser spørger assistenten om smart home, slår Workeren først op i et indeks over
 sidens egne sider og giver de bedste afsnit til modellen sammen med spørgsmålet. Svaret får
 links til de sider, afsnittene kom fra.
+
+Læseren ser med det samme, hvad der sker ("Søger i guiderne …"), får kilderne, så snart
+opslaget er færdigt, og læser svaret, mens modellen skriver det. Se "Svaret som strøm".
 
 Indekset er sidens egen tekst som små JSON-filer. Det bygges sammen med siden og ligger som
 statiske filer under `/_index/`. Der bruges ingen betalt søgetjeneste og ingen database.
@@ -30,7 +44,7 @@ statiske filer under `/_index/`. Der bruges ingen betalt søgetjeneste og ingen 
 | `functions/lib/site-search/tokens.js` | Tekst → søgeord (små bogstaver, uden fyldord, bøjningsendelser skåret af). Bruges både ved bygning og ved søgning. |
 | `functions/lib/site-search/search.js` | Søgningen i Workeren: læser kun de filer, spørgsmålet har brug for. |
 | `functions/lib/site-search/assets.js` | Henter indeksfilerne fra Workerens statiske filer (`env.ASSETS`). |
-| `functions/lib/chat/handler.js` | Kalder søgningen med en tidsgrænse; fejler den, svarer assistenten uden guideuddrag. |
+| `functions/lib/chat/turn.js` | Kalder søgningen med en tidsgrænse; fejler den, svarer assistenten uden guideuddrag. |
 | `functions/lib/chat/sources.js` | Slipper kun `smartbolig.net`-adresser igennem som kilder og afkorter teksten. |
 | `scripts/site-index.test.mjs` | Tests for alt ovenfor. |
 
@@ -106,10 +120,195 @@ På den levende side: svarer assistenten uden links til guides, så se Workerens
 `SmartBolig site search unavailable` (`npx wrangler tail`). Den skrives, når en indeksfil
 mangler, eller søgningen tog over 5 sekunder.
 
+## Fra spørgsmål til svar
+
+Et spørgsmål går gennem de samme trin, uanset om svaret hentes som JSON eller som strøm:
+
+1. `handler.js` afviser forkerte kald (metode, fremmed oprindelse, indholdstype, manglende
+   binding), spørger `CHAT_RATE_LIMITER` én gang og validerer samtalen.
+2. `turn.js` vælger de officielle evidenspakker og gør opslaget i indekset klar (tidsgrænse
+   5 sekunder).
+3. `agent.js` vælger rute efter den seneste besked (se tabellen).
+4. `model-runs.js` kører hvert modeltrin: Gemma først. Qwen overtager, hvis Gemma fejler,
+   bliver afskåret eller ikke består kontrollen i `answer.js`.
+5. `turn.js` samler svar, kilder, kildegrad og telemetri til den krop, læseren får.
+
+| Den seneste besked | Opslag | Modelkald | Hvad strømmes |
+|---|---|---|---|
+| Indeholder et smart home-ord ("Hvilken Zigbee-koordinator skal jeg bruge til Zigbee2MQTT?") | 1 | 1, uden søgeværktøj | Svaret |
+| Uden smart home-ord, og modellen beder om et opslag | 1 | 2: først med søgeværktøj, så uden | Kun det andet kald: svaret |
+| Uden smart home-ord, og modellen svarer selv ("Hej") | 0 | 1, med søgeværktøj | Intet: svaret kommer i ét stykke |
+
+Antallet af opslag og modelkald er det samme som før strømmen. Rækkefølgen holdes fast af
+`scripts/chat-stream.test.mjs` med en efterlignet model. Et trin, der kan ende i et
+værktøjskald, strømmes ikke: det, modellen skriver dér, er ikke altid et svar.
+
+## Svaret som strøm
+
+Et kald med `Accept: text/event-stream` får svaret som Server-Sent Events. Et kald uden får
+JSON-svaret som hidtil. Et afvist kald (429, 400, 413, 403, 415, 503) får altid JSON med sin
+statuskode, også når det bad om en strøm.
+
+| Hændelse | Data | Betydning |
+|---|---|---|
+| `status` | `{"stage": …}` | Hvad der sker nu: `reading` (modellen læser spørgsmålet og afgør, om der skal søges), `searching`, `writing` eller `revising`. |
+| `sources` | `{"sources": [{"title", "url"}]}` | Én gang, når opslaget er færdigt, og altid før første tekst. Listen er tom, når der ikke blev søgt, og ingen officiel kilde er valgt. |
+| `delta` | `{"text": "…"}` | Et stykke af svaret. |
+| `done` | Samme krop som JSON-svaret | Det kontrollerede svar. Kun `done` er et svar. |
+| `error` | `{"code", "error": {"da", "en"}}` | Samme krop som et fejlet JSON-svar. |
+
+Strømmen slutter med linjen `data: [DONE]`. Svarhovederne er
+`Content-Type: text/event-stream; charset=utf-8`, `Cache-Control: no-store`,
+`X-Content-Type-Options: nosniff` og `X-Request-Id`.
+
+Regler for tekst, læseren allerede har set:
+
+- En anden model skriver aldrig videre på den. Fejler Gemma, før der er vist tekst, overtager
+  Qwen som hidtil. Fejler Gemma, efter at der er vist tekst (fejl, tidsfrist på 55 sekunder,
+  en fejl sendt inde i strømmen), trækkes udkastet tilbage med `status` `revising`, og Qwen
+  skriver et nyt. Fejler Qwen, slutter strømmen med `error`. Der er højst to modelkald pr.
+  svartrin, som uden strøm.
+- Et færdigt udkast, der ikke består en kontrol (afskåret, forkert YAML-form, interne navne,
+  for langt), trækkes tilbage på samme måde. Består Qwens udkast heller ikke, slutter strømmen
+  med `error`. Kontrollerne er de samme som for JSON-svaret.
+- En strøm, der bare lukker, er et halvt svar. Modellen skal have sagt, at den er færdig (en
+  `finish_reason` eller `[DONE]`); ellers behandles udkastet som afskåret.
+- Blanke tegn før første ord tæller ikke som vist tekst og sendes ikke.
+- Et udkast, der nævner interne værktøjs- eller mærkenavne, stoppes med det samme. Navnet
+  vises heller ikke i dele: slutningen af teksten holdes tilbage, så længe den kan være
+  begyndelsen på et sådant navn (højst 26 tegn), til næste stykke afgør det
+  (`heldBackLength` i `answer.js`). Slutter udkastet, fordi tokengrænsen er nået, vises det
+  tilbageholdte heller ikke; udkastet trækkes alligevel tilbage. Teksten før navnet er
+  allerede vist og kan ikke kaldes tilbage; den fjernes fra skærmen, når udkastet trækkes
+  tilbage.
+- Trykker læseren Stop, eller lukker læseren siden, afbrydes modelkaldet, og der startes
+  ingen reservemodel, og intet logges som fejl. Sker det, før modellen er kaldt (under
+  opslaget), kaldes modellen slet ikke. Ét forbehold: Cloudflare dokumenterer ikke, om
+  `env.AI.run` stopper en model, der ikke strømmer, når kaldet afbrydes.
+
+Workers AI's strøm læses i `functions/lib/chat/model-stream.js`. Cloudflare dokumenterer, at
+strømmen er `text/event-stream`, men ikke formen på hvert stykke. Begge modellers strøm er
+derfor læst 2026-11-14 gennem Cloudflares REST-API med et kort spørgsmål: svaret står i
+`choices[0].delta.content`, ræsonneringen i `delta.reasoning_content` (Qwen også i
+`delta.reasoning`), et stykke med `finish_reason` afslutter svaret, og strømmen slutter med
+`[DONE]`. Qwen gentager hvert stykke i `response` og begynder svaret med en blank linje.
+`scripts/chat-stream-models.test.mjs` har begge former som test. Den ældre form, hvor teksten
+kun står i `response`, læses også. Modellens ræsonnering sendes aldrig videre. Svarer en
+model uden strøm, selv om den blev bedt om en, kontrolleres svaret og sendes som ét stykke.
+
+Ændrer Cloudflare formen, så læseren ikke kender nogen af stykkerne, giver strømmen ingen
+tekst. Det logges som `unknown_primary_stream` eller `unknown_fallback_stream` (ikke som et
+tomt eller afskåret svar), også når strømmen lukker uden `[DONE]`, og widgeten henter så
+JSON-svaret; se fejlfindingen nedenfor. Et stykke tæller som kendt, når det har svartekst, en
+`finish_reason` (i `choices[0]` eller ved siden af `response`), ræsonnering, en rolle, eller
+er den tomme hale med forbrug.
+
+### Widgeten
+
+| Fil | Ansvar |
+|---|---|
+| `src/scripts/assistant/request.ts` | Spørger med `fetch` og læser strømmen; henter JSON-svaret, når strømmen ikke kan bruges. |
+| `src/lib/assistant-stream.mjs` | Bytes → hændelser, og hvilken del af et halvt skrevet svar der kan vises. Ingen DOM, så Node tester den. |
+| `functions/lib/chat/sse-decoder.js` | Læser Server-Sent Events. Bruges både af Workeren (modellens strøm) og af browseren. |
+| `src/scripts/assistant/draft-view.ts` | Svaret, mens det er på vej: statuslinje, kilder og tekst. |
+| `src/scripts/assistant/follow-scroll.ts` | Holder skrivestedet i syne, så længe læseren bliver der. |
+| `src/scripts/assistant/composer.ts` | Stop-knappen, der står på Send-knappens plads, mens et svar er på vej. |
+
+- Teksten går gennem samme sikre visning som et færdigt svar (tekstnoder, ingen HTML fra
+  modellen) og tegnes højst én gang pr. billede på skærmen.
+- Visningen følger skrivestedet og ruller kun nedad. Ruller læseren op for at læse, bliver
+  visningen stående, også når svaret er færdigt.
+- Skærmlæsere får besked, når status skifter, og får det færdige svar. Udkastet læses ikke op
+  ord for ord (`aria-live="off"`, mens det skrives).
+- Med reduceret bevægelse vises teksten en hel linje ad gangen.
+- Stop afbryder kaldet. Udkastet fjernes, og læseren kan prøve igen. Fokus flytter til Stop,
+  når spørgsmålet sendes fra feltet eller med »Prøv igen«, og tilbage til feltet, når svaret
+  er færdigt eller stoppet. Fejler svaret, mens fokus står på Stop, flytter fokus til
+  »Prøv igen« (`error-view.ts`).
+- Widgeten henter JSON-svaret i stedet, når browseren ikke kan læse en strømmet krop, når
+  serveren svarer med JSON, og når strømmen fejler, før der er vist tekst. I det sidste
+  tilfælde spørges der én gang til; det tæller som et nyt kald i hastighedsgrænsen og giver
+  et nyt modelkald.
+- Kun et færdigt svar gemmes i `sessionStorage`.
+
+Forsidens knap »Spørg AI« ved siden af søgefeltet åbner assistenten med markøren i feltet.
+Den sender hændelsen `smartbolig-ai:open` på `document` (`src/lib/home-house.mjs`), som
+`src/scripts/assistant/panel.ts` lytter på. Fokus går tilbage til knappen, når assistenten lukkes.
+
+### Slå strømmen fra
+
+Sæt `STREAMING_ENABLED` til `false` i `functions/lib/chat/limits.js`, og udgiv. Alle kald får
+da JSON-svaret, og widgeten viser det i ét stykke uden flere ændringer.
+
+## Kontrollér strømmen efter udgivelse
+
+Et kald mod den levende side bruger Workers AI-kvoten og tæller med i grænsen på 12 kald pr.
+minut. Brug det til kontrol, ikke i tests.
+
+```bash
+curl -N -sS -X POST https://smartbolig.net/api/chat \
+  -H "content-type: application/json" \
+  -H "accept: text/event-stream" \
+  --data '{"locale":"da","messages":[{"role":"user","content":"Hvilken Zigbee-koordinator skal jeg bruge til Zigbee2MQTT?"}]}'
+```
+
+Det skal ses:
+
+1. `event: status` med `searching` kommer straks.
+2. `event: sources` med links til smartbolig.net, derefter `status` med `writing`.
+3. Mange `event: delta` efter hinanden, mens svaret skrives. Kommer hele teksten i ét `delta`
+   lige før `done`, sender modellen ikke en strøm. Har dens stykker en anden form end de to,
+   `model-stream.js` læser, kommer der ingen `delta` fra den model: reservemodellen skriver,
+   eller strømmen slutter med `error`, og loggen siger `unknown_primary_stream` eller
+   `unknown_fallback_stream`.
+4. `event: done` med `answer`, `sources` og `diagnostics`, og til sidst `data: [DONE]`.
+
+Tid pr. linje (Git Bash eller Linux):
+
+```bash
+curl -N -sS -X POST https://smartbolig.net/api/chat \
+  -H "content-type: application/json" \
+  -H "accept: text/event-stream" \
+  --data '{"locale":"da","messages":[{"role":"user","content":"Hvilken Zigbee-koordinator skal jeg bruge til Zigbee2MQTT?"}]}' \
+  | while IFS= read -r line; do printf '%s %s\n' "$(date +%s.%N | cut -c1-14)" "$line"; done
+```
+
+Tiden fra første linje til første `delta` er ventetiden på første ord.
+
+## Fejlsøg et langsomt eller fejlet svar
+
+1. Find kaldets nummer: `X-Request-Id` i svarhovedet, `requestId` i `done` eller sporet i
+   telemetrilinjen under svaret i widgeten.
+2. Se Workerens log med `npx wrangler tail`, og søg på nummeret:
+
+   | Loglinje | Betydning |
+   |---|---|
+   | `SmartBolig chat model fallback` med `event: fallback_started` | Qwen overtog. `reason` siger hvorfor: `primary_error` (`error` er fejlens navn, fx `TimeoutError` efter 55 sekunder), `truncated_primary_response`, `invalid_primary_response`, `empty_primary_response` eller `unknown_primary_stream` (strømmen havde stykker, men i en form `model-stream.js` ikke kender: læs strømmen igen, og ret `readChunk`). |
+   | `SmartBolig chat model fallback` med `event: fallback_failed` | Qwen kunne heller ikke: `truncated_fallback_response`, `invalid_fallback_response`, `empty_fallback_response`, `unknown_fallback_stream` eller `fallback_error`. |
+   | `SmartBolig chat generation failed` | Læseren fik en fejl (JSON 502 eller `error` i strømmen). `error` er årsagens navn. |
+   | `SmartBolig site search unavailable` | Opslaget fejlede eller tog over 5 sekunder; svaret blev skrevet uden guideuddrag. |
+   | `SmartBolig chat rate limiter unavailable` | Hastighedsgrænsen svarede ikke; læseren fik 503. |
+
+3. Læs strømmen med kommandoen ovenfor:
+   - Lang pause efter `status` med `writing` og før første `delta`: modellen er længe om at
+     begynde. `diagnostics.durationMs` i `done` er hele kaldets tid målt i Workeren.
+   - `status` med `revising`: første udkast blev kasseret; loglinjen `fallback_started` siger
+     hvorfor.
+   - `status` med `reading` først: beskeden havde intet smart home-ord, så modellen afgør
+     selv, om der skal søges. Søger den, koster det et modelkald mere.
+   - `error`: se loglinjerne for kaldets nummer.
+4. Sammenlign med JSON-svaret: samme kommando uden `accept`-linjen. Er JSON-svaret lige så
+   længe undervejs, ligger tiden i modellen og ikke i strømmen.
+5. I browseren: udviklerværktøjer → Netværk → kaldet `chat`. Svartypen er
+   `text/event-stream`, når strømmen bruges. To kald lige efter hinanden betyder, at strømmen
+   fejlede før første tekst, og at widgeten hentede JSON-svaret.
+
 ## Ændr noget
 
 | Ønske | Sted |
 |---|---|
+| Slå strømmen fra | `STREAMING_ENABLED` i `functions/lib/chat/limits.js` |
+| Teksterne i statuslinjen ("Søger i guiderne …") | `stages` i `src/lib/assistant-copy.ts`, dansk og engelsk |
 | Flere eller færre fyldord, andre endelser | `functions/lib/site-search/tokens.js` |
 | Stykkernes størrelse | toppen af `scripts/lib/site-index/chunks.mjs` |
 | Vægten af overskrift og titel, ordfilernes størrelse | toppen af `scripts/lib/site-index/build.mjs` |

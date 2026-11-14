@@ -13,6 +13,7 @@ export const da: HomeCopy = {
     search: {
       label: "Søg i guiderne",
       placeholder: "Hvad skal dit hjem kunne? Prøv »lys ved bevægelse«",
+      askAi: "Spørg AI",
       suggestionsLabel: "Populært lige nu",
       suggestions: [
         { label: "Lys ved bevægelse", href: "/da/automationer/bevaegelseslys-med-overstyring/" },
