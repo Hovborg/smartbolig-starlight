@@ -129,6 +129,11 @@ test("the run report states the outcome and shows external text as plain text", 
   assert.match(published, /Model calls: 16\. Neurons: 4200\./);
   assert.doesNotMatch(published, /\| Model \|/);
 
+  const dry = renderReport({ date: "2026-11-13", status: "publish", stories: 4, ledeSource: "llm" }, "publish", { dryRun: true });
+  assert.match(dry, /\*\*Dry run: written, not published\.\*\* 4 fact-checked stories \(lede: llm\)\. Nothing is committed or deployed\./);
+  assert.doesNotMatch(dry, /\*\*Published\*\*/);
+  assert.match(workflow, /\n    env:\n(?:\s+#.*\n)*\s+DRY_RUN: \$\{\{ inputs\.dry_run == true \}\}\n/, "the report step reads DRY_RUN from the job");
+
   const measured = renderReport({
     date: "2026-11-14",
     status: "publish",

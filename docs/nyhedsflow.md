@@ -19,8 +19,8 @@ tre dages drift i træk.
 ## Hvad sker der hver dag
 
 Workflowet `.github/workflows/ai-news.yml` har fire tidspunkter (UTC): 04:37 og 11:37 er de
-to daglige kørsler, 08:37 og 14:37 er deres reserver. Kørslen kl. 11:37 stopper med det samme,
-hvis dagens udgave findes.
+to daglige kørsler, 08:37 og 14:37 er deres reserver. Kørslen kl. 11:37 stopper efter
+opsætningen (ca. et halvt minut), hvis dagens udgave findes.
 
 Reserverne findes, fordi GitHub kan springe en planlagt kørsel over. Jobbet `slot` (`scripts/ai-news-slot.mjs`) spørger GitHub,
 hvilke planlagte kørsler der er startet i dag. Er kørslen, reserven står for, startet, skriver
@@ -100,8 +100,13 @@ uden commit og udgivelse.
 
 ### Fejlsøg en kørsel fra en terminal
 
+Kommandoerne køres i en klon af repoet. Andre steder: tilføj
+`--repo Hovborg/smartbolig-starlight`.
+
 1. Se dagens kørsler. `event` er `schedule` eller `workflow_dispatch` (manuel), og titlen
-   viser tidspunktet:
+   viser tidspunktet. Hedder en kørsel kun "AI News" (kørsler før 2026-11-14 kl. 12:36 UTC),
+   så brug `createdAt`: en planlagt kørsel starter fra få minutter til en halv time efter sit
+   tidspunkt.
 
    ```bash
    gh run list --workflow ai-news.yml --limit 10 --json databaseId,event,displayTitle,conclusion,createdAt
@@ -118,7 +123,7 @@ uden commit og udgivelse.
 3. Læs, hvad kørslen selv siger:
 
    ```bash
-   gh run view <kørsel> --log | grep -E "Writing:|Not writing:|AI_NEWS_STATUS|Published|Nothing published|Failed\."
+   gh run view <kørsel> --log | grep -E "Writing:|Not writing:|AI_NEWS_STATUS|Published|Dry run|Nothing published|Failed\."
    ```
 
 | Det ser du | Det betyder |
@@ -126,12 +131,15 @@ uden commit og udgivelse.
 | `slot` grøn, `publish` sprunget over, "Not writing: run … already covered …" | En reserve, der holdt sig i ro, fordi den kørsel, den står for, startede. Normalt |
 | `publish` grøn, "Nothing published" og en af grundene i tabellen ovenfor | En dag uden udgave, eller udgaven fandtes. Normalt |
 | `publish` grøn, "**Published** … fact-checked stories", `deploy` grøn | Dagens udgave er skrevet og udgivet |
+| `publish` grøn, "**Dry run: written, not published.**", `deploy` sprunget over | En prøvekørsel (`dry_run`). Intet er committet. En prøvekørsel fra før 2026-11-14 skriver "Published" som en rigtig; se på `deploy` |
 | `publish` rød (kørslen er stadig grøn), "**Failed.**" i rapporten | Et trin fejlede. Find trinnet i tabellen ovenfor |
 | Ingen kørsel for et tidspunkt | GitHub startede den ikke. Se nedenfor |
 
 **En planlagt kørsel mangler.** Forsinkelser på 5 til 30 minutter er almindelige. Mangler én
 kørsel helt, tager reserven over; mangler begge i et par, tager næste par over. Et nyt
-tidspunkt i workflowet kan mangle den første dag. Er dagens udgave ikke kommet kl. 15:30 UTC,
+tidspunkt i workflowet kan mangle den første dag (set 2026-11-14: tidspunkterne 04:37 og 11:37 kom på
+`main` kl. 00:01 UTC; kørslen kl. 04:37 kom ikke, den kl. 11:37 kom). Se, at workflowet er slået til:
+`gh workflow view ai-news.yml` (står der `disabled`, så `gh workflow enable ai-news.yml`). Er dagens udgave ikke kommet kl. 15:30 UTC,
 og vil du have den: start workflowet i hånden (ovenfor). Kommer der ingen udgave i tre dage,
 åbner nyhedsflowet sagen `ai-news-stalled`, og sidevagten åbner sin egen
 (`docs/overvaagning.md`); hvad der så kan gøres, står i `docs/redesign/TIL-EJEREN.md` punkt 16.

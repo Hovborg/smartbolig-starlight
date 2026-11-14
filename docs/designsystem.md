@@ -159,17 +159,22 @@ sidemenuen og værktøjets ramme.
 1. Find tokenet i `src/styles/tokens/color.css` eller `scale.css`. For hjørner: se tabellen
    under "Afstand, hjørner, skygger, bevægelse" for, hvad hvert trin flytter.
 2. Ret værdien. For farver: ret både lyst og mørkt tema (`:root` er lyst,
-   `[data-theme="dark"]` er mørkt), medmindre kun det ene skal ændres.
-3. Er det baggrunden (`--sb-bg`) eller accentfarven (`--sb-accent`): ret den samme værdi i
-   `scripts/lib/brand/palette.mjs`, og kør `npm run brand:build`. Logo, favicon, delingsbilledet
-   og nyhedsbillederne tegnes ud fra den fil, ikke fra CSS. `scripts/site-brand.test.mjs` fejler,
-   hvis de to er forskellige. De genererede filer i `public/` skal med i samme commit.
-   Nyhedsbilleder, der allerede er udgivet, tegnes ikke om.
+   `[data-theme="dark"]` er mørkt), medmindre kun det ene skal ændres. Retter du et hjørnetrin
+   eller en anden værdi, der står med tal i dette dokument, så ret tallet her også.
+3. Står farven også i `scripts/lib/brand/palette.mjs` (baggrund, accent, tekstfarver, flader og
+   linjer), så ret den samme værdi dér, og kør `npm run brand:build`. Logo, favicon, appikoner,
+   delingsbilledet og nyhedsbillederne tegnes ud fra den fil, ikke fra CSS.
+   `scripts/site-brand.test.mjs` fejler, hvis en farve i paletten ikke er tokenets værdi.
+   `brand:build` skriver filerne om under `public/` (`favicon.svg`, `favicon.ico`,
+   `apple-touch-icon.png`, `brand/icon/`, `brand/logo/` og `images/og-image.png`); de skal med
+   i samme commit. Nyhedsbilleder, der allerede er udgivet, tegnes ikke om.
+   Farveforløbet `--sb-brand-a` følger selv accentfarven; `--sb-brand-b` er sin egen farve.
 4. Kør `npm run site:test` og `npm run ai-news:test`. Kontrasttesten
    (`scripts/site-design-tokens.test.mjs`) fejler, hvis en tekstfarve bliver for svag;
    nyhedsbilledets test læser paletten.
 5. Kør `npm run dev`, og se forsiden, en guide og et værktøj i begge temaer ved 375 og 1440 px.
-   Ingen test ser, om det er pænt.
+   Ingen test ser, om det er pænt. Før udgivelse skal `npm run build` og resten af listen i
+   `AGENTS.md` bestå som ved enhver anden ændring.
 6. Skriv ændringen i `CHANGELOG.md`. Er det et valg (en ny farve, et andet udtryk), så også i
    `docs/redesign/BESLUTNINGER.md`.
 

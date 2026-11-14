@@ -1036,5 +1036,10 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
   testen af nyhedsbilledet læser farverne fra paletten.
 - Fravalgt: ét token for "kort". Kort på sideniveau og kort inde i en tekst har med vilje
   forskellige hjørner; tabellen i `docs/designsystem.md` siger, hvilket trin der flytter hvad.
+- Anden runde med tre nye læsere og nye opgaver af samme slags: opskrifterne virkede som
+  skrevet. De fandt mindre ting, som også er rettet: en tredje kopi af accentfarven
+  (`--sb-brand-a`, som nu følger accentfarven), at en prøvekørsel af nyhederne skrev
+  "Published" som en rigtig (den skriver nu "Dry run"), og at en kørsel uden tidspunkt i
+  titlen skal placeres ud fra sit starttidspunkt.
 - Indholdsguiden beskrev en `200`-regel for "pæne" engelske adresser. Den bruges ikke (gamle
   engelske adresser sendes videre med 301), og afsnittet er skrevet om.
