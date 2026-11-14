@@ -13,6 +13,7 @@ import * as format from "../src/lib/tools/format.mjs";
 import { POWER_DEFAULTS, POWER_PRESETS, powerCopy } from "../src/lib/tools/power-copy.mjs";
 import { costPerHour, powerCost, savingPerHourLess } from "../src/lib/tools/power-cost.mjs";
 import { priceCopy } from "../src/lib/tools/price-copy.mjs";
+import { starterKitCopy } from "../src/lib/tools/starter-kit-copy.mjs";
 
 const root = new URL("../", import.meta.url);
 const NBSP = "\u00a0";
@@ -104,7 +105,7 @@ function shape(value, path = "") {
 }
 
 test("the texts have the same keys and placeholders in Danish and English", () => {
-  for (const copy of [priceCopy, powerCopy, CARD_COPY, ...TOOLS.map(({ da, en }) => ({ da, en }))]) {
+  for (const copy of [priceCopy, powerCopy, starterKitCopy, CARD_COPY, ...TOOLS.map(({ da, en }) => ({ da, en }))]) {
     assert.deepEqual(shape(copy.en), shape(copy.da));
   }
   for (const preset of POWER_PRESETS) {
