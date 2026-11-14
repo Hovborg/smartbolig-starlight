@@ -211,7 +211,8 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - To kvaliteter: "høj" (efterbehandling, skygger i 2048 px) på brede skærme med mus, "lav"
   (direkte tegning, 1024 px, højst 1,5 gange opløsning) på telefoner.
 - Reserve: uden WebGL eller JavaScript bliver billedet stående, og knapper til tidspunkt og
-  drejning er skjult. Kontrolleret i browser ved at slå WebGL fra.
+  drejning er skjult. Kontrolleret i browser ved at slå WebGL fra. Siden B53 spørger siden
+  browseren, før three.js hentes; uden grafikkort hentes det ikke.
 - En test i `scripts/site-quality.test.mjs` afviser, at three.js importeres direkte fra forsiden.
 
 ### B32. Skærmen bag huset er mørk i begge temaer
@@ -455,3 +456,28 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Kildekontrollen er uændret: kun `smartbolig.net`-adresser kan blive kilder, teksten
   afkortes, og en fejl eller en overskredet tidsgrænse giver et svar uden guideuddrag.
 - AI Search-instansen hos Cloudflare er ikke slettet (se TIL-EJEREN).
+
+### B53. 3D-huset tegnes i en worker, og siden spørger først, hvor det kan tegnes
+- Valg: huset bygges, oversætter sine shadere og tegner hvert billede i en worker
+  (`OffscreenCanvas`, `src/lib/house3d/worker.mjs`). Siden sender kald som beskeder og får
+  markørernes pladser tilbage.
+- Hvorfor: målt i headless Chrome med grafikkort var sidens tråd blokeret 2.502 ms, mens huset
+  startede, og i brug 0,78 s pr. sekund i hvile. I en worker er det ca. 30 ms og 0,15 s. Rul,
+  klik og søgefelt virker dermed, mens huset starter.
+- Før noget hentes, spørger `probe.mjs` browseren med et prøvelærred: worker, side eller slet
+  ikke. Fundet i den uafhængige gennemgang: Safari 16.4 til 16.6 har lærred i worker uden
+  WebGL og ville have mistet det levende hus; en browser uden grafikkort hentede 683 KB for
+  at få et stillbillede. Begge dele er rettet og låst med tests mod en efterlignet browser.
+- Første billede venter på shaderne, højst 2,5 sekunder. Uden grænsen kunne en browser, der
+  aldrig svarer, lade stillbilledet stå for altid.
+- Fravalgt: at dele three.js mellem de to pakker (worker og side). En browser henter kun den
+  ene, så deling sparer intet over nettet og gør pakningen sværere at følge.
+- Fravalgt: at falde tilbage til tegning på siden, når workeren fejler efter start. Lærredet
+  er da givet væk og kan ikke tages tilbage; stillbilledet er den sikre reserve.
+- Pris: three.js ligger to gange i `dist/` (ca. 665 KB hver). `worker-src 'self'` i
+  `public/_headers` er nu nødvendig.
+- Kontrolleret 2026-11-14 på den byggede side i headless Chrome: med grafikkort levende i
+  worker (16 ms blokeret), tvunget til siden levende (675 ms), software-tegning og slået fra
+  giver stillbillede uden three.js og uden fejl i konsollen. Ikke kontrolleret: Safari og
+  Firefox på en rigtig enhed.
+

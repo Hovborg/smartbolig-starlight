@@ -5,13 +5,16 @@ Kontrolleret ved: forsiden åbnet i browser (1440, 820 og 390 px, mørkt og lyst
 engelsk), WebGL slået fra, `npm run house:posters` kørt, `npm run site:test` grøn. Scenen
 `bench` er kontrolleret ved at se de to tegnede billeder. Tegningen i en worker er målt og
 set i headless Chrome med grafikkort, med firedoblet CPU-belastning, i telefonstørrelse og
-med software-tegning (tallene står under "Kvalitet og hastighed").
-Ikke kontrolleret: Safari og Firefox på en rigtig enhed. Kan browseren ikke tegne fra en
-worker, tegnes huset på siden som før.
+med software-tegning (tallene står under "Kvalitet og hastighed"). De fire veje (worker,
+på siden, software-tegning, slået fra) er kørt igen på den byggede side 2026-11-14 efter
+den uafhængige gennemgang.
+Ikke kontrolleret: Safari og Firefox på en rigtig enhed. Safari 16.4 til 16.6 (lærred i
+worker uden WebGL) er kun afprøvet med en efterlignet browser i
+`scripts/site-house-stage.test.mjs`.
 
 Huset på forsiden er en three.js-model, bygget af egne dele. Der er ingen hentede modeller
 eller billeder i det. three.js (MIT, version låst i `package.json`) hentes først, når huset
-skal vises levende.
+skal vises levende, og kun i en browser, der kan tegne det med et grafikkort.
 
 ## Hvor tingene ligger
 
@@ -21,6 +24,7 @@ skal vises levende.
 | `src/lib/house3d/remote.mjs` | Indgangen, når huset tegnes i en worker: samme `mountHouse`, men lærredet gives til workeren, og hvert kald sendes som en besked. Indeholder ikke three.js |
 | `src/lib/house3d/worker.mjs` | Workeren: bygger huset med `engine.mjs` og sender markørernes pladser tilbage for hvert billede |
 | `src/lib/house3d/protocol.mjs` | Beskederne mellem side og worker, og listen over de kald, siden må sende |
+| `src/lib/house3d/probe.mjs` | Spørger browseren, hvor huset kan tegnes: `drawingPlace` svarer `worker`, `page` eller `none`. Henter intet selv |
 | `src/lib/house3d/canvas.mjs` | Et tomt lærred til tegnede teksturer, på siden eller i en worker |
 | `src/lib/house3d/engine.mjs` | Løkken og kameraets flyvning. Med bevægelse slået til tegnes hvert billede, mens huset er synligt; uden bevægelse kun, når noget ændrer sig. `setMode`, `setView`, `rotate`, `resize`, `dispose` |
 | `src/lib/house3d/stage.mjs` | Scene, kamera, lys, skygger og blanding mellem to tidspunkter |
@@ -33,7 +37,7 @@ skal vises levende.
 | `src/lib/house3d/stills.mjs` | Indgangen for stillbilleder: huset plus **scener**, der kun findes som billede |
 | `src/lib/house3d/parts/workbench.mjs`, `workbench-faces.mjs` | Scenen `bench`: ESP32-kort på et arbejdsbord (mål i centimeter) og dens tegnede flader |
 | `src/lib/home-house.mjs` | Forsidens tilstand: tidspunkt og kapitel |
-| `src/lib/home-house-stage.mjs` | Henter modellen (worker først, ellers på siden), kobler lærred og markører, og går tilbage til stillbilledet, hvis tegningen falder ud |
+| `src/lib/home-house-stage.mjs` | Spørger `probe.mjs`, henter modellen til det sted, den kan tegnes, kobler lærred og markører, og går tilbage til stillbilledet, hvis tegningen falder ud |
 | `src/lib/home-house-input.mjs` | Træk og de to drejeknapper, og hvornår modellen hentes |
 | `src/components/home/HomeStage.astro`, `HomeTour.astro` | Skærmen og rundturen |
 | `scripts/house-render.mjs`, `house-posters.mjs` | Tegner stillbilleder i headless Chrome |
@@ -90,8 +94,8 @@ huset. Der er én: `bench`, et ESP32-udviklingskort på et breadboard med en sen
 og en telefon, der viser målingen. Den bruges af `topic-esp32` og `guide-diy`. Scenen bruger
 husets lys, kamera og efterbehandling, så `mode` og `camera` virker som ellers.
 
-Forsiden henter `index.mjs` og får derfor aldrig scenerne med; kun `house-render.mjs` pakker
-`stills.mjs`.
+Forsiden henter `worker.mjs` eller `index.mjs` og får derfor aldrig scenerne med; kun
+`house-render.mjs` pakker `stills.mjs`.
 
 Ny scene:
 
@@ -124,9 +128,14 @@ et kamera på huset igen.
   ikke, og døgnet går ikke af sig selv.
 - Huset tegnes i en worker (`OffscreenCanvas`), så siden kan rulles og klikkes, mens modellen
   bygges og tegnes. Første billede vises først, når alle shadere er oversat
-  (`compileStage` i `stage.mjs`), så der ikke kommer et halvfærdigt billede.
-- Tegner browseren WebGL i software (ingen grafikkort), bliver stillbilledet stående:
-  `stage.mjs` afviser en software-tegner.
+  (`compileStage` i `stage.mjs`), så der ikke kommer et halvfærdigt billede. Det venter
+  højst 2,5 sekunder (`COMPILE_LIMIT_MS` i `engine.mjs`); derefter tegnes huset alligevel.
+- Tegner browseren WebGL i software (ingen grafikkort), bliver stillbilledet stående, og
+  three.js hentes ikke: `probe.mjs` spørger, før noget hentes. `stage.mjs` afviser også en
+  software-tegner, hvis den alligevel når dertil.
+- three.js findes i to pakker i `dist/_astro/`: én til workeren (`worker-*.js`) og én til
+  tegning på siden (`house3d.*.js`), hver på ca. 665 KB (ca. 170 KB over nettet). En
+  browser henter kun den ene.
 
 Målt 2026-11-14 i headless Chrome (forsiden, dansk, mørkt tema):
 
@@ -134,16 +143,22 @@ Målt 2026-11-14 i headless Chrome (forsiden, dansk, mørkt tema):
 |---|---|---|
 | Sidens tråd blokeret, mens huset starter (computer med grafikkort) | 2.502 ms | 29-32 ms |
 | Sidens tråd i brug i hvile | 0,78 s pr. sekund | 0,15 s pr. sekund |
-| Software-tegning | huset startede og hakkede | stillbillede, 25 ms blokeret |
+| Software-tegning | huset startede og hakkede | stillbillede, 2 ms blokeret, three.js hentes ikke |
+| Tegnet på siden (ingen worker) | 2.502 ms | 675 ms (shaderne oversættes ved siden af tegningen) |
 
 På en telefon med firedoblet CPU-belastning er sidens tråd blokeret 547 ms under
 indlæsningen. Det er sidens egen opbygning og Google Analytics, ikke huset.
 
 ### Sådan virker workeren
 
-1. `home-house-stage.mjs` henter `remote.mjs`, når browseren har `Worker` og
-   `transferControlToOffscreen`. Ellers, eller hvis workeren ikke kan startes, henter den
-   `index.mjs` og tegner på siden.
+1. `home-house-stage.mjs` spørger `drawingPlace` i `probe.mjs`. Den laver et lille
+   prøvelærred, beder om WebGL 2 med et grafikkort og giver det tilbage med det samme:
+   - `worker`: et lærred i en worker kan tegne. `remote.mjs` hentes.
+   - `page`: kun et lærred på siden kan tegne (ældre browsere, og Safari 16.4 til 16.6, hvor
+     lærredet i en worker ikke har WebGL). `index.mjs` hentes, og huset tegnes på siden.
+   - `none`: intet grafikkort. Stillbilledet bliver stående, og intet hentes.
+
+   Kan workeren ikke startes, selv om svaret var `worker`, tegnes huset på siden.
 2. `remote.mjs` starter `worker.mjs`, læser sidens farver og sender dem med lærredet.
    Et lærred, der er givet til en worker, kan ikke tages tilbage.
 3. Hvert kald (`setMode`, `rotate`, `resize` ...) sendes som en besked. Workeren udfører kun
@@ -157,14 +172,31 @@ Kode, der kører i workeren, må ikke bruge `document` eller `window`. Brug `bla
 `canvas.mjs` til tegnede teksturer. En test i `scripts/site-house-worker.test.mjs` fejler,
 hvis en fil, workeren henter, bruger dem.
 
-Slå workeren fra: lad `mount` i `home-house-stage.mjs` altid hente `index.mjs`. Filerne
-`remote.mjs`, `worker.mjs` og `protocol.mjs` og testen kan så slettes.
+Workeren hentes fra siden selv. `worker-src 'self'` i `public/_headers` skal blive stående:
+uden den afviser browseren workeren, og stillbilledet bliver stående. En test i
+`scripts/site-quality.test.mjs` holder øje med linjen.
+
+Prøv de andre veje i din egen browser: skriv i konsollen på forsiden, og genindlæs.
+
+```js
+sessionStorage.setItem("sb-house-draw", "page"); // tegn på siden, uden worker
+sessionStorage.setItem("sb-house-draw", "none"); // som en browser uden grafikkort
+sessionStorage.removeItem("sb-house-draw");      // tilbage til det normale
+```
+
+Valget gælder kun fanen og forsvinder, når den lukkes.
+
+Slå workeren fra for alle: lad `drawingPlace` i `probe.mjs` aldrig svare `worker` (fjern
+linjen med `OffscreenCanvas`). Filerne `remote.mjs`, `worker.mjs` og `protocol.mjs` og
+testene, der nævner dem, kan så slettes.
 
 ## Fejlsøgning
 
 | Det ser du | Årsag og løsning |
 |---|---|
-| Billedet bliver stående, ingen markører | WebGL mangler, tegnes i software, fejlede eller blev taget fra siden af browseren (`webglcontextlost`). Se konsollen: "3D house unavailable" med årsagen. Siden virker stadig |
+| Billedet bliver stående, ingen markører, "3D house unavailable" i konsollen | Tegningen fejlede eller blev taget fra siden af browseren (`webglcontextlost`). Årsagen står i beskeden. Siden virker stadig |
+| Billedet bliver stående, intet i konsollen | `probe.mjs` svarede `none`: browseren har ikke WebGL 2 med et grafikkort (se `chrome://gpu`), eller `sb-house-draw` står til `none` i fanen. Der hentes intet, og der skrives ingen fejl |
+| Huset hakker, mens siden rulles | Det tegnes på siden. Se i udviklerværktøjets kildeliste, om `worker-*.js` kører. Gør den ikke, svarede `probe.mjs` `page`, eller workeren kunne ikke startes |
 | Fejl i konsollen om `document is not defined` fra en worker | En fil under `house3d/` bruger `document`. Brug `blankCanvas` fra `canvas.mjs`, og kør `node --test scripts/site-house-worker.test.mjs` |
 | Et ryk, når modellen tager over | Stillbilledet er forældet. Kør `npm run house:posters` |
 | Et emnekort uden billede | Filen mangler i `public/images/home/`. Kør `npm run house:posters -- topic-<emne>` |
@@ -178,5 +210,6 @@ fra `HomeGoalNavigator.astro` og `HomeFeaturedGuides.astro`, slet
 `src/lib/house3d/`, `home-house*.mjs`, `stage.css`, `tour.css`, `topics.css`, de to scripts og
 `public/images/home/`, og kør `npm uninstall three esbuild`. Guidernes hoved bruger også
 billeder af huset: fjern billedet i `src/components/guide/GuideHead.astro`, og slet
-`src/lib/guide-art.mjs` og `public/images/guide/`. Ret testene i
+`src/lib/guide-art.mjs` og `public/images/guide/`. Slet `scripts/site-house-worker.test.mjs`,
+`scripts/site-house-stage.test.mjs` og `scripts/lib/fake-house-page.mjs`, og ret testene i
 `scripts/site-quality.test.mjs`, der nævner huset.
