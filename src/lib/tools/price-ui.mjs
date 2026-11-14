@@ -7,19 +7,12 @@ import { bindRange, part, setText, show } from "./dom.mjs";
 import { fill, formatNumber, formatTime, parseDecimal } from "./format.mjs";
 import { createPriceChart } from "./price-chart-ui.mjs";
 import { priceCopy } from "./price-copy.mjs";
+import { fetchPrices, REFRESH_SECONDS } from "./price-data.mjs";
 import { drawTable } from "./price-table-dom.mjs";
 import { priceView } from "./price-view.mjs";
 import { STEP_SECONDS } from "./price-window.mjs";
 
-const ENDPOINT = "/api/elpris";
-const REFRESH_SECONDS = 600;
 const MAX_ADD_ON = 1000;
-
-const isPrices = (data) =>
-  (data?.area === "DK1" || data?.area === "DK2") &&
-  Array.isArray(data.points) &&
-  data.points.length > 0 &&
-  data.points.every((point) => Array.isArray(point) && Number.isFinite(point[0]) && Number.isFinite(point[1]));
 
 export function startPriceTool(root) {
   const lang = root.dataset.lang === "en" ? "en" : "da";
@@ -61,10 +54,7 @@ export function startPriceTool(root) {
     // A quiet refresh of the prices already shown does not dim them.
     if (!state.data || state.data.area !== area) root.dataset.state = "loading";
     try {
-      const response = await fetch(area ? `${ENDPOINT}?area=${area}` : ENDPOINT, { signal: request.signal });
-      const data = response.ok ? await response.json() : null;
-      if (!isPrices(data)) throw new Error("no prices");
-      state.data = data;
+      const data = (state.data = await fetchPrices(area, request.signal));
       state.loadedAt = clock();
       for (const radio of areaRadios) radio.checked = radio.value === data.area;
       setText($("area-hint"), data.areaGuessed ? copy.area.guessed : copy.area.hint);

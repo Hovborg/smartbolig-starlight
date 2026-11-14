@@ -181,6 +181,23 @@ Kør `npm run site:test` bagefter. Testene holder fast i flere af værdierne og 
 - **Feltet viser en fejl ved et tal.** Felterne tager tal med komma eller punktum. Tusindtals-
   tegn og bogstaver afvises.
 
+## Forsiden
+
+Forsiden har en sektion "Værktøjer" (`src/components/home/HomeTools.astro`, stil i
+`src/styles/home/tools.css`, tekster under `tools` i `src/lib/home-copy/da.ts` og `en.ts`):
+
+- Til venstre et kort med elprisen lige nu, dagens timer som søjler og de billigste tre timer
+  i træk. Tallene skrives af `src/lib/home-price.mjs`, som bruger de samme regnestykker som
+  elprisværktøjet (`price-view.mjs`) og henter priserne samme vej (`price-data.mjs`, sidens
+  eget `/api/elpris`). Søjlernes mål regnes i `src/lib/tools/price-spark.mjs`.
+- Koden hentes først, når kortet er tæt på skærmen, så forsiden ikke bliver tungere at åbne.
+- Uden JavaScript, eller hvis priserne ikke kan hentes, viser kortet en tekst og et link til
+  værktøjet. Der står aldrig et tal i den byggede side.
+- Til højre en række pr. værktøj fra `catalog.mjs`. Et nyt værktøj kommer med af sig selv.
+
+Kortet gemmer intet og sender kun det, elprisværktøjet sender. Testene står i
+`scripts/site-home-tools.test.mjs`.
+
 ## Overvågning og privatliv
 
 - Sidevagten (`docs/overvaagning.md`) spørger `/api/elpris?area=DK1` to gange i døgnet og

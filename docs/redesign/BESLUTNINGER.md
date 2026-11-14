@@ -762,3 +762,24 @@ Nyeste nederst. Hver post: valg, begrundelse, og hvordan det er kontrolleret.
 - Kontrol: `npm run site:test` (28 tests for værktøjerne), bygget side i headless Chrome i
   begge temaer ved 320, 375 og 1440 px, og ét rigtigt kald til Energinet gennem endpointets
   kode. Ikke set: endpointet hos Cloudflare før udgivelsen.
+
+## B63. Forsiden: værktøjer med elprisen lige nu (2026-11-14)
+
+- Valgt: en sektion på forsiden efter de tre etaper med et kort, der viser elprisen i dette
+  kvarter, dagens timer og de billigste tre timer i træk, og en række pr. værktøj.
+  Begrundelse: forsiden skal vise noget, der er sandt lige nu, og som læseren kan bruge med
+  det samme; værktøjerne er det, der adskiller siden fra en samling guides.
+- Valgt: samme regnestykker og samme hentning som elprisværktøjet (`price-view.mjs`,
+  `price-data.mjs`). Det samme ét sted: `isPrices` og kaldet til `/api/elpris` er flyttet ud
+  af `price-ui.mjs`.
+- Valgt: koden hentes først, når kortet er 600 px fra skærmen (IntersectionObserver og
+  dynamisk import), så forsidens første visning ikke bliver tungere.
+- Valgt: ingen tal i den byggede side og ingen opdigtede tal ved fejl. Kortet viser da en
+  tekst og et link til værktøjet.
+- Valgt: søjlerne står på nul, ikke på dagens laveste pris. En afkortet akse får små
+  forskelle til at se store ud.
+- Fravalgt: prisen i heroen. Heroen er husets; en pris dér ville konkurrere med 3D-huset og
+  flytte indhold, når tallet kommer.
+- Kontrol: `npm run site:test` (8 nye tests), bygget side i headless Chrome med et optaget
+  svar fra Energinet gennem endpointets egen kode: mørkt og lyst tema, 390, 768 og 1440 px,
+  dansk og engelsk, og med en fejl fra Energinet. Ikke set: kortet mod det levende endpoint.
