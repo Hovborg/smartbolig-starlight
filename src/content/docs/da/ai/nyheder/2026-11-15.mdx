@@ -1,0 +1,113 @@
+---
+title: "AI-nyheder, 15. november 2026: OpenAI Codex 0.168.0"
+description: "Dagens AI-overblik har OpenAI Codex 0.168.0 som hovedhistorie og bygger på 4 officielle kilder."
+date: 2026-11-15
+lastUpdated: 2026-11-15
+heroImage:
+  src: "/images/ai-news/2026-11-15.jpg"
+  alt: "Redaktionel illustration om OpenAI Codex 0.168.0"
+  caption: "Redaktionel illustration om OpenAI Codex 0.168.0"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "OpenAI Codex 0.168.0"
+  storyFingerprint: "9f1c5c80f23134c76396ae4a5afbf8d1ed9b1bc37ddde44ad7e1f1dd658355c5"
+  issueFingerprint: "0c91d224aa6874a377c787399beea89eaf5ed770e3aecd2d33cdfa71c7de09bf"
+  sourceSetFingerprint: "fa76787ec2563d3d11ccdb71141e0fa72baea7ce92aad29caf7d59374b300dde"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openai/codex/releases/tag/rust-v0.168.0"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.323"
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.11.5-beta.3"
+    - "https://deepmind.google/blog/gemini-robotics-2-5-accelerates-real-world-physical-intelligence"
+sidebar:
+  label: "15. november 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="0c91d224aa6874a377c787399beea89eaf5ed770e3aecd2d33cdfa71c7de09bf">Af SmartBolig.net Redaktionen · <time datetime="2026-11-15">15. november 2026</time> · 4 udvalgte kilder</p>
+
+<p class="ai-news-lede">Google DeepMind har introduceret Gemini Robotics 2.5, en vision-language-action-model, der rulles ud til robotpartnere, med rapporteret højere succesrater og hurtigere udførelse på tværs af 200 opgaver. Udgaven dækker også Codex 0.168.0, Claude Code v2.1.323 og OpenClaw 2026.11.5-beta.3.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. OpenAI Codex releases: 0.168.0
+
+**Hvad ændrede sig:** OpenAI Codex releases offentliggjorde opdateringen 13. nov. 2026. Udgivelsesnoterne til Codex 0.168.0 viser en måde at gennemse modeludbydere under Sessions → Model providers og vælge standarden for nye chats. De viser også en valgfri sidechat via features.tui&#95;workspace, vedhæftede optagelser til lydunderstøttede modeller, generering eller redigering af animerede GIF'er bag features.image&#95;generation&#95;animation samt terminalnotifikationer via tui.notification&#95;method = "osc777". Noterne siger også, at lokal TUI-historik og genoptagelsesvælgere filtrerer nyoprettede tråde efter den ChatGPT-konto, der er logget ind, og at åbne eller genoptagne chats beholder deres gemte modeludbyder, efter standarden for nye chats ændres.
+
+> Kort kildeuddrag: New Features Browse model providers under Sessions → Model providers and choose the default for new chats. &#40; #59541 ,…
+
+**Hvorfor det er relevant:** Ændringerne er for Codex-brugere, der arbejder i TUI'en: de kan vælge en standardmodeludbyder til nye chats, åbne en sidechat, vedhæfte optagelser til lydunderstøttede modeller og bruge terminalnotifikationer.
+
+**Sådan verificerer du det:** Kontroller, at Codex er version 0.168.0, og åbn derefter Sessions → Model providers for at se, om en standard for nye chats kan vælges.
+
+**Usikkerhed:** Den medfølgende tekst er afkortet og siger ikke, om disse funktioner er slået til som standard, hvilke platforme eller regioner de når, eller om udgivelsen har kendte begrænsninger.
+
+Kilde: [0.168.0](https://github.com/openai/codex/releases/tag/rust-v0.168.0)
+
+### 2. Claude Code releases: v2.1.323
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 12. nov. 2026. Claude Code v2.1.323 tilføjer Code Mode, et eksperimentelt opt-in hvor Claude skriver JavaScript for at kalde sine værktøjer. Plugins kan nu angive et engines-felt for claude-code i plugin.json, og plugins uden for deres angivne versioninterval bliver ikke installeret, opdateret eller indlæst. Kommandoen claude plugin validate typesjekker nu et plugins TypeScript-hooks-modul, hvor hvert fund er en advarsel, og --strict fejler på det. Upload af assets til Artifact-værktøjet accepterer nu .docx-filer.
+
+> Kort kildeuddrag: What's changed Added Code Mode, an experimental opt-in in which Claude writes JavaScript to call its tools; see https://<wbr/>code.claude.com/docs/en/code-mode to…
+
+**Hvorfor det er relevant:** Plugins uden for deres angivne Claude Code-versioninterval bliver ikke installeret, opdateret eller indlæst, og installation og opdatering vælger den nyeste version, der passer. Et fremdriftssignal hvert 30. sekund under lange hooks i claude -p- og SDK-sessioner forhindrer en vært som Claude Desktop i at afslutte turen som hængt, når den først indeholder denne version.
+
+**Sådan verificerer du det:** Tjek den installerede version, og læs udgivelsesnoterne for v2.1.323. For at se, om Code Mode er slået til, henviser kilden til dokumentationssiden for Code Mode, som beskriver, hvordan man slår det til eller slår det fra for en organisation.
+
+**Usikkerhed:** Teksten er afkortet og siger ikke, hvornår Code Mode forlader eksperimentel status, hvilke planer eller regioner der får det, eller om plugin-versionintervallet gælder for allerede installerede plugins. Den angiver heller ikke en pris.
+
+Kilde: [v2.1.323](https://github.com/anthropics/claude-code/releases/tag/v2.1.323)
+
+### 3. OpenClaw releases: openclaw 2026.11.5-beta.3
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 15. nov. 2026. OpenClaw har udgivet version 2026.11.5-beta.3. Noterne nævner lavere hukommelsespres under indeksering, trimning og komprimering af transskriptioner samt en konfigurerbar grænse for antal tegn i resuméer, der bevarer budgetgrænser for foreground-anmodninger og masker legitimationsoplysninger i citeret resuméindhold. Genstart bevarer tilladelseslofter for kølagte beskeder og accepteret ingress, og endelige chat-skrivninger gennemføres før overdragelse. Gendannelsesændringerne dækker koldstart-initialisering, gendannelse af afbrudte workspaces, installer-tilladelser og iMessage Automation-status. Udskudte MCP-værktøjer eksponeres med afgrænsede input-hints.
+
+> Kort kildeuddrag: 2026.11.5-beta.3 Highlights Large-session reliability: reduce memory pressure during transcript indexing, trimming, and compaction; stream only selected hydration payloads and honor…
+
+**Hvorfor det er relevant:** Noterne fremstiller ændringerne som pålidelighedsforbedringer for store sessioner og for genstarter: hukommelsespresset under indeksering, trimning og komprimering af transskriptioner reduceres, og kølagte beskeder beholder deres tilladelseslofter og accepterede ingress gennem en genstart. Punkterne om opsætning og gendannelse dækker koldstart, afbrudte workspaces, installer-tilladelser og iMessage Automation-status.
+
+**Sådan verificerer du det:** Tjek hvilken version der er installeret, og bekræft at den viser 2026.11.5-beta.3, og læs derefter udgivelsesnoterne for de angivne pull request-numre, fx #196207 for grænsen for resumétegn og #196540 for tilladelser til kølagte beskeder under genstart.
+
+**Usikkerhed:** Den medfølgende tekst er afkortet, så ændringerne for browser og workspaces samt den fulde bidragsliste er ufuldstændige. Den siger ikke, hvornår en stabil udgivelse følger, hvilke platforme eller regioner betaen dækker, eller hvad standardværdien for grænsen for resumétegn er.
+
+Kilde: [openclaw 2026.11.5-beta.3](https://github.com/openclaw/openclaw/releases/tag/v2026.11.5-beta.3)
+
+### 4. Google DeepMind Blog: Gemini Robotics 2.5 accelerates real-world general dexterity
+
+**Hvad ændrede sig:** Google DeepMind Blog offentliggjorde opdateringen 9. nov. 2026. Google DeepMind har introduceret Gemini Robotics 2.5, en vision-language-action-model, som de kalder deres hidtil mest kapable. Den øger bredden af færdigheder, en robot kan lære, og den hastighed, hvormed den tilegner sig dem, og den rulles ud til robotpartnere. På tværs af 200 forskellige opgaver rapporterer de en 30 % til 100 % højere succesrate end tidligere baselines og 20 % til 30 % hurtigere udførelse.
+
+> Kort kildeuddrag: Our most capable vision-language-action model enhances robot dexterity, reliability, and safety November 10, 2026 Models Gemini Robotics 2.5 accelerates real-world…
+
+**Hvorfor det er relevant:** Kilden beskriver modellen til robotpartnere og industrielt brug. På Mercedes-Benz' produktionslinjer samlede og pakkede Apptroniks Apollo 2 bildele med en succesrate på 96 %, hvilket ifølge kilden kan lade robotter tage monotont arbejde og frigøre teknikere til komplekse opgaver.
+
+**Sådan verificerer du det:** Kilden siger, at Gemini Robotics 2.5 rulles ud til robotpartnere, og nævner Apptroniks Apollo 2 og Franka Duo-platformen som robottyper, den arbejder med. En læser med adgang til en sådan platform kan spørge sin robotpartner, om modellen er tilgængelig.
+
+**Usikkerhed:** Teksten angiver ikke en pris, en dato for generel tilgængelighed eller en fuld liste over partnere. Den siger heller ikke, om 96 %-resultatet gælder ud over de to nævnte Mercedes-Benz-fabrikker, og beskrivelsen af ASIMOV-Jailbreak er afskåret.
+
+Kilde: [Gemini Robotics 2.5 accelerates real-world general dexterity](https://deepmind.google/blog/gemini-robotics-2-5-accelerates-real-world-physical-intelligence)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| OpenAI Codex releases | [0.168.0](https://github.com/openai/codex/releases/tag/rust-v0.168.0) | 13. nov. 2026 |
+| Claude Code releases | [v2.1.323](https://github.com/anthropics/claude-code/releases/tag/v2.1.323) | 12. nov. 2026 |
+| OpenClaw releases | [openclaw 2026.11.5-beta.3](https://github.com/openclaw/openclaw/releases/tag/v2026.11.5-beta.3) | 15. nov. 2026 |
+| Google DeepMind Blog | [Gemini Robotics 2.5 accelerates real-world general dexterity](https://deepmind.google/blog/gemini-robotics-2-5-accelerates-real-world-physical-intelligence) | 9. nov. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
