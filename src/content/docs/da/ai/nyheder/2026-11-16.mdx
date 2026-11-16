@@ -1,0 +1,113 @@
+---
+title: "AI-nyheder, 16. november 2026: openclaw 2026.11.4"
+description: "Dagens AI-overblik har openclaw 2026.11.4 som hovedhistorie og bygger på 4 officielle kilder."
+date: 2026-11-16
+lastUpdated: 2026-11-16
+heroImage:
+  src: "/images/ai-news/2026-11-16.jpg"
+  alt: "Redaktionel illustration om openclaw 2026.11.4"
+  caption: "Redaktionel illustration om openclaw 2026.11.4"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "openclaw 2026.11.4"
+  storyFingerprint: "a84164383cbaf326eb83aa89293c045ed6748184c10d2ef8b1a908442626c1d9"
+  issueFingerprint: "e748f23cde3500afe8fb12c62fa9772e1386fbf4e91f17b07a61ac584152e864"
+  sourceSetFingerprint: "ddb2bfca5153bb8b2d0505218c69ef421b532dec273d27d8a3d967b843cc5485"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.11.4"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.321"
+    - "https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.68.0"
+sidebar:
+  label: "16. november 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="e748f23cde3500afe8fb12c62fa9772e1386fbf4e91f17b07a61ac584152e864">Af SmartBolig.net Redaktionen · <time datetime="2026-11-16">16. november 2026</time> · 4 udvalgte kilder</p>
+
+<p class="ai-news-lede">Google har introduceret Gemini Decisions API, et endpoint drevet af Gemini Decision 1, som modtager tekst, billeder, lyd, video og PDF'er på op til 256K tokens samt op til 1.000 spørgsmål og returnerer sandsynligheder og sikkerhedsscorer. Udgaven dækker også openclaw 2026.11.4 om worker-hukommelse, bevarelse af prompts og standardindstillinger for privatliv, Claude Code v2.1.321, der gør Claude Fable 5.2 til standard-Fable-model og tilføjer --settings til claude remote-control, og Gemini CLI v0.68.0 med rettelser og en kommando til validering af udvidelser.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. OpenClaw releases: openclaw 2026.11.4
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 16. nov. 2026. openclaw 2026.11.4 forhindrer, at store transskript-trimninger, sideinddelte memory-eksporter og Doctor-reparationer tømmer worker-hukommelsen, og starter plugins og deres tjenester før orphan-scanning. Den bevarer ubesvarede prompts gennem Gateway-genstarter, beholder WhatsApp-slutsvar gennem urelaterede genindlæsninger og forhindrer, at Signal-genopkoblinger springer bufferlagrede beskeder over. Side chat forbliver afgrænset til den autentificerede bruger, der har adgang, og fotos og skærmbilleder fra parrede noder er private som standard. En nyere CLI forhindres i at migrere en delt database ud over en ældre installeret Gateway-daemon.
+
+> Kort kildeuddrag: 2026.11.4 Highlights Large conversations: Keep large transcript trimming, paged memory exports, and Doctor repairs from exhausting worker memory. #194066 ,…
+
+**Hvorfor det er relevant:** Noterne angiver, at ændringerne forhindrer, at store transskript-trimninger, sideinddelte memory-eksporter og Doctor-reparationer tømmer worker-hukommelsen, og at fotos og skærmbilleder fra parrede noder forbliver private som standard.
+
+**Sådan verificerer du det:** Tjek den installerede version mod 2026.11.4, og læs udgivelsesnoterne for de angivne issue-numre, for eksempel #194066 for store samtaler og #185390 for afgrænsningen af Side chat.
+
+**Usikkerhed:** Teksten er afkortet og angiver ikke, hvilke platforme eller regioner udgivelsen dækker, om ændringerne er valgfrie indstillinger, eller hvad den manglende del af noterne indeholder.
+
+Kilde: [openclaw 2026.11.4](https://github.com/openclaw/openclaw/releases/tag/v2026.11.4)
+
+### 2. Claude Code releases: v2.1.321
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 9. nov. 2026. Claude Code v2.1.321 tilføjer Claude Fable 5.2 &#40;claude-fable-5-2&#41; som standard-Fable-model med 1M kontekst, $8/$40 pr. Mtok og $0.20/Mtok for cache-læsninger. Den tilføjer --settings til claude remote-control, som anvender en settings-fil på hver session, den starter; ændres filen, starter ingen ny session, før du genstarter claude remote-control. Udgivelsen retter også MCP OAuth-anmodninger, der sendte hemmeligheder som refresh-tokens til en anden vært, når en server omdirigerede dem, og en skrivebeskyttet Bash-kommando, der kørte uden for sandkassen uden en tilladelsesprompt.
+
+> Kort kildeuddrag: What's changed Added Claude Fable 5.2 &#40; claude-fable-5-2 &#41;, now the default Fable model — 1M context, $8/$40 per Mtok…
+
+**Hvorfor det er relevant:** Udgivelsen er for Claude Code-brugere: Fable 5.2 er nu standard-Fable-modellen til de angivne priser pr. Mtok, og claude remote-control kan anvende en settings-fil på hver session, den starter, så en ændret fil kræver en genstart, før nye sessioner tager den i brug.
+
+**Sådan verificerer du det:** Tjek den installerede Claude Code-version op mod v2.1.321, og bekræft at claude-fable-5-2 er standard-Fable-modellen i din opsætning.
+
+**Usikkerhed:** Fordi sideteksten er afkortet, er den fulde liste af rettelser ikke synlig. Kilden siger ikke, om de nye Fable-priser gælder for eksisterende planer, hvordan versionen rulles ud, eller hvilke regioner der får den.
+
+Kilde: [v2.1.321](https://github.com/anthropics/claude-code/releases/tag/v2.1.321)
+
+### 3. Google AI Blog: Gemini Decisions API: Fast, calibrated multimodal decisions
+
+**Hvad ændrede sig:** Google AI Blog offentliggjorde opdateringen 11. nov. 2026. Google har introduceret Gemini Decisions API, et nyt endpoint drevet af modellen Gemini Decision 1 &#40;gemini-decision-1&#41;, som er tilgængeligt via Gemini API i Google AI Studio. Én forespørgsel kan indeholde tekst, billeder, lyd, video og PDF'er på op til 256K tokens samt op til 1.000 ja/nej-, valg- eller rubrikspørgsmål og returnerer sandsynligheder og sikkerhedsscorer.
+
+> Kort kildeuddrag: Meet the Gemini Decisions API, powered by our state-of-the-art model Gemini Decision for fast, calibrated multimodal decisions. Gemini Decisions API:…
+
+**Hvorfor det er relevant:** Kilden præsenterer den til udviklere, der bygger afgrænsede valg som værktøjsvalg, politikcheck, modelrouting og kontekstvurdering. Den angiver 150-250 ms end-to-end-latens til $0.10 per 1M input-tokens med nul output-tokens faktureret og skriver, at den er næsten 5x billigere end Gemini 3.5 Flash-Lite med Interactions API på tværs af det fælles benchmarksæt.
+
+**Sådan verificerer du det:** Hent en API-nøgle i Google AI Studio, og følg den Python-, JavaScript- eller REST-guide, kilden henviser til, og send derefter én forespørgsel med model gemini-decision-1 og tjek, at der kommer sikkerhedsscorer mellem 0 og 1 tilbage.
+
+**Usikkerhed:** Teksten siger ikke, om API'en er preview eller alment tilgængelig, hvilke regioner eller ratelimits der gælder, eller hvad det afkortede CC-emoji-eksempel indeholder. Den angiver heller ikke, om 5x-prissammenligningen gælder uden for det fælles benchmarksæt.
+
+Kilde: [Gemini Decisions API: Fast, calibrated multimodal decisions](https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api)
+
+### 4. Gemini CLI releases: Release v0.68.0
+
+**Hvad ændrede sig:** Gemini CLI releases offentliggjorde opdateringen 10. nov. 2026. Gemini CLI v0.68.0 oplister en række rettelser plus en ny kommando til validering af udvidelser med evalueringstests. Rettelserne dækker genrendering af historik ved ændret terminalbredde, surrogate-par i sanitizeForDisplay, case-insensitiv isWithinRoot på Windows, punktummerede Gemini 3-modeller i supportsMultimodalFunctionResponse, indledende skråstreger i fil-søgning til @<wbr/>-autocomplete, visning af Auto i /model når dynamicModelConfiguration er aktiveret og preview-adgang er deaktiveret, 429-rate-limit-nedtælling i indlæsningsindikatoren og serielle samtidige udvidelsesinstallationer med en lås pr. udvidelse.
+
+> Kort kildeuddrag: What's Changed Changelog for v0.67.0-preview.0 by @<wbr/>gemini-cli-robot in #29990 Changelog for v0.66.0 by @<wbr/>gemini-cli-robot in #29992 docs&#40;readme&#41;: clarify Gemini CLI…
+
+**Hvorfor det er relevant:** Punkterne er rettet mod personer, der bruger Gemini CLI, herunder Windows-brugere, VS Code IDE companion og sandbox-opsætninger med rootless podman. Kilden oplister ændringerne uden at angive, hvad de betyder for brugerne.
+
+**Sådan verificerer du det:** Tjek, hvilken version af Gemini CLI du har installeret, og læs v0.68.0-release-noterne op mod den. Kilden nævner en kommando til validering af udvidelser og visningen af Auto i /model som to af de punkter, du kan lede efter.
+
+**Usikkerhed:** Kilden giver kun punkternes titler og siger ikke, hvad hver rettelse ændrer i praksis, eller om nogen af dem er breaking. Den nævner ingen udrulnings- eller tilgængelighedsoplysninger ud over versionsnummeret v0.68.0.
+
+Kilde: [Release v0.68.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.68.0)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| OpenClaw releases | [openclaw 2026.11.4](https://github.com/openclaw/openclaw/releases/tag/v2026.11.4) | 16. nov. 2026 |
+| Claude Code releases | [v2.1.321](https://github.com/anthropics/claude-code/releases/tag/v2.1.321) | 9. nov. 2026 |
+| Google AI Blog | [Gemini Decisions API: Fast, calibrated multimodal decisions](https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api) | 11. nov. 2026 |
+| Gemini CLI releases | [Release v0.68.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.68.0) | 10. nov. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.

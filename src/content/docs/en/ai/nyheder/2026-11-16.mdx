@@ -1,0 +1,113 @@
+---
+title: "AI News, 16 November 2026: openclaw 2026.11.4"
+description: "Today's AI brief leads with openclaw 2026.11.4 and draws on 4 official sources. Read source links and caveats in the article."
+date: 2026-11-16
+lastUpdated: 2026-11-16
+heroImage:
+  src: "/images/ai-news/2026-11-16.jpg"
+  alt: "Editorial illustration about openclaw 2026.11.4"
+  caption: "Editorial illustration about openclaw 2026.11.4"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "openclaw 2026.11.4"
+  storyFingerprint: "a84164383cbaf326eb83aa89293c045ed6748184c10d2ef8b1a908442626c1d9"
+  issueFingerprint: "e748f23cde3500afe8fb12c62fa9772e1386fbf4e91f17b07a61ac584152e864"
+  sourceSetFingerprint: "ddb2bfca5153bb8b2d0505218c69ef421b532dec273d27d8a3d967b843cc5485"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.11.4"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.321"
+    - "https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.68.0"
+sidebar:
+  label: "16 November 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="e748f23cde3500afe8fb12c62fa9772e1386fbf4e91f17b07a61ac584152e864">By SmartBolig.net Editorial · <time datetime="2026-11-16">16 November 2026</time> · 4 selected sources</p>
+
+<p class="ai-news-lede">Google has introduced the Gemini Decisions API, an endpoint powered by Gemini Decision 1 that accepts text, images, audio, video and PDFs up to 256K tokens plus up to 1,000 questions and returns probabilities and confidence scores. The issue also covers openclaw 2026.11.4 on worker memory, prompt persistence and privacy defaults, Claude Code v2.1.321 making Claude Fable 5.2 the default Fable model and adding --settings to claude remote-control, and Gemini CLI v0.68.0 with fixes and an extension validation command.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. OpenClaw releases: openclaw 2026.11.4
+
+**What changed:** OpenClaw releases published the update on 16 Nov 2026. openclaw 2026.11.4 keeps large transcript trimming, paged memory exports and Doctor repairs from exhausting worker memory, and starts plugins and their services before orphan scanning. It preserves unanswered prompts across Gateway restarts, keeps WhatsApp final replies across unrelated reloads, and prevents Signal reconnects from skipping buffered messages. Side chat stays scoped to its authenticated viewer, and paired-node photos and screenshots are private by default. A newer CLI is prevented from migrating a shared database beyond an older installed Gateway daemon.
+
+> Short source excerpt: 2026.11.4 Highlights Large conversations: Keep large transcript trimming, paged memory exports, and Doctor repairs from exhausting worker memory. #194066 ,…
+
+**Why it matters:** The notes state that these changes keep large transcript trimming, paged memory exports and Doctor repairs from exhausting worker memory, and that paired-node photos and screenshots stay private by default.
+
+**How to verify it:** Check the installed version against 2026.11.4 and read the release notes for the listed issue numbers, such as #194066 for large conversations and #185390 for Side chat scoping.
+
+**Uncertainty:** The text is truncated and does not state which platforms or regions the release covers, whether the changes are optional settings, or what the missing part of the notes contains.
+
+Source: [openclaw 2026.11.4](https://github.com/openclaw/openclaw/releases/tag/v2026.11.4)
+
+### 2. Claude Code releases: v2.1.321
+
+**What changed:** Claude Code releases published the update on 9 Nov 2026. Claude Code v2.1.321 adds Claude Fable 5.2 &#40;claude-fable-5-2&#41; as the default Fable model, with 1M context, $8/$40 per Mtok and $0.20/Mtok cache reads. It adds --settings to claude remote-control, which applies a settings file to every session it starts; if the file changes, no new session starts until you restart claude remote-control. The release also fixes MCP OAuth requests sending secrets such as refresh tokens to another host when a server redirected them, and a read-only Bash command running outside the sandbox without a permission prompt.
+
+> Short source excerpt: What's changed Added Claude Fable 5.2 &#40; claude-fable-5-2 &#41;, now the default Fable model — 1M context, $8/$40 per Mtok…
+
+**Why it matters:** The release is for Claude Code users: Fable 5.2 is now the default Fable model at the listed per-Mtok prices, and claude remote-control can apply a settings file to every session it starts, so a changed file needs a restart before new sessions pick it up.
+
+**How to verify it:** Check the installed Claude Code version against v2.1.321, and confirm that claude-fable-5-2 is the default Fable model in your setup.
+
+**Uncertainty:** Because the page text is truncated, the full list of fixes is not visible. The source does not say whether the new Fable pricing applies to existing plans, how the version is rolled out, or which regions get it.
+
+Source: [v2.1.321](https://github.com/anthropics/claude-code/releases/tag/v2.1.321)
+
+### 3. Google AI Blog: Gemini Decisions API: Fast, calibrated multimodal decisions
+
+**What changed:** Google AI Blog published the update on 11 Nov 2026. Google introduced the Gemini Decisions API, a new endpoint powered by the Gemini Decision 1 model &#40;gemini-decision-1&#41;, available through the Gemini API in Google AI Studio. One request can carry text, images, audio, video and PDFs up to 256K tokens plus up to 1,000 yes/no, choice or rubric questions, returning probabilities and confidence scores.
+
+> Short source excerpt: Meet the Gemini Decisions API, powered by our state-of-the-art model Gemini Decision for fast, calibrated multimodal decisions. Gemini Decisions API:…
+
+**Why it matters:** The source presents it for developers building bounded choices such as tool selection, policy checks, model routing and context grading. It states 150-250 ms end-to-end latency at $0.10 per 1M input tokens with zero output tokens billed, and says it is nearly 5x cheaper than Gemini 3.5 Flash-Lite with the Interactions API across the shared benchmark suite.
+
+**How to verify it:** Get an API key in Google AI Studio and follow the Python, JavaScript or REST guide the source points to, then send one request with model gemini-decision-1 and check that confidence scores between 0 and 1 come back.
+
+**Uncertainty:** The text does not say whether the API is preview or generally available, which regions or rate limits apply, or what the truncated CC emoji example contains. It also does not state whether the 5x cost comparison holds outside the shared benchmark suite.
+
+Source: [Gemini Decisions API: Fast, calibrated multimodal decisions](https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api)
+
+### 4. Gemini CLI releases: Release v0.68.0
+
+**What changed:** Gemini CLI releases published the update on 10 Nov 2026. Gemini CLI v0.68.0 lists a set of fixes plus a new extension validation command with evaluation tests. The fixes cover terminal-width history re-render, surrogate pairs in sanitizeForDisplay, case-insensitive isWithinRoot on Windows, dotted Gemini 3 models in supportsMultimodalFunctionResponse, leading slashes in @<wbr/> autocomplete file search, listing Auto in /model when dynamicModelConfiguration is enabled and preview access is disabled, 429 rate-limit cool-down in the loading indicator, and serialized concurrent extension installs with a per-extension lock.
+
+> Short source excerpt: What's Changed Changelog for v0.67.0-preview.0 by @<wbr/>gemini-cli-robot in #29990 Changelog for v0.66.0 by @<wbr/>gemini-cli-robot in #29992 docs&#40;readme&#41;: clarify Gemini CLI…
+
+**Why it matters:** The entries are aimed at people running Gemini CLI, including Windows users, the VS Code IDE companion and rootless podman sandbox setups. The source lists the changes without stating what they mean for users.
+
+**How to verify it:** Check which Gemini CLI version you have installed and read the v0.68.0 release notes against it. The source names an extension validation command and the listing of Auto in /model as two of the entries to look for.
+
+**Uncertainty:** The source gives only entry titles and does not say what each fix changes in practice or whether any of them are breaking. It mentions no rollout or availability details beyond the version number v0.68.0.
+
+Source: [Release v0.68.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.68.0)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| OpenClaw releases | [openclaw 2026.11.4](https://github.com/openclaw/openclaw/releases/tag/v2026.11.4) | 16 Nov 2026 |
+| Claude Code releases | [v2.1.321](https://github.com/anthropics/claude-code/releases/tag/v2.1.321) | 9 Nov 2026 |
+| Google AI Blog | [Gemini Decisions API: Fast, calibrated multimodal decisions](https://blog.google/innovation-and-ai/technology/developers-tools/gemini-decisions-api) | 11 Nov 2026 |
+| Gemini CLI releases | [Release v0.68.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.68.0) | 10 Nov 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.
