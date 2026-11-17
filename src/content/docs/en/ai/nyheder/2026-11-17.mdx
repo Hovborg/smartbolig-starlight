@@ -1,0 +1,129 @@
+---
+title: "AI News, 17 November 2026: Claude Code v2.1.326"
+description: "Today's AI brief leads with Claude Code v2.1.326 and draws on 5 official sources."
+date: 2026-11-17
+lastUpdated: 2026-11-17
+heroImage:
+  src: "/images/ai-news/2026-11-17.jpg"
+  alt: "Editorial illustration about Claude Code v2.1.326"
+  caption: "Editorial illustration about Claude Code v2.1.326"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "Claude Code v2.1.326"
+  storyFingerprint: "d672065f69f78920d3ddca11f8919734563b6f074829f876a441112d07d05cb6"
+  issueFingerprint: "fd402a14d73edfc1ef6db282487209df4abea0009d5f8d3f5e08a9670d5b55cb"
+  sourceSetFingerprint: "9cfa5f727c7c64931775f5c0f3e3e739b26052132b1c6909ea99752d54ca85f3"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.326"
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.11.5"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.69.0-preview.0"
+    - "https://blog.google/products-and-platforms/products/search/gemini-4-hydrogen-search-upgrade"
+    - "https://deepmind.google/blog/opening-the-datasets-behind-our-ai-weather-models"
+sidebar:
+  label: "17 November 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="fd402a14d73edfc1ef6db282487209df4abea0009d5f8d3f5e08a9670d5b55cb">By SmartBolig.net Editorial · <time datetime="2026-11-17">17 November 2026</time> · 5 selected sources</p>
+
+<p class="ai-news-lede">Google says it is bringing Gemini 4 Hydrogen to Google Search globally for all users, with changes to how Search handles multi-part questions, typos, instructions, tool calls and simultaneous queries across subtopics. Google DeepMind's WeatherNext team has released the SatWeave and PARDIG datasets openly on Google Cloud Storage, with PARDIG historical catalogs also in Google Earth Engine. The issue also covers Claude Code v2.1.326, openclaw 2026.11.5 and Gemini CLI v0.69.0-preview.0.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. Claude Code releases: v2.1.326
+
+**What changed:** Claude Code releases published the update on 16 Nov 2026. Claude Code v2.1.326 adds support for turning on Code Mode while agent teams are enabled; sessions with teams on now start in Code Mode if it was already turned on. It also adds a startup warning for --allowedTools, --disallowedTools and --tools entries that do not look like a complete rule, a /status row showing when a provider or an environment variable such as DISABLE&#95;TELEMETRY turns features off, and Ctrl+O to show hidden startup notices.
+
+> Short source excerpt: What's changed Added support for turning on Code Mode while agent teams are enabled; if you already turned it on,…
+
+**Why it matters:** The changes are for Claude Code users who work with agent teams, MCP servers, plugins and managed settings. Administrators get a message explaining why MCP servers stop loading when managed-mcp.json is added during a session, and /plugin and claude plugin list now note when a malformed plugin.json field such as author or homepage is ignored.
+
+**How to verify it:** Check that the installed version is v2.1.326, then open /status and look for the row that says when your provider or an environment variable such as DISABLE&#95;TELEMETRY turns features off. You can also press Ctrl+O to show hidden startup notices.
+
+**Uncertainty:** The provided text is truncated, so the remaining fixes are unknown. It does not say how Code Mode is turned on, whether the release rolls out gradually, or which plans and regions get it.
+
+Source: [v2.1.326](https://github.com/anthropics/claude-code/releases/tag/v2.1.326)
+
+### 2. OpenClaw releases: openclaw 2026.11.5
+
+**What changed:** OpenClaw releases published the update on 17 Nov 2026. openclaw 2026.11.5 includes restart-safe conversations: queued messages, send permissions and final chat writes are retained across Gateway restarts. Failed Doctor or Gateway startup rolls back an activated update, and restored npm packages remain readable by non-root services. Interactive widgets now render in Telegram messages, including private-chat topics. Large memory-index rebuilds complete reliably, and embedding indexing recovers if a gateway truncates a batch-limit error. A configured primary account no longer blocks fallback to Claude CLI, and OpenAI sessions recover from conflicts with compaction items.
+
+> Short source excerpt: 2026.11.5 Highlights Restart-safe conversations: Queued messages, send permissions, and final chat writes are retained across Gateway restarts. &#40; #196923 ,…
+
+**Why it matters:** The release keeps queued messages and final chat writes through Gateway restarts, rolls back an activated update if Doctor or Gateway startup fails, and renders interactive widgets in Telegram messages, including private-chat topics.
+
+**How to verify it:** Check that the installed version is 2026.11.5, then read the release notes for the restart-safe conversation and update rollback entries before relying on them.
+
+**Uncertainty:** The provided text is truncated and does not state rollout timing, platform availability, or whether these changes apply to all deployments or plans.
+
+Source: [openclaw 2026.11.5](https://github.com/openclaw/openclaw/releases/tag/v2026.11.5)
+
+### 3. Gemini CLI releases: Release v0.69.0-preview.0
+
+**What changed:** Gemini CLI releases published the update on 10 Nov 2026. The release v0.69.0-preview.0 lists changes to the Gemini CLI. It adds a /stats heatmap subcommand for daily token usage and support for a standalone theme.json configuration for custom themes. It also fixes literal $ characters during template placeholder replacement, whitespace in @<wbr/>file references, and allows overriding the 60s API headers timeout via model.requestTimeoutMs or GEMINI&#95;API&#95;HEADERS&#95;TIMEOUT&#95;MS. The text is truncated.
+
+> Short source excerpt: What's Changed fix&#40;core,cli&#41;: preserve literal $ characters during template placeholder replacement by @<wbr/>jesussamuel-byte in #30136 feat&#40;cli&#41;: add /stats heatmap subcommand…
+
+**Why it matters:** The source lists these changes but does not state a practical consequence for users, and it does not name which group of users the release is for.
+
+**How to verify it:** Read the release notes for v0.69.0-preview.0 and check whether the /stats heatmap subcommand and the standalone theme.json configuration are listed there.
+
+**Uncertainty:** The text is truncated, so later changes are unknown. The source does not say when the preview becomes stable, which regions it covers, or whether the /stats heatmap is limited in any way.
+
+Source: [Release v0.69.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.69.0-preview.0)
+
+### 4. Google AI Blog: Google Search gets a major upgrade with Gemini 4 Hydrogen
+
+**What changed:** Google AI Blog published the update on 12 Nov 2026. Google says it is bringing Gemini 4 Hydrogen to Google Search globally for all users, described as the biggest model upgrade to Search yet. Search should better understand multi-part questions, typos and specific requests, follow instructions and call tools more precisely, run simultaneous queries across subtopics to surface a broader range of links, and show more images, structured responses, comparison tables and custom tools. Google says responses are more nuanced across all supported AI Mode languages.
+
+> Short source excerpt: We are bringing Gemini 4 Hydrogen to Google Search globally to provide you with more helpful, visual, and intuitive responses.…
+
+**Why it matters:** Google frames the update around everyday searches: it says the model connects you to more relevant websites and tools to save time, and that you can ask about specific requirements for travel, shopping or hobbies in your own natural language. The source does not describe any cost, privacy or setup consequence for users.
+
+**How to verify it:** Open Google Search and ask a multi-part question with several requirements, for example about travel, shopping or a hobby, as Google suggests, and check whether the answer includes images, tables or links that address each part.
+
+**Uncertainty:** The text does not say how the rollout is staged beyond "globally", which countries or accounts get it first, whether there is a cost, or how the experimental label affects availability. It also does not list which languages are supported.
+
+Source: [Google Search gets a major upgrade with Gemini 4 Hydrogen](https://blog.google/products-and-platforms/products/search/gemini-4-hydrogen-search-upgrade)
+
+### 5. Google DeepMind Blog: Opening the datasets behind our AI weather models
+
+**What changed:** Google DeepMind Blog published the update on 10 Nov 2026. Google DeepMind's WeatherNext team released two datasets, SatWeave and PARDIG, openly on Google Cloud Storage, with PARDIG historical catalogs also in Google Earth Engine. SatWeave is a global mosaic of geostationary satellite imagery across 17 channels that updates hourly, with an archive spanning over a decade. PARDIG is an AI-based global precipitation dataset at 15-minute and roughly 10-kilometer resolution.
+
+> Short source excerpt: Foundational precipitation and geostationary satellite datasets to observe the planet clearly. November 13, 2026 Science Opening the datasets behind our…
+
+**Why it matters:** According to the source, SatWeave's hourly updates let WeatherNext 3 produce new global predictions, unlike models initialized on analysis data refreshed every six hours. PARDIG improves hourly precipitation detection skill over NASA's IMERG-Final by more than 30% on light-to-moderate precipitation, and the team expects reliable accuracy even where ground measurements are unavailable. Both are aimed at researchers and developers.
+
+**How to verify it:** Open Google Cloud Storage and check that the SatWeave live feed and its archive of over a decade and the PARDIG live feed and 1999–2026 archives are listed; the source also says PARDIG historical catalogs are in Google Earth Engine.
+
+**Uncertainty:** The text does not state licence terms, any cost for accessing or downloading the data, or which regions the live feeds cover. It also describes SatWeave as combining five satellites and, later, six geostationary satellites.
+
+Source: [Opening the datasets behind our AI weather models](https://deepmind.google/blog/opening-the-datasets-behind-our-ai-weather-models)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| Claude Code releases | [v2.1.326](https://github.com/anthropics/claude-code/releases/tag/v2.1.326) | 16 Nov 2026 |
+| OpenClaw releases | [openclaw 2026.11.5](https://github.com/openclaw/openclaw/releases/tag/v2026.11.5) | 17 Nov 2026 |
+| Gemini CLI releases | [Release v0.69.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.69.0-preview.0) | 10 Nov 2026 |
+| Google AI Blog | [Google Search gets a major upgrade with Gemini 4 Hydrogen](https://blog.google/products-and-platforms/products/search/gemini-4-hydrogen-search-upgrade) | 12 Nov 2026 |
+| Google DeepMind Blog | [Opening the datasets behind our AI weather models](https://deepmind.google/blog/opening-the-datasets-behind-our-ai-weather-models) | 10 Nov 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.

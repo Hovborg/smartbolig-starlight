@@ -1,0 +1,129 @@
+---
+title: "AI-nyheder, 17. november 2026: Claude Code v2.1.326"
+description: "Dagens AI-overblik har Claude Code v2.1.326 som hovedhistorie og bygger på 5 officielle kilder."
+date: 2026-11-17
+lastUpdated: 2026-11-17
+heroImage:
+  src: "/images/ai-news/2026-11-17.jpg"
+  alt: "Redaktionel illustration om Claude Code v2.1.326"
+  caption: "Redaktionel illustration om Claude Code v2.1.326"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "Claude Code v2.1.326"
+  storyFingerprint: "d672065f69f78920d3ddca11f8919734563b6f074829f876a441112d07d05cb6"
+  issueFingerprint: "fd402a14d73edfc1ef6db282487209df4abea0009d5f8d3f5e08a9670d5b55cb"
+  sourceSetFingerprint: "9cfa5f727c7c64931775f5c0f3e3e739b26052132b1c6909ea99752d54ca85f3"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.326"
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.11.5"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.69.0-preview.0"
+    - "https://blog.google/products-and-platforms/products/search/gemini-4-hydrogen-search-upgrade"
+    - "https://deepmind.google/blog/opening-the-datasets-behind-our-ai-weather-models"
+sidebar:
+  label: "17. november 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="fd402a14d73edfc1ef6db282487209df4abea0009d5f8d3f5e08a9670d5b55cb">Af SmartBolig.net Redaktionen · <time datetime="2026-11-17">17. november 2026</time> · 5 udvalgte kilder</p>
+
+<p class="ai-news-lede">Google siger, at selskabet bringer Gemini 4 Hydrogen til Google Search globalt til alle brugere, med ændringer i hvordan Search håndterer spørgsmål med flere dele, tastefejl, instruktioner, værktøjskald og samtidige forespørgsler på tværs af underemner. Google DeepMinds WeatherNext-team har offentliggjort datasættene SatWeave og PARDIG åbent på Google Cloud Storage, og PARDIG's historiske kataloger findes også i Google Earth Engine. Udgaven dækker også Claude Code v2.1.326, openclaw 2026.11.5 og Gemini CLI v0.69.0-preview.0.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. Claude Code releases: v2.1.326
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 16. nov. 2026. Claude Code v2.1.326 giver mulighed for at slå Code Mode til, mens agent teams er aktiveret; sessioner med teams slået til starter nu i Code Mode, hvis det allerede var slået til. Versionen tilføjer også en advarsel ved opstart, når en værdi i --allowedTools, --disallowedTools eller --tools ikke ser ud som en komplet regel, en række i /status der viser, når en udbyder eller en miljøvariabel som DISABLE&#95;TELEMETRY slår funktioner fra, og Ctrl+O til at vise skjulte beskeder ved opstart.
+
+> Kort kildeuddrag: What's changed Added support for turning on Code Mode while agent teams are enabled; if you already turned it on,…
+
+**Hvorfor det er relevant:** Ændringerne er for Claude Code-brugere, der arbejder med agent teams, MCP-servere, plugins og administrerede indstillinger. Administratorer får en besked, der forklarer, hvorfor MCP-servere holder op med at indlæse, når managed-mcp.json tilføjes i løbet af en session, og /plugin og claude plugin list viser nu en note, når et fejlbehæftet plugin.json-felt som author eller homepage ignoreres.
+
+**Sådan verificerer du det:** Tjek, at den installerede version er v2.1.326, og åbn derefter /status og se efter den række, der viser, når din udbyder eller en miljøvariabel som DISABLE&#95;TELEMETRY slår funktioner fra. Du kan også trykke Ctrl+O for at vise skjulte beskeder ved opstart.
+
+**Usikkerhed:** Den medfølgende tekst er afskåret, så de resterende rettelser er ukendte. Den siger ikke, hvordan Code Mode slås til, om udgivelsen ruller gradvist ud, eller hvilke planer og regioner der får den.
+
+Kilde: [v2.1.326](https://github.com/anthropics/claude-code/releases/tag/v2.1.326)
+
+### 2. OpenClaw releases: openclaw 2026.11.5
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 17. nov. 2026. openclaw 2026.11.5 indeholder restart-sikre samtaler: beskeder i kø, sendetilladelser og endelige chat-skrivninger bevares gennem genstarter af Gateway. Hvis Doctor eller Gateway-opstart fejler, rulles en aktiveret opdatering tilbage, og gendannede npm-pakker forbliver læsbare for ikke-root-tjenester. Interaktive widgets vises nu i Telegram-beskeder, også i emner i private chats. Store genopbygninger af hukommelsesindekset fuldføres pålideligt, og embedding-indeksering kommer sig, hvis en gateway afkorter en batch-limit-fejl. En konfigureret primær konto blokerer ikke længere fallback til Claude CLI, og OpenAI-sessioner kommer sig efter konflikter med compaction-elementer.
+
+> Kort kildeuddrag: 2026.11.5 Highlights Restart-safe conversations: Queued messages, send permissions, and final chat writes are retained across Gateway restarts. &#40; #196923 ,…
+
+**Hvorfor det er relevant:** Udgivelsen bevarer beskeder i kø og endelige chat-skrivninger gennem genstarter af Gateway, ruller en aktiveret opdatering tilbage, hvis Doctor eller Gateway-opstart fejler, og viser interaktive widgets i Telegram-beskeder, også i emner i private chats.
+
+**Sådan verificerer du det:** Kontroller, at den installerede version er 2026.11.5, og læs derefter udgivelsesnoterne for punkterne om restart-sikre samtaler og tilbagerulning af opdateringer, før du regner med dem.
+
+**Usikkerhed:** Den medfølgende tekst er afkortet og angiver ikke, hvornår udrulningen sker, hvilke platforme der får ændringerne, eller om de gælder for alle installationer eller planer.
+
+Kilde: [openclaw 2026.11.5](https://github.com/openclaw/openclaw/releases/tag/v2026.11.5)
+
+### 3. Gemini CLI releases: Release v0.69.0-preview.0
+
+**Hvad ændrede sig:** Gemini CLI releases offentliggjorde opdateringen 10. nov. 2026. Udgivelsen v0.69.0-preview.0 oplister ændringer i Gemini CLI. Den tilføjer en /stats-heatmap-underkommando til dagligt tokenforbrug og understøttelse af en selvstændig theme.json-konfiguration til tilpassede temaer. Den retter også literale $-tegn under udskiftning af skabelonpladsholdere, mellemrum i @<wbr/>file-referencer og gør det muligt at tilsidesætte timeouten på 60s for API-headers via model.requestTimeoutMs eller GEMINI&#95;API&#95;HEADERS&#95;TIMEOUT&#95;MS. Teksten er afkortet.
+
+> Kort kildeuddrag: What's Changed fix&#40;core,cli&#41;: preserve literal $ characters during template placeholder replacement by @<wbr/>jesussamuel-byte in #30136 feat&#40;cli&#41;: add /stats heatmap subcommand…
+
+**Hvorfor det er relevant:** Kilden oplister disse ændringer, men angiver ingen praktisk konsekvens for brugerne og nævner ikke, hvilken gruppe af brugere udgivelsen er rettet mod.
+
+**Sådan verificerer du det:** Læs release notes for v0.69.0-preview.0, og se efter, om /stats-heatmap-underkommandoen og den selvstændige theme.json-konfiguration er nævnt der.
+
+**Usikkerhed:** Teksten er afkortet, så senere ændringer er ukendte. Kilden siger ikke, hvornår preview-versionen bliver stabil, hvilke regioner den dækker, eller om /stats-heatmappet er begrænset på nogen måde.
+
+Kilde: [Release v0.69.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.69.0-preview.0)
+
+### 4. Google AI Blog: Google Search gets a major upgrade with Gemini 4 Hydrogen
+
+**Hvad ændrede sig:** Google AI Blog offentliggjorde opdateringen 12. nov. 2026. Google siger, at selskabet bringer Gemini 4 Hydrogen til Google Search globalt til alle brugere, og kalder det den største modelopgradering af Search til dato. Search skal bedre forstå spørgsmål med flere dele, tastefejl og meget specifikke ønsker, følge instruktioner og kalde værktøjer mere præcist, køre samtidige forespørgsler på tværs af relevante underemner for at vise et bredere udvalg af links og vise flere billeder, strukturerede svar, sammenligningstabeller og tilpassede værktøjer. Google siger, at svarene er mere nuancerede på alle understøttede AI Mode-sprog.
+
+> Kort kildeuddrag: We are bringing Gemini 4 Hydrogen to Google Search globally to provide you with more helpful, visual, and intuitive responses.…
+
+**Hvorfor det er relevant:** Google rammer ind om opdateringen med udgangspunkt i hverdagssøgninger: selskabet siger, at modellen forbinder dig med flere relevante websites og værktøjer for at spare tid, og at du kan spørge om specifikke krav til rejser, shopping eller hobbyer på dit eget naturlige sprog. Kilden beskriver ikke nogen konsekvens for brugere med hensyn til pris, privatliv eller opsætning.
+
+**Sådan verificerer du det:** Åbn Google Search, og stil et spørgsmål med flere dele og flere krav, for eksempel om rejser, shopping eller en hobby, som Google foreslår, og se, om svaret indeholder billeder, tabeller eller links, der dækker hver del.
+
+**Usikkerhed:** Teksten siger ikke, hvordan udrulningen foregår ud over »globalt«, hvilke lande eller konti der får det først, om det koster noget, eller hvordan det at være markeret som eksperimentelt påvirker tilgængeligheden. Den angiver heller ikke, hvilke sprog der er understøttet.
+
+Kilde: [Google Search gets a major upgrade with Gemini 4 Hydrogen](https://blog.google/products-and-platforms/products/search/gemini-4-hydrogen-search-upgrade)
+
+### 5. Google DeepMind Blog: Opening the datasets behind our AI weather models
+
+**Hvad ændrede sig:** Google DeepMind Blog offentliggjorde opdateringen 10. nov. 2026. Google DeepMinds WeatherNext-team har offentliggjort to datasæt, SatWeave og PARDIG, åbent på Google Cloud Storage, og PARDIG's historiske kataloger findes også i Google Earth Engine. SatWeave er en global mosaik af geostationære satellitbilleder over 17 kanaler, som opdateres hver time, med et arkiv, der spænder over mere end et årti. PARDIG er et AI-baseret globalt nedbørsdatasæt med 15 minutters og cirka 10 kilometers opløsning.
+
+> Kort kildeuddrag: Foundational precipitation and geostationary satellite datasets to observe the planet clearly. November 13, 2026 Science Opening the datasets behind our…
+
+**Hvorfor det er relevant:** Ifølge kilden lader SatWeaves timesopdateringer WeatherNext 3 lave nye globale prognoser, i modsætning til modeller, der initialiseres på analysedata, som opdateres hver sjette time. PARDIG forbedrer evnen til at opdage nedbør time for time over for NASA's IMERG-Final med mere end 30 % ved let til moderat nedbør, og teamet forventer pålidelig nøjagtighed også der, hvor jordbaserede målinger ikke findes. Begge er rettet mod forskere og udviklere.
+
+**Sådan verificerer du det:** Åbn Google Cloud Storage, og kontrollér, at SatWeaves live-feed og arkivet på over et årti samt PARDIG's live-feed og arkiverne fra 1999–2026 er listet; kilden siger også, at PARDIG's historiske kataloger ligger i Google Earth Engine.
+
+**Usikkerhed:** Teksten angiver ikke licensvilkår, eventuelle omkostninger ved at tilgå eller downloade dataene, eller hvilke regioner live-feedene dækker. Den beskriver også SatWeave som en sammensætning af fem satellitter og senere seks geostationære satellitter.
+
+Kilde: [Opening the datasets behind our AI weather models](https://deepmind.google/blog/opening-the-datasets-behind-our-ai-weather-models)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| Claude Code releases | [v2.1.326](https://github.com/anthropics/claude-code/releases/tag/v2.1.326) | 16. nov. 2026 |
+| OpenClaw releases | [openclaw 2026.11.5](https://github.com/openclaw/openclaw/releases/tag/v2026.11.5) | 17. nov. 2026 |
+| Gemini CLI releases | [Release v0.69.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.69.0-preview.0) | 10. nov. 2026 |
+| Google AI Blog | [Google Search gets a major upgrade with Gemini 4 Hydrogen](https://blog.google/products-and-platforms/products/search/gemini-4-hydrogen-search-upgrade) | 12. nov. 2026 |
+| Google DeepMind Blog | [Opening the datasets behind our AI weather models](https://deepmind.google/blog/opening-the-datasets-behind-our-ai-weather-models) | 10. nov. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
