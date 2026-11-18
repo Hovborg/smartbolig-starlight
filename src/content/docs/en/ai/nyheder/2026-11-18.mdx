@@ -1,0 +1,113 @@
+---
+title: "AI News, 18 November 2026: openclaw 2026.10.33"
+description: "Today's AI brief leads with openclaw 2026.10.33 and draws on 4 official sources."
+date: 2026-11-18
+lastUpdated: 2026-11-18
+heroImage:
+  src: "/images/ai-news/2026-11-18.jpg"
+  alt: "Editorial illustration about openclaw 2026.10.33"
+  caption: "Editorial illustration about openclaw 2026.10.33"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "openclaw 2026.10.33"
+  storyFingerprint: "70a107f8e9abd9cf58089dc2467ae7ff81f0c45a6ac9ec6e9d803911825d713e"
+  issueFingerprint: "3bd9bc77e8890cefb792a84c9b346f90ea31a610ba7122d84debe2ed0681fb61"
+  sourceSetFingerprint: "7c40eb7973435f484c2100a2432d307ad6e2dfd4861aadd6a2fc2556536ddeb3"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.10.33"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.327"
+    - "https://github.com/openai/codex/releases/tag/rust-v0.170.0"
+    - "https://openai.com/ads/customers/vistaprint"
+sidebar:
+  label: "18 November 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="3bd9bc77e8890cefb792a84c9b346f90ea31a610ba7122d84debe2ed0681fb61">By SmartBolig.net Editorial · <time datetime="2026-11-18">18 November 2026</time> · 4 selected sources</p>
+
+<p class="ai-news-lede">OpenClaw 2026.10.33 arrives as a gateway-only extended-stable release with critical security updates, reliability and performance fixes, and new model support, plus bounded export and recovery work and session import from Claude Code or Codex transcripts. Also in this issue: Claude Code v2.1.327 adds a confirmation before /install-github-app changes a repository and expands /status diagnostics, Codex 0.170.0 brings WebRTC negotiation for realtime voice calls in the TUI and automatically refreshed authentication headers for OpenTelemetry HTTP exporters, and OpenAI describes how VistaPrint uses ChatGPT Ads.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. OpenClaw releases: openclaw 2026.10.33
+
+**What changed:** OpenClaw releases published the update on 18 Nov 2026. OpenClaw 2026.10.33 is a gateway-only extended-stable release, described as the current equivalent to LTS. It is based on OpenClaw from the end of October 2026, with critical security updates, reliability and performance fixes, and new model support. Distribution covers the core npm package, matching official npm plugins, and Gateway Docker images; native-app releases are not included. The release adds bounded export and recovery work, update recovery, stronger shared-session privacy, and session import from Claude Code or Codex transcripts.
+
+> Short source excerpt: This is a gateway-only extended-stable release, which is our current equivalent to LTS. This release is OpenClaw from the end…
+
+**Why it matters:** For Gateway deployments, the source states that bounded export and recovery work reduces out-of-memory failures during chat, memory export, Doctor repair, and Gateway startup. Interrupted updates recover when their executor dies instead of leaving the Gateway stuck offline, and replies survive more restart and reconnect paths, including Telegram, WhatsApp and Signal.
+
+**How to verify it:** Check that the installed core npm package or Gateway Docker image is version 2026.10.33, and note that native-app releases are not included in this distribution.
+
+**Uncertainty:** The provided text is truncated, so it does not show the full list of fixes or the rest of the voice-call changes. It also does not state rollout timing, regional availability, price, or whether native apps will get these changes later.
+
+Source: [openclaw 2026.10.33](https://github.com/openclaw/openclaw/releases/tag/v2026.10.33)
+
+### 2. Claude Code releases: v2.1.327
+
+**What changed:** Claude Code releases published the update on 17 Nov 2026. Claude Code v2.1.327 adds a confirmation before /install-github-app changes a repository, and claude mcp add-json - reads a server's JSON from stdin so tokens can stay off the command line, though not available inside a Claude Code session. /status now lists broken agent, skill, command and output style files, keybinding errors, an unavailable sandbox, ignored permission settings and hook matchers that never match. /export now asks before overwriting an existing file.
+
+> Short source excerpt: What's changed Added a confirmation before /install-github-app changes a repository Added claude mcp add-json - to read the server's JSON…
+
+**Why it matters:** The source states that reading the server's JSON from stdin lets tokens stay off the command line. It also states that /export now asks before overwriting, so the existing file is kept and the dialog says to run /export. The changes are for Claude Code users; the source names no other audience.
+
+**How to verify it:** Check that the installed version is v2.1.327, then run /status and look for the new list of broken agent, skill, command and output style files, keybinding errors and ignored permission settings.
+
+**Uncertainty:** The text is truncated, so the remaining fixes in the release are unknown. It does not say how the release is rolled out, on which platforms, or whether the new /status list can be filtered or dismissed.
+
+Source: [v2.1.327](https://github.com/anthropics/claude-code/releases/tag/v2.1.327)
+
+### 3. OpenAI Codex releases: 0.170.0
+
+**What changed:** OpenAI Codex releases published the update on 18 Nov 2026. Codex release 0.170.0 adds WebRTC negotiation for realtime voice calls in the TUI, automatically refreshed authentication headers for OpenTelemetry HTTP exporters, and experimental support for identically named MCP servers across environments. It also lists bug fixes for WebSocket fallback, MCP OAuth credentials, Cloud reconnection, Windows file replacement and sandbox permissions.
+
+> Short source excerpt: New Features Added WebRTC negotiation for realtime voice calls in the TUI. &#40; #61172 &#41; Added automatically refreshed authentication headers…
+
+**Why it matters:** The source does not state a practical consequence for private users. It describes changes for Codex users working in the TUI and with MCP environments and OpenTelemetry HTTP exporters.
+
+**How to verify it:** Check that your installed Codex version is 0.170.0, then read the release notes for entries #61172, #61028 and #60905.
+
+**Uncertainty:** The text does not say which platforms get the TUI voice feature, how the experimental MCP support is enabled, or whether the fixes reach all users. The changelog is truncated, so later entries are unknown.
+
+Source: [0.170.0](https://github.com/openai/codex/releases/tag/rust-v0.170.0)
+
+### 4. OpenAI News: How VistaPrint helps small businesses get the word out
+
+**What changed:** OpenAI News published the update on 9 Nov 2026. OpenAI's summary states that VistaPrint uses ChatGPT Ads to show small business owners how products such as signs and branded merchandise can help them get the word out.
+
+> Short source excerpt: Small business owners preparing for a launch or an event often know what they want to accomplish before they know…
+
+**Why it matters:** The source mentions small business owners preparing for a launch or an event, who often know what they want to accomplish before they know what to print.
+
+**How to verify it:** Check the provided text for a version, account setting or menu; it names none of these.
+
+**Uncertainty:** The text does not say when or where VistaPrint's ChatGPT Ads appear, what they cost, or how they are limited.
+
+Source: [How VistaPrint helps small businesses get the word out](https://openai.com/ads/customers/vistaprint)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| OpenClaw releases | [openclaw 2026.10.33](https://github.com/openclaw/openclaw/releases/tag/v2026.10.33) | 18 Nov 2026 |
+| Claude Code releases | [v2.1.327](https://github.com/anthropics/claude-code/releases/tag/v2.1.327) | 17 Nov 2026 |
+| OpenAI Codex releases | [0.170.0](https://github.com/openai/codex/releases/tag/rust-v0.170.0) | 18 Nov 2026 |
+| OpenAI News | [How VistaPrint helps small businesses get the word out](https://openai.com/ads/customers/vistaprint) | 9 Nov 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.
