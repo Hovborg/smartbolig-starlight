@@ -1,0 +1,113 @@
+---
+title: "AI News, 19 November 2026: Claude Code v2.1.328"
+description: "Today's AI brief leads with Claude Code v2.1.328 and draws on 4 official sources."
+date: 2026-11-19
+lastUpdated: 2026-11-19
+heroImage:
+  src: "/images/ai-news/2026-11-19.jpg"
+  alt: "Editorial illustration about Claude Code v2.1.328"
+  caption: "Editorial illustration about Claude Code v2.1.328"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "Claude Code v2.1.328"
+  storyFingerprint: "b6006f7bfd89a75a22a41fb9bbf978f14bc10fe43259af79fad5fe1cef1f7e39"
+  issueFingerprint: "50f60794aba06693e076dfdadf54df13f5410342c6450fdbdf25bab4831b2d0c"
+  sourceSetFingerprint: "4215c0e1bc9a701e614811da1a9b2a3c794b85c69862e2b625fe25ca90291363"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.328"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.70.0-preview.0"
+    - "https://www.home-assistant.io/blog/2026/11/18/aeotec-joins-works-with-home-assistant"
+    - "https://blog.google/innovation-and-ai/products/gemini-app/gemini-lower-memory-devices"
+sidebar:
+  label: "19 November 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="50f60794aba06693e076dfdadf54df13f5410342c6450fdbdf25bab4831b2d0c">By SmartBolig.net Editorial · <time datetime="2026-11-19">19 November 2026</time> · 4 selected sources</p>
+
+<p class="ai-news-lede">Today's brief leads with Gemini's arrival on lower-memory Android devices, specifically eligible Android &#40;Go edition&#41; phones, where Google says the app has been re-architected so the core experience runs smoothly. Also covered: auto mode and hook changes in Claude Code v2.1.328, fixes in Gemini CLI v0.70.0-preview.0, and Aeotec joining Works with Home Assistant with nine certified devices.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. Claude Code releases: v2.1.328
+
+**What changed:** Claude Code releases published the update on 19 Nov 2026. Claude Code v2.1.328 adds auto mode for Claude Opus 4.6 and Sonnet 4.6 on Amazon Bedrock, Google Cloud's Agent Platform, Microsoft Foundry and the Claude apps gateway; interactive sessions with no permission mode start in it. mcp&#95;tool hooks accept "onFailure": "block", so a failing hook call blocks the action. A warning appears when a message from a session that skips permission prompts may be held and dropped by a cloud session, and /status and claude doctor note an OpenTelemetry exporter with no endpoint.
+
+> Short source excerpt: What's changed Added auto mode for Claude Opus 4.6 and Sonnet 4.6 on Amazon Bedrock, Google Cloud's Agent Platform, Microsoft…
+
+**Why it matters:** With "onFailure": "block" on mcp&#95;tool hooks, a hook whose call fails blocks the action, the same behaviour the source describes for command and HTTP hooks. The new warning flags that a message from a session skipping permission prompts may be held and dropped by a cloud session, so the source says such a message can be lost.
+
+**How to verify it:** Check the installed version against v2.1.328, and open /status or run claude doctor to see whether the notice about an OpenTelemetry exporter with no endpoint appears in your setup.
+
+**Uncertainty:** The provided text is truncated, so the rest of the changelog is unknown. It does not say when the release rolls out, in which regions the platforms get auto mode, or whether any of this changes pricing.
+
+Source: [v2.1.328](https://github.com/anthropics/claude-code/releases/tag/v2.1.328)
+
+### 2. Gemini CLI releases: Release v0.70.0-preview.0
+
+**What changed:** Gemini CLI releases published the update on 19 Nov 2026. Gemini CLI release v0.70.0-preview.0 lists a set of fixes and chores. Among them: preserving Unicode prompts and stripping ANSI fragments in session previews, applying the default in $&#123;VAR:-default&#125; when a variable is set but empty, reporting accurate output token limits in models list, and skipping system MCP servers with insecure command permissions.
+
+> Short source excerpt: What's Changed Changelog for v0.69.0-preview.0 by @<wbr/>gemini-cli-robot in #30222 Changelog for v0.68.0 by @<wbr/>gemini-cli-robot in #30224 chore&#40;release&#41;: bump version to…
+
+**Why it matters:** The source does not state a practical consequence for users. It only lists the fixes and chores included in the preview release, without naming an audience or describing an effect.
+
+**How to verify it:** Open the release notes for v0.70.0-preview.0 and look for the specific entry you need, for example the $&#123;VAR:-default&#125; default handling or the fix for system MCP servers with insecure command permissions.
+
+**Uncertainty:** The text is truncated and does not say when the preview becomes a stable release, which platforms it covers, or whether any of the listed fixes change default behaviour.
+
+Source: [Release v0.70.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.70.0-preview.0)
+
+### 3. Home Assistant Blog: Aeotec joins Works with Home Assistant
+
+**What changed:** Home Assistant Blog published the update on 18 Nov 2026. Aeotec has joined the Works with Home Assistant program with 9 certified devices, including Door Window Sensor 8, MultiSensor 8, Water Sensor 8, aërQ 8, SmokeShield, Pico Switch, Recessed Door Sensor 7, Siren 6 and WallMote Quad, listed for Europe and USA. Five are Z-Wave Long Range devices. Home Assistant's team tested each device against its requirements for local control and privacy.
+
+> Short source excerpt: Get ready for gear that goes the distance, because this month Aeotec join Works with Home Assistant 🎉 Building Z-Wave…
+
+**Why it matters:** Z-Wave Long Range devices reach up to 1 km in line of sight, versus around 300 m for standard Z-Wave, and a single network supports up to 4,000 devices compared to 232. Everything runs locally in Home Assistant through the Z-Wave integration. With an older adapter the devices still work as regular Z-Wave devices in a mesh, without the extra reach.
+
+**How to verify it:** Check which Z-Wave adapter you use: the source says Long Range needs a compatible adapter such as the Home Assistant Connect ZWA-2, and that an older adapter makes the devices work as regular Z-Wave in a mesh. The source also points to a full certified device list.
+
+**Uncertainty:** The text is truncated; it does not say prices, when the devices go on sale, or which firmware versions are required. It also does not detail what the certification requirements are beyond local control and privacy.
+
+Source: [Aeotec joins Works with Home Assistant](https://www.home-assistant.io/blog/2026/11/18/aeotec-joins-works-with-home-assistant)
+
+### 4. Google AI Blog: The Gemini app is now available on lower-memory Android devices.
+
+**What changed:** Google AI Blog published the update on 18 Nov 2026. The Gemini app is now available on lower-memory Android devices, specifically eligible Android &#40;Go edition&#41; devices. Google says it re-architected the app so the core Gemini experience runs smoothly on hardware with less memory. The app includes Gemini Live in more than 45 languages, camera-based learning and translation from notes or forms, and custom image creation with Nano Banana. It can be downloaded on Google Play, opened by pressing and holding the power button on supported phones, or found preloaded on upcoming devices from partners like Transsion.
+
+> Short source excerpt: The Google Gemini app now supports lower-memory Android devices. Access Gemini Live and custom image creation on your phone. Download…
+
+**Why it matters:** For people whose everyday phone is a lower-memory Android device, the change gives access to the Gemini app and its core experience instead of only basic voice commands. Google says this brings its personal AI assistant to hundreds of millions more people on eligible Android &#40;Go edition&#41; devices.
+
+**How to verify it:** Check whether your phone is an eligible Android &#40;Go edition&#41; device, then look for the Gemini app on Google Play.
+
+**Uncertainty:** The text does not specify the exact memory requirement, the full list of eligible devices, or which countries get the app first. It also does not say when preloaded devices from partners like Transsion will arrive.
+
+Source: [The Gemini app is now available on lower-memory Android devices.](https://blog.google/innovation-and-ai/products/gemini-app/gemini-lower-memory-devices)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| Claude Code releases | [v2.1.328](https://github.com/anthropics/claude-code/releases/tag/v2.1.328) | 19 Nov 2026 |
+| Gemini CLI releases | [Release v0.70.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.70.0-preview.0) | 19 Nov 2026 |
+| Home Assistant Blog | [Aeotec joins Works with Home Assistant](https://www.home-assistant.io/blog/2026/11/18/aeotec-joins-works-with-home-assistant) | 18 Nov 2026 |
+| Google AI Blog | [The Gemini app is now available on lower-memory Android devices.](https://blog.google/innovation-and-ai/products/gemini-app/gemini-lower-memory-devices) | 18 Nov 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.

@@ -1,0 +1,113 @@
+---
+title: "AI-nyheder, 19. november 2026: Claude Code v2.1.328"
+description: "Dagens AI-overblik har Claude Code v2.1.328 som hovedhistorie og bygger på 4 officielle kilder."
+date: 2026-11-19
+lastUpdated: 2026-11-19
+heroImage:
+  src: "/images/ai-news/2026-11-19.jpg"
+  alt: "Redaktionel illustration om Claude Code v2.1.328"
+  caption: "Redaktionel illustration om Claude Code v2.1.328"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "Claude Code v2.1.328"
+  storyFingerprint: "b6006f7bfd89a75a22a41fb9bbf978f14bc10fe43259af79fad5fe1cef1f7e39"
+  issueFingerprint: "50f60794aba06693e076dfdadf54df13f5410342c6450fdbdf25bab4831b2d0c"
+  sourceSetFingerprint: "4215c0e1bc9a701e614811da1a9b2a3c794b85c69862e2b625fe25ca90291363"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.328"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.70.0-preview.0"
+    - "https://www.home-assistant.io/blog/2026/11/18/aeotec-joins-works-with-home-assistant"
+    - "https://blog.google/innovation-and-ai/products/gemini-app/gemini-lower-memory-devices"
+sidebar:
+  label: "19. november 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="50f60794aba06693e076dfdadf54df13f5410342c6450fdbdf25bab4831b2d0c">Af SmartBolig.net Redaktionen · <time datetime="2026-11-19">19. november 2026</time> · 4 udvalgte kilder</p>
+
+<p class="ai-news-lede">Dagens nyhedsbrev indledes med, at Gemini-appen nu er tilgængelig på Android-enheder med mindre hukommelse, nærmere bestemt kvalificerede Android &#40;Go edition&#41;-enheder, hvor Google oplyser, at appen er bygget om, så kerneoplevelsen kører problemfrit. Derudover dækkes auto-tilstanden og ændringerne af hooks i Claude Code v2.1.328, rettelser i Gemini CLI v0.70.0-preview.0 og Aeotecs indtræden i Works with Home Assistant med ni certificerede enheder.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. Claude Code releases: v2.1.328
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 19. nov. 2026. Claude Code v2.1.328 tilføjer auto-tilstand for Claude Opus 4.6 og Sonnet 4.6 på Amazon Bedrock, Google Cloud's Agent Platform, Microsoft Foundry og Claude apps gateway; interaktive sessioner uden permission mode starter i den. mcp&#95;tool-hooks accepterer "onFailure": "block", så et hook-kald, der fejler, blokerer handlingen. Der vises en advarsel, når en besked fra en session, der springer tilladelsesprompter over, kan blive tilbageholdt og droppet af en cloud-session, og /status og claude doctor giver et varsel, når en OpenTelemetry-eksportør ikke har nogen endpoint.
+
+> Kort kildeuddrag: What's changed Added auto mode for Claude Opus 4.6 and Sonnet 4.6 on Amazon Bedrock, Google Cloud's Agent Platform, Microsoft…
+
+**Hvorfor det er relevant:** Med "onFailure": "block" på mcp&#95;tool-hooks blokerer et hook, hvis kald fejler, handlingen, samme adfærd som kilden beskriver for command- og HTTP-hooks. Den nye advarsel gør opmærksom på, at en besked fra en session, der springer tilladelsesprompter over, kan blive tilbageholdt og droppet af en cloud-session, så kilden siger, at en sådan besked kan gå tabt.
+
+**Sådan verificerer du det:** Tjek den installerede version mod v2.1.328, og åbn /status eller kør claude doctor for at se, om varselet om en OpenTelemetry-eksportør uden endpoint vises i din opsætning.
+
+**Usikkerhed:** Den medfølgende tekst er afkortet, så resten af changeloggen er ukendt. Den siger ikke, hvornår udgivelsen ruller ud, i hvilke regioner platformene får auto-tilstand, eller om noget af dette ændrer priserne.
+
+Kilde: [v2.1.328](https://github.com/anthropics/claude-code/releases/tag/v2.1.328)
+
+### 2. Gemini CLI releases: Release v0.70.0-preview.0
+
+**Hvad ændrede sig:** Gemini CLI releases offentliggjorde opdateringen 19. nov. 2026. Gemini CLI-udgivelsen v0.70.0-preview.0 oplister en række rettelser og opgaver. Blandt dem: bevarelse af Unicode-prompts og fjernelse af ANSI-fragmenter i session-previews, brug af standardværdien i $&#123;VAR:-default&#125;, når en variabel er sat men tom, korrekte grænser for output-tokens i models list og overspringning af system-MCP-servere med usikre kommando-tilladelser.
+
+> Kort kildeuddrag: What's Changed Changelog for v0.69.0-preview.0 by @<wbr/>gemini-cli-robot in #30222 Changelog for v0.68.0 by @<wbr/>gemini-cli-robot in #30224 chore&#40;release&#41;: bump version to…
+
+**Hvorfor det er relevant:** Kilden angiver ingen praktisk konsekvens for brugerne. Den oplister kun de rettelser og opgaver, der indgår i preview-udgivelsen, uden at nævne en målgruppe eller beskrive en effekt.
+
+**Sådan verificerer du det:** Åbn release notes for v0.70.0-preview.0 og find det punkt, du har brug for, for eksempel håndteringen af standardværdier i $&#123;VAR:-default&#125; eller rettelsen for system-MCP-servere med usikre kommando-tilladelser.
+
+**Usikkerhed:** Teksten er afkortet og siger ikke, hvornår preview-udgivelsen bliver en stabil version, hvilke platforme den dækker, eller om nogen af de oplistede rettelser ændrer standardadfærd.
+
+Kilde: [Release v0.70.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.70.0-preview.0)
+
+### 3. Home Assistant Blog: Aeotec joins Works with Home Assistant
+
+**Hvad ændrede sig:** Home Assistant Blog offentliggjorde opdateringen 18. nov. 2026. Aeotec er blevet en del af Works with Home Assistant med 9 certificerede enheder, herunder Door Window Sensor 8, MultiSensor 8, Water Sensor 8, aërQ 8, SmokeShield, Pico Switch, Recessed Door Sensor 7, Siren 6 og WallMote Quad, som er angivet til Europa og USA. Fem af dem er Z-Wave Long Range-enheder. Home Assistants team har testet hver enhed op mod programmets krav om lokal styring og privatliv.
+
+> Kort kildeuddrag: Get ready for gear that goes the distance, because this month Aeotec join Works with Home Assistant 🎉 Building Z-Wave…
+
+**Hvorfor det er relevant:** Z-Wave Long Range-enheder kan nå op til 1 km i sigtelinje mod cirka 300 m for standard Z-Wave, og et enkelt netværk kan rumme op til 4.000 enheder mod 232. Alt kører lokalt i Home Assistant via Z-Wave-integrationen. Med en ældre adapter virker enhederne stadig som almindelige Z-Wave-enheder i et mesh, uden den ekstra rækkevidde.
+
+**Sådan verificerer du det:** Tjek, hvilken Z-Wave-adapter du bruger: kilden siger, at Long Range kræver en kompatibel adapter som Home Assistant Connect ZWA-2, og at en ældre adapter gør enhederne til almindelige Z-Wave-enheder i et mesh. Kilden henviser også til en fuld liste over certificerede enheder.
+
+**Usikkerhed:** Teksten er afkortet; den nævner ikke priser, hvornår enhederne kommer i salg, eller hvilke firmwareversioner der kræves. Den beskriver heller ikke certificeringskravene ud over lokal styring og privatliv.
+
+Kilde: [Aeotec joins Works with Home Assistant](https://www.home-assistant.io/blog/2026/11/18/aeotec-joins-works-with-home-assistant)
+
+### 4. Google AI Blog: The Gemini app is now available on lower-memory Android devices.
+
+**Hvad ændrede sig:** Google AI Blog offentliggjorde opdateringen 18. nov. 2026. Gemini-appen er nu tilgængelig på Android-enheder med mindre hukommelse, nærmere bestemt kvalificerede Android &#40;Go edition&#41;-enheder. Google oplyser, at appen er bygget om, så kerneoplevelsen i Gemini kører problemfrit på hardware med mindre hukommelse. Appen omfatter Gemini Live på mere end 45 sprog, læring og oversættelse via kameraet fra noter eller formularer samt oprettelse af brugerdefinerede billeder med Nano Banana. Den kan downloades på Google Play, åbnes ved at trykke og holde tændtknappen inde på understøttede telefoner eller findes forudinstalleret på kommende enheder fra partnere som Transsion.
+
+> Kort kildeuddrag: The Google Gemini app now supports lower-memory Android devices. Access Gemini Live and custom image creation on your phone. Download…
+
+**Hvorfor det er relevant:** For personer, hvis daglige telefon er en Android-enhed med mindre hukommelse, giver ændringen adgang til Gemini-appen og dens kerneoplevelse i stedet for kun grundlæggende stemmekommandoer. Google oplyser, at dette bringer Googles personlige AI-assistent til hundreder af millioner flere mennesker på kvalificerede Android &#40;Go edition&#41;-enheder.
+
+**Sådan verificerer du det:** Tjek, om din telefon er en kvalificeret Android &#40;Go edition&#41;-enhed, og se derefter efter Gemini-appen på Google Play.
+
+**Usikkerhed:** Teksten angiver ikke det præcise hukommelseskrav, den fulde liste over kvalificerede enheder eller hvilke lande der får appen først. Den siger heller ikke, hvornår forudinstallerede enheder fra partnere som Transsion kommer.
+
+Kilde: [The Gemini app is now available on lower-memory Android devices.](https://blog.google/innovation-and-ai/products/gemini-app/gemini-lower-memory-devices)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| Claude Code releases | [v2.1.328](https://github.com/anthropics/claude-code/releases/tag/v2.1.328) | 19. nov. 2026 |
+| Gemini CLI releases | [Release v0.70.0-preview.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.70.0-preview.0) | 19. nov. 2026 |
+| Home Assistant Blog | [Aeotec joins Works with Home Assistant](https://www.home-assistant.io/blog/2026/11/18/aeotec-joins-works-with-home-assistant) | 18. nov. 2026 |
+| Google AI Blog | [The Gemini app is now available on lower-memory Android devices.](https://blog.google/innovation-and-ai/products/gemini-app/gemini-lower-memory-devices) | 18. nov. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
