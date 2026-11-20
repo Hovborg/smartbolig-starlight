@@ -1,0 +1,113 @@
+---
+title: "AI News, 20 November 2026: OpenAI Codex 0.171.0"
+description: "Today's AI brief leads with OpenAI Codex 0.171.0 and draws on 4 official sources."
+date: 2026-11-20
+lastUpdated: 2026-11-20
+heroImage:
+  src: "/images/ai-news/2026-11-20.jpg"
+  alt: "Editorial illustration about OpenAI Codex 0.171.0"
+  caption: "Editorial illustration about OpenAI Codex 0.171.0"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "OpenAI Codex 0.171.0"
+  storyFingerprint: "bd9af3891e3b4773c120e3be5eff104a357696931a2210c86714bc44f6f32cd6"
+  issueFingerprint: "6eb3fcb3ed95c461b371e25509aafab858bcaa99606855ed7ff4c63963f400ab"
+  sourceSetFingerprint: "9776e762cf9d0a341a598f71b13b85c7b20036399ce9da1c686c6ee10b75f527"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openai/codex/releases/tag/rust-v0.171.0"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.329"
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.1"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.71.0-nightly.20261120.gd4cb1713f"
+sidebar:
+  label: "20 November 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="6eb3fcb3ed95c461b371e25509aafab858bcaa99606855ed7ff4c63963f400ab">By SmartBolig.net Editorial · <time datetime="2026-11-20">20 November 2026</time> · 4 selected sources</p>
+
+<p class="ai-news-lede">Today's issue covers releases from Codex, Claude Code, openclaw and Gemini CLI, starting with Codex 0.171.0, which adds GPT-6.2 Sol and Astra to its model catalogs and turns on the TUI workspace by default. It also covers Claude Code v2.1.329, openclaw 2026.11.10-beta.1 and a Gemini CLI nightly with a /stats heatmap and theme.json support.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. OpenAI Codex releases: 0.171.0
+
+**What changed:** OpenAI Codex releases published the update on 20 Nov 2026. Codex 0.171.0 adds GPT-6.2 Sol and Astra to model catalogs, with Sol as the default catalog selection. The TUI workspace is enabled by default, with searchable document previews, image previews and subagent transcripts alongside the main conversation. The non-Vim prompt composer gets configurable undo and redo shortcuts, including restoration of attachments and large pastes. codex exec --remote starts or resumes noninteractive sessions on an existing app server, and /rc and /remote manage local remote control and device pairing codes.
+
+> Short source excerpt: New Features Added GPT-6.2 Sol and Astra to model catalogs, with Sol as the default catalog selection. &#40; #62106 &#41;…
+
+**Why it matters:** The source presents these as changes in Codex release 0.171.0: the TUI workspace is now on by default, the non-Vim prompt composer gets configurable undo and redo shortcuts, and codex exec gains a --remote option for noninteractive sessions.
+
+**How to verify it:** Check that the installed Codex build is 0.171.0, then look for the entries the source lists, such as the TUI workspace being on by default and the /rc and /remote commands in the TUI.
+
+**Uncertainty:** The text is truncated, so it does not say when 0.171.0 becomes available to all users, which plans or regions get GPT-6.2 Sol and Astra, or what the two models cost. It also does not describe limits for the remote control features.
+
+Source: [0.171.0](https://github.com/openai/codex/releases/tag/rust-v0.171.0)
+
+### 2. Claude Code releases: v2.1.329
+
+**What changed:** Claude Code releases published the update on 19 Nov 2026. Claude Code v2.1.329 adds a trust dialog warning that says where a folder's hooks are declared, and a conversation warning in Claude Desktop and other non-interactive hosts when hooks in managed settings fail to load. /tasks now lists this session's scheduled tasks, /loop wakeups, the goal and its forks, and x stops one after asking. /mcp gains a Server message row showing the JSON-RPC error of a remote HTTP MCP server that refuses the connection, and /status a Marketplace auto-update row.
+
+> Short source excerpt: What's changed Added a trust dialog warning that says where a folder's hooks are declared Added a warning in the…
+
+**Why it matters:** The notes state practical outcomes for the setups they name: a macOS session that can read the Keychain but not save to it now stops at expiry and says why, while other sessions stay signed in, and a runaway Code Mode loop is now stopped at a limit. The entries name Claude Desktop, IDEs, the SDK and self-hosted runners.
+
+**How to verify it:** Open /status and look for the new Marketplace auto-update row, which names managed marketplaces that get no automatic updates and why. You can also open /tasks to see this session's scheduled tasks, /loop wakeups, the goal and its forks, or check a server's page in /mcp for the Server message row.
+
+**Uncertainty:** The provided text is truncated, so later entries in the release notes are missing. It does not say how the release is rolled out, whether every platform gets it at the same time, or what limits apply to the Code Mode and OpenTelemetry combination.
+
+Source: [v2.1.329](https://github.com/anthropics/claude-code/releases/tag/v2.1.329)
+
+### 3. OpenClaw releases: openclaw 2026.11.10-beta.1
+
+**What changed:** OpenClaw releases published the update on 19 Nov 2026. openclaw 2026.11.10-beta.1 adds agent templates from ClawHub packages with a single CLAW.md manifest, an OpenClaw ID tunnel for connecting and approving nodes, browser handoff from the Browser panel, and a guest member role with sandboxed session tools. It also offers an opt-in usage-ranked tool index including MCP tools, and automatic update schedules.
+
+> Short source excerpt: 2026.11.10-beta.1 Highlights Agent templates: add agents directly from ClawHub packages, with a single CLAW.md manifest and bundled skill folders checked…
+
+**Why it matters:** The source states that browser handoff lets you take over the agent's browser without stopping the agent, that chat control lets you send pending steering messages without stopping a run, and that background commands keep running across Gateway restarts on macOS. The source does not describe consequences for private home users.
+
+**How to verify it:** Open Settings → Talk to choose the speech-to-text model, or read the tag-pinned CHANGELOG.md, where the source says the full contribution record is available.
+
+**Uncertainty:** The text is truncated, so later changes are unknown. It does not say when the beta reaches general availability, which regions or plans get it, or what it costs.
+
+Source: [openclaw 2026.11.10-beta.1](https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.1)
+
+### 4. Gemini CLI releases: Release v0.71.0-nightly.20261120.gd4cb1713f
+
+**What changed:** Gemini CLI releases published the update on 20 Nov 2026. The nightly release v0.71.0-nightly.20261120.gd4cb1713f adds a /stats heatmap subcommand for daily token usage and support for a standalone theme.json file for custom themes in the CLI. It also lists fixes, including preserving literal $ characters in template placeholder replacement and validating model names in the /model command.
+
+> Short source excerpt: What's Changed fix&#40;core,cli&#41;: preserve literal $ characters during template placeholder replacement by @<wbr/>jesussamuel-byte in #30136 feat&#40;cli&#41;: add /stats heatmap subcommand…
+
+**Why it matters:** The entries are listed for the Gemini CLI, the command-line tool, so they concern people who run Gemini from a terminal. The /stats subcommand is described as showing daily token usage, and theme.json is described as configuration for custom themes.
+
+**How to verify it:** Check the installed version against v0.71.0-nightly.20261120.gd4cb1713f, then look for the /stats heatmap entry and the theme.json entry in the changelog list for this release.
+
+**Uncertainty:** The text is truncated, so further entries may be missing. It does not say whether these features reach a stable release, what the heatmap displays, or which versions receive the theme.json support.
+
+Source: [Release v0.71.0-nightly.20261120.gd4cb1713f](https://github.com/google-gemini/gemini-cli/releases/tag/v0.71.0-nightly.20261120.gd4cb1713f)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| OpenAI Codex releases | [0.171.0](https://github.com/openai/codex/releases/tag/rust-v0.171.0) | 20 Nov 2026 |
+| Claude Code releases | [v2.1.329](https://github.com/anthropics/claude-code/releases/tag/v2.1.329) | 19 Nov 2026 |
+| OpenClaw releases | [openclaw 2026.11.10-beta.1](https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.1) | 19 Nov 2026 |
+| Gemini CLI releases | [Release v0.71.0-nightly.20261120.gd4cb1713f](https://github.com/google-gemini/gemini-cli/releases/tag/v0.71.0-nightly.20261120.gd4cb1713f) | 20 Nov 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.

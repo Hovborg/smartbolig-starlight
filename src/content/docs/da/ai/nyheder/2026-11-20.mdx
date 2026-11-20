@@ -1,0 +1,113 @@
+---
+title: "AI-nyheder, 20. november 2026: OpenAI Codex 0.171.0"
+description: "Dagens AI-overblik har OpenAI Codex 0.171.0 som hovedhistorie og bygger på 4 officielle kilder."
+date: 2026-11-20
+lastUpdated: 2026-11-20
+heroImage:
+  src: "/images/ai-news/2026-11-20.jpg"
+  alt: "Redaktionel illustration om OpenAI Codex 0.171.0"
+  caption: "Redaktionel illustration om OpenAI Codex 0.171.0"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "OpenAI Codex 0.171.0"
+  storyFingerprint: "bd9af3891e3b4773c120e3be5eff104a357696931a2210c86714bc44f6f32cd6"
+  issueFingerprint: "6eb3fcb3ed95c461b371e25509aafab858bcaa99606855ed7ff4c63963f400ab"
+  sourceSetFingerprint: "9776e762cf9d0a341a598f71b13b85c7b20036399ce9da1c686c6ee10b75f527"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openai/codex/releases/tag/rust-v0.171.0"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.329"
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.1"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.71.0-nightly.20261120.gd4cb1713f"
+sidebar:
+  label: "20. november 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="6eb3fcb3ed95c461b371e25509aafab858bcaa99606855ed7ff4c63963f400ab">Af SmartBolig.net Redaktionen · <time datetime="2026-11-20">20. november 2026</time> · 4 udvalgte kilder</p>
+
+<p class="ai-news-lede">Dagens udgave dækker udgivelser fra Codex, Claude Code, openclaw og Gemini CLI og begynder med Codex 0.171.0, der føjer GPT-6.2 Sol og Astra til modelkatalogerne og slår TUI-arbejdsområdet til som standard. Den dækker også Claude Code v2.1.329, openclaw 2026.11.10-beta.1 og en Gemini CLI-nightly med /stats heatmap og støtte til theme.json.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. OpenAI Codex releases: 0.171.0
+
+**Hvad ændrede sig:** OpenAI Codex releases offentliggjorde opdateringen 20. nov. 2026. Codex 0.171.0 føjer GPT-6.2 Sol og Astra til modelkatalogerne, hvor Sol er standardvalget i kataloget. TUI-arbejdsområdet er slået til som standard med søgbare dokumentvisninger, billedvisninger og subagent-transskripter ved siden af hoveddialogen. Promptkomponisten uden Vim får konfigurerbare genveje til fortryd og gentag, herunder gendannelse af vedhæftede filer og store indsæt. codex exec --remote starter eller genoptager noninteraktive sessioner på en eksisterende app-server, og /rc og /remote styrer lokal fjernbetjening og viser enhedsparringskoder.
+
+> Kort kildeuddrag: New Features Added GPT-6.2 Sol and Astra to model catalogs, with Sol as the default catalog selection. &#40; #62106 &#41;…
+
+**Hvorfor det er relevant:** Kilden beskriver disse som ændringer i Codex-udgivelsen 0.171.0: TUI-arbejdsområdet er nu slået til som standard, promptkomponisten uden Vim får konfigurerbare genveje til fortryd og gentag, og codex exec får en --remote-mulighed til noninteraktive sessioner.
+
+**Sådan verificerer du det:** Tjek at den installerede Codex-version er 0.171.0, og se derefter efter de punkter, kilden nævner, fx at TUI-arbejdsområdet er slået til som standard, og at kommandoerne /rc og /remote findes i TUI'en.
+
+**Usikkerhed:** Teksten er afkortet, så den siger ikke, hvornår 0.171.0 bliver tilgængelig for alle brugere, hvilke planer eller regioner der får GPT-6.2 Sol og Astra, eller hvad de to modeller koster. Den beskriver heller ikke grænser for fjernbetjeningsfunktionerne.
+
+Kilde: [0.171.0](https://github.com/openai/codex/releases/tag/rust-v0.171.0)
+
+### 2. Claude Code releases: v2.1.329
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 19. nov. 2026. Claude Code v2.1.329 tilføjer en advarsel i trust-dialogen, der siger, hvor en mappes hooks er deklareret, og en advarsel i samtalen i Claude Desktop og andre ikke-interaktive hosts, når hooks i managed settings ikke kan indlæses. /tasks viser nu sessionens planlagte opgaver, /loop-wakeups, målet og sessionens forks, og x stopper en efter at have spurgt. /mcp får en Server message-række, der viser JSON-RPC-fejlen fra en ekstern HTTP MCP-server, der afviser forbindelsen, og /status en Marketplace auto-update-række.
+
+> Kort kildeuddrag: What's changed Added a trust dialog warning that says where a folder's hooks are declared Added a warning in the…
+
+**Hvorfor det er relevant:** Noterne angiver konkrete udfald for de opsætninger, de nævner: en macOS-session, der kan læse Keychain men ikke gemme til den, stopper nu ved udløb og siger hvorfor, mens andre sessioner forbliver logget ind, og en løbsk løkke i Code Mode stoppes nu ved en grænse. Punkterne nævner Claude Desktop, IDE'er, SDK'et og self-hosted runners.
+
+**Sådan verificerer du det:** Åbn /status og se efter den nye Marketplace auto-update-række, der nævner managed marketplaces, som ikke får automatiske opdateringer, og hvorfor. Du kan også åbne /tasks for at se sessionens planlagte opgaver, /loop-wakeups, målet og dens forks, eller tjekke en servers side i /mcp for Server message-rækken.
+
+**Usikkerhed:** Den medfølgende tekst er afkortet, så senere punkter i release notes mangler. Den siger ikke, hvordan udgivelsen rulles ud, om alle platforme får den samtidig, eller hvilke grænser der gælder for kombinationen af Code Mode og OpenTelemetry.
+
+Kilde: [v2.1.329](https://github.com/anthropics/claude-code/releases/tag/v2.1.329)
+
+### 3. OpenClaw releases: openclaw 2026.11.10-beta.1
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 19. nov. 2026. openclaw 2026.11.10-beta.1 tilføjer agent-skabeloner fra ClawHub-pakker med et enkelt CLAW.md-manifest, en OpenClaw ID-tunnel til at forbinde og godkende noder, browser-overtagelse fra Browser-panelet og en gæstemedlemsrolle med sandkassede sessionsværktøjer. Den tilbyder også et valgfrit, brugsrangordnet værktøjsindeks inklusive MCP-værktøjer samt automatiske opdateringsplaner.
+
+> Kort kildeuddrag: 2026.11.10-beta.1 Highlights Agent templates: add agents directly from ClawHub packages, with a single CLAW.md manifest and bundled skill folders checked…
+
+**Hvorfor det er relevant:** Kilden angiver, at browser-overtagelse lader dig tage over agentens browser uden at stoppe agenten, at chatstyring lader dig sende ventende styringsbeskeder uden at stoppe en kørsel, og at baggrundskommandoer fortsætter med at køre gennem Gateway-genstarter på macOS. Kilden beskriver ikke konsekvenser for private hjemmebrugere.
+
+**Sådan verificerer du det:** Åbn Settings → Talk for at vælge speech-to-text-modellen, eller læs den tag-fastgjorte CHANGELOG.md, hvor kilden oplyser, at den fulde bidragsoversigt findes.
+
+**Usikkerhed:** Teksten er afkortet, så senere ændringer er ukendte. Den siger ikke, hvornår betaen bliver alment tilgængelig, hvilke regioner eller planer der får den, eller hvad den koster.
+
+Kilde: [openclaw 2026.11.10-beta.1](https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.1)
+
+### 4. Gemini CLI releases: Release v0.71.0-nightly.20261120.gd4cb1713f
+
+**Hvad ændrede sig:** Gemini CLI releases offentliggjorde opdateringen 20. nov. 2026. Nightly-udgivelsen v0.71.0-nightly.20261120.gd4cb1713f tilføjer en /stats heatmap-underkommando til dagligt token-forbrug og støtte til en selvstændig theme.json-fil til brugerdefinerede temaer i CLI'en. Den lister også rettelser, blandt andet bevarelse af literale $-tegn ved udskiftning af skabelonpladsholdere og validering af modelnavne i /model-kommandoen.
+
+> Kort kildeuddrag: What's Changed fix&#40;core,cli&#41;: preserve literal $ characters during template placeholder replacement by @<wbr/>jesussamuel-byte in #30136 feat&#40;cli&#41;: add /stats heatmap subcommand…
+
+**Hvorfor det er relevant:** Punkterne er listet for Gemini CLI, kommandolinjeværktøjet, så de vedrører personer, der kører Gemini fra en terminal. /stats-underkommandoen beskrives som visning af dagligt token-forbrug, og theme.json beskrives som konfiguration til brugerdefinerede temaer.
+
+**Sådan verificerer du det:** Tjek den installerede version mod v0.71.0-nightly.20261120.gd4cb1713f, og se derefter efter /stats heatmap-punktet og theme.json-punktet i ændringsloggens liste for denne udgivelse.
+
+**Usikkerhed:** Teksten er afkortet, så flere punkter kan mangle. Den siger ikke, om funktionerne når en stabil udgivelse, hvad heatmappet viser, eller hvilke versioner der får theme.json-støtten.
+
+Kilde: [Release v0.71.0-nightly.20261120.gd4cb1713f](https://github.com/google-gemini/gemini-cli/releases/tag/v0.71.0-nightly.20261120.gd4cb1713f)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| OpenAI Codex releases | [0.171.0](https://github.com/openai/codex/releases/tag/rust-v0.171.0) | 20. nov. 2026 |
+| Claude Code releases | [v2.1.329](https://github.com/anthropics/claude-code/releases/tag/v2.1.329) | 19. nov. 2026 |
+| OpenClaw releases | [openclaw 2026.11.10-beta.1](https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.1) | 19. nov. 2026 |
+| Gemini CLI releases | [Release v0.71.0-nightly.20261120.gd4cb1713f](https://github.com/google-gemini/gemini-cli/releases/tag/v0.71.0-nightly.20261120.gd4cb1713f) | 20. nov. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
