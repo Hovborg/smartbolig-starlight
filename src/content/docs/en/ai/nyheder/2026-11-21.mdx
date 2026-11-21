@@ -1,0 +1,113 @@
+---
+title: "AI News, 21 November 2026: Claude Code v2.1.330"
+description: "Today's AI brief leads with Claude Code v2.1.330 and draws on 4 official sources."
+date: 2026-11-21
+lastUpdated: 2026-11-21
+heroImage:
+  src: "/images/ai-news/2026-11-21.jpg"
+  alt: "Editorial illustration about Claude Code v2.1.330"
+  caption: "Editorial illustration about Claude Code v2.1.330"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "Claude Code v2.1.330"
+  storyFingerprint: "7c8becb42857d23080a7a9122e67d65aabad5c596ee0e4614245a928a6df748f"
+  issueFingerprint: "a9e1c12bf3741e7300f03b9ce3552cdcb9002228052f6c4405f8ae08801974bb"
+  sourceSetFingerprint: "d714407743ece2ee672ada28466e9987e9b9c1c448e9c00cacfef5227df264ac"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.330"
+    - "https://github.com/ollama/ollama/releases/tag/v0.40.17"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.70.0"
+    - "https://openai.com/index/how-openai-performance-factory-keeps-chatgpt-fast"
+sidebar:
+  label: "21 November 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="a9e1c12bf3741e7300f03b9ce3552cdcb9002228052f6c4405f8ae08801974bb">By SmartBolig.net Editorial · <time datetime="2026-11-21">21 November 2026</time> · 4 selected sources</p>
+
+<p class="ai-news-lede">OpenAI has built the Performance Factory, a cloud system that uses Codex-powered workflows to automate investigating and resolving performance problems; in just over three months it tracked more than 1,700 investigations and root caused over 600 cases. Ollama v0.40.17 adds Inkling 2 Mini from Thinking Machines, a 26B-parameter model with 5.4B active that handles text and images, tool calls and thinking, and Claude Code v2.1.330 adds sign-in to organizations managed in Anthropic's Enterprise Admin Console.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. Claude Code releases: v2.1.330
+
+**What changed:** Claude Code releases published the update on 20 Nov 2026. Claude Code v2.1.330 adds sign-in to organizations managed in Anthropic's Enterprise Admin Console, so claude auth login applies the organization's settings and uses its cloud provider or gateway. It also adds easel, a built-in mod that draws charts when asked and under MCP metrics results, on Pro, Max and, where available, Team and Enterprise on macOS and Linux. Automatic charts can be turned off in /config.
+
+> Short source excerpt: What's changed Added sign-in to organizations managed in Anthropic's Enterprise Admin Console: after claude auth login , Claude Code applies…
+
+**Why it matters:** The sign-in change is for organizations managed in Anthropic's Enterprise Admin Console. The chart mod is for users on Pro, Max and, where available, Team and Enterprise on macOS and Linux, and automatic charts can be turned off in /config.
+
+**How to verify it:** Run claude auth login on an account in an organization managed in the Enterprise Admin Console and check whether the organization's settings are applied, or open /config to see the automatic charts setting.
+
+**Uncertainty:** The text does not say which Team and Enterprise setups count as "where available" for the chart mod, and the release notes are truncated, so later entries are not covered here.
+
+Source: [v2.1.330](https://github.com/anthropics/claude-code/releases/tag/v2.1.330)
+
+### 2. Ollama releases: v0.40.17
+
+**What changed:** Ollama releases published the update on 21 Nov 2026. Ollama released v0.40.17, which adds Inkling 2 Mini from Thinking Machines: a 26B parameter model with 5.4B active that handles text and images, tool calls and thinking, and scores 79.2% on SWE-Bench Verified. It runs with ollama run inkling-2-mini and is supported on Apple silicon only in this release. The release also lets Ollama on Apple silicon serve multiple requests at once.
+
+> Short source excerpt: Inkling 2 Mini Inkling 2 Mini from Thinking Machines is a 26B parameter model with 5.4B active. Its looped layers…
+
+**Why it matters:** The source says the model still fits on a Mac at about 20GB, so Apple silicon users can run it locally. In this release it is supported on Apple silicon only, and the source says PC support will follow in an upcoming release, so PC users cannot run it yet.
+
+**How to verify it:** Check which Ollama version you have installed and confirm it is v0.40.17, then run ollama run inkling-2-mini on an Apple silicon Mac as the release notes describe.
+
+**Uncertainty:** The text does not say when PC support arrives, which Macs meet the about 20GB requirement, or what the model costs. The changelog entry about tool definitions is cut off, so its full content is unknown.
+
+Source: [v0.40.17](https://github.com/ollama/ollama/releases/tag/v0.40.17)
+
+### 3. Gemini CLI releases: Release v0.70.0
+
+**What changed:** Gemini CLI releases published the update on 19 Nov 2026. Gemini CLI release v0.70.0 collects a set of fixes and chores, including preserving Unicode prompts and stripping ANSI fragments in session previews, applying the default in $&#123;VAR:-default&#125; when a variable is set but empty, reporting accurate output token limits in the models list, and skipping system MCP servers with insecure command permissions.
+
+> Short source excerpt: What's Changed Changelog for v0.69.0-preview.0 by @<wbr/>gemini-cli-robot in #30222 Changelog for v0.68.0 by @<wbr/>gemini-cli-robot in #30224 chore&#40;release&#41;: bump version to…
+
+**Why it matters:** The source lists the fixes but does not state any practical consequence for users, and it does not say who the changes are for or what they change in daily work.
+
+**How to verify it:** Check which version is installed and read the release notes for v0.70.0 to see whether the listed fixes, such as the $&#123;VAR:-default&#125; handling, are included.
+
+**Uncertainty:** The text is truncated and does not say when v0.70.0 becomes available, whether it is a stable release, or which platforms and regions it covers.
+
+Source: [Release v0.70.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.70.0)
+
+### 4. OpenAI News: How OpenAI’s Performance Factory keeps ChatGPT fast
+
+**What changed:** OpenAI News published the update on 19 Nov 2026. OpenAI built the Performance Factory, a cloud system that uses Codex-powered workflows to automate investigating and resolving performance problems. Its first Regression Workflow opens a task when a performance alert fires; an agent investigates, records findings and proposes a fix for an engineer to review. After deployment, another agent checks whether performance returned to baseline. In just over three months it tracked more than 1,700 investigations and root caused over 600 cases.
+
+> Short source excerpt: Learn how OpenAI built the Performance Factory, a system of Codex-powered workflows that finds and fixes performance issues to help…
+
+**Why it matters:** For OpenAI’s engineers, the source says the system automates the entire process of fixing regressions, while a proposed fix still goes to an engineer for review. OpenAI also says it hopes other service teams can learn from the process as they adopt agentic workflows in other domains.
+
+**How to verify it:** Read the source’s description of the Regression Workflow and compare it with your team’s alert process: does an alert open a task, does an agent record findings, and does a later check confirm a return to baseline after deployment?
+
+**Uncertainty:** The text is truncated before the fourth component is described. It does not say whether the Performance Factory is available outside OpenAI, what it costs, or what limits apply to the workflows.
+
+Source: [How OpenAI’s Performance Factory keeps ChatGPT fast](https://openai.com/index/how-openai-performance-factory-keeps-chatgpt-fast)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| Claude Code releases | [v2.1.330](https://github.com/anthropics/claude-code/releases/tag/v2.1.330) | 20 Nov 2026 |
+| Ollama releases | [v0.40.17](https://github.com/ollama/ollama/releases/tag/v0.40.17) | 21 Nov 2026 |
+| Gemini CLI releases | [Release v0.70.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.70.0) | 19 Nov 2026 |
+| OpenAI News | [How OpenAI’s Performance Factory keeps ChatGPT fast](https://openai.com/index/how-openai-performance-factory-keeps-chatgpt-fast) | 19 Nov 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.

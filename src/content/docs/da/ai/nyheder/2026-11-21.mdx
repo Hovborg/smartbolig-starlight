@@ -1,0 +1,113 @@
+---
+title: "AI-nyheder, 21. november 2026: Claude Code v2.1.330"
+description: "Dagens AI-overblik har Claude Code v2.1.330 som hovedhistorie og bygger på 4 officielle kilder."
+date: 2026-11-21
+lastUpdated: 2026-11-21
+heroImage:
+  src: "/images/ai-news/2026-11-21.jpg"
+  alt: "Redaktionel illustration om Claude Code v2.1.330"
+  caption: "Redaktionel illustration om Claude Code v2.1.330"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "Claude Code v2.1.330"
+  storyFingerprint: "7c8becb42857d23080a7a9122e67d65aabad5c596ee0e4614245a928a6df748f"
+  issueFingerprint: "a9e1c12bf3741e7300f03b9ce3552cdcb9002228052f6c4405f8ae08801974bb"
+  sourceSetFingerprint: "d714407743ece2ee672ada28466e9987e9b9c1c448e9c00cacfef5227df264ac"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.330"
+    - "https://github.com/ollama/ollama/releases/tag/v0.40.17"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.70.0"
+    - "https://openai.com/index/how-openai-performance-factory-keeps-chatgpt-fast"
+sidebar:
+  label: "21. november 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="a9e1c12bf3741e7300f03b9ce3552cdcb9002228052f6c4405f8ae08801974bb">Af SmartBolig.net Redaktionen · <time datetime="2026-11-21">21. november 2026</time> · 4 udvalgte kilder</p>
+
+<p class="ai-news-lede">OpenAI har bygget Performance Factory, et cloudsystem, der bruger Codex-drevne workflows til at automatisere undersøgelse og løsning af ydelsesproblemer; på lidt over tre måneder sporede det mere end 1.700 undersøgelser og fandt rodårsagen i over 600 sager. Ollama v0.40.17 tilføjer Inkling 2 Mini fra Thinking Machines, en model med 26B parametre, hvoraf 5.4B er aktive, som håndterer tekst og billeder, værktøjskald og tænkning, og Claude Code v2.1.330 tilføjer login til organisationer, der administreres i Anthropics Enterprise Admin Console.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. Claude Code releases: v2.1.330
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 20. nov. 2026. Claude Code v2.1.330 tilføjer login til organisationer, der administreres i Anthropics Enterprise Admin Console, så claude auth login anvender organisationens indstillinger og bruger dens cloud-udbyder eller gateway. Versionen tilføjer også easel, en indbygget mod, der tegner diagrammer, når man beder om det, og under MCP-metrikresultater, på Pro, Max og, hvor det er tilgængeligt, Team og Enterprise på macOS og Linux. Automatiske diagrammer kan slås fra i /config.
+
+> Kort kildeuddrag: What's changed Added sign-in to organizations managed in Anthropic's Enterprise Admin Console: after claude auth login , Claude Code applies…
+
+**Hvorfor det er relevant:** Login-ændringen er for organisationer, der administreres i Anthropics Enterprise Admin Console. Diagrammod'en er for brugere på Pro, Max og, hvor det er tilgængeligt, Team og Enterprise på macOS og Linux, og automatiske diagrammer kan slås fra i /config.
+
+**Sådan verificerer du det:** Kør claude auth login på en konto i en organisation, der administreres i Enterprise Admin Console, og se, om organisationens indstillinger anvendes, eller åbn /config for at se indstillingen for automatiske diagrammer.
+
+**Usikkerhed:** Teksten siger ikke, hvilke Team- og Enterprise-opsætninger der tæller som "hvor det er tilgængeligt" for diagrammod'en, og release-noterne er afskåret, så senere punkter ikke er dækket her.
+
+Kilde: [v2.1.330](https://github.com/anthropics/claude-code/releases/tag/v2.1.330)
+
+### 2. Ollama releases: v0.40.17
+
+**Hvad ændrede sig:** Ollama releases offentliggjorde opdateringen 21. nov. 2026. Ollama har udgivet v0.40.17, som tilføjer Inkling 2 Mini fra Thinking Machines: en model med 26B parametre, hvoraf 5.4B er aktive. Den håndterer tekst og billeder, værktøjskald og tænkning og scorer 79.2% på SWE-Bench Verified. Den køres med ollama run inkling-2-mini og understøttes kun på Apple silicon i denne udgivelse. Udgivelsen gør det også muligt for Ollama på Apple silicon at betjene flere forespørgsler samtidigt.
+
+> Kort kildeuddrag: Inkling 2 Mini Inkling 2 Mini from Thinking Machines is a 26B parameter model with 5.4B active. Its looped layers…
+
+**Hvorfor det er relevant:** Kilden angiver, at modellen stadig kan være på en Mac med omkring 20GB, så brugere med Apple silicon kan køre den lokalt. I denne udgivelse understøttes den kun på Apple silicon, og kilden siger, at PC-understøttelse følger i en kommende udgivelse, så PC-brugere kan ikke køre den endnu.
+
+**Sådan verificerer du det:** Tjek, hvilken Ollama-version du har installeret, og bekræft, at det er v0.40.17. Kør derefter ollama run inkling-2-mini på en Mac med Apple silicon, som udgivelsesnoterne beskriver.
+
+**Usikkerhed:** Teksten siger ikke, hvornår PC-understøttelsen kommer, hvilke Mac-modeller der opfylder kravet på omkring 20GB, eller hvad modellen koster. Afsnittet om værktøjsdefinitioner er afskåret, så dets fulde indhold er ukendt.
+
+Kilde: [v0.40.17](https://github.com/ollama/ollama/releases/tag/v0.40.17)
+
+### 3. Gemini CLI releases: Release v0.70.0
+
+**Hvad ændrede sig:** Gemini CLI releases offentliggjorde opdateringen 19. nov. 2026. Gemini CLI-udgivelsen v0.70.0 samler en række rettelser og opgaver, blandt andet bevarelse af Unicode-prompts og fjernelse af ANSI-fragmenter i sessionsforhåndsvisninger, brug af standardværdien i $&#123;VAR:-default&#125;, når en variabel er sat men tom, korrekte grænser for output-tokens i modellisten og spring over af system-MCP-servere med usikre kommando-tilladelser.
+
+> Kort kildeuddrag: What's Changed Changelog for v0.69.0-preview.0 by @<wbr/>gemini-cli-robot in #30222 Changelog for v0.68.0 by @<wbr/>gemini-cli-robot in #30224 chore&#40;release&#41;: bump version to…
+
+**Hvorfor det er relevant:** Kilden oplister rettelserne, men angiver ingen praktisk konsekvens for brugerne og siger ikke, hvem ændringerne er rettet mod, eller hvad de ændrer i det daglige arbejde.
+
+**Sådan verificerer du det:** Kontroller, hvilken version der er installeret, og læs udgivelsesnoterne for v0.70.0 for at se, om de oplistede rettelser, for eksempel håndteringen af $&#123;VAR:-default&#125;, er med.
+
+**Usikkerhed:** Teksten er afkortet og siger ikke, hvornår v0.70.0 bliver tilgængelig, om det er en stabil udgivelse, eller hvilke platforme og regioner den dækker.
+
+Kilde: [Release v0.70.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.70.0)
+
+### 4. OpenAI News: How OpenAI’s Performance Factory keeps ChatGPT fast
+
+**Hvad ændrede sig:** OpenAI News offentliggjorde opdateringen 19. nov. 2026. OpenAI har bygget Performance Factory, et cloudsystem, der bruger Codex-drevne workflows til at automatisere undersøgelse og løsning af ydelsesproblemer. Det første Regression Workflow åbner en opgave, når en ydelsesalarm udløses; en agent undersøger, registrerer fund og foreslår en rettelse, som en ingeniør skal gennemgå. Efter udrulning tjekker en anden agent, om ydelsen er tilbage på baseline. På lidt over tre måneder sporede det mere end 1.700 undersøgelser og fandt rodårsagen i over 600 sager.
+
+> Kort kildeuddrag: Learn how OpenAI built the Performance Factory, a system of Codex-powered workflows that finds and fixes performance issues to help…
+
+**Hvorfor det er relevant:** For OpenAIs ingeniører siger kilden, at systemet automatiserer hele processen med at rette regressioner, mens en foreslået rettelse stadig sendes til gennemgang hos en ingeniør. OpenAI siger også, at det håber, at andre servicehold kan lære af processen, når de tager agentiske workflows i brug på andre områder.
+
+**Sådan verificerer du det:** Læs kildens beskrivelse af Regression Workflow, og sammenlign den med dit holds alarmproces: åbner en alarm en opgave, registrerer en agent fund, og bekræfter en senere kontrol, at ydelsen er tilbage på baseline efter udrulning?
+
+**Usikkerhed:** Teksten er afskåret, før den fjerde komponent beskrives. Den siger ikke, om Performance Factory er tilgængelig uden for OpenAI, hvad den koster, eller hvilke grænser der gælder for workflows.
+
+Kilde: [How OpenAI’s Performance Factory keeps ChatGPT fast](https://openai.com/index/how-openai-performance-factory-keeps-chatgpt-fast)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| Claude Code releases | [v2.1.330](https://github.com/anthropics/claude-code/releases/tag/v2.1.330) | 20. nov. 2026 |
+| Ollama releases | [v0.40.17](https://github.com/ollama/ollama/releases/tag/v0.40.17) | 21. nov. 2026 |
+| Gemini CLI releases | [Release v0.70.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.70.0) | 19. nov. 2026 |
+| OpenAI News | [How OpenAI’s Performance Factory keeps ChatGPT fast](https://openai.com/index/how-openai-performance-factory-keeps-chatgpt-fast) | 19. nov. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
