@@ -1,0 +1,113 @@
+---
+title: "AI-nyheder, 22. november 2026: OpenAI: How Sumitomo Life’s leaders helped teams adopt ChatGPT Enterprise"
+description: "Dagens AI-overblik har OpenAI: How Sumitomo Life’s leaders helped teams adopt ChatGPT Enterprise som hovedhistorie og bygger på 4 officielle kilder."
+date: 2026-11-22
+lastUpdated: 2026-11-22
+heroImage:
+  src: "/images/ai-news/2026-11-22.jpg"
+  alt: "Redaktionel illustration om OpenAI: How Sumitomo Life’s leaders helped teams adopt ChatGPT Enterprise"
+  caption: "Redaktionel illustration om OpenAI: How Sumitomo Life’s leaders helped teams adopt ChatGPT Enterprise"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "OpenAI: How Sumitomo Life’s leaders helped teams adopt ChatGPT Enterprise"
+  storyFingerprint: "9672b7c725bcbd10d58e1632ed334b0fe11b733246d35980e247fdf6e6b7bab9"
+  issueFingerprint: "9a4f062983bc25279a14007ad0570d4713942bf9cf3a95fcc396b397d34e9a08"
+  sourceSetFingerprint: "66443c13ce43783714df46bb32095bb26762761ad5c592de647bbcb2675fcc4f"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://openai.com/business/customer-stories/sumitomo-life"
+    - "https://blog.google/innovation-and-ai/technology/developers-tools/gemini-api-tool-retrieval"
+    - "https://www.anthropic.com/news/anthropic-prices-initial-public-offering"
+    - "https://github.com/openclaw/openclaw/releases/tag/release-publish%2F7af829afeef7-1795215667"
+sidebar:
+  label: "22. november 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="9a4f062983bc25279a14007ad0570d4713942bf9cf3a95fcc396b397d34e9a08">Af SmartBolig.net Redaktionen · <time datetime="2026-11-22">22. november 2026</time> · 4 udvalgte kilder</p>
+
+<p class="ai-news-lede">Anthropic har fastsat prisen for sin børsnotering til $83.00 per aktie, og aktierne forventes at begynde handel på Nasdaq Global Select Market under symbolet "ANT" den 19. november 2026. I dette nummer også: Sumitomo Life gik fra en pilot med ChatGPT Business til ChatGPT Enterprise i juni 2026, og Google har lanceret Tool Retrieval i preview i Gemini API.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. OpenAI News: How Sumitomo Life’s leaders helped teams adopt ChatGPT Enterprise
+
+**Hvad ændrede sig:** OpenAI News offentliggjorde opdateringen 18. nov. 2026. Sumitomo Life gik fra en pilot med ChatGPT Business til ChatGPT Enterprise i juni 2026. Omkring 100 til 150 personer, herunder ledere og medlemmer af planlægningsteams, havde pilottestet ChatGPT Business i 2025. Planlægningsteams bruger ChatGPT Enterprise til at undersøge udenlandske forsikringsselskaber og forberede forslag, og investeringsteams bruger det til at udarbejde kode til risikoanalyse. Ledere og chefer var blandt de første brugere, og præsidenten opfordrede medarbejderne til at bruge det.
+
+> Kort kildeuddrag: Sumitomo Life uses ChatGPT Enterprise to research insurers, prepare proposals, and draft code for investment analysis. Early use by executives…
+
+**Hvorfor det er relevant:** For Sumitomo Lifes planlægnings- og investeringsteams siger kilden, at ChatGPT Enterprise hjælper med at gennemgå kildemateriale, organisere fund og udarbejde kode til risikoanalyse, så analytikerne selv skal skrive mindre kode. Da forsikringsselskabet planlagde en udrulning til tusindvis af medarbejdere, afvejede det outputkvalitet, hvor godt ChatGPT passede til forskellige typer arbejde og sikkerhedskrav og vurderede adgang til arbejdsområder, funktionstilladelser og OpenAIs politik om som standard at udelukke forretningsdata fra modeltræning.
+
+**Sådan verificerer du det:** Undersøg, om din organisation følger den ugentlige brug af ChatGPT Enterprise og i en kvartalsvis undersøgelse spørger medarbejderne, hvor ofte de bruger ChatGPT, hvilke trin i deres arbejde de bruger det til, og om de bruger det sammen med kolleger, som kilden siger, at Sumitomo Life gør.
+
+**Usikkerhed:** Teksten siger ikke, om den planlagte udrulning til tusindvis af medarbejdere er gennemført, hvor mange medarbejdere der nu har adgang, hvad Sumitomo Life betaler, eller hvad det afkortede sidste afsnit tilføjer.
+
+Kilde: [How Sumitomo Life’s leaders helped teams adopt ChatGPT Enterprise](https://openai.com/business/customer-stories/sumitomo-life)
+
+### 2. Google AI Blog: Introducing Tool Retrieval in the Gemini API
+
+**Hvad ændrede sig:** Google AI Blog offentliggjorde opdateringen 19. nov. 2026. Google har lanceret Tool Retrieval i preview i Gemini API's Interactions API. Agenter kan holde et bibliotek af værktøjer på standby og kun indlæse parameter-skemaer, når en opgave kræver det, ved at tilføje et tool&#95;search-værktøj og sætte defer&#95;loading til true. Det virker med Gemini 3.6 og nyere modeller.
+
+> Kort kildeuddrag: Give your agents access to hundreds of tools while using fewer tokens with Tool Retrieval, now in preview in the…
+
+**Hvorfor det er relevant:** For udviklere, hvis agenter er forbundet til snesevis eller hundredvis af værktøjer, siger Google, at funktionen reducerer antallet af input-tokens og latenstid og forbedrer nøjagtigheden af værktøjsvalg. Modellen ser stadig navn og beskrivelse på hvert udskudt værktøj, men ikke dets parameter-skema, før den beder om det.
+
+**Sådan verificerer du det:** Tilføj et tool&#95;search-værktøj til en forespørgsel, og sæt defer&#95;loading til true på et værktøj. Tjek derefter interaction.steps for et tool&#95;search&#95;call, et tool&#95;search&#95;result og et function&#95;call.
+
+**Usikkerhed:** Teksten siger ikke, hvornår previewen bliver generelt tilgængelig, hvad den koster, i hvilke regioner den udbydes, eller hvilke grænser for brug der gælder.
+
+Kilde: [Introducing Tool Retrieval in the Gemini API](https://blog.google/innovation-and-ai/technology/developers-tools/gemini-api-tool-retrieval)
+
+### 3. Anthropic News: Anthropic prices initial public offering
+
+**Hvad ændrede sig:** Anthropic News offentliggjorde opdateringen 18. nov. 2026. Anthropic, PBC har fastsat prisen for sin børsnotering af Class A-aktier til $83.00 per aktie. Udbuddet består af 980,000,000 aktier, hvoraf 956,351,354 sælges af Anthropic og 23,648,646 af visse sælgende aktionærer. Aktierne forventes at begynde handel på Nasdaq Global Select Market den 19. november 2026 under symbolet "ANT", og udbuddet forventes at lukke den 20. november 2026, forudsat at sædvanlige betingelser er opfyldt. Anthropic har givet garantistillerne en 30-dages option på op til yderligere 147,000,000 aktier.
+
+> Kort kildeuddrag: Anthropic prices initial public offering Published Nov 18, 2026 Category Announcements Topics Funding Financial services Today Anthropic, PBC priced its…
+
+**Hvorfor det er relevant:** Aktierne forventes at blive handlet på Nasdaq Global Select Market under symbolet "ANT", og Anthropic oplyser, at selskabet ikke modtager nogen indtægter fra de aktier, som de sælgende aktionærer sælger. Udbuddet sker kun ved hjælp af et prospekt.
+
+**Sådan verificerer du det:** Læs det endelige prospekt, som kilden oplyser kan fås, når det foreligger, hos Goldman Sachs &amp; Co. LLC eller Morgan Stanley &amp; Co. LLC, og sammenlign prisen på $83.00, de 980,000,000 aktier og den forventede handelsdato 19. november 2026 med det.
+
+**Usikkerhed:** Teksten siger ikke, hvordan aktierne handlede efter den forventede start den 19. november 2026, om garantistillerne udnyttede deres 30-dages option, eller om udbuddet lukkede den 20. november 2026 som forventet.
+
+Kilde: [Anthropic prices initial public offering](https://www.anthropic.com/news/anthropic-prices-initial-public-offering)
+
+### 4. OpenClaw releases: release-publish/7af829afeef7-1795215667: fix&#40;release&#41;: evaluate reusable evidence with Q-owned waivers &#40; 201773&#41;
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 20. nov. 2026. En række rettelser i OpenClaws release-pipeline indfører Q-ejede waivers. Publication gates og release notes læser den uforanderlige, admitterede Q-ledger, fejl uden waiver og korrupte policy-blobs afvises, og operator-grants afgrænses til effektive forsøg. Ændringerne udgives som openclaw/q-only-release-waivers.
+
+> Kort kildeuddrag: fix&#40;release&#41;: evaluate reusable evidence with Q-owned waivers Co-authored-by: RomneyDa 6581799+RomneyDa@<wbr/>users.noreply.github.com fix&#40;release&#41;: evaluate reusable evidence with Q-owned waivers OpenClaw-Publication: a9302dc0-5ad2-4b5f-90d9-a32629e0ccb3 docs&#40;release&#41;:…
+
+**Hvorfor det er relevant:** Kilden angiver, at præcist matchende forsøg passerer, mens forældede grants og fjernede grants stadig blokeres. Nye Q-ledgers, misdannede data og ikke-404-læsefejl forbliver fail-closed. Ændringerne vedrører OpenClaws publication gates, release notes og udgivelsen openclaw/q-only-release-waivers.
+
+**Sådan verificerer du det:** Kilden beskriver en docs&#40;release&#41;-post, der forklarer Q waiver aggregate declarations. Tjek release notes for den forklaring, og bekræft at udgivelsen openclaw/q-only-release-waivers er angivet.
+
+**Usikkerhed:** Teksten er afkortet. Den siger ikke, hvilken OpenClaw-version eller -udgivelse rettelserne hører til, hvornår de bliver tilgængelige, eller om noget uden for release-publication-pipelinen påvirkes.
+
+Kilde: [release-publish/7af829afeef7-1795215667: fix&#40;release&#41;: evaluate reusable evidence with Q-owned waivers &#40; 201773&#41;](https://github.com/openclaw/openclaw/releases/tag/release-publish%2F7af829afeef7-1795215667)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| OpenAI News | [How Sumitomo Life’s leaders helped teams adopt ChatGPT Enterprise](https://openai.com/business/customer-stories/sumitomo-life) | 18. nov. 2026 |
+| Google AI Blog | [Introducing Tool Retrieval in the Gemini API](https://blog.google/innovation-and-ai/technology/developers-tools/gemini-api-tool-retrieval) | 19. nov. 2026 |
+| Anthropic News | [Anthropic prices initial public offering](https://www.anthropic.com/news/anthropic-prices-initial-public-offering) | 18. nov. 2026 |
+| OpenClaw releases | [release-publish/7af829afeef7-1795215667: fix&#40;release&#41;: evaluate reusable evidence with Q-owned waivers &#40; 201773&#41;](https://github.com/openclaw/openclaw/releases/tag/release-publish%2F7af829afeef7-1795215667) | 20. nov. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
