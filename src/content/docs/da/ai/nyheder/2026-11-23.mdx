@@ -1,0 +1,113 @@
+---
+title: "AI-nyheder, 23. november 2026: openclaw 2026.11.10-beta.2"
+description: "Dagens AI-overblik har openclaw 2026.11.10-beta.2 som hovedhistorie og bygger på 4 officielle kilder."
+date: 2026-11-23
+lastUpdated: 2026-11-23
+heroImage:
+  src: "/images/ai-news/2026-11-23.jpg"
+  alt: "Redaktionel illustration om openclaw 2026.11.10-beta.2"
+  caption: "Redaktionel illustration om openclaw 2026.11.10-beta.2"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "openclaw 2026.11.10-beta.2"
+  storyFingerprint: "548045b42a91731782a3a13425bb3940f6ddc75b6724d5c3f6892388cc4a3e0c"
+  issueFingerprint: "edded42b8e05f028dd5976793cf6995ad2a947d488c08fd233032800971e940e"
+  sourceSetFingerprint: "86d85d8478cfd8c62619d00d40042e096dbf49a45e20c3fad57c483044063fde"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.2"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.69.0"
+    - "https://openai.com/business/customer-stories/hebbia"
+    - "https://blog.google/innovation-and-ai/products/gemini-app/tasks-in-gemini-free-new-features"
+sidebar:
+  label: "23. november 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="edded42b8e05f028dd5976793cf6995ad2a947d488c08fd233032800971e940e">Af SmartBolig.net Redaktionen · <time datetime="2026-11-23">23. november 2026</time> · 4 udvalgte kilder</p>
+
+<p class="ai-news-lede">Dagens brief dækker Geminis nye opgavetilstand, som kan booke aftaler, analysere regninger og handle ved at forbinde til e-mail, kalender og betalingsmetoder, og som rulles ud gratis i USA, Japan, Korea, Canada, Australien og Indien på Gemini 4 Hydrogen. Den dækker også Hebbias tests af en prerelease-version af GPT-6 Astra på finansielle research-cases samt OpenClaws beta med gendannelse ved opdatering og Gemini CLI v0.69.0 med stats-heatmap, temafil og modelkommando.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. OpenClaw releases: openclaw 2026.11.10-beta.2
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 23. nov. 2026. Version 2026.11.10-beta.2 tilføjer gendannelse ved opdatering, så OpenClaw forbliver kørende, når udskiftningen af pakken afbrydes, og den næste opdatering kan fuldføres efter et nedbrud eller en genstart. Færdige subagent-resultater bevares, og leveringen genoptages efter genstarter af Gateway. Webhooks accepterer bodies på op til 1 MiB. Skill-nøgler, der er baseret på secrets, beholder SecretRef-værdier, når nøgler redigeres via Skills-siden eller skills.update, i stedet for at referencer erstattes med klartekst.
+
+> Kort kildeuddrag: 2026.11.10-beta.2 Highlights Update recovery: keep OpenClaw runnable when package replacement is interrupted, and let the next update finish safely after…
+
+**Hvorfor det er relevant:** Kilden beskriver virkninger som, at OpenClaw forbliver kørende, når udskiftningen af en pakke afbrydes, og at færdige subagent-resultater bevares og leveres efter genstarter af Gateway, men den angiver ikke nogen målgruppe og nævner ingen konsekvenser for private brugere.
+
+**Sådan verificerer du det:** Når du har redigeret en skill-nøgle, der er baseret på en secret, via Skills-siden eller skills.update, kan du kontrollere, at SecretRef-værdien stadig er en reference og ikke er blevet erstattet med klartekst, som noterne beskriver.
+
+**Usikkerhed:** Den medfølgende tekst er afskåret i afsnittet Fixes, så den fulde liste over rettelser er ukendt. Den siger ikke, hvornår betaen bliver alment tilgængelig, i hvilke regioner eller til hvilken pris.
+
+Kilde: [openclaw 2026.11.10-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.2)
+
+### 2. Gemini CLI releases: Release v0.69.0
+
+**Hvad ændrede sig:** Gemini CLI releases offentliggjorde opdateringen 19. nov. 2026. Gemini CLI v0.69.0 tilføjer en /stats-heatmap-underkommando til dagligt token-forbrug, støtte til en selvstændig theme.json-fil til brugerdefinerede temaer og en /model-kommando, der validerer modelnavne og accepterer direkte argumenter. Den gør det også muligt at overskride 60s-timeouten for API-headers via model.requestTimeoutMs eller GEMINI&#95;API&#95;HEADERS&#95;TIMEOUT&#95;MS.
+
+> Kort kildeuddrag: What's Changed fix&#40;core,cli&#41;: preserve literal $ characters during template placeholder replacement by @<wbr/>jesussamuel-byte in #30136 feat&#40;cli&#41;: add /stats heatmap subcommand…
+
+**Hvorfor det er relevant:** Ændringerne er for personer, der bruger Gemini CLI. Udgivelsesnoterne nævner rettelser mod tavse flerminutters loading-hangs ved netværksfejl, flertimers kvoteforsøg og hukommelsesfastholdelse fra PDF-inlineData og telemetribufferen.
+
+**Sådan verificerer du det:** Kontroller, at den installerede version er 0.69.0, og åbn derefter /stats-underkommandoen for at se, om heatmappet for dagligt token-forbrug vises.
+
+**Usikkerhed:** Teksten er afkortet, så den fulde liste over ændringer vises ikke. Den siger ikke, hvornår v0.69.0 bliver standardinstallationen, eller om de nye tema- og statsfunktioner har grænser.
+
+Kilde: [Release v0.69.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.69.0)
+
+### 3. OpenAI News: Hebbia sees improvements in financial research with GPT-6 Astra
+
+**Hvad ændrede sig:** OpenAI News offentliggjorde opdateringen 20. nov. 2026. Hebbia testede en prerelease-version af OpenAI's GPT-6 Astra i august-september 2026 på de samme finansielle research-cases og med samme bedømmelseskriterier for hver model. I Hebbias tests lå GPT-6 Astra 13,6 procentpoint over den bedste testede alternative model på at citere de krævede typer kilder, 99,5 % af de citerede uddrag var relevante, og den opfyldte 97,9 % af de relevante præsentationskrav, et forspring på 14,4 procentpoint.
+
+> Kort kildeuddrag: Hebbia tested GPT-6 Astra for financial research. Its prerelease evaluations found gains in source coverage, citation relevance, and presentation quality.…
+
+**Hvorfor det er relevant:** Testene gælder Hebbias research-værktøj Matrix, som bankfolk bruger til at arbejde sig gennem regnskaber, kontrakter og ledelsespræsentationer. Hebbia siger, at citater lader brugerne åbne det underliggende dokument og det markerede afsnit, og at virksomheden vil have bankfolk til at bruge mindre tid på at omformatere decks og tjekke kilder og mere tid på at vurdere en handel.
+
+**Sådan verificerer du det:** Hvis du bruger Hebbia, kan du åbne et citat i et svar for at se det underliggende dokument og det markerede afsnit og følge en fodnote på et genereret slide tilbage til kildematerialet, som kilden beskriver.
+
+**Usikkerhed:** Teksten siger ikke, hvornår eller om GPT-6 Astra bliver alment tilgængelig, hvad den koster, eller hvilke alternative modeller Hebbia sammenlignede med. Den siger heller ikke, om resultaterne holder uden for Hebbias egne testcases, og sideteksten er afkortet.
+
+Kilde: [Hebbia sees improvements in financial research with GPT-6 Astra](https://openai.com/business/customer-stories/hebbia)
+
+### 4. Google AI Blog: Put Gemini to work for you
+
+**Hvad ændrede sig:** Google AI Blog offentliggjorde opdateringen 17. nov. 2026. Gemini kan nu klare opgaver som at booke aftaler, analysere regninger og handle, ved at forbinde til e-mails, kalender og betalingsmetoder. Det kører i hardware-isolerede virtuelle maskiner. Brugerne skifter kontakten fra Chat til Task i Gemini-appen, sender en sms på Android eller iOS eller videresender e-mails til gemini@<wbr/>google.com. Opdateringen rulles ud gratis i USA, Japan, Korea, Canada, Australien og Indien på den nye Gemini 4 Hydrogen-model, og avancerede funktioner starter i USA.
+
+> Kort kildeuddrag: Tasks in Gemini is now free of charge in six countries, with new features starting in the U.S. and deeper…
+
+**Hvorfor det er relevant:** Kilden angiver, at målet er at spare tid og penge for folk, der har opgaver, som hober sig op i løbet af undervisning, møder og afleveringer. Køb bruger Agent Payments Protocol med digitale tokens på understøttede kort, man kan sætte en hård udgiftsgrænse, og kortets point, cashback og købsbeskyttelse gælder stadig. Virksomheder kan fravælge, og Gemini oplyser, at den er en AI.
+
+**Sådan verificerer du det:** Åbn Gemini-appen, og skift kontakten fra Chat til Task, som kilden beskriver, for at se, om opgavetilstanden er tilgængelig på din konto. Du kan også tjekke, om videresendelse af en e-mail til gemini@<wbr/>google.com tilbydes i din region.
+
+**Usikkerhed:** Teksten siger ikke, hvornår udrulningen i de nævnte lande er færdig, hvilke avancerede funktioner der kommer først i USA, hvilke grænser der gælder for udgiftsgrænsen, eller hvornår American Express og integrationen af Universal Commerce Protocol kommer.
+
+Kilde: [Put Gemini to work for you](https://blog.google/innovation-and-ai/products/gemini-app/tasks-in-gemini-free-new-features)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| OpenClaw releases | [openclaw 2026.11.10-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.2) | 23. nov. 2026 |
+| Gemini CLI releases | [Release v0.69.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.69.0) | 19. nov. 2026 |
+| OpenAI News | [Hebbia sees improvements in financial research with GPT-6 Astra](https://openai.com/business/customer-stories/hebbia) | 20. nov. 2026 |
+| Google AI Blog | [Put Gemini to work for you](https://blog.google/innovation-and-ai/products/gemini-app/tasks-in-gemini-free-new-features) | 17. nov. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.

@@ -1,0 +1,113 @@
+---
+title: "AI News, 23 November 2026: openclaw 2026.11.10-beta.2"
+description: "Today's AI brief leads with openclaw 2026.11.10-beta.2 and draws on 4 official sources."
+date: 2026-11-23
+lastUpdated: 2026-11-23
+heroImage:
+  src: "/images/ai-news/2026-11-23.jpg"
+  alt: "Editorial illustration about openclaw 2026.11.10-beta.2"
+  caption: "Editorial illustration about openclaw 2026.11.10-beta.2"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "openclaw 2026.11.10-beta.2"
+  storyFingerprint: "548045b42a91731782a3a13425bb3940f6ddc75b6724d5c3f6892388cc4a3e0c"
+  issueFingerprint: "edded42b8e05f028dd5976793cf6995ad2a947d488c08fd233032800971e940e"
+  sourceSetFingerprint: "86d85d8478cfd8c62619d00d40042e096dbf49a45e20c3fad57c483044063fde"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.2"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.69.0"
+    - "https://openai.com/business/customer-stories/hebbia"
+    - "https://blog.google/innovation-and-ai/products/gemini-app/tasks-in-gemini-free-new-features"
+sidebar:
+  label: "23 November 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="edded42b8e05f028dd5976793cf6995ad2a947d488c08fd233032800971e940e">By SmartBolig.net Editorial · <time datetime="2026-11-23">23 November 2026</time> · 4 selected sources</p>
+
+<p class="ai-news-lede">Today's brief covers Gemini's new task mode, which can schedule appointments, analyze bills and shop by connecting to email, calendar and payment methods, rolling out free in the U.S., Japan, Korea, Canada, Australia and India on Gemini 4 Hydrogen. It also covers Hebbia's tests of a prerelease GPT-6 Astra build on financial research cases, plus OpenClaw's update-recovery beta and Gemini CLI v0.69.0's stats heatmap, theme file and model command.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. OpenClaw releases: openclaw 2026.11.10-beta.2
+
+**What changed:** OpenClaw releases published the update on 23 Nov 2026. Version 2026.11.10-beta.2 adds update recovery so OpenClaw stays runnable when package replacement is interrupted and the next update can finish after a crash or reboot. Finished subagent results are preserved and their delivery resumes after Gateway restarts. Webhooks accept bodies up to 1 MiB. Secret-backed skill keys keep SecretRef values when keys are edited through the Skills page or skills.update instead of replacing references with plaintext.
+
+> Short source excerpt: 2026.11.10-beta.2 Highlights Update recovery: keep OpenClaw runnable when package replacement is interrupted, and let the next update finish safely after…
+
+**Why it matters:** The source describes effects such as OpenClaw staying runnable when a package replacement is interrupted and finished subagent results being kept and delivered after Gateway restarts, but it does not name an intended audience or state consequences for private users.
+
+**How to verify it:** After editing a secret-backed skill key through the Skills page or skills.update, check that the SecretRef value is still a reference and has not been replaced with plaintext, as the notes describe.
+
+**Uncertainty:** The provided text is truncated in the Fixes section, so the full list of fixes is unknown. It does not say when the beta becomes generally available, in which regions, or at what price.
+
+Source: [openclaw 2026.11.10-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.2)
+
+### 2. Gemini CLI releases: Release v0.69.0
+
+**What changed:** Gemini CLI releases published the update on 19 Nov 2026. Gemini CLI v0.69.0 adds a /stats heatmap subcommand for daily token usage, support for a standalone theme.json file for custom themes, and a /model command that validates model names and accepts direct arguments. It also lets users override the 60s API headers timeout via model.requestTimeoutMs or GEMINI&#95;API&#95;HEADERS&#95;TIMEOUT&#95;MS.
+
+> Short source excerpt: What's Changed fix&#40;core,cli&#41;: preserve literal $ characters during template placeholder replacement by @<wbr/>jesussamuel-byte in #30136 feat&#40;cli&#41;: add /stats heatmap subcommand…
+
+**Why it matters:** The changes are for people who use the Gemini CLI. The release notes list fixes for silent multi-minute loading hangs on network failures, multi-hour quota retries, and memory retention from PDF inlineData and the telemetry buffer.
+
+**How to verify it:** Check that the installed version is 0.69.0, then open the /stats subcommand to see whether the daily token usage heatmap appears.
+
+**Uncertainty:** The text is truncated, so the full list of changes is not shown. It does not say when v0.69.0 becomes the default install, or whether the new theme and stats features have limits.
+
+Source: [Release v0.69.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.69.0)
+
+### 3. OpenAI News: Hebbia sees improvements in financial research with GPT-6 Astra
+
+**What changed:** OpenAI News published the update on 20 Nov 2026. Hebbia tested a prerelease build of OpenAI's GPT-6 Astra in August-September 2026 on the same financial research cases and grading criteria for each model. In Hebbia's tests, GPT-6 Astra led the best alternative tested by 13.6 percentage points on citing required source types, had 99.5% of its cited excerpts rated relevant, and met 97.9% of applicable presentation requirements, a 14.4 percentage-point lead.
+
+> Short source excerpt: Hebbia tested GPT-6 Astra for financial research. Its prerelease evaluations found gains in source coverage, citation relevance, and presentation quality.…
+
+**Why it matters:** The tests concern Hebbia's Matrix research tool, which bankers use to work through financial statements, contracts and management presentations. Hebbia says citations let users open the underlying document and highlighted passage, and that it wants bankers to spend less time reformatting decks and checking sources and more time assessing a deal.
+
+**How to verify it:** If you use Hebbia, open a citation in an answer to see the underlying document and highlighted passage, and follow a footnote on a generated slide back to the source material, as the source describes.
+
+**Uncertainty:** The text does not say when or whether GPT-6 Astra becomes generally available, what it costs, or which alternative models Hebbia compared against. It also does not say whether the results hold outside Hebbia's own test cases, and the page text is truncated.
+
+Source: [Hebbia sees improvements in financial research with GPT-6 Astra](https://openai.com/business/customer-stories/hebbia)
+
+### 4. Google AI Blog: Put Gemini to work for you
+
+**What changed:** Google AI Blog published the update on 17 Nov 2026. Gemini can now handle tasks like scheduling appointments, analyzing bills and shopping, connecting to emails, calendar and payment methods. It runs in hardware-isolated virtual machines. Users switch the toggle from Chat to Task in the Gemini app, text on Android or iOS, or forward emails to gemini@<wbr/>google.com. The update rolls out free of charge in the U.S., Japan, Korea, Canada, Australia and India on the new Gemini 4 Hydrogen model, with advanced features starting in the U.S.
+
+> Short source excerpt: Tasks in Gemini is now free of charge in six countries, with new features starting in the U.S. and deeper…
+
+**Why it matters:** The source states the goal is to save time and money for people with tasks piling up during classes, meetings and school drop-offs. Purchases use the Agent Payments Protocol with digital tokens on supported cards, a hard spending cap can be set, and card points, cashback and purchase protections still apply. Businesses can opt out, and Gemini says it is an AI.
+
+**How to verify it:** Open the Gemini app and switch the toggle from Chat to Task, as the source describes, to see whether the task mode is available on your account. You can also check whether forwarding an email to gemini@<wbr/>google.com is offered in your region.
+
+**Uncertainty:** The text does not say when the rollout in the listed countries completes, which advanced features arrive first in the U.S., what limits the spending cap has, or when American Express support and the Universal Commerce Protocol integration arrive.
+
+Source: [Put Gemini to work for you](https://blog.google/innovation-and-ai/products/gemini-app/tasks-in-gemini-free-new-features)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| OpenClaw releases | [openclaw 2026.11.10-beta.2](https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.2) | 23 Nov 2026 |
+| Gemini CLI releases | [Release v0.69.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.69.0) | 19 Nov 2026 |
+| OpenAI News | [Hebbia sees improvements in financial research with GPT-6 Astra](https://openai.com/business/customer-stories/hebbia) | 20 Nov 2026 |
+| Google AI Blog | [Put Gemini to work for you](https://blog.google/innovation-and-ai/products/gemini-app/tasks-in-gemini-free-new-features) | 17 Nov 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.
