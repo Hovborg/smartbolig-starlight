@@ -1,0 +1,113 @@
+---
+title: "AI News, 24 November 2026: OpenAI Codex 0.172.0"
+description: "Today's AI brief leads with OpenAI Codex 0.172.0 and draws on 4 official sources."
+date: 2026-11-24
+lastUpdated: 2026-11-24
+heroImage:
+  src: "/images/ai-news/2026-11-24.jpg"
+  alt: "Editorial illustration about OpenAI Codex 0.172.0"
+  caption: "Editorial illustration about OpenAI Codex 0.172.0"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "OpenAI Codex 0.172.0"
+  storyFingerprint: "c4a77757b356ad054c8887040ef4a1819ff662a551aa1da3252843eaa9f3fced"
+  issueFingerprint: "e9aefcd3a9c98b0d77bda49d648116543b1d13a5a19ea898b33068a66a447f9b"
+  sourceSetFingerprint: "6e45c33033f09aaf10de5120ff7c3af68f5ac21b7c0fc3d88667a31d51bc81d3"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openai/codex/releases/tag/rust-v0.172.0"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.331"
+    - "https://openai.com/business/customer-stories/richpanel-ai-customer-support"
+    - "https://blog.google/products-and-platforms/products/search/google-search-personal-intelligence-apps"
+sidebar:
+  label: "24 November 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="e9aefcd3a9c98b0d77bda49d648116543b1d13a5a19ea898b33068a66a447f9b">By SmartBolig.net Editorial · <time datetime="2026-11-24">24 November 2026</time> · 4 selected sources</p>
+
+<p class="ai-news-lede">Google is beginning to roll out an opt-in connection between Google Wallet and Personal Intelligence in AI Mode, with support for Drive and the Gemini app to follow in the coming weeks. Also in this issue: OpenAI Codex 0.172.0 adds thread links and Tab completion in the terminal, Claude Code v2.1.331 brings Code Mode to terminal sessions on several cloud platforms, and Richpanel describes how it builds AI support agents with GPT-6 models.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. OpenAI Codex releases: 0.172.0
+
+**What changed:** OpenAI Codex releases published the update on 24 Nov 2026. Version 0.172.0 of OpenAI Codex adds thread links that open saved conversations and nested agents in the terminal, Tab completion for arguments of supported slash commands, and Shift+Up and Shift+Down to jump between task groups in the agent command center. Optional stdio MCP servers with cached tool lists now start on their first tool call by default. An approval reviewer can be set for individual connected app tools in config.toml, and app-server clients can select Amazon Bedrock Runtime during setup or sign-in.
+
+> Short source excerpt: New Features Follow thread links from search results and transcripts to open saved conversations and nested agents in the terminal.…
+
+**Why it matters:** The source describes these as changes for people working in the Codex terminal and for app-server clients. It states that resuming codex exec restores saved sandbox permissions, the working directory and workspace roots unless explicitly overridden, and that remote sessions preserve working directories, workspace roots and writable paths when client and server run on different operating systems.
+
+**How to verify it:** Check the installed version against 0.172.0, then read the release notes for the entries listed here. In the terminal, type a supported slash command such as /mcp lo and press Tab to see whether it completes to /mcp login, as the source describes.
+
+**Uncertainty:** The text is truncated, so later entries are unknown. It does not say how widely 0.172.0 has been rolled out, whether the new defaults can be turned off, or what the deprecated code&#95;mode&#95;host&#95;grpc setting means for existing configurations.
+
+Source: [0.172.0](https://github.com/openai/codex/releases/tag/rust-v0.172.0)
+
+### 2. Claude Code releases: v2.1.331
+
+**What changed:** Claude Code releases published the update on 23 Nov 2026. Claude Code v2.1.331 adds Code Mode support in terminal sessions on Amazon Bedrock, Google Cloud's Agent Platform, Microsoft Foundry and Claude Platform on AWS. It adds an API connectivity section to claude doctor, a notice when tap-mode voice dictation stops by itself after 15 seconds without recognized speech or at its 2-minute limit, and optionalDependencies in plugin manifests. It also fixes MCP tool calls hanging for up to 30 minutes on some malformed replies from a local or WebSocket server.
+
+> Short source excerpt: What's changed Added Code Mode support in terminal sessions on Amazon Bedrock, Google Cloud's Agent Platform, Microsoft Foundry and Claude…
+
+**Why it matters:** The changes target Claude Code users working through cloud providers such as Amazon Bedrock, Google Cloud's Agent Platform, Microsoft Foundry and Claude Platform on AWS, plus administrators of Claude apps gateways. The source notes that the new uncompressed-response setting is not advised yet for self-hosted runners or Remote Control.
+
+**How to verify it:** Run claude doctor and look for the new API connectivity section, which reports whether the API can be reached, with the HTTP status or the error, or says why it was not tested.
+
+**Uncertainty:** The text is truncated and does not say when the version reaches all users, in which regions the cloud Code Mode support is available, or whether the new environment variables are on by default.
+
+Source: [v2.1.331](https://github.com/anthropics/claude-code/releases/tag/v2.1.331)
+
+### 3. OpenAI News: Richpanel helps companies automate 50% of support in 30 days
+
+**What changed:** OpenAI News published the update on 23 Nov 2026. Richpanel, a startup in Asia-Pacific &amp; Oceania, uses GPT-6 Astra and GPT-6.1 Sol to build the tools and procedures for its AI support agents, and GPT-6 Luna for customer conversations. Its AI manager, which customers call Boss AI, writes procedures and defines how the frontline support agent, copilot and quality-assurance agent call tools. Richpanel says it had completed approximately 300 AI customer-support deployments in the six months before an October 2026 interview.
+
+> Short source excerpt: Richpanel uses GPT-6 Astra and GPT-6.1 Sol to equip its AI support agents with tools and procedures, and GPT-6 Luna…
+
+**Why it matters:** The source states Richpanel's customers may already use low-cost outsourced support, so automating their operations has to make financial sense against that starting point. Richpanel guarantees customers a 50% automation rate within the first 30 days or their money back, and its CEO says the company met that commitment across those deployments.
+
+**How to verify it:** Compare the model names in the source with Richpanel's own documentation: GPT-6 Astra and GPT-6.1 Sol for Boss AI's tools and procedures, and GPT-6 Luna for the customer conversations. The source gives no version number for Richpanel's product itself.
+
+**Uncertainty:** The text does not say what the 50% automation rate is measured against, how the money-back guarantee is administered, or which customers and regions the roughly 300 deployments cover. It also does not give prices or a date for wider availability.
+
+Source: [Richpanel helps companies automate 50% of support in 30 days](https://openai.com/business/customer-stories/richpanel-ai-customer-support)
+
+### 4. Google AI Blog: A more tailored Google Search that’s uniquely yours
+
+**What changed:** Google AI Blog published the update on 23 Nov 2026. Google is starting to roll out an opt-in connection between Google Wallet and Personal Intelligence in AI Mode, with support for Google Drive and the Gemini app following in the coming weeks. The company says Search can then use context from spending, documents and chats. Wallet and Drive join Gmail, Calendar and Photos. Users connect apps through Search Personalization and Connected Apps.
+
+> Short source excerpt: Get more helpful Search responses by securely opting in to connect Google Wallet, Drive, and the Gemini app to Personal…
+
+**Why it matters:** For people who opt in, Google says the connections can help track financial goals, organize project information and continue research without repeating context. Wallet can be used to identify spending habits and optimize credit card rewards, while Drive can support personalized plans based on files.
+
+**How to verify it:** To check availability, open Search Personalization and select Connected Apps, as the source describes, and see which apps you can choose to connect. The source says Wallet is rolling out first, with Drive and the Gemini app following in the coming weeks.
+
+**Uncertainty:** The text does not say which countries or how many users get the Wallet connection at launch, the exact dates for Drive and the Gemini app, or whether the features will be free. It also does not detail limits on what data AI Mode can read beyond Wallet being read-only.
+
+Source: [A more tailored Google Search that’s uniquely yours](https://blog.google/products-and-platforms/products/search/google-search-personal-intelligence-apps)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| OpenAI Codex releases | [0.172.0](https://github.com/openai/codex/releases/tag/rust-v0.172.0) | 24 Nov 2026 |
+| Claude Code releases | [v2.1.331](https://github.com/anthropics/claude-code/releases/tag/v2.1.331) | 23 Nov 2026 |
+| OpenAI News | [Richpanel helps companies automate 50% of support in 30 days](https://openai.com/business/customer-stories/richpanel-ai-customer-support) | 23 Nov 2026 |
+| Google AI Blog | [A more tailored Google Search that’s uniquely yours](https://blog.google/products-and-platforms/products/search/google-search-personal-intelligence-apps) | 23 Nov 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.

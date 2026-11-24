@@ -1,0 +1,113 @@
+---
+title: "AI-nyheder, 24. november 2026: OpenAI Codex 0.172.0"
+description: "Dagens AI-overblik har OpenAI Codex 0.172.0 som hovedhistorie og bygger på 4 officielle kilder."
+date: 2026-11-24
+lastUpdated: 2026-11-24
+heroImage:
+  src: "/images/ai-news/2026-11-24.jpg"
+  alt: "Redaktionel illustration om OpenAI Codex 0.172.0"
+  caption: "Redaktionel illustration om OpenAI Codex 0.172.0"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "OpenAI Codex 0.172.0"
+  storyFingerprint: "c4a77757b356ad054c8887040ef4a1819ff662a551aa1da3252843eaa9f3fced"
+  issueFingerprint: "e9aefcd3a9c98b0d77bda49d648116543b1d13a5a19ea898b33068a66a447f9b"
+  sourceSetFingerprint: "6e45c33033f09aaf10de5120ff7c3af68f5ac21b7c0fc3d88667a31d51bc81d3"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openai/codex/releases/tag/rust-v0.172.0"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.331"
+    - "https://openai.com/business/customer-stories/richpanel-ai-customer-support"
+    - "https://blog.google/products-and-platforms/products/search/google-search-personal-intelligence-apps"
+sidebar:
+  label: "24. november 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="e9aefcd3a9c98b0d77bda49d648116543b1d13a5a19ea898b33068a66a447f9b">Af SmartBolig.net Redaktionen · <time datetime="2026-11-24">24. november 2026</time> · 4 udvalgte kilder</p>
+
+<p class="ai-news-lede">Google begynder at rulle en forbindelse ud, som man selv tilvælger, mellem Google Wallet og Personal Intelligence i AI Mode, mens understøttelse til Drive og Gemini-appen følger i de kommende uger. I dette nummer: OpenAI Codex 0.172.0 tilføjer trådlinks og Tab-gennemføring i terminalen, Claude Code v2.1.331 bringer Code Mode til terminalsessioner på flere cloudplatforme, og Richpanel beskriver, hvordan selskabet bygger AI-supportagenter med GPT-6-modeller.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. OpenAI Codex releases: 0.172.0
+
+**Hvad ændrede sig:** OpenAI Codex releases offentliggjorde opdateringen 24. nov. 2026. Version 0.172.0 af OpenAI Codex tilføjer trådlinks, der åbner gemte samtaler og indlejrede agenter i terminalen, Tab-gennemføring af argumenter for understøttede slash-kommandoer og Shift+Up og Shift+Down til at springe mellem opgavegrupper i agent-kommando-centret. Valgfrie stdio MCP-servere med cachede værktøjsliste starter nu ved første værktøjskald som standard. Der kan angives en godkendelsesbedømmer for enkelte tilsluttede app-værktøjer i config.toml, og app-server-klienter kan vælge Amazon Bedrock Runtime under opsætning eller login.
+
+> Kort kildeuddrag: New Features Follow thread links from search results and transcripts to open saved conversations and nested agents in the terminal.…
+
+**Hvorfor det er relevant:** Kilden beskriver ændringerne som rettet mod personer, der arbejder i Codex-terminalen, og mod app-server-klienter. Den angiver, at genoptagelse af codex exec gendanner gemte sandbox-tilladelser, arbejdsmappen og workspace-rødder, medmindre de eksplicit tilsidesættes, og at fjernsessioner bevarer arbejdsmapper, workspace-rødder og skrivbare stier, når klient og server kører på forskellige styresystemer.
+
+**Sådan verificerer du det:** Tjek den installerede version mod 0.172.0, og læs derefter udgivelsesnoterne for de punkter, der er nævnt her. Skriv en understøttet slash-kommando som /mcp lo i terminalen, og tryk Tab for at se, om den fuldføres til /mcp login, som kilden beskriver.
+
+**Usikkerhed:** Teksten er afkortet, så senere punkter er ukendte. Den siger ikke, hvor bredt 0.172.0 er rullet ud, om de nye standardindstillinger kan slås fra, eller hvad den forældede indstilling code&#95;mode&#95;host&#95;grpc betyder for eksisterende konfigurationer.
+
+Kilde: [0.172.0](https://github.com/openai/codex/releases/tag/rust-v0.172.0)
+
+### 2. Claude Code releases: v2.1.331
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 23. nov. 2026. Claude Code v2.1.331 tilføjer Code Mode-support i terminalsessioner på Amazon Bedrock, Google Cloud's Agent Platform, Microsoft Foundry og Claude Platform on AWS. Versionen tilføjer en API-forbindelsessektion i claude doctor, en meddelelse når tap-mode-diktering stopper af sig selv efter 15 sekunder uden genkendt tale eller ved grænsen på 2 minutter, samt optionalDependencies i plugin-manifester. Den retter også MCP-værktøjskald, der hang i op til 30 minutter ved nogle fejlbehæftede svar fra en lokal server eller WebSocket-server.
+
+> Kort kildeuddrag: What's changed Added Code Mode support in terminal sessions on Amazon Bedrock, Google Cloud's Agent Platform, Microsoft Foundry and Claude…
+
+**Hvorfor det er relevant:** Ændringerne er rettet mod Claude Code-brugere, der arbejder via cloududbydere som Amazon Bedrock, Google Cloud's Agent Platform, Microsoft Foundry og Claude Platform on AWS, samt administratorer af Claude apps-gateways. Kilden bemærker, at den nye indstilling til ukomprimerede svar endnu ikke anbefales til self-hosted runners eller Remote Control.
+
+**Sådan verificerer du det:** Kør claude doctor og se efter den nye API-forbindelsessektion, som rapporterer, om API'en kan nås, med HTTP-status eller fejlen, eller forklarer, hvorfor den ikke blev testet.
+
+**Usikkerhed:** Teksten er afkortet og siger ikke, hvornår versionen når alle brugere, i hvilke regioner Code Mode-supporten på cloudplatformene er tilgængelig, eller om de nye miljøvariabler er slået til som standard.
+
+Kilde: [v2.1.331](https://github.com/anthropics/claude-code/releases/tag/v2.1.331)
+
+### 3. OpenAI News: Richpanel helps companies automate 50% of support in 30 days
+
+**Hvad ændrede sig:** OpenAI News offentliggjorde opdateringen 23. nov. 2026. Richpanel, en startup i Asien-Stillehavsområdet og Oceanien, bruger GPT-6 Astra og GPT-6.1 Sol til at bygge værktøjer og procedurer til sine AI-supportagenter og GPT-6 Luna til kundesamtaler. Selskabets AI-manager, som kunderne kalder Boss AI, skriver procedurer og definerer, hvordan frontline-supportagenten, copiloten og kvalitetssikringsagenten kalder værktøjerne. Richpanel oplyser, at selskabet havde gennemført cirka 300 AI-kundesupportudrulninger i de seks måneder før et interview i oktober 2026.
+
+> Kort kildeuddrag: Richpanel uses GPT-6 Astra and GPT-6.1 Sol to equip its AI support agents with tools and procedures, and GPT-6 Luna…
+
+**Hvorfor det er relevant:** Kilden oplyser, at Richpanels kunder måske allerede bruger billig outsourcet support, så automatisering af deres drift skal give økonomisk mening i forhold til det udgangspunkt. Richpanel garanterer kunderne en automatiseringsgrad på 50 % inden for de første 30 dage eller pengene tilbage, og selskabets administrerende direktør siger, at man levede op til det løfte i alle de udrulninger.
+
+**Sådan verificerer du det:** Sammenlign modelnavnene i kilden med Richpanels egen dokumentation: GPT-6 Astra og GPT-6.1 Sol til Boss AI's værktøjer og procedurer og GPT-6 Luna til kundesamtalerne. Kilden angiver ikke noget versionsnummer for Richpanels produkt.
+
+**Usikkerhed:** Teksten siger ikke, hvad automatiseringsgraden på 50 % måles imod, hvordan pengene-tilbage-garantien administreres, eller hvilke kunder og regioner de cirka 300 udrulninger dækker. Den angiver heller ikke priser eller en dato for bredere tilgængelighed.
+
+Kilde: [Richpanel helps companies automate 50% of support in 30 days](https://openai.com/business/customer-stories/richpanel-ai-customer-support)
+
+### 4. Google AI Blog: A more tailored Google Search that’s uniquely yours
+
+**Hvad ændrede sig:** Google AI Blog offentliggjorde opdateringen 23. nov. 2026. Google begynder at rulle en forbindelse ud, som man selv tilvælger, mellem Google Wallet og Personal Intelligence i AI Mode, mens understøttelse til Google Drive og Gemini-appen følger i de kommende uger. Ifølge Google kan Search derefter bruge kontekst fra forbrug, dokumenter og chats. Wallet og Drive slutter sig til Gmail, Calendar og Photos. Man forbinder apps via Search Personalization og Connected Apps.
+
+> Kort kildeuddrag: Get more helpful Search responses by securely opting in to connect Google Wallet, Drive, and the Gemini app to Personal…
+
+**Hvorfor det er relevant:** For personer, der tilvælger det, siger Google, at forbindelserne kan hjælpe med at følge økonomiske mål, organisere projektinformation og fortsætte forskningsopgaver uden at gentage kontekst. Wallet kan bruges til at identificere forbrugsvaner og optimere kreditkortfordele, mens Drive kan understøtte personlige planer baseret på filer.
+
+**Sådan verificerer du det:** For at tjekke tilgængeligheden kan du åbne Search Personalization og vælge Connected Apps, som kilden beskriver, og se, hvilke apps du kan vælge at forbinde. Kilden siger, at Wallet ruller ud først, mens Drive og Gemini-appen følger i de kommende uger.
+
+**Usikkerhed:** Teksten siger ikke, hvilke lande eller hvor mange brugere der får Wallet-forbindelsen ved lanceringen, de præcise datoer for Drive og Gemini-appen, eller om funktionerne er gratis. Den beskriver heller ikke grænser for, hvilke data AI Mode kan læse, ud over at Wallet er læseadgang.
+
+Kilde: [A more tailored Google Search that’s uniquely yours](https://blog.google/products-and-platforms/products/search/google-search-personal-intelligence-apps)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| OpenAI Codex releases | [0.172.0](https://github.com/openai/codex/releases/tag/rust-v0.172.0) | 24. nov. 2026 |
+| Claude Code releases | [v2.1.331](https://github.com/anthropics/claude-code/releases/tag/v2.1.331) | 23. nov. 2026 |
+| OpenAI News | [Richpanel helps companies automate 50% of support in 30 days](https://openai.com/business/customer-stories/richpanel-ai-customer-support) | 23. nov. 2026 |
+| Google AI Blog | [A more tailored Google Search that’s uniquely yours](https://blog.google/products-and-platforms/products/search/google-search-personal-intelligence-apps) | 23. nov. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.
