@@ -1,0 +1,113 @@
+---
+title: "AI-nyheder, 25. november 2026: openclaw 2026.11.10-beta.3"
+description: "Dagens AI-overblik har openclaw 2026.11.10-beta.3 som hovedhistorie og bygger på 4 officielle kilder."
+date: 2026-11-25
+lastUpdated: 2026-11-25
+heroImage:
+  src: "/images/ai-news/2026-11-25.jpg"
+  alt: "Redaktionel illustration om openclaw 2026.11.10-beta.3"
+  caption: "Redaktionel illustration om openclaw 2026.11.10-beta.3"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "openclaw 2026.11.10-beta.3"
+  storyFingerprint: "bf6e65590a7e00f9c3f35ec2afbbf68067fd79fa1108948dd3f9344aef49d297"
+  issueFingerprint: "638109f2f6693787b55af2a8443730ce4d4babc668414fc9f892ffcd0a5e1ec5"
+  sourceSetFingerprint: "9f51f0704a87ab4e98d46803a8982d78c05789fa35befeac48403cf95776cbfe"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.3"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.332"
+    - "https://openai.com/business/customer-stories/clay-plugins-openai"
+    - "https://deepmind.google/blog/finding-faster-quantum-algorithms-with-agents-and-formal-verification"
+sidebar:
+  label: "25. november 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="638109f2f6693787b55af2a8443730ce4d4babc668414fc9f892ffcd0a5e1ec5">Af SmartBolig.net Redaktionen · <time datetime="2026-11-25">25. november 2026</time> · 4 udvalgte kilder</p>
+
+<p class="ai-news-lede">Teams af Gemini 4-agenter og Lean-formel verifikation blev brugt til at optimere kvantealgoritmer til fusion, kemi og enzymer, med en 11,8x omkostningsreduktion for fusion og en 8x reduktion for molekyler. I dette nummer også: OpenClaw 2026.11.10-beta.3 gør afbrudte opdateringer gendannelige, Claude Code v2.1.332 tilføjer skills fra MCP-servere i beta, og Clay tilbyder plugins til Codex og ChatGPT.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. OpenClaw releases: openclaw 2026.11.10-beta.3
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 24. nov. 2026. OpenClaw 2026.11.10-beta.3 gør afbrudte pakke- og kildeopdateringer gendannelige, holder færdige subagent-svar tilgængelige gennem Gateway-genstarter, reducerer hukommelses- og main-thread-arbejde ved komprimering eller åbning af store samtalehistorikker, bevarer SecretRef-baserede legitimationsoplysninger ved redigering af indstillinger, undgår download af Signal view-once-vedhæftninger og tilføjer login i browseren til OpenCode Console og OpenCode Go.
+
+> Kort kildeuddrag: 2026.11.10-beta.3 Highlights Update recovery: Keep interrupted package and source updates recoverable, including updates that cross a schema change or restart…
+
+**Hvorfor det er relevant:** For OpenClaw-installationer oplyser noterne, at afbrudte opdateringer forbliver gendannelige, at færdige subagent-svar forbliver tilgængelige gennem Gateway-genstarter, og at store samtalehistorikker kræver mindre hukommelse og main-thread-arbejde.
+
+**Sådan verificerer du det:** Kontroller, at den installerede OpenClaw-version er 2026.11.10-beta.3, og læs derefter udgivelsesnoterne for punkterne om opdateringsgendannelse og Gateway-genstart.
+
+**Usikkerhed:** Den medsendte tekst er afkortet og angiver ikke generel tilgængelighed, region, pris eller grænser for disse ændringer.
+
+Kilde: [openclaw 2026.11.10-beta.3](https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.3)
+
+### 2. Claude Code releases: v2.1.332
+
+**Hvad ændrede sig:** Claude Code releases offentliggjorde opdateringen 25. nov. 2026. Claude Code v2.1.332 tilføjer skills fra MCP-servere i beta, som vises som server:skill i /-menuen, og en PreSkillShellCommand-hookhændelse, der kan afvise en skill- eller kommandos inline-shellkommandoer, når den indlæses. Den tilføjer også en OpenTelemetry assistant&#95;response-hændelse, en advarsel i VS Code og Desktops Code-fane, når en del af en session ikke kunne gemmes, og rettelser af hæng, frysninger og claude auth login, der rapporterede succes, når et claude.ai-login ikke kunne gemmes.
+
+> Kort kildeuddrag: What's changed Added skills from MCP servers &#40;beta&#41;. They show as server:skill in the / menu; other skills keep their…
+
+**Hvorfor det er relevant:** Udgivelsen er til Claude Code-brugere på kommandolinjen, i VS Code og i Desktops Code-fane. Kilden angiver, at en indstillingsfil, der navngiver den nye PreSkillShellCommand-hook, åbner en dialog ved opstart på 2.1.331 og ældre, og at claude auth login nu afslutter med 1 og siger, hvad man skal tjekke, fx en efterladt lockfil eller en fuld disk.
+
+**Sådan verificerer du det:** Tjek den installerede version, og åbn derefter /-menuen: skills fra MCP-servere i beta bør vises som server:skill, mens andre skills beholder deres navne. Kilden dokumenterer også, at claude auth login afslutter med 1, når et claude.ai-login ikke kan gemmes.
+
+**Usikkerhed:** Teksten er afkortet, så senere rettelser og tilføjelser mangler. Den siger ikke, hvilke planer eller regioner der får MCP-skills-betaen, hvornår betaen slutter, eller hvordan PreSkillShellCommand-hooken konfigureres ud over noten om dialogen.
+
+Kilde: [v2.1.332](https://github.com/anthropics/claude-code/releases/tag/v2.1.332)
+
+### 3. OpenAI News: Clay helps sales teams win with Codex and ChatGPT
+
+**Hvad ændrede sig:** OpenAI News offentliggjorde opdateringen 24. nov. 2026. Clay tilbyder plugins til Codex og ChatGPT. Codex-integrationen lader buildere oprette og køre go-to-market plays i Codex og giver salgsrepræsentanter data til at undersøge en konto eller en aftale. ChatGPT-pluginet bringer Clays kundedata ind i ChatGPT. Clay bruger GPT-6 Sol som primær model, GPT-6 Astra til sværere opgaver og GPT-6 Luna til omkostningsfølsomt arbejde.
+
+> Kort kildeuddrag: ChatGPT and Codex integrations help Clay’s users research deals and turn data into go-to-market plays, with GPT-6 models handling the…
+
+**Hvorfor det er relevant:** For salgsteams, der bruger Clay, lader integrationerne repræsentanter undersøge konti og aftaler og køre go-to-market-workflows i Codex og ChatGPT, værktøjer de allerede bruger, ifølge kilden.
+
+**Sådan verificerer du det:** Tjek, hvilken GPT-6-model din Clay-opsætning bruger: kilden angiver GPT-6 Sol som primær model, GPT-6 Astra til sværere opgaver og GPT-6 Luna til omkostningsfølsomt arbejde.
+
+**Usikkerhed:** Teksten siger ikke, hvornår Codex- og ChatGPT-integrationerne er generelt tilgængelige, hvad de koster, eller hvilke regioner der kan bruge dem. Den giver heller ingen udgivelsesdato for de funktioner til inbound-salgudvikling, Clay arbejder på.
+
+Kilde: [Clay helps sales teams win with Codex and ChatGPT](https://openai.com/business/customer-stories/clay-plugins-openai)
+
+### 4. Google DeepMind Blog: Finding faster quantum algorithms with agents and formal verification
+
+**Hvad ændrede sig:** Google DeepMind Blog offentliggjorde opdateringen 23. nov. 2026. Teams af Gemini 4-agenter og Lean-formel verifikation blev brugt til at optimere kvantealgoritmer til fusion, kemi og enzymer. Forbedringer inkluderede en 11,8x omkostningsreduktion for fusion, en 8x reduktion for molekyler samt hastighedsforbedringer for Grover's algoritme og arcsin.
+
+> Kort kildeuddrag: Using agent teams and formal verification to improve quantum algorithms for fusion and chemistry. November 23, 2026 Science Finding faster…
+
+**Hvorfor det er relevant:** Denne metode komprimerer arbejde, der tidligere krævede årevis af manuelt design, hvilket gør det muligt for forskere at fokusere på problemvalg og fortolkning af resultater.
+
+**Sådan verificerer du det:** Man kan tilgå det open-source Lean-bibliotek, problembeskrivelser og verificerede løsninger på GitHub.
+
+**Usikkerhed:** Kilden specificerer ikke tilgængeligheden af agentteams, og kørsel af disse algoritmer kræver stadig flere ressourcer, end de første fejlkorrigerede kvantecomputere sandsynligvis vil kunne levere.
+
+Kilde: [Finding faster quantum algorithms with agents and formal verification](https://deepmind.google/blog/finding-faster-quantum-algorithms-with-agents-and-formal-verification)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| OpenClaw releases | [openclaw 2026.11.10-beta.3](https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.3) | 24. nov. 2026 |
+| Claude Code releases | [v2.1.332](https://github.com/anthropics/claude-code/releases/tag/v2.1.332) | 25. nov. 2026 |
+| OpenAI News | [Clay helps sales teams win with Codex and ChatGPT](https://openai.com/business/customer-stories/clay-plugins-openai) | 24. nov. 2026 |
+| Google DeepMind Blog | [Finding faster quantum algorithms with agents and formal verification](https://deepmind.google/blog/finding-faster-quantum-algorithms-with-agents-and-formal-verification) | 23. nov. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.

@@ -1,0 +1,113 @@
+---
+title: "AI News, 25 November 2026: openclaw 2026.11.10-beta.3"
+description: "Today's AI brief leads with openclaw 2026.11.10-beta.3 and draws on 4 official sources."
+date: 2026-11-25
+lastUpdated: 2026-11-25
+heroImage:
+  src: "/images/ai-news/2026-11-25.jpg"
+  alt: "Editorial illustration about openclaw 2026.11.10-beta.3"
+  caption: "Editorial illustration about openclaw 2026.11.10-beta.3"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "openclaw 2026.11.10-beta.3"
+  storyFingerprint: "bf6e65590a7e00f9c3f35ec2afbbf68067fd79fa1108948dd3f9344aef49d297"
+  issueFingerprint: "638109f2f6693787b55af2a8443730ce4d4babc668414fc9f892ffcd0a5e1ec5"
+  sourceSetFingerprint: "9f51f0704a87ab4e98d46803a8982d78c05789fa35befeac48403cf95776cbfe"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.3"
+    - "https://github.com/anthropics/claude-code/releases/tag/v2.1.332"
+    - "https://openai.com/business/customer-stories/clay-plugins-openai"
+    - "https://deepmind.google/blog/finding-faster-quantum-algorithms-with-agents-and-formal-verification"
+sidebar:
+  label: "25 November 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="638109f2f6693787b55af2a8443730ce4d4babc668414fc9f892ffcd0a5e1ec5">By SmartBolig.net Editorial · <time datetime="2026-11-25">25 November 2026</time> · 4 selected sources</p>
+
+<p class="ai-news-lede">Gemini 4 agent teams and Lean formal verification were used to optimize quantum algorithms for fusion, chemistry and enzymes, with an 11.8x cost reduction for fusion and an 8x reduction for molecules. Also in this issue: OpenClaw 2026.11.10-beta.3 makes interrupted updates recoverable, Claude Code v2.1.332 adds skills from MCP servers in beta, and Clay offers plugins for Codex and ChatGPT.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. OpenClaw releases: openclaw 2026.11.10-beta.3
+
+**What changed:** OpenClaw releases published the update on 24 Nov 2026. OpenClaw 2026.11.10-beta.3 makes interrupted package and source updates recoverable, keeps completed subagent answers available across Gateway restarts, reduces memory and main-thread work when compacting or opening large conversation histories, preserves SecretRef-backed credentials when editing settings, avoids downloading Signal view-once attachments, and adds browser sign-in to OpenCode Console and OpenCode Go.
+
+> Short source excerpt: 2026.11.10-beta.3 Highlights Update recovery: Keep interrupted package and source updates recoverable, including updates that cross a schema change or restart…
+
+**Why it matters:** For OpenClaw installations, the notes state that interrupted updates stay recoverable, completed subagent answers remain available across Gateway restarts, and large conversation histories need less memory and main-thread work.
+
+**How to verify it:** Check that the installed OpenClaw version is 2026.11.10-beta.3, then read the release notes for the update recovery and Gateway restart entries.
+
+**Uncertainty:** The provided text is truncated and does not state general availability, region, price, or limits for these changes.
+
+Source: [openclaw 2026.11.10-beta.3](https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.3)
+
+### 2. Claude Code releases: v2.1.332
+
+**What changed:** Claude Code releases published the update on 25 Nov 2026. Claude Code v2.1.332 adds skills from MCP servers in beta, shown as server:skill in the / menu, and a PreSkillShellCommand hook event that can refuse a skill or command's inline shell commands as it loads. It also adds an OpenTelemetry assistant&#95;response event, a warning in VS Code and Desktop's Code tab when part of a session couldn't be saved, and fixes for hangs, freezes and auth login reporting success when a claude.ai login could not be saved.
+
+> Short source excerpt: What's changed Added skills from MCP servers &#40;beta&#41;. They show as server:skill in the / menu; other skills keep their…
+
+**Why it matters:** The release is for Claude Code users on the command line, in VS Code and in Desktop's Code tab. The source states that on 2.1.331 and older, a settings file naming the new PreSkillShellCommand hook opens a dialog at start, and that claude auth login now exits 1 and says what to check, such as a leftover lock file or a full disk.
+
+**How to verify it:** Check the installed version, then open the / menu: skills from MCP servers in beta should show as server:skill, while other skills keep their names. The source also documents that claude auth login exits 1 when a claude.ai login cannot be saved.
+
+**Uncertainty:** The text is truncated, so later fixes and additions are missing. It does not say which plans or regions get the MCP skills beta, when the beta ends, or how the PreSkillShellCommand hook is configured beyond the dialog note.
+
+Source: [v2.1.332](https://github.com/anthropics/claude-code/releases/tag/v2.1.332)
+
+### 3. OpenAI News: Clay helps sales teams win with Codex and ChatGPT
+
+**What changed:** OpenAI News published the update on 24 Nov 2026. Clay offers plugins for Codex and ChatGPT. The Codex integration lets builders create and run go-to-market plays in Codex and gives sales reps data to research an account or deal. The ChatGPT plugin brings Clay customer data into ChatGPT. Clay uses GPT-6 Sol as its primary model, GPT-6 Astra for harder tasks and GPT-6 Luna for cost-sensitive work.
+
+> Short source excerpt: ChatGPT and Codex integrations help Clay’s users research deals and turn data into go-to-market plays, with GPT-6 models handling the…
+
+**Why it matters:** For sales teams using Clay, the integrations let reps research accounts and deals and run go-to-market workflows in Codex and ChatGPT, tools they already use, the source says.
+
+**How to verify it:** Check which GPT-6 model your Clay setup uses: the source names GPT-6 Sol as the primary model, GPT-6 Astra for harder tasks and GPT-6 Luna for cost-sensitive work.
+
+**Uncertainty:** The text does not say when the Codex and ChatGPT integrations are generally available, what they cost, or which regions can use them. It also gives no release date for the inbound sales development features Clay is working on.
+
+Source: [Clay helps sales teams win with Codex and ChatGPT](https://openai.com/business/customer-stories/clay-plugins-openai)
+
+### 4. Google DeepMind Blog: Finding faster quantum algorithms with agents and formal verification
+
+**What changed:** Google DeepMind Blog published the update on 23 Nov 2026. Teams of Gemini 4 agents and Lean formal verification were used to optimize quantum algorithms for fusion, chemistry, and enzymes. Improvements included an 11.8x cost reduction for fusion, an 8x reduction for molecules, and speedups for Grover's algorithm and arcsin.
+
+> Short source excerpt: Using agent teams and formal verification to improve quantum algorithms for fusion and chemistry. November 23, 2026 Science Finding faster…
+
+**Why it matters:** This method compresses work that previously required years of manual design, enabling researchers to focus on selecting problems and interpreting the results.
+
+**How to verify it:** You can access the open-sourced Lean library, problem specifications, and verified solutions on GitHub.
+
+**Uncertainty:** The source does not specify the availability of the agent teams, and running these algorithms still requires more resources than early error-corrected quantum computers will likely provide.
+
+Source: [Finding faster quantum algorithms with agents and formal verification](https://deepmind.google/blog/finding-faster-quantum-algorithms-with-agents-and-formal-verification)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| OpenClaw releases | [openclaw 2026.11.10-beta.3](https://github.com/openclaw/openclaw/releases/tag/v2026.11.10-beta.3) | 24 Nov 2026 |
+| Claude Code releases | [v2.1.332](https://github.com/anthropics/claude-code/releases/tag/v2.1.332) | 25 Nov 2026 |
+| OpenAI News | [Clay helps sales teams win with Codex and ChatGPT](https://openai.com/business/customer-stories/clay-plugins-openai) | 24 Nov 2026 |
+| Google DeepMind Blog | [Finding faster quantum algorithms with agents and formal verification](https://deepmind.google/blog/finding-faster-quantum-algorithms-with-agents-and-formal-verification) | 23 Nov 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.
