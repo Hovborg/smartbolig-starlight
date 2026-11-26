@@ -1,0 +1,113 @@
+---
+title: "AI News, 26 November 2026: openclaw 2026.10.34"
+description: "Today's AI brief leads with openclaw 2026.10.34 and draws on 4 official sources."
+date: 2026-11-26
+lastUpdated: 2026-11-26
+heroImage:
+  src: "/images/ai-news/2026-11-26.jpg"
+  alt: "Editorial illustration about openclaw 2026.10.34"
+  caption: "Editorial illustration about openclaw 2026.10.34"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "openclaw 2026.10.34"
+  storyFingerprint: "4b850b1596fd3232b36713dff7374d489b1e3796e8e4aa453e621abc213da752"
+  issueFingerprint: "669656dd85a8da1c757c2e4934a800cc6ec8cbe8ff19479b0361aefa40bea66e"
+  sourceSetFingerprint: "1a65445f42564eb288c78b821b0120198090ac58a1918c64e9219ca39ee3bf48"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/v2026.10.34"
+    - "https://openai.com/index/gpt-6-models-demonstrate-intrinsic-protein-design-capabilities"
+    - "https://blog.google/products-and-platforms/products/gemini/gemini-golden-state"
+    - "https://deepmind.google/blog/interpreting-mass-spectra-with-google-antigravity"
+sidebar:
+  label: "26 November 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="669656dd85a8da1c757c2e4934a800cc6ec8cbe8ff19479b0361aefa40bea66e">By SmartBolig.net Editorial · <time datetime="2026-11-26">26 November 2026</time> · 4 selected sources</p>
+
+<p class="ai-news-lede">OpenAI says its GPT-6 family can design protein structures and sequences using reasoning and code alone, without specialized biology models, and lab tests with Onava showed GPT-6.2 designs with evidence of binding across five targets. Also in this issue: OpenClaw 2026.10.34, a gateway-only extended-stable release with critical security updates that stops offering retired MiniMax M2 models, Gemini's expanded partnership with Golden State, and Mass Spec Skills for Google Antigravity.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. OpenClaw releases: openclaw 2026.10.34
+
+**What changed:** OpenClaw releases published the update on 26 Nov 2026. OpenClaw 2026.10.34 is a gateway-only extended-stable release, which the source calls its current equivalent to LTS. It updates the Gateway and official npm plugins from 2026.10.33 and includes the core npm package and Gateway Docker images, but no native-app releases. It adds selection of GPT-6.2 Astra and Sol with system-prompt caching, and stops offering retired MiniMax M2 models.
+
+> Short source excerpt: This is a gateway-only extended-stable release, which is our current equivalent to LTS. This release is OpenClaw from the end…
+
+**Why it matters:** The source describes the patch as carrying critical security updates plus reliability and performance fixes. It also states that a configuration which explicitly selects an M2 model must be switched to a supported model.
+
+**How to verify it:** Check whether your configuration explicitly selects an M2 model, and if it does, switch it to a supported model as the release notes instruct. You can also check whether your Gateway and npm plugins run 2026.10.33 before updating.
+
+**Uncertainty:** The provided text is truncated in the channel delivery section, so the full list of fixes there is unknown. It also does not say how widely the release is rolled out or whether availability differs by region.
+
+Source: [openclaw 2026.10.34](https://github.com/openclaw/openclaw/releases/tag/v2026.10.34)
+
+### 2. OpenAI News: GPT-6 models demonstrate intrinsic protein-design capabilities
+
+**What changed:** OpenAI News published the update on 24 Nov 2026. OpenAI says its GPT-6 family can design protein structures and sequences using reasoning and code alone, without calling specialized biology models. An internal research model matched or outperformed specialized models on many protein design tasks. In lab tests with Onava, designs from GPT-6.2 showed evidence of binding across five targets.
+
+> Short source excerpt: GPT-6 models design protein structures and sequences using reasoning and code. Lab tests found evidence of binding across five targets.…
+
+**Why it matters:** For protein researchers, the stated advantage is that one general model can take new instructions and switch tasks by prompt change without retraining, while specialized models require substantial expertise to coordinate.
+
+**How to verify it:** Read the preprint named in the post and check its reported results on the 14 protein tasks, including the stated weakness in predicting a complete protein structure.
+
+**Uncertainty:** The text does not say whether these models are publicly available, what they cost, or when the protein-design capabilities might reach users outside this research.
+
+Source: [GPT-6 models demonstrate intrinsic protein-design capabilities](https://openai.com/index/gpt-6-models-demonstrate-intrinsic-protein-design-capabilities)
+
+### 3. Google AI Blog: How Gemini is changing the game for Golden State's organization and fans.
+
+**What changed:** Google AI Blog published the update on 24 Nov 2026. Google is expanding its partnership with Golden State, making Gemini the Official AI Assistant Partner and Official Generative AI &amp; Enterprise LLM Partner of the Warriors, the 2026 WNBA Champion Valkyries and Chase Center. Gemini is integrated across the franchise ecosystem: interactive videoboard features inside Chase Center and digital channels for fans following from home, plus Gemini for business to build custom AI agents for business and basketball operations.
+
+> Short source excerpt: Google Gemini partners with Golden State to power fan experiences and business operations for the Warriors, Valkyries, and Chase Center.…
+
+**Why it matters:** For fans, the source states the change means a more interactive game-day experience, both inside Chase Center through interactive videoboard features and on digital channels for fans following from home. Behind the scenes, Golden State is deploying Gemini for business to build custom AI agents, helping its teams work smarter across business and basketball operations.
+
+**How to verify it:** The source documents no version or setting to check. Readers can compare the partner titles it gives, Official AI Assistant Partner and Official Generative AI &amp; Enterprise LLM Partner, with how Golden State and Chase Center describe the partnership on their own channels.
+
+**Uncertainty:** The text does not say when the fan features go live, which digital channels are involved, what the custom AI agents do, or whether any of this is available outside Golden State's organization and its fans.
+
+Source: [How Gemini is changing the game for Golden State's organization and fans.](https://blog.google/products-and-platforms/products/gemini/gemini-golden-state)
+
+### 4. Google DeepMind Blog: From spectrum to structure: Identifying molecules with Mass Spec Skills for Google Antigravity
+
+**What changed:** Google DeepMind Blog published the update on 24 Nov 2026. Mass Spec Skills is a suite of domain skills for Google Antigravity that pairs Gemini's chemical reasoning with established mass spectrometry tools and queries to public chemical databases. Antigravity runs the skills, combines their results and lays out the evidence for a chemist to review. From a single prompt it can take an unannotated tandem mass spectrum to a proposed structure and an auditable report; each stage can also run on its own.
+
+> Short source excerpt: Mass Spec Skills empowers scientists using Google Antigravity to interpret tandem mass spectra. November 25, 2026 Science From spectrum to…
+
+**Why it matters:** The source describes it for scientists using Google Antigravity. Researchers can state their task and instrument-specific tolerances in plain language instead of configuring each tool, which the source says lowers the technical barrier for scientists less familiar with computational tools. Identification is much faster for molecules already catalogued in a database.
+
+**How to verify it:** When the agent returns a result, read the auditable report the source describes: it should lay out the evidence, including the molecular formula, the ranked candidate isomers and the fragment peaks mapped to predicted substructures, for a chemist to review.
+
+**Uncertainty:** The text does not say whether Mass Spec Skills is a preview or generally available, in which regions or plans, or at what price. It also does not describe the evaluation setup behind the quoted 90% figure, and the truncated page cuts off at the spectral library step.
+
+Source: [From spectrum to structure: Identifying molecules with Mass Spec Skills for Google Antigravity](https://deepmind.google/blog/interpreting-mass-spectra-with-google-antigravity)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| OpenClaw releases | [openclaw 2026.10.34](https://github.com/openclaw/openclaw/releases/tag/v2026.10.34) | 26 Nov 2026 |
+| OpenAI News | [GPT-6 models demonstrate intrinsic protein-design capabilities](https://openai.com/index/gpt-6-models-demonstrate-intrinsic-protein-design-capabilities) | 24 Nov 2026 |
+| Google AI Blog | [How Gemini is changing the game for Golden State's organization and fans.](https://blog.google/products-and-platforms/products/gemini/gemini-golden-state) | 24 Nov 2026 |
+| Google DeepMind Blog | [From spectrum to structure: Identifying molecules with Mass Spec Skills for Google Antigravity](https://deepmind.google/blog/interpreting-mass-spectra-with-google-antigravity) | 24 Nov 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.
