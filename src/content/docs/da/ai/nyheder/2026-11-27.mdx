@@ -1,0 +1,97 @@
+---
+title: "AI-nyheder, 27. november 2026: OpenClaw: release-publish/14db7f3bf34a-1795601940: improve: name browser and device…"
+description: "Dagens AI-overblik har OpenClaw: release-publish/14db7f3bf34a-1795601940: improve: name browser and device… som hovedhistorie og bygger på 3 officielle kilder."
+date: 2026-11-27
+lastUpdated: 2026-11-27
+heroImage:
+  src: "/images/ai-news/2026-11-27.jpg"
+  alt: "Redaktionel illustration om OpenClaw: release-publish/14db7f3bf34a-1795601940: improve: name browser and device…"
+  caption: "Redaktionel illustration om OpenClaw: release-publish/14db7f3bf34a-1795601940: improve: name browser and device…"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "OpenClaw: release-publish/14db7f3bf34a-1795601940: improve: name browser and device…"
+  storyFingerprint: "922ee0a81f2278e1718219d620784c1553b84584a9c0c27264dc7a18e1d8bc64"
+  issueFingerprint: "911edbb1fafff77e4193149d708ed44bef91b3dc2e801343afc977dbe0a351a4"
+  sourceSetFingerprint: "54e977ad7c2fd67d21d8633ccbd4791099a14a2d8c575db782b2b832273e8a29"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/release-publish%2F14db7f3bf34a-1795601940"
+    - "https://openai.com/index/searching-for-distant-planets-with-astra"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.71.0"
+sidebar:
+  label: "27. november 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="911edbb1fafff77e4193149d708ed44bef91b3dc2e801343afc977dbe0a351a4">Af SmartBolig.net Redaktionen · <time datetime="2026-11-27">27. november 2026</time> · 3 udvalgte kilder</p>
+
+<p class="ai-news-lede">Dagens udgave handler om to amatørastronomer, der brugte Codex og Astra til at gennemsøge offentlige teleskopdata fra NASAs Kepler- og TESS-missioner for tegn på planeter, hvor begge søgninger fandt mulige exoplaneter, som de har sendt videre til professionelle astronomer. Den handler også om læsbare labels for chatværktøjsaktivitet i en udgivelse og om Gemini CLI v0.71.0, hvis noter indeholder en rettelse, der parser PowerShell-kommandoer asynkront for at forhindre, at UI-spinneren fryser.</p>
+
+<Aside type="note" title="Redaktionel metode">
+Kandidater er kontrolleret for nylige URL-, emne- og kildesætdubletter. Originalkilderne er stadig den autoritative reference.
+</Aside>
+
+## Dagens historier
+
+### 1. OpenClaw releases: release-publish/14db7f3bf34a-1795601940: improve: name browser and device actions in chat &#40; 204404&#41;
+
+**Hvad ændrede sig:** OpenClaw releases offentliggjorde opdateringen 25. nov. 2026. Udgivelsesnotatet oplister ændringer i chatværktøjsaktivitet: læsbare labels for agent- og chatværktøjsaktivitet, handlingslabels der indlæses med udvidede chatværktøjsrækker, og labels der viser, hvad fil- og shellværktøjer gjorde. Browser- og enhedshandlinger navngives. Rettelser opløser chatværktøjslabels uden en type-assertion, opløser browserhandlinger mod de valgte værktøjslabels, beholder søgeforespørgslen i chataktivitetslabels og lokaliserer websøgningsforespørgsler. Rettelser holder ufuldstændige værktøjsresultater synlige uden for den ellipsizede værktøjstitel og holder afbrydelse af kørslen synlig i åbne værktøjsrækker.
+
+> Kort kildeuddrag: improve: show readable agent and chat tool activity perf: load operation labels with expanded chat tool rows improve: show what…
+
+**Hvorfor det er relevant:** Ændringerne er for personer, der læser chatværktøjsaktivitet i control-ui'et: notatet siger, at labels skal være læsbare og vise, hvad fil-, shell-, browser- og enhedshandlinger gjorde, og at ufuldstændige værktøjsresultater og afbrydelser af kørslen forbliver synlige i åbne værktøjsrækker.
+
+**Sådan verificerer du det:** Åbn en udvidet chatværktøjsrække, og kontrollér, at resultatet står uden for den ellipsizede værktøjstitel og vises én gang i hver rækkemodus; notatet siger også, at browsertab-referencer bliver i det udvidede input.
+
+**Usikkerhed:** Teksten angiver intet versionsnummer og siger ikke, hvornår ændringerne når brugerne, eller hvilke planer eller regioner de dækker. Den beskriver heller ikke, hvad labels viste før.
+
+Kilde: [release-publish/14db7f3bf34a-1795601940: improve: name browser and device actions in chat &#40; 204404&#41;](https://github.com/openclaw/openclaw/releases/tag/release-publish%2F14db7f3bf34a-1795601940)
+
+### 2. OpenAI News: Searching for distant planets with Astra
+
+**Hvad ændrede sig:** OpenAI News offentliggjorde opdateringen 24. nov. 2026. To amatørastronomer brugte Codex og Astra til at gennemsøge offentlige teleskopdata fra NASAs Kepler- og TESS-missioner for tegn på planeter. Kevin Bond brugte Codex på observationer af omkring 100.000 Kepler-stjerner; Ethan Byrd brugte Astra på data fra omkring 19 millioner stjerner. Begge søgninger fandt mulige exoplaneter, som de har sendt videre til professionelle astronomer.
+
+> Kort kildeuddrag: See how two amateur astronomers used Codex and Astra to find potential exoplanets in public data from NASA’s Kepler and…
+
+**Hvorfor det er relevant:** Kilden beskriver det som amatørastronomer, der selv designer og kører søgninger, ofte på data, der allerede har givet de mere tydelige exoplanetsignaler. Bonds søgning fandt mere end 200 signaler, herunder 10 fra tidligere bekræftede planeter.
+
+**Sådan verificerer du det:** Kilden navngiver de to stjerner, Bonds søgning fremhævede, KIC 5689121 og KIC 6691030, med dyk hver 13,8 dag og hver 4,8 dag. Læseren kan slå de id'er op i de offentlige Kepler-data, som kilden beskriver.
+
+**Usikkerhed:** Kilden siger ikke, om kandidaterne er bekræftede planeter. Den siger heller ikke, hvornår TESS-kandidaten bliver analyseret, og den medfølgende tekst er afskåret før slutningen.
+
+Kilde: [Searching for distant planets with Astra](https://openai.com/index/searching-for-distant-planets-with-astra)
+
+### 3. Gemini CLI releases: Release v0.71.0
+
+**Hvad ændrede sig:** Gemini CLI releases offentliggjorde opdateringen 24. nov. 2026. Gemini CLI v0.71.0 er udgivet. Noterne nævner en rettelse i core og cli, der parser PowerShell-kommandoer asynkront for at forhindre, at UI-spinneren fryser, samt en ændring, der skubber development-workeren til et privat artifact registry. De indeholder også changelog-poster for v0.70.0-preview.0 og v0.69.0 og en versionbump til 0.71.0-nightly.20261118.g615d6bc8c.
+
+> Kort kildeuddrag: What's Changed Changelog for v0.70.0-preview.0 by @<wbr/>gemini-cli-robot in #30361 chore&#40;release&#41;: bump version to 0.71.0-nightly.20261118.g615d6bc8c by @<wbr/>gemini-cli-robot in #30366 Changelog for…
+
+**Hvorfor det er relevant:** Kilden angiver én praktisk effekt: at parse PowerShell-kommandoer asynkront skal forhindre, at UI-spinneren fryser, hvilket angår brugere, der kører PowerShell-kommandoer via CLI'en.
+
+**Sådan verificerer du det:** Tjek, hvilken version af Gemini CLI du har installeret, og sammenlign den med v0.71.0, og læs derefter udgivelsesnoternes post for pull request #30334, som kilden nævner for PowerShell-rettelsen.
+
+**Usikkerhed:** Teksten siger ikke, hvilke platforme eller shells PowerShell-rettelsen dækker, om den når alle installationskanaler, eller hvad ændringen med det private artifact registry betyder for almindelige brugere.
+
+Kilde: [Release v0.71.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.71.0)
+
+## Hvorfor det betyder noget
+
+- Fokus er ændringer, der kan påvirke AI-produkter, modeller, browseroplevelser, agents, API-brug, privacy, priser eller sikkerhed.
+- En ny funktion er først nyttig i hjemmet, når adgang, logning og rollback er afprøvet.
+- Artiklen adskiller dokumenterede oplysninger fra redaktionel vurdering og åbne spørgsmål.
+
+## Kilder og videre læsning
+
+| Udgiver | Kilde | Dato |
+| --- | --- | --- |
+| OpenClaw releases | [release-publish/14db7f3bf34a-1795601940: improve: name browser and device actions in chat &#40; 204404&#41;](https://github.com/openclaw/openclaw/releases/tag/release-publish%2F14db7f3bf34a-1795601940) | 25. nov. 2026 |
+| OpenAI News | [Searching for distant planets with Astra](https://openai.com/index/searching-for-distant-planets-with-astra) | 24. nov. 2026 |
+| Gemini CLI releases | [Release v0.71.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.71.0) | 24. nov. 2026 |
+
+## Redaktionsnote
+
+SmartBolig.net brugte automatiseret research, deduplikering og udkast til denne udgave. Redaktionelle regler kræver primær kilde, verificerbare links og tydelige usikkerheder.

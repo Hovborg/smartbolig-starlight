@@ -1,0 +1,97 @@
+---
+title: "AI News, 27 November 2026: OpenClaw: release-publish/14db7f3bf34a-1795601940: improve: name browser and device…"
+description: "Today's AI brief leads with OpenClaw: release-publish/14db7f3bf34a-1795601940: improve: name browser and device… and draws on 3 official sources."
+date: 2026-11-27
+lastUpdated: 2026-11-27
+heroImage:
+  src: "/images/ai-news/2026-11-27.jpg"
+  alt: "Editorial illustration about OpenClaw: release-publish/14db7f3bf34a-1795601940: improve: name browser and device…"
+  caption: "Editorial illustration about OpenClaw: release-publish/14db7f3bf34a-1795601940: improve: name browser and device…"
+news:
+  editorialVersion: 3
+  copySource: llm
+  imageHeadline: "OpenClaw: release-publish/14db7f3bf34a-1795601940: improve: name browser and device…"
+  storyFingerprint: "922ee0a81f2278e1718219d620784c1553b84584a9c0c27264dc7a18e1d8bc64"
+  issueFingerprint: "911edbb1fafff77e4193149d708ed44bef91b3dc2e801343afc977dbe0a351a4"
+  sourceSetFingerprint: "54e977ad7c2fd67d21d8633ccbd4791099a14a2d8c575db782b2b832273e8a29"
+  signal: high
+  semanticReview: passed
+  sources:
+    - "https://github.com/openclaw/openclaw/releases/tag/release-publish%2F14db7f3bf34a-1795601940"
+    - "https://openai.com/index/searching-for-distant-planets-with-astra"
+    - "https://github.com/google-gemini/gemini-cli/releases/tag/v0.71.0"
+sidebar:
+  label: "27 November 2026"
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+<p class="ai-news-byline" data-issue-fingerprint="911edbb1fafff77e4193149d708ed44bef91b3dc2e801343afc977dbe0a351a4">By SmartBolig.net Editorial · <time datetime="2026-11-27">27 November 2026</time> · 3 selected sources</p>
+
+<p class="ai-news-lede">Today's issue covers two amateur astronomers who used Codex and Astra to search public telescope data from NASA's Kepler and TESS missions for signs of planets, with both searches identifying potential exoplanets that they passed to professional astronomers. It also covers readable labels for chat tool activity in a release and Gemini CLI v0.71.0, whose notes include a fix that parses PowerShell commands asynchronously to prevent the UI spinner from freezing.</p>
+
+<Aside type="note" title="Editorial method">
+Candidates are checked against recent URL, topic, and source-set duplicates. The original sources remain authoritative.
+</Aside>
+
+## Today's Stories
+
+### 1. OpenClaw releases: release-publish/14db7f3bf34a-1795601940: improve: name browser and device actions in chat &#40; 204404&#41;
+
+**What changed:** OpenClaw releases published the update on 25 Nov 2026. The release lists changes to chat tool activity: readable labels for agent and chat tool activity, operation labels loaded with expanded chat tool rows, and labels showing what file and shell tools did. Browser and device actions are named. Fixes resolve chat tool labels without a type assertion, resolve browser actions against selected tool labels, keep the search query in chat activity labels and localize web search queries. Fixes keep incomplete tool outcomes visible outside the ellipsized tool title and keep run interruption visible in open tool rows.
+
+> Short source excerpt: improve: show readable agent and chat tool activity perf: load operation labels with expanded chat tool rows improve: show what…
+
+**Why it matters:** The changes are for people reading chat tool activity in the control UI: the note says labels should be readable and show what file, shell, browser and device actions did, and that incomplete tool outcomes and run interruptions stay visible in open tool rows.
+
+**How to verify it:** Open an expanded chat tool row and check that the outcome sits outside the ellipsized tool title and appears once in each row mode; the note also says browser tab references stay in the expanded input.
+
+**Uncertainty:** The text gives no version number and does not say when the changes reach users or which plans or regions they cover. It also does not describe what the labels showed before.
+
+Source: [release-publish/14db7f3bf34a-1795601940: improve: name browser and device actions in chat &#40; 204404&#41;](https://github.com/openclaw/openclaw/releases/tag/release-publish%2F14db7f3bf34a-1795601940)
+
+### 2. OpenAI News: Searching for distant planets with Astra
+
+**What changed:** OpenAI News published the update on 24 Nov 2026. Two amateur astronomers used Codex and Astra to search public telescope data from NASA's Kepler and TESS missions for signs of planets. Kevin Bond used Codex on observations of about 100,000 Kepler stars; Ethan Byrd used Astra on data from about 19 million stars. Both searches identified potential exoplanets, which they have passed to professional astronomers.
+
+> Short source excerpt: See how two amateur astronomers used Codex and Astra to find potential exoplanets in public data from NASA’s Kepler and…
+
+**Why it matters:** The source describes this as amateur astronomers designing and running searches of their own, often on data that has already yielded the more obvious exoplanet signals. Bond's search flagged more than 200 signals, including 10 from previously confirmed planets.
+
+**How to verify it:** The source names the two stars Bond's search singled out, KIC 5689121 and KIC 6691030, with dips every 13.8 days and every 4.8 days. A reader can look up those identifiers in the public Kepler data the source describes.
+
+**Uncertainty:** The source does not say whether the candidates are confirmed planets. It also does not say when the TESS candidate will be analysed, and the provided text is truncated before the end.
+
+Source: [Searching for distant planets with Astra](https://openai.com/index/searching-for-distant-planets-with-astra)
+
+### 3. Gemini CLI releases: Release v0.71.0
+
+**What changed:** Gemini CLI releases published the update on 24 Nov 2026. Gemini CLI v0.71.0 is released. The notes list a fix in core and cli that parses PowerShell commands asynchronously to prevent the UI spinner from freezing, and a change that pushes the development worker to a private artifact registry. They also include changelog entries for v0.70.0-preview.0 and v0.69.0 and a bump to 0.71.0-nightly.20261118.g615d6bc8c.
+
+> Short source excerpt: What's Changed Changelog for v0.70.0-preview.0 by @<wbr/>gemini-cli-robot in #30361 chore&#40;release&#41;: bump version to 0.71.0-nightly.20261118.g615d6bc8c by @<wbr/>gemini-cli-robot in #30366 Changelog for…
+
+**Why it matters:** The source states one practical effect: parsing PowerShell commands asynchronously is meant to prevent the UI spinner from freezing, which concerns people who run PowerShell commands through the CLI.
+
+**How to verify it:** Check which Gemini CLI version you have installed and compare it with v0.71.0, then read the release notes entry for pull request #30334, which the source names for the PowerShell fix.
+
+**Uncertainty:** The text does not say which platforms or shells the PowerShell fix covers, whether it reaches every install channel, or what the private artifact registry change means for ordinary users.
+
+Source: [Release v0.71.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.71.0)
+
+## Why It Matters
+
+- The focus is changes that can affect AI products, models, browser experiences, agents, API usage, privacy, pricing, or security.
+- A new feature is useful in the home only after access, logging, and rollback have been tested.
+- The article separates documented information from editorial judgment and open questions.
+
+## Sources and Further Reading
+
+| Publisher | Source | Date |
+| --- | --- | --- |
+| OpenClaw releases | [release-publish/14db7f3bf34a-1795601940: improve: name browser and device actions in chat &#40; 204404&#41;](https://github.com/openclaw/openclaw/releases/tag/release-publish%2F14db7f3bf34a-1795601940) | 25 Nov 2026 |
+| OpenAI News | [Searching for distant planets with Astra](https://openai.com/index/searching-for-distant-planets-with-astra) | 24 Nov 2026 |
+| Gemini CLI releases | [Release v0.71.0](https://github.com/google-gemini/gemini-cli/releases/tag/v0.71.0) | 24 Nov 2026 |
+
+## Editorial Note
+
+SmartBolig.net used automated research, deduplication, and drafting for this issue. Editorial rules require a primary source, verifiable links, and explicit uncertainty.
